@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">SimpleWeather</string>
+    <string name="search">Search</string>
+    <string name="search_hint">Enter Location...</string>
+    <string name="api_label">Weather API</string>
+    <string name="key_hint">API Key</string>
+
+    <string name="api_wu">Weather Underground</string>
+    <string name="api_yahoo">Yahoo Weather</string>
+    <string name="title_activity_weather_now">WeatherNow</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+</resources>

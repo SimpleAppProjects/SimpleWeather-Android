@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="api_entries">
+        <item>@string/api_wu</item>
+        <item>@string/api_yahoo</item>
+    </string-array>
+</resources>
