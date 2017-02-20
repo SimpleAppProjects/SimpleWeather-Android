@@ -1,21 +1,21 @@
 package com.thewizrd.simpleweather.utils;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.lang.reflect.Field;
-
-/**
- * Created by bryan on 2/10/2017.
- */
+import java.io.File;
+import java.io.IOException;
 
 public class JSONParser {
-    public static Object deserializer(String response, Object obj) {
-        Gson gson = new Gson();
-        Object object = gson.fromJson(response, obj.getClass());
+    public static Object deserializer(String response, Class<?> obj) {
+        Gson gson = new GsonBuilder().setDateFormat("EEE, dd MMM yyyy HH:mm:ss Z").create();
+        Object object = gson.fromJson(response, obj);
 
         return object;
+    }
+
+    public static void serializer(Object object, File file) throws IOException {
+        Gson gson = new GsonBuilder().setDateFormat("EEE, dd MMM yyyy HH:mm:ss Z").create();
+        FileUtils.writeToFile(gson.toJson(object), file);
     }
 }

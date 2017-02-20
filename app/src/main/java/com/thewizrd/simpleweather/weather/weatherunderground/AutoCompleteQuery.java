@@ -7,27 +7,14 @@ import com.thewizrd.simpleweather.weather.weatherunderground.data.AC_Location;
 import com.thewizrd.simpleweather.weather.weatherunderground.data.AC_RESULT;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
-
-/**
- * Created by bryan on 2/9/2017.
- */
 
 public class AutoCompleteQuery extends AsyncTask<String, Void, List<AC_Location>>
 {
@@ -67,7 +54,7 @@ public class AutoCompleteQuery extends AsyncTask<String, Void, List<AC_Location>
             e.printStackTrace();
         } finally {
             if (locationResults == null)
-                locationResults = new ArrayList<AC_Location>();
+                locationResults = new ArrayList<>();
         }
 
         return locationResults;
@@ -75,6 +62,7 @@ public class AutoCompleteQuery extends AsyncTask<String, Void, List<AC_Location>
 
     private ArrayList<AC_Location> parseLocations(String json)
     {
+        int maxResults = 10;
         ArrayList<AC_Location> results = new ArrayList<>();
 
         try {
@@ -84,18 +72,22 @@ public class AutoCompleteQuery extends AsyncTask<String, Void, List<AC_Location>
             for (int i = 0; i < resultsArray.length(); i++)
             {
                 JSONObject result = resultsArray.getJSONObject(i);
-                AC_RESULT ac_result = (AC_RESULT) JSONParser.deserializer(result.toString(), new AC_RESULT());
+                AC_RESULT ac_result = (AC_RESULT) JSONParser.deserializer(result.toString(), AC_RESULT.class);
 
                 if (!ac_result.type.equals("city"))
                     continue;
 
                 AC_Location location = new AC_Location(ac_result);
                 results.add(location);
+
+                // Limit amount of results
+                maxResults--;
+                if (maxResults <= 0)
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return results;
     }
 }

@@ -3,13 +3,9 @@ package com.thewizrd.simpleweather.weather.weatherunderground.data;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-/**
- * Created by bryan on 2/9/2017.
- */
-
 public class Weather {
     public Location location;
-    public SimpleDateFormat update_time;
+    public java.util.Date update_time;
     public Current_Observation condition;
     public Simpleforecast forecast;
     public Sun_Phase sun_phase;
@@ -18,9 +14,8 @@ public class Weather {
         condition = root.current_observation;
         forecast = root.forecast.simpleforecast;
         sun_phase = root.sun_phase;
-        update_time = new SimpleDateFormat();
         try {
-            update_time.parse(root.current_observation.local_time_rfc822);
+            update_time = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z").parse(root.current_observation.local_time_rfc822);
         } catch (ParseException e) {
             e.printStackTrace();
         }

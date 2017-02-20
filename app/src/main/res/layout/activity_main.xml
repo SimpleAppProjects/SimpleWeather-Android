@@ -10,19 +10,4 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.thewizrd.simpleweather.MainActivity"
     android:background="@color/colorPrimary">
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/ic_logo"
-        android:id="@+id/main_logo"
-        android:layout_alignParentStart="false"
-        android:layout_alignParentEnd="false"
-        android:layout_above="@+id/linearLayout"
-        android:contentDescription="App Logo"
-        android:layout_centerInParent="false"
-        android:layout_centerVertical="false"
-        android:layout_centerHorizontal="false"
-        android:padding="100dp" />
-
 </RelativeLayout>

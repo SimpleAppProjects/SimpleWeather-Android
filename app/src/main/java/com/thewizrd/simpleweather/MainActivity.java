@@ -1,12 +1,10 @@
 package com.thewizrd.simpleweather;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 import com.thewizrd.simpleweather.utils.Settings;
-
-import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,11 +17,15 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = null;
         try {
             if (Settings.isWeatherLoaded()) {
+                java.util.List<String> locations = Settings.getLocations_WU();
+                String local = locations.get(0);
+
                 intent = new Intent(this, WeatherNow.class);
+                intent.putExtra("query", local);
             } else {
                 intent = new Intent(this, Setup.class);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (intent == null) {

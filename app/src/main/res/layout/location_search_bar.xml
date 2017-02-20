@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/searchview_height_region_search"
+    android:id="@+id/search_view_container"
+    android:orientation="horizontal"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:elevation="@dimen/appbar_elevation"
+    android:clickable="true">
+
+    <LinearLayout
+        android:id="@+id/search_box_collapsed"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/search_magnifying_glass"
+            android:layout_height="36dp"
+            android:layout_width="36dp"
+            android:padding="2dp"
+            android:scaleType="center"
+            android:src="@drawable/ic_search_black_24dp"
+            android:importantForAccessibility="no"
+            android:tint="@android:color/darker_gray" />
+
+        <TextView
+            android:id="@+id/search_box_start_search"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginLeft="22dp"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif"
+            android:textColorHint="@android:color/darker_gray"
+            android:gravity="center_vertical"
+            android:hint="@string/location_search_hint" />
+    </LinearLayout>
+</android.support.v7.widget.CardView>

@@ -15,4 +15,12 @@
     <dimen name="nav_header_vertical_spacing">16dp</dimen>
     <dimen name="nav_header_height">160dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+
+    <!-- Material dimens -->
+    <dimen name="list_text_size">16sp</dimen>
+    <dimen name="list_secondary_text_size">14sp</dimen>
+    <dimen name="list_tile_height">72dp</dimen>
+    <dimen name="list_vertical_padding">16dp</dimen>
+    <dimen name="list_horizontal_padding">20dp</dimen>
+    <dimen name="appbar_elevation">4dp</dimen>
 </resources>

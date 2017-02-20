@@ -12,6 +12,21 @@
         <item name="android:windowBackground">@drawable/ic_splash_screen</item>
     </style>
 
+    <style name="SetupTheme" parent="Theme.AppCompat.Light">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorPrimary</item>
+
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowActionBarOverlay">false</item>
+    </style>
+
+    <style name="WeatherDetails" parent="@android:style/TextAppearance.Material.Small.Inverse">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
