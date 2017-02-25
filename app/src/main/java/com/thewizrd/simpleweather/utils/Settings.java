@@ -12,18 +12,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by bryan on 2/8/2017.
- */
-
 public class Settings
 {
-    private static boolean weather_loaded = false;
-    private static String api;
-    private static String api_key;
-
-    private static String Farenheit = "F";
-    private static String Celsius = "C";
+    public final static String Farenheit = "F";
+    public final static String Celsius = "C";
 
     // Shared Settings
     private static SharedPreferences preferences = App.getPreferences();
@@ -34,26 +26,16 @@ public class Settings
     private static File locationsFile = null;
 
     public static String getTempUnit() {
-        if (!preferences.contains("Unit"))
+        if (!preferences.contains("key_usecelsius"))
         {
             return Farenheit;
         }
-        else if (preferences.getString("Units", Farenheit).equals(Celsius))
+        else if (preferences.getBoolean("key_usecelsius", false))
         {
             return Celsius;
         }
 
         return Farenheit;
-    }
-
-    public static void setTempUnit(String unit)
-    {
-        if (unit.equals(Celsius))
-            editor.putString("Unit", Celsius);
-        else
-            editor.putString("Unit", Farenheit);
-
-        editor.commit();
     }
 
     public static boolean isWeatherLoaded() {
@@ -77,10 +59,7 @@ public class Settings
 
         if (!preferences.contains("weatherLoaded"))
             return false;
-        else if (preferences.getBoolean("weatherLoaded", false))
-            return true;
-        else
-            return false;
+        else return preferences.getBoolean("weatherLoaded", false);
     }
 
     public static void setWeatherLoaded(boolean isLoaded)

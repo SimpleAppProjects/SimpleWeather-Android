@@ -1,7 +1,8 @@
 package com.thewizrd.simpleweather.weather.weatherunderground;
 
 import android.content.Context;
-import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.thewizrd.simpleweather.utils.FileUtils;
 import com.thewizrd.simpleweather.utils.JSONParser;
@@ -19,13 +20,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-public class WeatherDataLoader extends AsyncTask<Boolean, Void, Weather> {
+public class WeatherDataLoader {
 
     OnWeatherLoadedListener mCallBack;
     //OnWeatherErrorListener mErrorBack;
 
     public interface OnWeatherLoadedListener {
-        public void onWeatherLoaded(Weather weather);
+        void onWeatherLoaded(Weather weather);
     }
 
     /*
@@ -34,20 +35,6 @@ public class WeatherDataLoader extends AsyncTask<Boolean, Void, Weather> {
     }
     */
 
-    protected Weather doInBackground(Boolean... forceRefresh) {
-        try {
-            loadWeatherData(forceRefresh[0]);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return weather;
-    }
-
-    protected void onPostExecute(Weather weather) {
-        mCallBack.onWeatherLoaded(weather);
-    }
-
     private String location_query = null;
     private Weather weather = null;
     private int locationIdx = 0;
@@ -55,13 +42,13 @@ public class WeatherDataLoader extends AsyncTask<Boolean, Void, Weather> {
     private File weatherFile = null;
     private Context mContext;
 
-    public WeatherDataLoader(Context context, String query, int idx) {
+    public WeatherDataLoader(Context context, OnWeatherLoadedListener listener, String query, int idx) {
         location_query = query;
         locationIdx = idx;
 
         mContext = context;
         filesDir = mContext.getFilesDir();
-        mCallBack = (OnWeatherLoadedListener) mContext;
+        mCallBack = listener;
         /*
         mErrorBack = (OnWeatherErrorListener) mContext;
         */
@@ -116,7 +103,7 @@ public class WeatherDataLoader extends AsyncTask<Boolean, Void, Weather> {
         return weather;
     }
 
-    public void loadWeatherData(boolean forceRefresh) throws IOException {
+    public void loadWeatherData(final boolean forceRefresh) throws IOException {
         if (weatherFile == null) {
             weatherFile = new File(filesDir, "weather" + locationIdx + ".json");
 
@@ -124,14 +111,31 @@ public class WeatherDataLoader extends AsyncTask<Boolean, Void, Weather> {
                 throw new IOException("Unable to create locations file");
         }
 
-        if (forceRefresh) {
-            getWeatherData();
-        }
-        else
-            loadWeatherData();
+        new Thread() {
+            @Override
+            public void run() {
+                if (forceRefresh) {
+                    getWeatherData();
+                }
+                else {
+                    try {
+                        loadWeatherData();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCallBack.onWeatherLoaded(weather);
+                    }
+                });
+            }
+        }.start();
     }
 
-    public void loadWeatherData() throws IOException {
+    private void loadWeatherData() throws IOException {
         if (weatherFile == null) {
             weatherFile = new File(filesDir, "weather" + locationIdx + ".json");
 
@@ -160,10 +164,8 @@ public class WeatherDataLoader extends AsyncTask<Boolean, Void, Weather> {
                 e.printStackTrace();
             }
 
-            if (weather == null)
-                return false;
+            return weather != null;
 
-            return true;
         }
         else
             return loadSavedWeatherData(file);
@@ -193,10 +195,7 @@ public class WeatherDataLoader extends AsyncTask<Boolean, Void, Weather> {
         long minSpan = inMins.convert(span, TimeUnit.MILLISECONDS);
 
         // Check file age
-        if (minSpan < ttl)
-            return true;
-        else
-            return false;
+        return minSpan < ttl;
     }
 
     private void saveWeatherData() throws IOException {

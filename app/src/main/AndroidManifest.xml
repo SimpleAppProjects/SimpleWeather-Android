@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Launcher">
         <activity
-            android:name=".MainActivity"
+            android:name=".LaunchActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,14 +23,23 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Setup"
-            android:windowSoftInputMode="stateHidden|adjustPan"
+            android:name=".SetupActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/SetupTheme"/>
+            android:theme="@style/SetupTheme"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
         <activity
-            android:name=".WeatherNow"
+            android:name=".MainActivity"
             android:label="@string/title_activity_weather_now"
             android:theme="@style/AppTheme" />
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/SettingsTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.thewizrd.simpleweather.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

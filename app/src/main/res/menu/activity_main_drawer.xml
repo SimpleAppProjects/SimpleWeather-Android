@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_weathernow"
+            android:icon="@drawable/ic_weather_icon"
+            android:title="@string/label_nav_weathernow" />
+        <item
+            android:id="@+id/nav_locations"
+            android:icon="@drawable/ic_list_icon"
+            android:title="@string/label_nav_locations" />
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_settings_black_24dp"
+            android:title="@string/action_settings" />
+    </group>
+
+</menu>

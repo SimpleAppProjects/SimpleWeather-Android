@@ -1,18 +1,15 @@
 package com.thewizrd.simpleweather;
 
-import android.content.Intent;
-import android.os.AsyncTask;
+import android.content.Context;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -21,16 +18,21 @@ import android.widget.Toast;
 import com.thewizrd.simpleweather.utils.Settings;
 import com.thewizrd.simpleweather.utils.WeatherUtils;
 import com.thewizrd.simpleweather.weather.weatherunderground.WeatherDataLoader;
+import com.thewizrd.simpleweather.weather.weatherunderground.WeatherDataLoader.OnWeatherLoadedListener;
 import com.thewizrd.simpleweather.weather.weatherunderground.data.Weather;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-public class WeatherNow extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, WeatherDataLoader.OnWeatherLoadedListener {
+public class WeatherNowFragment extends Fragment {
+    private static final String ARG_QUERY = "query";
+    private static final String ARG_INDEX = "index";
 
+    private String mQuery;
+    private int mIndex;
+
+    private Context context;
     private WeatherDataLoader wLoader = null;
 
     // Views
@@ -57,101 +59,96 @@ public class WeatherNow extends AppCompatActivity
 
     private final String farenheit = App.getAppContext().getString(R.string.wi_fahrenheit);
     private final String celsius = App.getAppContext().getString(R.string.wi_celsius);
-    private String query;
-    private int index;
 
-    public void onWeatherLoaded(Weather weather) {
-        if (weather != null) {
-            updateView(weather);
+    private OnWeatherLoadedListener onWeatherLoadedListener = new OnWeatherLoadedListener() {
+        @Override
+        public void onWeatherLoaded(Weather weather) {
+            if (weather != null) {
+                updateView(weather);
+            }
+            else
+                Toast.makeText(context, "Can't get weather", Toast.LENGTH_LONG).show();
+
+            contentView.setVisibility(View.VISIBLE);
         }
-        else
-            Toast.makeText(getApplicationContext(), "Can't get weather", Toast.LENGTH_LONG).show();
+    };
 
-        findViewById(R.id.mainLayout).setVisibility(View.VISIBLE);
+    public WeatherNowFragment() {
+        // Required empty public constructor
+    }
+
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param query Weather query.
+     * @param index Location index.
+     * @return A new instance of fragment WeatherNowFragment.
+     */
+    public static WeatherNowFragment newInstance(String query, int index) {
+        WeatherNowFragment fragment = new WeatherNowFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_QUERY, query);
+        args.putInt(ARG_INDEX, index);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_weather_now);
+        if (getArguments() != null) {
+            mQuery = getArguments().getString(ARG_QUERY);
+            mIndex = getArguments().getInt(ARG_INDEX);
+        }
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        context = getActivity().getApplicationContext();
+    }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_weather_now, container, false);
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        // Setup ActionBar
+        setHasOptionsMenu(true);
 
-        // Setup views
-        contentView = (ScrollView) findViewById(R.id.content_weather_now);
+        contentView = (ScrollView) view.findViewById(R.id.fragment_weather_now);
         // Condition
-        locationName = (TextView) findViewById(R.id.label_location_name);
-        updateTime = (TextView) findViewById(R.id.label_updatetime);
-        weatherIcon = (WeatherIcon) findViewById(R.id.weather_icon);
-        weatherCondition = (TextView) findViewById(R.id.weather_condition);
-        weatherTemp = (WeatherIcon) findViewById(R.id.weather_temp);
-        humidity = (TextView) findViewById(R.id.humidity);
-        pressureState = (WeatherIcon) findViewById(R.id.pressure_state);
-        pressure = (TextView) findViewById(R.id.pressure);
-        pressureUnit = (TextView) findViewById(R.id.pressure_unit);
-        visiblity = (TextView) findViewById(R.id.visibility_val);
-        visiblityUnit = (TextView) findViewById(R.id.visibility_unit);
-        feelslike = (TextView) findViewById(R.id.feelslike);
-        windDirection = (WeatherIcon) findViewById(R.id.wind_direction);
-        windSpeed = (TextView) findViewById(R.id.wind_speed);
-        windUnit = (TextView) findViewById(R.id.wind_unit);
-        sunrise = (TextView) findViewById(R.id.sunrise_time);
-        sunset = (TextView) findViewById(R.id.sunset_time);
+        locationName = (TextView) view.findViewById(R.id.label_location_name);
+        updateTime = (TextView) view.findViewById(R.id.label_updatetime);
+        weatherIcon = (WeatherIcon) view.findViewById(R.id.weather_icon);
+        weatherCondition = (TextView) view.findViewById(R.id.weather_condition);
+        weatherTemp = (WeatherIcon) view.findViewById(R.id.weather_temp);
+        humidity = (TextView) view.findViewById(R.id.humidity);
+        pressureState = (WeatherIcon) view.findViewById(R.id.pressure_state);
+        pressure = (TextView) view.findViewById(R.id.pressure);
+        pressureUnit = (TextView) view.findViewById(R.id.pressure_unit);
+        visiblity = (TextView) view.findViewById(R.id.visibility_val);
+        visiblityUnit = (TextView) view.findViewById(R.id.visibility_unit);
+        feelslike = (TextView) view.findViewById(R.id.feelslike);
+        windDirection = (WeatherIcon) view.findViewById(R.id.wind_direction);
+        windSpeed = (TextView) view.findViewById(R.id.wind_speed);
+        windUnit = (TextView) view.findViewById(R.id.wind_unit);
+        sunrise = (TextView) view.findViewById(R.id.sunrise_time);
+        sunset = (TextView) view.findViewById(R.id.sunset_time);
 
-        Restore();
-    }
+        view.post(new Runnable() {
+            @Override
+            public void run() {
+                Restore();
+            }
+        });
 
-    private void Restore() {
-        // Hide view until weather is loaded
-        findViewById(R.id.mainLayout).setVisibility(View.INVISIBLE);
-
-        Intent intent = getIntent();
-        String query = intent.getStringExtra("query");
-        if (TextUtils.isEmpty(query)) {
-            query = Settings.getLocations_WU().get(0);
-        }
-
-        this.query = query;
-        this.index = intent.getIntExtra("index", 0);
-
-        wLoader = new WeatherDataLoader(this, this.query, this.index);
-
-        RefreshWeather(false);
-    }
-
-    private void RefreshWeather(boolean forceRefresh) {
-        if (!wLoader.getStatus().equals(AsyncTask.Status.PENDING)) {
-            wLoader = new WeatherDataLoader(this, query, index);
-        }
-
-        wLoader.execute(forceRefresh);
+        return view;
     }
 
     @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.weather_now, menu);
-        return true;
+        menu.clear();
+        inflater.inflate(R.menu.weather_now, menu);
     }
 
     @Override
@@ -162,9 +159,7 @@ public class WeatherNow extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        } else if (id == R.id.action_refresh) {
+        if (id == R.id.action_refresh) {
             RefreshWeather(true);
             return true;
         }
@@ -172,36 +167,46 @@ public class WeatherNow extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
+    public void onResume() {
+        super.onResume();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        // Update view on resume
+        // ex. If temperature unit changed
+        if (wLoader != null) {
+            if (wLoader.getWeather() != null) {
+                updateView(wLoader.getWeather());
+            }
+        }
+    }
 
-        } else if (id == R.id.nav_slideshow) {
+    private void Restore() {
+        // Hide view until weather is loaded
+        contentView.setVisibility(View.INVISIBLE);
 
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        if (TextUtils.isEmpty(mQuery)) {
+            mIndex = 0;
+            mQuery = Settings.getLocations_WU().get(mIndex);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
+        wLoader = new WeatherDataLoader(context, onWeatherLoadedListener, mQuery, mIndex);
+
+        RefreshWeather(false);
+    }
+
+    private void RefreshWeather(boolean forceRefresh) {
+        try {
+            wLoader.loadWeatherData(forceRefresh);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void updateView(Weather weather) {
         // Background
         try {
             contentView.setBackground(WeatherUtils.GetBackground(weather, contentView.getRight(), contentView.getBottom()));
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -248,11 +253,11 @@ public class WeatherNow extends AppCompatActivity
         sunset.setText(sunphaseFormat.format(sunsetCal.getTime()));
 
         // Forecast
-        LinearLayout panel = (LinearLayout)findViewById(R.id.forecast_panel);
+        LinearLayout panel = (LinearLayout) contentView.findViewById(R.id.forecast_panel);
         panel.removeAllViews();
         for (int i = 0; i < weather.forecast.forecastday.length; i++)
         {
-            ForecastView view = new ForecastView(this.getApplicationContext());
+            ForecastView view = new ForecastView(context);
             view.setForecast(weather.forecast.forecastday[i]);
             panel.addView(view);
         }

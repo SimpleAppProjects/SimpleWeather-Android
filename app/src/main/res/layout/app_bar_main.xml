@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.thewizrd.simpleweather.WeatherNow">
+    tools:context="com.thewizrd.simpleweather.MainActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -23,6 +23,11 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_weather_now" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fragment_container"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:background="@color/colorPrimaryDark"/>
 
 </android.support.design.widget.CoordinatorLayout>

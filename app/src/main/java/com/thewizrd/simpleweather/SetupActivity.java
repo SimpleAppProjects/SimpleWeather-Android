@@ -32,7 +32,7 @@ import com.thewizrd.simpleweather.utils.Settings;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Setup extends AppCompatActivity
+public class SetupActivity extends AppCompatActivity
         implements LocationSearchFragment.OnLocationSelectedListener {
 
     private LocationSearchFragment mSearchFragment;
@@ -54,7 +54,7 @@ public class Setup extends AppCompatActivity
         }
 
         Intent intent = null;
-        intent = new Intent(this, WeatherNow.class);
+        intent = new Intent(this, MainActivity.class);
         intent.putExtra("query", query);
 
         List<String> locations = new ArrayList<>();

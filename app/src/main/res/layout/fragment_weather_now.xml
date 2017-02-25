@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/content_weather_now"
+    android:id="@+id/fragment_weather_now"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="8dp"
     android:paddingRight="8dp"
     android:paddingTop="4dp"
     android:paddingBottom="4dp"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.thewizrd.simpleweather.WeatherNow"
-    tools:showIn="@layout/app_bar_weather_now"
-    android:background="@color/colorPrimaryDark">
+    tools:context="com.thewizrd.simpleweather.WeatherNowFragment"
+    tools:showIn="@layout/app_bar_main">
 
     <LinearLayout
-        android:id="@+id/mainLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -92,7 +88,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_gravity="center">
-            
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -187,7 +183,7 @@
                     android:paddingRight="4dp" />
 
             </LinearLayout>
-            
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -203,7 +199,7 @@
                     android:paddingBottom="4dp"
                     android:paddingRight="4dp"
                     android:paddingLeft="4dp"
-                    android:text=""
+                    android:text="@string/label_feelslike"
                     android:padding="4dp" />
 
                 <TextView
@@ -221,7 +217,7 @@
                     android:id="@+id/wind_label"
                     android:textAppearance="@style/WeatherDetails"
                     android:maxLines="1"
-                    android:text=""
+                    android:text="@string/label_wind"
                     android:padding="4dp" />
 
                 <com.thewizrd.simpleweather.WeatherIcon
