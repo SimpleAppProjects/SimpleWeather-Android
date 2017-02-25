@@ -84,7 +84,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:id="@+id/details_panel"
-            android:background="#20080808"
+            android:background="#10080808"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_gravity="center">
@@ -303,6 +303,7 @@
             android:id="@+id/forecast_label"
             android:text="@string/label_forecast"
             android:textAppearance="@android:style/TextAppearance.Material.Medium.Inverse"
+            android:textColor="@android:color/white"
             android:textStyle="bold"
             android:paddingTop="12dp"
             android:paddingBottom="4dp" />
@@ -310,14 +311,14 @@
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#20080808"
             android:layout_weight="1">
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/forecast_panel">
+                android:id="@+id/forecast_panel"
+                android:background="#10080808">
 
             </LinearLayout>
         </HorizontalScrollView>

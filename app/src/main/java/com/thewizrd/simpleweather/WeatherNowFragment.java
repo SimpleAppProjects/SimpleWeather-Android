@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -44,6 +45,7 @@ public class WeatherNowFragment extends Fragment {
     private TextView weatherCondition;
     private WeatherIcon weatherTemp;
     // Details
+    private LinearLayout detailsPanel;
     private TextView humidity;
     private WeatherIcon pressureState;
     private TextView pressure;
@@ -121,6 +123,8 @@ public class WeatherNowFragment extends Fragment {
         weatherIcon = (WeatherIcon) view.findViewById(R.id.weather_icon);
         weatherCondition = (TextView) view.findViewById(R.id.weather_condition);
         weatherTemp = (WeatherIcon) view.findViewById(R.id.weather_temp);
+        // Details
+        detailsPanel = (LinearLayout) view.findViewById(R.id.details_panel);
         humidity = (TextView) view.findViewById(R.id.humidity);
         pressureState = (WeatherIcon) view.findViewById(R.id.pressure_state);
         pressure = (TextView) view.findViewById(R.id.pressure);
@@ -219,6 +223,7 @@ public class WeatherNowFragment extends Fragment {
                 Math.round(weather.condition.temp_f) + farenheit : Math.round(weather.condition.temp_c) + celsius);
 
         // Details
+        detailsPanel.setBackgroundColor(WeatherUtils.isNight(weather) ? Color.parseColor("#20808080") : Color.parseColor("#10080808"));
         humidity.setText(weather.condition.relative_humidity);
         switch (weather.condition.pressure_trend) {
             case "+":
@@ -254,6 +259,7 @@ public class WeatherNowFragment extends Fragment {
 
         // Forecast
         LinearLayout panel = (LinearLayout) contentView.findViewById(R.id.forecast_panel);
+        panel.setBackgroundColor(WeatherUtils.isNight(weather) ? Color.parseColor("#20808080") : Color.parseColor("#10080808"));
         panel.removeAllViews();
         for (int i = 0; i < weather.forecast.forecastday.length; i++)
         {

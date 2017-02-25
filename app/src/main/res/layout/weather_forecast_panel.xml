@@ -51,7 +51,8 @@
             android:textAppearance="@android:style/TextAppearance.Material.Small.Inverse"
             android:padding="4dp"
             android:textColor="@android:color/white"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:textStyle="normal|bold" />
 
         <TextView
             android:id="@+id/forecast_templo"
@@ -60,7 +61,8 @@
             tools:text="66`"
             android:textAppearance="@android:style/TextAppearance.Material.Small.Inverse"
             android:padding="4dp"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:textStyle="normal|bold" />
 
     </LinearLayout>
 </LinearLayout>

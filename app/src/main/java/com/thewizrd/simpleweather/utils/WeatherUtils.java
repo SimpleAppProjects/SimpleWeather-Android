@@ -126,7 +126,7 @@ public class WeatherUtils {
         return new BitmapDrawable(res, ThumbnailUtils.extractThumbnail(BitmapFactory.decodeStream(imgStream), width, height, ThumbnailUtils.OPTIONS_RECYCLE_INPUT));
     }
 
-    private static boolean isNight(Weather weather)
+    public static boolean isNight(Weather weather)
     {
         Sunset1 sunsetInfo = weather.sun_phase.sunset;
         Sunrise1 sunriseInfo = weather.sun_phase.sunrise;
@@ -155,10 +155,7 @@ public class WeatherUtils {
             e.printStackTrace();
         }
         // Determine whether its night using sunset/rise times
-        if (now.getTime() < sunrise.getCalendar().getTimeInMillis() || now.getTime() > sunset.getCalendar().getTimeInMillis())
-            return true;
-        else
-            return false;
+        return now.getTime() < sunrise.getCalendar().getTimeInMillis() || now.getTime() > sunset.getCalendar().getTimeInMillis();
     }
 
     public static String GetLastBuildDate(Weather weather)
@@ -169,7 +166,7 @@ public class WeatherUtils {
         Calendar cal = Calendar.getInstance();
         cal.setTime(updateTime);
 
-        if (cal.DAY_OF_WEEK == Calendar.getInstance().DAY_OF_WEEK)
+        if (Calendar.DAY_OF_WEEK == Calendar.getInstance().DAY_OF_WEEK)
         {
             date = "Updated at " + new SimpleDateFormat("hh:mm a").format(updateTime);
         }
