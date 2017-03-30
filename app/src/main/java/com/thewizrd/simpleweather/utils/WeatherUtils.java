@@ -30,7 +30,8 @@ public class WeatherUtils {
         if (wundergrnd_icon.contains("nt_clear") || wundergrnd_icon.contains("nt_mostlysunny")
                 || wundergrnd_icon.contains("nt_partlysunny") || wundergrnd_icon.contains("nt_sunny"))
             WeatherIcon = res.getString(R.string.wi_night_clear);
-        else if (wundergrnd_icon.contains("nt_mostlycloudy") || wundergrnd_icon.contains("nt_partlycloudy"))
+        else if (wundergrnd_icon.contains("nt_mostlycloudy") || wundergrnd_icon.contains("nt_partlycloudy")
+                || wundergrnd_icon.contains("nt_cloudy"))
             WeatherIcon = res.getString(R.string.wi_night_cloudy);
         else if (wundergrnd_icon.contains("mostlysunny") || wundergrnd_icon.contains("partlysunny"))
             WeatherIcon = res.getString(R.string.wi_night_cloudy);
@@ -40,9 +41,11 @@ public class WeatherUtils {
             WeatherIcon = res.getString(R.string.wi_wu_flurries);
         else if (wundergrnd_icon.contains("hazy"))
             WeatherIcon = res.getString(R.string.wi_wu_hazy);
+        else if (wundergrnd_icon.contains("fog"))
+            WeatherIcon = res.getString(R.string.wi_fog);
         else if (wundergrnd_icon.contains("rain"))
             WeatherIcon = res.getString(R.string.wi_wu_rain);
-        else if (wundergrnd_icon.contains("sleat"))
+        else if (wundergrnd_icon.contains("sleet"))
             WeatherIcon = res.getString(R.string.wi_wu_sleat);
         else if (wundergrnd_icon.contains("snow"))
             WeatherIcon = res.getString(R.string.wi_wu_snow);

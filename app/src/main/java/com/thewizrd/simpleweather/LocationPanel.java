@@ -61,7 +61,7 @@ public class LocationPanel extends CardView {
         locationNameView.setText(weather.location.full_name);
         locationTempView.setText(Settings.getTempUnit().equals("F") ?
                 Math.round(weather.condition.temp_f) + "°" : Math.round(weather.condition.temp_c) + "°");
-        locationWeatherIcon.setText(WeatherUtils.GetWeatherIcon(weather.condition.icon));
+        locationWeatherIcon.setText(WeatherUtils.GetWeatherIcon(weather.condition.icon_url));
 
         setEnabled(true);
         showLoading(false);

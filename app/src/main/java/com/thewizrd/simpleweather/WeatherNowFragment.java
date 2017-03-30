@@ -232,7 +232,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         weatherTemp.setText(Settings.getTempUnit().equals("F") ?
                 Math.round(weather.condition.temp_f) + farenheit : Math.round(weather.condition.temp_c) + celsius);
         weatherCondition.setText(weather.condition.weather);
-        weatherIcon.setText(WeatherUtils.GetWeatherIcon(weather.condition.icon));
+        weatherIcon.setText(WeatherUtils.GetWeatherIcon(weather.condition.icon_url));
 
         // WeatherDetails
         // Astronomy
