@@ -14,12 +14,11 @@ import com.thewizrd.simpleweather.weather.weatherunderground.data.Weather;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 public class WeatherUtils {
     private static Resources res = App.getAppContext().getResources();
@@ -131,31 +130,16 @@ public class WeatherUtils {
         Sunset1 sunsetInfo = weather.sun_phase.sunset;
         Sunrise1 sunriseInfo = weather.sun_phase.sunrise;
 
-        String sunset_string =
-                String.format("%s:%s %s", sunsetInfo.hour, sunsetInfo.minute, weather.location.tz_offset);
-        String sunrise_string =
-                String.format("%s:%s %s", sunriseInfo.hour, sunriseInfo.minute, weather.location.tz_offset);
+        Calendar now = Calendar.getInstance(TimeZone.getTimeZone(weather.location.tz_long));
+        Calendar today = new GregorianCalendar();
+        Calendar sunrise = new GregorianCalendar();
+        Calendar sunset = new GregorianCalendar();
 
-        DateFormat sunset = new SimpleDateFormat("HH:mm Z");
-        DateFormat sunrise = new SimpleDateFormat("HH:mm Z");
-        try {
-            sunset.parse(sunset_string);
-            sunrise.parse(sunrise_string);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        Date now = new Date();
-        Calendar today = Calendar.getInstance();
-        today.setTime(now);
+        today.set(0, 0, 0, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE));
+        sunrise.set(0, 0, 0, Integer.valueOf(sunriseInfo.hour), Integer.valueOf(sunriseInfo.minute));
+        sunset.set(0, 0, 0, Integer.valueOf(sunsetInfo.hour), Integer.valueOf(sunsetInfo.minute));
 
-        try {
-            now = new SimpleDateFormat("HH:mm Z").parse(
-                    String.format(Locale.getDefault(), "%d:%d %s", today.get(Calendar.HOUR_OF_DAY), today.get(Calendar.MINUTE), weather.location.tz_offset));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        // Determine whether its night using sunset/rise times
-        return now.getTime() < sunrise.getCalendar().getTimeInMillis() || now.getTime() > sunset.getCalendar().getTimeInMillis();
+        return today.getTime().getTime() < (sunrise.getTime().getTime()) || today.getTime().getTime() > sunset.getTime().getTime();
     }
 
     public static String GetLastBuildDate(Weather weather)
@@ -166,7 +150,7 @@ public class WeatherUtils {
         Calendar cal = Calendar.getInstance();
         cal.setTime(updateTime);
 
-        if (Calendar.DAY_OF_WEEK == Calendar.getInstance().DAY_OF_WEEK)
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.getInstance().get(Calendar.DAY_OF_WEEK))
         {
             date = "Updated at " + new SimpleDateFormat("hh:mm a").format(updateTime);
         }
@@ -174,6 +158,42 @@ public class WeatherUtils {
             date = "Updated on " + new SimpleDateFormat("EEE hh:mm a").format(updateTime);
 
         return date;
+    }
+
+    public static class Coordinate {
+        private double lat = 0;
+        private double _long = 0;
+
+        public Coordinate(String coordinatePair) {
+            setCoordinate(coordinatePair);
+        }
+
+        public Coordinate(double latitude, double longitude) {
+            setCoordinate(latitude, longitude);
+        }
+
+        public void setCoordinate(String coordinatePair) {
+            String[] coord = coordinatePair.split(",");
+            lat = Double.valueOf(coord[0]);
+            _long = Double.valueOf(coord[1]);
+        }
+
+        public void setCoordinate(double latitude, double longitude) {
+            lat = latitude;
+            _long = longitude;
+        }
+
+        public double getLatitude() {
+            return lat;
+        }
+
+        public double getLongitude() {
+            return _long;
+        }
+
+        public String getCoordinatePair() {
+            return "(" + lat + ", " + _long + ")";
+        }
     }
 
     public enum ErrorStatus

@@ -11,4 +11,5 @@ public class Location
     public String latitude;
     public String longitude;
     public String tz_offset;
+    public String tz_long;
 }

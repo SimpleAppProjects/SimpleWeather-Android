@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -12,21 +12,21 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.thewizrd.simpleweather.utils.Settings;
 import com.thewizrd.simpleweather.utils.WeatherUtils;
 import com.thewizrd.simpleweather.weather.weatherunderground.WeatherDataLoader;
-import com.thewizrd.simpleweather.weather.weatherunderground.WeatherDataLoader.OnWeatherLoadedListener;
+import com.thewizrd.simpleweather.weather.weatherunderground.data.Forecastday1;
 import com.thewizrd.simpleweather.weather.weatherunderground.data.Weather;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-public class WeatherNowFragment extends Fragment {
+public class WeatherNowFragment extends Fragment implements WeatherLoadedListener {
     private static final String ARG_QUERY = "query";
     private static final String ARG_INDEX = "index";
 
@@ -37,7 +37,8 @@ public class WeatherNowFragment extends Fragment {
     private WeatherDataLoader wLoader = null;
 
     // Views
-    private ScrollView contentView;
+    private View contentView;
+    private ProgressBar progressBar;
     // Condition
     private TextView locationName;
     private TextView updateTime;
@@ -62,18 +63,15 @@ public class WeatherNowFragment extends Fragment {
     private final String farenheit = App.getAppContext().getString(R.string.wi_fahrenheit);
     private final String celsius = App.getAppContext().getString(R.string.wi_celsius);
 
-    private OnWeatherLoadedListener onWeatherLoadedListener = new OnWeatherLoadedListener() {
-        @Override
-        public void onWeatherLoaded(Weather weather) {
-            if (weather != null) {
-                updateView(weather);
-            }
-            else
-                Toast.makeText(context, "Can't get weather", Toast.LENGTH_LONG).show();
-
-            contentView.setVisibility(View.VISIBLE);
+    public void onWeatherLoaded(int index, Object weather) {
+        if (weather != null) {
+            updateView((Weather) weather);
         }
-    };
+        else
+            Toast.makeText(context, "Can't get weather", Toast.LENGTH_LONG).show();
+
+        showLoadingView(false);
+    }
 
     public WeatherNowFragment() {
         // Required empty public constructor
@@ -100,8 +98,8 @@ public class WeatherNowFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mQuery = getArguments().getString(ARG_QUERY);
-            mIndex = getArguments().getInt(ARG_INDEX);
+            mQuery = getArguments().getString(ARG_QUERY, null);
+            mIndex = getArguments().getInt(ARG_INDEX, -1);
         }
 
         context = getActivity().getApplicationContext();
@@ -116,7 +114,8 @@ public class WeatherNowFragment extends Fragment {
         // Setup ActionBar
         setHasOptionsMenu(true);
 
-        contentView = (ScrollView) view.findViewById(R.id.fragment_weather_now);
+        contentView = view.findViewById(R.id.content_view);
+        progressBar = (ProgressBar)view.findViewById(R.id.progressBar);
         // Condition
         locationName = (TextView) view.findViewById(R.id.label_location_name);
         updateTime = (TextView) view.findViewById(R.id.label_updatetime);
@@ -182,49 +181,83 @@ public class WeatherNowFragment extends Fragment {
                 updateView(wLoader.getWeather());
             }
         }
+
+        // Title
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.getSupportActionBar().setTitle("SimpleWeather");
     }
 
     private void Restore() {
-        // Hide view until weather is loaded
-        contentView.setVisibility(View.INVISIBLE);
-
-        if (TextUtils.isEmpty(mQuery)) {
-            mIndex = 0;
-            mQuery = Settings.getLocations_WU().get(mIndex);
-        }
-
-        wLoader = new WeatherDataLoader(context, onWeatherLoadedListener, mQuery, mIndex);
+        if (wLoader == null)
+            wLoader = new WeatherDataLoader(context, this, mQuery, mIndex);
 
         RefreshWeather(false);
     }
 
     private void RefreshWeather(boolean forceRefresh) {
+        // Hide view until weather is loaded
+        showLoadingView(true);
+
         try {
             wLoader.loadWeatherData(forceRefresh);
         } catch (Exception e) {
             e.printStackTrace();
+            showLoadingView(false);
         }
+    }
+
+    private void showLoadingView(boolean show) {
+        contentView.setVisibility(show ? View.GONE : View.VISIBLE);
+        progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     private void updateView(Weather weather) {
         // Background
         try {
-            contentView.setBackground(WeatherUtils.GetBackground(weather, contentView.getRight(), contentView.getBottom()));
+            getView().setBackground(WeatherUtils.GetBackground(weather, getView().getRight(), getView().getBottom()));
         } catch (Exception e) {
             e.printStackTrace();
         }
+        LinearLayout forecastPanel = (LinearLayout) contentView.findViewById(R.id.forecast_panel);
+        forecastPanel.setBackgroundColor(WeatherUtils.isNight(weather) ? Color.parseColor("#20808080") : Color.parseColor("#10080808"));
+        detailsPanel.setBackgroundColor(WeatherUtils.isNight(weather) ? Color.parseColor("#20808080") : Color.parseColor("#10080808"));
 
-        // Condition
+        // Location
         locationName.setText(weather.location.full_name);
+
+        // Date Updated
         updateTime.setText(WeatherUtils.GetLastBuildDate(weather));
-        weatherIcon.setText(WeatherUtils.GetWeatherIcon(weather.condition.icon));
-        weatherCondition.setText(weather.condition.weather);
+
+        // Update Current Condition
         weatherTemp.setText(Settings.getTempUnit().equals("F") ?
                 Math.round(weather.condition.temp_f) + farenheit : Math.round(weather.condition.temp_c) + celsius);
+        weatherCondition.setText(weather.condition.weather);
+        weatherIcon.setText(WeatherUtils.GetWeatherIcon(weather.condition.icon));
 
-        // Details
-        detailsPanel.setBackgroundColor(WeatherUtils.isNight(weather) ? Color.parseColor("#20808080") : Color.parseColor("#10080808"));
+        // WeatherDetails
+        // Astronomy
+        DateFormat sunphaseFormat = new SimpleDateFormat("hh:mm a");
+        Calendar sunriseCal = Calendar.getInstance();
+        Calendar sunsetCal = Calendar.getInstance();
+        sunriseCal.set(0, 0, 0, Integer.valueOf(weather.sun_phase.sunrise.hour), Integer.valueOf(weather.sun_phase.sunrise.minute));
+        sunsetCal.set(0, 0, 0, Integer.valueOf(weather.sun_phase.sunset.hour), Integer.valueOf(weather.sun_phase.sunset.minute));
+
+        sunrise.setText(sunphaseFormat.format(sunriseCal.getTime()));
+        sunset.setText(sunphaseFormat.format(sunsetCal.getTime()));
+
+        // Wind
+        feelslike.setText(Settings.getTempUnit().equals("F") ?
+                Math.round(Float.valueOf(weather.condition.feelslike_f)) + "°": Math.round(Float.valueOf(weather.condition.feelslike_c)) + "°");
+        windSpeed.setText(String.format("%.1f",
+                Settings.getTempUnit().equals("F") ? weather.condition.wind_mph : weather.condition.wind_kph));
+        windUnit.setText(Settings.getTempUnit().equals("F") ? "mph" : "kph");
+        updateWindDirection(weather.condition.wind_degrees);
+
+        // Atmosphere
         humidity.setText(weather.condition.relative_humidity);
+        pressure.setText(Settings.getTempUnit().equals("F") ? weather.condition.pressure_in : weather.condition.pressure_mb);
+        pressureUnit.setText(Settings.getTempUnit().equals("F") ? "in" : "mb");
+
         switch (weather.condition.pressure_trend) {
             case "+":
                 updatePressureState(1);
@@ -236,36 +269,17 @@ public class WeatherNowFragment extends Fragment {
                 updatePressureState(0);
                 break;
         }
-        pressure.setText(Settings.getTempUnit().equals("F") ? weather.condition.pressure_in : weather.condition.pressure_mb);
-        pressureUnit.setText(Settings.getTempUnit().equals("F") ? "in" : "mb");
+
         visiblity.setText(Settings.getTempUnit().equals("F") ? weather.condition.visibility_mi : weather.condition.visibility_km);
         visiblityUnit.setText(Settings.getTempUnit().equals("F") ? "mi" : "km");
-        feelslike.setText(Settings.getTempUnit().equals("F") ?
-                Math.round(Float.valueOf(weather.condition.feelslike_f)) + "°": Math.round(Float.valueOf(weather.condition.feelslike_c)) + "°");
-        updateWindDirection(weather.condition.wind_degrees);
-        windSpeed.setText(String.format("%.1f",
-                Settings.getTempUnit().equals("F") ? weather.condition.wind_mph : weather.condition.wind_kph));
-        windUnit.setText(Settings.getTempUnit().equals("F") ? "mph" : "kph");
 
-        // Sun Phase
-        DateFormat sunphaseFormat = new SimpleDateFormat("hh:mm a");
-        Calendar sunriseCal = Calendar.getInstance();
-        Calendar sunsetCal = Calendar.getInstance();
-        sunriseCal.set(0, 0, 0, Integer.valueOf(weather.sun_phase.sunrise.hour), Integer.valueOf(weather.sun_phase.sunrise.minute));
-        sunsetCal.set(0, 0, 0, Integer.valueOf(weather.sun_phase.sunset.hour), Integer.valueOf(weather.sun_phase.sunset.minute));
-
-        sunrise.setText(sunphaseFormat.format(sunriseCal.getTime()));
-        sunset.setText(sunphaseFormat.format(sunsetCal.getTime()));
-
-        // Forecast
-        LinearLayout panel = (LinearLayout) contentView.findViewById(R.id.forecast_panel);
-        panel.setBackgroundColor(WeatherUtils.isNight(weather) ? Color.parseColor("#20808080") : Color.parseColor("#10080808"));
-        panel.removeAllViews();
-        for (int i = 0; i < weather.forecast.forecastday.length; i++)
+        // Add UI elements
+        forecastPanel.removeAllViews();
+        for (Forecastday1 forecast : weather.forecast.forecastday)
         {
             ForecastView view = new ForecastView(context);
-            view.setForecast(weather.forecast.forecastday[i]);
-            panel.addView(view);
+            view.setForecast(forecast);
+            forecastPanel.addView(view);
         }
     }
 

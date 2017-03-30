@@ -28,6 +28,6 @@
         android:layout_height="match_parent"
         android:id="@+id/fragment_container"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:background="@color/colorPrimaryDark"/>
+        android:background="@color/colorPrimaryLight"/>
 
 </android.support.design.widget.CoordinatorLayout>

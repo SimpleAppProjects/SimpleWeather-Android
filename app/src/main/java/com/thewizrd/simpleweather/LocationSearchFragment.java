@@ -1,23 +1,25 @@
 package com.thewizrd.simpleweather;
 
 import android.Manifest;
-import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.thewizrd.simpleweather.utils.Settings;
+import com.thewizrd.simpleweather.utils.WeatherUtils;
 import com.thewizrd.simpleweather.weather.weatherunderground.AutoCompleteQuery;
 import com.thewizrd.simpleweather.weather.weatherunderground.GeopositionQuery;
 import com.thewizrd.simpleweather.weather.weatherunderground.data.AC_Location;
@@ -30,13 +32,6 @@ import java.util.List;
  */
 public class LocationSearchFragment extends Fragment {
 
-    OnLocationSelectedListener mCallback;
-
-    // Container Activity must implement this interface
-    public interface OnLocationSelectedListener {
-        public void onLocationSelected(String query);
-    }
-
     private Location mLocation;
     private String mQueryString;
     private RecyclerView mRecyclerView;
@@ -45,14 +40,46 @@ public class LocationSearchFragment extends Fragment {
 
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
 
+    private String ARG_QUERY = "query";
+    private String ARG_INDEX = "index";
+
     public LocationSearchFragment() {
         // Required empty public constructor
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        mCallback = (OnLocationSelectedListener) context;
+    private View.OnClickListener clickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            LocationQueryView v = (LocationQueryView)view;
+            String query = v.getLocationQuery();
+
+            if (TextUtils.isEmpty(Settings.getAPIKEY()) && Settings.getAPI().equals("WUnderground")) {
+                String errorMsg = "Invalid API Key";
+                Toast.makeText(getActivity().getApplicationContext(), errorMsg, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Intent intent = null;
+            intent = new Intent(getActivity(), MainActivity.class);
+            intent.putExtra(ARG_QUERY, query);
+
+            List<String> locations = new ArrayList<>();
+            locations.add(query);
+            try {
+                Settings.saveLocations(locations);
+                Settings.setWeatherLoaded(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            // Navigate
+            getActivity().startActivity(intent);
+            getActivity().finishAffinity();
+        }
+    };
+
+    public void setOnClickListener(View.OnClickListener listener) {
+        clickListener = listener;
     }
 
     @Override
@@ -71,28 +98,7 @@ public class LocationSearchFragment extends Fragment {
 
     private void setupView(View view) {
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
-        mRecyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
-            @Override
-            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-                if (e.getAction() == MotionEvent.ACTION_UP) {
-                    View child = rv.findChildViewUnder(e.getX(), e.getY());
-                    if (child != null)  {
-                        LocationQueryView lqv = (LocationQueryView) child;
-                        mCallback.onLocationSelected(lqv.getLocationQuery());
-                        return true;
-                    }
-                }
-                return false;
-            }
-
-            @Override
-            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-            }
-
-            @Override
-            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-            }
-        });
+        mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(this.getActivity(), clickListener));
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -103,7 +109,7 @@ public class LocationSearchFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new LocationQueryAdapter(getActivity(), new ArrayList<AC_Location>());
+        mAdapter = new LocationQueryAdapter(new ArrayList<AC_Location>());
         mRecyclerView.setAdapter(mAdapter);
     }
 
@@ -113,9 +119,7 @@ public class LocationSearchFragment extends Fragment {
             // Get locations
             List<AC_Location> locations = new ArrayList<>();
 
-            if (TextUtils.isEmpty(mQueryString)) {
-                // No results
-            } else {
+            if (!TextUtils.isEmpty(mQueryString)) {
                 try {
                     List<AC_Location> results = new AutoCompleteQuery().execute(mQueryString).get();
 
@@ -136,7 +140,8 @@ public class LocationSearchFragment extends Fragment {
         if (mLocation != null) {
             // Get geo location
             try {
-                List<AC_Location> results = new GeopositionQuery().execute(mLocation).get();
+                WeatherUtils.Coordinate coordinate = new WeatherUtils.Coordinate(mLocation.getLatitude(), mLocation.getLongitude());
+                List<AC_Location> results = new GeopositionQuery().execute(coordinate).get();
 
                 if (results.size() > 0)
                     locations.addAll(results);

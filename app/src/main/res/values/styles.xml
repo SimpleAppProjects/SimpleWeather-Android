@@ -5,7 +5,17 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorPrimaryLight</item>
+
+        <item name="actionModeBackground">@android:color/white</item>
+        <item name="actionModeCloseButtonStyle">@style/CloseButton</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="windowActionBarOverlay">false</item>
+    </style>
+
+    <style name="CloseButton" parent="@android:style/Widget.ActionButton.CloseMode">
+        <item name="android:tint">@color/colorPrimary</item>
+        <item name="android:padding">16dp</item>
     </style>
 
     <style name="AppTheme.Launcher">
@@ -16,10 +26,10 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorPrimaryLight</item>
 
-        <item name="android:windowActionModeOverlay">true</item>
-        <item name="android:windowActionBarOverlay">false</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="windowActionBarOverlay">false</item>
     </style>
 
     <style name="WeatherDetails" parent="@android:style/TextAppearance.Material.Small.Inverse">
@@ -30,7 +40,7 @@
     <style name="SettingsTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorPrimaryLight</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

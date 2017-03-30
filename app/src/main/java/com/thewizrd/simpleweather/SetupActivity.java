@@ -1,11 +1,10 @@
 package com.thewizrd.simpleweather;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.LayoutParams;
@@ -25,15 +24,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.thewizrd.simpleweather.utils.Settings;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class SetupActivity extends AppCompatActivity
-        implements LocationSearchFragment.OnLocationSelectedListener {
+public class SetupActivity extends AppCompatActivity {
 
     private LocationSearchFragment mSearchFragment;
     private Spinner apiSpinner;
@@ -43,33 +37,7 @@ public class SetupActivity extends AppCompatActivity
     private ImageView clearButtonView;
     private ImageView locationButtonView;
     private boolean inSearchUI;
-    private String key;
     private String query;
-
-    public void onLocationSelected(String query) {
-        if (TextUtils.isEmpty(key) && Settings.getAPI().equals("WUnderground")) {
-            String errorMsg = "Invalid API Key";
-            Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Intent intent = null;
-        intent = new Intent(this, MainActivity.class);
-        intent.putExtra("query", query);
-
-        List<String> locations = new ArrayList<>();
-        locations.add(query);
-        try {
-            Settings.saveLocations(locations);
-            Settings.setWeatherLoaded(true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // Navigate
-        startActivity(intent);
-        finishAffinity();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +67,7 @@ public class SetupActivity extends AppCompatActivity
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                return;
+                //
             }
         });
         keyEntry.setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -120,7 +88,7 @@ public class SetupActivity extends AppCompatActivity
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!TextUtils.isEmpty(s)) {
-                    key = s.toString();
+                    Settings.setAPIKEY(s.toString());
                 }
             }
 
@@ -156,8 +124,7 @@ public class SetupActivity extends AppCompatActivity
 
         // Load API key
         if (Settings.getAPIKEY() != null) {
-            key = Settings.getAPIKEY();
-            keyEntry.setText(key);
+            keyEntry.setText(Settings.getAPIKEY());
         }
     }
 
@@ -177,7 +144,7 @@ public class SetupActivity extends AppCompatActivity
         }
         mSearchFragment.setUserVisibleHint(true);
         mSearchFragment.getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        final FragmentTransaction transaction = getFragmentManager()
+        final FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction();
         transaction.show(mSearchFragment);
         transaction.commitAllowingStateLoss();
@@ -200,7 +167,7 @@ public class SetupActivity extends AppCompatActivity
         if (mSearchFragment != null) {
             return;
         }
-        final FragmentTransaction ft = getFragmentManager().beginTransaction();
+        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         final Fragment searchFragment = new LocationSearchFragment();
         searchFragment.setUserVisibleHint(false);
         ft.add(R.id.search_fragment_container, searchFragment);
@@ -306,7 +273,7 @@ public class SetupActivity extends AppCompatActivity
         if (mSearchFragment != null) {
             mSearchFragment.setUserVisibleHint(false);
 
-            final FragmentTransaction transaction = getFragmentManager()
+            final FragmentTransaction transaction = getSupportFragmentManager()
                     .beginTransaction();
             transaction.remove(mSearchFragment);
             mSearchFragment = null;

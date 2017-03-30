@@ -2,6 +2,7 @@
 <resources>
     <color name="colorPrimary">#0070c0</color>
     <color name="colorPrimaryDark">#005591</color>
+    <color name="colorPrimaryLight">#0082df</color>
     <color name="colorAccent">#FFFFFF</color>
 
     <color name="searchview_background">@android:color/white</color>

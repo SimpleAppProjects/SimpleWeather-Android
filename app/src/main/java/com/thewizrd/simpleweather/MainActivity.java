@@ -15,6 +15,9 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private String ARG_QUERY = "query";
+    private String ARG_INDEX = "index";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,9 +35,21 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // Navigate to WeatherNowFragment
-        getSupportFragmentManager().beginTransaction().replace(
-                R.id.fragment_container, new WeatherNowFragment()).commit();
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
+        // Check if fragment exists
+        if (fragment == null)
+        {
+            int idx = getIntent().getIntExtra(ARG_INDEX, -1);
+            String qry = getIntent().getStringExtra(ARG_QUERY);
+
+            fragment = WeatherNowFragment.newInstance(qry, idx);
+
+            // Navigate to WeatherNowFragment
+            getSupportFragmentManager().beginTransaction().replace(
+                    R.id.fragment_container, fragment).commit();
+        }
+
         navigationView.setCheckedItem(R.id.nav_weathernow);
     }
 
@@ -61,7 +76,7 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_weathernow) {
             fragment = new WeatherNowFragment();
         } else if (id == R.id.nav_locations) {
-
+            fragment = new LocationsFragment();
         } else if (id == R.id.nav_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             drawer.closeDrawer(GravityCompat.START);

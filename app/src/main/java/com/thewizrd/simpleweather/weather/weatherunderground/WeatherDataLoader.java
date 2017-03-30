@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.thewizrd.simpleweather.WeatherLoadedListener;
 import com.thewizrd.simpleweather.utils.FileUtils;
 import com.thewizrd.simpleweather.utils.JSONParser;
 import com.thewizrd.simpleweather.utils.Settings;
@@ -22,18 +23,8 @@ import java.util.concurrent.TimeUnit;
 
 public class WeatherDataLoader {
 
-    OnWeatherLoadedListener mCallBack;
+    WeatherLoadedListener mCallBack;
     //OnWeatherErrorListener mErrorBack;
-
-    public interface OnWeatherLoadedListener {
-        void onWeatherLoaded(Weather weather);
-    }
-
-    /*
-    public interface OnWeatherErrorListener {
-        public void onWeatherError(WeatherUtils.ErrorStatus status);
-    }
-    */
 
     private String location_query = null;
     private Weather weather = null;
@@ -42,7 +33,7 @@ public class WeatherDataLoader {
     private File weatherFile = null;
     private Context mContext;
 
-    public WeatherDataLoader(Context context, OnWeatherLoadedListener listener, String query, int idx) {
+    public WeatherDataLoader(Context context, WeatherLoadedListener listener, String query, int idx) {
         location_query = query;
         locationIdx = idx;
 
@@ -128,7 +119,7 @@ public class WeatherDataLoader {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        mCallBack.onWeatherLoaded(weather);
+                        mCallBack.onWeatherLoaded(locationIdx, weather);
                     }
                 });
             }

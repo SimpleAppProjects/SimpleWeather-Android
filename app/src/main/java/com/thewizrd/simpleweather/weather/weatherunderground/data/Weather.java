@@ -30,6 +30,7 @@ public class Weather {
         location.latitude = condition.display_location.latitude;
         location.longitude = condition.display_location.longitude;
         location.tz_offset = condition.local_tz_offset;
+        location.tz_long = condition.local_tz_long;
     }
 }
 

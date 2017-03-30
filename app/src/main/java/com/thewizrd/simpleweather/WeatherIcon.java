@@ -3,10 +3,10 @@ package com.thewizrd.simpleweather;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
+import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
-import android.widget.TextView;
 
-public class WeatherIcon extends TextView {
+public class WeatherIcon extends AppCompatTextView {
 
     public WeatherIcon(Context context) {
         super(context);
@@ -26,7 +26,14 @@ public class WeatherIcon extends TextView {
     private void init(Context context) {
         AssetManager am = context.getApplicationContext().getAssets();
 
-        Typeface typeface = Typeface.createFromAsset(am, "fonts/weathericons-regular-webfont.ttf");
+        Typeface typeface = null;
+
+        try {
+            typeface = Typeface.createFromAsset(am, "fonts/weathericons-regular-webfont.ttf");
+        } catch (Exception e) {
+            typeface = Typeface.DEFAULT;
+        }
+
         setTypeface(typeface);
     }
 }

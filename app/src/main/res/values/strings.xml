@@ -32,4 +32,9 @@
     <string name="pref_summary_farenheit">Display Units in Farenheit (US)</string>
     <string name="pref_summary_celsius">Display Units in Celsius (Metric)</string>
 
+    <!-- Locations -->
+    <string name="label_fav_location">Favorite Location</string>
+    <string name="label_other_locations">Other Locations</string>
+    <string name="label_btn_add_location">Add Location</string>
+
 </resources>

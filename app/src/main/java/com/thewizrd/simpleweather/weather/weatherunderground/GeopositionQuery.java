@@ -1,8 +1,8 @@
 package com.thewizrd.simpleweather.weather.weatherunderground;
 
-import android.location.Location;
 import android.os.AsyncTask;
 
+import com.thewizrd.simpleweather.utils.WeatherUtils;
 import com.thewizrd.simpleweather.weather.weatherunderground.data.AC_Location;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -17,19 +17,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class GeopositionQuery extends AsyncTask<Location, Void, List<AC_Location>> {
+public class GeopositionQuery extends AsyncTask<WeatherUtils.Coordinate, Void, List<AC_Location>> {
     private static String queryAPI = "http://api.wunderground.com/auto/wui/geo/GeoLookupXML/index.xml?query=";
     private static String options = "";
 
-    protected List<AC_Location> doInBackground(Location... location)
+    protected List<AC_Location> doInBackground(WeatherUtils.Coordinate... coordinates)
     {
-        return getLocation(location[0]);
+        return getLocation(coordinates[0]);
     }
 
-    private List<AC_Location> getLocation(Location location)
+    private List<AC_Location> getLocation(WeatherUtils.Coordinate coordinate)
     {
         List<AC_Location> locationResults = null;
-        String query = String.format(Locale.getDefault(), "%f,%f", location.getLatitude(), location.getLongitude());
+        String query = String.format(Locale.getDefault(), "%f,%f", coordinate.getLatitude(), coordinate.getLongitude());
 
         try {
             URL queryURL = new URL(queryAPI + query + options);
