@@ -14,7 +14,7 @@ import java.util.List;
 
 public class Settings
 {
-    public final static String Farenheit = "F";
+    public final static String Fahrenheit = "F";
     public final static String Celsius = "C";
 
     // Shared Settings
@@ -28,14 +28,14 @@ public class Settings
     public static String getTempUnit() {
         if (!preferences.contains("key_usecelsius"))
         {
-            return Farenheit;
+            return Fahrenheit;
         }
         else if (preferences.getBoolean("key_usecelsius", false))
         {
             return Celsius;
         }
 
-        return Farenheit;
+        return Fahrenheit;
     }
 
     public static boolean isWeatherLoaded() {

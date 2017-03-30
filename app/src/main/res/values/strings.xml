@@ -29,7 +29,7 @@
     <!-- Settings -->
     <string name="pref_title_temperature">Temperature</string>
     <string name="pref_title_units">Units</string>
-    <string name="pref_summary_farenheit">Display Units in Farenheit (US)</string>
+    <string name="pref_summary_fahrenheit">Display Units in Fahrenheit (US)</string>
     <string name="pref_summary_celsius">Display Units in Celsius (Metric)</string>
 
     <!-- Locations -->

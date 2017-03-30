@@ -60,7 +60,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     private TextView sunrise;
     private TextView sunset;
 
-    private final String farenheit = App.getAppContext().getString(R.string.wi_fahrenheit);
+    private final String fahrenheit = App.getAppContext().getString(R.string.wi_fahrenheit);
     private final String celsius = App.getAppContext().getString(R.string.wi_celsius);
 
     public void onWeatherLoaded(int index, Object weather) {
@@ -230,7 +230,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
         // Update Current Condition
         weatherTemp.setText(Settings.getTempUnit().equals("F") ?
-                Math.round(weather.condition.temp_f) + farenheit : Math.round(weather.condition.temp_c) + celsius);
+                Math.round(weather.condition.temp_f) + fahrenheit : Math.round(weather.condition.temp_c) + celsius);
         weatherCondition.setText(weather.condition.weather);
         weatherIcon.setText(WeatherUtils.GetWeatherIcon(weather.condition.icon_url));
 

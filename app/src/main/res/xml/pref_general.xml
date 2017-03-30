@@ -7,7 +7,7 @@
         <SwitchPreference
             android:defaultValue="false"
             android:key="key_usecelsius"
-            android:summaryOff="@string/pref_summary_farenheit"
+            android:summaryOff="@string/pref_summary_fahrenheit"
             android:summaryOn="@string/pref_summary_celsius"
             android:title="@string/pref_title_units" />
 
