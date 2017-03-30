@@ -184,7 +184,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
         // Title
         AppCompatActivity activity = (AppCompatActivity) getActivity();
-        activity.getSupportActionBar().setTitle("SimpleWeather");
+        activity.getSupportActionBar().setTitle(getString(R.string.title_activity_weather_now));
     }
 
     private void Restore() {

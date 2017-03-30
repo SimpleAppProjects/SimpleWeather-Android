@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -34,6 +35,14 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // Back stack listener
+        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                refreshNavViewCheckedItem();
+            }
+        });
 
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
 
@@ -90,7 +99,8 @@ public class MainActivity extends AppCompatActivity
                 transaction.replace(R.id.fragment_container, fragment);
 
                 if (fragment instanceof WeatherNowFragment) {
-                    // Do nothing
+                    // Pop all since we're going home
+                    getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 } else {
                     transaction.addToBackStack(null);
                 }
@@ -102,5 +112,24 @@ public class MainActivity extends AppCompatActivity
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        refreshNavViewCheckedItem();
+    }
+
+    private void refreshNavViewCheckedItem() {
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
+        if (fragment instanceof WeatherNowFragment) {
+            navigationView.setCheckedItem(R.id.nav_weathernow);
+            getSupportActionBar().setTitle(getString(R.string.title_activity_weather_now));
+        } else if (fragment instanceof LocationsFragment) {
+            navigationView.setCheckedItem(R.id.nav_locations);
+            getSupportActionBar().setTitle(getString(R.string.label_nav_locations));
+        }
     }
 }

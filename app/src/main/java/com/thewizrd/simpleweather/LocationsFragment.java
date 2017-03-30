@@ -131,8 +131,8 @@ public class LocationsFragment extends Fragment implements WeatherLoadedListener
 
                 // Navigate to WeatherNowFragment
                 AppCompatActivity activity = (AppCompatActivity) getActivity();
-                activity.getSupportFragmentManager().beginTransaction().replace(
-                        R.id.fragment_container, fragment).commit();
+                activity.getSupportFragmentManager().beginTransaction().add(
+                        R.id.fragment_container, fragment).addToBackStack(null).commit();
             }
         }
     };
@@ -231,7 +231,7 @@ public class LocationsFragment extends Fragment implements WeatherLoadedListener
 
         // Title
         AppCompatActivity activity = (AppCompatActivity) getActivity();
-        activity.getSupportActionBar().setTitle("Locations");
+        activity.getSupportActionBar().setTitle(getString(R.string.label_nav_locations));
     }
 
     private void LoadLocations() {
