@@ -46,6 +46,7 @@ public class LocationPanel extends CardView {
         locationWeatherIcon = (WeatherIcon) viewLayout.findViewById(R.id.weather_icon);
         progressBar = (ProgressBar) viewLayout.findViewById(R.id.progressBar);
 
+        setEnabled(false);
         showLoading(true);
     }
 
@@ -62,6 +63,7 @@ public class LocationPanel extends CardView {
                 Math.round(weather.condition.temp_f) + "°" : Math.round(weather.condition.temp_c) + "°");
         locationWeatherIcon.setText(WeatherUtils.GetWeatherIcon(weather.condition.icon));
 
+        setEnabled(true);
         showLoading(false);
     }
 

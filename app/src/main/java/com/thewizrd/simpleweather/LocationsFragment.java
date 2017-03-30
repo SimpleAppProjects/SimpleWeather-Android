@@ -123,15 +123,17 @@ public class LocationsFragment extends Fragment implements WeatherLoadedListener
     private View.OnClickListener onPanelClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            LocationPanel v = (LocationPanel) view;
-            Pair<Integer, Object> pair = (Pair<Integer, Object>) v.getTag();
+            if (view.isEnabled()) {
+                LocationPanel v = (LocationPanel) view;
+                Pair<Integer, Object> pair = (Pair<Integer, Object>) v.getTag();
 
-            Fragment fragment = WeatherNowFragment.newInstance((String) pair.second, pair.first);
+                Fragment fragment = WeatherNowFragment.newInstance((String) pair.second, pair.first);
 
-            // Navigate to WeatherNowFragment
-            AppCompatActivity activity = (AppCompatActivity) getActivity();
-            activity.getSupportFragmentManager().beginTransaction().replace(
-                    R.id.fragment_container, fragment).commit();
+                // Navigate to WeatherNowFragment
+                AppCompatActivity activity = (AppCompatActivity) getActivity();
+                activity.getSupportFragmentManager().beginTransaction().replace(
+                        R.id.fragment_container, fragment).commit();
+            }
         }
     };
 
