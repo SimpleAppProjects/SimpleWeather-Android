@@ -44,7 +44,9 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<LocationPanelAdap
         // create a new view
         LocationPanel v = new LocationPanel(parent.getContext());
         // set the view's size, margins, paddings and layout parameters
-        v.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        params.setMargins(0, 5, 0, 5); // l, t, r, b
+        v.setLayoutParams(params);
         return new ViewHolder(v);
     }
 

@@ -35,7 +35,7 @@ public class LocationQueryAdapter extends RecyclerView.Adapter<LocationQueryAdap
         // create a new view
         LocationQueryView v = new LocationQueryView(parent.getContext());
         // set the view's size, margins, paddings and layout parameters
-        v.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        v.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         return new ViewHolder(v);
     }
 
