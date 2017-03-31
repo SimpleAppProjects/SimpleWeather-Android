@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fragment_weather_now"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -43,14 +44,15 @@
                     android:id="@+id/label_location_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:text="New York, NY"
                     android:layout_gravity="center"
-                    android:paddingTop="8dp"
+                    android:fontFamily="sans-serif-light"
                     android:paddingBottom="8dp"
+                    android:paddingTop="8dp"
+                    android:textAlignment="center"
                     android:textAppearance="@android:style/TextAppearance.Material.Large.Inverse"
                     android:textSize="36sp"
                     android:textStyle="normal|bold"
-                    android:fontFamily="sans-serif-light" />
+                    tools:text="New York, NY" />
 
                 <TextView
                     android:id="@+id/label_updatetime"
@@ -106,211 +108,222 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center">
 
-                <LinearLayout
+                <android.support.v7.widget.GridLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:orientation="horizontal"
-                    android:gravity="center">
+                    app:orientation="horizontal"
+                    app:alignmentMode="alignBounds">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:id="@+id/humidity_label"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:text="@string/label_humidity"
-                        android:padding="4dp" />
+                        app:layout_column="0"
+                        app:layout_columnWeight="1.5"
+                        app:layout_rowWeight="1">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                        <me.grantland.widget.AutofitTextView
+                            android:id="@+id/humidity_label"
+                            style="@style/WeatherDetails"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1.5"
+                            android:gravity="center"
+                            android:text="@string/label_humidity" />
+
+                        <me.grantland.widget.AutofitTextView
+                            android:id="@+id/humidity"
+                            style="@style/WeatherDetails"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0.8"
+                            android:gravity="center"
+                            tools:text="25%" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:id="@+id/humidity"
-                        tools:text="25%"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:padding="4dp" />
+                        app:layout_column="1"
+                        app:layout_columnWeight="2"
+                        app:layout_rowWeight="1">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                        <me.grantland.widget.AutofitTextView
+                            android:id="@+id/pressure_label"
+                            style="@style/WeatherDetails"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="@string/label_pressure" />
+
+                        <com.thewizrd.simpleweather.WeatherIcon
+                            android:id="@+id/pressure_state"
+                            style="@style/WeatherDetails"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:visibility="visible"
+                            tools:text="@string/wi_direction_up" />
+
+                        <me.grantland.widget.AutofitTextView
+                            android:id="@+id/pressure"
+                            style="@style/WeatherDetails"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            tools:text="29.92 in" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:id="@+id/pressure_label"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:text="@string/label_pressure"
-                        android:padding="4dp" />
+                        app:layout_column="2"
+                        app:layout_columnWeight="1.7"
+                        app:layout_rowWeight="1">
 
-                    <com.thewizrd.simpleweather.WeatherIcon
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/pressure_state"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:visibility="visible"
-                        tools:text="@string/wi_direction_up"
-                        android:padding="4dp" />
+                        <me.grantland.widget.AutofitTextView
+                            android:id="@+id/visibility_label"
+                            style="@style/WeatherDetails"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1.2"
+                            android:gravity="center"
+                            android:text="@string/label_visibility" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/pressure"
-                        tools:text="29.92"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:padding="4dp" />
+                        <me.grantland.widget.AutofitTextView
+                            android:id="@+id/visibility_val"
+                            style="@style/WeatherDetails"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:paddingEnd="2dp"
+                            android:paddingStart="2dp"
+                            tools:text="10.0 mi" />
+                    </LinearLayout>
+                </android.support.v7.widget.GridLayout>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/pressure_unit"
-                        tools:text="in"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp"
-                        android:paddingRight="4dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/visibility_label"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:text="@string/label_visibility"
-                        android:padding="4dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/visibility_val"
-                        tools:text="10.0"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:padding="4dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/visibility_unit"
-                        tools:text="mi"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp"
-                        android:paddingRight="4dp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <android.support.v7.widget.GridLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
-                    android:gravity="center">
+                    app:orientation="horizontal"
+                    app:alignmentMode="alignBounds">
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/feelslike_label"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:paddingBottom="4dp"
-                        android:paddingRight="4dp"
-                        android:paddingLeft="4dp"
-                        android:text="@string/label_feelslike"
-                        android:padding="4dp" />
+                        app:layout_column="0"
+                        app:layout_columnWeight="1"
+                        app:layout_rowWeight="1">
 
-                    <TextView
+                        <me.grantland.widget.AutofitTextView
+                            android:id="@+id/feelslike_label"
+                            style="@style/WeatherDetails"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="@string/label_feelslike" />
+
+                        <me.grantland.widget.AutofitTextView
+                            android:id="@+id/feelslike"
+                            style="@style/WeatherDetails"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0.5"
+                            android:gravity="center"
+                            tools:text="36`" />
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/feelslike"
-                        tools:text="36`"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:padding="4dp" />
+                        app:layout_column="1"
+                        app:layout_columnWeight="1"
+                        app:layout_rowWeight="1">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/wind_label"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:text="@string/label_wind"
-                        android:padding="4dp" />
+                        <me.grantland.widget.AutofitTextView
+                            android:id="@+id/wind_label"
+                            style="@style/WeatherDetails"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="@string/label_wind" />
 
-                    <com.thewizrd.simpleweather.WeatherIcon
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/wind_direction"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:text="@string/wi_direction_up"
-                        android:padding="4dp" />
+                        <com.thewizrd.simpleweather.WeatherIcon
+                            android:id="@+id/wind_direction"
+                            style="@style/WeatherDetails"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/wi_direction_up" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/wind_speed"
-                        tools:text="3.8"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:padding="4dp" />
+                        <me.grantland.widget.AutofitTextView
+                            android:id="@+id/wind_speed"
+                            style="@style/WeatherDetails"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1.2"
+                            android:gravity="center"
+                            tools:text="3.8 mph" />
+                    </LinearLayout>
+                </android.support.v7.widget.GridLayout>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/wind_unit"
-                        tools:text="mph"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp"
-                        android:paddingRight="4dp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <android.support.v7.widget.GridLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
-                    android:gravity="center">
+                    app:orientation="horizontal"
+                    app:alignmentMode="alignBounds">
 
-                    <com.thewizrd.simpleweather.WeatherIcon
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/sunrise_icon"
-                        android:text="@string/wi_sunrise"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:padding="4dp" />
+                        app:layout_column="0"
+                        app:layout_columnWeight="1"
+                        app:layout_rowWeight="1">
 
-                    <TextView
+                        <com.thewizrd.simpleweather.WeatherIcon
+                            android:id="@+id/sunrise_icon"
+                            style="@style/WeatherDetails"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/wi_sunrise" />
+
+                        <TextView
+                            android:id="@+id/sunrise_time"
+                            style="@style/WeatherDetails"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            tools:text="06:45 AM" />
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/sunrise_time"
-                        tools:text="06:45 AM"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:padding="4dp" />
+                        app:layout_column="1"
+                        app:layout_columnWeight="1"
+                        app:layout_rowWeight="1">
 
-                    <com.thewizrd.simpleweather.WeatherIcon
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/sunset_icon"
-                        android:text="@string/wi_sunset"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:padding="4dp" />
+                        <com.thewizrd.simpleweather.WeatherIcon
+                            android:id="@+id/sunset_icon"
+                            style="@style/WeatherDetails"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/wi_sunset" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/sunset_time"
-                        tools:text="05:32 PM"
-                        android:textAppearance="@style/WeatherDetails"
-                        android:maxLines="1"
-                        android:padding="4dp" />
-
-                </LinearLayout>
+                        <TextView
+                            android:id="@+id/sunset_time"
+                            style="@style/WeatherDetails"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            tools:text="05:32 PM" />
+                    </LinearLayout>
+                </android.support.v7.widget.GridLayout>
 
             </LinearLayout>
 

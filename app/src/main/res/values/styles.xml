@@ -32,9 +32,11 @@
         <item name="windowActionBarOverlay">false</item>
     </style>
 
-    <style name="WeatherDetails" parent="@android:style/TextAppearance.Material.Small.Inverse">
+    <style name="WeatherDetails" parent="@android:style/Widget.Material.TextView">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@android:color/white</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:maxLines">1</item>
     </style>
 
     <style name="SettingsTheme" parent="Theme.AppCompat.Light.DarkActionBar">

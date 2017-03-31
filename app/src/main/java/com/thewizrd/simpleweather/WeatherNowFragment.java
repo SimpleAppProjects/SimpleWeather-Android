@@ -50,13 +50,10 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     private TextView humidity;
     private WeatherIcon pressureState;
     private TextView pressure;
-    private TextView pressureUnit;
     private TextView visiblity;
-    private TextView visiblityUnit;
     private TextView feelslike;
     private WeatherIcon windDirection;
     private TextView windSpeed;
-    private TextView windUnit;
     private TextView sunrise;
     private TextView sunset;
 
@@ -127,13 +124,10 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         humidity = (TextView) view.findViewById(R.id.humidity);
         pressureState = (WeatherIcon) view.findViewById(R.id.pressure_state);
         pressure = (TextView) view.findViewById(R.id.pressure);
-        pressureUnit = (TextView) view.findViewById(R.id.pressure_unit);
         visiblity = (TextView) view.findViewById(R.id.visibility_val);
-        visiblityUnit = (TextView) view.findViewById(R.id.visibility_unit);
         feelslike = (TextView) view.findViewById(R.id.feelslike);
         windDirection = (WeatherIcon) view.findViewById(R.id.wind_direction);
         windSpeed = (TextView) view.findViewById(R.id.wind_speed);
-        windUnit = (TextView) view.findViewById(R.id.wind_unit);
         sunrise = (TextView) view.findViewById(R.id.sunrise_time);
         sunset = (TextView) view.findViewById(R.id.sunset_time);
 
@@ -248,15 +242,12 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         // Wind
         feelslike.setText(Settings.getTempUnit().equals("F") ?
                 Math.round(Float.valueOf(weather.condition.feelslike_f)) + "°": Math.round(Float.valueOf(weather.condition.feelslike_c)) + "°");
-        windSpeed.setText(String.format("%.1f",
-                Settings.getTempUnit().equals("F") ? weather.condition.wind_mph : weather.condition.wind_kph));
-        windUnit.setText(Settings.getTempUnit().equals("F") ? "mph" : "kph");
+        windSpeed.setText(Settings.getTempUnit().equals("F") ? weather.condition.wind_mph + " mph" : weather.condition.wind_kph + " kph");
         updateWindDirection(weather.condition.wind_degrees);
 
         // Atmosphere
         humidity.setText(weather.condition.relative_humidity);
-        pressure.setText(Settings.getTempUnit().equals("F") ? weather.condition.pressure_in : weather.condition.pressure_mb);
-        pressureUnit.setText(Settings.getTempUnit().equals("F") ? "in" : "mb");
+        pressure.setText(Settings.getTempUnit().equals("F") ? weather.condition.pressure_in + " in" : weather.condition.pressure_mb + " mb");
 
         switch (weather.condition.pressure_trend) {
             case "+":
@@ -270,8 +261,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                 break;
         }
 
-        visiblity.setText(Settings.getTempUnit().equals("F") ? weather.condition.visibility_mi : weather.condition.visibility_km);
-        visiblityUnit.setText(Settings.getTempUnit().equals("F") ? "mi" : "km");
+        visiblity.setText(Settings.getTempUnit().equals("F") ? weather.condition.visibility_mi + " mi" : weather.condition.visibility_km + " km");
 
         // Add UI elements
         forecastPanel.removeAllViews();
