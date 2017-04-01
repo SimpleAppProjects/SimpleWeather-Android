@@ -1,8 +1,12 @@
 package com.thewizrd.simpleweather.weather.weatherunderground;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.thewizrd.simpleweather.utils.JSONParser;
+import com.thewizrd.simpleweather.utils.WeatherException;
+import com.thewizrd.simpleweather.utils.WeatherUtils;
 import com.thewizrd.simpleweather.weather.weatherunderground.data.AC_Location;
 import com.thewizrd.simpleweather.weather.weatherunderground.data.AC_RESULT;
 
@@ -13,6 +17,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,18 +26,32 @@ public class AutoCompleteQuery extends AsyncTask<String, Void, List<AC_Location>
     private String queryAPI = "http://autocomplete.wunderground.com/aq?query=";
     private String options = "&h=0&cities=1";
 
+    private Context context;
+    private WeatherException wEx = null;
+
+    public AutoCompleteQuery(Context context) {
+        this.context = context;
+    }
+
     protected List<AC_Location> doInBackground(String... query)
     {
         return getLocations(query[0]);
     }
 
-    private List<AC_Location> getLocations(String query)
-    {
+    @Override
+    protected void onPostExecute(List<AC_Location> ac_locations) {
+        if (wEx != null) {
+            Toast.makeText(context, wEx.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private List<AC_Location> getLocations(String query) {
         List<AC_Location> locationResults = null;
+        URLConnection client = null;
 
         try {
             URL queryURL = new URL(queryAPI + query + options);
-            URLConnection client = queryURL.openConnection();
+            client = queryURL.openConnection();
             InputStream stream = client.getInputStream();
 
             // Read to buffer
@@ -50,6 +69,8 @@ public class AutoCompleteQuery extends AsyncTask<String, Void, List<AC_Location>
             // Close
             buffStream.close();
             stream.close();
+        } catch (UnknownHostException uHEx) {
+            wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

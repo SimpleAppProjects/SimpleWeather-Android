@@ -8,8 +8,8 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -18,14 +18,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.thewizrd.simpleweather.utils.JSONParser;
 import com.thewizrd.simpleweather.utils.Settings;
 import com.thewizrd.simpleweather.utils.WeatherUtils;
 import com.thewizrd.simpleweather.weather.weatherunderground.AutoCompleteQuery;
 import com.thewizrd.simpleweather.weather.weatherunderground.GeopositionQuery;
+import com.thewizrd.simpleweather.weather.weatherunderground.WUDataLoaderTask;
 import com.thewizrd.simpleweather.weather.weatherunderground.data.AC_Location;
+import com.thewizrd.simpleweather.weather.weatherunderground.data.WUWeather;
 import com.thewizrd.simpleweather.weather.yahoo.YahooWeatherLoaderTask;
 import com.thewizrd.simpleweather.weather.yahoo.data.YahooWeather;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,6 +58,7 @@ public class LocationSearchFragment extends Fragment {
         @Override
         public void onClick(View view) {
             LocationQueryView v = (LocationQueryView)view;
+            int homeIdx = 0;
 
             if (TextUtils.isEmpty(Settings.getAPIKEY()) && Settings.getAPI().equals("WUnderground")) {
                 String errorMsg = "Invalid API Key";
@@ -63,43 +69,59 @@ public class LocationSearchFragment extends Fragment {
             Intent intent = new Intent(getActivity(), MainActivity.class);
 
             if (Settings.getAPI().equals("WUnderground")) {
+                WUWeather weather = null;
                 String query = v.getLocationQuery();
-                intent.putExtra(ARG_QUERY, query);
 
-                List<String> locations = new ArrayList<>();
-                locations.add(query);
                 try {
-                    Settings.saveLocations_WU(locations);
-                    Settings.setWeatherLoaded(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                List<WeatherUtils.Coordinate> locations = new ArrayList<>();
-                YahooWeather weather = null;
-                try {
-                    weather = new YahooWeatherLoaderTask().execute(v.getLocationName()).get();
+                    weather = new WUDataLoaderTask(getActivity()).execute(query).get();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
                 if (weather == null) {
-                    String errorMsg = "Unable to load weather data!!";
-                    Toast.makeText(getActivity().getApplicationContext(), errorMsg, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                intent.putExtra(ARG_QUERY, query);
+                intent.putExtra(ARG_INDEX, homeIdx);
+
+                List<String> locations = new ArrayList<>();
+                locations.add(query);
+                // Save data
+                try {
+                    JSONParser.serializer(weather, new File(getContext().getFilesDir(), "weather0.json"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Settings.saveLocations_WU(locations);
+                Settings.setWeatherLoaded(true);
+            } else {
+                List<WeatherUtils.Coordinate> locations = new ArrayList<>();
+                YahooWeather weather = null;
+                try {
+                    weather = new YahooWeatherLoaderTask(getActivity()).execute(v.getLocationName()).get();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                if (weather == null) {
                     return;
                 }
 
                 WeatherUtils.Coordinate local = new WeatherUtils.Coordinate(
                         String.format("%s, %s", weather.location.lat, weather.location._long));
                 intent.putExtra(ARG_QUERY, local.getCoordinatePair());
+                intent.putExtra(ARG_INDEX, homeIdx);
 
                 locations.add(local);
+                // Save data
                 try {
-                    Settings.saveLocations(locations);
-                    Settings.setWeatherLoaded(true);
-                } catch (Exception e) {
+                    JSONParser.serializer(weather, new File(getContext().getFilesDir(), "weather0.json"));
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
+                Settings.saveLocations(locations);
+                Settings.setWeatherLoaded(true);
             }
 
             // Navigate
@@ -151,7 +173,7 @@ public class LocationSearchFragment extends Fragment {
 
             if (!TextUtils.isEmpty(mQueryString)) {
                 try {
-                    List<AC_Location> results = new AutoCompleteQuery().execute(mQueryString).get();
+                    List<AC_Location> results = new AutoCompleteQuery(getActivity()).execute(mQueryString).get();
 
                     if (results.size() > 0)
                         locations.addAll(results);
@@ -165,22 +187,23 @@ public class LocationSearchFragment extends Fragment {
     }
 
     public void fetchGeoLocation() {
-        List<AC_Location> locations = new ArrayList<>();
-
         if (mLocation != null) {
             // Get geo location
+            AC_Location gpsLocation = null;
+            ArrayList<AC_Location> results = new ArrayList<>(1);
+
             try {
                 WeatherUtils.Coordinate coordinate = new WeatherUtils.Coordinate(mLocation.getLatitude(), mLocation.getLongitude());
-                List<AC_Location> results = new GeopositionQuery().execute(coordinate).get();
+                gpsLocation = new GeopositionQuery(getActivity()).execute(coordinate).get();
 
-                if (results.size() > 0)
-                    locations.addAll(results);
+                if (gpsLocation != null) {
+                    mQueryString = gpsLocation.name;
+                    results.add(gpsLocation);
+                    mAdapter.setLocations(results);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-            mQueryString = locations.get(0).name;
-            mAdapter.setLocations(locations);
         }
         else {
             updateLocation();
@@ -189,9 +212,8 @@ public class LocationSearchFragment extends Fragment {
 
     private void updateLocation()
     {
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_LOCATION_REQUEST_CODE);
             return;
         }
@@ -273,7 +295,4 @@ public class LocationSearchFragment extends Fragment {
 
         }
     };
-
-    public Location getLocation() { return mLocation; }
-    public String getQueryString() { return mQueryString; }
 }

@@ -40,8 +40,7 @@ public class Settings
     }
 
     public static boolean isWeatherLoaded() {
-        if (locationsFile == null)
-        {
+        if (locationsFile == null) {
             locationsFile = new File(appDataFolder, "locations.json");
 
             try {
@@ -58,9 +57,7 @@ public class Settings
         if (locationsFile.length() == 0 || !locationsFile.exists())
             return false;
 
-        if (!preferences.contains("weatherLoaded"))
-            return false;
-        else return preferences.getBoolean("weatherLoaded", false);
+        return preferences.contains("weatherLoaded") && preferences.getBoolean("weatherLoaded", false);
     }
 
     public static void setWeatherLoaded(boolean isLoaded)
@@ -112,15 +109,23 @@ public class Settings
         return locations;
     }
 
-    public static void saveLocations(List<WeatherUtils.Coordinate> locations) throws IOException {
+    public static void saveLocations(List<WeatherUtils.Coordinate> locations) {
         if (locationsFile == null) {
             locationsFile = new File(appDataFolder, "locations.json");
 
-            if (!locationsFile.exists() && !locationsFile.createNewFile())
-                throw new IOException("Unable to create locations file");
+            try {
+                if (!locationsFile.exists() && !locationsFile.createNewFile())
+                    return;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-        JSONParser.serializer(locations, locationsFile);
+        try {
+            JSONParser.serializer(locations, locationsFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     // endregion
 
@@ -177,6 +182,13 @@ public class Settings
     public static List<String> getLocations_WU() {
         if (locationsFile == null) {
             locationsFile = new File(appDataFolder, "locations.json");
+
+            try {
+                if (!locationsFile.exists() && !locationsFile.createNewFile())
+                    return null;
+            } catch (IOException e) {
+                return null;
+            }
         }
 
         if (!locationsFile.exists() || locationsFile.length() == 0)
@@ -194,15 +206,23 @@ public class Settings
         return locations;
     }
 
-    public static void saveLocations_WU(List<String> locations) throws IOException {
+    public static void saveLocations_WU(List<String> locations) {
         if (locationsFile == null) {
             locationsFile = new File(appDataFolder, "locations.json");
 
-            if (!locationsFile.exists() && !locationsFile.createNewFile())
-                throw new IOException("Unable to create locations file");
+            try {
+                if (!locationsFile.exists() && !locationsFile.createNewFile())
+                    return;
+            } catch (IOException e) {
+                return;
+            }
         }
 
-        JSONParser.serializer(locations, locationsFile);
+        try {
+            JSONParser.serializer(locations, locationsFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     // endregion
 }

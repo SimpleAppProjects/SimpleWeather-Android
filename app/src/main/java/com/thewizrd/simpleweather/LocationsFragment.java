@@ -26,8 +26,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.thewizrd.simpleweather.utils.JSONParser;
 import com.thewizrd.simpleweather.utils.Settings;
 import com.thewizrd.simpleweather.utils.WeatherUtils;
 import com.thewizrd.simpleweather.weather.weatherunderground.WUDataLoader;
@@ -37,6 +37,7 @@ import com.thewizrd.simpleweather.weather.yahoo.YahooWeatherDataLoader;
 import com.thewizrd.simpleweather.weather.yahoo.YahooWeatherLoaderTask;
 import com.thewizrd.simpleweather.weather.yahoo.data.YahooWeather;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,13 +83,11 @@ public class LocationsFragment extends Fragment implements WeatherLoadedListener
             // Others
             else
             {
-                LocationPanelModel panel = mAdapter.mDataset.get(locationIdx - 1);
+                LocationPanelModel panel = mAdapter.get(locationIdx - 1);
                 panel.Weather = weather;
                 mAdapter.notifyDataSetChanged();
             }
         }
-        else
-            Toast.makeText(context, "Can't get weather", Toast.LENGTH_LONG).show();
     }
 
     private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
@@ -228,19 +227,11 @@ public class LocationsFragment extends Fragment implements WeatherLoadedListener
             if (Settings.getAPI().equals("WUnderground")) {
                 List<String> locations = Settings.getLocations_WU();
                 locations.remove(item.getItemId() + 1);
-                try {
-                    Settings.saveLocations_WU(locations);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                Settings.saveLocations_WU(locations);
             } else {
                 List<WeatherUtils.Coordinate> locations = Settings.getLocations();
                 locations.remove(item.getItemId() + 1);
-                try {
-                    Settings.saveLocations(locations);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                Settings.saveLocations(locations);
             }
         }
         return super.onContextItemSelected(item);
@@ -364,14 +355,12 @@ public class LocationsFragment extends Fragment implements WeatherLoadedListener
 
                     WUWeather weather = null;
                     try {
-                        weather = new WUDataLoaderTask().execute(v.getLocationName()).get();
+                        weather = new WUDataLoaderTask(getActivity()).execute(query).get();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
 
                     if (weather == null) {
-                        String errorMsg = "Unable to load weather data!!";
-                        Toast.makeText(getActivity().getApplicationContext(), errorMsg, Toast.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -389,13 +378,15 @@ public class LocationsFragment extends Fragment implements WeatherLoadedListener
                         index = locations.size();
                         locations.add(query);
                         // (TODO:) NOTE: panel number could be wrong since we're adding
-                        LocationPanelModel panel = new LocationPanelModel(new Pair<Integer, Object>(index, query), null);
+                        LocationPanelModel panel = new LocationPanelModel(new Pair<Integer, Object>(index, query), weather);
                         mAdapter.add(index - 1, panel);
                     }
 
+                    // Save new locations
+                    Settings.saveLocations_WU(locations);
+                    // Save weather
                     try {
-                        // Save new locations
-                        Settings.saveLocations_WU(locations);
+                        JSONParser.serializer(weather, new File(getContext().getFilesDir(), "weather" + index + ".json"));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -404,14 +395,12 @@ public class LocationsFragment extends Fragment implements WeatherLoadedListener
 
                     YahooWeather weather = null;
                     try {
-                        weather = new YahooWeatherLoaderTask().execute(v.getLocationName()).get();
+                        weather = new YahooWeatherLoaderTask(getActivity()).execute(v.getLocationName()).get();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
 
                     if (weather == null) {
-                        String errorMsg = "Unable to load weather data!!";
-                        Toast.makeText(getActivity().getApplicationContext(), errorMsg, Toast.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -436,9 +425,11 @@ public class LocationsFragment extends Fragment implements WeatherLoadedListener
                         mAdapter.add(index - 1, panel);
                     }
 
+                    // Save new locations
+                    Settings.saveLocations(locations);
+                    // Save weather
                     try {
-                        // Save new locations
-                        Settings.saveLocations(locations);
+                        JSONParser.serializer(weather, new File(getContext().getFilesDir(), "weather" + index + ".json"));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

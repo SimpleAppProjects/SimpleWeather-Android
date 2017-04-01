@@ -1,9 +1,13 @@
 package com.thewizrd.simpleweather.weather.weatherunderground;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.thewizrd.simpleweather.utils.JSONParser;
 import com.thewizrd.simpleweather.utils.Settings;
+import com.thewizrd.simpleweather.utils.WeatherException;
+import com.thewizrd.simpleweather.utils.WeatherUtils;
 import com.thewizrd.simpleweather.weather.weatherunderground.data.Rootobject;
 import com.thewizrd.simpleweather.weather.weatherunderground.data.WUWeather;
 
@@ -11,53 +15,62 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 
 public class WUDataLoaderTask extends AsyncTask<String, Void, WUWeather> {
 
     private WUWeather weather = null;
+    private WeatherException wEx = null;
+
+    private Context context;
+
+    public WUDataLoaderTask(Context context) {
+        this.context = context;
+    }
+
+    @Override
+    protected void onPostExecute(WUWeather weather) {
+        if (weather == null && wEx != null) {
+            Toast.makeText(context, wEx.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @Override
     protected WUWeather doInBackground(String... params) {
         String queryAPI = "http://api.wunderground.com/api/" + Settings.getAPIKEY()
                 + "/astronomy/conditions/forecast10day";
         String options = ".json";
-        int counter = 0;
 
-        do {
-            try {
-                URL queryURL = new URL(queryAPI + params[0] + options);
-                URLConnection client = queryURL.openConnection();
-                InputStream stream = client.getInputStream();
+        try {
+            URL queryURL = new URL(queryAPI + params[0] + options);
+            URLConnection client = queryURL.openConnection();
+            InputStream stream = client.getInputStream();
 
-                // Read to buffer
-                ByteArrayOutputStream buffStream = new ByteArrayOutputStream();
-                byte[] buffer = new byte[1024];
-                int length;
-                while ((length = stream.read(buffer)) != -1) {
-                    buffStream.write(buffer, 0, length);
-                }
-
-                // Load data
-                String response = buffStream.toString("UTF-8");
-                weather = parseWeather(response);
-
-                // Close
-                buffStream.close();
-                stream.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
+            // Read to buffer
+            ByteArrayOutputStream buffStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = stream.read(buffer)) != -1) {
+                buffStream.write(buffer, 0, length);
             }
 
-            if (weather == null)
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            // Load data
+            String response = buffStream.toString("UTF-8");
+            weather = parseWeather(response);
 
-            counter++;
-        } while (weather == null && counter < 5);
+            // Close
+            buffStream.close();
+            stream.close();
+        } catch (UnknownHostException uHEx) {
+            weather = null;
+            wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
+        } catch (Exception e) {
+            weather = null;
+            e.printStackTrace();
+        }
+
+        if (weather == null && wEx == null)
+            wEx = new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
 
         return weather;
     }
@@ -68,6 +81,22 @@ public class WUDataLoaderTask extends AsyncTask<String, Void, WUWeather> {
 
         try {
             root = (Rootobject) JSONParser.deserializer(json, Rootobject.class);
+
+            // Check for errors
+            if (root.response.error != null)
+            {
+                switch (root.response.error.type)
+                {
+                    case "querynotfound":
+                        wEx = new WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND);
+                        break;
+                    case "keynotfound":
+                        wEx = new WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY);
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             // Load weather
             weather = new WUWeather(root);

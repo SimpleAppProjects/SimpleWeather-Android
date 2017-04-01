@@ -471,7 +471,6 @@ public class WeatherUtils {
     public enum ErrorStatus
     {
         UNKNOWN,
-        SUCCESS,
         NOWEATHER,
         NETWORKERROR,
         INVALIDAPIKEY,

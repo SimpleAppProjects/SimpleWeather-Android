@@ -13,7 +13,7 @@ import com.thewizrd.simpleweather.weather.yahoo.data.YahooWeather;
 import java.util.List;
 
 public class LocationPanelAdapter extends RecyclerView.Adapter<LocationPanelAdapter.ViewHolder> {
-    public List<LocationPanelModel> mDataset;
+    private List<LocationPanelModel> mDataset;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -85,5 +85,9 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<LocationPanelAdap
         notifyItemRemoved(position);
 
         // Update pair
+    }
+
+    public LocationPanelModel get(int position) {
+        return mDataset.get(position);
     }
 }

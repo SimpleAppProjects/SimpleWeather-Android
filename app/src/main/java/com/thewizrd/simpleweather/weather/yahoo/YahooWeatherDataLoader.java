@@ -3,11 +3,13 @@ package com.thewizrd.simpleweather.weather.yahoo;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.Toast;
 
 import com.thewizrd.simpleweather.WeatherLoadedListener;
 import com.thewizrd.simpleweather.utils.FileUtils;
 import com.thewizrd.simpleweather.utils.JSONParser;
 import com.thewizrd.simpleweather.utils.Settings;
+import com.thewizrd.simpleweather.utils.WeatherException;
 import com.thewizrd.simpleweather.utils.WeatherUtils;
 import com.thewizrd.simpleweather.weather.yahoo.data.Rootobject;
 import com.thewizrd.simpleweather.weather.yahoo.data.YahooWeather;
@@ -18,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -27,8 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 public class YahooWeatherDataLoader {
 
-    WeatherLoadedListener mCallBack;
-    //OnWeatherErrorListener mErrorBack;
+    private WeatherLoadedListener mCallBack;
 
     private String location = null;
     private YahooWeather weather = null;
@@ -44,9 +46,6 @@ public class YahooWeatherDataLoader {
         mContext = context;
         filesDir = mContext.getFilesDir();
         mCallBack = listener;
-        /*
-        mErrorBack = (OnWeatherErrorListener) mContext;
-        */
     }
 
     public YahooWeatherDataLoader(Context context, WeatherLoadedListener listener, WeatherUtils.Coordinate coordinate, int idx) {
@@ -56,15 +55,13 @@ public class YahooWeatherDataLoader {
         mContext = context;
         filesDir = mContext.getFilesDir();
         mCallBack = listener;
-        /*
-        mErrorBack = (OnWeatherErrorListener) mContext;
-        */
     }
 
-    private void getWeatherData() {
+    private void getWeatherData() throws WeatherException {
         String yahooAPI = "https://query.yahooapis.com/v1/public/yql?q=";
         String query = "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text=\""
                 + location + "\") and u='" + Settings.getTempUnit() + "'&format=json";
+        WeatherException wEx = null;
         int counter = 0;
 
         do {
@@ -72,6 +69,8 @@ public class YahooWeatherDataLoader {
                 URL queryURL = new URL(yahooAPI + query);
                 URLConnection client = queryURL.openConnection();
                 InputStream stream = client.getInputStream();
+                // Reset exception
+                wEx = null;
 
                 // Read to buffer
                 ByteArrayOutputStream buffStream = new ByteArrayOutputStream();
@@ -93,9 +92,12 @@ public class YahooWeatherDataLoader {
                     saveTimeZone();
                     saveWeatherData();
                 }
+            } catch (UnknownHostException uHEx) {
+                weather = null;
+                wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
             } catch (Exception e) {
+                weather = null;
                 e.printStackTrace();
-            } finally {
             }
 
             // If we can't load data, delay and try again
@@ -113,6 +115,13 @@ public class YahooWeatherDataLoader {
         if (weather == null)
         {
             loadSavedWeatherData(weatherFile, true);
+        }
+
+        // Throw error if still null
+        if (weather == null && wEx != null) {
+            throw wEx;
+        } else if (weather == null && wEx == null) {
+            throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
         }
     }
 
@@ -161,14 +170,23 @@ public class YahooWeatherDataLoader {
             weatherFile = new File(filesDir, "weather" + locationIdx + ".json");
 
             if (!weatherFile.exists() && !weatherFile.createNewFile())
-                throw new IOException("Unable to create locations file");
+                throw new IOException("Unable to load weather data");
         }
 
         new Thread() {
             @Override
             public void run() {
                 if (forceRefresh) {
-                    getWeatherData();
+                    try {
+                        getWeatherData();
+                    } catch (final WeatherException e) {
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
                 }
                 else {
                     try {
@@ -193,16 +211,23 @@ public class YahooWeatherDataLoader {
             weatherFile = new File(filesDir, "weather" + locationIdx + ".json");
 
             if (!weatherFile.exists() && !weatherFile.createNewFile())
-                throw new IOException("Unable to create locations file");
+                throw new IOException("Unable to load weather data");
         }
 
         boolean gotData = loadSavedWeatherData(weatherFile);
 
         if (!gotData) {
-            getWeatherData();
+            try {
+                getWeatherData();
+            } catch (final WeatherException e) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }
-        else
-            return;
     }
 
     private boolean loadSavedWeatherData(File file, boolean _override) {
@@ -261,7 +286,7 @@ public class YahooWeatherDataLoader {
             weatherFile = new File(filesDir, "weather" + locationIdx + ".json");
 
             if (!weatherFile.exists() && !weatherFile.createNewFile())
-                throw new IOException("Unable to create locations file");
+                throw new IOException("Unable to save weather data");
         }
 
         JSONParser.serializer(weather, weatherFile);

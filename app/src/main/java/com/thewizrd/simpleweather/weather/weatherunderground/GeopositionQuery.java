@@ -1,7 +1,10 @@
 package com.thewizrd.simpleweather.weather.weatherunderground;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
+import com.thewizrd.simpleweather.utils.WeatherException;
 import com.thewizrd.simpleweather.utils.WeatherUtils;
 import com.thewizrd.simpleweather.weather.weatherunderground.data.AC_Location;
 
@@ -13,27 +16,38 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.UnknownHostException;
 import java.util.Locale;
 
-public class GeopositionQuery extends AsyncTask<WeatherUtils.Coordinate, Void, List<AC_Location>> {
+public class GeopositionQuery extends AsyncTask<WeatherUtils.Coordinate, Void, AC_Location> {
     private static String queryAPI = "http://api.wunderground.com/auto/wui/geo/GeoLookupXML/index.xml?query=";
     private static String options = "";
 
-    protected List<AC_Location> doInBackground(WeatherUtils.Coordinate... coordinates)
-    {
+    private Context context;
+    private WeatherException wEx = null;
+
+    public GeopositionQuery(Context context) {
+        this.context = context;
+    }
+
+    protected AC_Location doInBackground(WeatherUtils.Coordinate... coordinates) {
         return getLocation(coordinates[0]);
     }
 
-    private List<AC_Location> getLocation(WeatherUtils.Coordinate coordinate)
-    {
-        List<AC_Location> locationResults = null;
-        String query = String.format(Locale.getDefault(), "%f,%f", coordinate.getLatitude(), coordinate.getLongitude());
+    @Override
+    protected void onPostExecute(AC_Location ac_location) {
+        if (wEx != null) {
+            Toast.makeText(context, wEx.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
 
+    private AC_Location getLocation(WeatherUtils.Coordinate coordinate) {
+        AC_Location result = null;
+        String query = String.format(Locale.getDefault(), "%f,%f", coordinate.getLatitude(), coordinate.getLongitude());
+        URLConnection client = null;
         try {
             URL queryURL = new URL(queryAPI + query + options);
-            URLConnection client = queryURL.openConnection();
+            client = queryURL.openConnection();
             InputStream stream = client.getInputStream();
 
             // Read to buffer
@@ -46,24 +60,23 @@ public class GeopositionQuery extends AsyncTask<WeatherUtils.Coordinate, Void, L
 
             // Load data
             String response = buffStream.toString("UTF-8");
-            locationResults = parseXML(response);
+            result = parseXML(response);
 
             // Close
             buffStream.close();
             stream.close();
+        } catch (UnknownHostException uknHEx) {
+            wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (locationResults == null)
-                locationResults = new ArrayList<>();
         }
 
-        return locationResults;
+        return result;
     }
 
-    private ArrayList<AC_Location> parseXML(String xml)
+    private AC_Location parseXML(String xml)
     {
-        ArrayList<AC_Location> results = new ArrayList<>();
+        AC_Location result = null;
 
         try {
             XmlPullParser parser = XmlPullParserFactory.newInstance().newPullParser();
@@ -111,7 +124,7 @@ public class GeopositionQuery extends AsyncTask<WeatherUtils.Coordinate, Void, L
                     currentTag = null;
                     if ("wmo".equals(tagName)) {
                         // STOP here
-                        results.add(new AC_Location(location));
+                        result = new AC_Location(location);
                         break;
                     }
                 }
@@ -121,7 +134,7 @@ public class GeopositionQuery extends AsyncTask<WeatherUtils.Coordinate, Void, L
             e.printStackTrace();
         }
 
-        return results;
+        return result;
     }
 
     public class location {

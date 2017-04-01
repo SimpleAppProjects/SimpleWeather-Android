@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.thewizrd.simpleweather.utils.ConversionMethods;
 import com.thewizrd.simpleweather.utils.Settings;
@@ -73,8 +72,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                 updateView((YahooWeather) weather);
             }
         }
-        else
-            Toast.makeText(context, "Can't get weather", Toast.LENGTH_LONG).show();
 
         showLoadingView(false);
     }

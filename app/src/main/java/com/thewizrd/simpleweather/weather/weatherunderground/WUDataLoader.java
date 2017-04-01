@@ -3,11 +3,14 @@ package com.thewizrd.simpleweather.weather.weatherunderground;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.Toast;
 
 import com.thewizrd.simpleweather.WeatherLoadedListener;
 import com.thewizrd.simpleweather.utils.FileUtils;
 import com.thewizrd.simpleweather.utils.JSONParser;
 import com.thewizrd.simpleweather.utils.Settings;
+import com.thewizrd.simpleweather.utils.WeatherException;
+import com.thewizrd.simpleweather.utils.WeatherUtils;
 import com.thewizrd.simpleweather.weather.weatherunderground.data.Rootobject;
 import com.thewizrd.simpleweather.weather.weatherunderground.data.WUWeather;
 
@@ -17,14 +20,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class WUDataLoader {
 
-    WeatherLoadedListener mCallBack;
-    //OnWeatherErrorListener mErrorBack;
+    private WeatherLoadedListener mCallBack;
 
     private String location_query = null;
     private WUWeather weather = null;
@@ -40,15 +43,13 @@ public class WUDataLoader {
         mContext = context;
         filesDir = mContext.getFilesDir();
         mCallBack = listener;
-        /*
-        mErrorBack = (OnWeatherErrorListener) mContext;
-        */
     }
 
-    private void getWeatherData() {
+    private void getWeatherData() throws WeatherException {
         String queryAPI = "http://api.wunderground.com/api/" + Settings.getAPIKEY()
                 + "/astronomy/conditions/forecast10day";
         String options = ".json";
+        WeatherException wEx = null;
         int counter = 0;
 
         do {
@@ -56,6 +57,8 @@ public class WUDataLoader {
                 URL queryURL = new URL(queryAPI + location_query + options);
                 URLConnection client = queryURL.openConnection();
                 InputStream stream = client.getInputStream();
+                // Reset exception
+                wEx = null;
 
                 // Read to buffer
                 ByteArrayOutputStream buffStream = new ByteArrayOutputStream();
@@ -67,7 +70,26 @@ public class WUDataLoader {
 
                 // Load data
                 String response = buffStream.toString("UTF-8");
-                weather = parseWeather(response);
+                Rootobject root = (Rootobject) JSONParser.deserializer(response, Rootobject.class);
+
+                // Check for errors
+                if (root.response.error != null)
+                {
+                    switch (root.response.error.type)
+                    {
+                        case "querynotfound":
+                            wEx = new WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND);
+                            break;
+                        case "keynotfound":
+                            wEx = new WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                // Load weather
+                weather = new WUWeather(root);
 
                 // Close
                 buffStream.close();
@@ -75,9 +97,12 @@ public class WUDataLoader {
 
                 if (weather != null)
                     saveWeatherData();
+            } catch (UnknownHostException uHEx) {
+                weather = null;
+                wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
             } catch (Exception e) {
+                weather = null;
                 e.printStackTrace();
-            } finally {
             }
 
             if (weather == null)
@@ -95,21 +120,13 @@ public class WUDataLoader {
         {
             loadSavedWeatherData(weatherFile, true);
         }
-    }
 
-    private WUWeather parseWeather(String json)
-    {
-        Rootobject root = null;
-
-        try {
-            root = (Rootobject) JSONParser.deserializer(json, Rootobject.class);
-
-            // Load weather
-            weather = new WUWeather(root);
-        } catch (Exception e) {
-            e.printStackTrace();
+        // Throw error if still null
+        if (weather == null && wEx != null) {
+            throw wEx;
+        } else if (weather == null && wEx == null) {
+            throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
         }
-        return weather;
     }
 
     public void loadWeatherData(final boolean forceRefresh) throws IOException {
@@ -117,14 +134,23 @@ public class WUDataLoader {
             weatherFile = new File(filesDir, "weather" + locationIdx + ".json");
 
             if (!weatherFile.exists() && !weatherFile.createNewFile())
-                throw new IOException("Unable to create locations file");
+                throw new IOException("Unable to load weather data");
         }
 
         new Thread() {
             @Override
             public void run() {
                 if (forceRefresh) {
-                    getWeatherData();
+                    try {
+                        getWeatherData();
+                    } catch (final WeatherException e) {
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
                 }
                 else {
                     try {
@@ -149,16 +175,23 @@ public class WUDataLoader {
             weatherFile = new File(filesDir, "weather" + locationIdx + ".json");
 
             if (!weatherFile.exists() && !weatherFile.createNewFile())
-                throw new IOException("Unable to create locations file");
+                throw new IOException("Unable to load weather data");
         }
 
         boolean gotData = loadSavedWeatherData(weatherFile);
 
         if (!gotData) {
-            getWeatherData();
+            try {
+                getWeatherData();
+            } catch (final WeatherException e) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }
-        else
-            return;
     }
 
     private boolean loadSavedWeatherData(File file, boolean _override) {
@@ -174,7 +207,6 @@ public class WUDataLoader {
             }
 
             return weather != null;
-
         }
         else
             return loadSavedWeatherData(file);
@@ -212,7 +244,7 @@ public class WUDataLoader {
             weatherFile = new File(filesDir, "weather" + locationIdx + ".json");
 
             if (!weatherFile.exists() && !weatherFile.createNewFile())
-                throw new IOException("Unable to create locations file");
+                throw new IOException("Unable to save weather data");
         }
 
         JSONParser.serializer(weather, weatherFile);
