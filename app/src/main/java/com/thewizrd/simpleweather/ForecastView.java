@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.thewizrd.simpleweather.utils.Settings;
 import com.thewizrd.simpleweather.utils.WeatherUtils;
 import com.thewizrd.simpleweather.weather.weatherunderground.data.Forecastday1;
+import com.thewizrd.simpleweather.weather.yahoo.data.Forecast;
 
 public class ForecastView extends LinearLayout {
 
@@ -49,6 +50,14 @@ public class ForecastView extends LinearLayout {
         forecastCondition = (TextView) viewLayout.findViewById(R.id.forecast_condition);
         forecastTempHi = (TextView) viewLayout.findViewById(R.id.forecast_temphi);
         forecastTempLo = (TextView) viewLayout.findViewById(R.id.forecast_templo);
+    }
+
+    public void setForecast(Forecast forecast) {
+        forecastDate.setText(forecast.getDate());
+        forecastIcon.setText(WeatherUtils.GetWeatherIcon(Integer.valueOf(forecast.code)));
+        forecastCondition.setText(forecast.text);
+        forecastTempHi.setText(forecast.high + "º");
+        forecastTempLo.setText(forecast.low + "º");
     }
 
     public void setForecast(Forecastday1 forecast) {

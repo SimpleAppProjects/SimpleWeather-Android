@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.utils;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
+import com.google.gson.reflect.TypeToken;
 import com.thewizrd.simpleweather.App;
 
 import java.io.BufferedReader;
@@ -89,6 +90,41 @@ public class Settings
         editor.commit();
     }
 
+    // region Yahoo Weather
+    public static List<WeatherUtils.Coordinate> getLocations() {
+        if (locationsFile == null) {
+            locationsFile = new File(appDataFolder, "locations.json");
+        }
+
+        if (!locationsFile.exists() || locationsFile.length() == 0)
+            return null;
+
+        List<WeatherUtils.Coordinate> locations;
+
+        try {
+            locations = (ArrayList<WeatherUtils.Coordinate>) JSONParser.deserializer(FileUtils.readFile(locationsFile),
+                    new TypeToken<ArrayList<WeatherUtils.Coordinate>>(){}.getType());
+        } catch (Exception e) {
+            e.printStackTrace();
+            locations = null;
+        }
+
+        return locations;
+    }
+
+    public static void saveLocations(List<WeatherUtils.Coordinate> locations) throws IOException {
+        if (locationsFile == null) {
+            locationsFile = new File(appDataFolder, "locations.json");
+
+            if (!locationsFile.exists() && !locationsFile.createNewFile())
+                throw new IOException("Unable to create locations file");
+        }
+
+        JSONParser.serializer(locations, locationsFile);
+    }
+    // endregion
+
+    // region WeatherUnderground
     public static String getAPIKEY()
     {
         if (!preferences.contains("API_KEY"))
@@ -158,7 +194,7 @@ public class Settings
         return locations;
     }
 
-    public static void saveLocations(List<String> locations) throws IOException {
+    public static void saveLocations_WU(List<String> locations) throws IOException {
         if (locationsFile == null) {
             locationsFile = new File(appDataFolder, "locations.json");
 
@@ -168,4 +204,5 @@ public class Settings
 
         JSONParser.serializer(locations, locationsFile);
     }
+    // endregion
 }

@@ -5,8 +5,16 @@ import com.google.gson.GsonBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 public class JSONParser {
+    public static Object deserializer(String response, Type type) {
+        Gson gson = new GsonBuilder().setDateFormat("EEE, dd MMM yyyy HH:mm:ss Z").create();
+        Object object = gson.fromJson(response, type);
+
+        return object;
+    }
+
     public static Object deserializer(String response, Class<?> obj) {
         Gson gson = new GsonBuilder().setDateFormat("EEE, dd MMM yyyy HH:mm:ss Z").create();
         Object object = gson.fromJson(response, obj);

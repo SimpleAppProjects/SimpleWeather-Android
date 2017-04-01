@@ -7,7 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
-import com.thewizrd.simpleweather.weather.weatherunderground.data.Weather;
+import com.thewizrd.simpleweather.weather.weatherunderground.data.WUWeather;
+import com.thewizrd.simpleweather.weather.yahoo.data.YahooWeather;
 
 import java.util.List;
 
@@ -55,8 +56,15 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<LocationPanelAdap
     public void onBindViewHolder(ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        if (mDataset.get(position).Weather != null)
-            holder.mLocView.setWeather((Weather) mDataset.get(position).Weather);
+        Object weather = mDataset.get(position).Weather;
+
+        if (weather != null) {
+            if (weather instanceof WUWeather) {
+                holder.mLocView.setWeather((WUWeather) weather);
+            } else if (weather instanceof YahooWeather) {
+                holder.mLocView.setWeather((YahooWeather) weather);
+            }
+        }
 
         holder.mLocView.setTag(mDataset.get(position).Pair);
     }

@@ -9,7 +9,7 @@ import com.thewizrd.simpleweather.utils.FileUtils;
 import com.thewizrd.simpleweather.utils.JSONParser;
 import com.thewizrd.simpleweather.utils.Settings;
 import com.thewizrd.simpleweather.weather.weatherunderground.data.Rootobject;
-import com.thewizrd.simpleweather.weather.weatherunderground.data.Weather;
+import com.thewizrd.simpleweather.weather.weatherunderground.data.WUWeather;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -21,19 +21,19 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-public class WeatherDataLoader {
+public class WUDataLoader {
 
     WeatherLoadedListener mCallBack;
     //OnWeatherErrorListener mErrorBack;
 
     private String location_query = null;
-    private Weather weather = null;
+    private WUWeather weather = null;
     private int locationIdx = 0;
     private File filesDir = null;
     private File weatherFile = null;
     private Context mContext;
 
-    public WeatherDataLoader(Context context, WeatherLoadedListener listener, String query, int idx) {
+    public WUDataLoader(Context context, WeatherLoadedListener listener, String query, int idx) {
         location_query = query;
         locationIdx = idx;
 
@@ -49,37 +49,55 @@ public class WeatherDataLoader {
         String queryAPI = "http://api.wunderground.com/api/" + Settings.getAPIKEY()
                 + "/astronomy/conditions/forecast10day";
         String options = ".json";
+        int counter = 0;
 
-        try {
-            URL queryURL = new URL(queryAPI + location_query + options);
-            URLConnection client = queryURL.openConnection();
-            InputStream stream = client.getInputStream();
+        do {
+            try {
+                URL queryURL = new URL(queryAPI + location_query + options);
+                URLConnection client = queryURL.openConnection();
+                InputStream stream = client.getInputStream();
 
-            // Read to buffer
-            ByteArrayOutputStream buffStream = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = stream.read(buffer)) != -1) {
-                buffStream.write(buffer, 0, length);
+                // Read to buffer
+                ByteArrayOutputStream buffStream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = stream.read(buffer)) != -1) {
+                    buffStream.write(buffer, 0, length);
+                }
+
+                // Load data
+                String response = buffStream.toString("UTF-8");
+                weather = parseWeather(response);
+
+                // Close
+                buffStream.close();
+                stream.close();
+
+                if (weather != null)
+                    saveWeatherData();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
             }
 
-            // Load data
-            String response = buffStream.toString("UTF-8");
-            weather = parseWeather(response);
+            if (weather == null)
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-            // Close
-            buffStream.close();
-            stream.close();
+            counter++;
+        } while (weather == null && counter < 5);
 
-            if (weather != null)
-                saveWeatherData();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
+        // Load old data if available and we can't get new data
+        if (weather == null)
+        {
+            loadSavedWeatherData(weatherFile, true);
         }
     }
 
-    private Weather parseWeather(String json)
+    private WUWeather parseWeather(String json)
     {
         Rootobject root = null;
 
@@ -87,7 +105,7 @@ public class WeatherDataLoader {
             root = (Rootobject) JSONParser.deserializer(json, Rootobject.class);
 
             // Load weather
-            weather = new Weather(root);
+            weather = new WUWeather(root);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -150,7 +168,7 @@ public class WeatherDataLoader {
 
             try {
                 String weatherJson = FileUtils.readFile(file);
-                weather = (Weather) JSONParser.deserializer(weatherJson, Weather.class);
+                weather = (WUWeather) JSONParser.deserializer(weatherJson, WUWeather.class);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -168,7 +186,7 @@ public class WeatherDataLoader {
 
         try {
             String weatherJson = FileUtils.readFile(file);
-            weather = (Weather) JSONParser.deserializer(weatherJson, Weather.class);
+            weather = (WUWeather) JSONParser.deserializer(weatherJson, WUWeather.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -200,5 +218,5 @@ public class WeatherDataLoader {
         JSONParser.serializer(weather, weatherFile);
     }
 
-    public Weather getWeather() { return weather; }
+    public WUWeather getWeather() { return weather; }
 }

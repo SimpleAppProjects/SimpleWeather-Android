@@ -16,11 +16,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.thewizrd.simpleweather.utils.ConversionMethods;
 import com.thewizrd.simpleweather.utils.Settings;
 import com.thewizrd.simpleweather.utils.WeatherUtils;
-import com.thewizrd.simpleweather.weather.weatherunderground.WeatherDataLoader;
+import com.thewizrd.simpleweather.weather.weatherunderground.WUDataLoader;
 import com.thewizrd.simpleweather.weather.weatherunderground.data.Forecastday1;
-import com.thewizrd.simpleweather.weather.weatherunderground.data.Weather;
+import com.thewizrd.simpleweather.weather.weatherunderground.data.WUWeather;
+import com.thewizrd.simpleweather.weather.yahoo.YahooWeatherDataLoader;
+import com.thewizrd.simpleweather.weather.yahoo.data.Forecast;
+import com.thewizrd.simpleweather.weather.yahoo.data.YahooWeather;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -32,9 +36,10 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
     private String mQuery;
     private int mIndex;
-
     private Context context;
-    private WeatherDataLoader wLoader = null;
+
+    private YahooWeatherDataLoader wLoader = null;
+    private WUDataLoader wu_Loader = null;
 
     // Views
     private View contentView;
@@ -62,7 +67,11 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
     public void onWeatherLoaded(int index, Object weather) {
         if (weather != null) {
-            updateView((Weather) weather);
+            if (weather instanceof WUWeather)
+                updateView((WUWeather) weather);
+            else if (weather instanceof YahooWeather) {
+                updateView((YahooWeather) weather);
+            }
         }
         else
             Toast.makeText(context, "Can't get weather", Toast.LENGTH_LONG).show();
@@ -170,7 +179,11 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
         // Update view on resume
         // ex. If temperature unit changed
-        if (wLoader != null) {
+        if (wu_Loader != null) {
+            if (wu_Loader.getWeather() != null) {
+                updateView(wu_Loader.getWeather());
+            }
+        } else if (wLoader != null) {
             if (wLoader.getWeather() != null) {
                 updateView(wLoader.getWeather());
             }
@@ -182,8 +195,13 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     }
 
     private void Restore() {
-        if (wLoader == null)
-            wLoader = new WeatherDataLoader(context, this, mQuery, mIndex);
+        if (Settings.getAPI().equals("WUnderground")) {
+            if (wu_Loader == null)
+                wu_Loader = new WUDataLoader(context, this, mQuery, mIndex);
+        } else {
+            if (wLoader == null)
+                wLoader = new YahooWeatherDataLoader(context, this, mQuery, mIndex);
+        }
 
         RefreshWeather(false);
     }
@@ -193,7 +211,11 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         showLoadingView(true);
 
         try {
-            wLoader.loadWeatherData(forceRefresh);
+            if (Settings.getAPI().equals("WUnderground")) {
+                wu_Loader.loadWeatherData(forceRefresh);
+            } else {
+                wLoader.loadWeatherData(forceRefresh);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             showLoadingView(false);
@@ -205,7 +227,59 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
-    private void updateView(Weather weather) {
+    private void updateView(YahooWeather weather) {
+        // Background
+        try {
+            getView().setBackground(WeatherUtils.GetBackground(weather, getView().getRight(), getView().getBottom()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        LinearLayout forecastPanel = (LinearLayout) contentView.findViewById(R.id.forecast_panel);
+        forecastPanel.setBackgroundColor(WeatherUtils.isNight(weather) ? Color.parseColor("#20808080") : Color.parseColor("#10080808"));
+        detailsPanel.setBackgroundColor(WeatherUtils.isNight(weather) ? Color.parseColor("#20808080") : Color.parseColor("#10080808"));
+
+        // Location
+        locationName.setText(weather.location.getDescription());
+
+        // Date Updated
+        updateTime.setText(WeatherUtils.GetLastBuildDate(weather));
+
+        // Update Current Condition
+        weatherTemp.setText(Settings.getTempUnit().equals("F") ?
+                weather.condition.temp + fahrenheit : weather.condition.temp + celsius);
+        weatherCondition.setText(weather.condition.text);
+        weatherIcon.setText(WeatherUtils.GetWeatherIcon(Integer.valueOf(weather.condition.code)));
+
+        // WeatherDetails
+        // Astronomy
+        sunrise.setText(weather.astronomy.getSunrise());
+        sunset.setText(weather.astronomy.getSunset());
+
+        // Wind
+        feelslike.setText(Settings.getTempUnit().equals("F") ?
+                weather.wind.chill + "°" : ConversionMethods.FtoC(weather.wind.chill) + "°");
+        windSpeed.setText(weather.wind.getSpeed() + " " + weather.units.speed);
+        updateWindDirection(Integer.valueOf(weather.wind.direction));
+
+        // Atmosphere
+        humidity.setText(weather.atmosphere.getHumidity());
+        pressure.setText((Settings.getTempUnit().equals("F") ?
+                weather.atmosphere.getPressure() : Math.round(Double.valueOf(weather.atmosphere.getPressure())))
+                + " " + weather.units.pressure);
+        updatePressureState(Integer.valueOf(weather.atmosphere.rising));
+        visiblity.setText(weather.atmosphere.getVisibility() + " " + weather.units.distance);
+
+        // Add UI elements
+        forecastPanel.removeAllViews();
+        for (Forecast forecast : weather.forecasts)
+        {
+            ForecastView view = new ForecastView(context);
+            view.setForecast(forecast);
+            forecastPanel.addView(view);
+        }
+    }
+
+    private void updateView(WUWeather weather) {
         // Background
         try {
             getView().setBackground(WeatherUtils.GetBackground(weather, getView().getRight(), getView().getBottom()));

@@ -11,7 +11,8 @@ import android.widget.TextView;
 
 import com.thewizrd.simpleweather.utils.Settings;
 import com.thewizrd.simpleweather.utils.WeatherUtils;
-import com.thewizrd.simpleweather.weather.weatherunderground.data.Weather;
+import com.thewizrd.simpleweather.weather.weatherunderground.data.WUWeather;
+import com.thewizrd.simpleweather.weather.yahoo.data.YahooWeather;
 
 public class LocationPanel extends CardView {
     private View viewLayout;
@@ -50,7 +51,23 @@ public class LocationPanel extends CardView {
         showLoading(true);
     }
 
-    public void setWeather(Weather weather) {
+    public void setWeather(YahooWeather weather) {
+        // Background
+        try {
+            mainLayout.setBackground(WeatherUtils.GetBackground(weather, mainLayout.getRight(), mainLayout.getBottom()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        locationNameView.setText(weather.location.getDescription());
+        locationTempView.setText(weather.condition.temp + "°");
+        locationWeatherIcon.setText(WeatherUtils.GetWeatherIcon(Integer.valueOf(weather.condition.code)));
+
+        setEnabled(true);
+        showLoading(false);
+    }
+
+    public void setWeather(WUWeather weather) {
         // Background
         try {
             mainLayout.setBackground(WeatherUtils.GetBackground(weather, mainLayout.getRight(), mainLayout.getBottom()));

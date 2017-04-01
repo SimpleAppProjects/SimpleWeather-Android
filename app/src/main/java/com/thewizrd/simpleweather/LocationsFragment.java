@@ -29,18 +29,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.thewizrd.simpleweather.utils.Settings;
-import com.thewizrd.simpleweather.weather.weatherunderground.WeatherDataLoader;
-import com.thewizrd.simpleweather.weather.weatherunderground.data.Weather;
+import com.thewizrd.simpleweather.utils.WeatherUtils;
+import com.thewizrd.simpleweather.weather.weatherunderground.WUDataLoader;
+import com.thewizrd.simpleweather.weather.weatherunderground.WUDataLoaderTask;
+import com.thewizrd.simpleweather.weather.weatherunderground.data.WUWeather;
+import com.thewizrd.simpleweather.weather.yahoo.YahooWeatherDataLoader;
+import com.thewizrd.simpleweather.weather.yahoo.YahooWeatherLoaderTask;
+import com.thewizrd.simpleweather.weather.yahoo.data.YahooWeather;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class LocationsFragment extends Fragment implements WeatherLoadedListener {
 
     private Context context;
-    private WeatherDataLoader wu_Loader = null;
 
     // Views
     private LocationPanel HomePanel;
@@ -70,7 +73,11 @@ public class LocationsFragment extends Fragment implements WeatherLoadedListener
             // Home Panel
             if (locationIdx == 0)
             {
-                HomePanel.setWeather((Weather)weather);
+                if (weather instanceof WUWeather) {
+                    HomePanel.setWeather((WUWeather) weather);
+                } else if (weather instanceof YahooWeather) {
+                    HomePanel.setWeather((YahooWeather) weather);
+                }
             }
             // Others
             else
@@ -127,7 +134,14 @@ public class LocationsFragment extends Fragment implements WeatherLoadedListener
                 LocationPanel v = (LocationPanel) view;
                 Pair<Integer, Object> pair = (Pair<Integer, Object>) v.getTag();
 
-                Fragment fragment = WeatherNowFragment.newInstance((String) pair.second, pair.first);
+                Fragment fragment = null;
+
+                if (Settings.getAPI().equals("WUnderground")) {
+                    fragment = WeatherNowFragment.newInstance((String) pair.second, pair.first);
+                } else {
+                    WeatherUtils.Coordinate coord = (WeatherUtils.Coordinate) pair.second;
+                    fragment = WeatherNowFragment.newInstance(coord.getCoordinatePair(), pair.first);
+                }
 
                 // Navigate to WeatherNowFragment
                 AppCompatActivity activity = (AppCompatActivity) getActivity();
@@ -210,12 +224,23 @@ public class LocationsFragment extends Fragment implements WeatherLoadedListener
         } else if (item.getTitle() == "Delete Location") {
             // Other Locations
             mAdapter.remove(item.getItemId());
-            List<String> locations = Settings.getLocations_WU();
-            locations.remove(item.getItemId() + 1);
-            try {
-                Settings.saveLocations(locations);
-            } catch (IOException e) {
-                e.printStackTrace();
+
+            if (Settings.getAPI().equals("WUnderground")) {
+                List<String> locations = Settings.getLocations_WU();
+                locations.remove(item.getItemId() + 1);
+                try {
+                    Settings.saveLocations_WU(locations);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                List<WeatherUtils.Coordinate> locations = Settings.getLocations();
+                locations.remove(item.getItemId() + 1);
+                try {
+                    Settings.saveLocations(locations);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return super.onContextItemSelected(item);
@@ -238,6 +263,9 @@ public class LocationsFragment extends Fragment implements WeatherLoadedListener
         // Lets load it up...
         if (Settings.getAPI().equals("WUnderground"))
         {
+            // Weather Loader
+            WUDataLoader wu_Loader = null;
+
             List<String> locations = Settings.getLocations_WU();
 
             for (String location : locations)
@@ -252,9 +280,34 @@ public class LocationsFragment extends Fragment implements WeatherLoadedListener
                     mAdapter.add(index - 1, panel);
                 }
 
-                wu_Loader = new WeatherDataLoader(context, this, location, index);
+                wu_Loader = new WUDataLoader(context, this, location, index);
                 try {
                     wu_Loader.loadWeatherData(false);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            // Weather Loader
+            YahooWeatherDataLoader wLoader = null;
+
+            List<WeatherUtils.Coordinate> locations = Settings.getLocations();
+
+            for (WeatherUtils.Coordinate location : locations)
+            {
+                int index = locations.indexOf(location);
+
+                if (index == 0) { // Home
+                    // Nothing
+                    HomePanel.setTag(new Pair<>(index, location));
+                } else {
+                    LocationPanelModel panel =  new LocationPanelModel(new Pair<Integer, Object>(index, location), null);
+                    mAdapter.add(index - 1, panel);
+                }
+
+                wLoader = new YahooWeatherDataLoader(context, this, location, index);
+                try {
+                    wLoader.loadWeatherData(false);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -303,37 +356,93 @@ public class LocationsFragment extends Fragment implements WeatherLoadedListener
             @Override
             public void onClick(View view) {
                 LocationQueryView v = (LocationQueryView)view;
-                String query = v.getLocationQuery();
                 int index = 0;
 
-                List<String> locations = Settings.getLocations_WU();
+                if (Settings.getAPI().equals("WUnderground")) {
+                    String query = v.getLocationQuery();
+                    List<String> locations = Settings.getLocations_WU();
 
-                if (mActionMode.getTag() != null && (int)mActionMode.getTag() == R.id.home_panel)
-                {
-                    index = 0;
-                    locations.set(index, query);
-                    HomePanel.setTag(new Pair<>(index, query));
-                    // ProgressBar
-                    HomePanel.showLoading(true);
-                }
-                else
-                {
-                    index = locations.size();
-                    locations.add(query);
-                    // (TODO:) NOTE: panel number could be wrong since we're adding
-                    LocationPanelModel panel = new LocationPanelModel(new Pair<Integer, Object>(index, query), null);
-                    mAdapter.add(index - 1, panel);
-                }
+                    WUWeather weather = null;
+                    try {
+                        weather = new WUDataLoaderTask().execute(v.getLocationName()).get();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
-                wu_Loader = new WeatherDataLoader(context, LocationsFragment.this, query, index);
-                try {
-                    wu_Loader.loadWeatherData(true);
-                    // Save new locations
-                    Settings.saveLocations(locations);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                    if (weather == null) {
+                        String errorMsg = "Unable to load weather data!!";
+                        Toast.makeText(getActivity().getApplicationContext(), errorMsg, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
+                    if (mActionMode.getTag() != null && (int)mActionMode.getTag() == R.id.home_panel)
+                    {
+                        index = 0;
+                        locations.set(index, query);
+                        HomePanel.setTag(new Pair<>(index, query));
+                        // ProgressBar
+                        HomePanel.showLoading(true);
+                        HomePanel.setWeather(weather);
+                    }
+                    else
+                    {
+                        index = locations.size();
+                        locations.add(query);
+                        // (TODO:) NOTE: panel number could be wrong since we're adding
+                        LocationPanelModel panel = new LocationPanelModel(new Pair<Integer, Object>(index, query), null);
+                        mAdapter.add(index - 1, panel);
+                    }
+
+                    try {
+                        // Save new locations
+                        Settings.saveLocations_WU(locations);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    List<WeatherUtils.Coordinate> locations = Settings.getLocations();
+
+                    YahooWeather weather = null;
+                    try {
+                        weather = new YahooWeatherLoaderTask().execute(v.getLocationName()).get();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    if (weather == null) {
+                        String errorMsg = "Unable to load weather data!!";
+                        Toast.makeText(getActivity().getApplicationContext(), errorMsg, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    WeatherUtils.Coordinate local = new WeatherUtils.Coordinate(
+                            String.format("%s, %s", weather.location.lat, weather.location._long));
+
+                    if (mActionMode.getTag() != null && (int)mActionMode.getTag() == R.id.home_panel)
+                    {
+                        index = 0;
+                        locations.set(index, local);
+                        HomePanel.setTag(new Pair<>(index, query));
+                        // ProgressBar
+                        HomePanel.showLoading(true);
+                        HomePanel.setWeather(weather);
+                    }
+                    else
+                    {
+                        index = locations.size();
+                        locations.add(local);
+                        // (TODO:) NOTE: panel number could be wrong since we're adding
+                        LocationPanelModel panel = new LocationPanelModel(new Pair<Integer, Object>(index, local), weather);
+                        mAdapter.add(index - 1, panel);
+                    }
+
+                    try {
+                        // Save new locations
+                        Settings.saveLocations(locations);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
                 exitSearchUi();
             }
         });

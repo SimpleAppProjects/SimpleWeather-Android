@@ -3,14 +3,14 @@ package com.thewizrd.simpleweather.weather.weatherunderground.data;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-public class Weather {
+public class WUWeather {
     public Location location;
     public java.util.Date update_time;
     public Current_Observation condition;
     public Simpleforecast forecast;
     public Sun_Phase sun_phase;
 
-    public Weather(Rootobject root) {
+    public WUWeather(Rootobject root) {
         condition = root.current_observation;
         forecast = root.forecast.simpleforecast;
         sun_phase = root.sun_phase;

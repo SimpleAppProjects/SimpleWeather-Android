@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.thewizrd.simpleweather.utils.Settings;
+import com.thewizrd.simpleweather.utils.WeatherUtils;
 
 import java.util.List;
 
@@ -23,12 +24,21 @@ public class LaunchActivity extends AppCompatActivity {
 
         try {
             if (Settings.isWeatherLoaded()) {
-                List<String> locations = Settings.getLocations_WU();
-                String local = locations.get(homeIdx);
+                if (Settings.getAPI().equals("WUnderground")) {
+                    List<String> locations = Settings.getLocations_WU();
+                    String local = locations.get(homeIdx);
 
-                intent = new Intent(this, MainActivity.class);
-                intent.putExtra(ARG_QUERY, local);
-                intent.putExtra(ARG_INDEX, homeIdx);
+                    intent = new Intent(this, MainActivity.class);
+                    intent.putExtra(ARG_QUERY, local);
+                    intent.putExtra(ARG_INDEX, homeIdx);
+                } else {
+                    List<WeatherUtils.Coordinate> locations = Settings.getLocations();
+                    WeatherUtils.Coordinate local = locations.get(homeIdx);
+
+                    intent = new Intent(this, MainActivity.class);
+                    intent.putExtra(ARG_QUERY, local.getCoordinatePair());
+                    intent.putExtra(ARG_INDEX, homeIdx);
+                }
             } else {
                 intent = new Intent(this, SetupActivity.class);
             }

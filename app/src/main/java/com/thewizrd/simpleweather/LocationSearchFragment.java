@@ -23,6 +23,8 @@ import com.thewizrd.simpleweather.utils.WeatherUtils;
 import com.thewizrd.simpleweather.weather.weatherunderground.AutoCompleteQuery;
 import com.thewizrd.simpleweather.weather.weatherunderground.GeopositionQuery;
 import com.thewizrd.simpleweather.weather.weatherunderground.data.AC_Location;
+import com.thewizrd.simpleweather.weather.yahoo.YahooWeatherLoaderTask;
+import com.thewizrd.simpleweather.weather.yahoo.data.YahooWeather;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +53,6 @@ public class LocationSearchFragment extends Fragment {
         @Override
         public void onClick(View view) {
             LocationQueryView v = (LocationQueryView)view;
-            String query = v.getLocationQuery();
 
             if (TextUtils.isEmpty(Settings.getAPIKEY()) && Settings.getAPI().equals("WUnderground")) {
                 String errorMsg = "Invalid API Key";
@@ -59,17 +60,46 @@ public class LocationSearchFragment extends Fragment {
                 return;
             }
 
-            Intent intent = null;
-            intent = new Intent(getActivity(), MainActivity.class);
-            intent.putExtra(ARG_QUERY, query);
+            Intent intent = new Intent(getActivity(), MainActivity.class);
 
-            List<String> locations = new ArrayList<>();
-            locations.add(query);
-            try {
-                Settings.saveLocations(locations);
-                Settings.setWeatherLoaded(true);
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (Settings.getAPI().equals("WUnderground")) {
+                String query = v.getLocationQuery();
+                intent.putExtra(ARG_QUERY, query);
+
+                List<String> locations = new ArrayList<>();
+                locations.add(query);
+                try {
+                    Settings.saveLocations_WU(locations);
+                    Settings.setWeatherLoaded(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                List<WeatherUtils.Coordinate> locations = new ArrayList<>();
+                YahooWeather weather = null;
+                try {
+                    weather = new YahooWeatherLoaderTask().execute(v.getLocationName()).get();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                if (weather == null) {
+                    String errorMsg = "Unable to load weather data!!";
+                    Toast.makeText(getActivity().getApplicationContext(), errorMsg, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                WeatherUtils.Coordinate local = new WeatherUtils.Coordinate(
+                        String.format("%s, %s", weather.location.lat, weather.location._long));
+                intent.putExtra(ARG_QUERY, local.getCoordinatePair());
+
+                locations.add(local);
+                try {
+                    Settings.saveLocations(locations);
+                    Settings.setWeatherLoaded(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             // Navigate
