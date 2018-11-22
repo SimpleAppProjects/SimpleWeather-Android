@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<android.support.wear.widget.drawer.WearableDrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_setup"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:deviceIds="wear">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/search_button"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/space"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="4dp"
+            android:clickable="true"
+            android:tint="@android:color/white"
+            app:backgroundTint="@color/colorPrimary"
+            app:elevation="2dp"
+            app:srcCompat="@drawable/ic_search_black_24dp" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/space"
+            android:layout_alignBottom="@+id/search_button"
+            android:layout_alignParentEnd="true"
+            android:layout_alignTop="@+id/search_button"
+            android:layout_gravity="center_vertical"
+            android:layout_toEndOf="@+id/search_button"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:paddingStart="8dp"
+            android:text="@string/location_search_hint"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            app:autoSizeMaxTextSize="14sp"
+            app:autoSizeMinTextSize="6sp"
+            app:autoSizeStepGranularity="1sp"
+            app:autoSizeTextType="uniform" />
+
+        <Space
+            android:id="@+id/space"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:layout_centerInParent="true" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/location_button"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/space"
+            android:layout_marginStart="4dp"
+            android:clickable="true"
+            app:backgroundTint="@color/colorPrimary"
+            app:elevation="2dp"
+            app:srcCompat="@drawable/ic_my_location_white_24dp" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/location_button"
+            android:layout_alignParentEnd="true"
+            android:layout_alignTop="@+id/location_button"
+            android:layout_below="@+id/space"
+            android:layout_gravity="center_vertical"
+            android:layout_toEndOf="@+id/location_button"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:paddingStart="8dp"
+            android:text="@string/label_gpsfollow"
+            android:textColor="@android:color/white"
+            app:autoSizeMaxTextSize="14dp"
+            app:autoSizeMinTextSize="2dp"
+            app:autoSizeStepGranularity="1sp"
+            app:autoSizeTextType="uniform" />
+
+    </RelativeLayout>
+
+    <android.support.wear.widget.drawer.WearableActionDrawerView
+        android:id="@+id/bottom_action_drawer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        app:actionMenu="@menu/setup_bottom_drawer_menu"
+        app:showOverflowInPeek="true" />
+
+    <RelativeLayout
+        android:id="@+id/search_fragment_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:background="@color/wearBackground"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/colorPrimary"
+        android:padding="48dp"
+        android:visibility="gone" />
+
+</android.support.wear.widget.drawer.WearableDrawerLayout>

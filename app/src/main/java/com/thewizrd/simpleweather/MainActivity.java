@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,27 +14,31 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import com.google.gson.stream.JsonReader;
+import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.weatherdata.LocationData;
+import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
+
+import java.io.StringReader;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
-    private String ARG_QUERY = "query";
-    private String ARG_INDEX = "index";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         // Back stack listener
@@ -46,39 +51,90 @@ public class MainActivity extends AppCompatActivity
 
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
 
-        // Check if fragment exists
-        if (fragment == null)
-        {
-            int idx = getIntent().getIntExtra(ARG_INDEX, -1);
-            String qry = getIntent().getStringExtra(ARG_QUERY);
+        // Alerts
+        if (getIntent() != null && "".equals(getIntent().getAction())) {
+            Fragment newFragment = WeatherNowFragment.newInstance(getIntent().getExtras());
 
-            fragment = WeatherNowFragment.newInstance(qry, idx);
+            if (fragment == null) {
+                fragment = newFragment;
+                // Navigate to WeatherNowFragment
+                // Make sure we exit if location is not home
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, fragment, "notification")
+                        .commit();
+            } else {
+                // Navigate to WeatherNowFragment
+                // Make sure we exit if location is not home
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, newFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        }
+        // Check if fragment exists
+        if (fragment == null) {
+            if (getIntent() != null && getIntent().hasExtra("data"))
+                fragment = WeatherNowFragment.newInstance(getIntent().getExtras());
+            else
+                fragment = new WeatherNowFragment();
 
             // Navigate to WeatherNowFragment
-            getSupportFragmentManager().beginTransaction().replace(
-                    R.id.fragment_container, fragment).commit();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, fragment, "home")
+                    .commit();
+        }
+
+        if (getIntent() != null && getIntent().hasExtra("shortcut-data")) {
+            JsonReader reader = new JsonReader(
+                    new StringReader(getIntent().getStringExtra("shortcut-data")));
+            LocationData locData = LocationData.fromJson(reader);
+
+            // Navigate to WeatherNowFragment
+            Fragment newFragment = WeatherNowFragment.newInstance(locData);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, newFragment, "shortcut")
+                    .commit();
+
+            // Disable navigation
+            toggle.setDrawerIndicatorEnabled(false);
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
 
         navigationView.setCheckedItem(R.id.nav_weathernow);
+
+        AsyncTask.run(new Runnable() {
+            @Override
+            public void run() {
+                ShortcutCreator.updateShortcuts();
+            }
+        });
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
+            Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            // Destroy untagged fragments onbackpressed
+            if (current != null && current.getTag() == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .remove(current)
+                        .commit();
+                current = null;
+            }
             super.onBackPressed();
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         Fragment fragment = null;
 
@@ -94,19 +150,42 @@ public class MainActivity extends AppCompatActivity
 
         if (fragment != null) {
             if (fragment.getClass() != getSupportFragmentManager().findFragmentById(R.id.fragment_container).getClass()) {
-                // Replace whatever is in the fragment_container view with this fragment,
-                // and add the transaction to the back stack so the user can navigate back
-                transaction.replace(R.id.fragment_container, fragment);
-
                 if (fragment instanceof WeatherNowFragment) {
                     // Pop all since we're going home
+                    fragment = null;
+                    transaction.commit();
                     getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                } else {
-                    transaction.addToBackStack(null);
-                }
+                } else if (fragment instanceof LocationsFragment) {
+                    Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
 
-                // Commit the transaction
-                transaction.commit();
+                    if (current instanceof WeatherNowFragment) {
+                        // Hide home frag
+                        if ("home".equals(current.getTag()))
+                            transaction.hide(current);
+                        else {
+                            // Destroy lingering WNow frag
+                            getSupportFragmentManager().beginTransaction()
+                                    .remove(current)
+                                    .commit();
+                            current.onDestroy();
+                            current = null;
+                            getSupportFragmentManager().popBackStack();
+                        }
+                    }
+
+                    if (getSupportFragmentManager().findFragmentByTag("locations") != null) {
+                        // Pop all frags if LocFrag in backstack
+                        fragment = null;
+                        transaction.commit();
+                    } else {
+                        // Add LocFrag if not in backstack
+                        // Commit the transaction
+                        transaction
+                                .add(R.id.fragment_container, fragment, "locations")
+                                .addToBackStack(null)
+                                .commit();
+                    }
+                }
             }
         }
 
@@ -121,7 +200,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void refreshNavViewCheckedItem() {
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
 
         if (fragment instanceof WeatherNowFragment) {
@@ -130,6 +210,21 @@ public class MainActivity extends AppCompatActivity
         } else if (fragment instanceof LocationsFragment) {
             navigationView.setCheckedItem(R.id.nav_locations);
             getSupportActionBar().setTitle(getString(R.string.label_nav_locations));
+        } else if (fragment instanceof WeatherAlertsFragment) {
+            navigationView.setCheckedItem(R.id.nav_weathernow);
+            getSupportActionBar().setTitle(getString(R.string.title_fragment_alerts));
+        }
+
+        if (fragment instanceof WeatherAlertsFragment) {
+            getSupportActionBar().hide();
+        } else {
+            if (!getSupportActionBar().isShowing())
+                getSupportActionBar().show();
+
+            if (getIntent() != null && getIntent().hasExtra("shortcut-data"))
+                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            else
+                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         }
     }
 }

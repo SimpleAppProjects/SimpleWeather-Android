@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Preference_TextAppearanceMaterialBody2">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="SettingsTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorPrimaryLight</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlayMaterial.v14</item>
+    </style>
+
+    <style name="PreferenceThemeOverlayMaterial.v14" parent="@style/PreferenceThemeOverlay.v14.Material">
+        <item name="preferenceCategoryStyle">@style/PreferenceCategoryMaterialStyle</item>
+        <item name="preferenceInformationStyle">@style/PreferenceInfoMaterialStyle</item>
+        <item name="preferenceStyle">@style/PreferenceMaterialStyle</item>
+        <item name="checkBoxPreferenceStyle">@style/PreferenceCheckboxMaterialStyle</item>
+        <item name="switchPreferenceCompatStyle">@style/PreferenceSwitchCompatMaterialStyle</item>
+        <item name="switchPreferenceStyle">@style/PreferenceSwitchMaterialStyle</item>
+        <item name="dialogPreferenceStyle">@style/PreferenceDialogMaterialStyle</item>
+        <item name="editTextPreferenceStyle">@style/PreferenceEditTextMaterialStyle</item>
+        <item name="dropdownPreferenceStyle">@style/PreferenceDropDownMaterialStyle</item>
+    </style>
+
+    <style name="PreferenceCategoryMaterialStyle" parent="@style/Preference.Category.Material">
+        <item name="android:layout">@layout/preference_cat_material</item>
+    </style>
+
+    <style name="PreferenceInfoMaterialStyle" parent="@style/Preference.Information.Material">
+        <item name="android:layout">@layout/pref_info_material</item>
+    </style>
+
+    <style name="PreferenceCheckboxMaterialStyle" parent="@style/Preference.CheckBoxPreference.Material">
+        <item name="android:layout">@layout/pref_material</item>
+    </style>
+
+    <style name="PreferenceSwitchCompatMaterialStyle" parent="@style/Preference.SwitchPreferenceCompat.Material">
+        <item name="android:layout">@layout/pref_material</item>
+    </style>
+
+    <style name="PreferenceSwitchMaterialStyle" parent="@style/Preference.SwitchPreference.Material">
+        <item name="android:layout">@layout/pref_material</item>
+    </style>
+
+    <style name="PreferenceDialogMaterialStyle" parent="@style/Preference.DialogPreference.Material">
+        <item name="android:layout">@layout/pref_material</item>
+    </style>
+
+    <style name="PreferenceEditTextMaterialStyle" parent="@style/Preference.DialogPreference.EditTextPreference.Material">
+        <item name="android:layout">@layout/pref_material</item>
+    </style>
+
+    <style name="PreferenceDropDownMaterialStyle" parent="@style/Preference.DropDown.Material">
+        <item name="android:layout">@layout/pref_dropdown_material</item>
+    </style>
+
+    <style name="PreferenceMaterialStyle" parent="@style/Preference.Material">
+        <item name="android:layout">@layout/pref_material</item>
+    </style>
+
+</resources>

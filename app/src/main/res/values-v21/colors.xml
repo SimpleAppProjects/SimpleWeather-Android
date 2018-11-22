@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- this is needed as preference_category_material layout uses this color as the text color -->
+    <color name="preference_fallback_accent_color">@color/colorPrimary</color>
+
+    <!-- Notification -->
+    <color name="not_icon_tint">@android:color/black</color>
+</resources>

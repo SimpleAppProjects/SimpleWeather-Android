@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/pref_title_credits">
+
+    <PreferenceCategory android:title="@string/pref_category_providers">
+
+        <Preference
+            android:summary="@string/copyright_wunderground"
+            android:title="@string/api_wu" />
+        <Preference android:layout="@layout/credit_wunderground">
+            <intent android:data="https://www.wunderground.com" />
+        </Preference>
+        <Preference
+            android:summary="@string/copyright_here"
+            android:title="@string/api_here" />
+        <Preference android:layout="@layout/credit_here">
+            <intent android:data="https://here.com/en" />
+        </Preference>
+        <Preference
+            android:summary="@string/copyright_yahoo"
+            android:title="@string/api_yahoo" />
+        <Preference android:layout="@layout/credit_yahoo">
+            <intent android:data="https://www.yahoo.com/?ilc=401" />
+        </Preference>
+        <Preference android:title="@string/api_owm" />
+        <Preference android:layout="@layout/credit_openweathermap">
+            <intent android:data="http://www.openweathermap.org" />
+        </Preference>
+        <Preference android:title="@string/api_metno" />
+        <Preference android:layout="@layout/credit_metno">
+            <intent android:data="https://www.met.no/en" />
+        </Preference>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

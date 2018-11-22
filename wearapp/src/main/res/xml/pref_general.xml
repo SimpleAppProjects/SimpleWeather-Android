@@ -1,0 +1,75 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/title_activity_settings">
+
+    <PreferenceCategory android:title="@string/pref_title_general">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="key_usecelsius"
+            android:summaryOff="@string/pref_summary_fahrenheit"
+            android:summaryOn="@string/pref_summary_celsius"
+            android:title="@string/pref_title_units" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="key_followgps"
+            android:summary="@string/pref_summary_currentlocation"
+            android:title="@string/label_currentlocation" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/pref_title_api"
+        android:key="category_api">
+
+        <ListPreference
+            android:key="API"
+            android:summary="%s"
+            android:title="@string/api_label" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="key_usepersonalkey"
+            android:summary="@string/pref_summary_personalkey"
+            android:title="@string/pref_title_personalkey" />
+
+        <Preference
+            android:key="key_apiregister"
+            android:summary="@string/pref_summary_apiregister"
+            android:title="@string/pref_title_apiregister" />
+
+        <com.thewizrd.simpleweather.preferences.KeyEntryPreference
+            android:key="API_KEY"
+            android:singleLine="true"
+            android:summary="@string/pref_summary_apikey"
+            android:title="@string/key_hint" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Sync"
+        android:key="category_sync">
+
+        <ListPreference
+            android:key="key_datasync"
+            android:defaultValue="0"
+            android:entries="@array/datasync_entries"
+            android:entryValues="@array/datasync_values"
+            android:title="Data Synchronization" />
+
+        <Preference
+            android:key="key_connectionstatus"
+            android:title="Connection Status"
+            android:summary="" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_title_about">
+
+        <Preference
+            android:key="key_aboutapp"
+            android:title="@string/pref_title_about_app" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- WeatherNow -->
+    <dimen name="spacer_top_size">45dp</dimen>
+    <dimen name="spacer_mid_size">45dp</dimen>
+    <dimen name="label_location_size">30sp</dimen>
+    <dimen name="label_updatetime_size">12sp</dimen>
+    <dimen name="weather_icon_size">84sp</dimen>
+    <dimen name="weather_condition_size">24sp</dimen>
+    <!-- Forecast -->
+    <dimen name="forecast_panel_width">130dp</dimen>
+    <dimen name="forecast_panel_height">155dp</dimen>
+    <dimen name="forecast_icon_size">32sp</dimen>
+    <dimen name="forecast_date_size">12sp</dimen>
+    <dimen name="forecast_condition_size">10sp</dimen>
+    <dimen name="forecast_hi_size">16sp</dimen>
+    <dimen name="forecast_lo_size">12sp</dimen>
+</resources>

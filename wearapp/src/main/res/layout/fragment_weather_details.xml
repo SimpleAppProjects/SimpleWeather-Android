@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:boxedEdges="all">
+
+        <LinearLayout
+            android:id="@+id/details_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/precipitation_card"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/precipitation_label"
+                    style="@style/WeatherDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:gravity="center_horizontal"
+                    android:text="@string/label_precipitation" />
+
+                <View
+                    android:id="@+id/precipitation_label_border"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/precipitation_label"
+                    android:background="@android:color/white" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/chance_label"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/precipitation_label_border"
+                    android:layout_toStartOf="@+id/chance_val"
+                    android:text="@string/label_chance" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/chance_val"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_below="@+id/precipitation_label_border"
+                    tools:text="20%" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/qpf_rain_label"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/chance_label"
+                    android:layout_toStartOf="@+id/qpf_rain_val"
+                    android:text="@string/label_qpf_rain" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/qpf_rain_val"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_below="@+id/chance_val"
+                    tools:text="0.01 in" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/qpf_snow_label"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/qpf_rain_label"
+                    android:layout_toStartOf="@+id/qpf_snow_val"
+                    android:text="@string/label_qpf_snow" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/qpf_snow_val"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_below="@+id/qpf_rain_val"
+                    tools:text="0.00 in" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/atmosphere_label"
+                    style="@style/WeatherDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:gravity="center_horizontal"
+                    android:text="@string/label_atmosphere" />
+
+                <View
+                    android:id="@+id/atmosphere_label_border"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/atmosphere_label"
+                    android:background="@android:color/white" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/cloudiness_label"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/atmosphere_label_border"
+                    android:layout_toStartOf="@+id/cloudiness"
+                    android:text="@string/label_cloudiness" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/cloudiness"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_below="@+id/atmosphere_label_border"
+                    tools:text="100%" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/pressure_label"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/pressure_state"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/cloudiness_label"
+                    android:layout_toStartOf="@+id/pressure_state"
+                    android:text="@string/label_pressure" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/pressure_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/cloudiness_label"
+                    android:layout_toStartOf="@+id/pressure"
+                    android:gravity="center"
+                    android:padding="6dp"
+                    android:textColor="@android:color/white"
+                    android:visibility="visible"
+                    app:fontFamily="@font/weathericons"
+                    tools:fontFamily="@font/weathericons"
+                    tools:text="@string/wi_direction_up" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/pressure"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/pressure_state"
+                    android:layout_alignParentEnd="true"
+                    android:layout_below="@+id/cloudiness"
+                    tools:text="1000.2 mb" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/humidity_label"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/pressure_label"
+                    android:layout_toStartOf="@+id/humidity"
+                    android:text="@string/label_humidity" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/humidity"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_below="@+id/pressure"
+                    tools:text="100%" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/visibility_label"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/humidity_label"
+                    android:layout_toStartOf="@+id/visibility_val"
+                    android:text="@string/label_visibility" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/visibility_val"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_below="@+id/humidity"
+                    tools:text="10.0 km" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/condition_label"
+                    style="@style/WeatherDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:gravity="center_horizontal"
+                    android:text="@string/label_condition" />
+
+                <View
+                    android:id="@+id/condition_label_border"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/condition_label"
+                    android:background="@android:color/white" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/feelslike_label"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/condition_label_border"
+                    android:layout_toStartOf="@+id/feelslike"
+                    android:text="@string/label_feelslike" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/feelslike"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_below="@+id/condition_label_border"
+                    tools:text="36º" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/wind_label"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/wind_direction"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/feelslike_label"
+                    android:layout_toStartOf="@+id/wind_direction"
+                    android:text="@string/label_wind" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/wind_direction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/feelslike_label"
+                    android:layout_toStartOf="@+id/wind_speed"
+                    android:padding="6dp"
+                    android:text="@string/wi_wind_direction"
+                    android:textColor="@android:color/white"
+                    app:fontFamily="@font/weathericons"
+                    tools:fontFamily="@font/weathericons" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/wind_speed"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/wind_direction"
+                    android:layout_alignParentEnd="true"
+                    android:layout_below="@+id/feelslike"
+                    tools:text="3.8 mph" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/sunriseset_label"
+                    style="@style/WeatherDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:gravity="center_horizontal"
+                    android:text="@string/label_sunriseset"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse" />
+
+                <View
+                    android:id="@+id/sunriseset_label_border"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/sunriseset_label"
+                    android:background="@android:color/white" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/sunrise_label"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/sunrise_icon"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/sunriseset_label_border"
+                    android:layout_toStartOf="@+id/sunrise_icon"
+                    android:text="@string/label_sunrise" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/sunrise_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/sunriseset_label_border"
+                    android:layout_toStartOf="@+id/sunrise_time"
+                    android:padding="6dp"
+                    android:text="@string/wi_sunrise"
+                    android:textColor="@android:color/white"
+                    app:fontFamily="@font/weathericons"
+                    tools:fontFamily="@font/weathericons" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/sunrise_time"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/sunrise_icon"
+                    android:layout_alignParentEnd="true"
+                    android:layout_below="@+id/sunriseset_label_border"
+                    tools:text="06:45 AM" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/sunset_label"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/sunset_icon"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/sunrise_label"
+                    android:layout_toStartOf="@+id/sunset_icon"
+                    android:text="@string/label_sunset" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/sunset_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignEnd="@+id/sunrise_icon"
+                    android:layout_alignStart="@+id/sunrise_icon"
+                    android:layout_below="@+id/sunrise_icon"
+                    android:layout_toStartOf="@+id/sunset_time"
+                    android:padding="6dp"
+                    android:text="@string/wi_sunset"
+                    android:textColor="@android:color/white"
+                    app:fontFamily="@font/weathericons"
+                    tools:fontFamily="@font/weathericons" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/sunset_time"
+                    style="@style/WeatherDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/sunset_icon"
+                    android:layout_alignParentEnd="true"
+                    android:layout_below="@+id/sunrise_time"
+                    tools:text="05:32 PM" />
+
+            </RelativeLayout>
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/weather_credit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:padding="4dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                tools:text="Data from WeatherUnderground" />
+
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
+</android.support.wear.widget.BoxInsetLayout>

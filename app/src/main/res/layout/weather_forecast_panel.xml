@@ -1,68 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    android:layout_height="wrap_content"
-    android:padding="4dp"
-    android:layout_width="wrap_content"
-    android:minWidth="100dp">
+    android:layout_width="@dimen/forecast_panel_width"
+    android:layout_height="@dimen/forecast_panel_height"
+    android:padding="4dp">
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/forecast_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="Someday XX"
-        android:textAppearance="@android:style/TextAppearance.Material.Small.Inverse"
         android:padding="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
         android:textColor="@android:color/white"
-        android:textSize="14sp" />
+        android:textSize="@dimen/forecast_date_size"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="spread"
+        tools:text="Someday XX" />
 
-    <com.thewizrd.simpleweather.WeatherIcon
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/forecast_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="@string/wi_wu_sunny"
-        android:textSize="36sp"
-        android:textAppearance="@android:style/TextAppearance.Material.Large.Inverse"
-        android:paddingTop="4dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center_vertical"
         android:paddingBottom="4dp"
-        android:paddingLeft="8dp" />
+        android:paddingLeft="8dp"
+        android:paddingStart="8dp"
+        android:paddingTop="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
+        android:textSize="@dimen/forecast_icon_size"
+        app:autoSizeMaxTextSize="@dimen/forecast_icon_size"
+        app:autoSizeMinTextSize="6sp"
+        app:autoSizeTextType="uniform"
+        app:fontFamily="@font/weathericons"
+        app:layout_constraintBottom_toTopOf="@+id/forecast_condition"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/forecast_date"
+        app:layout_constraintVertical_weight="1"
+        tools:fontFamily="@font/weathericons"
+        tools:text="@string/wi_wu_sunny" />
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/forecast_condition"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="Sunny"
-        android:textAppearance="@android:style/TextAppearance.Material.Small.Inverse"
+        android:gravity="center_vertical"
+        android:lines="2"
         android:padding="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
         android:textColor="@android:color/white"
-        android:textSize="12sp" />
+        android:textSize="@dimen/forecast_condition_size"
+        app:autoSizeMaxTextSize="@dimen/forecast_condition_size"
+        app:autoSizeMinTextSize="6sp"
+        app:autoSizeStepGranularity="2sp"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintBottom_toTopOf="@+id/forecast_temphi"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/forecast_icon"
+        tools:text="Sprinkles early. Mostly cloudy. Mild" />
 
-    <LinearLayout
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/forecast_temphi"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:padding="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/forecast_hi_size"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/forecast_condition"
+        tools:text="77º" />
 
-        <TextView
-            android:id="@+id/forecast_temphi"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="77`"
-            android:textAppearance="@android:style/TextAppearance.Material.Small.Inverse"
-            android:padding="4dp"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:textStyle="normal|bold" />
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/forecast_templo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+        android:textSize="@dimen/forecast_lo_size"
+        android:textStyle="bold"
+        app:layout_constraintBaseline_toBaselineOf="@+id/forecast_temphi"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/forecast_temphi"
+        app:layout_constraintTop_toBottomOf="@+id/forecast_condition"
+        tools:text="66º" />
 
-        <TextView
-            android:id="@+id/forecast_templo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="66`"
-            android:textAppearance="@android:style/TextAppearance.Material.Small.Inverse"
-            android:padding="4dp"
-            android:textSize="14sp"
-            android:textStyle="normal|bold" />
-
-    </LinearLayout>
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

@@ -1,0 +1,16 @@
+<resources>
+    <color name="colorPrimary">#0070c0</color>
+    <color name="colorPrimaryDark">#005591</color>
+    <color name="colorPrimaryLight">#0082df</color>
+    <color name="colorAccent">#FFFFFF</color>
+
+    <color name="searchview_background">@android:color/white</color>
+    <color name="searchview_text_query">@android:color/black</color>
+    <color name="searchview_text_highlight">#80ff0000</color>
+    <color name="searchview_divider">@android:color/holo_red_light</color>
+
+    <color name="bg_swipe_delete">#ffdb4437</color>
+
+    <color name="color_background_night">#FF1A244A</color>
+    <color name="color_background_day">#FF4874BF</color>
+</resources>

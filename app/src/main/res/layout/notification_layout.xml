@@ -1,0 +1,112 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widgetBackground"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:background="@null"
+    android:paddingBottom="@dimen/not_vert_padding"
+    android:paddingEnd="@dimen/not_horiz_padding"
+    android:paddingLeft="@dimen/not_horiz_padding"
+    android:paddingRight="@dimen/not_horiz_padding"
+    android:paddingStart="@dimen/not_horiz_padding"
+    android:paddingTop="@dimen/not_vert_padding">
+
+    <ImageView
+        android:id="@+id/weather_icon"
+        android:layout_width="@dimen/not_weather_icon_size"
+        android:layout_height="@dimen/not_weather_icon_size"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_gravity="center"
+        android:layout_marginEnd="12dp"
+        android:layout_marginLeft="@dimen/not_weather_icon_marginStart"
+        android:layout_marginRight="12dp"
+        android:layout_marginStart="@dimen/not_weather_icon_marginStart"
+        android:adjustViewBounds="true"
+        android:gravity="center"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_weather_icon"
+        android:tint="@color/not_icon_tint" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/weather_icon"
+        android:layout_toLeftOf="@+id/update_layout"
+        android:layout_toRightOf="@+id/weather_icon"
+        android:layout_toStartOf="@+id/update_layout"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/location_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Compat.Notification.Title"
+            android:textSize="@dimen/not_primary_textSize"
+            android:textStyle="bold"
+            tools:text="New York, NY" />
+
+        <TextView
+            android:id="@+id/condition_weather"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:text="--"
+            android:textAppearance="@style/TextAppearance.Compat.Notification"
+            android:textSize="@dimen/not_primary_textSize"
+            tools:text="68º - Sunny" />
+
+        <TextView
+            android:id="@+id/condition_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:text="--"
+            android:textAppearance="@style/TextAppearance.Compat.Notification.Line2"
+            tools:text="74º / 65º" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/update_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/update_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|end"
+            android:padding="4dp"
+            android:text="--"
+            android:textAppearance="@style/TextAppearance.Compat.Notification.Time"
+            tools:text="1:00 AM" />
+
+        <ImageView
+            android:id="@+id/refresh_button"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="end"
+            android:padding="2dp"
+            android:src="@drawable/ic_refresh_white_24dp"
+            android:tint="@color/not_icon_tint"
+            android:visibility="gone" />
+
+        <ProgressBar
+            android:id="@+id/refresh_progress"
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="end"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/not_icon_tint"
+            android:padding="4dp"
+            android:visibility="visible" />
+
+    </LinearLayout>
+</RelativeLayout>

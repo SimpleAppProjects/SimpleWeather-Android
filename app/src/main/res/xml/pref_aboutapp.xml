@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:key="key_aboutcredits"
+        android:title="@string/pref_title_credits" />
+    <Preference
+        android:key="key_aboutoslibs"
+        android:title="@string/pref_title_oslibs" />
+    <PreferenceCategory android:title="@string/pref_category_version">
+
+        <Preference
+            android:key="key_aboutversion"
+            android:title="@string/app_name" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

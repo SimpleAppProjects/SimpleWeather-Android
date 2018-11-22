@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="datasync_entries">
+        <item>@string/pref_sync_off</item>
+        <item>@string/pref_sync_deviceonly</item>
+    </string-array>
+    <string-array name="datasync_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+</resources>

@@ -3,13 +3,14 @@ package com.thewizrd.simpleweather;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
-import com.thewizrd.simpleweather.utils.Settings;
-import com.thewizrd.simpleweather.utils.WeatherUtils;
-
-import java.util.List;
+import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.Settings;
 
 public class LaunchActivity extends AppCompatActivity {
+
+    private static final String TAG = "LaunchActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,33 +18,16 @@ public class LaunchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         Intent intent = null;
-        int homeIdx = 0;
-
-        String ARG_QUERY = "query";
-        String ARG_INDEX = "index";
 
         try {
             if (Settings.isWeatherLoaded()) {
-                if (Settings.getAPI().equals("WUnderground")) {
-                    List<String> locations = Settings.getLocations_WU();
-                    String local = locations.get(homeIdx);
-
-                    intent = new Intent(this, MainActivity.class);
-                    intent.putExtra(ARG_QUERY, local);
-                    intent.putExtra(ARG_INDEX, homeIdx);
-                } else {
-                    List<WeatherUtils.Coordinate> locations = Settings.getLocations();
-                    WeatherUtils.Coordinate local = locations.get(homeIdx);
-
-                    intent = new Intent(this, MainActivity.class);
-                    intent.putExtra(ARG_QUERY, local.getCoordinatePair());
-                    intent.putExtra(ARG_INDEX, homeIdx);
-                }
+                intent = new Intent(this, MainActivity.class)
+                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             } else {
                 intent = new Intent(this, SetupActivity.class);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.writeLine(Log.ERROR, e);
         } finally {
             if (intent == null) {
                 intent = new Intent(this, SetupActivity.class);

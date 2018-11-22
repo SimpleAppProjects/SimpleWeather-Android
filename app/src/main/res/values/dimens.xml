@@ -17,10 +17,31 @@
     <dimen name="fab_margin">16dp</dimen>
 
     <!-- Material dimens -->
-    <dimen name="list_text_size">16sp</dimen>
-    <dimen name="list_secondary_text_size">14sp</dimen>
-    <dimen name="list_tile_height">72dp</dimen>
-    <dimen name="list_vertical_padding">16dp</dimen>
-    <dimen name="list_horizontal_padding">20dp</dimen>
     <dimen name="appbar_elevation">4dp</dimen>
+
+    <!-- WeatherNow -->
+    <dimen name="detail_label_size">12sp</dimen>
+    <dimen name="detail_value_size">12sp</dimen>
+    <dimen name="detail_card_max_width">500dp</dimen>
+    <!-- Locations -->
+    <dimen name="location_panel_height">75dp</dimen>
+    <dimen name="location_panel_text_size">20sp</dimen>
+    <dimen name="location_panel_textview_size">50sp</dimen>
+    <dimen name="location_panel_icon_size">30sp</dimen>
+    <dimen name="delete_icon_margin">12dp</dimen>
+
+    <!--
+Refer to App Widget Documentation for margin information
+http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
+    -->
+    <dimen name="widget_margin">8dp</dimen>
+
+    <!-- Widget -->
+    <dimen name="clock_text_size">24sp</dimen>
+    <dimen name="date_text_size">12sp</dimen>
+    <dimen name="location_text_size_small">12sp</dimen>
+    <dimen name="location_text_size_large">14sp</dimen>
+    <!-- Notification -->
+    <dimen name="not_horiz_padding">8dp</dimen>
+    <dimen name="not_vert_padding">8dp</dimen>
 </resources>

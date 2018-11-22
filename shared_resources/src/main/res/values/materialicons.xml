@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="materialicon_chevron_right">&#xE5CC;</string>
+    <string name="materialicon_clear">&#xE14C;</string>
+    <string name="materialicon_error">&#xE000;</string>
+    <string name="materialicon_expand_less">&#xE5CE;</string>
+    <string name="materialicon_expand_more">&#xE5CF;</string>
+    <string name="materialicon_search">&#xE8B6;</string>
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="refreshinterval_entries">
+        <item>@string/refresh_30min</item>
+        <item>@string/refresh_60min</item>
+        <item>@string/refresh_3hrs</item>
+        <item>@string/refresh_6hrs</item>
+        <item>@string/refresh_12hrs</item>
+    </string-array>
+    <string-array name="refreshinterval_values">
+        <item>30</item>
+        <item>60</item>
+        <item>180</item>
+        <item>360</item>
+        <item>720</item>
+    </string-array>
+</resources>

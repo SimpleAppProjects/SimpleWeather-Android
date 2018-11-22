@@ -1,77 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="75dp">
+    android:layout_height="@dimen/location_panel_height">
 
-    <android.support.v7.widget.GridLayout
-        android:id="@+id/main_layout"
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorPrimary"
+        app:srcCompat="@color/colorPrimary" />
+
+    <android.support.v7.widget.GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:columnCount="2">
 
-        <me.grantland.widget.AutofitTextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/location_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_column="0"
-            app:layout_columnWeight="1"
-            app:layout_gravity="center_vertical"
             android:gravity="center_vertical"
             android:maxLines="2"
             android:padding="10dp"
-            android:textAppearance="@android:style/TextAppearance.Material.Inverse"
-            android:textSize="20sp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
+            android:textSize="@dimen/location_panel_text_size"
+            app:autoSizeMaxTextSize="@dimen/location_panel_text_size"
+            app:autoSizeMinTextSize="2dp"
+            app:autoSizeTextType="uniform"
+            app:layout_column="0"
+            app:layout_columnWeight="1"
+            app:layout_gravity="center_vertical"
             tools:text="New York, NY" />
 
         <LinearLayout
-            android:layout_height="match_parent"
             android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             app:layout_column="1">
 
-            <me.grantland.widget.AutofitTextView
+            <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/weather_temp"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:textAlignment="center"
+                android:layout_width="@dimen/location_panel_textview_size"
+                android:layout_height="@dimen/location_panel_textview_size"
                 android:layout_gravity="center"
-                android:gravity="center"
                 android:layout_margin="5dp"
-                android:textAppearance="@android:style/TextAppearance.Material.Inverse"
-                android:textSize="20sp"
-                tools:text="50*" />
+                android:gravity="center"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
+                android:textSize="@dimen/location_panel_text_size"
+                app:autoSizeMaxTextSize="@dimen/location_panel_text_size"
+                app:autoSizeMinTextSize="6sp"
+                app:autoSizeTextType="uniform"
+                tools:text="50º" />
 
-            <me.grantland.widget.AutofitLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical">
-
-                <com.thewizrd.simpleweather.WeatherIcon
-                    android:id="@+id/weather_icon"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:textAlignment="center"
-                    android:layout_margin="5dp"
-                    android:textAppearance="@android:style/TextAppearance.Material.Inverse"
-                    android:textSize="30sp"
-                    tools:text="@string/wi_night_cloudy" />
-            </me.grantland.widget.AutofitLayout>
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/weather_icon"
+                android:layout_width="@dimen/location_panel_textview_size"
+                android:layout_height="@dimen/location_panel_textview_size"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="10dp"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
+                app:autoSizeMaxTextSize="@dimen/location_panel_icon_size"
+                app:autoSizeMinTextSize="6sp"
+                app:autoSizeTextType="uniform"
+                app:fontFamily="@font/weathericons"
+                tools:fontFamily="@font/weathericons"
+                tools:text="@string/wi_night_cloudy" />
         </LinearLayout>
     </android.support.v7.widget.GridLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
-        style="@android:style/Widget.Material.Light.ProgressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_gravity="center"
-        android:layout_weight="1"
+        android:indeterminate="true"
         android:indeterminateTint="@android:color/white"
         android:visibility="visible" />
-
 </android.support.v7.widget.CardView>

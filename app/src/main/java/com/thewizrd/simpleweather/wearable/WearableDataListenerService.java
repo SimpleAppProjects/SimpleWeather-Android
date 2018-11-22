@@ -1,0 +1,395 @@
+package com.thewizrd.simpleweather.wearable;
+
+import android.annotation.TargetApi;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
+import android.util.Log;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.android.gms.wearable.CapabilityClient;
+import com.google.android.gms.wearable.CapabilityInfo;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
+import com.google.android.gms.wearable.WearableListenerService;
+import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.helpers.WearableHelper;
+import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.weatherdata.LocationData;
+import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
+import com.thewizrd.simpleweather.App;
+import com.thewizrd.simpleweather.LaunchActivity;
+import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
+
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneOffset;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+
+public class WearableDataListenerService extends WearableListenerService {
+    private static final String TAG = "WearableDataListenerService";
+
+    // Actions
+    public static final String ACTION_SENDSETTINGSUPDATE = "SimpleWeather.Droid.action.SEND_SETTINGS_UPDATE";
+    public static final String ACTION_SENDLOCATIONUPDATE = "SimpleWeather.Droid.action.SEND_LOCATION_UPDATE";
+    public static final String ACTION_SENDWEATHERUPDATE = "SimpleWeather.Droid.action.SEND_WEATHER_UPDATE";
+
+    private Collection<Node> mWearNodesWithApp;
+    private Collection<Node> mAllConnectedNodes;
+    private boolean mLoaded = false;
+
+    private static final int JOB_ID = 1002;
+    private static final String NOT_CHANNEL_ID = "SimpleWeather.generalnotif";
+
+    public static void enqueueWork(Context context, Intent work) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(work);
+        } else {
+            context.startService(work);
+        }
+    }
+
+    private static void initChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Gets an instance of the NotificationManager service
+            Context context = App.getInstance().getAppContext();
+            NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+            NotificationChannel mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID);
+
+            if (mChannel == null) {
+                String notchannel_name = context.getResources().getString(R.string.not_channel_name_general);
+
+                mChannel = new NotificationChannel(NOT_CHANNEL_ID, notchannel_name, NotificationManager.IMPORTANCE_LOW);
+                // Configure the notification channel.
+                mChannel.setShowBadge(false);
+                mChannel.enableLights(false);
+                mChannel.enableVibration(false);
+                mNotifyMgr.createNotificationChannel(mChannel);
+            }
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private static Notification getForegroundNotification() {
+        Context context = App.getInstance().getAppContext();
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(context, NOT_CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_logo)
+                        .setContentTitle(context.getString(R.string.not_title_wearable_sync))
+                        .setProgress(0, 0, true)
+                        .setColor(context.getColor(R.color.colorPrimary))
+                        .setOnlyAlertOnce(true)
+                        .setPriority(NotificationManager.IMPORTANCE_LOW);
+
+        return mBuilder.build();
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            initChannel();
+
+            startForeground(JOB_ID, getForegroundNotification());
+        }
+
+        AsyncTask.run(new Runnable() {
+            @Override
+            public void run() {
+                mWearNodesWithApp = findWearDevicesWithApp();
+                mAllConnectedNodes = findAllWearDevices();
+
+                mLoaded = true;
+            }
+        });
+
+        final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
+
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                Logger.writeLine(Log.ERROR, e, "SimpleWeather: %s: UncaughtException", TAG);
+
+                if (oldHandler != null) {
+                    oldHandler.uncaughtException(t, e);
+                } else {
+                    System.exit(2);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onDestroy() {
+        mLoaded = false;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            stopForeground(true);
+        }
+
+        super.onDestroy();
+    }
+
+    @Override
+    public void onDataChanged(DataEventBuffer dataEventBuffer) {
+        super.onDataChanged(dataEventBuffer);
+    }
+
+    @Override
+    public void onMessageReceived(MessageEvent messageEvent) {
+        if (messageEvent.getPath().equals(WearableHelper.StartActivityPath)) {
+            Intent startIntent = new Intent(this, LaunchActivity.class)
+                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(startIntent);
+        } else if (messageEvent.getPath().equals(WearableHelper.SettingsPath)) {
+            AsyncTask.run(new Runnable() {
+                @Override
+                public void run() {
+                    createSettingsDataRequest(true);
+                }
+            });
+        } else if (messageEvent.getPath().equals(WearableHelper.LocationPath)) {
+            AsyncTask.run(new Runnable() {
+                @Override
+                public void run() {
+                    createLocationDataRequest(true);
+                }
+            });
+        } else if (messageEvent.getPath().equals(WearableHelper.WeatherPath)) {
+            byte[] data = messageEvent.getData();
+            boolean force = false;
+            if (data != null && data.length > 0)
+                force = !(data[0] == 0);
+
+            if (!force) {
+                AsyncTask.run(new Runnable() {
+                    @Override
+                    public void run() {
+                        createWeatherDataRequest(true);
+                    }
+                });
+            } else {
+                // Refresh weather data
+                WeatherWidgetService.enqueueWork(this, new Intent(this, WeatherWidgetService.class)
+                        .setAction(WeatherWidgetService.ACTION_UPDATEWEATHER));
+            }
+        } else if (messageEvent.getPath().equals(WearableHelper.IsSetupPath)) {
+            sendSetupStatus(messageEvent.getSourceNodeId());
+        }
+    }
+
+    @Override
+    public void onCapabilityChanged(final CapabilityInfo capabilityInfo) {
+        AsyncTask.run(new Runnable() {
+            @Override
+            public void run() {
+                mWearNodesWithApp = capabilityInfo.getNodes();
+                mAllConnectedNodes = findAllWearDevices();
+            }
+        });
+    }
+
+    @Override
+    public int onStartCommand(final Intent intent, int flags, int startId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            startForeground(JOB_ID, getForegroundNotification());
+
+        Tasks.call(Executors.newSingleThreadExecutor(), new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                if (intent != null && ACTION_SENDSETTINGSUPDATE.equals(intent.getAction())) {
+                    createSettingsDataRequest(true);
+                } else if (intent != null && ACTION_SENDLOCATIONUPDATE.equals(intent.getAction())) {
+                    createLocationDataRequest(true);
+                } else if (intent != null && ACTION_SENDWEATHERUPDATE.equals(intent.getAction())) {
+                    createWeatherDataRequest(true);
+                }
+                return null;
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                    stopForeground(true);
+            }
+        });
+
+        return START_NOT_STICKY;
+    }
+
+    private Collection<Node> findWearDevicesWithApp() {
+        CapabilityInfo capabilityInfo = null;
+
+        try {
+            capabilityInfo = Tasks.await(Wearable.getCapabilityClient(this)
+                    .getCapability(WearableHelper.CAPABILITY_WEAR_APP, CapabilityClient.FILTER_ALL));
+        } catch (ExecutionException | InterruptedException e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
+
+        if (capabilityInfo != null) {
+            return capabilityInfo.getNodes();
+        }
+
+        return null;
+    }
+
+    private Collection<Node> findAllWearDevices() {
+        List<Node> nodes = null;
+
+        try {
+            nodes = Tasks.await(Wearable.getNodeClient(this)
+                    .getConnectedNodes());
+        } catch (ExecutionException | InterruptedException e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
+
+        return nodes;
+    }
+
+    private void createSettingsDataRequest(boolean urgent) {
+        // Don't send anything unless we're setup
+        if (!Settings.isWeatherLoaded())
+            return;
+
+        if (mWearNodesWithApp == null) {
+            // Create requests if nodes exist with app support
+            mWearNodesWithApp = findWearDevicesWithApp();
+
+            if (mWearNodesWithApp == null || mWearNodesWithApp.size() == 0)
+                return;
+        }
+
+        PutDataMapRequest mapRequest = PutDataMapRequest.create(WearableHelper.SettingsPath);
+        mapRequest.getDataMap().putString("API", Settings.getAPI());
+        mapRequest.getDataMap().putString("API_KEY", Settings.getAPIKEY());
+        mapRequest.getDataMap().putBoolean("KeyVerified", Settings.isKeyVerified());
+        mapRequest.getDataMap().putBoolean("FollowGPS", Settings.useFollowGPS());
+        // TODO: this is wrong; fix this to correct 'TICKS'
+        mapRequest.getDataMap().putLong("update_time", LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli());
+        PutDataRequest request = mapRequest.asPutDataRequest();
+        if (urgent) request.setUrgent();
+        try {
+            Tasks.await(Wearable.getDataClient(this)
+                    .putDataItem(request));
+        } catch (ExecutionException | InterruptedException e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
+
+        Logger.writeLine(Log.ERROR, "%s: CreateSettingsDataRequest(): urgent: %s", TAG, Boolean.toString(urgent));
+    }
+
+    private void createLocationDataRequest(boolean urgent) {
+        // Don't send anything unless we're setup
+        if (!Settings.isWeatherLoaded())
+            return;
+
+        if (mWearNodesWithApp == null) {
+            // Create requests if nodes exist with app support
+            mWearNodesWithApp = findWearDevicesWithApp();
+
+            if (mWearNodesWithApp == null || mWearNodesWithApp.size() == 0)
+                return;
+        }
+
+        PutDataMapRequest mapRequest = PutDataMapRequest.create(WearableHelper.LocationPath);
+        LocationData homeData = Settings.getHomeData();
+        mapRequest.getDataMap().putString("locationData", homeData == null ? null : homeData.toJson());
+        // TODO: this is wrong; fix this to correct 'TICKS'
+        mapRequest.getDataMap().putLong("update_time", LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli());
+        PutDataRequest request = mapRequest.asPutDataRequest();
+        if (urgent) request.setUrgent();
+        try {
+            Tasks.await(Wearable.getDataClient(this)
+                    .putDataItem(request));
+        } catch (ExecutionException | InterruptedException e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
+
+        Logger.writeLine(Log.ERROR, "%s: CreateLocationDataRequest(): urgent: %s", TAG, Boolean.toString(urgent));
+    }
+
+    private void createWeatherDataRequest(boolean urgent) {
+        // Don't send anything unless we're setup
+        if (!Settings.isWeatherLoaded())
+            return;
+
+        if (mWearNodesWithApp == null) {
+            // Create requests if nodes exist with app support
+            mWearNodesWithApp = findWearDevicesWithApp();
+
+            if (mWearNodesWithApp == null || mWearNodesWithApp.size() == 0)
+                return;
+        }
+
+        PutDataMapRequest mapRequest = PutDataMapRequest.create(WearableHelper.WeatherPath);
+        LocationData homeData = Settings.getHomeData();
+        Weather weatherData = Settings.getWeatherData(homeData.getQuery());
+        List<WeatherAlert> alertData = Settings.getWeatherAlertData(homeData.getQuery());
+
+        if (weatherData != null) {
+            weatherData.setWeatherAlerts(alertData);
+
+            // location
+            // update_time
+            // forecast
+            // hr_forecast
+            // txt_forecast
+            // condition
+            // atmosphere
+            // astronomy
+            // precipitation
+            // ttl
+            // source
+            // query
+            // locale
+
+            mapRequest.getDataMap().putString("weatherData", weatherData.toJson());
+            ArrayList<String> alerts = new ArrayList<>();
+            if (weatherData.getWeatherAlerts().size() > 0) {
+                for (WeatherAlert alert : weatherData.getWeatherAlerts()) {
+                    alerts.add(alert.toJson());
+                }
+            }
+            mapRequest.getDataMap().putStringArrayList("weatherAlerts", alerts);
+            // TODO: this is wrong; fix this to correct 'TICKS'
+            mapRequest.getDataMap().putLong("update_time", LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli());
+            PutDataRequest request = mapRequest.asPutDataRequest();
+            if (urgent) request.setUrgent();
+            try {
+                Tasks.await(Wearable.getDataClient(this)
+                        .putDataItem(request));
+            } catch (ExecutionException | InterruptedException e) {
+                Logger.writeLine(Log.ERROR, e);
+            }
+
+            Logger.writeLine(Log.ERROR, "%s: CreateWeatherDataRequest(): urgent: %s", TAG, Boolean.toString(urgent));
+        }
+    }
+
+    private void sendSetupStatus(String nodeID) {
+        Wearable.getMessageClient(this)
+                .sendMessage(nodeID, WearableHelper.IsSetupPath,
+                        new byte[]{(byte) (Settings.isWeatherLoaded() ? 1 : 0)});
+    }
+}

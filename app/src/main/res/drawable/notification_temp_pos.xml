@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<level-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:maxLevel="0"
+        android:drawable="@drawable/notification_temp_pos0" />
+    <item
+        android:maxLevel="1"
+        android:drawable="@drawable/notification_temp_pos1" />
+    <item
+        android:maxLevel="2"
+        android:drawable="@drawable/notification_temp_pos2" />
+    <item
+        android:maxLevel="3"
+        android:drawable="@drawable/notification_temp_pos3" />
+    <item
+        android:maxLevel="4"
+        android:drawable="@drawable/notification_temp_pos4" />
+    <item
+        android:maxLevel="5"
+        android:drawable="@drawable/notification_temp_pos5" />
+    <item
+        android:maxLevel="6"
+        android:drawable="@drawable/notification_temp_pos6" />
+    <item
+        android:maxLevel="7"
+        android:drawable="@drawable/notification_temp_pos7" />
+    <item
+        android:maxLevel="8"
+        android:drawable="@drawable/notification_temp_pos8" />
+    <item
+        android:maxLevel="9"
+        android:drawable="@drawable/notification_temp_pos9" />
+    <item
+        android:maxLevel="10"
+        android:drawable="@drawable/notification_temp_pos10" />
+    <item
+        android:maxLevel="11"
+        android:drawable="@drawable/notification_temp_pos11" />
+    <item
+        android:maxLevel="12"
+        android:drawable="@drawable/notification_temp_pos12" />
+    <item
+        android:maxLevel="13"
+        android:drawable="@drawable/notification_temp_pos13" />
+    <item
+        android:maxLevel="14"
+        android:drawable="@drawable/notification_temp_pos14" />
+    <item
+        android:maxLevel="15"
+        android:drawable="@drawable/notification_temp_pos15" />
+    <item
+        android:maxLevel="16"
+        android:drawable="@drawable/notification_temp_pos16" />
+    <item
+        android:maxLevel="17"
+        android:drawable="@drawable/notification_temp_pos17" />
+    <item
+        android:maxLevel="18"
+        android:drawable="@drawable/notification_temp_pos18" />
+    <item
+        android:maxLevel="19"
+        android:drawable="@drawable/notification_temp_pos19" />
+    <item
+        android:maxLevel="20"
+        android:drawable="@drawable/notification_temp_pos20" />
+    <item
+        android:maxLevel="21"
+        android:drawable="@drawable/notification_temp_pos21" />
+    <item
+        android:maxLevel="22"
+        android:drawable="@drawable/notification_temp_pos22" />
+    <item
+        android:maxLevel="23"
+        android:drawable="@drawable/notification_temp_pos23" />
+    <item
+        android:maxLevel="24"
+        android:drawable="@drawable/notification_temp_pos24" />
+    <item
+        android:maxLevel="25"
+        android:drawable="@drawable/notification_temp_pos25" />
+    <item
+        android:maxLevel="26"
+        android:drawable="@drawable/notification_temp_pos26" />
+    <item
+        android:maxLevel="27"
+        android:drawable="@drawable/notification_temp_pos27" />
+    <item
+        android:maxLevel="28"
+        android:drawable="@drawable/notification_temp_pos28" />
+    <item
+        android:maxLevel="29"
+        android:drawable="@drawable/notification_temp_pos29" />
+    <item
+        android:maxLevel="30"
+        android:drawable="@drawable/notification_temp_pos30" />
+    <item
+        android:maxLevel="31"
+        android:drawable="@drawable/notification_temp_pos31" />
+    <item
+        android:maxLevel="32"
+        android:drawable="@drawable/notification_temp_pos32" />
+    <item
+        android:maxLevel="33"
+        android:drawable="@drawable/notification_temp_pos33" />
+    <item
+        android:maxLevel="34"
+        android:drawable="@drawable/notification_temp_pos34" />
+    <item
+        android:maxLevel="35"
+        android:drawable="@drawable/notification_temp_pos35" />
+    <item
+        android:maxLevel="36"
+        android:drawable="@drawable/notification_temp_pos36" />
+    <item
+        android:maxLevel="37"
+        android:drawable="@drawable/notification_temp_pos37" />
+    <item
+        android:maxLevel="38"
+        android:drawable="@drawable/notification_temp_pos38" />
+    <item
+        android:maxLevel="39"
+        android:drawable="@drawable/notification_temp_pos39" />
+    <item
+        android:maxLevel="40"
+        android:drawable="@drawable/notification_temp_pos40" />
+    <item
+        android:maxLevel="41"
+        android:drawable="@drawable/notification_temp_pos41" />
+    <item
+        android:maxLevel="42"
+        android:drawable="@drawable/notification_temp_pos42" />
+    <item
+        android:maxLevel="43"
+        android:drawable="@drawable/notification_temp_pos43" />
+    <item
+        android:maxLevel="44"
+        android:drawable="@drawable/notification_temp_pos44" />
+    <item
+        android:maxLevel="45"
+        android:drawable="@drawable/notification_temp_pos45" />
+    <item
+        android:maxLevel="46"
+        android:drawable="@drawable/notification_temp_pos46" />
+    <item
+        android:maxLevel="47"
+        android:drawable="@drawable/notification_temp_pos47" />
+    <item
+        android:maxLevel="48"
+        android:drawable="@drawable/notification_temp_pos48" />
+    <item
+        android:maxLevel="49"
+        android:drawable="@drawable/notification_temp_pos49" />
+    <item
+        android:maxLevel="50"
+        android:drawable="@drawable/notification_temp_pos50" />
+    <item
+        android:maxLevel="51"
+        android:drawable="@drawable/notification_temp_pos51" />
+    <item
+        android:maxLevel="52"
+        android:drawable="@drawable/notification_temp_pos52" />
+    <item
+        android:maxLevel="53"
+        android:drawable="@drawable/notification_temp_pos53" />
+    <item
+        android:maxLevel="54"
+        android:drawable="@drawable/notification_temp_pos54" />
+    <item
+        android:maxLevel="55"
+        android:drawable="@drawable/notification_temp_pos55" />
+    <item
+        android:maxLevel="56"
+        android:drawable="@drawable/notification_temp_pos56" />
+    <item
+        android:maxLevel="57"
+        android:drawable="@drawable/notification_temp_pos57" />
+    <item
+        android:maxLevel="58"
+        android:drawable="@drawable/notification_temp_pos58" />
+    <item
+        android:maxLevel="59"
+        android:drawable="@drawable/notification_temp_pos59" />
+    <item
+        android:maxLevel="60"
+        android:drawable="@drawable/notification_temp_pos60" />
+    <item
+        android:maxLevel="61"
+        android:drawable="@drawable/notification_temp_pos61" />
+    <item
+        android:maxLevel="62"
+        android:drawable="@drawable/notification_temp_pos62" />
+    <item
+        android:maxLevel="63"
+        android:drawable="@drawable/notification_temp_pos63" />
+    <item
+        android:maxLevel="64"
+        android:drawable="@drawable/notification_temp_pos64" />
+    <item
+        android:maxLevel="65"
+        android:drawable="@drawable/notification_temp_pos65" />
+    <item
+        android:maxLevel="66"
+        android:drawable="@drawable/notification_temp_pos66" />
+    <item
+        android:maxLevel="67"
+        android:drawable="@drawable/notification_temp_pos67" />
+    <item
+        android:maxLevel="68"
+        android:drawable="@drawable/notification_temp_pos68" />
+    <item
+        android:maxLevel="69"
+        android:drawable="@drawable/notification_temp_pos69" />
+    <item
+        android:maxLevel="70"
+        android:drawable="@drawable/notification_temp_pos70" />
+    <item
+        android:maxLevel="71"
+        android:drawable="@drawable/notification_temp_pos71" />
+    <item
+        android:maxLevel="72"
+        android:drawable="@drawable/notification_temp_pos72" />
+    <item
+        android:maxLevel="73"
+        android:drawable="@drawable/notification_temp_pos73" />
+    <item
+        android:maxLevel="74"
+        android:drawable="@drawable/notification_temp_pos74" />
+    <item
+        android:maxLevel="75"
+        android:drawable="@drawable/notification_temp_pos75" />
+    <item
+        android:maxLevel="76"
+        android:drawable="@drawable/notification_temp_pos76" />
+    <item
+        android:maxLevel="77"
+        android:drawable="@drawable/notification_temp_pos77" />
+    <item
+        android:maxLevel="78"
+        android:drawable="@drawable/notification_temp_pos78" />
+    <item
+        android:maxLevel="79"
+        android:drawable="@drawable/notification_temp_pos79" />
+    <item
+        android:maxLevel="80"
+        android:drawable="@drawable/notification_temp_pos80" />
+    <item
+        android:maxLevel="81"
+        android:drawable="@drawable/notification_temp_pos81" />
+    <item
+        android:maxLevel="82"
+        android:drawable="@drawable/notification_temp_pos82" />
+    <item
+        android:maxLevel="83"
+        android:drawable="@drawable/notification_temp_pos83" />
+    <item
+        android:maxLevel="84"
+        android:drawable="@drawable/notification_temp_pos84" />
+    <item
+        android:maxLevel="85"
+        android:drawable="@drawable/notification_temp_pos85" />
+    <item
+        android:maxLevel="86"
+        android:drawable="@drawable/notification_temp_pos86" />
+    <item
+        android:maxLevel="87"
+        android:drawable="@drawable/notification_temp_pos87" />
+    <item
+        android:maxLevel="88"
+        android:drawable="@drawable/notification_temp_pos88" />
+    <item
+        android:maxLevel="89"
+        android:drawable="@drawable/notification_temp_pos89" />
+    <item
+        android:maxLevel="90"
+        android:drawable="@drawable/notification_temp_pos90" />
+    <item
+        android:maxLevel="91"
+        android:drawable="@drawable/notification_temp_pos91" />
+    <item
+        android:maxLevel="92"
+        android:drawable="@drawable/notification_temp_pos92" />
+    <item
+        android:maxLevel="93"
+        android:drawable="@drawable/notification_temp_pos93" />
+    <item
+        android:maxLevel="94"
+        android:drawable="@drawable/notification_temp_pos94" />
+    <item
+        android:maxLevel="95"
+        android:drawable="@drawable/notification_temp_pos95" />
+    <item
+        android:maxLevel="96"
+        android:drawable="@drawable/notification_temp_pos96" />
+    <item
+        android:maxLevel="97"
+        android:drawable="@drawable/notification_temp_pos97" />
+    <item
+        android:maxLevel="98"
+        android:drawable="@drawable/notification_temp_pos98" />
+    <item
+        android:maxLevel="99"
+        android:drawable="@drawable/notification_temp_pos99" />
+    <item
+        android:maxLevel="100"
+        android:drawable="@drawable/notification_temp_pos100" />
+    <item
+        android:maxLevel="101"
+        android:drawable="@drawable/notification_temp_pos101" />
+    <item
+        android:maxLevel="102"
+        android:drawable="@drawable/notification_temp_pos102" />
+    <item
+        android:maxLevel="103"
+        android:drawable="@drawable/notification_temp_pos103" />
+    <item
+        android:maxLevel="104"
+        android:drawable="@drawable/notification_temp_pos104" />
+    <item
+        android:maxLevel="105"
+        android:drawable="@drawable/notification_temp_pos105" />
+    <item
+        android:maxLevel="106"
+        android:drawable="@drawable/notification_temp_pos106" />
+    <item
+        android:maxLevel="107"
+        android:drawable="@drawable/notification_temp_pos107" />
+    <item
+        android:maxLevel="108"
+        android:drawable="@drawable/notification_temp_pos108" />
+    <item
+        android:maxLevel="109"
+        android:drawable="@drawable/notification_temp_pos109" />
+    <item
+        android:maxLevel="110"
+        android:drawable="@drawable/notification_temp_pos110" />
+    <item
+        android:maxLevel="111"
+        android:drawable="@drawable/notification_temp_pos111" />
+    <item
+        android:maxLevel="112"
+        android:drawable="@drawable/notification_temp_pos112" />
+    <item
+        android:maxLevel="113"
+        android:drawable="@drawable/notification_temp_pos113" />
+    <item
+        android:maxLevel="114"
+        android:drawable="@drawable/notification_temp_pos114" />
+    <item
+        android:maxLevel="115"
+        android:drawable="@drawable/notification_temp_pos115" />
+    <item
+        android:maxLevel="116"
+        android:drawable="@drawable/notification_temp_pos116" />
+    <item
+        android:maxLevel="117"
+        android:drawable="@drawable/notification_temp_pos117" />
+    <item
+        android:maxLevel="118"
+        android:drawable="@drawable/notification_temp_pos118" />
+    <item
+        android:maxLevel="119"
+        android:drawable="@drawable/notification_temp_pos119" />
+    <item
+        android:maxLevel="120"
+        android:drawable="@drawable/notification_temp_pos120" />
+    <item
+        android:maxLevel="121"
+        android:drawable="@drawable/notification_temp_pos121" />
+    <item
+        android:maxLevel="122"
+        android:drawable="@drawable/notification_temp_pos122" />
+    <item
+        android:maxLevel="123"
+        android:drawable="@drawable/notification_temp_pos123" />
+    <item
+        android:maxLevel="124"
+        android:drawable="@drawable/notification_temp_pos124" />
+    <item
+        android:maxLevel="125"
+        android:drawable="@drawable/notification_temp_pos125" />
+    <item
+        android:maxLevel="126"
+        android:drawable="@drawable/notification_temp_pos126" />
+    <item
+        android:maxLevel="127"
+        android:drawable="@drawable/notification_temp_pos127" />
+    <item
+        android:maxLevel="128"
+        android:drawable="@drawable/notification_temp_pos128" />
+    <item
+        android:maxLevel="129"
+        android:drawable="@drawable/notification_temp_pos129" />
+    <item
+        android:maxLevel="130"
+        android:drawable="@drawable/notification_temp_pos130" />
+    <item
+        android:maxLevel="131"
+        android:drawable="@drawable/notification_temp_pos131" />
+    <item
+        android:maxLevel="132"
+        android:drawable="@drawable/notification_temp_pos132" />
+    <item
+        android:maxLevel="133"
+        android:drawable="@drawable/notification_temp_pos133" />
+    <item
+        android:maxLevel="134"
+        android:drawable="@drawable/notification_temp_pos134" />
+    <item
+        android:maxLevel="135"
+        android:drawable="@drawable/notification_temp_pos135" />
+    <item
+        android:maxLevel="136"
+        android:drawable="@drawable/notification_temp_pos136" />
+    <item
+        android:maxLevel="137"
+        android:drawable="@drawable/notification_temp_pos137" />
+    <item
+        android:maxLevel="138"
+        android:drawable="@drawable/notification_temp_pos138" />
+    <item
+        android:maxLevel="139"
+        android:drawable="@drawable/notification_temp_pos139" />
+    <item
+        android:maxLevel="140"
+        android:drawable="@drawable/notification_temp_pos140" />
+</level-list>

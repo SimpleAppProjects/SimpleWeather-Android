@@ -2,25 +2,31 @@ package com.thewizrd.simpleweather;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+
+import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.format.TextStyle;
 
-import static org.junit.Assert.*;
+import java.util.Locale;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Instrumentation test, which will execute on an Android device.
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-@RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
     @Test
-    public void useAppContext() throws Exception {
+    public void test() throws Exception {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.thewizrd.simpleweather", appContext.getPackageName());
+        AndroidThreeTen.init(appContext);
+        ZoneId zId = ZoneId.of("America/New_York");
+        System.out.println(zId.getDisplayName(TextStyle.SHORT_STANDALONE, Locale.ROOT));
+        assertNotNull(zId);
     }
 }

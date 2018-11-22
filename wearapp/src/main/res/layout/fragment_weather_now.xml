@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryLight">
+
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/fragment_weather_now"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/label_location_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center_horizontal"
+                android:paddingStart="@dimen/header_start_padding"
+                android:paddingTop="16dp"
+                android:paddingEnd="@dimen/header_start_padding"
+                android:textAppearance="@android:style/TextAppearance.Material.Large.Inverse"
+                android:textColor="@android:color/white"
+                tools:text="New York, New York" />
+
+            <TextView
+                android:id="@+id/label_updatetime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="sans-serif-condensed"
+                android:padding="2dp"
+                android:textAppearance="@android:style/TextAppearance.Material.Small.Inverse"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                tools:text="Updated on 11:12 PM" />
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/weather_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@android:color/white"
+                android:textSize="48sp"
+                app:fontFamily="@font/weathericons"
+                tools:fontFamily="@font/weathericons"
+                tools:text="@string/wi_day_sunny" />
+
+            <TextView
+                android:id="@+id/weather_condition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:maxLines="2"
+                android:padding="4dp"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                tools:text="Mostly Cloudy. Breezy. Cool" />
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/weather_temp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="4dp"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                app:fontFamily="@font/weathericons"
+                tools:fontFamily="@font/weathericons"
+                tools:text="70&#xF045;" />
+
+            <TextView
+                android:id="@+id/weather_credit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:paddingBottom="16dp"
+                android:paddingEnd="@dimen/horizontal_padding"
+                android:paddingStart="@dimen/horizontal_padding"
+                android:paddingTop="4dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                tools:text="Data from WeatherUnderground" />
+
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+</android.support.v4.widget.SwipeRefreshLayout>

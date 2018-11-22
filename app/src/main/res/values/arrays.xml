@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="api_entries">
-        <item>@string/api_wu</item>
-        <item>@string/api_yahoo</item>
+    <string-array name="notification_entries">
+        <item>@string/notificationicon_temperature</item>
+        <item>@string/notificationicon_condition</item>
+    </string-array>
+    <string-array name="notification_values">
+        <item>0</item>
+        <item>1</item>
     </string-array>
 </resources>

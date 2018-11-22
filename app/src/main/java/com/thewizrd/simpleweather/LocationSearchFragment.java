@@ -1,156 +1,281 @@
 package com.thewizrd.simpleweather;
 
-import android.Manifest;
+import android.app.Activity;
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.thewizrd.simpleweather.utils.JSONParser;
-import com.thewizrd.simpleweather.utils.Settings;
-import com.thewizrd.simpleweather.utils.WeatherUtils;
-import com.thewizrd.simpleweather.weather.weatherunderground.AutoCompleteQuery;
-import com.thewizrd.simpleweather.weather.weatherunderground.GeopositionQuery;
-import com.thewizrd.simpleweather.weather.weatherunderground.WUDataLoaderTask;
-import com.thewizrd.simpleweather.weather.weatherunderground.data.AC_Location;
-import com.thewizrd.simpleweather.weather.weatherunderground.data.WUWeather;
-import com.thewizrd.simpleweather.weather.yahoo.YahooWeatherLoaderTask;
-import com.thewizrd.simpleweather.weather.yahoo.data.YahooWeather;
+import com.google.android.gms.tasks.CancellationToken;
+import com.google.android.gms.tasks.CancellationTokenSource;
+import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
+import com.thewizrd.shared_resources.controls.LocationQuery;
+import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
+import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.WeatherException;
+import com.thewizrd.shared_resources.weatherdata.LocationData;
+import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class LocationSearchFragment extends Fragment {
-
-    private Location mLocation;
-    private String mQueryString;
     private RecyclerView mRecyclerView;
     private LocationQueryAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private ProgressBar mProgressBar;
+    private View mClearButton;
+    private EditText mSearchView;
+    private FragmentActivity mActivity;
 
-    private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
+    private CancellationTokenSource cts;
 
-    private String ARG_QUERY = "query";
-    private String ARG_INDEX = "index";
+    private WeatherManager wm;
+
+    public void setRecyclerOnClickListener(RecyclerOnClickListenerInterface listener) {
+        recyclerClickListener = listener;
+    }
+
+    // Widget id for ConfigurationActivity
+    private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 
     public LocationSearchFragment() {
         // Required empty public constructor
+        wm = WeatherManager.getInstance();
+        cts = new CancellationTokenSource();
     }
 
-    private View.OnClickListener clickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            LocationQueryView v = (LocationQueryView)view;
-            int homeIdx = 0;
+    public CancellationTokenSource getCancellationTokenSource() {
+        return cts;
+    }
 
-            if (TextUtils.isEmpty(Settings.getAPIKEY()) && Settings.getAPI().equals("WUnderground")) {
-                String errorMsg = "Invalid API Key";
-                Toast.makeText(getActivity().getApplicationContext(), errorMsg, Toast.LENGTH_SHORT).show();
-                return;
-            }
+    public void ctsCancel() {
+        cts.cancel();
+        cts = new CancellationTokenSource();
+    }
 
-            Intent intent = new Intent(getActivity(), MainActivity.class);
-
-            if (Settings.getAPI().equals("WUnderground")) {
-                WUWeather weather = null;
-                String query = v.getLocationQuery();
-
-                try {
-                    weather = new WUDataLoaderTask(getActivity()).execute(query).get();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                if (weather == null) {
-                    return;
-                }
-
-                intent.putExtra(ARG_QUERY, query);
-                intent.putExtra(ARG_INDEX, homeIdx);
-
-                List<String> locations = new ArrayList<>();
-                locations.add(query);
-                // Save data
-                try {
-                    JSONParser.serializer(weather, new File(getContext().getFilesDir(), "weather0.json"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                Settings.saveLocations_WU(locations);
-                Settings.setWeatherLoaded(true);
-            } else {
-                List<WeatherUtils.Coordinate> locations = new ArrayList<>();
-                YahooWeather weather = null;
-                try {
-                    weather = new YahooWeatherLoaderTask(getActivity()).execute(v.getLocationName()).get();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                if (weather == null) {
-                    return;
-                }
-
-                WeatherUtils.Coordinate local = new WeatherUtils.Coordinate(
-                        String.format("%s, %s", weather.location.lat, weather.location._long));
-                intent.putExtra(ARG_QUERY, local.getCoordinatePair());
-                intent.putExtra(ARG_INDEX, homeIdx);
-
-                locations.add(local);
-                // Save data
-                try {
-                    JSONParser.serializer(weather, new File(getContext().getFilesDir(), "weather0.json"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                Settings.saveLocations(locations);
-                Settings.setWeatherLoaded(true);
-            }
-
-            // Navigate
-            getActivity().startActivity(intent);
-            getActivity().finishAffinity();
-        }
-    };
-
-    public void setOnClickListener(View.OnClickListener listener) {
-        clickListener = listener;
+    public boolean ctsCancelRequested() {
+        if (cts == null)
+            return false;
+        else
+            return cts.getToken().isCancellationRequested();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_location_search, container, false);
-        setupView(view);
-        return view;
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mActivity = (FragmentActivity) context;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mActivity = null;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        mActivity = null;
+    }
+
+    public LocationQueryAdapter getAdapter() {
+        return mAdapter;
+    }
+
+    private RecyclerOnClickListenerInterface recyclerClickListener = new RecyclerOnClickListenerInterface() {
+        @Override
+        public void onClick(final View view, final int position) {
+            AsyncTask.run(new Runnable() {
+                @Override
+                public void run() {
+                    // Get selected query view
+                    LocationQuery v = (LocationQuery) view;
+                    LocationQueryViewModel query_vm = null;
+
+                    try {
+                        if (!StringUtils.isNullOrEmpty(mAdapter.getDataset().get(position).getLocationQuery()))
+                            query_vm = mAdapter.getDataset().get(position);
+                    } catch (ArrayIndexOutOfBoundsException ex) {
+                        query_vm = null;
+                    } finally {
+                        if (query_vm == null)
+                            query_vm = new LocationQueryViewModel();
+                    }
+
+                    if (StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
+                        // Stop since there is no valid query
+                        return;
+                    }
+
+                    if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired()) {
+                        mActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(App.getInstance().getAppContext(), R.string.werror_invalidkey, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        return;
+                    }
+
+                    // Cancel pending search
+                    ctsCancel();
+                    CancellationToken ctsToken = cts.getToken();
+
+                    showLoading(true);
+
+                    if (ctsToken.isCancellationRequested()) {
+                        showLoading(false);
+                        return;
+                    }
+
+                    // Get weather data
+                    LocationData location = new LocationData(query_vm);
+                    if (!location.isValid()) {
+                        mActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(App.getInstance().getAppContext(), R.string.werror_noweather, Toast.LENGTH_SHORT).show();
+                                showLoading(false);
+                            }
+                        });
+                        return;
+                    }
+                    Weather weather = Settings.getWeatherData(location.getQuery());
+                    if (weather == null) {
+                        try {
+                            weather = wm.getWeather(location);
+                        } catch (final WeatherException wEx) {
+                            weather = null;
+                            mActivity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(App.getInstance().getAppContext(), wEx.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }
+
+                    if (weather == null) {
+                        showLoading(false);
+                        return;
+                    }
+
+                    // We got our data so disable controls just in case
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mAdapter.getDataset().clear();
+                            mAdapter.notifyDataSetChanged();
+                            mRecyclerView.setEnabled(false);
+                        }
+                    });
+
+                    // Save weather data
+                    Settings.deleteLocations();
+                    Settings.addLocation(location);
+                    if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
+                        Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
+                    Settings.saveWeatherData(weather);
+
+                    // If we're using search
+                    // make sure gps feature is off
+                    Settings.setFollowGPS(false);
+                    Settings.setWeatherLoaded(true);
+
+                    // Send data for wearables
+                    mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
+                            .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
+                    mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
+                            .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
+                    mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
+                            .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
+
+                    if (mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+                        // Start WeatherNow Activity with weather data
+                        Intent intent = new Intent(mActivity, MainActivity.class);
+                        intent.putExtra("data", location.toJson());
+
+                        mActivity.startActivity(intent);
+                        mActivity.finishAffinity();
+                    } else {
+                        // Create return intent
+                        Intent resultValue = new Intent();
+                        resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+                        resultValue.putExtra("data", location.toJson());
+                        mActivity.setResult(Activity.RESULT_OK, resultValue);
+                        mActivity.finish();
+                    }
+                }
+            });
+        }
+    };
+
+    private void showLoading(final boolean show) {
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+
+                if (show || (!show && StringUtils.isNullOrEmpty(mSearchView.getText().toString())))
+                    mClearButton.setVisibility(View.GONE);
+                else
+                    mClearButton.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (getArguments() != null) {
+            mAppWidgetId = getArguments().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+        }
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_location_search, container, false);
+        setupView(view);
+
+        mActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        return view;
     }
 
     private void setupView(View view) {
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
-        mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(this.getActivity(), clickListener));
+        mProgressBar = mActivity.findViewById(R.id.search_progressBar);
+        mClearButton = mActivity.findViewById(R.id.search_close_button);
+        mSearchView = mActivity.findViewById(R.id.search_view);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            mProgressBar.setIndeterminateDrawable(
+                    ContextCompat.getDrawable(mActivity, R.drawable.progressring));
+        }
+
+        mRecyclerView = view.findViewById(R.id.recycler_view);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -161,138 +286,43 @@ public class LocationSearchFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new LocationQueryAdapter(new ArrayList<AC_Location>());
+        mAdapter = new LocationQueryAdapter(new ArrayList<LocationQueryViewModel>());
+        mAdapter.setOnClickListener(recyclerClickListener);
         mRecyclerView.setAdapter(mAdapter);
     }
 
-    public void fetchLocations(String queryString) {
-        if (!TextUtils.equals(mQueryString, queryString)) {
-            mQueryString = queryString;
-            // Get locations
-            List<AC_Location> locations = new ArrayList<>();
+    public void fetchLocations(final String queryString) {
+        // Cancel pending searches
+        ctsCancel();
 
-            if (!TextUtils.isEmpty(mQueryString)) {
-                try {
-                    List<AC_Location> results = new AutoCompleteQuery(getActivity()).execute(mQueryString).get();
+        if (!StringUtils.isNullOrWhitespace(queryString)) {
+            AsyncTask.run(new Runnable() {
+                @Override
+                public void run() {
+                    CancellationToken ctsToken = cts.getToken();
 
-                    if (results.size() > 0)
-                        locations.addAll(results);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    if (ctsToken.isCancellationRequested()) return;
+
+                    final Collection<LocationQueryViewModel> results = wm.getLocations(queryString);
+
+                    if (ctsToken.isCancellationRequested()) return;
+
+                    if (mActivity != null) {
+                        mActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mAdapter.setLocations(new ArrayList<>(results));
+                            }
+                        });
+                    }
                 }
-            }
-
-            mAdapter.setLocations(locations);
+            });
+        } else if (StringUtils.isNullOrWhitespace(queryString)) {
+            // Cancel pending searches
+            ctsCancel();
+            // Hide flyout if query is empty or null
+            mAdapter.getDataset().clear();
+            mAdapter.notifyDataSetChanged();
         }
     }
-
-    public void fetchGeoLocation() {
-        if (mLocation != null) {
-            // Get geo location
-            AC_Location gpsLocation = null;
-            ArrayList<AC_Location> results = new ArrayList<>(1);
-
-            try {
-                WeatherUtils.Coordinate coordinate = new WeatherUtils.Coordinate(mLocation.getLatitude(), mLocation.getLongitude());
-                gpsLocation = new GeopositionQuery(getActivity()).execute(coordinate).get();
-
-                if (gpsLocation != null) {
-                    mQueryString = gpsLocation.name;
-                    results.add(gpsLocation);
-                    mAdapter.setLocations(results);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        else {
-            updateLocation();
-        }
-    }
-
-    private void updateLocation()
-    {
-        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSION_LOCATION_REQUEST_CODE);
-            return;
-        }
-
-        LocationManager locMan = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        boolean isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        boolean isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
-        Location location = null;
-
-        if (isGPSEnabled) {
-            location = locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-            if (location == null)
-                location = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-            if (location == null)
-                locMan.requestSingleUpdate(LocationManager.GPS_PROVIDER, mLocListnr, null);
-            else {
-                mLocation = location;
-                fetchGeoLocation();
-            }
-        } else if (isNetEnabled) {
-            location = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-            if (location == null)
-                locMan.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, mLocListnr, null);
-            else {
-                mLocation = location;
-                fetchGeoLocation();
-            }
-        } else {
-            Toast.makeText(getActivity(), "Unable to get location", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSION_LOCATION_REQUEST_CODE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-
-                    fetchGeoLocation();
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    Toast.makeText(getActivity(), "Location access denied", Toast.LENGTH_SHORT).show();
-                }
-                return;
-            }
-        }
-    }
-
-    private LocationListener mLocListnr = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            mLocation = location;
-            fetchGeoLocation();
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-
-        }
-    };
 }
