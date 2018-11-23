@@ -6,6 +6,7 @@ import android.widget.Toast;
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -270,17 +271,17 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
     }
 
     private String getAppID() {
-        return null;
+        return Keys.getHEREAppID();
     }
 
     private String getAppCode() {
-        return null;
+        return Keys.getHEREAppCode();
     }
 
     @Override
     public String getAPIKey() {
         if (StringUtils.isNullOrWhitespace(getAppID()) && StringUtils.isNullOrWhitespace(getAppCode()))
-            return "";
+            return null;
         else
             return String.format("%s;%s", getAppID(), getAppCode());
     }

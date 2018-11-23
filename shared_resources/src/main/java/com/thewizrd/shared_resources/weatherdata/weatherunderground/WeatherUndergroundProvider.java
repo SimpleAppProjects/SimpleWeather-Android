@@ -6,6 +6,7 @@ import android.widget.Toast;
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -259,7 +260,7 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
 
     @Override
     public String getAPIKey() {
-        return null;
+        return Keys.getWUndergroundKey();
     }
 
     @Override
