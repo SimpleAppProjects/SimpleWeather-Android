@@ -174,17 +174,17 @@ public class Settings {
         if (getDBVersion() < 3) {
             File oldWeatherDB = new File(appDataFolder, "weatherdata.db");
             File newWeatherDB = context.getDatabasePath("weatherdata.db");
-            Logger.writeLine(Log.DEBUG, "weatherdb: old path: " + oldWeatherDB.getAbsolutePath());
-            Logger.writeLine(Log.DEBUG, "weatherdb: new path: " + newWeatherDB.getAbsolutePath());
             if (oldWeatherDB.exists()) {
+                Logger.writeLine(Log.DEBUG, "weatherdb: old path: " + oldWeatherDB.getAbsolutePath());
+                Logger.writeLine(Log.DEBUG, "weatherdb: new path: " + newWeatherDB.getAbsolutePath());
                 Logger.writeLine(Log.DEBUG, "weatherdb: " + oldWeatherDB.renameTo(newWeatherDB));
             }
 
             File oldLocDB = new File(appDataFolder, "locations.db");
             File newLocDB = context.getDatabasePath("locations.db");
-            Logger.writeLine(Log.DEBUG, "locationsdb: old path: " + oldLocDB.getAbsolutePath());
-            Logger.writeLine(Log.DEBUG, "locationsdb: new path: " + newLocDB.getAbsolutePath());
             if (oldLocDB.exists()) {
+                Logger.writeLine(Log.DEBUG, "locationsdb: old path: " + oldLocDB.getAbsolutePath());
+                Logger.writeLine(Log.DEBUG, "locationsdb: new path: " + newLocDB.getAbsolutePath());
                 Logger.writeLine(Log.DEBUG, "locationsdb: " + oldLocDB.renameTo(newLocDB));
             }
         }
