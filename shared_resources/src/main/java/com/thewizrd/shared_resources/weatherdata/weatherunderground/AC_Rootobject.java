@@ -6,7 +6,7 @@ import java.util.List;
 
 public class AC_Rootobject {
 
-    @SerializedName("AC_RESULTS")
+    @SerializedName("RESULTS")
     private List<AC_RESULTS> results;
 
     public void setRESULTS(List<AC_RESULTS> results) {
