@@ -25,6 +25,7 @@ import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.threeten.bp.ZoneOffset;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -140,7 +141,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
             stream.close();
         } catch (Exception ex) {
             result = null;
-            if (ex instanceof java.net.SocketException) {
+            if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
                 final WeatherException finalWEx = wEx;
                 mMainHandler.post(new Runnable() {
@@ -191,7 +192,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
             stream.close();
         } catch (Exception ex) {
             result = null;
-            if (ex instanceof java.net.SocketException) {
+            if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
                 final WeatherException finalWEx = wEx;
                 mMainHandler.post(new Runnable() {
@@ -247,7 +248,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
                     break;
             }
         } catch (Exception ex) {
-            if (ex instanceof java.net.SocketException) {
+            if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
             }
 
@@ -350,7 +351,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
             }
         } catch (Exception ex) {
             weather = null;
-            if (ex instanceof java.net.SocketException) {
+            if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
                 final WeatherException finalWEx = wEx;
                 mMainHandler.post(new Runnable() {

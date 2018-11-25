@@ -24,6 +24,7 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -139,7 +140,7 @@ public class YahooWeatherProvider extends WeatherProviderImpl {
             stream.close();
         } catch (Exception ex) {
             result = null;
-            if (ex instanceof java.net.SocketException) {
+            if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
                 final WeatherException finalWEx = wEx;
                 mMainHandler.post(new Runnable() {
@@ -190,7 +191,7 @@ public class YahooWeatherProvider extends WeatherProviderImpl {
             stream.close();
         } catch (Exception ex) {
             result = null;
-            if (ex instanceof java.net.SocketException) {
+            if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
                 final WeatherException finalWEx = wEx;
                 mMainHandler.post(new Runnable() {
@@ -266,7 +267,7 @@ public class YahooWeatherProvider extends WeatherProviderImpl {
             weather = new Weather(root);
         } catch (Exception ex) {
             weather = null;
-            if (ex instanceof java.net.SocketException) {
+            if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
                 final WeatherException finalWEx = wEx;
                 mMainHandler.post(new Runnable() {

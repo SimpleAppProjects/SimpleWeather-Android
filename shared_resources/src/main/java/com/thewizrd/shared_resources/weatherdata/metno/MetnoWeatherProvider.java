@@ -35,6 +35,7 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -142,7 +143,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
             stream.close();
         } catch (Exception ex) {
             result = null;
-            if (ex instanceof java.net.SocketException) {
+            if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
                 final WeatherException finalWEx = wEx;
                 mMainHandler.post(new Runnable() {
@@ -190,7 +191,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
             stream.close();
         } catch (Exception ex) {
             result = null;
-            if (ex instanceof java.net.SocketException) {
+            if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
                 final WeatherException finalWEx = wEx;
                 mMainHandler.post(new Runnable() {
@@ -297,7 +298,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
 
         } catch (Exception ex) {
             weather = null;
-            if (ex instanceof java.net.SocketException) {
+            if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
                 final WeatherException finalWEx = wEx;
                 mMainHandler.post(new Runnable() {
