@@ -5,6 +5,7 @@ import android.support.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.function.Predicate;
 
 public class ObservableArrayList<T> extends ArrayList<T> {
@@ -23,10 +24,7 @@ public class ObservableArrayList<T> extends ArrayList<T> {
     }
 
     public void move(int oldIndex, int newIndex) {
-        T removedItem = get(oldIndex);
-
-        super.remove(oldIndex);
-        super.add(newIndex, removedItem);
+        Collections.swap(this, oldIndex, newIndex);
 
         if (mListeners != null)
             mListeners.notifyChange(this, new ListChangedArgs(ListChangedAction.MOVE, newIndex, oldIndex));

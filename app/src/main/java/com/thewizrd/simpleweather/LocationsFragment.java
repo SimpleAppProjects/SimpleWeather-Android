@@ -512,7 +512,6 @@ public class LocationsFragment extends Fragment
                 if (appCompatActivity != null) {
                     // Load up saved locations
                     List<LocationData> locations = Settings.getFavorites();
-
                     appCompatActivity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -607,11 +606,11 @@ public class LocationsFragment extends Fragment
                         @Override
                         public void run() {
                             mAdapter.removeAll();
-                            loadLocations();
                         }
                     });
+                    loadLocations();
                 } else {
-                    List<LocationPanelViewModel> dataset = new ArrayList<>(mAdapter.getDataset());
+                    List<LocationPanelViewModel> dataset = mAdapter.getDataset();
                     if (gpsPanelViewModel != null)
                         dataset.add(gpsPanelViewModel);
 
@@ -904,8 +903,8 @@ public class LocationsFragment extends Fragment
                         appCompatActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                adapter.getDataset().clear();
-                                adapter.notifyDataSetChanged();
+                                mAdapter.getDataset().clear();
+                                mAdapter.notifyDataSetChanged();
                             }
                         });
 

@@ -18,14 +18,11 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     private boolean dragEnabled = true;
     private boolean swipeEnabled = true;
 
-    private int fromPosition = -1;
-    private int toPosition = -1;
-
     private ItemTouchHelperAdapterInterface mAdapter;
 
     private Drawable deleteIcon;
     private Drawable deleteBackground;
-    int iconMargin;
+    private int iconMargin;
 
     @Override
     public boolean isLongPressDragEnabled() {
@@ -64,9 +61,6 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     @Override
     public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-        fromPosition = viewHolder.getAdapterPosition();
-        toPosition = target.getAdapterPosition();
-
         mAdapter.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
         return true;
     }
@@ -112,18 +106,6 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
         }
 
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-    }
-
-    @Override
-    public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-        super.clearView(recyclerView, viewHolder);
-
-        if (fromPosition != -1 && toPosition != -1 && fromPosition != toPosition)
-            mAdapter.onItemMoved(fromPosition, toPosition);
-
-        // Reset positions
-        fromPosition = -1;
-        toPosition = -1;
     }
 
     @Override

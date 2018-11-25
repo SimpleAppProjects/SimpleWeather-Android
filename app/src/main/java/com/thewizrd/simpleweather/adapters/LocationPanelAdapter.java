@@ -1,6 +1,8 @@
 package com.thewizrd.simpleweather.adapters;
 
 import android.annotation.SuppressLint;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -11,6 +13,7 @@ import android.widget.ProgressBar;
 
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
@@ -33,6 +36,7 @@ import java.util.concurrent.Executors;
 public class LocationPanelAdapter extends RecyclerView.Adapter<LocationPanelAdapter.ViewHolder> implements ItemTouchHelperAdapterInterface {
     private ObservableArrayList<LocationPanelViewModel> mDataset;
     private RequestManager mGlide;
+    private Handler mMainHandler;
 
     // Event listeners
     private RecyclerOnClickListenerInterface onClickListener;
@@ -55,7 +59,8 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<LocationPanelAdap
     }
 
     public List<LocationPanelViewModel> getDataset() {
-        return mDataset;
+        // Create copy of list
+        return ArrayUtils.toArrayList(mDataset.toArray(new LocationPanelViewModel[0]));
     }
 
     // Provide a reference to the views for each data item
@@ -93,6 +98,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<LocationPanelAdap
     // Provide a suitable constructor (depends on the kind of dataset)
     public LocationPanelAdapter(RequestManager glide, List<LocationPanelViewModel> myDataset) {
         this.mGlide = glide;
+        mMainHandler = new Handler(Looper.getMainLooper());
 
         mDataset = new ObservableArrayList<>();
         if (myDataset != null) {
@@ -168,23 +174,25 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<LocationPanelAdap
         return mDataset.get(position);
     }
 
-    private void removeLocation(int position) {
+    private void removeLocation(final int position) {
         // Remove location from list
         Settings.deleteLocation(
                 mDataset.get(position).getLocationData().getQuery());
 
         // Remove panel
-        remove(position);
+        if (Thread.currentThread() != mMainHandler.getLooper().getThread()) {
+            mMainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    remove(position);
+                }
+            });
+        }
     }
 
     public void onItemMove(int fromPosition, int toPosition) {
         mDataset.move(fromPosition, toPosition);
         notifyItemMoved(fromPosition, toPosition);
-    }
-
-    public void onItemMoved(int fromPosition, int toPosition) {
-        notifyItemChanged(fromPosition);
-        notifyItemChanged(toPosition);
     }
 
     public void onItemDismiss(final int position) {
