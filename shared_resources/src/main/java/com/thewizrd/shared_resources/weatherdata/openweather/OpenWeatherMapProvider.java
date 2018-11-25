@@ -353,7 +353,7 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
         ZoneOffset offset = location.getTzOffset();
         weather.setUpdateTime(weather.getUpdateTime().withZoneSameInstant(offset));
         for (HourlyForecast hr_forecast : weather.getHrForecast()) {
-            hr_forecast.setDate(hr_forecast.getDate().withZoneSameLocal(offset));
+            hr_forecast.setDate(hr_forecast.getDate().withZoneSameInstant(offset));
         }
         for (Forecast forecast : weather.getForecast()) {
             forecast.setDate(forecast.getDate().plusSeconds(offset.getTotalSeconds()));

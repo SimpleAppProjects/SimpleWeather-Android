@@ -361,7 +361,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
         }
 
         for (HourlyForecast hr_forecast : weather.getHrForecast()) {
-            hr_forecast.setDate(hr_forecast.getDate().withZoneSameLocal(offset));
+            hr_forecast.setDate(hr_forecast.getDate().withZoneSameInstant(offset));
 
             LocalTime hrnow = hr_forecast.getDate().toLocalTime();
             LocalTime sunriseTime = weather.getAstronomy().getSunrise().toLocalTime();
