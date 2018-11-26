@@ -792,11 +792,11 @@ public class Settings {
             return DateTimeUtils.getLocalDateTimeMIN();
         else
             return LocalDateTime.parse(preferences.getString(KEY_UPDATETIME, "1/1/1900 12:00:00 AM"),
-                    DateTimeFormatter.ofPattern("M/d/yyyy hh:mm:ss a"));
+                    DateTimeFormatter.ofPattern("M/d/yyyy h:mm:ss a"));
     }
 
     public static void setUpdateTime(LocalDateTime value) {
-        editor.putString(KEY_UPDATETIME, value.format(DateTimeFormatter.ofPattern("M/d/yyyy hh:mm:ss a")));
+        editor.putString(KEY_UPDATETIME, value.format(DateTimeFormatter.ofPattern("M/d/yyyy h:mm:ss a")));
         editor.commit();
     }
 
