@@ -273,27 +273,39 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         }
 
         dataReceiver = new BroadcastReceiver() {
+            private boolean locationDataReceived = false;
+            private boolean weatherDataReceived = false;
+
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (WearableHelper.LocationPath.equals(intent.getAction()) ||
-                        WearableHelper.WeatherPath.equals(intent.getAction())) {
+                if (WearableHelper.LocationPath.equals(intent.getAction()) || WearableHelper.WeatherPath.equals(intent.getAction())) {
                     if (WearableHelper.WeatherPath.equals(intent.getAction()) ||
                             (!loaded && location != null)) {
                         if (timerEnabled)
                             cancelTimer();
 
-                        // We got all our data; now load the weather
-                        wLoader = new WeatherDataLoader(location, WeatherNowFragment.this, WeatherNowFragment.this);
-                        wLoader.forceLoadSavedWeatherData();
+                        weatherDataReceived = true;
                     }
 
                     if (WearableHelper.LocationPath.equals(intent.getAction())) {
                         // We got the location data
                         location = Settings.getHomeData();
                         loaded = false;
+                        locationDataReceived = true;
+                    }
+
+                    if (locationDataReceived && weatherDataReceived) {
+                        // We got all our data; now load the weather
+                        wLoader = new WeatherDataLoader(location, WeatherNowFragment.this, WeatherNowFragment.this);
+                        wLoader.forceLoadSavedWeatherData();
+
+                        weatherDataReceived = false;
+                        locationDataReceived = false;
                     }
                 } else if (WearableHelper.ErrorPath.equals(intent.getAction())) {
                     // An error occurred; cancel the sync operation
+                    weatherDataReceived = false;
+                    locationDataReceived = false;
                     cancelDataSync();
                 } else if (WearableHelper.IsSetupPath.equals(intent.getAction())) {
                     if (Settings.getDataSync() != WearableDataSync.OFF) {
@@ -313,6 +325,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             resetTimer();
                         } else {
                             // Device is not connected; cancel sync
+                            weatherDataReceived = false;
+                            locationDataReceived = false;
                             cancelDataSync();
                         }
                     }
@@ -609,11 +623,11 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     if (wLoader.getWeather() != null && wLoader.getWeather().isValid()) {
                         Weather weather = wLoader.getWeather();
 
-                /*
-                    DateTime < 0 - This instance is earlier than value.
-                    DateTime == 0 - This instance is the same as value.
-                    DateTime > 0 - This instance is later than value.
-                */
+                        /*
+                            DateTime < 0 - This instance is earlier than value.
+                            DateTime == 0 - This instance is the same as value.
+                            DateTime > 0 - This instance is later than value.
+                        */
                         if (Settings.getUpdateTime().compareTo(
                                 weather.getUpdateTime().withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime()) > 0) {
                             // Data was updated while we we're away; loaded it up
