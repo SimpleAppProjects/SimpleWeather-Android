@@ -482,12 +482,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
         else
             query = qview.getLocationQuery();
 
-        if (weather.getLocation().getName().contains("Tokyo"))
-            return "lat=35.656132&lon=139.738617";
-        else if (weather.getLocation().getName().contains("Los Angeles"))
-            return "lat=34.052891&lon=-118.243629";
-
-        return "lat=40.678131&lon=-73.746597";
+        return query;
     }
 
     @Override
@@ -501,12 +496,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
         else
             query = qview.getLocationQuery();
 
-        if (location.getName().contains("Tokyo"))
-            return "lat=35.656132&lon=139.738617";
-        else if (location.getName().contains("Los Angeles"))
-            return "lat=34.052891&lon=-118.243629";
-
-        return "lat=40.678131&lon=-73.746597";
+        return query;
     }
 
     @Override

@@ -318,12 +318,7 @@ public class YahooWeatherProvider extends WeatherProviderImpl {
         else
             query = qview.getLocationQuery();
 
-        if (weather.getLocation().getName().contains("Tokyo"))
-            return "28677273";
-        else if (weather.getLocation().getName().contains("Los Angeles"))
-            return "92168285";
-
-        return "23619391";
+        return query;
     }
 
     @Override
@@ -337,12 +332,7 @@ public class YahooWeatherProvider extends WeatherProviderImpl {
         else
             query = qview.getLocationQuery();
 
-        if (location.getName().contains("Tokyo"))
-            return "28677273";
-        else if (location.getName().contains("Los Angeles"))
-            return "92168285";
-
-        return "23619391";
+        return query;
     }
 
     @Override
