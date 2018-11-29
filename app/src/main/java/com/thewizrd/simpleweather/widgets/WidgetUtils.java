@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class WidgetUtils {
     // Shared Settings
@@ -27,7 +28,7 @@ public class WidgetUtils {
     private static SharedPreferences.Editor editor = widgetPrefs.edit();
 
     // Widget Prefs
-    private static final int CurrentPrefsVersion = 0;
+    private static final int CurrentPrefsVersion = 1;
 
     // Keys
     private static final String KEY_VERSION = "key_version";
@@ -35,7 +36,11 @@ public class WidgetUtils {
     private static final String KEY_LOCATIONDATA = "key_locationdata";
     private static final String KEY_LOCATIONQUERY = "key_locationquery";
 
-    public static void init() {
+    static {
+        init();
+    }
+
+    private static void init() {
         // Check prefs
         if (getVersion() < CurrentPrefsVersion) {
             switch (getVersion()) {
@@ -61,6 +66,21 @@ public class WidgetUtils {
                         LocationData homeLocation = Settings.getHomeData();
                         saveIds(homeLocation.getQuery(), currentIds);
                     }
+
+                    Map<String, ?> widgetMap = widgetPrefs.getAll();
+                    for (String key : widgetMap.keySet()) {
+                        String json = (String) widgetMap.get(key);
+                        json = json.replace("\"$type\":\"System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib\",\"$values\":", "");
+                        editor.putString(key, json).commit();
+                    }
+                    break;
+                case 0:
+                    widgetMap = widgetPrefs.getAll();
+                    for (String key : widgetMap.keySet()) {
+                        String json = (String) widgetMap.get(key);
+                        json = json.replace("\"$type\":\"System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib\",\"$values\":", "");
+                        editor.putString(key, json).commit();
+                    }
                     break;
                 default:
                     break;
@@ -80,7 +100,7 @@ public class WidgetUtils {
         editor.commit();
     }
 
-    public static void addWidgetId(String location_query, int widgetId) {
+    static void addWidgetId(String location_query, int widgetId) {
         String listJson = widgetPrefs.getString(location_query, "");
         if (StringUtils.isNullOrWhitespace(listJson)) {
             List<Integer> newlist = Collections.singletonList(widgetId);
@@ -94,7 +114,7 @@ public class WidgetUtils {
         }
     }
 
-    public static void removeWidgetId(String location_query, int widgetId) {
+    static void removeWidgetId(String location_query, int widgetId) {
         String listJson = widgetPrefs.getString(location_query, "");
         if (!StringUtils.isNullOrWhitespace(listJson)) {
             ArrayList<Integer> idList = (ArrayList<Integer>) JSONParser.deserializer(listJson, ArrayList.class);
@@ -102,7 +122,7 @@ public class WidgetUtils {
                 idList.remove(widgetId);
 
                 if (idList.size() == 0)
-                    widgetPrefs.edit().remove(location_query).commit();
+                    editor.remove(location_query).commit();
                 else
                     saveIds(location_query, idList);
             }
@@ -131,8 +151,8 @@ public class WidgetUtils {
 
     public static void updateWidgetIds(String oldQuery, LocationData newLocation) {
         String listJson = widgetPrefs.getString(oldQuery, "");
-        widgetPrefs.edit().remove(oldQuery);
-        widgetPrefs.edit().putString(newLocation.getQuery(), listJson).commit();
+        editor.remove(oldQuery);
+        editor.putString(newLocation.getQuery(), listJson).commit();
 
         for (int id : getWidgetIds(newLocation.getQuery())) {
             saveLocationData(id, newLocation);
@@ -164,16 +184,15 @@ public class WidgetUtils {
     }
 
     private static boolean saveIds(String key, List<Integer> idList) {
-        return widgetPrefs.edit()
-                .putString(key, JSONParser.serializer(idList, ArrayList.class))
+        return editor.putString(key, JSONParser.serializer(idList, ArrayList.class))
                 .commit();
     }
 
-    public static SharedPreferences getPreferences(int appWidgetId) {
+    private static SharedPreferences getPreferences(int appWidgetId) {
         return App.getInstance().getAppContext().getSharedPreferences(String.format(Locale.ROOT, "appwidget_%d", appWidgetId), Context.MODE_PRIVATE);
     }
 
-    public static SharedPreferences.Editor getEditor(int appWidgetId) {
+    private static SharedPreferences.Editor getEditor(int appWidgetId) {
         return getPreferences(appWidgetId).edit();
     }
 
@@ -190,7 +209,7 @@ public class WidgetUtils {
         editor.commit();
     }
 
-    public static void saveLocationData(int appWidgetId, LocationData location) {
+    static void saveLocationData(int appWidgetId, LocationData location) {
         SharedPreferences.Editor editor = getEditor(appWidgetId);
 
         String locJson = location == null ? null : location.toJson();
@@ -210,7 +229,7 @@ public class WidgetUtils {
         editor.commit();
     }
 
-    public static LocationData getLocationData(int appWidgetId) {
+    static LocationData getLocationData(int appWidgetId) {
         SharedPreferences prefs = getPreferences(appWidgetId);
         String locDataJson = prefs.getString(KEY_LOCATIONDATA, null);
 
@@ -222,7 +241,7 @@ public class WidgetUtils {
         }
     }
 
-    public static Weather getWeatherData(int appWidgetId) {
+    static Weather getWeatherData(int appWidgetId) {
         SharedPreferences prefs = getPreferences(appWidgetId);
         String weatherDataJson = prefs.getString(KEY_WEATHERDATA, null);
 
