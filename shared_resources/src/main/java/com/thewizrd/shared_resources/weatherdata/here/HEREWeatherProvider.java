@@ -219,8 +219,16 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
     @Override
     public boolean isKeyValid(String key) {
         String queryAPI = "https://weather.cit.api.here.com/weather/1.0/report.json";
-        String app_id = key.split(";")[0];
-        String app_code = key.split(";")[key.split(";").length - 1];
+
+        String app_id = "";
+        String app_code = "";
+
+        if (!StringUtils.isNullOrWhitespace(key)) {
+            String[] keyArr = key.split(";");
+            app_id = keyArr[0];
+            app_code = keyArr[keyArr.length > 1 ? keyArr.length - 1 : 0];
+        }
+
         HttpURLConnection client = null;
         boolean isValid = false;
         WeatherException wEx = null;
@@ -303,8 +311,15 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
                 "&language=%s&metric=false&app_id=%s&app_code=%s";
 
         String key = Settings.usePersonalKey() ? Settings.getAPIKEY() : getAPIKey();
-        String app_id = key.split(";")[0];
-        String app_code = key.split(";")[key.split(";").length - 1];
+        String app_id = "";
+        String app_code = "";
+
+        if (!StringUtils.isNullOrWhitespace(key)) {
+            String[] keyArr = key.split(";");
+            app_id = keyArr[0];
+            app_code = keyArr[keyArr.length > 1 ? keyArr.length - 1 : 0];
+        }
+
 
         WeatherException wEx = null;
 
@@ -427,8 +442,15 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
                 "&language=%s&metric=false&app_id=%s&app_code=%s";
 
         String key = Settings.usePersonalKey() ? Settings.getAPIKEY() : getAPIKey();
-        String app_id = key.split(";")[0];
-        String app_code = key.split(";")[key.split(";").length - 1];
+        String app_id = "";
+        String app_code = "";
+
+        if (!StringUtils.isNullOrWhitespace(key)) {
+            String[] keyArr = key.split(";");
+            app_id = keyArr[0];
+            app_code = keyArr[keyArr.length > 1 ? keyArr.length - 1 : 0];
+        }
+
 
         try {
             weatherURL = new URL(String.format(queryAPI, location.getQuery(), locale, app_id, app_code));
