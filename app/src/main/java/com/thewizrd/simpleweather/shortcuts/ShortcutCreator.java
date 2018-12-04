@@ -15,6 +15,7 @@ import android.os.Build;
 import android.support.v4.content.ContextCompat;
 
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
@@ -76,25 +77,16 @@ public class ShortcutCreator {
                                 .putExtra("shortcut-data", location.toJson())
                                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
 
-                        final BitmapFactory.Options bitOps = new BitmapFactory.Options();
-                        bitOps.inMutable = true;
                         Bitmap bmp = new AsyncTask<Bitmap>().await(new Callable<Bitmap>() {
                             @Override
                             public Bitmap call() throws Exception {
-                                return BitmapFactory.decodeResource(context.getResources(), wm.getWeatherIconResource(weather.getCondition().getIcon()),
-                                        bitOps);
+                                return ImageUtils.tintedBitmapFromDrawable(context, wm.getWeatherIconResource(weather.getCondition().getIcon()),
+                                        ContextCompat.getColor(context, R.color.colorPrimary));
                             }
                         });
-                        Bitmap newImage = Bitmap.createBitmap(bmp.getWidth(), bmp.getHeight(), bmp.getConfig());
-                        Paint paint = new Paint();
-                        paint.setColorFilter(new PorterDuffColorFilter(ContextCompat.getColor(context, R.color.colorPrimary),
-                                PorterDuff.Mode.SRC_IN));
-                        Canvas canvas = new Canvas(newImage);
-                        canvas.drawBitmap(bmp, 0, 0, paint);
-                        bmp.recycle();
                         ShortcutInfo shortcut = new ShortcutInfo.Builder(context, location.getQuery())
                                 .setShortLabel(weather.getLocation().getName())
-                                .setIcon(Icon.createWithBitmap(newImage))
+                                .setIcon(Icon.createWithBitmap(bmp))
                                 .setIntent(intent)
                                 .build();
 

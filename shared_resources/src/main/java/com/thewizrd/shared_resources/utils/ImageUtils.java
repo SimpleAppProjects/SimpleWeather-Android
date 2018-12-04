@@ -11,11 +11,14 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -62,6 +65,37 @@ public class ImageUtils {
         myCanvas.drawText(text, 0, baseline, paint);
 
         return bmp;
+    }
+
+    public static Bitmap bitmapFromDrawable(Context context, int resDrawable) {
+        Drawable drawable = ContextCompat.getDrawable(context, resDrawable);
+        return bitmapFromDrawable(drawable);
+    }
+
+    public static Bitmap tintedBitmapFromDrawable(Context context, int resDrawable, int color) {
+        Drawable drawable = ContextCompat.getDrawable(context, resDrawable);
+        Drawable wrapped = DrawableCompat.wrap(drawable);
+        DrawableCompat.setTint(wrapped, color);
+        return bitmapFromDrawable(wrapped);
+    }
+
+    private static Bitmap bitmapFromDrawable(Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable) drawable).getBitmap();
+        }
+
+        Bitmap bitmap;
+
+        if (drawable.getIntrinsicHeight() <= 0 || drawable.getIntrinsicWidth() <= 0) {
+            bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+        } else {
+            bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        }
+
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+        return bitmap;
     }
 
     public static Bitmap tintBitmap(Bitmap bitmap, int color) {

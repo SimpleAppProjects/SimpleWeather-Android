@@ -62,8 +62,7 @@ public class WeatherAlertNotificationBuilder {
             Bitmap iconBmp = new AsyncTask<Bitmap>().await(new Callable<Bitmap>() {
                 @Override
                 public Bitmap call() throws Exception {
-                    return ImageUtils.tintBitmap(
-                            BitmapFactory.decodeResource(context.getResources(), getDrawableFromAlertType(alertVM.getAlertType())),
+                    return ImageUtils.tintedBitmapFromDrawable(context, getDrawableFromAlertType(alertVM.getAlertType()),
                             Colors.BLACK);
                 }
             });
