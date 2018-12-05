@@ -5,6 +5,7 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Transaction;
 
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlerts;
@@ -23,6 +24,7 @@ public interface WeatherDAO {
     @Query("DELETE FROM weatherdata WHERE `query` = :key")
     public void deleteWeatherDataByKey(String key);
 
+    @Transaction
     @Query("SELECT * FROM weatherdata")
     public List<Weather> loadAllWeatherData();
 
@@ -42,6 +44,7 @@ public interface WeatherDAO {
     @Query("DELETE FROM weatheralerts WHERE `query` = :key")
     public void deleteWeatherAlertDataByKey(String key);
 
+    @Transaction
     @Query("SELECT * FROM weatheralerts")
     public List<WeatherAlerts> loadAllWeatherAlertData();
 

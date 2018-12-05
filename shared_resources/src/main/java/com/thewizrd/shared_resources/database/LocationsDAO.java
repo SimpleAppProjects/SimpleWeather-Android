@@ -5,6 +5,7 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Transaction;
 import android.arch.persistence.room.Update;
 
 import com.thewizrd.shared_resources.weatherdata.Favorites;
@@ -30,9 +31,11 @@ public interface LocationsDAO {
     @Query("DELETE FROM locations WHERE `query` = :key")
     public void deleteLocationDataByKey(String key);
 
+    @Transaction
     @Query("SELECT * FROM locations")
     public List<LocationData> loadAllLocationData();
 
+    @Transaction
     @Query("SELECT locations.`query`, locations.`name`, locations.`latitude`," +
             " locations.`longitude`, locations.`tz_long`, locations.`locationType`, locations.`source` FROM locations" +
             " INNER JOIN favorites ON locations.`query` = favorites.`query`" +
@@ -61,12 +64,14 @@ public interface LocationsDAO {
     @Query("DELETE FROM favorites WHERE `query` = :key")
     public void deleteFavoritesByKey(String key);
 
+    @Transaction
     @Query("SELECT * FROM favorites")
     public List<Favorites> loadAllFavorites();
 
     @Query("SELECT * FROM favorites WHERE `query` = :query")
     public List<Favorites> getFavoritesData(String query);
 
+    @Transaction
     @Query("SELECT * FROM favorites ORDER BY `position`")
     public List<Favorites> loadAllFavoritesByPosition();
 
