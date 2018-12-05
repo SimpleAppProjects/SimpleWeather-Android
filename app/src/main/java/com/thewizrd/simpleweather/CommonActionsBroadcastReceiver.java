@@ -61,7 +61,7 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
                     @Override
                     public Void call() throws Exception {
                         if (WidgetUtils.exists(locationQuery)) {
-                            Integer[] ids = WidgetUtils.getWidgetIds(locationQuery);
+                            int[] ids = WidgetUtils.getWidgetIds(locationQuery);
                             for (int id : ids) {
                                 WidgetUtils.saveWeatherData(id, weather);
                             }

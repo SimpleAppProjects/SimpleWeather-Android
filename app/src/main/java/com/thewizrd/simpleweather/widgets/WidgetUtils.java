@@ -159,16 +159,16 @@ public class WidgetUtils {
         }
     }
 
-    public static Integer[] getWidgetIds(String location_query) {
+    public static int[] getWidgetIds(String location_query) {
         String listJson = widgetPrefs.getString(location_query, "");
         if (!StringUtils.isNullOrWhitespace(listJson)) {
             ArrayList<Integer> idList = (ArrayList<Integer>) JSONParser.deserializer(listJson, ArrayList.class);
             if (idList != null) {
-                return idList.toArray(new Integer[0]);
+                return ArrayUtils.toPrimitiveArray(idList);
             }
         }
 
-        return new ArrayList<Integer>().toArray(new Integer[0]);
+        return new int[0];
     }
 
     public static boolean exists(String location_query) {
