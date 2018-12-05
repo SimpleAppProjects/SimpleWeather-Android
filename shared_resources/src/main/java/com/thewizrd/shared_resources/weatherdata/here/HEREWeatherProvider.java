@@ -225,8 +225,10 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
 
         if (!StringUtils.isNullOrWhitespace(key)) {
             String[] keyArr = key.split(";");
-            app_id = keyArr[0];
-            app_code = keyArr[keyArr.length > 1 ? keyArr.length - 1 : 0];
+            if (keyArr.length > 0) {
+                app_id = keyArr[0];
+                app_code = keyArr[keyArr.length > 1 ? keyArr.length - 1 : 0];
+            }
         }
 
         HttpURLConnection client = null;
@@ -316,8 +318,10 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
 
         if (!StringUtils.isNullOrWhitespace(key)) {
             String[] keyArr = key.split(";");
-            app_id = keyArr[0];
-            app_code = keyArr[keyArr.length > 1 ? keyArr.length - 1 : 0];
+            if (keyArr.length > 0) {
+                app_id = keyArr[0];
+                app_code = keyArr[keyArr.length > 1 ? keyArr.length - 1 : 0];
+            }
         }
 
 
@@ -447,8 +451,10 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
 
         if (!StringUtils.isNullOrWhitespace(key)) {
             String[] keyArr = key.split(";");
-            app_id = keyArr[0];
-            app_code = keyArr[keyArr.length > 1 ? keyArr.length - 1 : 0];
+            if (keyArr.length > 0) {
+                app_id = keyArr[0];
+                app_code = keyArr[keyArr.length > 1 ? keyArr.length - 1 : 0];
+            }
         }
 
 
