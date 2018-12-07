@@ -259,7 +259,7 @@ public class YahooWeatherProvider extends WeatherProviderImpl {
 
             // Load weather
             Rootobject root = null;
-            root = (Rootobject) JSONParser.deserializer(stream, Rootobject.class);
+            root = JSONParser.deserializer(stream, Rootobject.class);
 
             // End Stream
             stream.close();

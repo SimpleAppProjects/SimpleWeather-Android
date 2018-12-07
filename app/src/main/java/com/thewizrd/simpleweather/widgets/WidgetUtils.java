@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 
 import com.google.android.gms.common.util.ArrayUtils;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -16,6 +17,7 @@ import com.thewizrd.simpleweather.App;
 
 import java.io.File;
 import java.io.StringReader;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -100,13 +102,15 @@ public class WidgetUtils {
         editor.commit();
     }
 
-    static void addWidgetId(String location_query, int widgetId) {
+    public static void addWidgetId(String location_query, int widgetId) {
         String listJson = widgetPrefs.getString(location_query, "");
         if (StringUtils.isNullOrWhitespace(listJson)) {
             List<Integer> newlist = Collections.singletonList(widgetId);
             saveIds(location_query, newlist);
         } else {
-            ArrayList<Integer> idList = (ArrayList<Integer>) JSONParser.deserializer(listJson, ArrayList.class);
+            Type intArrListType = new TypeToken<ArrayList<Integer>>() {
+            }.getType();
+            ArrayList<Integer> idList = JSONParser.deserializer(listJson, intArrListType);
             if (idList != null && !idList.contains(widgetId)) {
                 idList.add(widgetId);
                 saveIds(location_query, idList);
@@ -114,10 +118,12 @@ public class WidgetUtils {
         }
     }
 
-    static void removeWidgetId(String location_query, int widgetId) {
+    public static void removeWidgetId(String location_query, int widgetId) {
         String listJson = widgetPrefs.getString(location_query, "");
         if (!StringUtils.isNullOrWhitespace(listJson)) {
-            ArrayList<Integer> idList = (ArrayList<Integer>) JSONParser.deserializer(listJson, ArrayList.class);
+            Type intArrListType = new TypeToken<ArrayList<Integer>>() {
+            }.getType();
+            ArrayList<Integer> idList = JSONParser.deserializer(listJson, intArrListType);
             if (idList != null) {
                 idList.remove(widgetId);
 
@@ -162,7 +168,9 @@ public class WidgetUtils {
     public static int[] getWidgetIds(String location_query) {
         String listJson = widgetPrefs.getString(location_query, "");
         if (!StringUtils.isNullOrWhitespace(listJson)) {
-            ArrayList<Integer> idList = (ArrayList<Integer>) JSONParser.deserializer(listJson, ArrayList.class);
+            Type intArrListType = new TypeToken<ArrayList<Integer>>() {
+            }.getType();
+            ArrayList<Integer> idList = JSONParser.deserializer(listJson, intArrListType);
             if (idList != null) {
                 return ArrayUtils.toPrimitiveArray(idList);
             }
@@ -174,7 +182,9 @@ public class WidgetUtils {
     public static boolean exists(String location_query) {
         String listJson = widgetPrefs.getString(location_query, "");
         if (!StringUtils.isNullOrWhitespace(listJson)) {
-            ArrayList<Integer> idList = (ArrayList<Integer>) JSONParser.deserializer(listJson, ArrayList.class);
+            Type intArrListType = new TypeToken<ArrayList<Integer>>() {
+            }.getType();
+            ArrayList<Integer> idList = JSONParser.deserializer(listJson, intArrListType);
             if (idList != null && idList.size() > 0) {
                 return true;
             }
@@ -184,7 +194,8 @@ public class WidgetUtils {
     }
 
     private static boolean saveIds(String key, List<Integer> idList) {
-        return editor.putString(key, JSONParser.serializer(idList, ArrayList.class))
+        String json = JSONParser.serializer(idList, ArrayList.class);
+        return editor.putString(key, json)
                 .commit();
     }
 

@@ -54,8 +54,8 @@ public class JSONParser {
                 .serializeNulls().create();
     }
 
-    public static Object deserializer(String response, Type type) {
-        Object object = null;
+    public static <T> T deserializer(String response, Type type) {
+        T object = null;
 
         try {
             object = gson.fromJson(response, type);
@@ -66,8 +66,8 @@ public class JSONParser {
         return object;
     }
 
-    public static Object deserializer(String response, Class<?> obj) {
-        Object object = null;
+    public static <T> T deserializer(String response, Class<T> obj) {
+        T object = null;
 
         try {
             object = gson.fromJson(response, obj);
@@ -78,8 +78,8 @@ public class JSONParser {
         return object;
     }
 
-    public static Object deserializer(InputStream stream, Type type) {
-        Object object = null;
+    public static <T> T deserializer(InputStream stream, Type type) {
+        T object = null;
         InputStreamReader sReader = null;
         JsonReader reader = null;
 
@@ -110,7 +110,7 @@ public class JSONParser {
         return object;
     }
 
-    public static Object deserializer(File file, Type type) {
+    public static <T> T deserializer(File file, Type type) {
         while (FileUtils.isFileLocked(file)) {
             try {
                 Thread.sleep(100);
@@ -119,7 +119,7 @@ public class JSONParser {
             }
         }
 
-        Object object = null;
+        T object = null;
         FileInputStream stream = null;
         InputStreamReader sReader = null;
         JsonReader reader = null;

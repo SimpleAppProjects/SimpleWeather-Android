@@ -338,7 +338,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
 
             // Load weather
             Rootobject root = null;
-            root = (Rootobject) JSONParser.deserializer(stream, Rootobject.class);
+            root = JSONParser.deserializer(stream, Rootobject.class);
 
             // Check for errors
             if (root.getType() != null) {
@@ -469,7 +469,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
 
             Rootobject root = null;
             // TODO: async task it
-            root = (Rootobject) JSONParser.deserializer(stream, Rootobject.class);
+            root = JSONParser.deserializer(stream, Rootobject.class);
 
             for (AlertsItem result : root.getAlerts().getAlerts()) {
                 alerts.add(new WeatherAlert(result));

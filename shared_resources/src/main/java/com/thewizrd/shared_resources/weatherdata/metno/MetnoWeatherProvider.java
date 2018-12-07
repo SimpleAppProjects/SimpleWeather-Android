@@ -86,7 +86,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
 
             // Load data
             locations = new ArrayList<>();
-            AC_Rootobject root = (AC_Rootobject) JSONParser.deserializer(stream, AC_Rootobject.class);
+            AC_Rootobject root = JSONParser.deserializer(stream, AC_Rootobject.class);
 
             for (AC_RESULTS result : root.getRESULTS()) {
                 // Filter: only store city results
@@ -184,7 +184,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
             InputStream stream = client.getInputStream();
 
             // Load data
-            AC_Rootobject root = (AC_Rootobject) JSONParser.deserializer(stream, AC_Rootobject.class);
+            AC_Rootobject root = JSONParser.deserializer(stream, AC_Rootobject.class);
             result = root.getRESULTS().get(0);
 
             // End Stream

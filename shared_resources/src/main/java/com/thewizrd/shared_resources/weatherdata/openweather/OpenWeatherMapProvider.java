@@ -74,7 +74,7 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
 
             // Load data
             locations = new ArrayList<>();
-            AC_Rootobject root = (AC_Rootobject) JSONParser.deserializer(stream, AC_Rootobject.class);
+            AC_Rootobject root = JSONParser.deserializer(stream, AC_Rootobject.class);
 
             for (AC_RESULTS result : root.getRESULTS()) {
                 // Filter: only store city results
@@ -172,7 +172,7 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
             InputStream stream = client.getInputStream();
 
             // Load data
-            AC_Rootobject root = (AC_Rootobject) JSONParser.deserializer(stream, AC_Rootobject.class);
+            AC_Rootobject root = JSONParser.deserializer(stream, AC_Rootobject.class);
             result = root.getRESULTS().get(0);
 
             // End Stream
@@ -303,9 +303,9 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
             CurrentRootobject currRoot = null;
             ForecastRootobject foreRoot = null;
             // TODO: put in async task?
-            currRoot = (CurrentRootobject) JSONParser.deserializer(currentStream, CurrentRootobject.class);
+            currRoot = JSONParser.deserializer(currentStream, CurrentRootobject.class);
             // TODO: put in async task?
-            foreRoot = (ForecastRootobject) JSONParser.deserializer(forecastStream, ForecastRootobject.class);
+            foreRoot = JSONParser.deserializer(forecastStream, ForecastRootobject.class);
 
             // End Stream
             currentStream.close();

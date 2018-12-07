@@ -74,7 +74,7 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
 
             // Load data
             locations = new ArrayList<>();
-            AC_Rootobject root = (AC_Rootobject) JSONParser.deserializer(stream, AC_Rootobject.class);
+            AC_Rootobject root = JSONParser.deserializer(stream, AC_Rootobject.class);
 
             for (AC_RESULTS result : root.getRESULTS()) {
                 // Filter: only store city results
@@ -172,7 +172,7 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
             InputStream stream = client.getInputStream();
 
             // Load data
-            AC_Rootobject root = (AC_Rootobject) JSONParser.deserializer(stream, AC_Rootobject.class);
+            AC_Rootobject root = JSONParser.deserializer(stream, AC_Rootobject.class);
             result = root.getRESULTS().get(0);
 
             // End Stream
@@ -223,7 +223,7 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
             InputStream stream = client.getInputStream();
 
             // Load data
-            Rootobject root = (Rootobject) JSONParser.deserializer(stream, Rootobject.class);
+            Rootobject root = JSONParser.deserializer(stream, Rootobject.class);
 
             // Check for errors
             if (root.getResponse().getError() != null) {
@@ -293,7 +293,7 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
             // Load weather
             Rootobject root = null;
             // TODO: put in async task?
-            root = (Rootobject) JSONParser.deserializer(stream, Rootobject.class);
+            root = JSONParser.deserializer(stream, Rootobject.class);
 
             // Check for errors
             if (root.getResponse().getError() != null) {
@@ -415,7 +415,7 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
 
             Rootobject root = null;
             // TODO: put in async task?
-            root = (Rootobject) JSONParser.deserializer(stream, Rootobject.class);
+            root = JSONParser.deserializer(stream, Rootobject.class);
 
             for (Alert result : root.getAlerts()) {
                 alerts.add(new WeatherAlert(result));
