@@ -10,12 +10,25 @@ import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.LocationData;
+import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
+import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.widgets.WidgetUtils;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Instrumentation test, which will execute on an Android device.
@@ -24,8 +37,8 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
-    @Test
-    public void test() {
+    @Before
+    public void init() {
         // Context of the app under test.
         final Context appContext = InstrumentationRegistry.getTargetContext();
 
@@ -61,7 +74,10 @@ public class ExampleInstrumentedTest {
 
         // Start logger
         Logger.init(appContext);
+    }
 
+    @Test
+    public void updateWidgetTest() {
         WidgetUtils.addWidgetId("NewYork", 10);
         WidgetUtils.addWidgetId("NewYork", 11);
         WidgetUtils.addWidgetId("NewYork", 12);
@@ -75,5 +91,20 @@ public class ExampleInstrumentedTest {
         loc.setQuery("OldYork");
 
         WidgetUtils.updateWidgetIds("NewYork", loc);
+    }
+
+    @Test
+    public void getWeatherTest() throws WeatherException {
+        WeatherManager wm = WeatherManager.getInstance();
+        Settings.setAPI(WeatherAPI.HERE);
+        wm.updateAPI();
+
+        Collection<LocationQueryViewModel> collection = wm.getLocations("Houston, Texas");
+        List<LocationQueryViewModel> locs = new ArrayList<>(collection);
+        LocationQueryViewModel loc = locs.get(0);
+
+        LocationData locationData = new LocationData(loc);
+        Weather weather = wm.getWeather(locationData);
+        assertTrue(weather != null && weather.isValid());
     }
 }

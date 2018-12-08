@@ -20,7 +20,7 @@ public class DateTimeUtils {
         LocalDateTime nextWeekday = getNextWeekday(today, dayOfWeek);
         LocalDateTime prevWeekday = getPrevWeekday(today, dayOfWeek);
 
-        if (Duration.between(nextWeekday, today).toMillis() < Duration.between(today, prevWeekday).toMillis())
+        if (Duration.between(nextWeekday, today).abs().toMillis() < Duration.between(today, prevWeekday).abs().toMillis())
             return nextWeekday;
         else
             return prevWeekday;
