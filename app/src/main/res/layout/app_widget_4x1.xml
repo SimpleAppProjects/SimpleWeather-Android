@@ -106,7 +106,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
             android:textSize="12sp"
-            tools:text="Sunny" />
+            tools:text="Mostly Sunny. Refreshingly cool." />
 
         <TextView
             android:id="@+id/update_time"
