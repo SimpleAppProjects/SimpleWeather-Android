@@ -13,6 +13,7 @@ import android.widget.ProgressBar;
 
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Tasks;
@@ -20,7 +21,6 @@ import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.helpers.ObservableArrayList;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
-import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.R;
@@ -136,16 +136,13 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<LocationPanelAdap
                             .centerCrop()
                             .error(holder.mLocView.getColorDrawable())
                             .placeholder(holder.mLocView.getColorDrawable()))
-                    .into(new ImageUtils.GlideBitmapViewTarget(holder.mBgImageView, new ImageUtils.GlideBitmapViewTarget.OnLoadListener() {
-                        @Override
-                        public void onLoad() {
-                            holder.mLocView.setWeather(panelView);
-                        }
-                    }));
+                    .into(new BitmapImageViewTarget(holder.mBgImageView));
         } else {
             mGlide.clear(holder.mBgImageView);
             holder.mBgImageView.setImageDrawable(holder.mLocView.getColorDrawable());
         }
+
+        holder.mLocView.setWeather(panelView);
     }
 
     @Override
