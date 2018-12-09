@@ -46,8 +46,8 @@ public class Astronomy {
     public Astronomy(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Astronomy astronomy) {
         LocalDate now = LocalDate.now();
 
-        sunrise = LocalTime.parse(astronomy.getSunrise().toUpperCase(), DateTimeFormatter.ofPattern("h:mm a")).atDate(now);
-        sunset = LocalTime.parse(astronomy.getSunset().toUpperCase(), DateTimeFormatter.ofPattern("h:mm a")).atDate(now);
+        sunrise = LocalTime.parse(astronomy.getSunrise().toUpperCase(), DateTimeFormatter.ofPattern("h:m a")).atDate(now);
+        sunset = LocalTime.parse(astronomy.getSunset().toUpperCase(), DateTimeFormatter.ofPattern("h:m a")).atDate(now);
     }
 
     public Astronomy(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
