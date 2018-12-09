@@ -84,7 +84,8 @@ public class WeatherNotificationBuilder {
         updateViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
         updateViews.setViewVisibility(R.id.refresh_progress, View.GONE);
         Intent refreshClickIntent = new Intent(context, WeatherWidgetBroadcastReceiver.class)
-                .setAction(WeatherWidgetService.ACTION_REFRESHNOTIFICATION);
+                .setAction(WeatherWidgetService.ACTION_REFRESHNOTIFICATION)
+                .putExtra(WeatherWidgetService.EXTRA_FORCEREFRESH, true);
         PendingIntent prgPendingIntent = PendingIntent.getBroadcast(context, 0, refreshClickIntent, 0);
         updateViews.setOnClickPendingIntent(R.id.refresh_button, prgPendingIntent);
 

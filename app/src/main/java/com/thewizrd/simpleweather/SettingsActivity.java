@@ -39,6 +39,7 @@ import android.widget.Toast;
 
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
+import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
@@ -385,10 +386,10 @@ public class SettingsActivity extends AppCompatActivity {
 
                     // Alert notification
                     if ((boolean) newValue) {
-                        WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
+                        enqueueIntent(new Intent(context, WeatherWidgetService.class)
                                 .setAction(WeatherWidgetService.ACTION_STARTALARM));
                     } else {
-                        WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
+                        enqueueIntent(new Intent(context, WeatherWidgetService.class)
                                 .setAction(WeatherWidgetService.ACTION_CANCELALARM));
                     }
                     return true;
@@ -523,7 +524,9 @@ public class SettingsActivity extends AppCompatActivity {
             app.getPreferences().registerOnSharedPreferenceChangeListener(app.getSharedPreferenceListener());
 
             for (Intent.FilterComparison filter : intentQueue) {
-                if (WeatherWidgetService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
+                if (CommonActions.ACTION_SETTINGS_UPDATEAPI.equals(filter.getIntent().getAction())) {
+                    WeatherManager.getInstance().updateAPI();
+                } else if (WeatherWidgetService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
                     WeatherWidgetService.enqueueWork(getActivity(), filter.getIntent());
                 } else {
                     getActivity().startService(filter.getIntent());
@@ -536,8 +539,25 @@ public class SettingsActivity extends AppCompatActivity {
         public boolean enqueueIntent(Intent intent) {
             if (intent == null)
                 return false;
-            else
+            else {
+                if (WeatherWidgetService.ACTION_STARTALARM.equals(intent.getAction())) {
+                    for (Intent.FilterComparison filter : intentQueue) {
+                        if (WeatherWidgetService.ACTION_CANCELALARM.equals(filter.getIntent().getAction())) {
+                            intentQueue.remove(filter);
+                            break;
+                        }
+                    }
+                } else if (WeatherWidgetService.ACTION_CANCELALARM.equals(intent.getAction())) {
+                    for (Intent.FilterComparison filter : intentQueue) {
+                        if (WeatherWidgetService.ACTION_STARTALARM.equals(filter.getIntent().getAction())) {
+                            intentQueue.remove(filter);
+                            break;
+                        }
+                    }
+                }
+
                 return intentQueue.add(new Intent.FilterComparison(intent));
+            }
         }
 
         @Override
@@ -550,7 +570,7 @@ public class SettingsActivity extends AppCompatActivity {
             switch (key) {
                 // Weather Provider changed
                 case KEY_API:
-                    WeatherManager.getInstance().updateAPI();
+                    enqueueIntent(new Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI));
                     enqueueIntent(new Intent(context, WearableDataListenerService.class)
                             .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
                     enqueueIntent(new Intent(context, WeatherWidgetService.class)

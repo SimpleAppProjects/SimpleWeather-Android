@@ -82,6 +82,8 @@ public class WeatherWidgetService extends JobIntentService {
 
     public static final String ACTION_SHOWALERTS = "SimpleWeather.Droid.action.SHOW_ALERTS";
 
+    public static final String EXTRA_FORCEREFRESH = "SimpleWeather.Droid.extra.FORCE_REFRESH";
+
     private static final int JOB_ID = 1000;
 
     private Context mContext;
@@ -273,11 +275,13 @@ public class WeatherWidgetService extends JobIntentService {
                 int[] appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS);
                 refreshDate(appWidgetIds);
             } else if (ACTION_REFRESHNOTIFICATION.equals(intent.getAction())) {
+                final boolean forceRefresh = intent.getBooleanExtra(EXTRA_FORCEREFRESH, false);
+
                 if (Settings.isWeatherLoaded()) {
                     Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
                         @Override
                         public Weather call() throws Exception {
-                            return getWeather();
+                            return getWeather(forceRefresh);
                         }
                     });
 
@@ -1026,6 +1030,10 @@ public class WeatherWidgetService extends JobIntentService {
     }
 
     private Weather getWeather() {
+        return getWeather(true);
+    }
+
+    private Weather getWeather(final boolean refreshWeather) {
         return new AsyncTask<Weather>().await(new Callable<Weather>() {
             @Override
             public Weather call() throws Exception {
@@ -1038,11 +1046,14 @@ public class WeatherWidgetService extends JobIntentService {
                     if (cts.getToken().isCancellationRequested()) throw new InterruptedException();
 
                     WeatherDataLoader wloader = new WeatherDataLoader(Settings.getHomeData());
-                    wloader.loadWeatherData(false);
+                    if (refreshWeather)
+                        wloader.loadWeatherData(false);
+                    else
+                        wloader.forceLoadSavedWeatherData();
 
                     weather = wloader.getWeather();
 
-                    if (weather != null) {
+                    if (refreshWeather && weather != null) {
                         // Re-schedule alarm at selected interval from now
                         updateAlarm(App.getInstance().getAppContext());
                         Settings.setUpdateTime(LocalDateTime.now());

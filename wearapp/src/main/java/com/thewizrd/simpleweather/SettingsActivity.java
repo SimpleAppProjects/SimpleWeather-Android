@@ -145,7 +145,6 @@ public class SettingsActivity extends WearableActivity {
                 }
             });
 
-            Preference preference = findPreference(KEY_APIKEY);
             keyEntry = (KeyEntryPreference) findPreference(KEY_APIKEY);
             keyEntry.setOnDialogCreatedListener(new KeyEntryPreference.DialogCreatedListener() {
                 @Override

@@ -107,4 +107,37 @@ public class ExampleInstrumentedTest {
         Weather weather = wm.getWeather(locationData);
         assertTrue(weather != null && weather.isValid());
     }
+
+    @Test
+    public void updateLocationQueryTest() throws WeatherException {
+        WeatherManager wm = WeatherManager.getInstance();
+        Settings.setAPI(WeatherAPI.HERE);
+        wm.updateAPI();
+
+        Collection<LocationQueryViewModel> collection = wm.getLocations("Houston, Texas");
+        List<LocationQueryViewModel> locs = new ArrayList<>(collection);
+        LocationQueryViewModel loc = locs.get(0);
+
+        LocationData locationData = new LocationData(loc);
+        Weather weather = wm.getWeather(locationData);
+
+        Settings.setAPI(WeatherAPI.METNO);
+        wm.updateAPI();
+
+        if ((weather != null && !weather.getSource().equals(Settings.getAPI()))
+                || (weather == null && locationData != null && !locationData.getSource().equals(Settings.getAPI()))) {
+            // Update location query and source for new API
+            String oldKey = locationData.getQuery();
+
+            if (weather != null)
+                locationData.setQuery(wm.updateLocationQuery(weather));
+            else
+                locationData.setQuery(wm.updateLocationQuery(locationData));
+
+            locationData.setSource(Settings.getAPI());
+        }
+
+        weather = wm.getWeather(locationData);
+        assertTrue(weather != null && weather.isValid());
+    }
 }
