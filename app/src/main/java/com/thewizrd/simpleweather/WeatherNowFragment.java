@@ -578,7 +578,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     String locale = wm.localeToLangCode(currentLocale.getLanguage(), currentLocale.toLanguageTag());
 
                     // Reset if source || locale is different
-                    if (Settings.getAPI().equals(weatherView.getWeatherSource())
+                    if (!Settings.getAPI().equals(weatherView.getWeatherSource())
                             || wm.supportsWeatherLocale() && !locale.equals(weatherView.getWeatherLocale())) {
                         restore();
                         loaded = true;
