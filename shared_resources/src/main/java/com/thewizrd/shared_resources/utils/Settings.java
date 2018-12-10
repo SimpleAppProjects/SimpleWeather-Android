@@ -49,8 +49,8 @@ public class Settings {
     private static final int CACHE_LIMIT = 10;
 
     // Units
-    public static final String FAHRENHEIT = "F";
-    public static final String CELSIUS = "C";
+    private static final String FAHRENHEIT = "F";
+    private static final String CELSIUS = "C";
 
     private static final String DEFAULT_UPDATE_INTERVAL;
     public static final int DEFAULTINTERVAL;
@@ -574,6 +574,11 @@ public class Settings {
                             break;
                         }
                     }
+
+                    if (fav == null) {
+                        return null;
+                    }
+
                     int pos = fav.getPosition();
 
                     // Remove location from table
