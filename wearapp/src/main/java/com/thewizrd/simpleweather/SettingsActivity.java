@@ -484,6 +484,31 @@ public class SettingsActivity extends WearableActivity {
 
         @Override
         public void onPause() {
+            if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && WeatherManager.isKeyRequired(providerPref.getValue())) {
+                // Fallback to supported weather provider
+                WeatherManager wm = WeatherManager.getInstance();
+                providerPref.setValue(WeatherAPI.HERE);
+                providerPref.getOnPreferenceChangeListener()
+                        .onPreferenceChange(providerPref, WeatherAPI.HERE);
+                Settings.setAPI(WeatherAPI.HERE);
+                wm.updateAPI();
+
+                if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
+                    // If (internal) key doesn't exist, fallback to Yahoo
+                    providerPref.setValue(WeatherAPI.YAHOO);
+                    providerPref.getOnPreferenceChangeListener()
+                            .onPreferenceChange(providerPref, WeatherAPI.YAHOO);
+                    Settings.setAPI(WeatherAPI.YAHOO);
+                    wm.updateAPI();
+                    Settings.setPersonalKey(true);
+                    Settings.setKeyVerified(false);
+                } else {
+                    // If key exists, go ahead
+                    Settings.setPersonalKey(false);
+                    Settings.setKeyVerified(true);
+                }
+            }
+
             LocalBroadcastManager.getInstance(getActivity())
                     .unregisterReceiver(connStatusReceiver);
 

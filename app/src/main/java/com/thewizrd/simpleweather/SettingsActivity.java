@@ -518,6 +518,29 @@ public class SettingsActivity extends AppCompatActivity {
 
         @Override
         public void onPause() {
+            if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && WeatherManager.isKeyRequired(providerPref.getValue())) {
+                // Fallback to supported weather provider
+                WeatherManager wm = WeatherManager.getInstance();
+                providerPref.setValue(WeatherAPI.HERE);
+                providerPref.callChangeListener(WeatherAPI.HERE);
+                Settings.setAPI(WeatherAPI.HERE);
+                wm.updateAPI();
+
+                if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
+                    // If (internal) key doesn't exist, fallback to Yahoo
+                    providerPref.setValue(WeatherAPI.YAHOO);
+                    providerPref.callChangeListener(WeatherAPI.YAHOO);
+                    Settings.setAPI(WeatherAPI.YAHOO);
+                    wm.updateAPI();
+                    Settings.setPersonalKey(true);
+                    Settings.setKeyVerified(false);
+                } else {
+                    // If key exists, go ahead
+                    Settings.setPersonalKey(false);
+                    Settings.setKeyVerified(true);
+                }
+            }
+
             // Unregister listener
             ApplicationLib app = App.getInstance();
             app.getPreferences().unregisterOnSharedPreferenceChangeListener(this);
