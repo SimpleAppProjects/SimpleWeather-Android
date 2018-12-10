@@ -13,7 +13,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -96,8 +95,7 @@ public class SettingsActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-    public static class SettingsFragment extends PreferenceFragmentCompat implements ActivityCompat.OnRequestPermissionsResultCallback,
-            SharedPreferences.OnSharedPreferenceChangeListener {
+    public static class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
         private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
 
         // Preference Keys
@@ -160,9 +158,9 @@ public class SettingsActivity extends AppCompatActivity {
                     if ((boolean) newValue) {
                         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                                 ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                                     PERMISSION_LOCATION_REQUEST_CODE);
-                            return true;
+                            return false;
                         } else {
                             // Reset home location data
                             //Settings.saveLastGPSLocData(new LocationData());
@@ -485,13 +483,16 @@ public class SettingsActivity extends AppCompatActivity {
                             && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                         // permission was granted, yay!
                         // Do the task you need to do.
+                        followGps.setChecked(true);
+                        Settings.setFollowGPS(true);
                         // Reset home location data
                         //Settings.SaveLastGPSLocData(new WeatherData.LocationData());
                     } else {
                         // permission denied, boo! Disable the
                         // functionality that depends on this permission.
-                        Toast.makeText(getActivity(), R.string.error_location_denied, Toast.LENGTH_SHORT).show();
                         followGps.setChecked(false);
+                        Settings.setFollowGPS(false);
+                        Toast.makeText(getActivity(), R.string.error_location_denied, Toast.LENGTH_SHORT).show();
                     }
                     return;
                 default:

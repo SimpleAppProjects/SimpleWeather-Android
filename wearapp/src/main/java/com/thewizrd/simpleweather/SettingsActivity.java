@@ -24,7 +24,6 @@ import android.support.wearable.view.ConfirmationOverlay;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -137,7 +136,7 @@ public class SettingsActivity extends WearableActivity {
                                 getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                                     PERMISSION_LOCATION_REQUEST_CODE);
-                            return true;
+                            return false;
                         }
                     }
 
@@ -457,14 +456,16 @@ public class SettingsActivity extends WearableActivity {
                             && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                         // permission was granted, yay!
                         // Do the task you need to do.
+                        followGps.setChecked(true);
+                        Settings.setFollowGPS(true);
                         // Reset home location data
                         //Settings.SaveLastGPSLocData(new WeatherData.LocationData());
                     } else {
                         // permission denied, boo! Disable the
                         // functionality that depends on this permission.
-                        Toast.makeText(getActivity(), R.string.error_location_denied, Toast.LENGTH_SHORT).show();
                         followGps.setChecked(false);
-                        Log.d("SettingsActivity", Boolean.toString(Settings.useFollowGPS()));
+                        Settings.setFollowGPS(false);
+                        Toast.makeText(getActivity(), R.string.error_location_denied, Toast.LENGTH_SHORT).show();
                     }
                     return;
                 default:
