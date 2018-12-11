@@ -238,6 +238,11 @@ public class SettingsActivity extends WearableActivity {
                             apiCategory.removePreference(keyEntry);
                             apiCategory.removePreference(registerPref);
                         } else {
+                            // User is using personal (unverified) keys
+                            Settings.setKeyVerified(false);
+                            // Clear API KEY entry to avoid issues
+                            Settings.setAPIKEY("");
+
                             keyEntry.setEnabled(true);
 
                             if (apiCategory.findPreference(KEY_APIKEY) == null)
@@ -312,6 +317,11 @@ public class SettingsActivity extends WearableActivity {
                     apiCategory.removePreference(keyEntry);
                     apiCategory.removePreference(registerPref);
                 } else {
+                    // User is using personal (unverified) keys
+                    Settings.setKeyVerified(false);
+                    // Clear API KEY entry to avoid issues
+                    Settings.setAPIKEY("");
+
                     keyEntry.setEnabled(true);
 
                     if (apiCategory.findPreference(KEY_APIKEY) == null)
@@ -326,6 +336,8 @@ public class SettingsActivity extends WearableActivity {
                 apiCategory.removePreference(keyEntry);
                 apiCategory.removePreference(registerPref);
                 Settings.setKeyVerified(false);
+                // Clear API KEY entry to avoid issues
+                Settings.setAPIKEY("");
             }
 
             updateKeySummary();
