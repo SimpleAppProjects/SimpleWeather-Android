@@ -62,7 +62,11 @@
         <receiver
             android:enabled="true"
             android:exported="true"
-            android:name=".wearable.WeatherComplicationBroadcastReceiver" />
+            android:name=".wearable.WeatherComplicationBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:enabled="true"
