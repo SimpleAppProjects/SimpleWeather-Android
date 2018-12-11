@@ -11,6 +11,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -659,7 +660,7 @@ public class LocationsFragment extends Fragment
                         location = locMan.getLastKnownLocation(provider);
 
                         if (location == null)
-                            locMan.requestSingleUpdate(provider, mLocListnr, null);
+                            locMan.requestSingleUpdate(provider, mLocListnr, Looper.getMainLooper());
                         else {
                             LocationQueryViewModel view = null;
 

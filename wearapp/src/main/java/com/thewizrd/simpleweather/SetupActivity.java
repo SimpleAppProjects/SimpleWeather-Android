@@ -395,10 +395,6 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                     PERMISSION_LOCATION_REQUEST_CODE);
         }
 
-        if (!Looper.getMainLooper().getThread().equals(Thread.currentThread())) {
-            Looper.prepare();
-        }
-
         Location location = null;
 
         if (WearableHelper.isGooglePlayServicesInstalled() && !WearableHelper.hasGPS()) {
@@ -410,6 +406,10 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                 }
             });
         } else {
+            if (!Looper.getMainLooper().getThread().equals(Thread.currentThread())) {
+                Looper.prepare();
+            }
+
             LocationManager locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             boolean isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
             boolean isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);

@@ -9,6 +9,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -224,7 +225,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (refreshSpinner.getSelectedItem() instanceof ComboBoxItem) {
-                    ComboBoxItem item = (ComboBoxItem) locSpinner.getSelectedItem();
+                    ComboBoxItem item = (ComboBoxItem) refreshSpinner.getSelectedItem();
 
                     refreshSummary.setText(item.getDisplay());
                 }
@@ -753,6 +754,10 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_LOCATION_REQUEST_CODE);
+        }
+
+        if (!Looper.getMainLooper().getThread().equals(Thread.currentThread())) {
+            Looper.prepare();
         }
 
         LocationManager locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);

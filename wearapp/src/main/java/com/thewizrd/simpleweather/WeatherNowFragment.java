@@ -15,6 +15,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -812,6 +813,10 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             });
                         }
                     } else {
+                        if (!Looper.getMainLooper().getThread().equals(Thread.currentThread())) {
+                            Looper.prepare();
+                        }
+
                         LocationManager locMan = null;
                         if (getActivity() != null)
                             locMan = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);

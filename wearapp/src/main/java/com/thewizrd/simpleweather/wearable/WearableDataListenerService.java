@@ -1,7 +1,6 @@
 package com.thewizrd.simpleweather.wearable;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -118,10 +117,6 @@ public class WearableDataListenerService extends WearableListenerService {
     @Override
     public void onDestroy() {
         mLoaded = false;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            stopForeground(true);
-        }
 
         super.onDestroy();
     }
