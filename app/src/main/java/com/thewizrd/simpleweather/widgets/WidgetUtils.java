@@ -30,7 +30,7 @@ public class WidgetUtils {
     private static SharedPreferences.Editor editor = widgetPrefs.edit();
 
     // Widget Prefs
-    private static final int CurrentPrefsVersion = 1;
+    private static final int CurrentPrefsVersion = 2;
 
     // Keys
     private static final String KEY_VERSION = "key_version";
@@ -72,15 +72,26 @@ public class WidgetUtils {
                     Map<String, ?> widgetMap = widgetPrefs.getAll();
                     for (String key : widgetMap.keySet()) {
                         String json = (String) widgetMap.get(key);
-                        json = json.replace("\"$type\":\"System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib\",\"$values\":", "");
+                        if (json.contains("System.Collections.Generic.List"))
+                            json = json.replace("\"$type\":\"System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib\",\"$values\":", "");
+                        if (json.startsWith("{") && json.endsWith("}")) {
+                            int length = json.length();
+                            json = json.substring(1, length - 1);
+                        }
                         editor.putString(key, json).commit();
                     }
                     break;
                 case 0:
+                case 1:
                     widgetMap = widgetPrefs.getAll();
                     for (String key : widgetMap.keySet()) {
                         String json = (String) widgetMap.get(key);
-                        json = json.replace("\"$type\":\"System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib\",\"$values\":", "");
+                        if (json.contains("System.Collections.Generic.List"))
+                            json = json.replace("\"$type\":\"System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib\",\"$values\":", "");
+                        if (json.startsWith("{") && json.endsWith("}")) {
+                            int length = json.length();
+                            json = json.substring(1, length - 1);
+                        }
                         editor.putString(key, json).commit();
                     }
                     break;
