@@ -4,11 +4,13 @@ import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.util.Log;
 
 import com.google.android.gms.common.util.ArrayUtils;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.utils.JSONParser;
+import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.LocationData;
@@ -16,6 +18,7 @@ import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.simpleweather.App;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -49,24 +52,8 @@ public class WidgetUtils {
                 case -1:
                     // First time, so load all current widgets under Home location
                     if (Settings.isWeatherLoaded()) {
-                        AppWidgetManager mAppWidgetManager = AppWidgetManager.getInstance(App.getInstance().getAppContext());
-                        WeatherWidgetProvider1x1 mAppWidget1x1 = WeatherWidgetProvider1x1.getInstance();
-                        WeatherWidgetProvider2x2 mAppWidget2x2 = WeatherWidgetProvider2x2.getInstance();
-                        WeatherWidgetProvider4x1 mAppWidget4x1 = WeatherWidgetProvider4x1.getInstance();
-                        WeatherWidgetProvider4x2 mAppWidget4x2 = WeatherWidgetProvider4x2.getInstance();
-
-                        List<Integer> currentIds = new ArrayList<>();
-                        currentIds.addAll(ArrayUtils.toArrayList(
-                                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.getComponentName()))));
-                        currentIds.addAll(ArrayUtils.toArrayList(
-                                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName()))));
-                        currentIds.addAll(ArrayUtils.toArrayList(
-                                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x1.getComponentName()))));
-                        currentIds.addAll(ArrayUtils.toArrayList(
-                                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName()))));
-
                         LocationData homeLocation = Settings.getHomeData();
-                        saveIds(homeLocation.getQuery(), currentIds);
+                        saveIds(homeLocation.getQuery(), getAllWidgetIds());
                     }
 
                     Map<String, ?> widgetMap = widgetPrefs.getAll();
@@ -113,6 +100,26 @@ public class WidgetUtils {
         editor.commit();
     }
 
+    private static List<Integer> getAllWidgetIds() {
+        AppWidgetManager mAppWidgetManager = AppWidgetManager.getInstance(App.getInstance().getAppContext());
+        WeatherWidgetProvider1x1 mAppWidget1x1 = WeatherWidgetProvider1x1.getInstance();
+        WeatherWidgetProvider2x2 mAppWidget2x2 = WeatherWidgetProvider2x2.getInstance();
+        WeatherWidgetProvider4x1 mAppWidget4x1 = WeatherWidgetProvider4x1.getInstance();
+        WeatherWidgetProvider4x2 mAppWidget4x2 = WeatherWidgetProvider4x2.getInstance();
+
+        List<Integer> currentIds = new ArrayList<>();
+        currentIds.addAll(ArrayUtils.toArrayList(
+                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.getComponentName()))));
+        currentIds.addAll(ArrayUtils.toArrayList(
+                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName()))));
+        currentIds.addAll(ArrayUtils.toArrayList(
+                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x1.getComponentName()))));
+        currentIds.addAll(ArrayUtils.toArrayList(
+                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName()))));
+
+        return currentIds;
+    }
+
     public static void addWidgetId(String location_query, int widgetId) {
         String listJson = widgetPrefs.getString(location_query, "");
         if (StringUtils.isNullOrWhitespace(listJson)) {
@@ -127,6 +134,9 @@ public class WidgetUtils {
                 saveIds(location_query, idList);
             }
         }
+
+        cleanupWidgetData();
+        cleanupWidgetIds();
     }
 
     public static void removeWidgetId(String location_query, int widgetId) {
@@ -136,7 +146,7 @@ public class WidgetUtils {
             }.getType();
             ArrayList<Integer> idList = JSONParser.deserializer(listJson, intArrListType);
             if (idList != null) {
-                idList.remove(widgetId);
+                idList.remove(Integer.valueOf(widgetId));
 
                 if (idList.size() == 0)
                     editor.remove(location_query).commit();
@@ -174,6 +184,9 @@ public class WidgetUtils {
         for (int id : getWidgetIds(newLocation.getQuery())) {
             saveLocationData(id, newLocation);
         }
+
+        cleanupWidgetData();
+        cleanupWidgetIds();
     }
 
     public static int[] getWidgetIds(String location_query) {
@@ -272,6 +285,57 @@ public class WidgetUtils {
         } else {
             JsonReader jsonTextReader = new JsonReader(new StringReader(weatherDataJson));
             return Weather.fromJson(jsonTextReader);
+        }
+    }
+
+    public static void cleanupWidgetIds() {
+        List<LocationData> locs = new ArrayList<>(Settings.getLocationData());
+        LocationData homeData = Settings.getLastGPSLocData();
+        if (homeData != null) locs.add(homeData);
+        List<String> currLocQueries = new ArrayList<>();
+        for (LocationData loc : locs) {
+            currLocQueries.add(loc.getQuery());
+        }
+        Map<String, ?> widgetMap = widgetPrefs.getAll();
+        for (String key : widgetMap.keySet()) {
+            if (!KEY_VERSION.equals(key) && !currLocQueries.contains(key))
+                editor.remove(key);
+        }
+        editor.commit();
+    }
+
+    public static void cleanupWidgetData() {
+        List<Integer> currentIds = getAllWidgetIds();
+
+        Context context = App.getInstance().getAppContext();
+        String parentPath = context.getFilesDir().getParent();
+        String sharedPrefsPath = String.format(Locale.ROOT, "%s/shared_prefs", parentPath);
+        File sharedPrefsFolder = new File(sharedPrefsPath);
+        File[] appWidgetFiles = sharedPrefsFolder.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                String lowerCaseName = name.toLowerCase();
+                return lowerCaseName.startsWith("appwidget_") && lowerCaseName.endsWith(".xml");
+            }
+        });
+
+        for (File file : appWidgetFiles) {
+            String fileName = file.getName();
+            String idString = "";
+            if (!StringUtils.isNullOrWhitespace(fileName)) {
+                idString = fileName.replace("appwidget_", "")
+                        .replace(".xml", "");
+
+                try {
+                    Integer id = Integer.valueOf(idString);
+
+                    if (!currentIds.contains(id) && file.exists() && file.canWrite() && file.getParentFile().canWrite()) {
+                        file.delete();
+                    }
+                } catch (Exception ex) {
+                    Logger.writeLine(Log.ERROR, ex);
+                }
+            }
         }
     }
 }

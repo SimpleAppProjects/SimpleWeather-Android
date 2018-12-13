@@ -140,4 +140,10 @@ public class ExampleInstrumentedTest {
         weather = wm.getWeather(locationData);
         assertTrue(weather != null && weather.isValid());
     }
+
+    @Test
+    public void widgetCleanupTest() {
+        WidgetUtils.cleanupWidgetData();
+        WidgetUtils.cleanupWidgetIds();
+    }
 }
