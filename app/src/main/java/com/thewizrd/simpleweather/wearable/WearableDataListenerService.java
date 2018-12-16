@@ -35,8 +35,7 @@ import com.thewizrd.simpleweather.LaunchActivity;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.Instant;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -285,8 +284,7 @@ public class WearableDataListenerService extends WearableListenerService {
         mapRequest.getDataMap().putString("API_KEY", Settings.getAPIKEY());
         mapRequest.getDataMap().putBoolean("KeyVerified", Settings.isKeyVerified());
         mapRequest.getDataMap().putBoolean("FollowGPS", Settings.useFollowGPS());
-        // TODO: this is wrong; fix this to correct 'TICKS'
-        mapRequest.getDataMap().putLong("update_time", LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli());
+        mapRequest.getDataMap().putLong("update_time", Instant.now().toEpochMilli());
         PutDataRequest request = mapRequest.asPutDataRequest();
         if (urgent) request.setUrgent();
         try {
@@ -315,8 +313,7 @@ public class WearableDataListenerService extends WearableListenerService {
         PutDataMapRequest mapRequest = PutDataMapRequest.create(WearableHelper.LocationPath);
         LocationData homeData = Settings.getHomeData();
         mapRequest.getDataMap().putString("locationData", homeData == null ? null : homeData.toJson());
-        // TODO: this is wrong; fix this to correct 'TICKS'
-        mapRequest.getDataMap().putLong("update_time", LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli());
+        mapRequest.getDataMap().putLong("update_time", Instant.now().toEpochMilli());
         PutDataRequest request = mapRequest.asPutDataRequest();
         if (urgent) request.setUrgent();
         try {
@@ -372,8 +369,7 @@ public class WearableDataListenerService extends WearableListenerService {
                 }
             }
             mapRequest.getDataMap().putStringArrayList("weatherAlerts", alerts);
-            // TODO: this is wrong; fix this to correct 'TICKS'
-            mapRequest.getDataMap().putLong("update_time", LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli());
+            mapRequest.getDataMap().putLong("update_time", Instant.now().toEpochMilli());
             PutDataRequest request = mapRequest.asPutDataRequest();
             if (urgent) request.setUrgent();
             try {

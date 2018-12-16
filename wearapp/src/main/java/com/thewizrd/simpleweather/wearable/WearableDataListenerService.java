@@ -501,7 +501,8 @@ public class WearableDataListenerService extends WearableListenerService {
                                 DateTime == 0 - This instance is the same as value.
                                 DateTime > 0 - This instance is later than value.
                             */
-                            if (Settings.getUpdateTime().compareTo(upDateTime) >= 0) {
+                            LocalDateTime settingsUpdateTime = Settings.getUpdateTime();
+                            if (settingsUpdateTime.compareTo(upDateTime) >= 0) {
                                 // Send callback to receiver
                                 LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
                                         new Intent(WearableHelper.WeatherPath));
