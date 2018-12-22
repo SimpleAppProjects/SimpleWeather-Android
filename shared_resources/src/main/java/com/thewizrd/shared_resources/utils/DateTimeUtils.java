@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources.utils;
 
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.Duration;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -15,7 +16,7 @@ public class DateTimeUtils {
     }
 
     public static LocalDateTime getClosestWeekday(DayOfWeek dayOfWeek) {
-        LocalDateTime today = LocalDateTime.now(ZoneOffset.UTC);
+        LocalDateTime today = LocalDate.now(ZoneOffset.UTC).atStartOfDay();
 
         LocalDateTime nextWeekday = getNextWeekday(today, dayOfWeek);
         LocalDateTime prevWeekday = getPrevWeekday(today, dayOfWeek);

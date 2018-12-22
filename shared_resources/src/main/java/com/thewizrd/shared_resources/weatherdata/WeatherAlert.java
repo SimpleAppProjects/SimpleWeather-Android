@@ -374,13 +374,14 @@ public class WeatherAlert {
 
     private void setDateTimeFromSegment(List<TimeSegmentItem> timeSegment) {
         if (timeSegment.size() > 1) {
+            int last = timeSegment.size() - 1;
             LocalDateTime startDate = DateTimeUtils.getClosestWeekday(getDayOfWeekFromSegment(timeSegment.get(0).getDayOfWeek()));
-            LocalDateTime endDate = DateTimeUtils.getClosestWeekday(getDayOfWeekFromSegment(timeSegment.get(1).getDayOfWeek()));
+            LocalDateTime endDate = DateTimeUtils.getClosestWeekday(getDayOfWeekFromSegment(timeSegment.get(last).getDayOfWeek()));
 
             date = ZonedDateTime.of(startDate.plusSeconds(
                     getTimeFromSegment(timeSegment.get(0).getSegment()).toSecondOfDay()), ZoneOffset.UTC);
             expiresDate = ZonedDateTime.of(endDate.plusSeconds(
-                    getTimeFromSegment(timeSegment.get(1).getSegment()).toSecondOfDay()), ZoneOffset.UTC);
+                    getTimeFromSegment(timeSegment.get(last).getSegment()).toSecondOfDay()), ZoneOffset.UTC);
         } else {
             LocalDateTime today = DateTimeUtils.getClosestWeekday(getDayOfWeekFromSegment(timeSegment.get(0).getDayOfWeek()));
 

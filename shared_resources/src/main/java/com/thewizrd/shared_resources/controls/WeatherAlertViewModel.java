@@ -38,11 +38,11 @@ public class WeatherAlertViewModel {
         if (sincePost.toDays() >= 1)
             postDate = context.getString(R.string.datetime_day_ago, (int) Math.floor(sincePost.toDays()));
         else if (sincePost.toHours() >= 1)
-            postDate = context.getString(R.string.datetime_day_ago, (int) Math.floor(sincePost.toHours()));
+            postDate = context.getString(R.string.datetime_hr_ago, (int) Math.floor(sincePost.toHours()));
         else if (sincePost.toMinutes() >= 1)
-            postDate = context.getString(R.string.datetime_day_ago, (int) Math.floor(sincePost.toMinutes()));
+            postDate = context.getString(R.string.datetime_min_ago, (int) Math.floor(sincePost.toMinutes()));
         else
-            postDate = context.getString(R.string.datetime_day_ago, (int) Math.floor(sincePost.getSeconds()));
+            postDate = context.getString(R.string.datetime_sec_ago, (int) Math.floor(sincePost.getSeconds()));
 
         // Displays Thursday, April 10, 2008 6:30 AM
         expireDate = String.format("%s %s %s",
