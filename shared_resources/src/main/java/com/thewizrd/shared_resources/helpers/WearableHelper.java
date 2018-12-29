@@ -1,6 +1,5 @@
 package com.thewizrd.shared_resources.helpers;
 
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.util.Log;
 
@@ -46,10 +45,6 @@ public class WearableHelper {
         }
 
         return false;
-    }
-
-    public static boolean hasGPS() {
-        return SimpleLibrary.getInstance().getApp().getAppContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
     }
 
     public static Uri getWearDataUri(String NodeId, String Path) {

@@ -210,7 +210,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                 wLoader = new WeatherDataLoader(location, this, this);
         }
 
-        if (WearableHelper.isGooglePlayServicesInstalled() && !WearableHelper.hasGPS()) {
+        if (WearableHelper.isGooglePlayServicesInstalled()) {
             mFusedLocationClient = new FusedLocationProviderClient(getActivity());
             mLocCallback = new LocationCallback() {
                 @Override
@@ -218,8 +218,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     AsyncTask.run(new Runnable() {
                         @Override
                         public void run() {
-                            mLocation = locationResult.getLastLocation();
-
                             if (Settings.useFollowGPS() && updateLocation()) {
                                 // Setup loader from updated location
                                 wLoader = new WeatherDataLoader(WeatherNowFragment.this.location,
@@ -782,9 +780,13 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                         return false;
                     }
 
+                    if (!Looper.getMainLooper().getThread().equals(Thread.currentThread())) {
+                        Looper.prepare();
+                    }
+
                     Location location = null;
 
-                    if (WearableHelper.isGooglePlayServicesInstalled() && !WearableHelper.hasGPS()) {
+                    if (WearableHelper.isGooglePlayServicesInstalled()) {
                         location = new AsyncTask<Location>().await(new Callable<Location>() {
                             @SuppressLint("MissingPermission")
                             @Override
@@ -813,10 +815,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             });
                         }
                     } else {
-                        if (!Looper.getMainLooper().getThread().equals(Thread.currentThread())) {
-                            Looper.prepare();
-                        }
-
                         LocationManager locMan = null;
                         if (getActivity() != null)
                             locMan = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);

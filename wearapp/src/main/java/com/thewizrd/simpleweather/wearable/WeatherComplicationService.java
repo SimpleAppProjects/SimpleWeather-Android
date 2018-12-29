@@ -246,7 +246,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
 
                     Location location = null;
 
-                    if (WearableHelper.isGooglePlayServicesInstalled() && !WearableHelper.hasGPS()) {
+                    if (WearableHelper.isGooglePlayServicesInstalled()) {
                         final FusedLocationProviderClient mFusedLocationClient = new FusedLocationProviderClient(WeatherComplicationService.this);
                         location = new AsyncTask<Location>().await(new Callable<Location>() {
                             @SuppressLint("MissingPermission")

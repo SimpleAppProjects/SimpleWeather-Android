@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.widgets;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -29,6 +30,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
@@ -36,6 +38,7 @@ import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -107,6 +110,7 @@ public class WeatherWidgetService extends JobIntentService {
     private static final int MEDIUM_FORECAST_LENGTH = 4; // 4-day
     private static final int WIDE_FORECAST_LENGTH = 5; // 5-day
 
+    private FusedLocationProviderClient mFusedLocationClient;
     private CancellationTokenSource cts;
 
     public static void enqueueWork(Context context, Intent work) {
@@ -137,6 +141,10 @@ public class WeatherWidgetService extends JobIntentService {
         });
 
         cts = new CancellationTokenSource();
+
+        if (WearableHelper.isGooglePlayServicesInstalled()) {
+            mFusedLocationClient = new FusedLocationProviderClient(this);
+        }
     }
 
     @Override
@@ -1083,72 +1091,87 @@ public class WeatherWidgetService extends JobIntentService {
                         return false;
                     }
 
-                    LocationManager locMan = (LocationManager) App.getInstance().getAppContext().getSystemService(Context.LOCATION_SERVICE);
-                    boolean isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                    boolean isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
                     Location location = null;
 
-                    if (isGPSEnabled || isNetEnabled && !cts.getToken().isCancellationRequested()) {
-                        Criteria locCriteria = new Criteria();
-                        locCriteria.setAccuracy(Criteria.ACCURACY_COARSE);
-                        locCriteria.setCostAllowed(false);
-                        locCriteria.setPowerRequirement(Criteria.POWER_LOW);
-                        String provider = locMan.getBestProvider(locCriteria, true);
-                        location = locMan.getLastKnownLocation(provider);
-
-                        if (location != null && !cts.getToken().isCancellationRequested()) {
-                            LocationData lastGPSLocData = Settings.getLastGPSLocData();
-
-                            if (cts.getToken().isCancellationRequested()) return locationChanged;
-
-                            // Check previous location difference
-                            if (lastGPSLocData.getQuery() != null &&
-                                    Math.abs(ConversionMethods.calculateHaversine(lastGPSLocData.getLatitude(), lastGPSLocData.getLongitude(),
-                                            location.getLatitude(), location.getLongitude())) < 1600) {
-                                return false;
+                    if (WearableHelper.isGooglePlayServicesInstalled()) {
+                        location = new AsyncTask<Location>().await(new Callable<Location>() {
+                            @SuppressLint("MissingPermission")
+                            @Override
+                            public Location call() throws Exception {
+                                return Tasks.await(mFusedLocationClient.getLastLocation());
                             }
-
-                            LocationQueryViewModel query_vm = null;
-
-                            TaskCompletionSource<LocationQueryViewModel> tcs = new TaskCompletionSource<>(cts.getToken());
-                            tcs.setResult(wm.getLocation(location));
-                            try {
-                                query_vm = Tasks.await(tcs.getTask());
-                            } catch (ExecutionException e) {
-                                Logger.writeLine(Log.ERROR, e.getCause());
-                            } catch (InterruptedException e) {
-                                return locationChanged;
-                            }
-
-                            if (StringUtils.isNullOrEmpty(query_vm.getLocationQuery()))
-                                query_vm = new LocationQueryViewModel();
-
-                            if (StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
-                                // Stop since there is no valid query
-                                return false;
-                            }
-
-                            if (cts.getToken().isCancellationRequested()) return locationChanged;
-
-                            // Save oldkey
-                            String oldkey = lastGPSLocData.getQuery();
-
-                            // Save location as last known
-                            lastGPSLocData.setData(query_vm, location);
-                            Settings.saveLastGPSLocData(lastGPSLocData);
-
-                            WearableDataListenerService.enqueueWork(App.getInstance().getAppContext(),
-                                    new Intent(App.getInstance().getAppContext(), WearableDataListenerService.class)
-                                            .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
-
-                            // Update widget ids for location
-                            if (oldkey != null && WidgetUtils.exists(oldkey)) {
-                                WidgetUtils.updateWidgetIds(oldkey, lastGPSLocData);
-                            }
-
-                            locationChanged = true;
+                        });
+                    } else {
+                        LocationManager locMan = (LocationManager) App.getInstance().getAppContext().getSystemService(Context.LOCATION_SERVICE);
+                        boolean isGPSEnabled = false;
+                        boolean isNetEnabled = false;
+                        if (locMan != null) {
+                            isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                            isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
                         }
+
+                        if (isGPSEnabled || isNetEnabled && !cts.getToken().isCancellationRequested()) {
+                            Criteria locCriteria = new Criteria();
+                            locCriteria.setAccuracy(Criteria.ACCURACY_COARSE);
+                            locCriteria.setCostAllowed(false);
+                            locCriteria.setPowerRequirement(Criteria.POWER_LOW);
+                            String provider = locMan.getBestProvider(locCriteria, true);
+                            location = locMan.getLastKnownLocation(provider);
+                        }
+                    }
+
+                    if (location != null && !cts.getToken().isCancellationRequested()) {
+                        LocationData lastGPSLocData = Settings.getLastGPSLocData();
+
+                        if (cts.getToken().isCancellationRequested()) return locationChanged;
+
+                        // Check previous location difference
+                        if (lastGPSLocData.getQuery() != null &&
+                                Math.abs(ConversionMethods.calculateHaversine(lastGPSLocData.getLatitude(), lastGPSLocData.getLongitude(),
+                                        location.getLatitude(), location.getLongitude())) < 1600) {
+                            return false;
+                        }
+
+                        LocationQueryViewModel query_vm = null;
+
+                        TaskCompletionSource<LocationQueryViewModel> tcs = new TaskCompletionSource<>(cts.getToken());
+                        tcs.setResult(wm.getLocation(location));
+                        try {
+                            query_vm = Tasks.await(tcs.getTask());
+                        } catch (ExecutionException e) {
+                            query_vm = new LocationQueryViewModel();
+                            Logger.writeLine(Log.ERROR, e.getCause());
+                        } catch (InterruptedException e) {
+                            return locationChanged;
+                        }
+
+                        if (StringUtils.isNullOrEmpty(query_vm.getLocationQuery()))
+                            query_vm = new LocationQueryViewModel();
+
+                        if (StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
+                            // Stop since there is no valid query
+                            return false;
+                        }
+
+                        if (cts.getToken().isCancellationRequested()) return locationChanged;
+
+                        // Save oldkey
+                        String oldkey = lastGPSLocData.getQuery();
+
+                        // Save location as last known
+                        lastGPSLocData.setData(query_vm, location);
+                        Settings.saveLastGPSLocData(lastGPSLocData);
+
+                        WearableDataListenerService.enqueueWork(App.getInstance().getAppContext(),
+                                new Intent(App.getInstance().getAppContext(), WearableDataListenerService.class)
+                                        .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
+
+                        // Update widget ids for location
+                        if (oldkey != null && WidgetUtils.exists(oldkey)) {
+                            WidgetUtils.updateWidgetIds(oldkey, lastGPSLocData);
+                        }
+
+                        locationChanged = true;
                     }
                 }
 

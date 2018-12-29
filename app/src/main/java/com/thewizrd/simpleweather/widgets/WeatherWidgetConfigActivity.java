@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.widgets;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
@@ -38,8 +39,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
@@ -47,6 +54,7 @@ import com.thewizrd.shared_resources.controls.ComboBoxItem;
 import com.thewizrd.shared_resources.controls.LocationQuery;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
+import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.LocationData;
@@ -71,7 +79,9 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
     private LocationQueryViewModel query_vm = null;
     private LocationQueryViewModel gpsQuery_vm = null;
 
+    private FusedLocationProviderClient mFusedLocationClient;
     private Location mLocation;
+    private LocationCallback mLocCallback;
     private LocationListener mLocListnr;
     private CancellationTokenSource cts;
 
@@ -124,8 +134,6 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
     private static final int SETUP_REQUEST_CODE = 10;
-
-    private Thread geoLocThread;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -262,28 +270,68 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         cts = new CancellationTokenSource();
 
         // Location Listener
-        mLocListnr = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                mLocation = location;
-                fetchGeoLocation();
-            }
+        if (WearableHelper.isGooglePlayServicesInstalled()) {
+            mFusedLocationClient = new FusedLocationProviderClient(this);
+            mLocCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    if (locationResult == null)
+                        mLocation = null;
+                    else
+                        mLocation = locationResult.getLastLocation();
 
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
+                    if (mLocation == null) {
+                        Toast.makeText(WeatherWidgetConfigActivity.this, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                    } else {
+                        fetchGeoLocation();
+                    }
 
-            }
+                    new AsyncTask<Void>().await(new Callable<Void>() {
+                        @Override
+                        public Void call() throws Exception {
+                            return Tasks.await(mFusedLocationClient.removeLocationUpdates(mLocCallback));
+                        }
+                    });
+                }
 
-            @Override
-            public void onProviderEnabled(String provider) {
+                @Override
+                public void onLocationAvailability(LocationAvailability locationAvailability) {
+                    new AsyncTask<Void>().await(new Callable<Void>() {
+                        @Override
+                        public Void call() throws Exception {
+                            return Tasks.await(mFusedLocationClient.flushLocations());
+                        }
+                    });
 
-            }
+                    if (!locationAvailability.isLocationAvailable()) {
+                        Toast.makeText(WeatherWidgetConfigActivity.this, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            };
+        } else {
+            mLocListnr = new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    mLocation = location;
+                    fetchGeoLocation();
+                }
 
-            @Override
-            public void onProviderDisabled(String provider) {
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {
 
-            }
-        };
+                }
+
+                @Override
+                public void onProviderEnabled(String provider) {
+
+                }
+
+                @Override
+                public void onProviderDisabled(String provider) {
+
+                }
+            };
+        }
 
         if (!Settings.isWeatherLoaded()) {
             Toast.makeText(this, R.string.prompt_setup_app_first, Toast.LENGTH_SHORT).show();
@@ -756,44 +804,80 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     PERMISSION_LOCATION_REQUEST_CODE);
         }
 
-        if (!Looper.getMainLooper().getThread().equals(Thread.currentThread())) {
+        if (!Looper.getMainLooper().getThread().equals(Thread.currentThread()))
             Looper.prepare();
-        }
-
-        LocationManager locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        boolean isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        boolean isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
         Location location = null;
 
-        if (isGPSEnabled) {
-            location = locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (WearableHelper.isGooglePlayServicesInstalled()) {
+            location = new AsyncTask<Location>().await(new Callable<Location>() {
+                @SuppressLint("MissingPermission")
+                @Override
+                public Location call() throws Exception {
+                    return Tasks.await(mFusedLocationClient.getLastLocation());
+                }
+            });
 
-            if (location == null)
-                location = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-            if (location == null)
-                locMan.requestSingleUpdate(LocationManager.GPS_PROVIDER, mLocListnr, null);
-            else {
-                mLocation = location;
-                fetchGeoLocation();
-            }
-        } else if (isNetEnabled) {
-            location = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-            if (location == null)
-                locMan.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, mLocListnr, null);
-            else {
+            if (location == null) {
+                final LocationRequest mLocationRequest = new LocationRequest();
+                mLocationRequest.setInterval(10000);
+                mLocationRequest.setFastestInterval(1000);
+                mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                new AsyncTask<Void>().await(new Callable<Void>() {
+                    @SuppressLint("MissingPermission")
+                    @Override
+                    public Void call() throws Exception {
+                        return Tasks.await(mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, null));
+                    }
+                });
+                new AsyncTask<Void>().await(new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        return Tasks.await(mFusedLocationClient.flushLocations());
+                    }
+                });
+            } else {
                 mLocation = location;
                 fetchGeoLocation();
             }
         } else {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(WeatherWidgetConfigActivity.this, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+            LocationManager locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            boolean isGPSEnabled = false;
+            boolean isNetEnabled = false;
+            if (locMan != null) {
+                isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            }
+
+            if (isGPSEnabled) {
+                location = locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+                if (location == null)
+                    location = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+                if (location == null)
+                    locMan.requestSingleUpdate(LocationManager.GPS_PROVIDER, mLocListnr, null);
+                else {
+                    mLocation = location;
+                    fetchGeoLocation();
                 }
-            });
+            } else if (isNetEnabled) {
+                location = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+                if (location == null)
+                    locMan.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, mLocListnr, null);
+                else {
+                    mLocation = location;
+                    fetchGeoLocation();
+                }
+            } else {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(WeatherWidgetConfigActivity.this, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }
     }
 
