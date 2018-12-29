@@ -179,9 +179,11 @@ public class LocationsFragment extends Fragment
                 public void run() {
                     if (weather != null && weather.isValid()) {
                         if (Settings.useFollowGPS() && location.getLocationType() == LocationType.GPS) {
-                            gpsPanelViewModel.setWeather(weather);
-                            gpsPanel.setWeatherBackground(gpsPanelViewModel);
-                            gpsPanel.setWeather(gpsPanelViewModel);
+                            if (gpsPanelViewModel != null) {
+                                gpsPanelViewModel.setWeather(weather);
+                                gpsPanel.setWeatherBackground(gpsPanelViewModel);
+                                gpsPanel.setWeather(gpsPanelViewModel);
+                            }
                         } else {
                             // Update panel weather
                             LocationPanelViewModel panel = null;
@@ -203,8 +205,10 @@ public class LocationsFragment extends Fragment
                                     }
                                 }
                             }
-                            panel.setWeather(weather);
-                            mAdapter.notifyItemChanged(mAdapter.getDataset().indexOf(panel));
+                            if (panel != null) {
+                                panel.setWeather(weather);
+                                mAdapter.notifyItemChanged(mAdapter.getDataset().indexOf(panel));
+                            }
                         }
                     }
                 }
