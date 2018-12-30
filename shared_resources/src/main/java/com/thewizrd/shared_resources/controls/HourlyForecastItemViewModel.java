@@ -1,8 +1,10 @@
 package com.thewizrd.shared_resources.controls;
 
 import android.text.format.DateFormat;
+import android.util.Log;
 
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
@@ -37,12 +39,22 @@ public class HourlyForecastItemViewModel {
             date = hrForecast.getDate().format(DateTimeFormatter.ofPattern("EEE h a"));
 
         condition = hrForecast.getCondition();
-        hiTemp = (Settings.isFahrenheit() ?
-                String.format(Locale.getDefault(), "%d", Math.round(Double.valueOf(hrForecast.getHighF()))) : String.format(Locale.getDefault(), "%d", Math.round(Double.valueOf(hrForecast.getHighC())))) + "º ";
+        try {
+            hiTemp = (Settings.isFahrenheit() ?
+                    String.format(Locale.getDefault(), "%d", Math.round(Double.valueOf(hrForecast.getHighF()))) : String.format(Locale.getDefault(), "%d", Math.round(Double.valueOf(hrForecast.getHighC())))) + "º ";
+        } catch (NumberFormatException nFe) {
+            hiTemp = "--º ";
+            Logger.writeLine(Log.ERROR, nFe);
+        }
         pop = hrForecast.getPop() + "%";
         updateWindDirection(hrForecast.getWindDegrees());
-        windSpeed = (Settings.isFahrenheit() ?
-                String.format(Locale.getDefault(), "%d mph", Math.round(Double.valueOf(hrForecast.getWindMph()))) : String.format(Locale.getDefault(), "%d kph", Math.round(Double.valueOf(hrForecast.getWindKph()))));
+        try {
+            windSpeed = (Settings.isFahrenheit() ?
+                    String.format(Locale.getDefault(), "%d mph", Math.round(Double.valueOf(hrForecast.getWindMph()))) : String.format(Locale.getDefault(), "%d kph", Math.round(Double.valueOf(hrForecast.getWindKph()))));
+        } catch (NumberFormatException nFe) {
+            windSpeed = "--";
+            Logger.writeLine(Log.ERROR, nFe);
+        }
     }
 
     private void updateWindDirection(int angle) {

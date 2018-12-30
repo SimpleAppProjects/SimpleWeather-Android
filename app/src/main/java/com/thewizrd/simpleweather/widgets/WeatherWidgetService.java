@@ -974,10 +974,22 @@ public class WeatherWidgetService extends JobIntentService {
             forecastPanel.setTextViewText(R.id.forecast_date, forecast.getDate().format(DateTimeFormatter.ofPattern("eee")));
             forecastPanel.setImageViewResource(R.id.forecast_icon,
                     wm.getWeatherIconResource(forecast.getIcon()));
-            forecastPanel.setTextViewText(R.id.forecast_hi,
-                    (Settings.isFahrenheit() ? Math.round(Double.valueOf(forecast.getHighF())) : Math.round(Double.valueOf(forecast.getHighC()))) + "º");
-            forecastPanel.setTextViewText(R.id.forecast_lo,
-                    (Settings.isFahrenheit() ? Math.round(Double.valueOf(forecast.getLowF())) : Math.round(Double.valueOf(forecast.getLowC()))) + "º");
+            String hiTemp;
+            String loTemp;
+            try {
+                hiTemp = (Settings.isFahrenheit() ? Math.round(Double.valueOf(forecast.getHighF())) : Math.round(Double.valueOf(forecast.getHighC()))) + "º";
+            } catch (NumberFormatException nFe) {
+                hiTemp = "--º";
+                Logger.writeLine(Log.ERROR, nFe);
+            }
+            try {
+                loTemp = (Settings.isFahrenheit() ? Math.round(Double.valueOf(forecast.getLowF())) : Math.round(Double.valueOf(forecast.getLowC()))) + "º";
+            } catch (NumberFormatException nFe) {
+                loTemp = "--º";
+                Logger.writeLine(Log.ERROR, nFe);
+            }
+            forecastPanel.setTextViewText(R.id.forecast_hi, hiTemp);
+            forecastPanel.setTextViewText(R.id.forecast_lo, loTemp);
 
             updateViews.addView(R.id.forecast_layout, forecastPanel);
         }

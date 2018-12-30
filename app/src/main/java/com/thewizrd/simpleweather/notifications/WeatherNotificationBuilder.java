@@ -53,10 +53,22 @@ public class WeatherNotificationBuilder {
         String temp = (Settings.isFahrenheit() ?
                 Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC())) + "º";
         String condition = weather.getCondition().getWeather();
-        String hitemp = (Settings.isFahrenheit() ?
-                Math.round(Double.valueOf(weather.getForecast()[0].getHighF())) : Math.round(Double.valueOf(weather.getForecast()[0].getHighC()))) + "º";
-        String lotemp = (Settings.isFahrenheit() ?
-                Math.round(Double.valueOf(weather.getForecast()[0].getLowF())) : Math.round(Double.valueOf(weather.getForecast()[0].getLowC()))) + "º";
+        String hiTemp;
+        String loTemp;
+        try {
+            hiTemp = (Settings.isFahrenheit() ?
+                    Math.round(Double.valueOf(weather.getForecast()[0].getHighF())) : Math.round(Double.valueOf(weather.getForecast()[0].getHighC()))) + "º";
+        } catch (NumberFormatException nFe) {
+            hiTemp = "--º";
+            Logger.writeLine(Log.ERROR, nFe);
+        }
+        try {
+            loTemp = (Settings.isFahrenheit() ?
+                    Math.round(Double.valueOf(weather.getForecast()[0].getLowF())) : Math.round(Double.valueOf(weather.getForecast()[0].getLowC()))) + "º";
+        } catch (NumberFormatException nFe) {
+            loTemp = "--º";
+            Logger.writeLine(Log.ERROR, nFe);
+        }
 
         // Weather icon
         updateViews.setImageViewResource(R.id.weather_icon,
@@ -70,7 +82,7 @@ public class WeatherNotificationBuilder {
 
         // Details
         updateViews.setTextViewText(R.id.condition_details,
-                String.format("%s / %s", hitemp, lotemp));
+                String.format("%s / %s", hiTemp, loTemp));
 
         // Update Time
         String timeformat = LocalDateTime.now().format(DateTimeFormatter.ofPattern("h:mm a"));

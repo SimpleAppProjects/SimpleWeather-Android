@@ -1,5 +1,8 @@
 package com.thewizrd.shared_resources.controls;
 
+import android.util.Log;
+
+import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
@@ -27,10 +30,20 @@ public class ForecastItemViewModel {
         weatherIcon = forecast.getIcon();
         date = forecast.getDate().format(DateTimeFormatter.ofPattern("EEEE dd", Locale.getDefault()));
         condition = forecast.getCondition();
-        hiTemp = (Settings.isFahrenheit() ?
-                String.format(Locale.ROOT, "%d", Math.round(Double.valueOf(forecast.getHighF()))) : String.format(Locale.ROOT, "%d", Math.round(Double.valueOf(forecast.getHighC())))) + "º ";
-        loTemp = (Settings.isFahrenheit() ?
-                String.format(Locale.ROOT, "%d", Math.round(Double.valueOf(forecast.getLowF()))) : String.format(Locale.ROOT, "%d", Math.round(Double.valueOf(forecast.getLowC())))) + "º ";
+        try {
+            hiTemp = (Settings.isFahrenheit() ?
+                    String.format(Locale.ROOT, "%d", Math.round(Double.valueOf(forecast.getHighF()))) : String.format(Locale.ROOT, "%d", Math.round(Double.valueOf(forecast.getHighC())))) + "º ";
+        } catch (NumberFormatException nFe) {
+            hiTemp = "--º ";
+            Logger.writeLine(Log.ERROR, nFe);
+        }
+        try {
+            loTemp = (Settings.isFahrenheit() ?
+                    String.format(Locale.ROOT, "%d", Math.round(Double.valueOf(forecast.getLowF()))) : String.format(Locale.ROOT, "%d", Math.round(Double.valueOf(forecast.getLowC())))) + "º ";
+        } catch (NumberFormatException nFe) {
+            loTemp = "--º ";
+            Logger.writeLine(Log.ERROR, nFe);
+        }
     }
 
     public String getWeatherIcon() {
