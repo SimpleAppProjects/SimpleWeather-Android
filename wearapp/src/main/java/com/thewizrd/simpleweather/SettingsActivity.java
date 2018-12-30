@@ -318,9 +318,9 @@ public class SettingsActivity extends WearableActivity {
                     apiCategory.removePreference(registerPref);
                 } else {
                     // User is using personal (unverified) keys
-                    Settings.setKeyVerified(false);
+                    //Settings.setKeyVerified(false);
                     // Clear API KEY entry to avoid issues
-                    Settings.setAPIKEY("");
+                    //Settings.setAPIKEY("");
 
                     keyEntry.setEnabled(true);
 
