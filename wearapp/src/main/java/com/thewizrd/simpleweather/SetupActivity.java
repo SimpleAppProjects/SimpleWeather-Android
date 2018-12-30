@@ -27,6 +27,7 @@ import android.widget.Toast;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
@@ -409,6 +410,26 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                     return Tasks.await(mFusedLocationClient.getLastLocation());
                 }
             });
+
+            if (location == null) {
+                final LocationRequest mLocationRequest = new LocationRequest();
+                mLocationRequest.setInterval(10000);
+                mLocationRequest.setFastestInterval(1000);
+                mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                new AsyncTask<Void>().await(new Callable<Void>() {
+                    @SuppressLint("MissingPermission")
+                    @Override
+                    public Void call() throws Exception {
+                        return Tasks.await(mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, null));
+                    }
+                });
+                new AsyncTask<Void>().await(new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        return Tasks.await(mFusedLocationClient.flushLocations());
+                    }
+                });
+            }
         } else {
             LocationManager locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             boolean isGPSEnabled = false;

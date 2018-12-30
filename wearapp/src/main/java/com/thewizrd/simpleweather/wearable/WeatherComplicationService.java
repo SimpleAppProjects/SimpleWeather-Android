@@ -9,7 +9,9 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Icon;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.content.ContextCompat;
@@ -22,6 +24,10 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -55,6 +61,11 @@ public class WeatherComplicationService extends ComplicationProviderService {
     private WeatherManager wm;
     private static Weather weather;
     private static LocationData locData;
+
+    private FusedLocationProviderClient mFusedLocationClient;
+    private Location mLocation;
+    private LocationCallback mLocCallback;
+    private LocationListener mLocListnr;
 
     private static List<Integer> complicationIds;
 
@@ -94,6 +105,69 @@ public class WeatherComplicationService extends ComplicationProviderService {
                 }
             }
         });
+
+        if (WearableHelper.isGooglePlayServicesInstalled()) {
+            mFusedLocationClient = new FusedLocationProviderClient(this);
+            mLocCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    if (locationResult == null)
+                        mLocation = null;
+                    else
+                        mLocation = locationResult.getLastLocation();
+
+                    if (mLocation != null) {
+                        WeatherComplicationIntentService.enqueueWork(WeatherComplicationService.this,
+                                new Intent(WeatherComplicationService.this, WeatherComplicationIntentService.class)
+                                        .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS)
+                                        .putExtra(WeatherComplicationIntentService.EXTRA_FORCEUPDATE, true));
+                    }
+
+                    new AsyncTask<Void>().await(new Callable<Void>() {
+                        @Override
+                        public Void call() throws Exception {
+                            return Tasks.await(mFusedLocationClient.removeLocationUpdates(mLocCallback));
+                        }
+                    });
+                }
+
+                @Override
+                public void onLocationAvailability(LocationAvailability locationAvailability) {
+                    new AsyncTask<Void>().await(new Callable<Void>() {
+                        @Override
+                        public Void call() throws Exception {
+                            return Tasks.await(mFusedLocationClient.flushLocations());
+                        }
+                    });
+                }
+            };
+        } else {
+            mLocListnr = new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    mLocation = location;
+                    WeatherComplicationIntentService.enqueueWork(WeatherComplicationService.this,
+                            new Intent(WeatherComplicationService.this, WeatherComplicationIntentService.class)
+                                    .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS)
+                                    .putExtra(WeatherComplicationIntentService.EXTRA_FORCEUPDATE, true));
+                }
+
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+
+                }
+
+                @Override
+                public void onProviderEnabled(String provider) {
+
+                }
+
+                @Override
+                public void onProviderDisabled(String provider) {
+
+                }
+            };
+        }
     }
 
     private static int[] getComplicationIds() {
@@ -244,10 +318,13 @@ public class WeatherComplicationService extends ComplicationProviderService {
                         return false;
                     }
 
+                    if (!Looper.getMainLooper().getThread().equals(Thread.currentThread())) {
+                        Looper.prepare();
+                    }
+
                     Location location = null;
 
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
-                        final FusedLocationProviderClient mFusedLocationClient = new FusedLocationProviderClient(WeatherComplicationService.this);
                         location = new AsyncTask<Location>().await(new Callable<Location>() {
                             @SuppressLint("MissingPermission")
                             @Override
@@ -255,14 +332,34 @@ public class WeatherComplicationService extends ComplicationProviderService {
                                 return Tasks.await(mFusedLocationClient.getLastLocation());
                             }
                         });
+
+                        if (location == null) {
+                            final LocationRequest mLocationRequest = new LocationRequest();
+                            mLocationRequest.setInterval(10000);
+                            mLocationRequest.setFastestInterval(1000);
+                            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                            new AsyncTask<Void>().await(new Callable<Void>() {
+                                @SuppressLint("MissingPermission")
+                                @Override
+                                public Void call() throws Exception {
+                                    return Tasks.await(mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, null));
+                                }
+                            });
+                            new AsyncTask<Void>().await(new Callable<Void>() {
+                                @Override
+                                public Void call() throws Exception {
+                                    return Tasks.await(mFusedLocationClient.flushLocations());
+                                }
+                            });
+                        }
                     } else {
                         LocationManager locMan = (LocationManager) App.getInstance().getAppContext().getSystemService(Context.LOCATION_SERVICE);
                         boolean isGPSEnabled = false;
                         boolean isNetEnabled = false;
-                        if (locMan != null)
+                        if (locMan != null) {
                             isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                        if (locMan != null)
                             isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+                        }
 
                         if (isGPSEnabled || isNetEnabled) {
                             Criteria locCriteria = new Criteria();
@@ -271,6 +368,9 @@ public class WeatherComplicationService extends ComplicationProviderService {
                             locCriteria.setPowerRequirement(Criteria.POWER_LOW);
                             String provider = locMan.getBestProvider(locCriteria, true);
                             location = locMan.getLastKnownLocation(provider);
+
+                            if (location == null)
+                                locMan.requestSingleUpdate(provider, mLocListnr, null);
                         } else {
                             mMainHandler.post(new Runnable() {
                                 @Override
