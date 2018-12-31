@@ -43,7 +43,7 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:theme="@style/SettingsTheme"></activity>
+            android:theme="@style/SettingsTheme" />
         <activity
             android:name=".widgets.WeatherWidgetConfigActivity"
             android:label="Widget Preference"
@@ -122,7 +122,7 @@
         <receiver
             android:name=".notifications.WeatherNotificationBroadcastReceiver"
             android:enabled="@bool/enable_alertnotifservice"
-            android:exported="@bool/enable_alertnotifservice"></receiver>
+            android:exported="@bool/enable_alertnotifservice" />
 
         <service
             android:name=".wearable.WearableDataListenerService"
@@ -142,11 +142,11 @@
         <service
             android:name=".widgets.WeatherWidgetService"
             android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE"></service>
+            android:permission="android.permission.BIND_JOB_SERVICE" />
         <service
             android:name=".notifications.WeatherAlertNotificationService"
             android:enabled="@bool/enable_alertnotifservice"
-            android:exported="false"></service>
+            android:exported="false" />
 
         <uses-library
             android:name="com.google.android.wearable"

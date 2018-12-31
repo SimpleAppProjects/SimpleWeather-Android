@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.multidex.MultiDexApplication;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -18,7 +19,7 @@ import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 
-public class App extends Application implements ApplicationLib, Application.ActivityLifecycleCallbacks {
+public class App extends MultiDexApplication implements ApplicationLib, Application.ActivityLifecycleCallbacks {
     public static final int HOMEIDX = 0;
 
     private static ApplicationLib sInstance = null;
