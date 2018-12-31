@@ -614,12 +614,15 @@ public class SettingsActivity extends AppCompatActivity {
                     break;
                 // FollowGPS changed
                 case KEY_FOLLOWGPS:
+                    boolean value = sharedPreferences.getBoolean(key, false);
                     enqueueIntent(new Intent(context, WearableDataListenerService.class)
                             .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
                     enqueueIntent(new Intent(context, WearableDataListenerService.class)
                             .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
                     enqueueIntent(new Intent(context, WeatherWidgetService.class)
                             .setAction(WeatherWidgetService.ACTION_UPDATEWEATHER));
+                    enqueueIntent(new Intent(context, WeatherWidgetService.class)
+                            .setAction(value ? WeatherWidgetService.ACTION_REFRESHGPSWIDGETS : WeatherWidgetService.ACTION_RESETGPSWIDGETS));
                     break;
                 // Settings unit changed
                 case KEY_USECELSIUS:

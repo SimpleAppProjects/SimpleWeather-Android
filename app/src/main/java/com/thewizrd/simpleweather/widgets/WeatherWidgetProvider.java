@@ -125,9 +125,13 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
 
         for (int id : appWidgetIds) {
             // Remove id from list
-            LocationData locData = WidgetUtils.getLocationData(id);
-            if (locData != null) {
-                WidgetUtils.removeWidgetId(locData.getQuery(), id);
+            if (WidgetUtils.isGPS(id)) {
+                WidgetUtils.removeWidgetId("GPS", id);
+            } else {
+                LocationData locData = WidgetUtils.getLocationData(id);
+                if (locData != null) {
+                    WidgetUtils.removeWidgetId(locData.getQuery(), id);
+                }
             }
         }
     }

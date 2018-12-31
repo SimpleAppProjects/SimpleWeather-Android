@@ -33,7 +33,7 @@ public class WidgetUtils {
     private static SharedPreferences.Editor editor = widgetPrefs.edit();
 
     // Widget Prefs
-    private static final int CurrentPrefsVersion = 2;
+    private static final int CurrentPrefsVersion = 3;
 
     // Keys
     private static final String KEY_VERSION = "key_version";
@@ -80,6 +80,20 @@ public class WidgetUtils {
                             json = json.substring(1, length - 1);
                         }
                         editor.putString(key, json).commit();
+                    }
+                    break;
+                case 2:
+                    if (Settings.isWeatherLoaded()) {
+                        LocationData homeLocation = Settings.getHomeData();
+                        widgetMap = widgetPrefs.getAll();
+                        for (String key : widgetMap.keySet()) {
+                            if (key.equals(homeLocation.getQuery())) {
+                                String listJson = (String) widgetMap.get(key);
+                                editor.putString("GPS", listJson).commit();
+                                editor.remove(key).commit();
+                                break;
+                            }
+                        }
                     }
                     break;
                 default:
@@ -298,7 +312,7 @@ public class WidgetUtils {
         }
         Map<String, ?> widgetMap = widgetPrefs.getAll();
         for (String key : widgetMap.keySet()) {
-            if (!KEY_VERSION.equals(key) && !currLocQueries.contains(key))
+            if (!KEY_VERSION.equals(key) && !"GPS".equals(key) && !currLocQueries.contains(key))
                 editor.remove(key);
         }
         editor.commit();
@@ -337,5 +351,19 @@ public class WidgetUtils {
                 }
             }
         }
+    }
+
+    public static boolean isGPS(int widgetId) {
+        String listJson = widgetPrefs.getString("GPS", "");
+        if (!StringUtils.isNullOrWhitespace(listJson)) {
+            Type intArrListType = new TypeToken<ArrayList<Integer>>() {
+            }.getType();
+            ArrayList<Integer> idList = JSONParser.deserializer(listJson, intArrListType);
+            if (idList != null && idList.size() > 0) {
+                return idList.contains(widgetId);
+            }
+        }
+
+        return false;
     }
 }

@@ -108,6 +108,8 @@ public class App extends MultiDexApplication implements ApplicationLib, Applicat
         filter.addAction(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE);
         filter.addAction(CommonActions.ACTION_WEATHER_UPDATEWIDGETLOCATION);
         filter.addAction(CommonActions.ACTION_WEATHER_UPDATEWIDGETWEATHER);
+        filter.addAction(CommonActions.ACTION_WIDGET_REFRESHWIDGETS);
+        filter.addAction(CommonActions.ACTION_WIDGET_RESETWIDGETS);
 
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mCommonReceiver, filter);

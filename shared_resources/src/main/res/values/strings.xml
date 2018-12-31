@@ -117,6 +117,7 @@
     <string name="widget_getstarted_prompt">Tap to get started</string>
     <string name="update_prefix">Updated on</string>
     <string name="update_prefix_day">Updated at</string>
+    <string name="widget_configure_prompt">Configure Widget</string>
     <!-- format strings for clocks -->
     <string name="clock_24_hours_format" translatable="false">kk&#58;mm</string>
     <string name="main_widget_12_hours_format" translatable="false">h&#58;mm&#8202;<b><font face="sans-serif" size="16">a</font></b></string>

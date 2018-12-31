@@ -181,12 +181,11 @@ public class WeatherDataLoader {
                             mLocalBroadcastManager.sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
                         } else {
                             Settings.updateLocationWithKey(location, oldKey);
+                            mLocalBroadcastManager.sendBroadcast(
+                                    new Intent(CommonActions.ACTION_WEATHER_UPDATEWIDGETLOCATION)
+                                            .putExtra("oldKey", oldKey)
+                                            .putExtra("location", location.toJson()));
                         }
-
-                        mLocalBroadcastManager.sendBroadcast(
-                                new Intent(CommonActions.ACTION_WEATHER_UPDATEWIDGETLOCATION)
-                                        .putExtra("oldKey", oldKey)
-                                        .putExtra("location", location.toJson()));
                     } else {
                         Settings.saveHomeData(location);
                     }
@@ -276,7 +275,8 @@ public class WeatherDataLoader {
             // Update cached weather data for widgets
             mLocalBroadcastManager.sendBroadcast(
                     new Intent(CommonActions.ACTION_WEATHER_UPDATEWIDGETWEATHER)
-                            .putExtra("locationQuery", location.getQuery())
+                            .putExtra("locationQuery",
+                                    location.getLocationType() == LocationType.GPS ? "GPS" : location.getQuery())
                             .putExtra("weather", weather.toJson()));
         } else {
             Settings.setUpdateTime(LocalDateTime.ofInstant(weather.getUpdateTime().toInstant(), ZoneOffset.UTC));

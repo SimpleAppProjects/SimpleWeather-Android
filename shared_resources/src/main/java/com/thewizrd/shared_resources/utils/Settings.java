@@ -118,8 +118,12 @@ public class Settings {
                     break;
                 // FollowGPS changed
                 case KEY_FOLLOWGPS:
+                    boolean value = sharedPreferences.getBoolean(key, false);
                     mLocalBroadcastManager.sendBroadcast(
                             new Intent(CommonActions.ACTION_SETTINGS_UPDATEGPS));
+                    if (Settings.IS_PHONE)
+                        mLocalBroadcastManager.sendBroadcast(
+                                new Intent(value ? CommonActions.ACTION_WIDGET_REFRESHWIDGETS : CommonActions.ACTION_WIDGET_RESETWIDGETS));
                     break;
                 // Settings unit changed
                 case KEY_USECELSIUS:

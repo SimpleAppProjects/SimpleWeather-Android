@@ -30,6 +30,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.TaskCompletionSource;
@@ -84,6 +85,9 @@ public class WeatherWidgetService extends JobIntentService {
     public static final String ACTION_CANCELCLOCK = "SimpleWeather.Droid.action.CANCEL_CLOCKALARM";
 
     public static final String ACTION_SHOWALERTS = "SimpleWeather.Droid.action.SHOW_ALERTS";
+
+    public static final String ACTION_RESETGPSWIDGETS = "SimpleWeather.Droid.action.RESET_GPSWIDGETS";
+    public static final String ACTION_REFRESHGPSWIDGETS = "SimpleWeather.Droid.action.REFRESH_GPSWIDGETS";
 
     public static final String EXTRA_FORCEREFRESH = "SimpleWeather.Droid.extra.FORCE_REFRESH";
 
@@ -338,6 +342,11 @@ public class WeatherWidgetService extends JobIntentService {
                         }
                     }
                 }
+            } else if (ACTION_RESETGPSWIDGETS.equals(intent.getAction())) {
+                // GPS feature disabled; reset widget
+                resetGPSWidgets();
+            } else if (ACTION_REFRESHGPSWIDGETS.equals(intent.getAction())) {
+                refreshGPSWidgets();
             }
 
             Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent.getAction());
@@ -446,7 +455,7 @@ public class WeatherWidgetService extends JobIntentService {
     }
 
     private void resizeWidget(WeatherWidgetProvider provider, int appWidgetId, Bundle newOptions) throws InterruptedException {
-        if (Settings.isWeatherLoaded())
+        if (Settings.isWeatherLoaded() /*&& (Settings.useFollowGPS() || !WidgetUtils.isGPS(appWidgetId))*/)
             rebuildForecast(provider, appWidgetId, newOptions);
     }
 
@@ -460,7 +469,16 @@ public class WeatherWidgetService extends JobIntentService {
             public Void call() throws InterruptedException {
                 if (Settings.isWeatherLoaded()) {
                     for (int id : finalAppWidgetIds) {
-                        LocationData locData = WidgetUtils.getLocationData(id);
+                        LocationData locData = null;
+
+                        if (WidgetUtils.isGPS(id)) {
+                            if (!Settings.useFollowGPS())
+                                continue;
+                            else
+                                locData = Settings.getLastGPSLocData();
+                        } else {
+                            locData = WidgetUtils.getLocationData(id);
+                        }
 
                         if (cts.getToken().isCancellationRequested())
                             throw new InterruptedException();
@@ -513,7 +531,16 @@ public class WeatherWidgetService extends JobIntentService {
                         int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.getComponentName());
 
                         for (int id : appWidgetIds) {
-                            LocationData locData = WidgetUtils.getLocationData(id);
+                            LocationData locData = null;
+
+                            if (WidgetUtils.isGPS(id)) {
+                                if (!Settings.useFollowGPS())
+                                    continue;
+                                else
+                                    locData = Settings.getLastGPSLocData();
+                            } else {
+                                locData = WidgetUtils.getLocationData(id);
+                            }
 
                             if (cts.getToken().isCancellationRequested())
                                 throw new InterruptedException();
@@ -550,7 +577,16 @@ public class WeatherWidgetService extends JobIntentService {
                         int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName());
 
                         for (int id : appWidgetIds) {
-                            LocationData locData = WidgetUtils.getLocationData(id);
+                            LocationData locData = null;
+
+                            if (WidgetUtils.isGPS(id)) {
+                                if (!Settings.useFollowGPS())
+                                    continue;
+                                else
+                                    locData = Settings.getLastGPSLocData();
+                            } else {
+                                locData = WidgetUtils.getLocationData(id);
+                            }
 
                             if (cts.getToken().isCancellationRequested())
                                 throw new InterruptedException();
@@ -587,7 +623,16 @@ public class WeatherWidgetService extends JobIntentService {
                         int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1.getComponentName());
 
                         for (int id : appWidgetIds) {
-                            LocationData locData = WidgetUtils.getLocationData(id);
+                            LocationData locData = null;
+
+                            if (WidgetUtils.isGPS(id)) {
+                                if (!Settings.useFollowGPS())
+                                    continue;
+                                else
+                                    locData = Settings.getLastGPSLocData();
+                            } else {
+                                locData = WidgetUtils.getLocationData(id);
+                            }
 
                             if (cts.getToken().isCancellationRequested())
                                 throw new InterruptedException();
@@ -624,7 +669,16 @@ public class WeatherWidgetService extends JobIntentService {
                         int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName());
 
                         for (int id : appWidgetIds) {
-                            LocationData locData = WidgetUtils.getLocationData(id);
+                            LocationData locData = null;
+
+                            if (WidgetUtils.isGPS(id)) {
+                                if (!Settings.useFollowGPS())
+                                    continue;
+                                else
+                                    locData = Settings.getLastGPSLocData();
+                            } else {
+                                locData = WidgetUtils.getLocationData(id);
+                            }
 
                             if (cts.getToken().isCancellationRequested())
                                 throw new InterruptedException();
@@ -665,6 +719,68 @@ public class WeatherWidgetService extends JobIntentService {
         });
     }
 
+    private void resetGPSWidgets() {
+        int[] appWidgetIds = WidgetUtils.getWidgetIds("GPS");
+
+        for (int appWidgetId : appWidgetIds) {
+            RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_configure_layout);
+
+            Intent configureIntent = new Intent(this, WeatherWidgetConfigActivity.class);
+            configureIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+
+            PendingIntent clickPendingIntent =
+                    PendingIntent.getActivity(this, 0, configureIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            views.setOnClickPendingIntent(R.id.widgetBackground, clickPendingIntent);
+
+            mAppWidgetManager.updateAppWidget(appWidgetIds, views);
+        }
+    }
+
+    private void refreshGPSWidgets() {
+        int[] appWidgetIds = WidgetUtils.getWidgetIds("GPS");
+
+        int[] ids1x1 = mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.getComponentName());
+        int[] ids2x2 = mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName());
+        int[] ids4x1 = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1.getComponentName());
+        int[] ids4x2 = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName());
+        Weather weather = getWeather();
+        LocationData locationData = Settings.getLastGPSLocData();
+
+        for (int appWidgetId : appWidgetIds) {
+
+            if (weather != null) {
+                // Save weather data
+                WidgetUtils.saveWeatherData(appWidgetId, weather);
+
+                if (ArrayUtils.contains(ids1x1, appWidgetId)) {
+                    // Build the widget update for provider
+                    RemoteViews views = buildUpdate(mContext, mAppWidget1x1, appWidgetId, locationData, weather);
+                    // Push update for this widget to the home screen
+                    mAppWidgetManager.updateAppWidget(appWidgetId, views);
+                    buildForecast(mAppWidget1x1, weather, appWidgetId);
+                } else if (ArrayUtils.contains(ids2x2, appWidgetId)) {
+                    // Build the widget update for provider
+                    RemoteViews views = buildUpdate(mContext, mAppWidget2x2, appWidgetId, locationData, weather);
+                    // Push update for this widget to the home screen
+                    mAppWidgetManager.updateAppWidget(appWidgetId, views);
+                    buildForecast(mAppWidget2x2, weather, appWidgetId);
+                } else if (ArrayUtils.contains(ids4x1, appWidgetId)) {
+                    // Build the widget update for provider
+                    RemoteViews views = buildUpdate(mContext, mAppWidget4x1, appWidgetId, locationData, weather);
+                    // Push update for this widget to the home screen
+                    mAppWidgetManager.updateAppWidget(appWidgetId, views);
+                    buildForecast(mAppWidget4x1, weather, appWidgetId);
+                } else if (ArrayUtils.contains(ids4x2, appWidgetId)) {
+                    // Build the widget update for provider
+                    RemoteViews views = buildUpdate(mContext, mAppWidget4x2, appWidgetId, locationData, weather);
+                    // Push update for this widget to the home screen
+                    mAppWidgetManager.updateAppWidget(appWidgetId, views);
+                    buildForecast(mAppWidget4x2, weather, appWidgetId);
+                }
+            }
+        }
+    }
+
     private void refreshClock(int[] appWidgetIds) {
         if (appWidgetIds == null || appWidgetIds.length == 0)
             appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName());
@@ -701,7 +817,10 @@ public class WeatherWidgetService extends JobIntentService {
             views.setTextViewText(R.id.clock_panel, timeStr);
         }
 
-        mAppWidgetManager.partiallyUpdateAppWidget(appWidgetIds, views);
+        for (int widgetId : appWidgetIds) {
+            if (!(!Settings.useFollowGPS() && WidgetUtils.isGPS(widgetId)))
+                mAppWidgetManager.partiallyUpdateAppWidget(widgetId, views);
+        }
 
         Logger.writeLine(Log.INFO, "%s: Refreshed clock", TAG);
     }
@@ -713,7 +832,11 @@ public class WeatherWidgetService extends JobIntentService {
         // Update 4x2 clock widgets
         RemoteViews views = new RemoteViews(mContext.getPackageName(), mAppWidget4x2.getWidgetLayoutId());
         views.setTextViewText(R.id.date_panel, LocalDateTime.now().format(DateTimeFormatter.ofPattern("eee, MMM dd")));
-        mAppWidgetManager.partiallyUpdateAppWidget(appWidgetIds, views);
+
+        for (int widgetId : appWidgetIds) {
+            if (!(!Settings.useFollowGPS() && WidgetUtils.isGPS(widgetId)))
+                mAppWidgetManager.partiallyUpdateAppWidget(widgetId, views);
+        }
 
         Logger.writeLine(Log.INFO, "%s: Refreshed date", TAG);
     }
@@ -839,12 +962,19 @@ public class WeatherWidgetService extends JobIntentService {
             public Void call() throws InterruptedException {
                 if (cts.getToken().isCancellationRequested()) throw new InterruptedException();
 
+                if (!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId))
+                    return null;
+
                 Weather weather = WidgetUtils.getWeatherData(appWidgetId);
 
                 if (cts.getToken().isCancellationRequested()) throw new InterruptedException();
 
                 if (weather == null) {
-                    LocationData locData = WidgetUtils.getLocationData(appWidgetId);
+                    LocationData locData = null;
+                    if (WidgetUtils.isGPS(appWidgetId))
+                        locData = Settings.getLastGPSLocData();
+                    else
+                        locData = WidgetUtils.getLocationData(appWidgetId);
 
                     if (cts.getToken().isCancellationRequested()) throw new InterruptedException();
 
@@ -1177,11 +1307,6 @@ public class WeatherWidgetService extends JobIntentService {
                         WearableDataListenerService.enqueueWork(App.getInstance().getAppContext(),
                                 new Intent(App.getInstance().getAppContext(), WearableDataListenerService.class)
                                         .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
-
-                        // Update widget ids for location
-                        if (oldkey != null && WidgetUtils.exists(oldkey)) {
-                            WidgetUtils.updateWidgetIds(oldkey, lastGPSLocData);
-                        }
 
                         locationChanged = true;
                     }

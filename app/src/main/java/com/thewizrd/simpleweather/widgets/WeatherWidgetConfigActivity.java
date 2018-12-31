@@ -683,8 +683,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         Settings.saveLastGPSLocData(locData);
 
                         // Save locdata for widget
-                        WidgetUtils.saveLocationData(mAppWidgetId, locData);
-                        WidgetUtils.addWidgetId(locData.getQuery(), mAppWidgetId);
+                        WidgetUtils.saveLocationData(mAppWidgetId, null);
+                        WidgetUtils.addWidgetId("GPS", mAppWidgetId);
                     }
                     break;
                 default:
@@ -721,6 +721,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         }
 
                         // Save locdata for widget
+                        if (WidgetUtils.isGPS(mAppWidgetId))
+                            WidgetUtils.removeWidgetId("GPS", mAppWidgetId);
                         WidgetUtils.saveLocationData(mAppWidgetId, locData);
                         WidgetUtils.addWidgetId(locData.getQuery(), mAppWidgetId);
                     }

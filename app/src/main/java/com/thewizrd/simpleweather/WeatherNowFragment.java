@@ -1056,12 +1056,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
                         WeatherNowFragment.this.location = lastGPSLocData;
                         mLocation = location;
-
-                        // Update widget ids for location
-                        if (oldkey != null && WidgetUtils.exists(oldkey)) {
-                            WidgetUtils.updateWidgetIds(oldkey, lastGPSLocData);
-                        }
-
                         locationChanged = true;
                     }
                 }
