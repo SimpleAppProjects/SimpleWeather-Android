@@ -425,10 +425,6 @@ public class SetupActivity extends AppCompatActivity {
                     PERMISSION_LOCATION_REQUEST_CODE);
         }
 
-        if (!Looper.getMainLooper().getThread().equals(Thread.currentThread())) {
-            Looper.prepare();
-        }
-
         Location location = null;
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {
@@ -449,7 +445,7 @@ public class SetupActivity extends AppCompatActivity {
                     @SuppressLint("MissingPermission")
                     @Override
                     public Void call() throws Exception {
-                        return Tasks.await(mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, null));
+                        return Tasks.await(mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper()));
                     }
                 });
                 new AsyncTask<Void>().await(new Callable<Void>() {
@@ -475,7 +471,7 @@ public class SetupActivity extends AppCompatActivity {
                     location = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
                 if (location == null)
-                    locMan.requestSingleUpdate(LocationManager.GPS_PROVIDER, mLocListnr, null);
+                    locMan.requestSingleUpdate(LocationManager.GPS_PROVIDER, mLocListnr, Looper.getMainLooper());
             } else if (isNetEnabled) {
                 location = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 

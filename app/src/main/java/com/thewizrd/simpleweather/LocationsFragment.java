@@ -673,10 +673,6 @@ public class LocationsFragment extends Fragment
                         return null;
                     }
 
-                    if (!Looper.getMainLooper().getThread().equals(Thread.currentThread())) {
-                        Looper.prepare();
-                    }
-
                     Location location = null;
 
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
@@ -697,7 +693,7 @@ public class LocationsFragment extends Fragment
                                 @SuppressLint("MissingPermission")
                                 @Override
                                 public Void call() throws Exception {
-                                    return Tasks.await(mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, null));
+                                    return Tasks.await(mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper()));
                                 }
                             });
                             new AsyncTask<Void>().await(new Callable<Void>() {

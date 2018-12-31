@@ -780,10 +780,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                         return false;
                     }
 
-                    if (!Looper.getMainLooper().getThread().equals(Thread.currentThread())) {
-                        Looper.prepare();
-                    }
-
                     Location location = null;
 
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
@@ -804,7 +800,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                                 @SuppressLint("MissingPermission")
                                 @Override
                                 public Void call() throws Exception {
-                                    return Tasks.await(mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, null));
+                                    return Tasks.await(mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper()));
                                 }
                             });
                             new AsyncTask<Void>().await(new Callable<Void>() {
@@ -835,7 +831,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             location = locMan.getLastKnownLocation(provider);
 
                             if (location == null)
-                                locMan.requestSingleUpdate(provider, mLocListnr, null);
+                                locMan.requestSingleUpdate(provider, mLocListnr, Looper.getMainLooper());
                         } else {
                             if (getActivity() != null) {
                                 getActivity().runOnUiThread(new Runnable() {
