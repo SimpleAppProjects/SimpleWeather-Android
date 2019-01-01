@@ -785,7 +785,7 @@ public class LocationsFragment extends Fragment
                                 Settings.saveLastGPSLocData(locData);
                                 loadGPSPanel();
 
-                                App.getInstance().getAppContext().startService(
+                                WearableDataListenerService.enqueueWork(App.getInstance().getAppContext(),
                                         new Intent(App.getInstance().getAppContext(), WearableDataListenerService.class)
                                                 .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
                             } else {
@@ -1197,10 +1197,10 @@ public class LocationsFragment extends Fragment
             WeatherWidgetService.enqueueWork(appCompatActivity, new Intent(appCompatActivity, WeatherWidgetService.class)
                     .setAction(WeatherWidgetService.ACTION_UPDATEWEATHER));
 
-            App.getInstance().getAppContext().startService(
+            WearableDataListenerService.enqueueWork(App.getInstance().getAppContext(),
                     new Intent(App.getInstance().getAppContext(), WearableDataListenerService.class)
                             .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
-            App.getInstance().getAppContext().startService(
+            WearableDataListenerService.enqueueWork(App.getInstance().getAppContext(),
                     new Intent(App.getInstance().getAppContext(), WearableDataListenerService.class)
                             .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
         }

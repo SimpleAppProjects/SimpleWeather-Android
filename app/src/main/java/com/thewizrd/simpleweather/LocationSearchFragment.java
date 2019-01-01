@@ -204,12 +204,15 @@ public class LocationSearchFragment extends Fragment {
                     Settings.setWeatherLoaded(true);
 
                     // Send data for wearables
-                    mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
-                            .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
-                    mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
-                            .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
-                    mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
-                            .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
+                    WearableDataListenerService.enqueueWork(mActivity,
+                            new Intent(mActivity, WearableDataListenerService.class)
+                                    .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
+                    WearableDataListenerService.enqueueWork(mActivity,
+                            new Intent(mActivity, WearableDataListenerService.class)
+                                    .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
+                    WearableDataListenerService.enqueueWork(mActivity,
+                            new Intent(mActivity, WearableDataListenerService.class)
+                                    .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
 
                     if (mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
                         // Start WeatherNow Activity with weather data

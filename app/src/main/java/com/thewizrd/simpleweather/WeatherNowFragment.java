@@ -1050,7 +1050,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                         lastGPSLocData.setData(view, location);
                         Settings.saveLastGPSLocData(lastGPSLocData);
 
-                        App.getInstance().getAppContext().startService(
+                        WearableDataListenerService.enqueueWork(App.getInstance().getAppContext(),
                                 new Intent(App.getInstance().getAppContext(), WearableDataListenerService.class)
                                         .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
 

@@ -25,14 +25,14 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
             if (CommonActions.ACTION_SETTINGS_UPDATEAPI.equals(intent.getAction())) {
-                context.startService(new Intent(context, WearableDataListenerService.class)
+                WearableDataListenerService.enqueueWork(context, new Intent(context, WearableDataListenerService.class)
                         .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
                 WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
                         .setAction(WeatherWidgetService.ACTION_UPDATEWEATHER));
             } else if (CommonActions.ACTION_SETTINGS_UPDATEGPS.equals(intent.getAction())) {
-                context.startService(new Intent(context, WearableDataListenerService.class)
+                WearableDataListenerService.enqueueWork(context, new Intent(context, WearableDataListenerService.class)
                         .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
-                context.startService(new Intent(context, WearableDataListenerService.class)
+                WearableDataListenerService.enqueueWork(context, new Intent(context, WearableDataListenerService.class)
                         .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
             } else if (CommonActions.ACTION_SETTINGS_UPDATEUNIT.equals(intent.getAction())) {
                 WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
