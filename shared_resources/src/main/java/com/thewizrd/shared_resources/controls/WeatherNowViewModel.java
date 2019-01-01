@@ -161,101 +161,103 @@ public class WeatherNowViewModel {
     }
 
     public void updateView(Weather weather) {
-        // Update backgrounds
-        background = wm.getWeatherBackgroundURI(weather);
-        pendingBackground = wm.getWeatherBackgroundColor(weather);
+        if (weather.isValid()) {
+            // Update backgrounds
+            background = wm.getWeatherBackgroundURI(weather);
+            pendingBackground = wm.getWeatherBackgroundColor(weather);
 
-        // Location
-        location = weather.getLocation().getName();
+            // Location
+            location = weather.getLocation().getName();
 
-        // Date Updated
-        updateDate = WeatherUtils.getLastBuildDate(weather);
+            // Date Updated
+            updateDate = WeatherUtils.getLastBuildDate(weather);
 
-        // Update current condition
-        curTemp = Settings.isFahrenheit() ?
-                String.format(Locale.getDefault(), "%d\uf045", Math.round(weather.getCondition().getTempF())) :
-                String.format(Locale.getDefault(), "%d\uf03c", Math.round(weather.getCondition().getTempC()));
-        curCondition = (StringUtils.isNullOrWhitespace(weather.getCondition().getWeather()) ? "---" : weather.getCondition().getWeather());
-        weatherIcon = weather.getCondition().getIcon();
+            // Update current condition
+            curTemp = Settings.isFahrenheit() ?
+                    String.format(Locale.getDefault(), "%d\uf045", Math.round(weather.getCondition().getTempF())) :
+                    String.format(Locale.getDefault(), "%d\uf03c", Math.round(weather.getCondition().getTempC()));
+            curCondition = (StringUtils.isNullOrWhitespace(weather.getCondition().getWeather()) ? "---" : weather.getCondition().getWeather());
+            weatherIcon = weather.getCondition().getIcon();
 
-        // WeatherDetails
-        // Astronomy
-        if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
-            sunrise = weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("HH:mm"));
-            sunset = weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("HH:mm"));
-        } else {
-            sunrise = weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("h:mm a"));
-            sunset = weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("h:mm a"));
+            // WeatherDetails
+            // Astronomy
+            if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
+                sunrise = weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("HH:mm"));
+                sunset = weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("HH:mm"));
+            } else {
+                sunrise = weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("h:mm a"));
+                sunset = weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("h:mm a"));
+            }
+
+            // Wind
+            windChill = Settings.isFahrenheit() ?
+                    String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getFeelslikeF())) :
+                    String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getFeelslikeC()));
+            windSpeed = Settings.isFahrenheit() ?
+                    String.format(Locale.getDefault(), "%d mph", Math.round(weather.getCondition().getWindMph())) :
+                    String.format(Locale.getDefault(), "%d kph", Math.round(weather.getCondition().getWindKph()));
+            updateWindDirection(weather.getCondition().getWindDegrees());
+
+            // Atmosphere
+            humidity = weather.getAtmosphere().getHumidity();
+            if (!humidity.endsWith("%"))
+                humidity += "%";
+
+            String pressureVal = Settings.isFahrenheit() ?
+                    weather.getAtmosphere().getPressureIn() :
+                    weather.getAtmosphere().getPressureMb();
+
+            String pressureUnit = Settings.isFahrenheit() ? "in" : "mb";
+
+            try {
+                float pressure = Float.parseFloat(pressureVal);
+                this.pressure = String.format(Locale.getDefault(), "%s %s", Float.toString(pressure), pressureUnit);
+            } catch (Exception e) {
+                this.pressure = String.format(Locale.getDefault(), "-- %s", pressureUnit);
+            }
+
+            updatePressureState(weather.getAtmosphere().getPressureTrend());
+
+            String visibilityVal = Settings.isFahrenheit() ?
+                    weather.getAtmosphere().getVisibilityMi() :
+                    weather.getAtmosphere().getVisibilityKm();
+
+            String visibilityUnit = Settings.isFahrenheit() ? "mi" : "km";
+
+            try {
+                float visibility = Float.parseFloat(visibilityVal);
+                this.visibility = String.format(Locale.getDefault(), "%s %s", Float.toString(visibility), visibilityUnit);
+            } catch (Exception e) {
+                this.visibility = String.format(Locale.getDefault(), "-- %s", visibilityUnit);
+            }
+
+            // Add UI elements
+            forecasts.clear();
+            for (Forecast forecast : weather.getForecast()) {
+                ForecastItemViewModel forecastView = new ForecastItemViewModel(forecast);
+                forecasts.add(forecastView);
+            }
+
+            // Additional Details
+            weatherSource = weather.getSource();
+            String creditPrefix = SimpleLibrary.getInstance().getApp().getAppContext().getString(R.string.credit_prefix);
+
+            if (WeatherAPI.WEATHERUNDERGROUND.equals(weather.getSource()))
+                weatherCredit = String.format("%s WeatherUnderground", creditPrefix);
+            else if (WeatherAPI.YAHOO.equals(weather.getSource()))
+                weatherCredit = String.format("%s Yahoo!", creditPrefix);
+            else if (WeatherAPI.OPENWEATHERMAP.equals(weather.getSource()))
+                weatherCredit = String.format("%s OpenWeatherMap", creditPrefix);
+            else if (WeatherAPI.METNO.equals(weather.getSource()))
+                weatherCredit = String.format("%s MET Norway", creditPrefix);
+            else if (WeatherAPI.HERE.equals(weather.getSource()))
+                weatherCredit = String.format("%s HERE Weather", creditPrefix);
+
+            extras.updateView(weather);
+
+            // Language
+            weatherLocale = weather.getLocale();
         }
-
-        // Wind
-        windChill = Settings.isFahrenheit() ?
-                String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getFeelslikeF())) :
-                String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getFeelslikeC()));
-        windSpeed = Settings.isFahrenheit() ?
-                String.format(Locale.getDefault(), "%d mph", Math.round(weather.getCondition().getWindMph())) :
-                String.format(Locale.getDefault(), "%d kph", Math.round(weather.getCondition().getWindKph()));
-        updateWindDirection(weather.getCondition().getWindDegrees());
-
-        // Atmosphere
-        humidity = weather.getAtmosphere().getHumidity();
-        if (!humidity.endsWith("%"))
-            humidity += "%";
-
-        String pressureVal = Settings.isFahrenheit() ?
-                weather.getAtmosphere().getPressureIn() :
-                weather.getAtmosphere().getPressureMb();
-
-        String pressureUnit = Settings.isFahrenheit() ? "in" : "mb";
-
-        try {
-            float pressure = Float.parseFloat(pressureVal);
-            this.pressure = String.format(Locale.getDefault(), "%s %s", Float.toString(pressure), pressureUnit);
-        } catch (Exception e) {
-            this.pressure = String.format(Locale.getDefault(), "-- %s", pressureUnit);
-        }
-
-        updatePressureState(weather.getAtmosphere().getPressureTrend());
-
-        String visibilityVal = Settings.isFahrenheit() ?
-                weather.getAtmosphere().getVisibilityMi() :
-                weather.getAtmosphere().getVisibilityKm();
-
-        String visibilityUnit = Settings.isFahrenheit() ? "mi" : "km";
-
-        try {
-            float visibility = Float.parseFloat(visibilityVal);
-            this.visibility = String.format(Locale.getDefault(), "%s %s", Float.toString(visibility), visibilityUnit);
-        } catch (Exception e) {
-            this.visibility = String.format(Locale.getDefault(), "-- %s", visibilityUnit);
-        }
-
-        // Add UI elements
-        forecasts.clear();
-        for (Forecast forecast : weather.getForecast()) {
-            ForecastItemViewModel forecastView = new ForecastItemViewModel(forecast);
-            forecasts.add(forecastView);
-        }
-
-        // Additional Details
-        weatherSource = weather.getSource();
-        String creditPrefix = SimpleLibrary.getInstance().getApp().getAppContext().getString(R.string.credit_prefix);
-
-        if (WeatherAPI.WEATHERUNDERGROUND.equals(weather.getSource()))
-            weatherCredit = String.format("%s WeatherUnderground", creditPrefix);
-        else if (WeatherAPI.YAHOO.equals(weather.getSource()))
-            weatherCredit = String.format("%s Yahoo!", creditPrefix);
-        else if (WeatherAPI.OPENWEATHERMAP.equals(weather.getSource()))
-            weatherCredit = String.format("%s OpenWeatherMap", creditPrefix);
-        else if (WeatherAPI.METNO.equals(weather.getSource()))
-            weatherCredit = String.format("%s MET Norway", creditPrefix);
-        else if (WeatherAPI.HERE.equals(weather.getSource()))
-            weatherCredit = String.format("%s HERE Weather", creditPrefix);
-
-        extras.updateView(weather);
-
-        // Language
-        weatherLocale = weather.getLocale();
     }
 
     private void updatePressureState(String state) {

@@ -120,11 +120,10 @@ public class WeatherAlertsFragment extends Fragment {
                 location = Settings.getHomeData();
 
             Weather weather = Settings.getWeatherData(location.getQuery());
-            if (weather != null) {
+            if (weather != null && weather.isValid()) {
                 weather.setWeatherAlerts(Settings.getWeatherAlertData(location.getQuery()));
+                weatherView = new WeatherNowViewModel(weather);
             }
-
-            weatherView = new WeatherNowViewModel(weather);
         }
 
         if (weatherView != null && appCompatActivity != null) {
