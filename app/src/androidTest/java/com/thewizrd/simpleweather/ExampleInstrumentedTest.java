@@ -17,12 +17,17 @@ import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
+import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
+import com.thewizrd.shared_resources.weatherdata.WeatherAlertType;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationBuilder;
 import com.thewizrd.simpleweather.widgets.WidgetUtils;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -145,5 +150,32 @@ public class ExampleInstrumentedTest {
     public void widgetCleanupTest() {
         WidgetUtils.cleanupWidgetData();
         WidgetUtils.cleanupWidgetIds();
+    }
+
+    @Test
+    public void notificationTest() {
+        /*
+        LocationQueryViewModel vm = new LocationQueryViewModel();
+        vm.setLocationCountry("US");
+        vm.setLocationName("New York, NY");
+        vm.setLocationQuery("11413");
+        vm.setLocationTZLong("America/New_York");
+        List<WeatherAlert> la = new ArrayList<>();
+        WeatherAlert alert = new WeatherAlert();
+        alert.setAttribution("Attribution");
+        alert.setDate(ZonedDateTime.now(ZoneOffset.UTC));
+        alert.setExpiresDate(ZonedDateTime.now(ZoneOffset.UTC).plusDays(5));
+        alert.setMessage("Message");
+        alert.setTitle("Title");
+        alert.setType(WeatherAlertType.HIGHWIND);
+        alert.setNotified(false);
+        la.add(alert);
+        WeatherAlertNotificationBuilder.createNotifications(new LocationData(vm), la);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            //e.printStackTrace();
+        }
+        */
     }
 }

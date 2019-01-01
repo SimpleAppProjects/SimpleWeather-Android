@@ -80,10 +80,6 @@ public class ImageUtils {
     }
 
     private static Bitmap bitmapFromDrawable(Drawable drawable) {
-        if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable) drawable).getBitmap();
-        }
-
         Bitmap bitmap;
 
         if (drawable.getIntrinsicHeight() <= 0 || drawable.getIntrinsicWidth() <= 0) {
