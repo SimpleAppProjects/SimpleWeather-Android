@@ -19,6 +19,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Locale;
 
 public class HourlyForecast {
 
@@ -56,7 +57,7 @@ public class HourlyForecast {
     public HourlyForecast(com.thewizrd.shared_resources.weatherdata.weatherunderground.HourlyForecastItem hr_forecast) {
         String dateformat = String.format("%s/%s/%s %s", hr_forecast.getFCTTIME().getMon(),
                 hr_forecast.getFCTTIME().getMday(), hr_forecast.getFCTTIME().getYear(), hr_forecast.getFCTTIME().getCivil());
-        setDate(LocalDateTime.parse(dateformat, DateTimeFormatter.ofPattern("M/d/yyyy h:mm a")).atZone(ZoneOffset.UTC));
+        setDate(LocalDateTime.parse(dateformat, DateTimeFormatter.ofPattern("M/d/yyyy h:mm a", Locale.ROOT)).atZone(ZoneOffset.UTC));
         highF = hr_forecast.getTemp().getEnglish();
         highC = hr_forecast.getTemp().getMetric();
         condition = hr_forecast.getCondition();

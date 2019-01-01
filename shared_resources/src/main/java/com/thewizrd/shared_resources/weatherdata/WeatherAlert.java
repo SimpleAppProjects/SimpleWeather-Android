@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.Locale;
 
 public class WeatherAlert {
     @SerializedName("Type")
@@ -554,7 +555,7 @@ public class WeatherAlert {
                         String json = reader.nextString();
                         ZonedDateTime result = null;
                         try {
-                            result = ZonedDateTime.parse(json, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss ZZZZZ"));
+                            result = ZonedDateTime.parse(json, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss ZZZZZ", Locale.ROOT));
                         } catch (Exception e) {
                             // If we can't parse as DateTimeOffset try DateTime (data could be old)
                             result = ZonedDateTime.parse(json);
@@ -565,7 +566,7 @@ public class WeatherAlert {
                         json = reader.nextString();
                         result = null;
                         try {
-                            result = ZonedDateTime.parse(json, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss ZZZZZ"));
+                            result = ZonedDateTime.parse(json, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss ZZZZZ", Locale.ROOT));
                         } catch (Exception e) {
                             // If we can't parse as DateTimeOffset try DateTime (data could be old)
                             result = ZonedDateTime.parse(json);

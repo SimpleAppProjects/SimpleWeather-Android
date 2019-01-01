@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.Locale;
 
 public class Astronomy {
 
@@ -37,17 +38,17 @@ public class Astronomy {
 
         sunset = LocalTime.parse(String.format("%s:%s",
                 sun_phase.getSunset().getHour(), sun_phase.getSunset().getMinute()),
-                DateTimeFormatter.ofPattern("H:mm")).atDate(now);
+                DateTimeFormatter.ofPattern("H:mm", Locale.ROOT)).atDate(now);
         sunrise = LocalTime.parse(String.format("%s:%s",
                 sun_phase.getSunrise().getHour(), sun_phase.getSunrise().getMinute()),
-                DateTimeFormatter.ofPattern("H:mm")).atDate(now);
+                DateTimeFormatter.ofPattern("H:mm", Locale.ROOT)).atDate(now);
     }
 
     public Astronomy(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Astronomy astronomy) {
         LocalDate now = LocalDate.now();
 
-        sunrise = LocalTime.parse(astronomy.getSunrise().toUpperCase(), DateTimeFormatter.ofPattern("h:m a")).atDate(now);
-        sunset = LocalTime.parse(astronomy.getSunset().toUpperCase(), DateTimeFormatter.ofPattern("h:m a")).atDate(now);
+        sunrise = LocalTime.parse(astronomy.getSunrise().toUpperCase(), DateTimeFormatter.ofPattern("h:m a", Locale.ROOT)).atDate(now);
+        sunset = LocalTime.parse(astronomy.getSunset().toUpperCase(), DateTimeFormatter.ofPattern("h:m a", Locale.ROOT)).atDate(now);
     }
 
     public Astronomy(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
@@ -74,8 +75,8 @@ public class Astronomy {
 
         LocalDate now = LocalDate.now();
 
-        sunrise = LocalTime.parse(astroData.getSunrise(), DateTimeFormatter.ofPattern("h:mma")).atDate(now);
-        sunset = LocalTime.parse(astroData.getSunset(), DateTimeFormatter.ofPattern("h:mma")).atDate(now);
+        sunrise = LocalTime.parse(astroData.getSunrise(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
+        sunset = LocalTime.parse(astroData.getSunset(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
     }
 
     public LocalDateTime getSunrise() {
