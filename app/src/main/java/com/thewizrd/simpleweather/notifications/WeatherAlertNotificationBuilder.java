@@ -6,11 +6,11 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.thewizrd.shared_resources.AsyncTask;
@@ -62,8 +62,15 @@ public class WeatherAlertNotificationBuilder {
             Bitmap iconBmp = new AsyncTask<Bitmap>().await(new Callable<Bitmap>() {
                 @Override
                 public Bitmap call() throws Exception {
-                    return ImageUtils.tintedBitmapFromDrawable(context, getDrawableFromAlertType(alertVM.getAlertType()),
-                            Colors.BLACK);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        return ImageUtils.tintedBitmapFromDrawable(context, getDrawableFromAlertType(alertVM.getAlertType()),
+                                Colors.BLACK);
+                    } else {
+                        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+                        Bitmap tintedBmp = ImageUtils.tintedBitmapFromDrawable(context, getDrawableFromAlertType(alertVM.getAlertType()),
+                                Colors.WHITE);
+                        return Bitmap.createScaledBitmap(tintedBmp, (int) (24 * metrics.density), (int) (24 * metrics.density), false);
+                    }
                 }
             });
 
@@ -138,9 +145,25 @@ public class WeatherAlertNotificationBuilder {
                 inboxStyle.setSummaryText(context.getString(R.string.title_fragment_alerts));
             }
 
+            Bitmap iconBmp = new AsyncTask<Bitmap>().await(new Callable<Bitmap>() {
+                @Override
+                public Bitmap call() throws Exception {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        return ImageUtils.tintedBitmapFromDrawable(context, R.drawable.ic_error_white,
+                                Colors.BLACK);
+                    } else {
+                        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+                        Bitmap tintedBmp = ImageUtils.tintedBitmapFromDrawable(context, R.drawable.ic_error_white,
+                                Colors.WHITE);
+                        return Bitmap.createScaledBitmap(tintedBmp, (int) (24 * metrics.density), (int) (24 * metrics.density), false);
+                    }
+                }
+            });
+
             NotificationCompat.Builder mSummaryBuilder =
                     new NotificationCompat.Builder(context, NOT_CHANNEL_ID)
                             .setSmallIcon(R.drawable.ic_error_white)
+                            .setLargeIcon(iconBmp)
                             .setContentTitle(context.getString(R.string.title_fragment_alerts))
                             .setContentText(location.getName())
                             .setStyle(inboxStyle)
