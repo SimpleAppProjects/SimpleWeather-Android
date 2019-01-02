@@ -64,3 +64,14 @@
    *** getInsets(...);
    *** isRound(...);
 }
+
+-keep class javax.xml.stream.** { *; }
+-dontwarn javax.xml.stream.**
+
+-keep class com.bea.xml.stream.** { *; }
+-dontwarn com.bea.xml.stream.**
+
+-keepclassmembers class com.thewizrd.shared_resources.R$* {
+    public static <fields>;
+}
+-dontwarn com.thewizrd.shared_resources.R$*

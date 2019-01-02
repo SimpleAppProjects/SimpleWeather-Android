@@ -39,3 +39,9 @@
 
 -keep class android.support.design.internal.** { *; }
 -dontwarn android.support.design.internal.**
+
+-keep class javax.xml.stream.** { *; }
+-dontwarn javax.xml.stream.**
+
+-keep class com.bea.xml.stream.** { *; }
+-dontwarn com.bea.xml.stream.**
