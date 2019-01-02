@@ -2,7 +2,7 @@
 
 A simple weather application
 
-Available for <a href='https://github.com/bryan2894-playgrnd/SimpleWeather-Xamarin'>Windows 10</a> & <a href='https://github.com/bryan2894-playgrnd/SimpleWeather-Android'>Android</a> devices
+Available for <a href='https://github.com/bryan2894-playgrnd/SimpleWeather-Windows'>Windows 10</a> & <a href='https://github.com/bryan2894-playgrnd/SimpleWeather-Android'>Android</a> devices
 
 ## Release
 
