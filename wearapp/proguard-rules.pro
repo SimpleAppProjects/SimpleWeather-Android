@@ -65,13 +65,43 @@
    *** isRound(...);
 }
 
+-keepclassmembers class com.thewizrd.shared_resources.R$* {
+    public static <fields>;
+}
+-dontwarn com.thewizrd.shared_resources.R$*
+
+# SimpleXML
+-keepclassmembers class com.thewizrd.shared_resources.weatherdata.weatherunderground.Location$** {
+   <init>(...);
+}
+-keepclassmembers class com.thewizrd.shared_resources.weatherdata.here.AutoCompleteQuery$** {
+   <init>(...);
+}
+-keepclassmembers class com.thewizrd.shared_resources.weatherdata.metno.Weatherdata$** {
+   <init>(...);
+}
+-keepclassmembers class com.thewizrd.shared_resources.weatherdata.metno.Astrodata$** {
+   <init>(...);
+}
+-keepclassmembers class com.thewizrd.shared_resources.weatherdata.openweather.Location$** {
+   <init>(...);
+}
+-keepclassmembers class com.thewizrd.shared_resources.weatherdata.weatheryahoo.AutoCompleteQuery$** {
+   <init>(...);
+}
+-keep class * implements org.simpleframework.xml.convert.Converter {
+   public *;
+}
+
+-keepattributes Root, Attribute, ElementList, Text, Element, Convert, *Annotation*
+
 -keep class javax.xml.stream.** { *; }
 -dontwarn javax.xml.stream.**
 
 -keep class com.bea.xml.stream.** { *; }
 -dontwarn com.bea.xml.stream.**
 
--keepclassmembers class com.thewizrd.shared_resources.R$* {
-    public static <fields>;
-}
--dontwarn com.thewizrd.shared_resources.R$*
+-keep public class org.simpleframework.** { *; }
+-keep class org.simpleframework.xml.** { *; }
+-keep class org.simpleframework.xml.core.** { *; }
+-keep class org.simpleframework.xml.util.** { *; }
