@@ -267,6 +267,14 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
     private void fetchGeoLocation() {
         locationButton.setEnabled(false);
 
+        // Show loading bar
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(View.VISIBLE);
+            }
+        });
+
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -394,6 +402,7 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_LOCATION_REQUEST_CODE);
+            return;
         }
 
         Location location = null;
