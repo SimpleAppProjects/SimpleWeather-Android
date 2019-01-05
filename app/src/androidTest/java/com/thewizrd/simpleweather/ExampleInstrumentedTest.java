@@ -9,6 +9,7 @@ import android.support.test.runner.AndroidJUnit4;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.ApplicationLib;
+import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -17,21 +18,18 @@ import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
-import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
-import com.thewizrd.shared_resources.weatherdata.WeatherAlertType;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
-import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationBuilder;
+import com.thewizrd.shared_resources.weatherdata.here.HEREWeatherProvider;
 import com.thewizrd.simpleweather.widgets.WidgetUtils;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.ZonedDateTime;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import static org.junit.Assert.assertTrue;
 
@@ -108,6 +106,20 @@ public class ExampleInstrumentedTest {
         List<LocationQueryViewModel> locs = new ArrayList<>(collection);
         LocationQueryViewModel loc = locs.get(0);
 
+        // Need to get FULL location data for HERE API
+        // Data provided is incomplete
+        if (WeatherAPI.HERE.equals(Settings.getAPI())
+                && loc.getLocationLat() == -1 && loc.getLocationLong() == -1
+                && loc.getLocationTZLong() == null) {
+            final LocationQueryViewModel query_vm = loc;
+            loc = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
+                @Override
+                public LocationQueryViewModel call() throws Exception {
+                    return new HEREWeatherProvider().getLocationfromLocID(query_vm.getLocationQuery());
+                }
+            });
+        }
+
         LocationData locationData = new LocationData(loc);
         Weather weather = wm.getWeather(locationData);
         assertTrue(weather != null && weather.isValid());
@@ -122,6 +134,20 @@ public class ExampleInstrumentedTest {
         Collection<LocationQueryViewModel> collection = wm.getLocations("Houston, Texas");
         List<LocationQueryViewModel> locs = new ArrayList<>(collection);
         LocationQueryViewModel loc = locs.get(0);
+
+        // Need to get FULL location data for HERE API
+        // Data provided is incomplete
+        if (WeatherAPI.HERE.equals(Settings.getAPI())
+                && loc.getLocationLat() == -1 && loc.getLocationLong() == -1
+                && loc.getLocationTZLong() == null) {
+            final LocationQueryViewModel query_vm = loc;
+            loc = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
+                @Override
+                public LocationQueryViewModel call() throws Exception {
+                    return new HEREWeatherProvider().getLocationfromLocID(query_vm.getLocationQuery());
+                }
+            });
+        }
 
         LocationData locationData = new LocationData(loc);
         Weather weather = wm.getWeather(locationData);

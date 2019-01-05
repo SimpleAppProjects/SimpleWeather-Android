@@ -3,6 +3,7 @@ package com.thewizrd.shared_resources.controls;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.weatherdata.here.AdditionalDataItem;
 
 import java.util.Locale;
 
@@ -133,55 +134,84 @@ public class LocationQueryViewModel {
         locationTZLong = location.getTzUnix();
     }
 
-    public LocationQueryViewModel(com.thewizrd.shared_resources.weatherdata.here.AutoCompleteQuery.Place location) {
+    public LocationQueryViewModel(com.thewizrd.shared_resources.weatherdata.here.SuggestionsItem location) {
         setLocation(location);
     }
 
-    public void setLocation(com.thewizrd.shared_resources.weatherdata.here.AutoCompleteQuery.Place location) {
+    public void setLocation(com.thewizrd.shared_resources.weatherdata.here.SuggestionsItem location) {
         String town, region;
 
-        // If location type is ZipCode append it to location name
-        if ((location.getPlaceTypeName().getTextValue().equals("Zip Code")
-                || location.getPlaceTypeName().getTextValue().equals("Postal Code"))) {
-            town = location.getName();
+        // Try to get district name or fallback to city name
+        if (!StringUtils.isNullOrEmpty(location.getAddress().getDistrict()))
+            town = location.getAddress().getDistrict();
+        else
+            town = location.getAddress().getCity();
 
-            if (location.getLocality2() != null
-                    && !StringUtils.isNullOrEmpty(location.getLocality2().getTextValue())) {
-                town += " - " + location.getLocality2().getTextValue();
-            } else {
-                if (location.getLocality1() != null
-                        && !StringUtils.isNullOrEmpty(location.getLocality1().getTextValue()))
-                    town += " - " + location.getLocality1().getTextValue();
+        // Try to get district name or fallback to city name
+        if (!StringUtils.isNullOrEmpty(location.getAddress().getState()))
+            region = location.getAddress().getState();
+        else
+            region = location.getAddress().getCountry();
+
+        if (!StringUtils.isNullOrEmpty(location.getAddress().getCounty())
+                && !(location.getAddress().getCounty().equals(region) || location.getAddress().getCounty().equals(town)))
+            locationName = String.format("%s, %s, %s", town, location.getAddress().getCounty(), region);
+        else
+            locationName = String.format("%s, %s", town, region);
+
+        locationCountry = location.getCountryCode();
+        locationQuery = location.getLocationId();
+
+        locationLat = -1;
+        locationLong = -1;
+
+        locationTZLong = null;
+    }
+
+    public LocationQueryViewModel(com.thewizrd.shared_resources.weatherdata.here.ResultItem location) {
+        setLocation(location);
+    }
+
+    public void setLocation(com.thewizrd.shared_resources.weatherdata.here.ResultItem location) {
+        String country = null, region = null, town = null;
+
+        if (location.getLocation().getAddress().getAdditionalData() != null) {
+            for (AdditionalDataItem item : location.getLocation().getAddress().getAdditionalData()) {
+                if ("Country2".equals(item.getKey()))
+                    country = item.getValue();
+                else if ("StateName".equals(item.getKey()))
+                    region = item.getValue();
+
+                if (country != null && region != null)
+                    break;
             }
-        } else {
-            if (location.getLocality2() != null
-                    && !StringUtils.isNullOrEmpty(location.getLocality2().getTextValue()))
-                town = location.getLocality2().getTextValue();
-            else if (location.getLocality1() != null
-                    && !StringUtils.isNullOrEmpty(location.getLocality1().getTextValue()))
-                town = location.getLocality1().getTextValue();
-            else
-                town = location.getName();
         }
 
-        // Try to get region name or fallback to country name
-        if (location.getAdmin1() != null
-                && !StringUtils.isNullOrEmpty(location.getAdmin1().getTextValue()))
-            region = location.getAdmin1().getTextValue();
-        else if (location.getAdmin2() != null
-                && !StringUtils.isNullOrEmpty(location.getAdmin2().getTextValue()))
-            region = location.getAdmin2().getTextValue();
+        // Try to get district name or fallback to city name
+        if (!StringUtils.isNullOrEmpty(location.getLocation().getAddress().getDistrict()))
+            town = location.getLocation().getAddress().getDistrict();
         else
-            region = location.getCountry().getTextValue();
+            town = location.getLocation().getAddress().getCity();
 
-        locationName = String.format("%s, %s", town, region);
-        locationCountry = location.getCountry().getCode();
-        locationQuery = String.format(Locale.ROOT, "latitude=%f&longitude=%f", location.getCentroid().getLatitude(), location.getCentroid().getLongitude());
+        if (StringUtils.isNullOrEmpty(region))
+            region = location.getLocation().getAddress().getState();
 
-        locationLat = location.getCentroid().getLatitude().doubleValue();
-        locationLong = location.getCentroid().getLongitude().doubleValue();
+        if (StringUtils.isNullOrEmpty(country))
+            country = location.getLocation().getAddress().getCountry();
 
-        locationTZLong = location.getTimezone().getTextValue();
+        if (!StringUtils.isNullOrEmpty(location.getLocation().getAddress().getCounty())
+                && !(location.getLocation().getAddress().getCounty().equals(region) || location.getLocation().getAddress().getCounty().equals(town)))
+            locationName = String.format("%s, %s, %s", town, location.getLocation().getAddress().getCounty(), region);
+        else
+            locationName = String.format("%s, %s", town, region);
+        locationCountry = country;
+        locationQuery = String.format(Locale.ROOT, "latitude=%f&longitude=%f",
+                location.getLocation().getDisplayPosition().getLatitude(), location.getLocation().getDisplayPosition().getLongitude());
+
+        locationLat = location.getLocation().getDisplayPosition().getLatitude();
+        locationLong = location.getLocation().getDisplayPosition().getLongitude();
+
+        locationTZLong = location.getLocation().getAdminInfo().getTimeZone().getId();
     }
 
     public String getLocationName() {
@@ -230,5 +260,28 @@ public class LocationQueryViewModel {
 
     public void setLocationTZLong(String locationTZLong) {
         this.locationTZLong = locationTZLong;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LocationQueryViewModel that = (LocationQueryViewModel) o;
+
+        if (locationName != null ? !locationName.equals(that.locationName) : that.locationName != null)
+            return false;
+        //if (locationCountry != null ? !locationCountry.equals(that.locationCountry) : that.locationCountry != null)
+        //    return false;
+        return locationCountry != null ? locationCountry.equals(that.locationCountry) : that.locationCountry == null;
+        //return locationQuery != null ? locationQuery.equals(that.locationQuery) : that.locationQuery == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = locationName != null ? locationName.hashCode() : 0;
+        result = 31 * result + (locationCountry != null ? locationCountry.hashCode() : 0);
+        //result = 31 * result + (locationQuery != null ? locationQuery.hashCode() : 0);
+        return result;
     }
 }

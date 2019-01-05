@@ -33,11 +33,14 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.shared_resources.weatherdata.here.HEREWeatherProvider;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.Callable;
 
 public class LocationSearchFragment extends Fragment {
     private RecyclerView mRecyclerView;
@@ -147,6 +150,20 @@ public class LocationSearchFragment extends Fragment {
                     if (ctsToken.isCancellationRequested()) {
                         showLoading(false);
                         return;
+                    }
+
+                    // Need to get FULL location data for HERE API
+                    // Data provided is incomplete
+                    if (WeatherAPI.HERE.equals(Settings.getAPI())
+                            && query_vm.getLocationLat() == -1 && query_vm.getLocationLong() == -1
+                            && query_vm.getLocationTZLong() == null) {
+                        final LocationQueryViewModel loc = query_vm;
+                        query_vm = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
+                            @Override
+                            public LocationQueryViewModel call() throws Exception {
+                                return new HEREWeatherProvider().getLocationfromLocID(loc.getLocationQuery());
+                            }
+                        });
                     }
 
                     // Get weather data

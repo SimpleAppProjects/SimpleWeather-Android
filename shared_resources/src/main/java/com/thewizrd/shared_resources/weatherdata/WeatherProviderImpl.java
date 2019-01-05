@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.thewizrd.shared_resources.R;
+import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -91,8 +92,11 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             location.setTzLong(qview.getLocationTZLong());
 
             // Update DB here or somewhere else
-            Settings.updateLocation(location); // for NOT WEAR
-            Settings.saveHomeData(location); // for WEAR
+            if (SimpleLibrary.getInstance().getApp().isPhone()) {
+                Settings.updateLocation(location);
+            } else {
+                Settings.saveHomeData(location);
+            }
         }
     }
 
