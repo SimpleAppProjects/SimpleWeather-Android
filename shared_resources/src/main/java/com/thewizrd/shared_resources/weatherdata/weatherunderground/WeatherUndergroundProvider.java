@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -68,7 +69,7 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
 
         try {
             // Connect to webstream
-            URL queryURL = new URL(queryAPI + ac_query + options);
+            URL queryURL = new URL(queryAPI + URLEncoder.encode(ac_query, "UTF-8") + options);
             client = (HttpURLConnection) queryURL.openConnection();
             InputStream stream = client.getInputStream();
 
@@ -167,7 +168,7 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
 
         try {
             // Connect to webstream
-            URL queryURL = new URL(queryAPI + location_query + options);
+            URL queryURL = new URL(queryAPI + URLEncoder.encode(location_query, "UTF-8") + options);
             client = (HttpURLConnection) queryURL.openConnection();
             InputStream stream = client.getInputStream();
 

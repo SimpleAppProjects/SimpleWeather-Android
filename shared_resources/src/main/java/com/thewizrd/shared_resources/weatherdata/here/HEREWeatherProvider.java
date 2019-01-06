@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -84,7 +85,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
 
         try {
             // Connect to webstream
-            URL queryURL = new URL(String.format(queryAPI + query, ac_query, app_id, app_code, locale));
+            URL queryURL = new URL(String.format(queryAPI + query, URLEncoder.encode(ac_query, "UTF-8"), app_id, app_code, locale));
             client = (HttpURLConnection) queryURL.openConnection();
             InputStream stream = client.getInputStream();
 
