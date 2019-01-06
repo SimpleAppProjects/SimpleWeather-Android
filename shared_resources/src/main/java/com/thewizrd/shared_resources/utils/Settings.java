@@ -233,9 +233,7 @@ public class Settings {
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                // Create DB tables
-                // NOTE: not needed for Room
-
+                /* DB Migration */
                 // Migrate old data if available
                 if (getDBVersion() < CURRENT_DBVERSION) {
                     switch (getDBVersion()) {
@@ -273,12 +271,13 @@ public class Settings {
                     }
                 }
 
+                /* Version-specific Migration */
                 Context context = SimpleLibrary.getInstance().getAppContext();
                 PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
                 if (isWeatherLoaded() && getVersionCode() < packageInfo.versionCode) {
                     // v1.3.7 - Yahoo (YQL) is no longer in service
                     // Update location data from HERE Geocoder service
-                    if (WeatherAPI.HERE.equals(Settings.getAPI()) && getVersionCode() < 271370302) {
+                    if (WeatherAPI.HERE.equals(Settings.getAPI()) && getVersionCode() < 271370400) {
                         if (IS_PHONE) {
                             DBUtils.setLocationData(locationDB, WeatherAPI.HERE);
                             saveLastGPSLocData(lastGPSLocData = new LocationData());
