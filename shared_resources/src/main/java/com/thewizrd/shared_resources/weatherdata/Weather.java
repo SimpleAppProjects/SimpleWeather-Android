@@ -91,7 +91,7 @@ public class Weather {
 
     public Weather(com.thewizrd.shared_resources.weatherdata.weatherunderground.Rootobject root) throws WeatherException {
         location = new Location(root.getCurrentObservation());
-        updateTime = ZonedDateTime.parse(root.getCurrentObservation().getLocalTimeRfc822(), DateTimeFormatter.ofPattern("EEE, d MMM yyyy HH:mm:ss Z", Locale.ROOT));
+        updateTime = ZonedDateTime.parse(root.getCurrentObservation().getLocalTimeRfc822(), DateTimeFormatter.ofPattern("EEE, d MMM yyyy HH:mm:ss Z", Locale.ENGLISH));
         forecast = new Forecast[root.getForecast().getSimpleforecast().getForecastday().size()];
         for (int i = 0; i < forecast.length; i++) {
             forecast[i] = new Forecast(root.getForecast().getSimpleforecast().getForecastday().get(i));
