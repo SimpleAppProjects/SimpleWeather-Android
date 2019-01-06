@@ -196,6 +196,9 @@ public class LocationQueryViewModel {
         if (StringUtils.isNullOrEmpty(region))
             region = location.getLocation().getAddress().getState();
 
+        if (StringUtils.isNullOrEmpty(region))
+            region = location.getLocation().getAddress().getCounty();
+
         if (StringUtils.isNullOrEmpty(country))
             country = location.getLocation().getAddress().getCountry();
 
