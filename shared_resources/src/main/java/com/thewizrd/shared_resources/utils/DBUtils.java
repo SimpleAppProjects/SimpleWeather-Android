@@ -43,12 +43,12 @@ public class DBUtils {
         });
     }
 
-    public static void setLocationData(final LocationsDatabase locationDB) {
+    public static void setLocationData(final LocationsDatabase locationDB, final String API) {
         AsyncTask.run(new Runnable() {
             @Override
             public void run() {
                 for (LocationData location : locationDB.locationsDAO().loadAllLocationData()) {
-                    WeatherManager.getProvider(location.getSource())
+                    WeatherManager.getProvider(API)
                             .updateLocationData(location);
                 }
 

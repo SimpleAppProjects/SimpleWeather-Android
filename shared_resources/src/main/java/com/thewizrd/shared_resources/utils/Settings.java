@@ -6,6 +6,7 @@ import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -62,6 +63,7 @@ public class Settings {
     private static final SharedPreferences preferences;
     private static final SharedPreferences.Editor editor;
     private static final SharedPreferences wuSharedPrefs;
+    private static final SharedPreferences versionPrefs;
 
     // Settings Keys
     private static final String KEY_API = "API";
@@ -77,6 +79,7 @@ public class Settings {
     private static final String KEY_DBVERSION = "key_dbversion";
     private static final String KEY_USEALERTS = "key_usealerts";
     private static final String KEY_USEPERSONALKEY = "key_usepersonalkey";
+    private static final String KEY_CURRENTVERSION = "key_currentversion";
     // !ANDROID_WEAR
     private static final String KEY_ONGOINGNOTIFICATION = "key_ongoingnotification";
     private static final String KEY_NOTIFICATIONICON = "key_notificationicon";
@@ -163,6 +166,8 @@ public class Settings {
         editor = preferences.edit();
         wuSharedPrefs = SimpleLibrary.getInstance().getAppContext()
                 .getSharedPreferences(WeatherAPI.WEATHERUNDERGROUND, Context.MODE_PRIVATE);
+        versionPrefs = SimpleLibrary.getInstance().getAppContext()
+                .getSharedPreferences("version", Context.MODE_PRIVATE);
 
         lastGPSLocData = new LocationData();
 
@@ -241,7 +246,7 @@ public class Settings {
                         // Add and set tz_long column in db
                         case 1:
                             if (IS_PHONE && locationDB.locationsDAO().getLocationDataCount() == 0) {
-                                DBUtils.setLocationData(locationDB);
+                                DBUtils.setLocationData(locationDB, getAPI());
                             }
                             break;
                         // Room DB migration
@@ -267,6 +272,23 @@ public class Settings {
                             lastGPSLocData = new LocationData();
                     }
                 }
+
+                Context context = SimpleLibrary.getInstance().getAppContext();
+                PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+                if (isWeatherLoaded() && getVersionCode() < packageInfo.versionCode) {
+                    // v1.3.7 - Yahoo (YQL) is no longer in service
+                    // Update location data from HERE Geocoder service
+                    if (WeatherAPI.HERE.equals(Settings.getAPI()) && getVersionCode() < 271370302) {
+                        if (IS_PHONE) {
+                            DBUtils.setLocationData(locationDB, WeatherAPI.HERE);
+                            saveLastGPSLocData(lastGPSLocData = new LocationData());
+                        } else if (lastGPSLocData != null) {
+                            WeatherManager.getProvider(WeatherAPI.HERE)
+                                    .updateLocationData(lastGPSLocData);
+                        }
+                    }
+                }
+                setVersionCode(packageInfo.versionCode);
                 return null;
             }
         });
@@ -873,7 +895,7 @@ public class Settings {
         wuEditor.apply();
 
         if (!value)
-            wuSharedPrefs.edit().remove(KEY_APIKEY_VERIFIED).apply();
+            wuEditor.remove(KEY_APIKEY_VERIFIED).apply();
     }
 
     public static boolean usePersonalKey() {
@@ -886,5 +908,15 @@ public class Settings {
     public static void setPersonalKey(boolean value) {
         editor.putBoolean(KEY_USEPERSONALKEY, value);
         editor.commit();
+    }
+
+    private static int getVersionCode() {
+        return Integer.parseInt(versionPrefs.getString(KEY_CURRENTVERSION, "0"));
+    }
+
+    private static void setVersionCode(int value) {
+        SharedPreferences.Editor versionEditor = versionPrefs.edit();
+        versionEditor.putString(KEY_CURRENTVERSION, Integer.toString(value));
+        versionEditor.apply();
     }
 }
