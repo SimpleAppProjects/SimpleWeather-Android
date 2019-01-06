@@ -507,11 +507,11 @@ public class SettingsActivity extends WearableActivity {
                 wm.updateAPI();
 
                 if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
-                    // If (internal) key doesn't exist, fallback to Yahoo
-                    providerPref.setValue(WeatherAPI.YAHOO);
+                    // If (internal) key doesn't exist, fallback to Met.no
+                    providerPref.setValue(WeatherAPI.METNO);
                     providerPref.getOnPreferenceChangeListener()
-                            .onPreferenceChange(providerPref, WeatherAPI.YAHOO);
-                    Settings.setAPI(WeatherAPI.YAHOO);
+                            .onPreferenceChange(providerPref, WeatherAPI.METNO);
+                    Settings.setAPI(WeatherAPI.METNO);
                     wm.updateAPI();
                     Settings.setPersonalKey(true);
                     Settings.setKeyVerified(false);

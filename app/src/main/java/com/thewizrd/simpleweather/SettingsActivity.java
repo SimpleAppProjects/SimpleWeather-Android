@@ -540,10 +540,10 @@ public class SettingsActivity extends AppCompatActivity {
                 wm.updateAPI();
 
                 if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
-                    // If (internal) key doesn't exist, fallback to Yahoo
-                    providerPref.setValue(WeatherAPI.YAHOO);
-                    providerPref.callChangeListener(WeatherAPI.YAHOO);
-                    Settings.setAPI(WeatherAPI.YAHOO);
+                    // If (internal) key doesn't exist, fallback to Met.no
+                    providerPref.setValue(WeatherAPI.METNO);
+                    providerPref.callChangeListener(WeatherAPI.METNO);
+                    Settings.setAPI(WeatherAPI.METNO);
                     wm.updateAPI();
                     Settings.setPersonalKey(true);
                     Settings.setKeyVerified(false);

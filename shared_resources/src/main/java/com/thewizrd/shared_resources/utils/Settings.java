@@ -287,6 +287,26 @@ public class Settings {
                                     .updateLocationData(lastGPSLocData);
                         }
                     }
+                    // The current Yahoo (YQL) API is no longer in service
+                    // Disable this provider until I migrate to the OAuth API
+                    if (WeatherAPI.YAHOO.equals(Settings.getAPI())) {
+                        // Set default API to HERE
+                        setAPI(WeatherAPI.HERE);
+                        WeatherManager wm = WeatherManager.getInstance();
+                        wm.updateAPI();
+
+                        if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
+                            // If (internal) key doesn't exist, fallback to Met.no
+                            setAPI(WeatherAPI.METNO);
+                            wm.updateAPI();
+                            setPersonalKey(true);
+                            setKeyVerified(false);
+                        } else {
+                            // If key exists, go ahead
+                            setPersonalKey(false);
+                            setKeyVerified(true);
+                        }
+                    }
                 }
                 setVersionCode(packageInfo.versionCode);
                 return null;
