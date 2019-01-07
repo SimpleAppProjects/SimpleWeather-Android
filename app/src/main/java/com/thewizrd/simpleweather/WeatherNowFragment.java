@@ -31,6 +31,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayout;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -42,7 +43,6 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -131,7 +131,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     private RecyclerView forecastView;
     private ForecastItemAdapter forecastAdapter;
     // Additional Details
-    private Switch forecastSwitch;
+    private SwitchCompat forecastSwitch;
     private ViewPager txtForecastView;
     private LinearLayout hrforecastPanel;
     private RecyclerView hrforecastView;

@@ -161,19 +161,20 @@
                         android:textColor="@android:color/white"
                         android:textStyle="bold" />
 
-                    <Switch
+                    <android.support.v7.widget.SwitchCompat
                         android:id="@+id/forecast_switch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignBottom="@+id/forecast_border"
-                        android:layout_alignParentRight="true"
                         android:layout_alignParentTop="true"
+                        android:layout_alignParentRight="true"
+                        android:background="@null"
                         android:checked="false"
                         android:padding="8dp"
-                        android:switchPadding="10dp"
                         android:switchTextAppearance="@style/TextAppearance.AppCompat.Widget.Switch"
                         android:text="@string/switch_daily"
-                        android:textColor="@android:color/white" />
+                        android:textColor="@android:color/white"
+                        app:switchPadding="10dp" />
 
                     <View
                         android:id="@+id/forecast_border"
