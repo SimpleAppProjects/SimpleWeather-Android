@@ -73,6 +73,7 @@ import java.util.concurrent.Callable;
 public class WeatherWidgetConfigActivity extends AppCompatActivity {
     // Widget id for ConfigurationActivity
     private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+    private Intent resultValue;
 
     // Location Search
     private Collection<LocationData> favorites;
@@ -141,7 +142,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
         // Set the result to CANCELED.  This will cause the widget host to cancel
         // out of the widget placement if they press the back button.
-        setResult(RESULT_CANCELED, new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId));
+        resultValue = new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+        setResult(RESULT_CANCELED, resultValue);
 
         // Find the widget id from the intent.
         if (getIntent() != null && getIntent().getExtras() != null) {
@@ -604,6 +606,10 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         locSpinner.setSelection(0);
                     }
                 }
+            } else {
+                // Setup was cancelled. Cancel widget setup
+                setResult(RESULT_CANCELED, resultValue);
+                finish();
             }
         }
     }
@@ -614,6 +620,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             // We should let the user go back to usual screens with tabs.
             exitSearchUi();
         } else {
+            setResult(RESULT_CANCELED, resultValue);
             super.onBackPressed();
         }
     }
@@ -635,7 +642,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     // We should let the user go back to usual screens with tabs.
                     exitSearchUi();
                 } else {
-                    setResult(RESULT_CANCELED, new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId));
+                    setResult(RESULT_CANCELED, resultValue);
                     finish();
                 }
                 return true;
@@ -707,7 +714,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                             locData = new LocationData(query_vm);
 
                             if (!locData.isValid()) {
-                                setResult(RESULT_CANCELED, new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId));
+                                setResult(RESULT_CANCELED, resultValue);
                                 finish();
                                 return;
                             }
@@ -715,7 +722,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                             // Add location to favs
                             Settings.addLocation(locData);
                         } else if (locData == null) {
-                            setResult(RESULT_CANCELED, new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId));
+                            setResult(RESULT_CANCELED, resultValue);
                             finish();
                             return;
                         }
@@ -736,12 +743,10 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                             .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, new int[]{mAppWidgetId}));
 
             // Create return intent
-            Intent resultValue = new Intent();
-            resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
             setResult(RESULT_OK, resultValue);
             finish();
         } else {
-            setResult(RESULT_CANCELED, new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId));
+            setResult(RESULT_CANCELED, resultValue);
             finish();
         }
     }
@@ -804,6 +809,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_LOCATION_REQUEST_CODE);
+            return;
         }
 
         Location location = null;
