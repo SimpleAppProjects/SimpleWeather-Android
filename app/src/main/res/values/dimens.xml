@@ -18,6 +18,7 @@
 
     <!-- Material dimens -->
     <dimen name="appbar_elevation">4dp</dimen>
+    <dimen name="toolbar_horizontal_inset_padding">16dp</dimen>
 
     <!-- WeatherNow -->
     <dimen name="detail_label_size">12sp</dimen>
@@ -35,6 +36,7 @@ Refer to App Widget Documentation for margin information
 http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     -->
     <dimen name="widget_margin">8dp</dimen>
+    <dimen name="collapsingtoolbar_maxHeight">250dp</dimen>
 
     <!-- Widget -->
     <dimen name="clock_text_size">24sp</dimen>

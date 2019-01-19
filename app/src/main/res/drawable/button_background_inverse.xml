@@ -9,7 +9,7 @@
             </item>
             <item android:bottom="3dp">
                 <shape>
-                    <solid android:color="@color/colorPrimary" />
+                    <solid android:color="@android:color/white" />
                     <corners android:radius="4dp" />
                     <padding android:bottom="10dp" android:left="10dp" android:right="10dp" android:top="10dp" />
                 </shape>
@@ -26,7 +26,7 @@
             </item>
             <item android:bottom="3dp">
                 <shape>
-                    <solid android:color="@color/colorPrimaryMedium" />
+                    <solid android:color="#F0F0F0" />
                     <corners android:radius="4dp" />
                     <padding android:bottom="10dp" android:left="10dp" android:right="10dp" android:top="10dp" />
                 </shape>

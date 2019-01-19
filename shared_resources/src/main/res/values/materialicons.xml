@@ -6,4 +6,6 @@
     <string name="materialicon_expand_less">&#xE5CE;</string>
     <string name="materialicon_expand_more">&#xE5CF;</string>
     <string name="materialicon_search">&#xE8B6;</string>
+    <string name="materialicon_place">&#xE55F;</string>
+    <string name="materialicon_back">&#xE5C4;</string>
 </resources>

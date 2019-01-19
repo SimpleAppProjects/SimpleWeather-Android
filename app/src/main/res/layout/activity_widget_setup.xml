@@ -1,147 +1,152 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".widgets.WeatherWidgetConfigActivity">
 
-    <android.support.design.widget.CoordinatorLayout
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/app_bar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:fitsSystemWindows="true"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <android.support.design.widget.AppBarLayout
-            android:id="@+id/app_bar"
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
+            android:layout_height="@dimen/collapsingtoolbar_maxHeight"
+            android:minHeight="?attr/actionBarSize"
             android:fitsSystemWindows="true"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+            app:contentScrim="@color/colorPrimary"
+            app:expandedTitleMarginEnd="64dp"
+            app:expandedTitleMarginStart="48dp"
+            app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Title"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <android.support.design.widget.CollapsingToolbarLayout
-                android:id="@+id/collapsing_toolbar"
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:fitsSystemWindows="true"
-                app:contentScrim="@color/colorPrimary"
-                app:expandedTitleMarginEnd="64dp"
-                app:expandedTitleMarginStart="48dp"
-                app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Title"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed">
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+                app:layout_collapseMode="pin"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                tools:title="@string/widget_configure_prompt" />
 
-                <android.support.v7.widget.Toolbar
-                    android:id="@+id/toolbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    android:background="?attr/colorPrimary"
-                    android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-                    app:layout_collapseMode="pin"
-                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+        </android.support.design.widget.CollapsingToolbarLayout>
 
-            </android.support.design.widget.CollapsingToolbarLayout>
+    </android.support.design.widget.AppBarLayout>
 
-        </android.support.design.widget.AppBarLayout>
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <android.support.v4.widget.NestedScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <LinearLayout
+            <RelativeLayout
+                android:id="@+id/location_pref"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:padding="16dp">
 
-                <RelativeLayout
-                    android:id="@+id/location_pref"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/location_pref_title"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minHeight="64dp"
-                    android:padding="16dp">
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:ellipsize="marquee"
+                    android:fadingEdge="horizontal"
+                    android:singleLine="true"
+                    android:text="@string/pref_location"
+                    android:textAppearance="@style/TextAppearance.AppCompat"
+                    android:textSize="18sp" />
 
-                    <TextView
-                        android:id="@+id/location_pref_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
-                        android:layout_alignParentTop="true"
-                        android:ellipsize="marquee"
-                        android:fadingEdge="horizontal"
-                        android:singleLine="true"
-                        android:text="@string/pref_location"
-                        android:textAppearance="@style/TextAppearance.AppCompat"
-                        android:textSize="18sp" />
-
-                    <TextView
-                        android:id="@+id/location_pref_summary"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignLeft="@+id/location_pref_title"
-                        android:layout_below="@+id/location_pref_title"
-                        android:maxLines="4"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                        tools:text="@string/pref_item_gpslocation" />
-
-                    <android.support.v7.widget.AppCompatSpinner
-                        android:id="@+id/location_pref_spinner"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:visibility="invisible" />
-
-                </RelativeLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="#50AAAAAA" />
-
-                <RelativeLayout
-                    android:id="@+id/interval_pref"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/location_pref_summary"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minHeight="64dp"
-                    android:padding="16dp">
+                    android:layout_below="@+id/location_pref_title"
+                    android:layout_alignStart="@+id/location_pref_title"
+                    android:layout_alignLeft="@+id/location_pref_title"
+                    android:maxLines="4"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    tools:text="@string/pref_item_gpslocation" />
 
-                    <TextView
-                        android:id="@+id/interval_pref_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
-                        android:layout_alignParentTop="true"
-                        android:ellipsize="marquee"
-                        android:fadingEdge="horizontal"
-                        android:singleLine="true"
-                        android:text="@string/pref_title_refreshinterval"
-                        android:textAppearance="@style/TextAppearance.AppCompat"
-                        android:textSize="18sp" />
+                <android.support.v7.widget.AppCompatSpinner
+                    android:id="@+id/location_pref_spinner"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:visibility="invisible" />
 
-                    <TextView
-                        android:id="@+id/interval_pref_summary"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignLeft="@+id/interval_pref_title"
-                        android:layout_below="@+id/interval_pref_title"
-                        android:maxLines="4"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                        tools:text="1 hour" />
+            </RelativeLayout>
 
-                    <android.support.v7.widget.AppCompatSpinner
-                        android:id="@+id/interval_pref_spinner"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:visibility="invisible" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#50AAAAAA" />
 
-                </RelativeLayout>
-            </LinearLayout>
+            <RelativeLayout
+                android:id="@+id/interval_pref"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:padding="16dp">
 
-        </android.support.v4.widget.NestedScrollView>
+                <TextView
+                    android:id="@+id/interval_pref_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:ellipsize="marquee"
+                    android:fadingEdge="horizontal"
+                    android:singleLine="true"
+                    android:text="@string/pref_title_refreshinterval"
+                    android:textAppearance="@style/TextAppearance.AppCompat"
+                    android:textSize="18sp" />
 
-    </android.support.design.widget.CoordinatorLayout>
+                <TextView
+                    android:id="@+id/interval_pref_summary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/interval_pref_title"
+                    android:layout_alignStart="@+id/interval_pref_title"
+                    android:layout_alignLeft="@+id/interval_pref_title"
+                    android:maxLines="4"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    tools:text="1 hour" />
+
+                <android.support.v7.widget.AppCompatSpinner
+                    android:id="@+id/interval_pref_spinner"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:visibility="invisible" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
 
     <RelativeLayout
         android:id="@+id/search_fragment_container"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:clickable="true"
-        android:fitsSystemWindows="true" />
+        android:fitsSystemWindows="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

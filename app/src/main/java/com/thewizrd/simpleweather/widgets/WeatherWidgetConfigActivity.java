@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -19,8 +20,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.ActionMode;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -29,6 +31,11 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -55,6 +62,7 @@ import com.thewizrd.shared_resources.controls.LocationQuery;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.LocationData;
@@ -63,6 +71,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.LocationSearchFragment;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.SetupActivity;
+import com.thewizrd.simpleweather.helpers.ActivityUtils;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -86,52 +95,29 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
     private LocationListener mLocListnr;
     private CancellationTokenSource cts;
 
-    private LocationSearchFragment mSearchFragment;
-    private ActionMode mActionMode;
-    private View searchViewLayout;
-    private EditText searchView;
-    private TextView clearButtonView;
-    private ProgressBar progressBar;
-    private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            if (searchViewLayout == null)
-                searchViewLayout = getLayoutInflater().inflate(R.layout.search_action_bar, null);
-
-            mode.setCustomView(searchViewLayout);
-            enterSearchUi();
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            return false;
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            exitSearchUi();
-            mActionMode = null;
-        }
-    };
-    private boolean inSearchUI;
-
     // Weather
     private WeatherManager wm;
 
     // Views
+    private NestedScrollView scrollView;
     private Spinner locSpinner;
     private ArrayAdapter<ComboBoxItem> locAdapter;
     private TextView locSummary;
     private Spinner refreshSpinner;
     private AppBarLayout appBarLayout;
+    private Toolbar mToolbar;
+    private View searchBarContainer;
+    private View mSearchFragmentContainer;
+    private LocationSearchFragment mSearchFragment;
+    private EditText searchView;
+    private TextView clearButtonView;
+    private TextView backButtonView;
+    private ProgressBar progressBar;
     private CollapsingToolbarLayout collapsingToolbar;
     private ComboBoxItem selectedItem;
+    private boolean inSearchUI;
+
+    private static final int ANIMATION_DURATION = 240;
 
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
     private static final int SETUP_REQUEST_CODE = 10;
@@ -157,7 +143,39 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_widget_setup);
 
+        // Make full transparent statusBar
+        ActivityUtils.setTransparentWindow(getWindow(),
+                Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT ? -1 /* Opaque (Default) */ : Colors.TRANSPARENT, /* StatusBar */
+                Colors.TRANSPARENT /* NavBar */);
+
         wm = WeatherManager.getInstance();
+
+        appBarLayout = findViewById(R.id.app_bar);
+        mToolbar = findViewById(R.id.toolbar);
+        collapsingToolbar = findViewById(R.id.collapsing_toolbar);
+        mSearchFragmentContainer = findViewById(R.id.search_fragment_container);
+        scrollView = findViewById(R.id.scrollView);
+
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        int padding = getResources().getDimensionPixelSize(R.dimen.toolbar_horizontal_inset_padding);
+        mToolbar.setContentInsetsRelative(padding, padding);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
+
+        if (searchBarContainer == null) {
+            searchBarContainer = getLayoutInflater().inflate(R.layout.search_action_bar, mToolbar, false);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                searchBarContainer.setElevation(getResources().getDimension(R.dimen.appbar_elevation) + 2);
+            }
+            mToolbar.addView(searchBarContainer, 0);
+        }
+
+        mSearchFragmentContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                exitSearchUi(false);
+            }
+        });
 
         // Setup location spinner
         locSpinner = findViewById(R.id.location_pref_spinner);
@@ -196,7 +214,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     locSummary.setText(item.getDisplay());
 
                     if ("Search".equals(item.getValue()))
-                        mActionMode = startSupportActionMode(mActionModeCallback);
+                        // Setup search UI
+                        prepareSearchUI();
                     else
                         selectedItem = item;
                 } else
@@ -254,20 +273,6 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             }
         }
         refreshSpinner.setSelection(index);
-
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
-
-        findViewById(R.id.search_fragment_container).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                exitSearchUi();
-            }
-        });
-
-        appBarLayout = findViewById(R.id.app_bar);
-        collapsingToolbar = findViewById(R.id.collapsing_toolbar);
 
         cts = new CancellationTokenSource();
 
@@ -345,12 +350,37 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         }
     }
 
-    private void enterSearchUi() {
-        inSearchUI = true;
-
+    private void prepareSearchUI() {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        mToolbar.getMenu().clear();
+        mToolbar.setContentInsetsRelative(0, 0);
+        ViewCompat.setNestedScrollingEnabled(scrollView, false);
         // Unset scroll flag
         AppBarLayout.LayoutParams toolbarParams = (AppBarLayout.LayoutParams) collapsingToolbar.getLayoutParams();
         toolbarParams.setScrollFlags(toolbarParams.getScrollFlags() & ~AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL);
+        toolbarParams.height = AppBarLayout.LayoutParams.WRAP_CONTENT;
+
+        enterSearchUi();
+        enterSearchUiTransition(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                ViewCompat.setElevation(appBarLayout, getResources().getDimension(R.dimen.appbar_elevation) + 1);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
+    private void enterSearchUi() {
+        inSearchUI = true;
 
         if (mSearchFragment == null) {
             addSearchFragment();
@@ -361,8 +391,43 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 .beginTransaction();
         transaction.show(mSearchFragment);
         transaction.commitAllowingStateLoss();
-        getFragmentManager().executePendingTransactions();
+        getSupportFragmentManager().executePendingTransactions();
         setupSearchUi();
+    }
+
+    private void enterSearchUiTransition(Animation.AnimationListener enterAnimationListener) {
+        // FragmentContainer fade/translation animation
+        AnimationSet fragmentAniSet = new AnimationSet(true);
+        fragmentAniSet.setInterpolator(new DecelerateInterpolator());
+        AlphaAnimation fragFadeAni = new AlphaAnimation(0.0f, 1.0f);
+        TranslateAnimation fragmentAnimation = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.ABSOLUTE, locSpinner.getY(),
+                Animation.ABSOLUTE, 0);
+        fragmentAniSet.setDuration(ANIMATION_DURATION);
+        fragmentAniSet.setFillEnabled(false);
+        fragmentAniSet.addAnimation(fragFadeAni);
+        fragmentAniSet.addAnimation(fragmentAnimation);
+        fragmentAniSet.setAnimationListener(enterAnimationListener);
+
+        // SearchActionBarContainer fade/translation animation
+        AnimationSet searchBarAniSet = new AnimationSet(true);
+        searchBarAniSet.setInterpolator(new DecelerateInterpolator());
+        AlphaAnimation searchBarFadeAni = new AlphaAnimation(0.0f, 1.0f);
+        TranslateAnimation searchBarAnimation = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.ABSOLUTE, mToolbar.getHeight(),
+                Animation.ABSOLUTE, 0);
+        searchBarAniSet.setDuration((long) (ANIMATION_DURATION * 1.5));
+        searchBarAniSet.setFillEnabled(false);
+        searchBarAniSet.addAnimation(searchBarFadeAni);
+        searchBarAniSet.addAnimation(searchBarAnimation);
+
+        mSearchFragmentContainer.startAnimation(fragmentAniSet);
+        searchBarContainer.setVisibility(View.VISIBLE);
+        searchBarContainer.startAnimation(searchBarAniSet);
     }
 
     private void setupSearchUi() {
@@ -390,6 +455,14 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             mSearchFragment = (LocationSearchFragment) fragment;
             setupSearchUi();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (inSearchUI)
+            exitSearchUi(true);
+
+        super.onSaveInstanceState(outState);
     }
 
     private void addSearchFragment() {
@@ -446,7 +519,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 }
                 if (exists) {
                     showLoading(false);
-                    exitSearchUi();
+                    exitSearchUi(false);
 
                     // Set selection
                     query_vm = null;
@@ -480,7 +553,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
                 // Hide dialog
                 showLoading(false);
-                exitSearchUi();
+                exitSearchUi(false);
             }
         });
         searchFragment.setUserVisibleHint(false);
@@ -489,9 +562,16 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
     }
 
     private void prepareSearchView() {
-        searchView = searchViewLayout.findViewById(R.id.search_view);
-        clearButtonView = searchViewLayout.findViewById(R.id.search_close_button);
-        progressBar = searchViewLayout.findViewById(R.id.search_progressBar);
+        searchView = mToolbar.findViewById(R.id.search_view);
+        clearButtonView = mToolbar.findViewById(R.id.search_close_button);
+        backButtonView = mToolbar.findViewById(R.id.search_back_button);
+        progressBar = mToolbar.findViewById(R.id.search_progressBar);
+        backButtonView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                exitSearchUi(false);
+            }
+        });
         clearButtonView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -541,38 +621,88 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         });
     }
 
-    private void exitSearchUi() {
+    private void removeSearchFragment() {
+        mSearchFragment.setUserVisibleHint(false);
+        final FragmentTransaction transaction = getSupportFragmentManager()
+                .beginTransaction();
+        transaction.remove(mSearchFragment);
+        mSearchFragment = null;
+        transaction.commitAllowingStateLoss();
+    }
+
+    private void exitSearchUi(boolean skipAnimation) {
         searchView.setText("");
 
         if (mSearchFragment != null) {
-            mSearchFragment.setUserVisibleHint(false);
+            if (skipAnimation) {
+                removeSearchFragment();
+            } else {
+                exitSearchUiTransition(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
 
-            final FragmentTransaction transaction = getSupportFragmentManager()
-                    .beginTransaction();
-            transaction.remove(mSearchFragment);
-            mSearchFragment = null;
-            transaction.commitAllowingStateLoss();
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        // Remove fragment once animation ends
+                        removeSearchFragment();
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+            }
         }
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        int padding = getResources().getDimensionPixelSize(R.dimen.toolbar_horizontal_inset_padding);
+        mToolbar.setContentInsetsRelative(padding, padding);
+        invalidateOptionsMenu();
+        ViewCompat.setNestedScrollingEnabled(scrollView, true);
+        // Set scroll flag
+        AppBarLayout.LayoutParams toolbarParams = (AppBarLayout.LayoutParams) collapsingToolbar.getLayoutParams();
+        toolbarParams.height = getResources().getDimensionPixelSize(R.dimen.collapsingtoolbar_maxHeight);
+        toolbarParams.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED);
+
         hideInputMethod(getCurrentFocus());
-        if (searchView != null) searchView.clearFocus();
-        if (mActionMode != null) mActionMode.finish();
+        searchView.clearFocus();
+        if (searchBarContainer != null) searchBarContainer.setVisibility(View.GONE);
+        ViewCompat.setElevation(appBarLayout, 0);
         inSearchUI = false;
 
         // Reset to last selected item
         if (query_vm == null && selectedItem != null)
             locSpinner.setSelection(locAdapter.getPosition(selectedItem));
+    }
 
-        // Set scroll flag
-        AppBarLayout.LayoutParams toolbarParams = (AppBarLayout.LayoutParams) collapsingToolbar.getLayoutParams();
-        toolbarParams.setScrollFlags(toolbarParams.getScrollFlags() & AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL);
+    private void exitSearchUiTransition(Animation.AnimationListener exitAnimationListener) {
+        // FragmentContainer fade/translation animation
+        AnimationSet fragmentAniSet = new AnimationSet(true);
+        fragmentAniSet.setInterpolator(new DecelerateInterpolator());
+        AlphaAnimation fragFadeAni = new AlphaAnimation(1.0f, 0.0f);
+        TranslateAnimation fragmentAnimation = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.ABSOLUTE, 0,
+                Animation.ABSOLUTE, locSpinner.getY());
+        fragmentAniSet.setDuration(ANIMATION_DURATION);
+        fragmentAniSet.setFillEnabled(false);
+        fragmentAniSet.addAnimation(fragFadeAni);
+        fragmentAniSet.addAnimation(fragmentAnimation);
+        fragmentAniSet.setAnimationListener(exitAnimationListener);
+
+        mSearchFragmentContainer.startAnimation(fragmentAniSet);
     }
 
     private void showInputMethod(View view) {
         InputMethodManager imm = (InputMethodManager) getSystemService(
                 Context.INPUT_METHOD_SERVICE);
-        if (imm != null)
-            imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+        if (imm != null && view != null) {
+            imm.showSoftInput(view, 0);
+        }
     }
 
     private void hideInputMethod(View view) {
@@ -618,7 +748,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (inSearchUI) {
             // We should let the user go back to usual screens with tabs.
-            exitSearchUi();
+            exitSearchUi(false);
         } else {
             setResult(RESULT_CANCELED, resultValue);
             super.onBackPressed();
@@ -640,7 +770,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             case android.R.id.home:
                 if (inSearchUI) {
                     // We should let the user go back to usual screens with tabs.
-                    exitSearchUi();
+                    exitSearchUi(false);
                 } else {
                     setResult(RESULT_CANCELED, resultValue);
                     finish();

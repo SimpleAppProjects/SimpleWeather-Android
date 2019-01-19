@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -14,21 +16,32 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.AppBarLayout;
+import android.support.transition.AutoTransition;
+import android.support.transition.Transition;
+import android.support.transition.TransitionManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.ActionMode;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -49,6 +62,7 @@ import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -56,19 +70,25 @@ import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
 import java.util.concurrent.Callable;
 
 public class SetupActivity extends AppCompatActivity {
 
+    private AppBarLayout appBarLayout;
+    private Toolbar mToolbar;
+    private View searchBarContainer;
+    private View mSearchFragmentContainer;
     private LocationSearchFragment mSearchFragment;
-    private ActionMode mActionMode;
-    private View searchViewLayout;
     private View searchViewContainer;
     private EditText searchView;
     private TextView clearButtonView;
+    private TextView backButtonView;
     private boolean inSearchUI;
+
+    private static final int ANIMATION_DURATION = 240;
 
     private Button gpsFollowButton;
     private ProgressBar progressBar;
@@ -79,34 +99,6 @@ public class SetupActivity extends AppCompatActivity {
     private CancellationTokenSource cts;
 
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
-
-    private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            if (searchViewLayout == null)
-                searchViewLayout = getLayoutInflater().inflate(R.layout.search_action_bar, null);
-
-            mode.setCustomView(searchViewLayout);
-            enterSearchUi();
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            return false;
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            exitSearchUi();
-            mActionMode = null;
-        }
-    };
 
     private WeatherManager wm;
 
@@ -137,37 +129,54 @@ public class SetupActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_setup);
 
-        // Get ActionMode state
-        if (savedInstanceState != null && savedInstanceState.getBoolean("SearchUI", false)) {
-            inSearchUI = true;
-
-            // Restart ActionMode
-            mActionMode = startSupportActionMode(mActionModeCallback);
-        }
+        // Make full transparent statusBar
+        ActivityUtils.setTransparentWindow(getWindow(), Colors.TRANSPARENT, Colors.TRANSPARENT);
 
         wm = WeatherManager.getInstance();
 
+        appBarLayout = findViewById(R.id.app_bar);
+        mToolbar = findViewById(R.id.toolbar);
         searchViewContainer = findViewById(R.id.search_bar);
+        mSearchFragmentContainer = findViewById(R.id.search_fragment_container);
         gpsFollowButton = findViewById(R.id.gps_follow);
         progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
+
+        if (searchBarContainer == null) {
+            searchBarContainer = getLayoutInflater().inflate(R.layout.search_action_bar, mToolbar, false);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                searchBarContainer.setElevation(getResources().getDimension(R.dimen.appbar_elevation) + 2);
+            }
+            mToolbar.addView(searchBarContainer, 0);
+        }
 
         // NOTE: Bug: Explicitly set tintmode on Lollipop devices
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP)
             progressBar.setIndeterminateTintMode(PorterDuff.Mode.SRC_IN);
 
+        // Tint drawable in button view
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            for (Drawable drawable : gpsFollowButton.getCompoundDrawables()) {
+                if (drawable != null) {
+                    drawable.setColorFilter(new PorterDuffColorFilter(Colors.SIMPLEBLUE, PorterDuff.Mode.SRC_IN));
+                    TextViewCompat.setCompoundDrawablesRelative(gpsFollowButton, drawable, null, null, null);
+                }
+            }
+        }
+
         /* Event Listeners */
         searchViewContainer.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActionMode = startSupportActionMode(mActionModeCallback);
+                // Setup search UI
+                prepareSearchUI();
             }
         });
 
-        findViewById(R.id.search_fragment_container).setOnClickListener(new OnClickListener() {
+        mSearchFragmentContainer.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                exitSearchUi();
+                exitSearchUi(false);
             }
         });
 
@@ -248,7 +257,7 @@ public class SetupActivity extends AppCompatActivity {
         findViewById(R.id.activity_setup).requestFocus();
 
         // Set default API to HERE
-        Settings.setAPI(WeatherAPI.HERE);
+        Settings.setAPI(WeatherAPI.METNO);
         wm.updateAPI();
 
         if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
@@ -261,6 +270,14 @@ public class SetupActivity extends AppCompatActivity {
             // If key exists, go ahead
             Settings.setPersonalKey(false);
             Settings.setKeyVerified(true);
+        }
+
+        // Get SearchUI state
+        if (savedInstanceState != null && savedInstanceState.getBoolean("SearchUI", false)) {
+            inSearchUI = true;
+
+            // Restart SearchUI
+            prepareSearchUI();
         }
     }
 
@@ -513,7 +530,6 @@ public class SetupActivity extends AppCompatActivity {
                     // permission was granted, yay!
                     // Do the task you need to do.
                     fetchGeoLocation();
-                    // TODO: logger any errors
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
@@ -539,9 +555,29 @@ public class SetupActivity extends AppCompatActivity {
         outState.putBoolean("SearchUI", inSearchUI);
 
         if (inSearchUI)
-            exitSearchUi();
+            exitSearchUi(true);
 
         super.onSaveInstanceState(outState);
+    }
+
+    private void prepareSearchUI() {
+        enterSearchUi();
+        enterSearchUiTransition(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                ViewCompat.setElevation(appBarLayout, getResources().getDimension(R.dimen.appbar_elevation) + 1);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
     }
 
     private void enterSearchUi() {
@@ -555,8 +591,69 @@ public class SetupActivity extends AppCompatActivity {
                 .beginTransaction();
         transaction.show(mSearchFragment);
         transaction.commitAllowingStateLoss();
-        getFragmentManager().executePendingTransactions();
+        getSupportFragmentManager().executePendingTransactions();
         setupSearchUi();
+    }
+
+    private void enterSearchUiTransition(Animation.AnimationListener enterAnimationListener) {
+        // SearchViewContainer margin transition
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            Transition transition = new AutoTransition();
+            transition.setDuration(ANIMATION_DURATION);
+            TransitionManager.beginDelayedTransition((ViewGroup) searchViewContainer, transition);
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) searchViewContainer.getLayoutParams();
+            params.setMarginEnd(0);
+            params.setMarginStart(0);
+            searchViewContainer.setLayoutParams(params);
+        }
+
+        // SearchViewContainer fade/translation animation
+        AnimationSet searchViewAniSet = new AnimationSet(true);
+        searchViewAniSet.setInterpolator(new DecelerateInterpolator());
+        AlphaAnimation searchViewFadeAni = new AlphaAnimation(1.0f, 0.0f);
+        TranslateAnimation searchViewAnimation = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.ABSOLUTE, 0,
+                Animation.ABSOLUTE, -(searchViewContainer.getY() - mToolbar.getHeight()));
+        searchViewAniSet.setDuration((long) (ANIMATION_DURATION * 1.25));
+        searchViewAniSet.setFillEnabled(false);
+        searchViewAniSet.setAnimationListener(enterAnimationListener);
+        searchViewAniSet.addAnimation(searchViewAnimation);
+        searchViewAniSet.addAnimation(searchViewFadeAni);
+
+        // FragmentContainer fade/translation animation
+        AnimationSet fragmentAniSet = new AnimationSet(true);
+        fragmentAniSet.setInterpolator(new DecelerateInterpolator());
+        AlphaAnimation fragFadeAni = new AlphaAnimation(0.0f, 1.0f);
+        TranslateAnimation fragmentAnimation = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.ABSOLUTE, searchViewContainer.getY(),
+                Animation.ABSOLUTE, 0);
+        fragmentAniSet.setDuration(ANIMATION_DURATION);
+        fragmentAniSet.setFillEnabled(false);
+        fragmentAniSet.addAnimation(fragFadeAni);
+        fragmentAniSet.addAnimation(fragmentAnimation);
+
+        // SearchActionBarContainer fade/translation animation
+        AnimationSet searchBarAniSet = new AnimationSet(true);
+        searchBarAniSet.setInterpolator(new DecelerateInterpolator());
+        AlphaAnimation searchBarFadeAni = new AlphaAnimation(0.0f, 1.0f);
+        TranslateAnimation searchBarAnimation = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.ABSOLUTE, mToolbar.getHeight(),
+                Animation.ABSOLUTE, 0);
+        searchBarAniSet.setDuration((long) (ANIMATION_DURATION * 1.5));
+        searchBarAniSet.setFillEnabled(false);
+        searchBarAniSet.addAnimation(searchBarFadeAni);
+        searchBarAniSet.addAnimation(searchBarAnimation);
+
+        mSearchFragmentContainer.startAnimation(fragmentAniSet);
+        searchViewContainer.startAnimation(searchViewAniSet);
+        searchBarContainer.setVisibility(View.VISIBLE);
+        searchBarContainer.startAnimation(searchBarAniSet);
     }
 
     private void setupSearchUi() {
@@ -572,7 +669,7 @@ public class SetupActivity extends AppCompatActivity {
         }
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         final Fragment searchFragment = new LocationSearchFragment();
-        searchFragment.setUserVisibleHint(false);
+        searchFragment.setUserVisibleHint(true);
 
         // Add AppWidgetId to fragment args
         if (mAppWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
@@ -582,16 +679,23 @@ public class SetupActivity extends AppCompatActivity {
         }
 
         ft.add(R.id.search_fragment_container, searchFragment);
-        ft.commitAllowingStateLoss();
+        ft.commitNowAllowingStateLoss();
     }
 
     private void prepareSearchView() {
-        searchView = searchViewLayout.findViewById(R.id.search_view);
-        clearButtonView = searchViewLayout.findViewById(R.id.search_close_button);
+        searchView = mToolbar.findViewById(R.id.search_view);
+        clearButtonView = mToolbar.findViewById(R.id.search_close_button);
+        backButtonView = mToolbar.findViewById(R.id.search_back_button);
         clearButtonView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 searchView.setText("");
+            }
+        });
+        backButtonView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                exitSearchUi(false);
             }
         });
         searchView.addTextChangedListener(new TextWatcher() {
@@ -655,35 +759,105 @@ public class SetupActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (inSearchUI) {
             // We should let the user go back to usual screens with tabs.
-            exitSearchUi();
+            exitSearchUi(false);
         } else {
             super.onBackPressed();
         }
     }
 
-    private void exitSearchUi() {
+    private void removeSearchFragment() {
+        mSearchFragment.setUserVisibleHint(false);
+        final FragmentTransaction transaction = getSupportFragmentManager()
+                .beginTransaction();
+        transaction.remove(mSearchFragment);
+        mSearchFragment = null;
+        transaction.commitAllowingStateLoss();
+    }
+
+    private void exitSearchUi(boolean skipAnimation) {
         searchView.setText("");
 
         if (mSearchFragment != null) {
-            mSearchFragment.setUserVisibleHint(false);
+            // Exit transition
+            if (skipAnimation) {
+                removeSearchFragment();
+            } else {
+                exitSearchUiTransition(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
 
-            final FragmentTransaction transaction = getSupportFragmentManager()
-                    .beginTransaction();
-            transaction.remove(mSearchFragment);
-            mSearchFragment = null;
-            transaction.commitAllowingStateLoss();
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        // Remove fragment once animation ends
+                        removeSearchFragment();
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+            }
         }
 
         hideInputMethod(getCurrentFocus());
         searchView.clearFocus();
-        mActionMode.finish();
+        if (searchBarContainer != null) searchBarContainer.setVisibility(View.GONE);
+        ViewCompat.setElevation(appBarLayout, 0);
         inSearchUI = false;
+    }
+
+    private void exitSearchUiTransition(Animation.AnimationListener exitAnimationListener) {
+        // SearchViewContainer margin transition
+        searchViewContainer.setVisibility(View.VISIBLE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            Transition transition = new AutoTransition();
+            transition.setDuration(ANIMATION_DURATION);
+            TransitionManager.beginDelayedTransition((ViewGroup) searchViewContainer, transition);
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) searchViewContainer.getLayoutParams();
+            int marginHoriz = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
+            params.setMarginEnd(marginHoriz);
+            params.setMarginStart(marginHoriz);
+            searchViewContainer.setLayoutParams(params);
+        }
+
+        // SearchViewContainer translation animation
+        TranslateAnimation searchBarAnimation = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.ABSOLUTE, -searchViewContainer.getY(),
+                Animation.ABSOLUTE, 0);
+        searchBarAnimation.setDuration(ANIMATION_DURATION);
+        searchBarAnimation.setFillEnabled(false);
+        searchBarAnimation.setInterpolator(new DecelerateInterpolator());
+
+        // FragmentContainer fade/translation animation
+        AnimationSet fragmentAniSet = new AnimationSet(true);
+        fragmentAniSet.setInterpolator(new DecelerateInterpolator());
+        AlphaAnimation fragFadeAni = new AlphaAnimation(1.0f, 0.0f);
+        TranslateAnimation fragmentAnimation = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.ABSOLUTE, 0,
+                Animation.ABSOLUTE, searchViewContainer.getY());
+        fragmentAniSet.setDuration(ANIMATION_DURATION);
+        fragmentAniSet.setFillEnabled(false);
+        fragmentAniSet.addAnimation(fragFadeAni);
+        fragmentAniSet.addAnimation(fragmentAnimation);
+        fragmentAniSet.setAnimationListener(exitAnimationListener);
+
+        mSearchFragmentContainer.startAnimation(fragmentAniSet);
+        searchViewContainer.startAnimation(searchBarAnimation);
     }
 
     private void showInputMethod(View view) {
         InputMethodManager imm = (InputMethodManager) getSystemService(
                 Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+        if (imm != null && view != null) {
+            imm.showSoftInput(view, 0);
+        }
     }
 
     private void hideInputMethod(View view) {

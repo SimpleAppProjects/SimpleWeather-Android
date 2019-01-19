@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.content.res.Configuration;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Criteria;
@@ -79,6 +77,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.adapters.ForecastItemAdapter;
 import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter;
 import com.thewizrd.simpleweather.adapters.TextForecastPagerAdapter;
+import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationBuilder;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler;
@@ -193,11 +192,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         WeatherNowFragment fragment = new WeatherNowFragment();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    private static boolean isLargeTablet(Context context) {
-        return (context.getResources().getConfiguration().screenLayout
-                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
 
     public void onWeatherLoaded(final LocationData location, final Weather weather) {
@@ -508,7 +502,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     }
 
     private void adjustDetailsLayout() {
-        if (appCompatActivity != null && isLargeTablet(appCompatActivity)) {
+        if (appCompatActivity != null && ActivityUtils.isLargeTablet(appCompatActivity)) {
             appCompatActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -561,7 +555,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     }
 
     private void resizeAlertPanel() {
-        if (appCompatActivity != null && isLargeTablet(appCompatActivity)) {
+        if (appCompatActivity != null && ActivityUtils.isLargeTablet(appCompatActivity)) {
             appCompatActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -865,7 +859,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                         if (!WeatherAPI.METNO.equals(Settings.getAPI())) {
                             precipitationPanel.setVisibility(View.VISIBLE);
 
-                            if (isLargeTablet(appCompatActivity)) {
+                            if (ActivityUtils.isLargeTablet(appCompatActivity)) {
                                 // Add back panel if not present
                                 GridLayout panel = (GridLayout) detailsPanel;
                                 int childIdx = panel.indexOfChild(panel.findViewById(R.id.precipitation_card));
@@ -873,7 +867,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                                     panel.addView(precipitationPanel, 0);
                             }
                         } else {
-                            if (isLargeTablet(appCompatActivity)) {
+                            if (ActivityUtils.isLargeTablet(appCompatActivity)) {
                                 GridLayout panel = (GridLayout) detailsPanel;
                                 panel.removeView(panel.findViewById(R.id.precipitation_card));
                             } else {
@@ -895,7 +889,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             cloudiness.setVisibility(View.GONE);
                         }
                     } else {
-                        if (isLargeTablet(appCompatActivity)) {
+                        if (ActivityUtils.isLargeTablet(appCompatActivity)) {
                             GridLayout panel = (GridLayout) detailsPanel;
                             panel.removeView(panel.findViewById(R.id.precipitation_card));
                         } else {

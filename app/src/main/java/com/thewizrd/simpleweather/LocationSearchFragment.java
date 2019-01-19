@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
@@ -14,9 +15,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -272,20 +275,17 @@ public class LocationSearchFragment extends Fragment {
         if (getArguments() != null) {
             mAppWidgetId = getArguments().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
         }
+
+        mActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_location_search, container, false);
-        setupView(view);
 
-        mActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        return view;
-    }
-
-    private void setupView(View view) {
         mProgressBar = mActivity.findViewById(R.id.search_progressBar);
         mClearButton = mActivity.findViewById(R.id.search_close_button);
         mSearchView = mActivity.findViewById(R.id.search_view);
@@ -296,6 +296,45 @@ public class LocationSearchFragment extends Fragment {
         }
 
         mRecyclerView = view.findViewById(R.id.recycler_view);
+
+        /*
+           Capture touch events on RecyclerView
+           We're not using ADJUST_RESIZE so hide the keyboard when necessary
+           Hide the keyboard if we're scrolling to the bottom (so the bottom items behind the keyboard are visible)
+           Leave the keyboard up if we're scrolling to the top (items at the top are already visible)
+        */
+        mRecyclerView.setOnTouchListener(new View.OnTouchListener() {
+            private int mY;
+            private boolean shouldCloseKeyboard = false;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN: // Pointer down
+                        mY = (int) event.getY();
+                        break;
+                    case MotionEvent.ACTION_UP: // Pointer raised/lifted
+                        mY = (int) event.getY();
+
+                        if (shouldCloseKeyboard) {
+                            hideInputMethod(v);
+                            shouldCloseKeyboard = false;
+                        }
+                        break;
+                    case MotionEvent.ACTION_MOVE: // Scroll Action
+                        int newY = (int) event.getY();
+                        int dY = mY - newY;
+
+                        mY = newY;
+                        // Set flag to hide the keyboard if we're scrolling down
+                        // So we can see what's behind the keyboard
+                        shouldCloseKeyboard = dY > 0;
+                        break;
+                }
+
+                return false;
+            }
+        });
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -309,6 +348,8 @@ public class LocationSearchFragment extends Fragment {
         mAdapter = new LocationQueryAdapter(new ArrayList<LocationQueryViewModel>());
         mAdapter.setOnClickListener(recyclerClickListener);
         mRecyclerView.setAdapter(mAdapter);
+
+        return view;
     }
 
     public void fetchLocations(final String queryString) {
@@ -343,6 +384,22 @@ public class LocationSearchFragment extends Fragment {
             // Hide flyout if query is empty or null
             mAdapter.getDataset().clear();
             mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void showInputMethod(View view) {
+        InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        if (imm != null && view != null) {
+            imm.showSoftInput(view, 0);
+        }
+    }
+
+    private void hideInputMethod(View view) {
+        InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        if (imm != null && view != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 }

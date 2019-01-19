@@ -142,4 +142,6 @@ public class Colors {
     public static final int WHITESMOKE = 0xFFF5F5F5;
     public static final int YELLOW = 0xFFFFFF00;
     public static final int YELLOWGREEN = 0xFF9ACD32;
+
+    public static final int SIMPLEBLUE = 0xFF0070C0;
 }

@@ -8,11 +8,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.thewizrd.shared_resources.R;
+import com.thewizrd.shared_resources.utils.StringUtils;
 
 public class LocationQuery extends LinearLayout {
     private View viewLayout;
     private TextView locationNameView;
     private TextView locationCountryView;
+    private TextView pinIcon;
 
     public LocationQuery(Context context) {
         super(context);
@@ -35,10 +37,14 @@ public class LocationQuery extends LinearLayout {
 
         locationNameView = viewLayout.findViewById(R.id.location_name);
         locationCountryView = viewLayout.findViewById(R.id.location_country);
+        pinIcon = viewLayout.findViewById(R.id.pin);
     }
 
     public void setLocation(LocationQueryViewModel view) {
         locationNameView.setText(view.getLocationName());
         locationCountryView.setText(view.getLocationCountry());
+        pinIcon.setVisibility(
+                StringUtils.isNullOrWhitespace(view.getLocationQuery()) && StringUtils.isNullOrWhitespace(view.getLocationCountry()) ?
+                        View.INVISIBLE : View.VISIBLE);
     }
 }

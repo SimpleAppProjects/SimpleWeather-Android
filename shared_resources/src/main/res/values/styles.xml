@@ -1,10 +1,5 @@
 <resources>
 
-    <style name="CloseButton" parent="@android:style/Widget.ActionButton.CloseMode">
-        <item name="android:tint">@color/colorPrimary</item>
-        <item name="android:padding">16dp</item>
-    </style>
-
     <style name="MaterialIcon">
         <item name="android:includeFontPadding">false</item>
         <item name="android:textSize">24sp</item>
