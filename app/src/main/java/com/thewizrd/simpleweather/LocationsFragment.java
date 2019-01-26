@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.ColorDrawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -14,17 +13,22 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
+import android.support.design.button.MaterialButton;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.Snackbar;
+import android.support.transition.AutoTransition;
+import android.support.transition.Transition;
+import android.support.transition.TransitionManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -35,6 +39,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -56,9 +65,11 @@ import com.thewizrd.shared_resources.controls.LocationQuery;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.ListChangedAction;
 import com.thewizrd.shared_resources.helpers.ListChangedArgs;
+import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -76,6 +87,7 @@ import com.thewizrd.simpleweather.adapters.LocationPanelAdapter;
 import com.thewizrd.simpleweather.controls.LocationPanel;
 import com.thewizrd.simpleweather.controls.LocationPanelViewModel;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperCallback;
+import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
@@ -87,30 +99,35 @@ import java.util.concurrent.Callable;
 
 public class LocationsFragment extends Fragment
         implements WeatherLoadedListenerInterface, WeatherErrorListenerInterface,
-        ActivityCompat.OnRequestPermissionsResultCallback {
+        ActivityCompat.OnRequestPermissionsResultCallback, OnBackPressedFragmentListener {
     private boolean mLoaded = false;
     private boolean mEditMode = false;
     private boolean mDataChanged = false;
     private boolean mHomeChanged = false;
     private boolean[] mErrorCounter;
 
-    AppCompatActivity appCompatActivity;
+    private AppCompatActivity mActivity;
+    private WindowColorsInterface mWindowColorsIface;
 
     // Views
     private View mMainView;
+    private NestedScrollView mScrollView;
     private RecyclerView mRecyclerView;
     private LocationPanelAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private ItemTouchHelper mItemTouchHelper;
     private ItemTouchHelperCallback mITHCallback;
-    private FloatingActionButton addLocationsButton;
+    private MaterialButton addLocationsButton;
 
     // Search
+    private AppBarLayout appBarLayout;
+    private Toolbar mToolbar;
+    private View searchBarContainer;
+    private View mSearchFragmentContainer;
     private LocationSearchFragment mSearchFragment;
-    private ActionMode mActionMode;
-    private View searchViewLayout;
     private EditText searchView;
     private TextView clearButtonView;
+    private TextView backButtonView;
     private ProgressBar progressBar;
     private boolean inSearchUI;
 
@@ -121,40 +138,10 @@ public class LocationsFragment extends Fragment
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocCallback;
     private LocationListener mLocListnr;
+
+    private static final int ANIMATION_DURATION = 240;
+
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
-
-    private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            if (searchViewLayout == null)
-                searchViewLayout = appCompatActivity.getLayoutInflater().inflate(R.layout.search_action_bar, null);
-
-            mode.setCustomView(searchViewLayout);
-            enterSearchUi();
-            // Hide FAB in actionmode
-            if (addLocationsButton != null)
-                addLocationsButton.setVisibility(View.GONE);
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            return false;
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            exitSearchUi();
-            if (addLocationsButton != null)
-                addLocationsButton.setVisibility(View.VISIBLE);
-            mActionMode = null;
-        }
-    };
 
     // OptionsMenu
     private Menu optionsMenu;
@@ -169,63 +156,73 @@ public class LocationsFragment extends Fragment
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        appCompatActivity = (AppCompatActivity) context;
+        mActivity = (AppCompatActivity) context;
+        mWindowColorsIface = (WindowColorsInterface) context;
     }
 
     @Override
     public void onDestroy() {
+        if (inSearchUI) exitSearchUi(true);
         super.onDestroy();
-        appCompatActivity = null;
+        if (mSearchFragment != null) mSearchFragment.ctsCancel();
+        mActivity = null;
+        mWindowColorsIface = null;
     }
 
     @Override
     public void onDetach() {
+        if (inSearchUI) exitSearchUi(true);
         super.onDetach();
-        appCompatActivity = null;
+        if (mSearchFragment != null) mSearchFragment.ctsCancel();
+        mActivity = null;
+        mWindowColorsIface = null;
+    }
+
+    private void runOnUiThread(Runnable action) {
+        if (mActivity != null)
+            mActivity.runOnUiThread(action);
     }
 
     public void onWeatherLoaded(final LocationData location, final Weather weather) {
-        if (appCompatActivity != null) {
-            appCompatActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (weather != null && weather.isValid()) {
-                        if (Settings.useFollowGPS() && location.getLocationType() == LocationType.GPS) {
-                            if (gpsPanelViewModel != null) {
-                                gpsPanelViewModel.setWeather(weather);
-                                gpsPanel.setWeatherBackground(gpsPanelViewModel);
-                                gpsPanel.setWeather(gpsPanelViewModel);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (weather != null && weather.isValid()) {
+                    if (Settings.useFollowGPS() && location.getLocationType() == LocationType.GPS) {
+                        if (gpsPanelViewModel != null) {
+                            gpsPanelViewModel.setWeather(weather);
+                            gpsPanel.setWeatherBackground(gpsPanelViewModel);
+                            gpsPanel.setWeather(gpsPanelViewModel);
+                        }
+                    } else {
+                        // Update panel weather
+                        LocationPanelViewModel panel = null;
+                        for (LocationPanelViewModel panelVM : mAdapter.getDataset()) {
+                            if (panelVM.getLocationData().getQuery().equals(location.getQuery())) {
+                                panel = panelVM;
+                                break;
                             }
-                        } else {
-                            // Update panel weather
-                            LocationPanelViewModel panel = null;
+                        }
+                        // Just in case
+                        if (panel == null) {
                             for (LocationPanelViewModel panelVM : mAdapter.getDataset()) {
-                                if (panelVM.getLocationData().getQuery().equals(location.getQuery())) {
+                                if (panelVM.getLocationData().getName().equals(location.getName()) &&
+                                        panelVM.getLocationData().getLatitude() == location.getLatitude() &&
+                                        panelVM.getLocationData().getLongitude() == location.getLongitude() &&
+                                        panelVM.getLocationData().getTzLong().equals(location.getTzLong())) {
                                     panel = panelVM;
                                     break;
                                 }
                             }
-                            // Just in case
-                            if (panel == null) {
-                                for (LocationPanelViewModel panelVM : mAdapter.getDataset()) {
-                                    if (panelVM.getLocationData().getName().equals(location.getName()) &&
-                                            panelVM.getLocationData().getLatitude() == location.getLatitude() &&
-                                            panelVM.getLocationData().getLongitude() == location.getLongitude() &&
-                                            panelVM.getLocationData().getTzLong().equals(location.getTzLong())) {
-                                        panel = panelVM;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (panel != null) {
-                                panel.setWeather(weather);
-                                mAdapter.notifyItemChanged(mAdapter.getDataset().indexOf(panel));
-                            }
+                        }
+                        if (panel != null) {
+                            panel.setWeather(weather);
+                            mAdapter.notifyItemChanged(mAdapter.getDataset().indexOf(panel));
                         }
                     }
                 }
-            });
-        }
+            }
+        });
     }
 
     @Override
@@ -267,12 +264,12 @@ public class LocationsFragment extends Fragment
 
                 if (locData.equals(Settings.getHomeData())) {
                     // Pop all since we're going home
-                    appCompatActivity.getSupportFragmentManager()
+                    mActivity.getSupportFragmentManager()
                             .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 } else {
                     // Navigate to WeatherNowFragment
                     Fragment fragment = WeatherNowFragment.newInstance(locData);
-                    appCompatActivity.getSupportFragmentManager().beginTransaction()
+                    mActivity.getSupportFragmentManager().beginTransaction()
                             .add(R.id.fragment_container, fragment, null)
                             .hide(LocationsFragment.this)
                             .addToBackStack(null)
@@ -294,14 +291,6 @@ public class LocationsFragment extends Fragment
 
         // Create your fragment here
         mLoaded = true;
-
-        // Get ActionMode state
-        if (savedInstanceState != null && savedInstanceState.getBoolean("SearchUI", false)) {
-            inSearchUI = true;
-
-            // Restart ActionMode
-            mActionMode = appCompatActivity.startSupportActionMode(mActionModeCallback);
-        }
 
         mErrorCounter = new boolean[WeatherUtils.ErrorStatus.values().length];
 
@@ -343,44 +332,84 @@ public class LocationsFragment extends Fragment
         }
     }
 
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public boolean onBackPressed() {
+        if (inSearchUI) {
+            exitSearchUi(false);
+            return true;
+        }
+        if (mEditMode) {
+            toggleEditMode();
+            return true;
+        }
+        return false;
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_locations, container, false);
         mMainView = view;
-        view.findViewById(R.id.search_fragment_container).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                exitSearchUi();
-            }
-        });
+        // Request focus away from RecyclerView
         view.setFocusableInTouchMode(true);
         view.requestFocus();
-        view.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && mEditMode) {
-                    toggleEditMode();
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        });
 
         // Setup ActionBar
         setHasOptionsMenu(true);
+        if (mWindowColorsIface != null)
+            mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
 
-        mRecyclerView = view.findViewById(R.id.locations_container);
+        mScrollView = view.findViewById(R.id.scrollView);
+        /*
+           Capture touch events on ScrollView
+           Expand or collapse FAB (MaterialButton) based on scroll direction
+           Collapse FAB if we're scrolling to the bottom (so the bottom items behind the keyboard are visible)
+           Expand FAB if we're scrolling to the top (items at the top are already visible)
+        */
+        mScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(NestedScrollView nestedScrollView, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                int dY = scrollY - oldScrollY;
+                setExpandedFab(dY < 0);
+            }
+        });
 
-        addLocationsButton = view.findViewById(R.id.locations_add);
+        appBarLayout = mActivity.findViewById(R.id.app_bar);
+        mToolbar = mActivity.findViewById(R.id.toolbar);
+        mSearchFragmentContainer = view.findViewById(R.id.search_fragment_container);
+
+        int padding = getResources().getDimensionPixelSize(R.dimen.toolbar_horizontal_inset_padding);
+        mToolbar.setContentInsetsRelative(padding, padding);
+
+        if (searchBarContainer == null) {
+            searchBarContainer = getLayoutInflater().inflate(R.layout.search_action_bar, mToolbar, false);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                searchBarContainer.setElevation(getResources().getDimension(R.dimen.appbar_elevation) + 2);
+            }
+            mToolbar.addView(searchBarContainer, 0);
+        }
+
+        mSearchFragmentContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                exitSearchUi(false);
+            }
+        });
+
+        addLocationsButton = view.findViewById(R.id.fab);
         addLocationsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActionMode = appCompatActivity.startSupportActionMode(mActionModeCallback);
+                // Hide FAB in actionmode
+                v.setVisibility(View.GONE);
+                prepareSearchUI();
             }
         });
+
+        mRecyclerView = view.findViewById(R.id.locations_container);
 
         gpsPanelLayout = view.findViewById(R.id.gps_follow_layout);
         gpsPanel = view.findViewById(R.id.gps_panel);
@@ -391,7 +420,7 @@ public class LocationsFragment extends Fragment
         mRecyclerView.setHasFixedSize(false);
 
         // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(appCompatActivity);
+        mLayoutManager = new LinearLayoutManager(mActivity);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
@@ -409,6 +438,14 @@ public class LocationsFragment extends Fragment
         mITHCallback.setItemViewSwipeEnabled(false);
 
         mLoaded = true;
+
+        // Get SearchUI state
+        if (savedInstanceState != null && savedInstanceState.getBoolean("SearchUI", false)) {
+            inSearchUI = true;
+
+            // Restart SearchUI
+            prepareSearchUI();
+        }
 
         return view;
     }
@@ -448,36 +485,28 @@ public class LocationsFragment extends Fragment
             public Void call() throws Exception {
                 // Update view on resume
                 // ex. If temperature unit changed
-                if (appCompatActivity != null) {
-                    appCompatActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ColorDrawable colorDrawable = new ColorDrawable(
-                                    ContextCompat.getColor(appCompatActivity, R.color.colorPrimary));
-                            appCompatActivity.getSupportActionBar().setBackgroundDrawable(colorDrawable);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mWindowColorsIface != null)
+                            mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
 
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                appCompatActivity.getWindow().setStatusBarColor(
-                                        ContextCompat.getColor(appCompatActivity, R.color.colorPrimaryDark));
-                            }
-
-                            if (Settings.useFollowGPS()) {
-                                gpsPanelLayout.setVisibility(View.VISIBLE);
-                            } else {
-                                gpsPanelViewModel = null;
-                                gpsPanelLayout.setVisibility(View.GONE);
-                            }
+                        if (Settings.useFollowGPS()) {
+                            gpsPanelLayout.setVisibility(View.VISIBLE);
+                        } else {
+                            gpsPanelViewModel = null;
+                            gpsPanelLayout.setVisibility(View.GONE);
                         }
-                    });
-
-                    if (mAdapter.getItemCount() == 0 || Settings.useFollowGPS() && gpsPanelViewModel == null) {
-                        // New instance; Get locations and load up weather data
-                        loadLocations();
-                    } else if (!mLoaded) {
-                        // Refresh view
-                        refreshLocations();
-                        mLoaded = true;
                     }
+                });
+
+                if (mAdapter.getItemCount() == 0 || Settings.useFollowGPS() && gpsPanelViewModel == null) {
+                    // New instance; Get locations and load up weather data
+                    loadLocations();
+                } else if (!mLoaded) {
+                    // Refresh view
+                    refreshLocations();
+                    mLoaded = true;
                 }
                 return null;
             }
@@ -500,17 +529,20 @@ public class LocationsFragment extends Fragment
             });
 
         // Title
-        if (appCompatActivity != null)
-            appCompatActivity.getSupportActionBar().setTitle(R.string.label_nav_locations);
+        if (mActivity != null)
+            mActivity.getSupportActionBar().setTitle(R.string.label_nav_locations);
     }
 
     @Override
     public void onPause() {
+        if (inSearchUI) exitSearchUi(true);
         super.onPause();
         mLoaded = false;
 
         // Reset error counter
         Arrays.fill(mErrorCounter, 0, mErrorCounter.length, false);
+
+        if (mSearchFragment != null) mSearchFragment.ctsCancel();
     }
 
     @Override
@@ -520,6 +552,9 @@ public class LocationsFragment extends Fragment
         if (!hidden && this.isVisible()) {
             resume();
         } else if (hidden) {
+            if (inSearchUI) exitSearchUi(true);
+            if (mEditMode) toggleEditMode();
+
             mLoaded = false;
             // Reset error counter
             Arrays.fill(mErrorCounter, 0, mErrorCounter.length, false);
@@ -532,7 +567,7 @@ public class LocationsFragment extends Fragment
         outState.putBoolean("SearchUI", inSearchUI);
 
         if (inSearchUI)
-            exitSearchUi();
+            exitSearchUi(true);
 
         super.onSaveInstanceState(outState);
     }
@@ -541,10 +576,10 @@ public class LocationsFragment extends Fragment
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                if (appCompatActivity != null) {
+                if (mActivity != null) {
                     // Load up saved locations
                     List<LocationData> locations = Settings.getFavorites();
-                    appCompatActivity.runOnUiThread(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             mAdapter.removeAll();
@@ -556,7 +591,7 @@ public class LocationsFragment extends Fragment
                     for (LocationData location : locations) {
                         final LocationPanelViewModel panel = new LocationPanelViewModel();
                         panel.setLocationData(location);
-                        appCompatActivity.runOnUiThread(new Runnable() {
+                        runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 mAdapter.add(panel);
@@ -584,8 +619,8 @@ public class LocationsFragment extends Fragment
             @Override
             public Void call() throws Exception {
                 // Setup gps panel
-                if (appCompatActivity != null && Settings.useFollowGPS()) {
-                    appCompatActivity.runOnUiThread(new Runnable() {
+                if (mActivity != null && Settings.useFollowGPS()) {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             gpsPanelLayout.setVisibility(View.VISIBLE);
@@ -634,7 +669,7 @@ public class LocationsFragment extends Fragment
                     reload = true;
 
                 if (reload) {
-                    appCompatActivity.runOnUiThread(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             mAdapter.removeAll();
@@ -668,9 +703,9 @@ public class LocationsFragment extends Fragment
                 LocationData locationData = null;
 
                 if (Settings.useFollowGPS()) {
-                    if (appCompatActivity != null && ContextCompat.checkSelfPermission(appCompatActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                            ContextCompat.checkSelfPermission(appCompatActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(appCompatActivity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                    if (mActivity != null && ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                            ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                                 PERMISSION_LOCATION_REQUEST_CODE);
                         return null;
                     }
@@ -707,8 +742,8 @@ public class LocationsFragment extends Fragment
                         }
                     } else {
                         LocationManager locMan = null;
-                        if (appCompatActivity != null)
-                            locMan = (LocationManager) appCompatActivity.getSystemService(Context.LOCATION_SERVICE);
+                        if (mActivity != null)
+                            locMan = (LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
                         boolean isGPSEnabled = false;
                         boolean isNetEnabled = false;
                         if (locMan != null) {
@@ -728,10 +763,10 @@ public class LocationsFragment extends Fragment
                             if (location == null)
                                 locMan.requestSingleUpdate(provider, mLocListnr, Looper.getMainLooper());
                         } else {
-                            appCompatActivity.runOnUiThread(new Runnable() {
+                            runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(appCompatActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
                                     gpsPanelViewModel = null;
                                     gpsPanelLayout.setVisibility(View.GONE);
                                 }
@@ -749,7 +784,7 @@ public class LocationsFragment extends Fragment
 
                         if (StringUtils.isNullOrWhitespace(view.getLocationQuery())) {
                             // Stop since there is no valid query
-                            appCompatActivity.runOnUiThread(new Runnable() {
+                            runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     gpsPanelViewModel = null;
@@ -791,15 +826,13 @@ public class LocationsFragment extends Fragment
                                         new Intent(App.getInstance().getAppContext(), WearableDataListenerService.class)
                                                 .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
                             } else {
-                                if (appCompatActivity != null) {
-                                    appCompatActivity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            gpsPanelViewModel = null;
-                                            gpsPanelLayout.setVisibility(View.GONE);
-                                        }
-                                    });
-                                }
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        gpsPanelViewModel = null;
+                                        gpsPanelLayout.setVisibility(View.GONE);
+                                    }
+                                });
                             }
                         }
                     });
@@ -809,7 +842,7 @@ public class LocationsFragment extends Fragment
                     Settings.setFollowGPS(false);
                     gpsPanelViewModel = null;
                     gpsPanelLayout.setVisibility(View.GONE);
-                    Toast.makeText(appCompatActivity, R.string.error_location_denied, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mActivity, R.string.error_location_denied, Toast.LENGTH_SHORT).show();
                 }
                 return;
             }
@@ -828,6 +861,29 @@ public class LocationsFragment extends Fragment
         }
     }
 
+    private void prepareSearchUI() {
+        optionsMenu.clear();
+        mToolbar.setContentInsetsRelative(0, 0);
+
+        enterSearchUi();
+        enterSearchUiTransition(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                //ViewCompat.setElevation(appBarLayout, getResources().getDimension(R.dimen.appbar_elevation) + 1);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
     private void enterSearchUi() {
         inSearchUI = true;
         if (mSearchFragment == null) {
@@ -838,9 +894,44 @@ public class LocationsFragment extends Fragment
         final FragmentTransaction transaction = getChildFragmentManager()
                 .beginTransaction();
         transaction.show(mSearchFragment);
-        transaction.commitAllowingStateLoss();
+        transaction.commitNowAllowingStateLoss();
         getChildFragmentManager().executePendingTransactions();
         setupSearchUi();
+    }
+
+    private void enterSearchUiTransition(Animation.AnimationListener enterAnimationListener) {
+        // FragmentContainer fade/translation animation
+        AnimationSet fragmentAniSet = new AnimationSet(true);
+        fragmentAniSet.setInterpolator(new DecelerateInterpolator());
+        AlphaAnimation fragFadeAni = new AlphaAnimation(0.0f, 1.0f);
+        TranslateAnimation fragmentAnimation = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.ABSOLUTE, addLocationsButton.getY(),
+                Animation.ABSOLUTE, 0);
+        fragmentAniSet.setDuration(ANIMATION_DURATION);
+        fragmentAniSet.setFillEnabled(false);
+        fragmentAniSet.addAnimation(fragFadeAni);
+        fragmentAniSet.addAnimation(fragmentAnimation);
+        fragmentAniSet.setAnimationListener(enterAnimationListener);
+
+        // SearchActionBarContainer fade/translation animation
+        AnimationSet searchBarAniSet = new AnimationSet(true);
+        searchBarAniSet.setInterpolator(new DecelerateInterpolator());
+        AlphaAnimation searchBarFadeAni = new AlphaAnimation(0.0f, 1.0f);
+        TranslateAnimation searchBarAnimation = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.ABSOLUTE, mToolbar.getHeight(),
+                Animation.ABSOLUTE, 0);
+        searchBarAniSet.setDuration((long) (ANIMATION_DURATION * 1.5));
+        searchBarAniSet.setFillEnabled(false);
+        searchBarAniSet.addAnimation(searchBarFadeAni);
+        searchBarAniSet.addAnimation(searchBarAnimation);
+
+        mSearchFragmentContainer.startAnimation(fragmentAniSet);
+        searchBarContainer.setVisibility(View.VISIBLE);
+        searchBarContainer.startAnimation(searchBarAniSet);
     }
 
     private void setupSearchUi() {
@@ -848,23 +939,6 @@ public class LocationsFragment extends Fragment
             prepareSearchView();
         }
         searchView.requestFocus();
-    }
-
-    private void showLoading(final boolean show) {
-        if (mSearchFragment == null)
-            return;
-
-        appCompatActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-
-                if (show || (!show && StringUtils.isNullOrEmpty(searchView.getText().toString())))
-                    clearButtonView.setVisibility(View.GONE);
-                else
-                    clearButtonView.setVisibility(View.VISIBLE);
-            }
-        });
     }
 
     private void addSearchFragment() {
@@ -922,11 +996,11 @@ public class LocationsFragment extends Fragment
                             }
                         }
                         if (exists) {
-                            appCompatActivity.runOnUiThread(new Runnable() {
+                            runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     showLoading(false);
-                                    exitSearchUi();
+                                    exitSearchUi(false);
                                 }
                             });
                             return;
@@ -953,7 +1027,7 @@ public class LocationsFragment extends Fragment
 
                         LocationData location = new LocationData(query_vm);
                         if (!location.isValid()) {
-                            appCompatActivity.runOnUiThread(new Runnable() {
+                            runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     Toast.makeText(App.getInstance().getAppContext(), R.string.werror_noweather, Toast.LENGTH_SHORT).show();
@@ -968,7 +1042,7 @@ public class LocationsFragment extends Fragment
                                 weather = wm.getWeather(location);
                             } catch (final WeatherException wEx) {
                                 weather = null;
-                                appCompatActivity.runOnUiThread(new Runnable() {
+                                runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
                                         Toast.makeText(App.getInstance().getAppContext(), wEx.getMessage(), Toast.LENGTH_SHORT).show();
@@ -983,7 +1057,7 @@ public class LocationsFragment extends Fragment
                         }
 
                         // We got our data so disable controls just in case
-                        appCompatActivity.runOnUiThread(new Runnable() {
+                        runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 mAdapter.getDataset().clear();
@@ -993,7 +1067,7 @@ public class LocationsFragment extends Fragment
 
                         if (mSearchFragment != null && mSearchFragment.getView() != null &&
                                 mSearchFragment.getView().findViewById(R.id.recycler_view) instanceof RecyclerView) {
-                            appCompatActivity.runOnUiThread(new Runnable() {
+                            runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     RecyclerView recyclerView = mSearchFragment.getView().findViewById(R.id.recycler_view);
@@ -1014,7 +1088,7 @@ public class LocationsFragment extends Fragment
                         // Set properties if necessary
                         if (mEditMode) panel.setEditMode(true);
 
-                        appCompatActivity.runOnUiThread(new Runnable() {
+                        runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 int index = mAdapter.getDataset().size();
@@ -1026,30 +1100,37 @@ public class LocationsFragment extends Fragment
                         ShortcutCreator.updateShortcuts();
 
                         // Hide dialog
-                        appCompatActivity.runOnUiThread(new Runnable() {
+                        runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 showLoading(false);
-                                exitSearchUi();
+                                exitSearchUi(false);
                             }
                         });
                     }
                 });
             }
         });
-        searchFragment.setUserVisibleHint(false);
+        searchFragment.setUserVisibleHint(true);
         ft.add(R.id.search_fragment_container, searchFragment);
-        ft.commitAllowingStateLoss();
+        ft.commitNowAllowingStateLoss();
     }
 
     private void prepareSearchView() {
-        searchView = searchViewLayout.findViewById(R.id.search_view);
-        clearButtonView = searchViewLayout.findViewById(R.id.search_close_button);
-        progressBar = searchViewLayout.findViewById(R.id.search_progressBar);
+        searchView = mToolbar.findViewById(R.id.search_view);
+        clearButtonView = mToolbar.findViewById(R.id.search_close_button);
+        backButtonView = mToolbar.findViewById(R.id.search_back_button);
+        progressBar = mToolbar.findViewById(R.id.search_progressBar);
         clearButtonView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 searchView.setText("");
+            }
+        });
+        backButtonView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                exitSearchUi(false);
             }
         });
         searchView.addTextChangedListener(new TextWatcher() {
@@ -1095,38 +1176,104 @@ public class LocationsFragment extends Fragment
         });
     }
 
-    private void exitSearchUi() {
+    private void removeSearchFragment() {
+        mSearchFragment.setUserVisibleHint(false);
+        final FragmentTransaction transaction = getChildFragmentManager()
+                .beginTransaction();
+        transaction.remove(mSearchFragment);
+        mSearchFragment = null;
+        transaction.commitNowAllowingStateLoss();
+    }
+
+    @SuppressLint("RestrictedApi")
+    private void exitSearchUi(boolean skipAnimation) {
         searchView.setText("");
 
         if (mSearchFragment != null) {
-            mSearchFragment.setUserVisibleHint(false);
+            // Exit transition
+            if (skipAnimation) {
+                removeSearchFragment();
+            } else {
+                exitSearchUiTransition(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
 
-            final FragmentTransaction transaction = getChildFragmentManager()
-                    .beginTransaction();
-            transaction.remove(mSearchFragment);
-            mSearchFragment = null;
-            transaction.commitAllowingStateLoss();
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        // Remove fragment once animation ends
+                        removeSearchFragment();
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+            }
         }
 
-        hideInputMethod(appCompatActivity == null ? null : appCompatActivity.getCurrentFocus());
+        addLocationsButton.setVisibility(View.VISIBLE);
+        int padding = getResources().getDimensionPixelSize(R.dimen.toolbar_horizontal_inset_padding);
+        mToolbar.setContentInsetsRelative(padding, padding);
+        mActivity.invalidateOptionsMenu();
+        hideInputMethod(mActivity == null ? null : mActivity.getCurrentFocus());
         if (searchView != null) searchView.clearFocus();
-        if (mActionMode != null) mActionMode.finish();
+        if (searchBarContainer != null) searchBarContainer.setVisibility(View.GONE);
         if (mMainView != null) mMainView.requestFocus();
         inSearchUI = false;
     }
 
+    private void exitSearchUiTransition(Animation.AnimationListener exitAnimationListener) {
+        // FragmentContainer fade/translation animation
+        AnimationSet fragmentAniSet = new AnimationSet(true);
+        fragmentAniSet.setInterpolator(new DecelerateInterpolator());
+        AlphaAnimation fragFadeAni = new AlphaAnimation(1.0f, 0.0f);
+        TranslateAnimation fragmentAnimation = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.ABSOLUTE, 0,
+                Animation.ABSOLUTE, addLocationsButton.getY());
+        fragmentAniSet.setDuration(ANIMATION_DURATION);
+        fragmentAniSet.setFillEnabled(false);
+        fragmentAniSet.addAnimation(fragFadeAni);
+        fragmentAniSet.addAnimation(fragmentAnimation);
+        fragmentAniSet.setAnimationListener(exitAnimationListener);
+
+        mSearchFragmentContainer.startAnimation(fragmentAniSet);
+    }
+
+    private void showLoading(final boolean show) {
+        if (mSearchFragment == null)
+            return;
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+
+                if (show || (!show && StringUtils.isNullOrEmpty(searchView.getText().toString())))
+                    clearButtonView.setVisibility(View.GONE);
+                else
+                    clearButtonView.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
     private void showInputMethod(View view) {
-        if (appCompatActivity != null) {
-            InputMethodManager imm = (InputMethodManager) appCompatActivity.getSystemService(
+        if (mActivity != null) {
+            InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
                     Context.INPUT_METHOD_SERVICE);
-            if (imm != null)
-                imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+            if (imm != null && view != null) {
+                imm.showSoftInput(view, 0);
+            }
         }
     }
 
     private void hideInputMethod(View view) {
-        if (appCompatActivity != null) {
-            InputMethodManager imm = (InputMethodManager) appCompatActivity.getSystemService(
+        if (mActivity != null) {
+            InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
                     Context.INPUT_METHOD_SERVICE);
             if (imm != null && view != null) {
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -1172,10 +1319,12 @@ public class LocationsFragment extends Fragment
         mEditMode = !mEditMode;
 
         MenuItem editMenuBtn = optionsMenu.findItem(R.id.action_editmode);
-        // Change EditMode button drwble
-        editMenuBtn.setIcon(mEditMode ? R.drawable.ic_done_white_24dp : R.drawable.ic_mode_edit_white_24dp);
-        // Change EditMode button label
-        editMenuBtn.setTitle(mEditMode ? R.string.abc_action_mode_done : R.string.action_editmode);
+        if (editMenuBtn != null) {
+            // Change EditMode button drwble
+            editMenuBtn.setIcon(mEditMode ? R.drawable.ic_done_white_24dp : R.drawable.ic_mode_edit_white_24dp);
+            // Change EditMode button label
+            editMenuBtn.setTitle(mEditMode ? R.string.abc_action_mode_done : R.string.action_editmode);
+        }
 
         // Set Drag & Swipe ability
         mITHCallback.setLongPressDragEnabled(mEditMode);
@@ -1210,7 +1359,7 @@ public class LocationsFragment extends Fragment
         }
 
         if (!mEditMode && mHomeChanged) {
-            WeatherWidgetService.enqueueWork(appCompatActivity, new Intent(appCompatActivity, WeatherWidgetService.class)
+            WeatherWidgetService.enqueueWork(mActivity, new Intent(mActivity, WeatherWidgetService.class)
                     .setAction(WeatherWidgetService.ACTION_UPDATEWEATHER));
 
             WearableDataListenerService.enqueueWork(App.getInstance().getAppContext(),
@@ -1223,5 +1372,65 @@ public class LocationsFragment extends Fragment
 
         mDataChanged = false;
         mHomeChanged = false;
+    }
+
+    private boolean isAnimating;
+
+    private int getCollapsedFabWidth() {
+        return mActivity.getResources().getDimensionPixelSize(R.dimen.fab_size);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public boolean isExtended() {
+        ViewGroup.LayoutParams params = addLocationsButton.getLayoutParams();
+        return !(params.height > params.width && params.width == getCollapsedFabWidth());
+    }
+
+    private final Transition.TransitionListener fabTransitionListener = new Transition.TransitionListener() {
+        public void onTransitionStart(Transition transition) {
+            isAnimating = true;
+        }
+
+        public void onTransitionEnd(Transition transition) {
+            isAnimating = false;
+        }
+
+        public void onTransitionCancel(Transition transition) {
+            isAnimating = false;
+        }
+
+        public void onTransitionPause(Transition transition) {
+        }
+
+        public void onTransitionResume(Transition transition) {
+        }
+    };
+
+    private void setExpandedFab(boolean expand) {
+        if ((expand && isExtended())) return;
+
+        int collapsedFabWidth = getCollapsedFabWidth();
+
+        int width = expand ? ViewGroup.LayoutParams.WRAP_CONTENT : collapsedFabWidth;
+
+        ViewGroup.LayoutParams params = addLocationsButton.getLayoutParams();
+        ViewGroup group = (ViewGroup) addLocationsButton.getParent();
+
+        if (isAnimating) TransitionManager.endTransitions(group);
+
+        TransitionManager.beginDelayedTransition(group, new AutoTransition()
+                .setDuration(150)
+                .addListener(fabTransitionListener)
+                .addTarget(addLocationsButton));
+
+        params.width = width;
+
+        if (expand)
+            addLocationsButton.setText(R.string.label_fab_add_location);
+        else
+            addLocationsButton.setText("");
+
+        addLocationsButton.requestLayout();
+        addLocationsButton.invalidate();
     }
 }

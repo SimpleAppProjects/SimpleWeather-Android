@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -18,6 +17,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.R;
 
 public class LocationPanel extends CardView {
@@ -63,7 +63,7 @@ public class LocationPanel extends CardView {
         locationTempView = viewLayout.findViewById(R.id.weather_temp);
         locationWeatherIcon = viewLayout.findViewById(R.id.weather_icon);
         progressBar = viewLayout.findViewById(R.id.progressBar);
-        colorDrawable = new ColorDrawable(ContextCompat.getColor(context, R.color.colorPrimary));
+        colorDrawable = new ColorDrawable(Colors.SIMPLEBLUE);
 
         // NOTE: Bug: Explicitly set tintmode on Lollipop devices
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP)

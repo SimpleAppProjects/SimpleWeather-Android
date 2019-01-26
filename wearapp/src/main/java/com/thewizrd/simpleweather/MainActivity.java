@@ -20,9 +20,9 @@ import com.google.android.wearable.intent.RemoteIntent;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.WearableDataSync;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
+import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
-import com.thewizrd.simpleweather.helpers.WeatherViewLoadedListener;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
 import java.util.ArrayList;

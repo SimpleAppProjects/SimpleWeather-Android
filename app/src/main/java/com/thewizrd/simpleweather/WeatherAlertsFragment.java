@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,21 +19,25 @@ import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
 
 import java.io.StringReader;
 import java.util.List;
 
 public class WeatherAlertsFragment extends Fragment {
-    private AppCompatActivity appCompatActivity;
     private LocationData location = null;
     private WeatherNowViewModel weatherView = null;
 
     private Toolbar toolbar;
     private TextView locationHeader;
     private RecyclerView recyclerView;
+
+    private AppCompatActivity mActivity;
+    private WindowColorsInterface mWindowColorsIface;
 
     public static WeatherAlertsFragment newInstance(LocationData location) {
         WeatherAlertsFragment fragment = new WeatherAlertsFragment();
@@ -74,7 +77,7 @@ public class WeatherAlertsFragment extends Fragment {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (appCompatActivity != null) appCompatActivity.onBackPressed();
+                if (mActivity != null) mActivity.onBackPressed();
             }
         });
 
@@ -104,12 +107,12 @@ public class WeatherAlertsFragment extends Fragment {
 
     private void initialize() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (appCompatActivity != null) {
-                appCompatActivity.runOnUiThread(new Runnable() {
+            if (mActivity != null) {
+                mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        appCompatActivity.getWindow().setStatusBarColor(
-                                ContextCompat.getColor(appCompatActivity, R.color.colorPrimaryDark));
+                        if (mWindowColorsIface != null)
+                            mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
                     }
                 });
             }
@@ -126,8 +129,8 @@ public class WeatherAlertsFragment extends Fragment {
             }
         }
 
-        if (weatherView != null && appCompatActivity != null) {
-            appCompatActivity.runOnUiThread(new Runnable() {
+        if (weatherView != null && mActivity != null) {
+            mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     locationHeader.setText(weatherView.getLocation());
@@ -135,7 +138,7 @@ public class WeatherAlertsFragment extends Fragment {
                     // in content do not change the layout size of the RecyclerView
                     recyclerView.setHasFixedSize(true);
                     // use a linear layout manager
-                    recyclerView.setLayoutManager(new LinearLayoutManager(appCompatActivity));
+                    recyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
                     // specify an adapter (see also next example)
                     List<WeatherAlertViewModel> alerts = null;
                     if (weatherView.getExtras() != null && weatherView.getExtras().getAlerts() != null)
@@ -157,18 +160,21 @@ public class WeatherAlertsFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        appCompatActivity = (AppCompatActivity) context;
+        mActivity = (AppCompatActivity) context;
+        mWindowColorsIface = (WindowColorsInterface) context;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        appCompatActivity = null;
+        mActivity = null;
+        mWindowColorsIface = null;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        appCompatActivity = null;
+        mActivity = null;
+        mWindowColorsIface = null;
     }
 }

@@ -14,7 +14,7 @@
     <string name="label_gpsfollow">Current Location</string>
     <string name="label_apiregister">Register for API key here</string>
     <!-- MainActivity -->
-    <string name="title_activity_weather_now">SimpleWeather</string>
+    <string name="title_activity_weather_now">Weather</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_refresh">Refresh</string>
@@ -54,8 +54,8 @@
     <string name="pref_title_general">General</string>
     <string name="pref_category_version">Version</string>
     <string name="pref_title_units">Units</string>
-    <string name="pref_summary_fahrenheit">Display Units in Fahrenheit (US)</string>
-    <string name="pref_summary_celsius">Display Units in Celsius (Metric)</string>
+    <string name="pref_summary_fahrenheit">Display units in Fahrenheit (US)</string>
+    <string name="pref_summary_celsius">Display units in Celsius (Metric)</string>
     <string name="pref_title_about">About</string>
     <string name="pref_title_about_app">About SimpleWeather</string>
     <string name="pref_title_credits">Credits</string>

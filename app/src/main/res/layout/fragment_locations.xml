@@ -9,6 +9,7 @@
     tools:context=".LocationsFragment">
 
     <android.support.v4.widget.NestedScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
@@ -66,22 +67,28 @@
         </RelativeLayout>
     </android.support.v4.widget.NestedScrollView>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/locations_add"
+    <android.support.design.button.MaterialButton
+        android:id="@+id/fab"
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="68dp"
         android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:tint="@android:color/white"
-        app:backgroundTint="@color/colorPrimary"
-        app:elevation="4dp"
-        app:fabSize="normal"
-        app:srcCompat="@drawable/ic_add_white_24dp"
-        app:tooltipText="@string/label_fab_add_location" />
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/label_fab_add_location"
+        app:cornerRadius="@dimen/fab_size"
+        app:elevation="6dp"
+        app:icon="@drawable/ic_add_location_white_24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <RelativeLayout
         android:id="@+id/search_fragment_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true" />
+
 </android.support.design.widget.CoordinatorLayout>

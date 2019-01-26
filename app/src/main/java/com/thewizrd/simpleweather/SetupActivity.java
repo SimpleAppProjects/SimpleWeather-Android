@@ -551,7 +551,7 @@ public class SetupActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        // Save ActionMode state
+        // Save SearchUI state
         outState.putBoolean("SearchUI", inSearchUI);
 
         if (inSearchUI)

@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.helpers;
+package com.thewizrd.shared_resources.helpers;
 
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 

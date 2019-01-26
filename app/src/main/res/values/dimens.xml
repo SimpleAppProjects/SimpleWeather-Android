@@ -19,6 +19,8 @@
     <!-- Material dimens -->
     <dimen name="appbar_elevation">4dp</dimen>
     <dimen name="toolbar_horizontal_inset_padding">16dp</dimen>
+    <dimen name="fab_size">56dp</dimen>
+    <dimen name="fab_expanded_height">68dp</dimen>
 
     <!-- WeatherNow -->
     <dimen name="detail_label_size">12sp</dimen>
@@ -46,4 +48,5 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <!-- Notification -->
     <dimen name="not_horiz_padding">8dp</dimen>
     <dimen name="not_vert_padding">8dp</dimen>
+
 </resources>

@@ -25,6 +25,7 @@ import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.LocationData;
@@ -95,7 +96,7 @@ public class WearableDataListenerService extends WearableListenerService {
                         .setSmallIcon(R.drawable.ic_logo)
                         .setContentTitle(context.getString(R.string.not_title_wearable_sync))
                         .setProgress(0, 0, true)
-                        .setColor(context.getColor(R.color.colorPrimary))
+                        .setColor(Colors.SIMPLEBLUE)
                         .setOnlyAlertOnce(true)
                         .setPriority(NotificationManager.IMPORTANCE_LOW);
 

@@ -1,4 +1,5 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory android:title="@string/pref_title_general">
 
@@ -7,21 +8,24 @@
             android:key="key_usecelsius"
             android:summaryOff="@string/pref_summary_fahrenheit"
             android:summaryOn="@string/pref_summary_celsius"
-            android:title="@string/pref_title_units" />
+            android:title="@string/pref_title_units"
+            app:icon="@drawable/ic_fahrenheit" />
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="key_followgps"
             android:summary="@string/pref_summary_currentlocation"
-            android:title="@string/label_currentlocation" />
+            android:title="@string/label_currentlocation"
+            app:icon="@drawable/ic_my_location_white_24dp" />
 
-        <com.thewizrd.simpleweather.preferences.CustomDropDownPreference
+        <ListPreference
             android:defaultValue="60"
             android:entries="@array/refreshinterval_entries"
             android:entryValues="@array/refreshinterval_values"
             android:key="key_refreshinterval"
             android:summary="%s"
-            android:title="@string/pref_title_refreshinterval" />
+            android:title="@string/pref_title_refreshinterval"
+            app:icon="@drawable/ic_access_time_white_24dp" />
 
     </PreferenceCategory>
 
@@ -33,9 +37,10 @@
             android:defaultValue="false"
             android:key="key_ongoingnotification"
             android:summary="@string/pref_summary_notification"
-            android:title="@string/pref_title_onnotification" />
+            android:title="@string/pref_title_onnotification"
+            app:icon="@drawable/ic_notifications_active_white_24dp" />
 
-        <com.thewizrd.simpleweather.preferences.CustomDropDownPreference
+        <ListPreference
             android:defaultValue="0"
             android:dependency="key_ongoingnotification"
             android:entries="@array/notification_entries"
@@ -48,7 +53,8 @@
             android:defaultValue="false"
             android:key="key_usealerts"
             android:summary="@string/pref_summary_alerts"
-            android:title="@string/pref_title_alerts" />
+            android:title="@string/pref_title_alerts"
+            app:icon="@drawable/ic_error_outline_white_24dp" />
 
     </PreferenceCategory>
 
@@ -56,7 +62,7 @@
         android:title="@string/pref_title_api"
         android:key="category_api">
 
-        <com.thewizrd.simpleweather.preferences.CustomDropDownPreference
+        <ListPreference
             android:key="API"
             android:summary="%s"
             android:title="@string/api_label" />
@@ -84,7 +90,8 @@
 
         <Preference
             android:key="key_aboutapp"
-            android:title="@string/pref_title_about_app" />
+            android:title="@string/pref_title_about_app"
+            app:icon="@drawable/ic_info_outline_white_24dp" />
 
     </PreferenceCategory>
 

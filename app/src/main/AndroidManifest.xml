@@ -42,10 +42,6 @@
             android:finishOnTaskLaunch="true"
             android:windowSoftInputMode="stateAlwaysHidden|adjustNothing" />
         <activity
-            android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:theme="@style/SettingsTheme" />
-        <activity
             android:name=".widgets.WeatherWidgetConfigActivity"
             android:label="@string/title_activity_widget_config"
             android:theme="@style/SetupTheme"

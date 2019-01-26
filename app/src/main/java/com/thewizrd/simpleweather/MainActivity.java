@@ -1,45 +1,51 @@
 package com.thewizrd.simpleweather;
 
-import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
+import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.weatherdata.LocationData;
+import com.thewizrd.simpleweather.helpers.ActivityUtils;
+import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
+import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import java.io.StringReader;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements BottomNavigationView.OnNavigationItemSelectedListener,
+        WeatherViewLoadedListener, WindowColorsInterface {
+
+    private Toolbar mToolbar;
+    private BottomNavigationView mBottomNavView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        mToolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
+        // Make full transparent statusBar
+        ActivityUtils.setTransparentWindow(getWindow(), Colors.TRANSPARENT, Colors.TRANSPARENT);
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        mBottomNavView = findViewById(R.id.bottom_nav_bar);
+        mBottomNavView.setOnNavigationItemSelectedListener(this);
 
         // Back stack listener
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
@@ -51,8 +57,8 @@ public class MainActivity extends AppCompatActivity
 
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
 
-        // Alerts
-        if (getIntent() != null && "".equals(getIntent().getAction())) {
+        // Alerts: from weather alert notification
+        if (getIntent() != null && WeatherWidgetService.ACTION_SHOWALERTS.equals(getIntent().getAction())) {
             Fragment newFragment = WeatherNowFragment.newInstance(getIntent().getExtras());
 
             if (fragment == null) {
@@ -61,14 +67,14 @@ public class MainActivity extends AppCompatActivity
                 // Make sure we exit if location is not home
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, fragment, "notification")
-                        .commit();
+                        .commitNow();
             } else {
                 // Navigate to WeatherNowFragment
                 // Make sure we exit if location is not home
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, newFragment)
-                        .addToBackStack(null)
-                        .commit();
+                        .addToBackStack(null) // allow exit
+                        .commitNow();
             }
         }
         // Check if fragment exists
@@ -81,9 +87,10 @@ public class MainActivity extends AppCompatActivity
             // Navigate to WeatherNowFragment
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fragment, "home")
-                    .commit();
+                    .commitNow();
         }
 
+        // Shortcut intent: from app shortcuts
         if (getIntent() != null && getIntent().hasExtra("shortcut-data")) {
             JsonReader reader = new JsonReader(
                     new StringReader(getIntent().getStringExtra("shortcut-data")));
@@ -94,15 +101,14 @@ public class MainActivity extends AppCompatActivity
 
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, newFragment, "shortcut")
-                    .commit();
-
-            // Disable navigation
-            toggle.setDrawerIndicatorEnabled(false);
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                    .commitNow();
         }
 
-        navigationView.setCheckedItem(R.id.nav_weathernow);
+        // Check nav item in bottom nav view
+        // based on current fragment
+        refreshNavViewCheckedItem();
 
+        // Update app shortcuts
         AsyncTask.run(new Runnable() {
             @Override
             public void run() {
@@ -113,19 +119,30 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        OnBackPressedFragmentListener fragBackPressedListener = null;
+        if (current instanceof OnBackPressedFragmentListener)
+            fragBackPressedListener = (OnBackPressedFragmentListener) current;
+
+        // If fragment doesn't handle onBackPressed event fallback to this impl
+        if (fragBackPressedListener == null || !fragBackPressedListener.onBackPressed()) {
             // Destroy untagged fragments onbackpressed
             if (current != null && current.getTag() == null) {
                 getSupportFragmentManager().beginTransaction()
                         .remove(current)
                         .commit();
-                current = null;
             }
-            super.onBackPressed();
+
+            // If sub-fragment exist: pop those one by one
+            int backstackCount = getSupportFragmentManager().getBackStackEntryCount();
+            if (current != null
+                    && (current.getClass().getName().contains("SettingsFragment$") || current instanceof WeatherAlertsFragment)) {
+                getSupportFragmentManager().popBackStack();
+            } else if (backstackCount >= 1) { // If backstack entry exists pop all and goto first (home) fragment
+                getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            } else { // Otherwise fallback
+                super.onBackPressed();
+            }
         }
     }
 
@@ -134,8 +151,8 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         Fragment fragment = null;
 
         if (id == R.id.nav_weathernow) {
@@ -143,76 +160,109 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_locations) {
             fragment = new LocationsFragment();
         } else if (id == R.id.nav_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
-            drawer.closeDrawer(GravityCompat.START);
-            return false;
+            fragment = new SettingsFragment();
         }
 
-        if (fragment != null) {
-            if (fragment.getClass() != getSupportFragmentManager().findFragmentById(R.id.fragment_container).getClass()) {
-                if (fragment instanceof WeatherNowFragment) {
-                    // Pop all since we're going home
-                    fragment = null;
-                    transaction.commit();
-                    getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                } else if (fragment instanceof LocationsFragment) {
-                    Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-
-                    if (current instanceof WeatherNowFragment) {
-                        // Hide home frag
-                        if ("home".equals(current.getTag()))
-                            transaction.hide(current);
-                        else {
-                            // Destroy lingering WNow frag
-                            getSupportFragmentManager().beginTransaction()
-                                    .remove(current)
-                                    .commit();
-                            current.onDestroy();
-                            current = null;
-                            getSupportFragmentManager().popBackStack();
-                        }
+        // Make sure we're not navigating to the same type of fragment
+        if (fragment != null && current != null && fragment.getClass() != current.getClass()) {
+            if (fragment instanceof WeatherNowFragment) {
+                // Pop all since we're going home
+                fragment = null;
+                getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            } else if (fragment instanceof LocationsFragment) {
+                /* NOTE: KEEP THIS IT WORKS FINE */
+                if (current instanceof WeatherNowFragment) {
+                    // Hide home frag
+                    if ("home".equals(current.getTag()))
+                        transaction.hide(current);
+                    else {
+                        // Destroy lingering WNow frag
+                        transaction.remove(current);
+                        getSupportFragmentManager().popBackStack();
                     }
-
-                    if (getSupportFragmentManager().findFragmentByTag("locations") != null) {
-                        // Pop all frags if LocFrag in backstack
-                        fragment = null;
-                        transaction.commit();
-                    } else {
-                        // Add LocFrag if not in backstack
-                        // Commit the transaction
-                        transaction
-                                .add(R.id.fragment_container, fragment, "locations")
-                                .addToBackStack(null)
-                                .commit();
+                    /* NOTE: KEEP ABOVE */
+                } else {
+                    // If current frag is Settings sub-fragment pop all off
+                    if (current.getClass().getName().contains("SettingsFragment$"))
+                        getSupportFragmentManager().popBackStack("settings", 0);
+                    // If a Settings fragment exists remove it
+                    // Don't pop here so we don't trigger onResume/onHiddenChanged of root fragment
+                    if (getSupportFragmentManager().findFragmentByTag("settings") != null) {
+                        current = getSupportFragmentManager().findFragmentByTag("settings");
+                        transaction.remove(current);
                     }
+                }
+
+                if (getSupportFragmentManager().findFragmentByTag("locations") != null) {
+                    fragment = getSupportFragmentManager().findFragmentByTag("locations");
+                    // Show LocationsFragment if it exists
+                    transaction
+                            .show(fragment)
+                            .addToBackStack(null);
+                } else {
+                    // Add LocFrag if not in backstack/DNE
+                    transaction
+                            .add(R.id.fragment_container, fragment, "locations")
+                            .addToBackStack(null);
+                }
+
+                // Commit the transaction
+                transaction.commit();
+            } else if (fragment instanceof SettingsFragment) {
+                // Commit the transaction if current frag is not a SettingsFragment sub-fragment
+                if (!current.getClass().getName().contains("SettingsFragment")) {
+                    transaction
+                            .add(R.id.fragment_container, fragment, "settings")
+                            .hide(current)
+                            .addToBackStack("settings")
+                            .commit();
                 }
             }
         }
 
-        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    @Override
     protected void onResumeFragments() {
         super.onResumeFragments();
         refreshNavViewCheckedItem();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void refreshNavViewCheckedItem() {
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        int checkedItemId = -1;
 
         if (fragment instanceof WeatherNowFragment) {
-            navigationView.setCheckedItem(R.id.nav_weathernow);
+            checkedItemId = R.id.nav_weathernow;
             getSupportActionBar().setTitle(getString(R.string.title_activity_weather_now));
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         } else if (fragment instanceof LocationsFragment) {
-            navigationView.setCheckedItem(R.id.nav_locations);
+            checkedItemId = R.id.nav_locations;
             getSupportActionBar().setTitle(getString(R.string.label_nav_locations));
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         } else if (fragment instanceof WeatherAlertsFragment) {
-            navigationView.setCheckedItem(R.id.nav_weathernow);
+            checkedItemId = R.id.nav_weathernow;
             getSupportActionBar().setTitle(getString(R.string.title_fragment_alerts));
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        } else if (fragment != null && fragment.getClass().getName().contains("SettingsFragment")) {
+            checkedItemId = R.id.nav_settings;
+            // Let fragment take care of title
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+        MenuItem item = mBottomNavView.getMenu().findItem(checkedItemId);
+        if (item != null) {
+            item.setChecked(true);
         }
 
         if (fragment instanceof WeatherAlertsFragment) {
@@ -220,11 +270,36 @@ public class MainActivity extends AppCompatActivity
         } else {
             if (!getSupportActionBar().isShowing())
                 getSupportActionBar().show();
-
-            if (getIntent() != null && getIntent().hasExtra("shortcut-data"))
-                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            else
-                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         }
+    }
+
+    @Override
+    public void onWeatherViewUpdated(final WeatherNowViewModel weatherNowView) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Actionbar, BottonNavBar & StatusBar
+                setWindowBarColors(weatherNowView.getPendingBackground());
+            }
+        });
+    }
+
+    @Override
+    public void setWindowBarColors(@ColorInt final int color) {
+        setWindowBarColors(color, color);
+    }
+
+    @Override
+    public void setWindowBarColors(@ColorInt final int statusBarColor, @ColorInt final int navBarColor) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Actionbar, BottonNavBar & StatusBar
+                ActivityUtils.setTransparentWindow(getWindow(),
+                        statusBarColor, navBarColor);
+                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(statusBarColor));
+                mBottomNavView.setBackgroundColor(navBarColor);
+            }
+        });
     }
 }

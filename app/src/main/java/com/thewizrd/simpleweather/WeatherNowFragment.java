@@ -16,7 +16,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -60,6 +59,7 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.controls.TextForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
+import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -78,6 +78,7 @@ import com.thewizrd.simpleweather.adapters.ForecastItemAdapter;
 import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter;
 import com.thewizrd.simpleweather.adapters.TextForecastPagerAdapter;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
+import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationBuilder;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler;
@@ -102,7 +103,10 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     private WeatherManager wm;
     private WeatherDataLoader wLoader = null;
     private WeatherNowViewModel weatherView = null;
-    private AppCompatActivity appCompatActivity;
+    private AppCompatActivity mActivity;
+    private WindowColorsInterface mWindowColorsIface;
+
+    private WeatherViewLoadedListener mCallback;
 
     // Views
     private SwipeRefreshLayout refreshLayout;
@@ -144,10 +148,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     private TextView cloudiness;
     // Alerts
     private View alertButton;
-    // Nav Header View
-    private View navheader;
-    private TextView navLocation;
-    private TextView navWeatherTemp;
     // Weather Credit
     private TextView weatherCredit;
 
@@ -194,99 +194,107 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         return fragment;
     }
 
+    private void runOnUiThread(Runnable action) {
+        if (mActivity != null)
+            mActivity.runOnUiThread(action);
+    }
+
     public void onWeatherLoaded(final LocationData location, final Weather weather) {
-        if (appCompatActivity != null) {
-            appCompatActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (weather != null && weather.isValid()) {
-                        wm.updateWeather(weather);
-                        weatherView.updateView(weather);
-                        updateView(weatherView);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (weather != null && weather.isValid()) {
+                    wm.updateWeather(weather);
+                    weatherView.updateView(weather);
+                    updateView(weatherView);
+                    if (mCallback != null) mCallback.onWeatherViewUpdated(weatherView);
 
-                        if (Settings.getHomeData().equals(location)) {
-                            // Update widgets if they haven't been already
-                            if (Duration.between(LocalDateTime.now(), Settings.getUpdateTime()).toMinutes() > Settings.getRefreshInterval()) {
-                                WeatherWidgetService.enqueueWork(App.getInstance().getAppContext(), new Intent(App.getInstance().getAppContext(), WeatherWidgetService.class)
-                                        .setAction(WeatherWidgetService.ACTION_UPDATEWEATHER));
-                            }
-
-                            // Update ongoing notification if its not showing
-                            if (Settings.showOngoingNotification() && !WeatherNotificationBuilder.isShowing()) {
-                                WeatherWidgetService.enqueueWork(App.getInstance().getAppContext(), new Intent(App.getInstance().getAppContext(), WeatherWidgetService.class)
-                                        .setAction(WeatherWidgetService.ACTION_REFRESHNOTIFICATION));
-                            }
+                    if (Settings.getHomeData().equals(location)) {
+                        // Update widgets if they haven't been already
+                        if (Duration.between(LocalDateTime.now(), Settings.getUpdateTime()).toMinutes() > Settings.getRefreshInterval()) {
+                            WeatherWidgetService.enqueueWork(App.getInstance().getAppContext(), new Intent(App.getInstance().getAppContext(), WeatherWidgetService.class)
+                                    .setAction(WeatherWidgetService.ACTION_UPDATEWEATHER));
                         }
 
-                        if (wm.supportsAlerts() && Settings.useAlerts() &&
-                                weather.getWeatherAlerts() != null && weather.getWeatherAlerts().size() > 0) {
-                            // Alerts are posted to the user here. Set them as notified.
-                            AsyncTask.run(new Runnable() {
-                                @Override
-                                public void run() {
-                                    WeatherAlertHandler.setAsNotified(location, weather.getWeatherAlerts());
-                                }
-                            });
+                        // Update ongoing notification if its not showing
+                        if (Settings.showOngoingNotification() && !WeatherNotificationBuilder.isShowing()) {
+                            WeatherWidgetService.enqueueWork(App.getInstance().getAppContext(), new Intent(App.getInstance().getAppContext(), WeatherWidgetService.class)
+                                    .setAction(WeatherWidgetService.ACTION_REFRESHNOTIFICATION));
                         }
                     }
 
-                    refreshLayout.setRefreshing(false);
+                    if (wm.supportsAlerts() && Settings.useAlerts() &&
+                            weather.getWeatherAlerts() != null && weather.getWeatherAlerts().size() > 0) {
+                        // Alerts are posted to the user here. Set them as notified.
+                        AsyncTask.run(new Runnable() {
+                            @Override
+                            public void run() {
+                                WeatherAlertHandler.setAsNotified(location, weather.getWeatherAlerts());
+                            }
+                        });
+                    }
                 }
-            });
-        }
+
+                refreshLayout.setRefreshing(false);
+            }
+        });
     }
 
     @Override
     public void onWeatherError(final WeatherException wEx) {
-        if (appCompatActivity != null) {
-            appCompatActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    switch (wEx.getErrorStatus()) {
-                        case NETWORKERROR:
-                        case NOWEATHER:
-                            // Show error message and prompt to refresh
-                            Snackbar snackBar = Snackbar.make(mainView, wEx.getMessage(), Snackbar.LENGTH_LONG);
-                            snackBar.setAction(R.string.action_retry, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    new AsyncTask<Void>().await(new Callable<Void>() {
-                                        @Override
-                                        public Void call() throws Exception {
-                                            refreshWeather(false);
-                                            return null;
-                                        }
-                                    });
-                                }
-                            });
-                            snackBar.show();
-                            break;
-                        default:
-                            // Show error message
-                            Snackbar.make(mainView, wEx.getMessage(), Snackbar.LENGTH_LONG).show();
-                            break;
-                    }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                switch (wEx.getErrorStatus()) {
+                    case NETWORKERROR:
+                    case NOWEATHER:
+                        // Show error message and prompt to refresh
+                        Snackbar snackBar = Snackbar.make(mainView, wEx.getMessage(), Snackbar.LENGTH_LONG);
+                        snackBar.setAction(R.string.action_retry, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                new AsyncTask<Void>().await(new Callable<Void>() {
+                                    @Override
+                                    public Void call() throws Exception {
+                                        refreshWeather(false);
+                                        return null;
+                                    }
+                                });
+                            }
+                        });
+                        snackBar.show();
+                        break;
+                    default:
+                        // Show error message
+                        Snackbar.make(mainView, wEx.getMessage(), Snackbar.LENGTH_LONG).show();
+                        break;
                 }
-            });
-        }
+            }
+        });
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        appCompatActivity = (AppCompatActivity) context;
+        mActivity = (AppCompatActivity) context;
+        mCallback = (WeatherViewLoadedListener) context;
+        mWindowColorsIface = (WindowColorsInterface) context;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        appCompatActivity = null;
+        mActivity = null;
+        mCallback = null;
+        mWindowColorsIface = null;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        appCompatActivity = null;
+        mActivity = null;
+        mCallback = null;
+        mWindowColorsIface = null;
     }
 
     @Override
@@ -375,9 +383,14 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_weather_now, container, false);
+        // Request focus away from RecyclerView
+        view.setFocusableInTouchMode(true);
+        view.requestFocus();
 
         // Setup ActionBar
         setHasOptionsMenu(true);
+        if (mWindowColorsIface != null)
+            mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
 
         refreshLayout = (SwipeRefreshLayout) view;
         mainView = view.findViewById(R.id.fragment_weather_now);
@@ -421,7 +434,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 forecastSwitch.setText(isChecked ?
-                        appCompatActivity.getString(R.string.switch_details) : appCompatActivity.getString(R.string.switch_daily));
+                        mActivity.getString(R.string.switch_details) : mActivity.getString(R.string.switch_daily));
                 forecastView.setVisibility(isChecked ? View.GONE : View.VISIBLE);
                 txtForecastView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             }
@@ -448,7 +461,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             public void onClick(View v) {
                 // Show Alert Fragment
                 if (weatherView.getExtras().getAlerts().size() > 0)
-                    appCompatActivity.getSupportFragmentManager().beginTransaction()
+                    mActivity.getSupportFragmentManager().beginTransaction()
                             .add(R.id.fragment_container, WeatherAlertsFragment.newInstance(location, weatherView))
                             .hide(WeatherNowFragment.this)
                             .addToBackStack(null)
@@ -470,7 +483,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         hrforecastView.setAdapter(hrforecastAdapter);
 
         // SwipeRefresh
-        refreshLayout.setColorSchemeColors(ContextCompat.getColor(getActivity(), R.color.colorPrimary));
+        refreshLayout.setColorSchemeColors(Colors.SIMPLEBLUE);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -488,11 +501,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             }
         });
 
-        // Nav Header View
-        navheader = ((NavigationView) getActivity().findViewById(R.id.nav_view)).getHeaderView(0);
-        navLocation = navheader.findViewById(R.id.nav_location);
-        navWeatherTemp = navheader.findViewById(R.id.nav_weathertemp);
-
         weatherCredit = view.findViewById(R.id.weather_credit);
 
         loaded = true;
@@ -502,13 +510,13 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     }
 
     private void adjustDetailsLayout() {
-        if (appCompatActivity != null && ActivityUtils.isLargeTablet(appCompatActivity)) {
-            appCompatActivity.runOnUiThread(new Runnable() {
+        if (mActivity != null && ActivityUtils.isLargeTablet(mActivity)) {
+            runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    View view = WeatherNowFragment.this.getView();
+                    View mainView = WeatherNowFragment.this.getView();
 
-                    if (view == null)
+                    if (mainView == null)
                         return;
 
                     GridLayout panel = (GridLayout) detailsPanel;
@@ -516,7 +524,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     // Minimum width for ea. card
                     int minWidth = 600;
                     // Size of the view
-                    int viewWidth = view.getWidth() - ViewCompat.getPaddingEnd(panel) - ViewCompat.getPaddingStart(panel);
+                    int viewWidth = mainView.getWidth() - ViewCompat.getPaddingEnd(panel) - ViewCompat.getPaddingStart(panel);
                     // Available columns based on min card width
                     int availColumns = (viewWidth / minWidth) == 0 ? 1 : viewWidth / minWidth;
                     // Maximum columns to use
@@ -538,8 +546,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                                 GridLayout.spec(currCol, 1.0f));
                         layoutParams.width = 0;
                         int paddingVert = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, innerView.getContext().getResources().getDisplayMetrics());
-                        ViewCompat.setPaddingRelative(view, paddingVert, 0, paddingVert, 0); // s, t, e, b
-                        view.setLayoutParams(layoutParams);
+                        ViewCompat.setPaddingRelative(innerView, paddingVert, 0, paddingVert, 0); // s, t, e, b
+                        innerView.setLayoutParams(layoutParams);
                         if (currCol == maxColumns - 1) {
                             currCol = 0;
                             currRow++;
@@ -555,8 +563,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     }
 
     private void resizeAlertPanel() {
-        if (appCompatActivity != null && ActivityUtils.isLargeTablet(appCompatActivity)) {
-            appCompatActivity.runOnUiThread(new Runnable() {
+        if (mActivity != null && ActivityUtils.isLargeTablet(mActivity)) {
+            runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     View view = WeatherNowFragment.this.getView();
@@ -638,6 +646,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             } else {
                                 weatherView.updateView(wLoader.getWeather());
                                 updateView(weatherView);
+                                if (mCallback != null) mCallback.onWeatherViewUpdated(weatherView);
                                 loaded = true;
                             }
                         }
@@ -659,7 +668,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             getArguments().remove(WeatherWidgetService.ACTION_SHOWALERTS);
 
             // Show Alert Fragment
-            appCompatActivity.getSupportFragmentManager().beginTransaction()
+            mActivity.getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, WeatherAlertsFragment.newInstance(location))
                     .hide(this)
                     .addToBackStack(null)
@@ -680,8 +689,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             });
 
         // Title
-        if (appCompatActivity != null)
-            appCompatActivity.getSupportActionBar().setTitle(R.string.title_activity_weather_now);
+        if (mActivity != null)
+            mActivity.getSupportActionBar().setTitle(R.string.title_activity_weather_now);
     }
 
     @Override
@@ -689,7 +698,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         super.onHiddenChanged(hidden);
 
         if (!hidden && weatherView != null && this.isVisible()) {
-            updateNavHeader(weatherView);
             AsyncTask.run(new Runnable() {
                 @Override
                 public void run() {
@@ -760,8 +768,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     }
 
     private void refreshWeather(final boolean forceRefresh) {
-        if (appCompatActivity != null) {
-            appCompatActivity.runOnUiThread(new Runnable() {
+        if (mActivity != null) {
+            runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     refreshLayout.setRefreshing(true);
@@ -778,161 +786,138 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     }
 
     private void updateView(final WeatherNowViewModel weatherView) {
-        if (appCompatActivity != null) {
-            appCompatActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    // Background
-                    refreshLayout.setBackground(new ColorDrawable(weatherView.getPendingBackground()));
-                    bgImageView.setImageAlpha(bgAlpha);
-                    Glide.with(appCompatActivity)
-                            .load(weatherView.getBackground())
-                            .apply(new RequestOptions().centerCrop())
-                            .into(bgImageView);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Background
+                refreshLayout.setBackground(new ColorDrawable(weatherView.getPendingBackground()));
+                bgImageView.setImageAlpha(bgAlpha);
+                Glide.with(mActivity)
+                        .load(weatherView.getBackground())
+                        .apply(new RequestOptions().centerCrop())
+                        .into(bgImageView);
 
-                    // Actionbar & StatusBar
-                    appCompatActivity.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(weatherView.getPendingBackground()));
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        int r = Color.red(weatherView.getPendingBackground());
-                        int g = Color.green(weatherView.getPendingBackground());
-                        int b = Color.blue(weatherView.getPendingBackground());
-                        appCompatActivity.getWindow().setStatusBarColor(Color.argb(255,
-                                (int) (r * 0.75),
-                                (int) (g * 0.75),
-                                (int) (b * 0.75)));
-                    }
+                // Location
+                locationName.setText(weatherView.getLocation());
 
-                    // Location
-                    locationName.setText(weatherView.getLocation());
+                // Date Updated
+                updateTime.setText(weatherView.getUpdateDate());
 
-                    // Date Updated
-                    updateTime.setText(weatherView.getUpdateDate());
+                // Update Current Condition
+                weatherTemp.setText(weatherView.getCurTemp());
+                weatherCondition.setText(weatherView.getCurCondition());
+                weatherIcon.setText(weatherView.getWeatherIcon());
 
-                    // Update Current Condition
-                    weatherTemp.setText(weatherView.getCurTemp());
-                    weatherCondition.setText(weatherView.getCurCondition());
-                    weatherIcon.setText(weatherView.getWeatherIcon());
+                // WeatherDetails
+                // Astronomy
+                sunrise.setText(weatherView.getSunrise());
+                sunset.setText(weatherView.getSunset());
 
-                    // WeatherDetails
-                    // Astronomy
-                    sunrise.setText(weatherView.getSunrise());
-                    sunset.setText(weatherView.getSunset());
+                // Wind
+                feelslike.setText(weatherView.getWindChill());
+                windSpeed.setText(weatherView.getWindSpeed());
+                windDirection.setRotation(weatherView.getWindDirection());
 
-                    // Wind
-                    feelslike.setText(weatherView.getWindChill());
-                    windSpeed.setText(weatherView.getWindSpeed());
-                    windDirection.setRotation(weatherView.getWindDirection());
+                // Atmosphere
+                humidity.setText(weatherView.getHumidity());
+                pressure.setText(weatherView.getPressure());
 
-                    // Atmosphere
-                    humidity.setText(weatherView.getHumidity());
-                    pressure.setText(weatherView.getPressure());
+                pressureState.setVisibility(weatherView.getRisingVisiblity());
 
-                    pressureState.setVisibility(weatherView.getRisingVisiblity());
+                visiblity.setText(weatherView.getVisibility());
 
-                    visiblity.setText(weatherView.getVisibility());
+                // Add UI elements
+                forecastAdapter.updateItems(weatherView.getForecasts());
+                forecastPanel.setVisibility(View.VISIBLE);
 
-                    // Add UI elements
-                    forecastAdapter.updateItems(weatherView.getForecasts());
-                    forecastPanel.setVisibility(View.VISIBLE);
+                // Additional Details
+                if (weatherView.getExtras().getHourlyForecast().size() >= 1) {
+                    hrforecastAdapter.updateItems(weatherView.getExtras().getHourlyForecast());
+                    hrforecastPanel.setVisibility(View.VISIBLE);
+                } else {
+                    hrforecastPanel.setVisibility(View.GONE);
+                }
 
-                    // Additional Details
-                    if (weatherView.getExtras().getHourlyForecast().size() >= 1) {
-                        hrforecastAdapter.updateItems(weatherView.getExtras().getHourlyForecast());
-                        hrforecastPanel.setVisibility(View.VISIBLE);
-                    } else {
-                        hrforecastPanel.setVisibility(View.GONE);
-                    }
+                if (weatherView.getExtras().getTextForecast().size() >= 1) {
+                    forecastSwitch.setVisibility(View.VISIBLE);
+                    ((TextForecastPagerAdapter) txtForecastView.getAdapter()).updateDataset(weatherView.getExtras().getTextForecast());
+                } else {
+                    forecastSwitch.setVisibility(View.GONE);
+                }
 
-                    if (weatherView.getExtras().getTextForecast().size() >= 1) {
-                        forecastSwitch.setVisibility(View.VISIBLE);
-                        ((TextForecastPagerAdapter) txtForecastView.getAdapter()).updateDataset(weatherView.getExtras().getTextForecast());
-                    } else {
-                        forecastSwitch.setVisibility(View.GONE);
-                    }
+                if (!StringUtils.isNullOrWhitespace(weatherView.getExtras().getChance())) {
+                    cloudiness.setText(weatherView.getExtras().getChance());
+                    chance.setText(weatherView.getExtras().getChance());
+                    qpfRain.setText(weatherView.getExtras().getQpfRain());
+                    qpfSnow.setText(weatherView.getExtras().getQpfSnow());
 
-                    if (!StringUtils.isNullOrWhitespace(weatherView.getExtras().getChance())) {
-                        cloudiness.setText(weatherView.getExtras().getChance());
-                        chance.setText(weatherView.getExtras().getChance());
-                        qpfRain.setText(weatherView.getExtras().getQpfRain());
-                        qpfSnow.setText(weatherView.getExtras().getQpfSnow());
+                    if (!WeatherAPI.METNO.equals(Settings.getAPI())) {
+                        precipitationPanel.setVisibility(View.VISIBLE);
 
-                        if (!WeatherAPI.METNO.equals(Settings.getAPI())) {
-                            precipitationPanel.setVisibility(View.VISIBLE);
-
-                            if (ActivityUtils.isLargeTablet(appCompatActivity)) {
-                                // Add back panel if not present
-                                GridLayout panel = (GridLayout) detailsPanel;
-                                int childIdx = panel.indexOfChild(panel.findViewById(R.id.precipitation_card));
-                                if (childIdx < 0)
-                                    panel.addView(precipitationPanel, 0);
-                            }
-                        } else {
-                            if (ActivityUtils.isLargeTablet(appCompatActivity)) {
-                                GridLayout panel = (GridLayout) detailsPanel;
-                                panel.removeView(panel.findViewById(R.id.precipitation_card));
-                            } else {
-                                precipitationPanel.setVisibility(View.GONE);
-                            }
-                        }
-
-                        if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
-                            chanceLabel.setVisibility(View.GONE);
-                            chance.setVisibility(View.GONE);
-
-                            cloudinessLabel.setVisibility(View.VISIBLE);
-                            cloudiness.setVisibility(View.VISIBLE);
-                        } else {
-                            chanceLabel.setVisibility(View.VISIBLE);
-                            chance.setVisibility(View.VISIBLE);
-
-                            cloudinessLabel.setVisibility(View.GONE);
-                            cloudiness.setVisibility(View.GONE);
+                        if (ActivityUtils.isLargeTablet(mActivity)) {
+                            // Add back panel if not present
+                            GridLayout panel = (GridLayout) detailsPanel;
+                            int childIdx = panel.indexOfChild(panel.findViewById(R.id.precipitation_card));
+                            if (childIdx < 0)
+                                panel.addView(precipitationPanel, 0);
                         }
                     } else {
-                        if (ActivityUtils.isLargeTablet(appCompatActivity)) {
+                        if (ActivityUtils.isLargeTablet(mActivity)) {
                             GridLayout panel = (GridLayout) detailsPanel;
                             panel.removeView(panel.findViewById(R.id.precipitation_card));
                         } else {
                             precipitationPanel.setVisibility(View.GONE);
                         }
+                    }
+
+                    if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
+                        chanceLabel.setVisibility(View.GONE);
+                        chance.setVisibility(View.GONE);
+
+                        cloudinessLabel.setVisibility(View.VISIBLE);
+                        cloudiness.setVisibility(View.VISIBLE);
+                    } else {
+                        chanceLabel.setVisibility(View.VISIBLE);
+                        chance.setVisibility(View.VISIBLE);
 
                         cloudinessLabel.setVisibility(View.GONE);
                         cloudiness.setVisibility(View.GONE);
                     }
-
-                    // Alerts
-                    if (wm.supportsAlerts() && weatherView.getExtras().getAlerts().size() > 0) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            alertButton.setBackgroundTintList(ColorStateList.valueOf(Colors.ORANGERED));
-                        } else {
-                            Drawable origDrawable = ContextCompat.getDrawable(appCompatActivity, R.drawable.light_round_corner_bg);
-                            Drawable compatDrawable = DrawableCompat.wrap(origDrawable);
-                            DrawableCompat.setTint(compatDrawable, Colors.ORANGERED);
-                            alertButton.setBackground(compatDrawable);
-                        }
-
-                        alertButton.setVisibility(View.VISIBLE);
-                        resizeAlertPanel();
+                } else {
+                    if (ActivityUtils.isLargeTablet(mActivity)) {
+                        GridLayout panel = (GridLayout) detailsPanel;
+                        panel.removeView(panel.findViewById(R.id.precipitation_card));
                     } else {
-                        alertButton.setVisibility(View.INVISIBLE);
+                        precipitationPanel.setVisibility(View.GONE);
                     }
 
-                    // Fix DetailsLayout
-                    adjustDetailsLayout();
-
-                    // Nav Header View
-                    updateNavHeader(weatherView);
-
-                    weatherCredit.setText(weatherView.getWeatherCredit());
+                    cloudinessLabel.setVisibility(View.GONE);
+                    cloudiness.setVisibility(View.GONE);
                 }
-            });
-        }
-    }
 
-    private void updateNavHeader(WeatherNowViewModel weatherView) {
-        navheader.setBackground(new ColorDrawable(weatherView.getPendingBackground()));
-        navLocation.setText(weatherView.getLocation());
-        navWeatherTemp.setText(weatherView.getCurTemp());
+                // Alerts
+                if (wm.supportsAlerts() && weatherView.getExtras().getAlerts().size() > 0) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        alertButton.setBackgroundTintList(ColorStateList.valueOf(Colors.ORANGERED));
+                    } else {
+                        Drawable origDrawable = ContextCompat.getDrawable(mActivity, R.drawable.light_round_corner_bg);
+                        Drawable compatDrawable = DrawableCompat.wrap(origDrawable);
+                        DrawableCompat.setTint(compatDrawable, Colors.ORANGERED);
+                        alertButton.setBackground(compatDrawable);
+                    }
+
+                    alertButton.setVisibility(View.VISIBLE);
+                    resizeAlertPanel();
+                } else {
+                    alertButton.setVisibility(View.INVISIBLE);
+                }
+
+                // Fix DetailsLayout
+                adjustDetailsLayout();
+
+                weatherCredit.setText(weatherView.getWeatherCredit());
+            }
+        });
     }
 
     private boolean updateLocation() {
@@ -941,10 +926,10 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             public Boolean call() {
                 boolean locationChanged = false;
 
-                if (appCompatActivity != null && Settings.useFollowGPS() && (location == null || location.getLocationType() == LocationType.GPS)) {
-                    if (ContextCompat.checkSelfPermission(appCompatActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                            ContextCompat.checkSelfPermission(appCompatActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(appCompatActivity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                if (mActivity != null && Settings.useFollowGPS() && (location == null || location.getLocationType() == LocationType.GPS)) {
+                    if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                            ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                                 PERMISSION_LOCATION_REQUEST_CODE);
                         return false;
                     }
@@ -981,8 +966,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                         }
                     } else {
                         LocationManager locMan = null;
-                        if (appCompatActivity != null)
-                            locMan = (LocationManager) appCompatActivity.getSystemService(Context.LOCATION_SERVICE);
+                        if (mActivity != null)
+                            locMan = (LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
                         boolean isGPSEnabled = false;
                         boolean isNetEnabled = false;
                         if (locMan != null) {
@@ -1002,10 +987,10 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             if (location == null)
                                 locMan.requestSingleUpdate(provider, mLocListnr, Looper.getMainLooper());
                         } else {
-                            appCompatActivity.runOnUiThread(new Runnable() {
+                            runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(appCompatActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
@@ -1075,7 +1060,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     Settings.setFollowGPS(false);
-                    Toast.makeText(appCompatActivity, R.string.error_location_denied, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mActivity, R.string.error_location_denied, Toast.LENGTH_SHORT).show();
                 }
                 return;
             }
