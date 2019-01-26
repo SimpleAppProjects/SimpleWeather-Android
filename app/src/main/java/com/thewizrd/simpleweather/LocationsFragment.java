@@ -58,6 +58,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.CancellationToken;
+import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
@@ -138,6 +139,7 @@ public class LocationsFragment extends Fragment
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocCallback;
     private LocationListener mLocListnr;
+    private CancellationTokenSource cts;
 
     private static final int ANIMATION_DURATION = 240;
 
@@ -162,9 +164,13 @@ public class LocationsFragment extends Fragment
 
     @Override
     public void onDestroy() {
+        // Cancel pending actions
         if (inSearchUI) exitSearchUi(true);
-        super.onDestroy();
+        if (cts != null) cts.cancel();
         if (mSearchFragment != null) mSearchFragment.ctsCancel();
+
+        super.onDestroy();
+
         mActivity = null;
         mWindowColorsIface = null;
     }
@@ -187,6 +193,9 @@ public class LocationsFragment extends Fragment
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (cts.getToken().isCancellationRequested())
+                    return;
+
                 if (weather != null && weather.isValid()) {
                     if (Settings.useFollowGPS() && location.getLocationType() == LocationType.GPS) {
                         if (gpsPanelViewModel != null) {
@@ -227,6 +236,9 @@ public class LocationsFragment extends Fragment
 
     @Override
     public void onWeatherError(WeatherException wEx) {
+        if (cts.getToken().isCancellationRequested())
+            return;
+
         switch (wEx.getErrorStatus()) {
             case NETWORKERROR:
             case NOWEATHER:
@@ -480,6 +492,8 @@ public class LocationsFragment extends Fragment
     }
 
     private void resume() {
+        cts = new CancellationTokenSource();
+
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -536,18 +550,27 @@ public class LocationsFragment extends Fragment
     @Override
     public void onPause() {
         if (inSearchUI) exitSearchUi(true);
+        // Cancel pending actions
+        if (cts != null) cts.cancel();
+        if (mSearchFragment != null) mSearchFragment.ctsCancel();
+
         super.onPause();
+
         mLoaded = false;
 
         // Reset error counter
         Arrays.fill(mErrorCounter, 0, mErrorCounter.length, false);
-
-        if (mSearchFragment != null) mSearchFragment.ctsCancel();
     }
 
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
+
+        if (hidden) {
+            // Cancel pending actions
+            if (cts != null) cts.cancel();
+            if (mSearchFragment != null) mSearchFragment.ctsCancel();
+        }
 
         if (!hidden && this.isVisible()) {
             resume();
@@ -586,6 +609,9 @@ public class LocationsFragment extends Fragment
                         }
                     });
 
+                    if (cts.getToken().isCancellationRequested())
+                        return null;
+
                     // Setup saved favorite locations
                     loadGPSPanel();
                     for (LocationData location : locations) {
@@ -598,6 +624,9 @@ public class LocationsFragment extends Fragment
                             }
                         });
                     }
+
+                    if (cts.getToken().isCancellationRequested())
+                        return null;
 
                     for (final LocationData location : locations) {
                         AsyncTask.run(new Runnable() {
@@ -628,9 +657,15 @@ public class LocationsFragment extends Fragment
                     });
                     LocationData locData = Settings.getLastGPSLocData();
 
+                    if (cts.getToken().isCancellationRequested())
+                        return null;
+
                     if (locData == null || locData.getQuery() == null) {
                         locData = updateLocation();
                     }
+
+                    if (cts.getToken().isCancellationRequested())
+                        return null;
 
                     if (locData != null && locData.getQuery() != null) {
                         gpsPanelViewModel = new LocationPanelViewModel();
@@ -667,6 +702,9 @@ public class LocationsFragment extends Fragment
 
                 if (!reload && (gpsPanelViewModel != null && !homeData.getQuery().equals(gpsPanelViewModel.getLocationData().getQuery())))
                     reload = true;
+
+                if (cts.getToken().isCancellationRequested())
+                    return null;
 
                 if (reload) {
                     runOnUiThread(new Runnable() {
@@ -711,6 +749,9 @@ public class LocationsFragment extends Fragment
                     }
 
                     Location location = null;
+
+                    if (cts.getToken().isCancellationRequested())
+                        return null;
 
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
                         location = new AsyncTask<Location>().await(new Callable<Location>() {
@@ -777,7 +818,13 @@ public class LocationsFragment extends Fragment
                     if (location != null) {
                         LocationQueryViewModel view = null;
 
+                        if (cts.getToken().isCancellationRequested())
+                            return null;
+
                         view = wm.getLocation(location);
+
+                        if (cts.getToken().isCancellationRequested())
+                            return null;
 
                         if (StringUtils.isNullOrEmpty(view.getLocationQuery()))
                             view = new LocationQueryViewModel();

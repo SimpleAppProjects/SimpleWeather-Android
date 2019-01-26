@@ -281,6 +281,18 @@ public class SetupActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onPause() {
+        if (cts != null) cts.cancel();
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (cts != null) cts.cancel();
+        super.onDestroy();
+    }
+
     private void enableControls(final boolean enable) {
         runOnUiThread(new Runnable() {
             @Override

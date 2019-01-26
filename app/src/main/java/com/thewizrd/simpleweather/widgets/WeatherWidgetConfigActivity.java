@@ -350,6 +350,18 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onPause() {
+        if (cts != null) cts.cancel();
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (cts != null) cts.cancel();
+        super.onDestroy();
+    }
+
     private void prepareSearchUI() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         mToolbar.getMenu().clear();
@@ -882,7 +894,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
     }
 
     private void ctsCancel() {
-        cts.cancel();
+        if (cts != null) cts.cancel();
         cts = new CancellationTokenSource();
     }
 

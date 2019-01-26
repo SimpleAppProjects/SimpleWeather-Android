@@ -185,6 +185,18 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
     }
 
     @Override
+    protected void onPause() {
+        if (cts != null) cts.cancel();
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (cts != null) cts.cancel();
+        super.onDestroy();
+    }
+
+    @Override
     public void onBackPressed() {
         if (getFragmentManager().findFragmentById(R.id.search_fragment_container) instanceof LocationSearchFragment) {
             LocationSearchFragment mSearchFragment = (LocationSearchFragment) getFragmentManager().findFragmentById(R.id.search_fragment_container);

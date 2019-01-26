@@ -78,7 +78,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
     }
 
     public void ctsCancel() {
-        cts.cancel();
+        if (cts != null) cts.cancel();
         cts = new CancellationTokenSource();
     }
 
@@ -96,14 +96,22 @@ public class LocationSearchFragment extends SwipeDismissFragment {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        if (cts != null) cts.cancel();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
+        if (cts != null) cts.cancel();
         mActivity = null;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        if (cts != null) cts.cancel();
         mActivity = null;
     }
 

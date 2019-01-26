@@ -76,7 +76,7 @@ public class LocationSearchFragment extends Fragment {
     }
 
     public void ctsCancel() {
-        cts.cancel();
+        if (cts != null) cts.cancel();
         cts = new CancellationTokenSource();
     }
 
@@ -94,14 +94,22 @@ public class LocationSearchFragment extends Fragment {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        ctsCancel();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
+        ctsCancel();
         mActivity = null;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        ctsCancel();
         mActivity = null;
     }
 

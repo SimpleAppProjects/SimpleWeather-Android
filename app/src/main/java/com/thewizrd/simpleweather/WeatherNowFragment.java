@@ -49,6 +49,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.gson.stream.JsonReader;
 import com.ibm.icu.util.ULocale;
@@ -105,8 +106,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     private WeatherNowViewModel weatherView = null;
     private AppCompatActivity mActivity;
     private WindowColorsInterface mWindowColorsIface;
-
     private WeatherViewLoadedListener mCallback;
+    private CancellationTokenSource cts;
 
     // Views
     private SwipeRefreshLayout refreshLayout;
@@ -203,6 +204,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (cts.getToken().isCancellationRequested())
+                    return;
+
                 if (weather != null && weather.isValid()) {
                     wm.updateWeather(weather);
                     weatherView.updateView(weather);
@@ -245,6 +249,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (cts.getToken().isCancellationRequested())
+                    return;
+
                 switch (wEx.getErrorStatus()) {
                     case NETWORKERROR:
                     case NOWEATHER:
@@ -283,6 +290,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
     @Override
     public void onDestroy() {
+        // Cancel pending actions
+        if (cts != null) cts.cancel();
+
         super.onDestroy();
         mActivity = null;
         mCallback = null;
@@ -327,6 +337,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     AsyncTask.run(new Runnable() {
                         @Override
                         public void run() {
+                            if (cts.getToken().isCancellationRequested())
+                                return;
+
                             if (Settings.useFollowGPS() && updateLocation()) {
                                 // Setup loader from updated location
                                 wLoader = new WeatherDataLoader(WeatherNowFragment.this.location,
@@ -349,6 +362,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             mLocListnr = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
+                    if (cts.getToken().isCancellationRequested())
+                        return;
+
                     if (Settings.useFollowGPS() && updateLocation()) {
                         // Setup loader from updated location
                         wLoader = new WeatherDataLoader(WeatherNowFragment.this.location,
@@ -591,6 +607,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     }
 
     private void resume() {
+        cts = new CancellationTokenSource();
+
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
             public Void call() {
@@ -697,6 +715,14 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
 
+        if (hidden) {
+            // Cancel pending actions
+            if (cts != null) {
+                cts.cancel();
+                refreshLayout.setRefreshing(false);
+            }
+        }
+
         if (!hidden && weatherView != null && this.isVisible()) {
             AsyncTask.run(new Runnable() {
                 @Override
@@ -711,6 +737,12 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
     @Override
     public void onPause() {
+        // Cancel pending actions
+        if (cts != null) {
+            cts.cancel();
+            refreshLayout.setRefreshing(false);
+        }
+
         super.onPause();
         loaded = false;
     }
@@ -759,6 +791,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     wLoader = new WeatherDataLoader(location, WeatherNowFragment.this, WeatherNowFragment.this);
                 }
 
+                if (cts.getToken().isCancellationRequested())
+                    return null;
+
                 // Load up weather data
                 refreshWeather(forceRefresh);
 
@@ -778,7 +813,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             new AsyncTask<Void>().await(new Callable<Void>() {
                 @Override
                 public Void call() {
-                    wLoader.loadWeatherData(forceRefresh);
+                    if (!cts.getToken().isCancellationRequested())
+                        wLoader.loadWeatherData(forceRefresh);
                     return null;
                 }
             });
@@ -789,6 +825,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (cts.getToken().isCancellationRequested())
+                    return;
+
                 // Background
                 refreshLayout.setBackground(new ColorDrawable(weatherView.getPendingBackground()));
                 bgImageView.setImageAlpha(bgAlpha);
@@ -936,6 +975,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
                     Location location = null;
 
+                    if (cts.getToken().isCancellationRequested())
+                        return null;
+
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
                         location = new AsyncTask<Location>().await(new Callable<Location>() {
                             @SuppressLint("MissingPermission")
@@ -1013,6 +1055,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
                         LocationQueryViewModel view = null;
 
+                        if (cts.getToken().isCancellationRequested())
+                            return null;
+
                         view = wm.getLocation(location);
                         if (StringUtils.isNullOrEmpty(view.getLocationQuery()))
                             view = new LocationQueryViewModel();
@@ -1021,6 +1066,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             // Stop since there is no valid query
                             return false;
                         }
+
+                        if (cts.getToken().isCancellationRequested())
+                            return null;
 
                         // Save oldkey
                         String oldkey = lastGPSLocData.getQuery();

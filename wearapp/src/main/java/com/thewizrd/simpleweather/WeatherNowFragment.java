@@ -35,6 +35,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.gson.stream.JsonReader;
 import com.ibm.icu.util.ULocale;
@@ -82,6 +83,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     private WeatherNowViewModel weatherView = null;
 
     private Activity mActivity;
+    private WeatherViewLoadedListener mCallback;
+    private CancellationTokenSource cts;
 
     // Views
     private SwipeRefreshLayout refreshLayout;
@@ -94,8 +97,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     private TextView weatherTemp;
     // Weather Credit
     private TextView weatherCredit;
-
-    private WeatherViewLoadedListener mCallback;
 
     // GPS location
     private FusedLocationProviderClient mFusedLocationClient;
@@ -115,6 +116,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (cts.getToken().isCancellationRequested())
+                    return;
+
                 if (weather != null && weather.isValid()) {
                     wm.updateWeather(weather);
                     weatherView.updateView(weather);
@@ -150,7 +154,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(mActivity, wEx.getMessage(), Toast.LENGTH_LONG).show();
+                    if (!cts.getToken().isCancellationRequested())
+                        Toast.makeText(mActivity, wEx.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });
         }
@@ -218,6 +223,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     AsyncTask.run(new Runnable() {
                         @Override
                         public void run() {
+                            if (cts.getToken().isCancellationRequested())
+                                return;
+
                             if (Settings.useFollowGPS() && updateLocation()) {
                                 // Setup loader from updated location
                                 wLoader = new WeatherDataLoader(WeatherNowFragment.this.location,
@@ -243,6 +251,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     AsyncTask.run(new Runnable() {
                         @Override
                         public void run() {
+                            if (cts.getToken().isCancellationRequested())
+                                return;
+
                             if (Settings.useFollowGPS() && updateLocation()) {
                                 // Setup loader from updated location
                                 wLoader = new WeatherDataLoader(WeatherNowFragment.this.location,
@@ -277,6 +288,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
             @Override
             public void onReceive(Context context, Intent intent) {
+                if (cts.getToken().isCancellationRequested())
+                    return;
+
                 if (WearableHelper.LocationPath.equals(intent.getAction()) || WearableHelper.WeatherPath.equals(intent.getAction())) {
                     if (WearableHelper.WeatherPath.equals(intent.getAction()) ||
                             (!loaded && location != null)) {
@@ -416,6 +430,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
     @Override
     public void onDestroy() {
+        // Cancel pending actions
+        if (cts != null) cts.cancel();
+
         super.onDestroy();
         mActivity = null;
     }
@@ -449,6 +466,14 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
 
+        if (hidden) {
+            // Cancel pending actions
+            if (cts != null) {
+                cts.cancel();
+                refreshLayout.setRefreshing(false);
+            }
+        }
+
         if (!hidden && weatherView != null && this.isVisible()) {
             AsyncTask.run(new Runnable() {
                 @Override
@@ -469,6 +494,12 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     @Override
     public void onPause() {
         super.onPause();
+
+        // Cancel pending actions
+        if (cts != null) {
+            cts.cancel();
+            refreshLayout.setRefreshing(false);
+        }
 
         if (receiverRegistered) {
             LocalBroadcastManager.getInstance(mActivity)
@@ -518,6 +549,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     wLoader = new WeatherDataLoader(location, WeatherNowFragment.this, WeatherNowFragment.this);
                 }
 
+                if (cts.getToken().isCancellationRequested())
+                    return null;
+
                 // Load up weather data
                 refreshWeather(forceRefresh);
                 return null;
@@ -526,6 +560,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     }
 
     private void resume() {
+        cts = new CancellationTokenSource();
+
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -609,6 +645,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     }
 
     private void dataSyncResume() {
+        cts = new CancellationTokenSource();
+
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -740,6 +778,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             new AsyncTask<Void>().await(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
+                    if (cts.getToken().isCancellationRequested())
+                        return null;
+
                     if (Settings.getDataSync() == WearableDataSync.OFF)
                         wLoader.loadWeatherData(forceRefresh);
                     else
@@ -754,6 +795,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (cts.getToken().isCancellationRequested())
+                    return;
+
                 // Background
                 refreshLayout.setBackground(new ColorDrawable(weatherView.getPendingBackground()));
 
@@ -789,6 +833,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     }
 
                     Location location = null;
+
+                    if (cts.getToken().isCancellationRequested())
+                        return false;
 
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
                         location = new AsyncTask<Location>().await(new Callable<Location>() {
@@ -867,6 +914,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
                         LocationQueryViewModel view = null;
 
+                        if (cts.getToken().isCancellationRequested())
+                            return false;
+
                         view = wm.getLocation(location);
                         if (StringUtils.isNullOrEmpty(view.getLocationQuery()))
                             view = new LocationQueryViewModel();
@@ -875,6 +925,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             // Stop since there is no valid query
                             return false;
                         }
+
+                        if (cts.getToken().isCancellationRequested())
+                            return false;
 
                         // Save location as last known
                         lastGPSLocData.setData(view, location);
