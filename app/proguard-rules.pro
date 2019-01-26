@@ -75,3 +75,10 @@
 -keep class org.simpleframework.xml.** { *; }
 -keep class org.simpleframework.xml.core.** { *; }
 -keep class org.simpleframework.xml.util.** { *; }
+
+-keep public class * implements com.bumptech.glide.module.GlideModule
+-keep public class * extends com.bumptech.glide.module.AppGlideModule
+-keep public enum com.bumptech.glide.load.ImageHeaderParser$** {
+  **[] $VALUES;
+  public *;
+}
