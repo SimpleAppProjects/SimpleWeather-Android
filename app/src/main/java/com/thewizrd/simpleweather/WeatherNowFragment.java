@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -44,6 +45,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -112,7 +115,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     // Views
     private SwipeRefreshLayout refreshLayout;
     private NestedScrollView mainView;
-    private ImageView bgImageView;
+    private ImageView mImageView;
+    private int appBarElevation;
     // Condition
     private TextView locationName;
     private TextView updateTime;
@@ -405,24 +409,26 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
         // Setup ActionBar
         setHasOptionsMenu(true);
+        final AppBarLayout appBarLayout = mActivity.findViewById(R.id.app_bar);
         if (mWindowColorsIface != null)
             mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
+        appBarElevation = mActivity.getResources().getDimensionPixelSize(R.dimen.appbar_elevation);
 
         refreshLayout = (SwipeRefreshLayout) view;
         mainView = view.findViewById(R.id.fragment_weather_now);
         mainView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
             public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                if (bgImageView != null) {
-                    int alpha = 255 - (int) (255 * 1.25 * scrollY / (v.getChildAt(0).getHeight() - v.getHeight()));
-                    if (alpha >= 0)
-                        bgImageView.setImageAlpha(bgAlpha = alpha);
-                    else
-                        bgImageView.setImageAlpha(bgAlpha = 0);
+                if (appBarLayout != null) {
+                    if (scrollY != 0 || v.canScrollVertically(-1)) {
+                        ViewCompat.setElevation(appBarLayout, appBarElevation);
+                    } else {
+                        ViewCompat.setElevation(appBarLayout, 0);
+                    }
                 }
             }
         });
-        bgImageView = view.findViewById(R.id.image_view);
+        mImageView = view.findViewById(R.id.image_view);
         // Condition
         locationName = view.findViewById(R.id.label_location_name);
         updateTime = view.findViewById(R.id.label_updatetime);
@@ -608,6 +614,10 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
     private void resume() {
         cts = new CancellationTokenSource();
+        if (mainView != null) mainView.scrollTo(0, 0);
+        if (weatherView.getPendingBackground() != 0 && mWindowColorsIface != null) {
+            mWindowColorsIface.setWindowBarColors(weatherView.getPendingBackground());
+        }
 
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
@@ -705,10 +715,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     resume();
                 }
             });
-
-        // Title
-        if (mActivity != null)
-            mActivity.getSupportActionBar().setTitle(R.string.title_activity_weather_now);
     }
 
     @Override
@@ -830,11 +836,13 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
                 // Background
                 refreshLayout.setBackground(new ColorDrawable(weatherView.getPendingBackground()));
-                bgImageView.setImageAlpha(bgAlpha);
                 Glide.with(mActivity)
                         .load(weatherView.getBackground())
-                        .apply(new RequestOptions().centerCrop())
-                        .into(bgImageView);
+                        .apply(new RequestOptions()
+                                .transforms(
+                                        new CenterCrop(),
+                                        new RoundedCorners(appBarElevation)))
+                        .into(mImageView);
 
                 // Location
                 locationName.setText(weatherView.getLocation());

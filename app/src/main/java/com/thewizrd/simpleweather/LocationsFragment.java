@@ -541,10 +541,6 @@ public class LocationsFragment extends Fragment
                     resume();
                 }
             });
-
-        // Title
-        if (mActivity != null)
-            mActivity.getSupportActionBar().setTitle(R.string.label_nav_locations);
     }
 
     @Override

@@ -4,10 +4,12 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -30,14 +32,18 @@ public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener,
         WeatherViewLoadedListener, WindowColorsInterface {
 
+    private AppBarLayout mAppBarLayout;
     private Toolbar mToolbar;
     private BottomNavigationView mBottomNavView;
+    private float mAppBarElevation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mAppBarElevation = getResources().getDimension(R.dimen.appbar_elevation);
+        mAppBarLayout = findViewById(R.id.app_bar);
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
@@ -246,18 +252,22 @@ public class MainActivity extends AppCompatActivity
             checkedItemId = R.id.nav_weathernow;
             getSupportActionBar().setTitle(getString(R.string.title_activity_weather_now));
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            ViewCompat.setElevation(mAppBarLayout, 0);
         } else if (fragment instanceof LocationsFragment) {
             checkedItemId = R.id.nav_locations;
             getSupportActionBar().setTitle(getString(R.string.label_nav_locations));
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            ViewCompat.setElevation(mAppBarLayout, mAppBarElevation);
         } else if (fragment instanceof WeatherAlertsFragment) {
             checkedItemId = R.id.nav_weathernow;
             getSupportActionBar().setTitle(getString(R.string.title_fragment_alerts));
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            ViewCompat.setElevation(mAppBarLayout, mAppBarElevation);
         } else if (fragment != null && fragment.getClass().getName().contains("SettingsFragment")) {
             checkedItemId = R.id.nav_settings;
             // Let fragment take care of title
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            ViewCompat.setElevation(mAppBarLayout, mAppBarElevation);
         }
 
         MenuItem item = mBottomNavView.getMenu().findItem(checkedItemId);
