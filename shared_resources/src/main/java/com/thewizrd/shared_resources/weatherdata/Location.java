@@ -9,10 +9,10 @@ import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 
-import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
-import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
@@ -51,11 +51,18 @@ public class Location {
         tzLong = condition.getLocalTzLong();
     }
 
-    public Location(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Query query) {
-        name = query.getResults().getChannel().getLocation().getCity() + "," + query.getResults().getChannel().getLocation().getRegion();
-        latitude = query.getResults().getChannel().getItem().getLat();
-        longitude = query.getResults().getChannel().getItem().getLong();
-        saveTimeZone(query);
+    public Location(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Location location) {
+        // Use location name from location provider
+        name = null;
+        latitude = location.getLat();
+        longitude = location.getLong();
+
+        ZoneId zId = ZoneId.of(location.getTimezoneId());
+
+        tzOffset = zId.getRules().getOffset(Instant.now());
+        tzShort = ZonedDateTime.now(zId)
+                .format(DateTimeFormatter.ofPattern("z", Locale.getDefault()));
+        tzLong = location.getTimezoneId();
     }
 
     public Location(com.thewizrd.shared_resources.weatherdata.openweather.ForecastRootobject root) {
@@ -83,24 +90,6 @@ public class Location {
         longitude = Float.toString(location.getLongitude());
         tzOffset = ZoneOffset.UTC;
         tzShort = "UTC";
-    }
-
-    private void saveTimeZone(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Query query) {
-        /* Get TimeZone info by using UTC and local build time */
-        // Now
-        LocalDateTime utc = LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(query.getCreated())), ZoneOffset.UTC);
-
-        // There
-        int AMPMidx = query.getResults().getChannel().getLastBuildDate().lastIndexOf(" AM ");
-        if (AMPMidx < 0)
-            AMPMidx = query.getResults().getChannel().getLastBuildDate().lastIndexOf(" PM ");
-
-        LocalDateTime there = LocalDateTime.parse(query.getResults().getChannel().getLastBuildDate().substring(0, AMPMidx + 4),
-                DateTimeFormatter.ofPattern("eee, dd MMM yyyy hh:mm a ", Locale.ROOT));
-        Duration offset = Duration.between(there, utc);
-
-        tzOffset = ZoneOffset.of(String.format(Locale.ROOT, "%s", DateTimeUtils.durationToHMFormat(offset)));
-        tzShort = query.getResults().getChannel().getLastBuildDate().substring(AMPMidx + 4);
     }
 
     public String getName() {

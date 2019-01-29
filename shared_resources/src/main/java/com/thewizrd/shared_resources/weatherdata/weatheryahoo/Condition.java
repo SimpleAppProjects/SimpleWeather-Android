@@ -4,33 +4,14 @@ import com.google.gson.annotations.SerializedName;
 
 public class Condition {
 
-    @SerializedName("date")
-    private String date;
-
-    @SerializedName("temp")
-    private String temp;
-
     @SerializedName("code")
     private String code;
 
+    @SerializedName("temperature")
+    private String temperature;
+
     @SerializedName("text")
     private String text;
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setTemp(String temp) {
-        this.temp = temp;
-    }
-
-    public String getTemp() {
-        return temp;
-    }
 
     public void setCode(String code) {
         this.code = code;
@@ -40,6 +21,14 @@ public class Condition {
         return code;
     }
 
+    public void setTemperature(String temperature) {
+        this.temperature = temperature;
+    }
+
+    public String getTemperature() {
+        return temperature;
+    }
+
     public void setText(String text) {
         this.text = text;
     }
@@ -47,5 +36,4 @@ public class Condition {
     public String getText() {
         return text;
     }
-
 }

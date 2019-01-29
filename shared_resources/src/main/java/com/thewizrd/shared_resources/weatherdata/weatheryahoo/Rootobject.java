@@ -2,16 +2,40 @@ package com.thewizrd.shared_resources.weatherdata.weatheryahoo;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 public class Rootobject {
 
-    @SerializedName("query")
-    private Query query;
+	@SerializedName("location")
+	private Location location;
 
-    public void setQuery(Query query) {
-        this.query = query;
-    }
+	@SerializedName("current_observation")
+	private CurrentObservation currentObservation;
 
-    public Query getQuery() {
-        return query;
-    }
+	@SerializedName("forecasts")
+	private List<ForecastsItem> forecasts;
+
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
+	public Location getLocation() {
+		return location;
+	}
+
+	public void setCurrentObservation(CurrentObservation currentObservation) {
+		this.currentObservation = currentObservation;
+	}
+
+	public CurrentObservation getCurrentObservation() {
+		return currentObservation;
+	}
+
+	public void setForecasts(List<ForecastsItem> forecasts) {
+		this.forecasts = forecasts;
+	}
+
+	public List<ForecastsItem> getForecasts() {
+		return forecasts;
+	}
 }

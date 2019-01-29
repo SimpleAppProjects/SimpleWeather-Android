@@ -60,17 +60,17 @@ public class Condition {
                 .getWeatherIcon(condition.getIconUrl().replace("http://icons.wxug.com/i/c/k/", "").replace(".gif", ""));
     }
 
-    public Condition(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Channel channel) {
-        weather = channel.getItem().getCondition().getText();
-        tempF = Float.valueOf(channel.getItem().getCondition().getTemp());
-        tempC = Float.valueOf(ConversionMethods.FtoC(channel.getItem().getCondition().getTemp()));
-        windDegrees = Integer.valueOf(channel.getWind().getDirection());
-        windKph = Float.valueOf(channel.getWind().getSpeed());
-        windMph = Float.valueOf(ConversionMethods.kphTomph(channel.getWind().getSpeed()));
-        feelslikeF = Float.valueOf(channel.getWind().getChill());
-        feelslikeC = Float.valueOf(ConversionMethods.FtoC(channel.getWind().getChill()));
+    public Condition(com.thewizrd.shared_resources.weatherdata.weatheryahoo.CurrentObservation observation) {
+        weather = observation.getCondition().getText();
+        tempF = Float.valueOf(observation.getCondition().getTemperature());
+        tempC = Float.valueOf(ConversionMethods.FtoC((observation.getCondition().getTemperature())));
+        windDegrees = Integer.valueOf(observation.getWind().getDirection());
+        windKph = Float.valueOf(observation.getWind().getSpeed());
+        windMph = Float.valueOf(ConversionMethods.kphTomph(observation.getWind().getSpeed()));
+        feelslikeF = Float.valueOf(observation.getWind().getChill());
+        feelslikeC = Float.valueOf(ConversionMethods.FtoC(observation.getWind().getChill()));
         icon = WeatherManager.getProvider(WeatherAPI.YAHOO)
-                .getWeatherIcon(channel.getItem().getCondition().getCode());
+                .getWeatherIcon(observation.getCondition().getCode());
     }
 
     public Condition(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {

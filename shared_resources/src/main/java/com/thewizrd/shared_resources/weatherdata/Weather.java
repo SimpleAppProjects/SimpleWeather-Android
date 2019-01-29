@@ -69,16 +69,16 @@ public class Weather {
     }
 
     public Weather(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Rootobject root) {
-        location = new Location(root.getQuery());
-        updateTime = ZonedDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(root.getQuery().getCreated())), ZoneOffset.UTC);
-        forecast = new Forecast[root.getQuery().getResults().getChannel().getItem().getForecast().size()];
+        location = new Location(root.getLocation());
+        updateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(Long.parseLong(root.getCurrentObservation().getPubDate())), ZoneOffset.UTC);
+        forecast = new Forecast[root.getForecasts().size()];
         for (int i = 0; i < forecast.length; i++) {
-            forecast[i] = new Forecast(root.getQuery().getResults().getChannel().getItem().getForecast().get(i));
+            forecast[i] = new Forecast(root.getForecasts().get(i));
         }
-        condition = new Condition(root.getQuery().getResults().getChannel());
-        atmosphere = new Atmosphere(root.getQuery().getResults().getChannel().getAtmosphere());
-        astronomy = new Astronomy(root.getQuery().getResults().getChannel().getAstronomy());
-        ttl = root.getQuery().getResults().getChannel().getTtl();
+        condition = new Condition(root.getCurrentObservation());
+        atmosphere = new Atmosphere(root.getCurrentObservation().getAtmosphere());
+        astronomy = new Astronomy(root.getCurrentObservation().getAstronomy());
+        ttl = "60";
 
         // Set feelslike temp
         if (condition.getTempF() > 80) {

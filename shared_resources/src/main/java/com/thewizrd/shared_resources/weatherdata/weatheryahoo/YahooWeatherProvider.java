@@ -3,11 +3,12 @@ package com.thewizrd.shared_resources.weatherdata.weatheryahoo;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -15,6 +16,11 @@ import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
+
+import net.oauth.OAuth;
+import net.oauth.OAuthAccessor;
+import net.oauth.OAuthConsumer;
+import net.oauth.OAuthMessage;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
@@ -28,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -60,34 +67,28 @@ public class YahooWeatherProvider extends WeatherProviderImpl {
     public Collection<LocationQueryViewModel> getLocations(String ac_query) {
         List<LocationQueryViewModel> locations = null;
 
-        String yahooAPI = "https://query.yahooapis.com/v1/public/yql?q=";
-        String query = "select * from geo.places where text=\"" + ac_query + "*\"";
+        String queryAPI = "https://autocomplete.wunderground.com/aq?query=";
+        String options = "&h=0&cities=1";
         HttpURLConnection client = null;
         // Limit amount of results shown
         int maxResults = 10;
 
         try {
             // Connect to webstream
-            URL queryURL = new URL(yahooAPI + query);
+            URL queryURL = new URL(queryAPI + URLEncoder.encode(ac_query, "UTF-8") + options);
             client = (HttpURLConnection) queryURL.openConnection();
             InputStream stream = client.getInputStream();
 
             // Load data
             locations = new ArrayList<>();
-            Serializer deserializer = new Persister();
-            AutoCompleteQuery root = deserializer.read(AutoCompleteQuery.class, stream, false);
+            AC_Rootobject root = JSONParser.deserializer(stream, AC_Rootobject.class);
 
-            for (AutoCompleteQuery.Place result : root.getResults()) {
+            for (AC_RESULTS result : root.getRESULTS()) {
                 // Filter: only store city results
-                if ("Town".equals(result.getPlaceTypeName().getTextValue())
-                        || "Suburb".equals(result.getPlaceTypeName().getTextValue())
-                        || ("Zip Code".equals(result.getPlaceTypeName().getTextValue())
-                        || "Postal Code".equals(result.getPlaceTypeName().getTextValue()) &&
-                        (result.getLocality1() != null && "Town".equals(result.getLocality1().getType()))
-                        || (result.getLocality1() != null && "Suburb".equals(result.getLocality1().getType()))))
-                    locations.add(new LocationQueryViewModel(result));
-                else
+                if (!result.getType().equals("city"))
                     continue;
+
+                locations.add(new LocationQueryViewModel(result));
 
                 // Limit amount of results
                 maxResults--;
@@ -116,25 +117,22 @@ public class YahooWeatherProvider extends WeatherProviderImpl {
     public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coord) {
         LocationQueryViewModel location = null;
 
-        String yahooAPI = "https://query.yahooapis.com/v1/public/yql?q=";
-        String location_query = String.format(Locale.ROOT, "(%f,%f)", coord.getLatitude(), coord.getLongitude());
-        String query = "select * from geo.places where text=\"" + location_query + "\"";
+        String queryAPI = "https://api.wunderground.com/auto/wui/geo/GeoLookupXML/index.xml?query=";
+        String options = "";
+        String query = String.format(Locale.ROOT, "%s,%s", coord.getLatitude(), coord.getLongitude());
         HttpURLConnection client = null;
-        AutoCompleteQuery.Place result = null;
+        GeoLocation result = null;
         WeatherException wEx = null;
 
         try {
             // Connect to webstream
-            URL queryURL = new URL(yahooAPI + query);
+            URL queryURL = new URL(queryAPI + query + options);
             client = (HttpURLConnection) queryURL.openConnection();
             InputStream stream = client.getInputStream();
 
             // Load data
             Serializer deserializer = new Persister();
-            AutoCompleteQuery root = deserializer.read(AutoCompleteQuery.class, stream, false);
-
-            if (root.getResults() != null)
-                result = root.getResults().get(0);
+            result = deserializer.read(GeoLocation.class, stream, false);
 
             // End Stream
             stream.close();
@@ -156,7 +154,7 @@ public class YahooWeatherProvider extends WeatherProviderImpl {
                 client.disconnect();
         }
 
-        if (result != null && !StringUtils.isNullOrWhitespace(result.getWoeid()))
+        if (result != null && !StringUtils.isNullOrWhitespace(result.getQuery()))
             location = new LocationQueryViewModel(result);
         else
             location = new LocationQueryViewModel();
@@ -168,24 +166,21 @@ public class YahooWeatherProvider extends WeatherProviderImpl {
     public LocationQueryViewModel getLocation(String location_query) {
         LocationQueryViewModel location = null;
 
-        String yahooAPI = "https://query.yahooapis.com/v1/public/yql?q=";
-        String query = "select * from geo.places where woeid=\"" + location_query + "\"";
+        String queryAPI = "https://autocomplete.wunderground.com/aq?query=";
+        String options = "&h=0&cities=1";
         HttpURLConnection client = null;
-        AutoCompleteQuery.Place result = null;
+        AC_RESULTS result = null;
         WeatherException wEx = null;
 
         try {
             // Connect to webstream
-            URL queryURL = new URL(yahooAPI + query);
+            URL queryURL = new URL(queryAPI + URLEncoder.encode(location_query, "UTF-8") + options);
             client = (HttpURLConnection) queryURL.openConnection();
             InputStream stream = client.getInputStream();
 
             // Load data
-            Serializer deserializer = new Persister();
-            AutoCompleteQuery root = deserializer.read(AutoCompleteQuery.class, stream, false);
-
-            if (root.getResults() != null)
-                result = root.getResults().get(0);
+            AC_Rootobject root = JSONParser.deserializer(stream, AC_Rootobject.class);
+            result = root.getRESULTS().get(0);
 
             // End Stream
             stream.close();
@@ -207,7 +202,7 @@ public class YahooWeatherProvider extends WeatherProviderImpl {
                 client.disconnect();
         }
 
-        if (result != null && !StringUtils.isNullOrWhitespace(result.getWoeid()))
+        if (result != null && !StringUtils.isNullOrWhitespace(result.getL()))
             location = new LocationQueryViewModel(result);
         else
             location = new LocationQueryViewModel();
@@ -225,33 +220,45 @@ public class YahooWeatherProvider extends WeatherProviderImpl {
         return null;
     }
 
+    private String getAppID() {
+        return Keys.getYahooAppID();
+    }
+
+    private String getCliID() {
+        return Keys.getYahooCliID();
+    }
+
+    private String getCliSecr() {
+        return Keys.getYahooCliSecr();
+    }
+
     @Override
     public Weather getWeather(String location_query) throws WeatherException {
         Weather weather = null;
 
-        String queryAPI = null;
+        String queryAPI = "https://weather-ydn-yql.media.yahoo.com/forecastrss";
         URL weatherURL = null;
         HttpURLConnection client = null;
 
-        ULocale uLocale = ULocale.forLocale(Locale.getDefault());
-        String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
+        OAuthConsumer consumer = new OAuthConsumer(null, getCliID(), getCliSecr(), null);
+        consumer.setProperty(OAuth.OAUTH_SIGNATURE_METHOD, OAuth.HMAC_SHA1);
+        OAuthAccessor accessor = new OAuthAccessor(consumer);
+
         WeatherException wEx = null;
 
         try {
-            try {
-                int woeid = Integer.parseInt(location_query);
-                queryAPI = "https://query.yahooapis.com/v1/public/yql?q=";
-                String query = "select * from weather.forecast where woeid=\""
-                        + woeid + "\" and u='F'&format=json";
-                weatherURL = new URL(queryAPI + query);
-            } catch (NumberFormatException ex) {
-                queryAPI = "https://query.yahooapis.com/v1/public/yql?q=";
-                String query = "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text=\""
-                        + location_query + "\") and u='F'&format=json";
-                weatherURL = new URL(queryAPI + query);
-            }
+            String query = "?" + location_query + "&format=json&u=f";
+            weatherURL = new URL(queryAPI + query);
+
+            OAuthMessage request = accessor.newRequestMessage(OAuthMessage.GET, weatherURL.toString(), null);
+            String authorization = request.getAuthorizationHeader(null);
 
             client = (HttpURLConnection) weatherURL.openConnection();
+            // Add headers to request
+            client.addRequestProperty("Authorization", authorization);
+            client.addRequestProperty("Yahoo-App-Id", getAppID());
+            client.addRequestProperty("Content-Type", "application/json");
+
             InputStream stream = client.getInputStream();
 
             // Reset exception
@@ -286,9 +293,6 @@ public class YahooWeatherProvider extends WeatherProviderImpl {
         if (weather == null || !weather.isValid()) {
             wEx = new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
         } else if (weather != null) {
-            if (supportsWeatherLocale())
-                weather.setLocale(locale);
-
             weather.setQuery(location_query);
         }
 
@@ -307,14 +311,34 @@ public class YahooWeatherProvider extends WeatherProviderImpl {
         return weather;
     }
 
+    // Use location name here instead of query since we use the AutoComplete API
+    @Override
+    public void updateLocationData(LocationData location) {
+        LocationQueryViewModel qview = getLocation(location.getName());
+
+        if (qview != null) {
+            location.setName(qview.getLocationName());
+            location.setLatitude(qview.getLocationLat());
+            location.setLongitude(qview.getLocationLong());
+            location.setTzLong(qview.getLocationTZLong());
+
+            // Update DB here or somewhere else
+            if (SimpleLibrary.getInstance().getApp().isPhone()) {
+                Settings.updateLocation(location);
+            } else {
+                Settings.saveHomeData(location);
+            }
+        }
+    }
+
     @Override
     public String updateLocationQuery(Weather weather) {
         String query = "";
-        String coord = String.format(Locale.ROOT, "%s,%s", weather.getLocation().getLatitude(), weather.getLocation().getLongitude());
-        LocationQueryViewModel qview = getLocation(new WeatherUtils.Coordinate(coord));
+        WeatherUtils.Coordinate coord = new WeatherUtils.Coordinate(Double.valueOf(weather.getLocation().getLatitude()), Double.valueOf(weather.getLocation().getLongitude()));
+        LocationQueryViewModel qview = getLocation(coord);
 
         if (StringUtils.isNullOrEmpty(qview.getLocationQuery()))
-            query = String.format("(%s)", coord);
+            query = String.format(Locale.ROOT, "lat=%f&lon=%f", coord.getLatitude(), coord.getLongitude());
         else
             query = qview.getLocationQuery();
 
@@ -324,11 +348,11 @@ public class YahooWeatherProvider extends WeatherProviderImpl {
     @Override
     public String updateLocationQuery(LocationData location) {
         String query = "";
-        String coord = String.format(Locale.ROOT, "%s,%s", location.getLatitude(), location.getLongitude());
-        LocationQueryViewModel qview = getLocation(new WeatherUtils.Coordinate(coord));
+        WeatherUtils.Coordinate coord = new WeatherUtils.Coordinate(location.getLatitude(), location.getLongitude());
+        LocationQueryViewModel qview = getLocation(coord);
 
         if (StringUtils.isNullOrEmpty(qview.getLocationQuery()))
-            query = String.format("(%s)", coord);
+            query = String.format(Locale.ROOT, "lat=%f&lon=%f", coord.getLatitude(), coord.getLongitude());
         else
             query = qview.getLocationQuery();
 

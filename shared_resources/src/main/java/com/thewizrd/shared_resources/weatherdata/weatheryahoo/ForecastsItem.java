@@ -2,7 +2,7 @@ package com.thewizrd.shared_resources.weatherdata.weatheryahoo;
 
 import com.google.gson.annotations.SerializedName;
 
-public class ForecastItem {
+public class ForecastsItem {
 
     @SerializedName("date")
     private String date;

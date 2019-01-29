@@ -53,55 +53,34 @@ public class LocationQueryViewModel {
         locationTZLong = location.getTzUnix();
     }
 
-    public LocationQueryViewModel(com.thewizrd.shared_resources.weatherdata.weatheryahoo.AutoCompleteQuery.Place location) {
+    public LocationQueryViewModel(com.thewizrd.shared_resources.weatherdata.weatheryahoo.AC_RESULTS location) {
         setLocation(location);
     }
 
-    public void setLocation(com.thewizrd.shared_resources.weatherdata.weatheryahoo.AutoCompleteQuery.Place location) {
-        String town, region;
+    public void setLocation(com.thewizrd.shared_resources.weatherdata.weatheryahoo.AC_RESULTS location) {
+        locationName = location.getName();
+        locationCountry = location.getC();
+        locationQuery = String.format("lat=%s&lon=%s", location.getLat(), location.getLon());
 
-        // If location type is ZipCode append it to location name
-        if ((location.getPlaceTypeName().getTextValue().equals("Zip Code")
-                || location.getPlaceTypeName().getTextValue().equals("Postal Code"))) {
-            town = location.getName();
+        locationLat = Double.valueOf(location.getLat());
+        locationLong = Double.valueOf(location.getLon());
 
-            if (location.getLocality2() != null
-                    && !StringUtils.isNullOrEmpty(location.getLocality2().getTextValue())) {
-                town += " - " + location.getLocality2().getTextValue();
-            } else {
-                if (location.getLocality1() != null
-                        && !StringUtils.isNullOrEmpty(location.getLocality1().getTextValue()))
-                    town += " - " + location.getLocality1().getTextValue();
-            }
-        } else {
-            if (location.getLocality2() != null
-                    && !StringUtils.isNullOrEmpty(location.getLocality2().getTextValue()))
-                town = location.getLocality2().getTextValue();
-            else if (location.getLocality1() != null
-                    && !StringUtils.isNullOrEmpty(location.getLocality1().getTextValue()))
-                town = location.getLocality1().getTextValue();
-            else
-                town = location.getName();
-        }
+        locationTZLong = location.getTz();
+    }
 
-        // Try to get region name or fallback to country name
-        if (location.getAdmin1() != null
-                && !StringUtils.isNullOrEmpty(location.getAdmin1().getTextValue()))
-            region = location.getAdmin1().getTextValue();
-        else if (location.getAdmin2() != null
-                && !StringUtils.isNullOrEmpty(location.getAdmin2().getTextValue()))
-            region = location.getAdmin2().getTextValue();
-        else
-            region = location.getCountry().getTextValue();
+    public LocationQueryViewModel(com.thewizrd.shared_resources.weatherdata.weatheryahoo.GeoLocation location) {
+        setLocation(location);
+    }
 
-        locationName = String.format("%s, %s", town, region);
-        locationCountry = location.getCountry().getCode();
-        locationQuery = location.getWoeid();
+    public void setLocation(com.thewizrd.shared_resources.weatherdata.weatheryahoo.GeoLocation location) {
+        locationName = String.format("%s, %s", location.getCity(), location.getState());
+        locationCountry = location.getCountry();
+        locationQuery = String.format("lat=%s&lon=%s", location.getLat(), location.getLon());
 
-        locationLat = location.getCentroid().getLatitude().doubleValue();
-        locationLong = location.getCentroid().getLongitude().doubleValue();
+        locationLat = Double.valueOf(location.getLat());
+        locationLong = Double.valueOf(location.getLon());
 
-        locationTZLong = location.getTimezone().getTextValue();
+        locationTZLong = location.getTzUnix();
     }
 
     public LocationQueryViewModel(com.thewizrd.shared_resources.weatherdata.openweather.AC_RESULTS location) {

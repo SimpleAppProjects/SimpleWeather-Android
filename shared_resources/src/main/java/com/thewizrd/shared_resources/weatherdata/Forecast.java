@@ -11,7 +11,6 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 
 import org.threeten.bp.Instant;
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
@@ -20,7 +19,6 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Locale;
 
 public class Forecast {
 
@@ -49,8 +47,8 @@ public class Forecast {
         // Needed for deserialization
     }
 
-    public Forecast(com.thewizrd.shared_resources.weatherdata.weatheryahoo.ForecastItem forecast) {
-        date = LocalDate.parse(forecast.getDate(), DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ROOT)).atTime(0, 0);
+    public Forecast(com.thewizrd.shared_resources.weatherdata.weatheryahoo.ForecastsItem forecast) {
+        date = LocalDateTime.ofEpochSecond(Long.parseLong(forecast.getDate()), 0, ZoneOffset.UTC);
         highF = forecast.getHigh();
         highC = ConversionMethods.FtoC(highF);
         lowF = forecast.getLow();

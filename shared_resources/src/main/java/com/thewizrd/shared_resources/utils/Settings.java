@@ -286,24 +286,15 @@ public class Settings {
                                     .updateLocationData(lastGPSLocData);
                         }
                     }
-                    // The current Yahoo (YQL) API is no longer in service
-                    // Disable this provider until I migrate to the OAuth API
-                    if (WeatherAPI.YAHOO.equals(Settings.getAPI())) {
-                        // Set default API to HERE
-                        setAPI(WeatherAPI.HERE);
-                        WeatherManager wm = WeatherManager.getInstance();
-                        wm.updateAPI();
-
-                        if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
-                            // If (internal) key doesn't exist, fallback to Met.no
-                            setAPI(WeatherAPI.METNO);
-                            wm.updateAPI();
-                            setPersonalKey(true);
-                            setKeyVerified(false);
-                        } else {
-                            // If key exists, go ahead
-                            setPersonalKey(false);
-                            setKeyVerified(true);
+                    // v1.3.8+ - Yahoo API is back in service (but updated)
+                    // Update location data from current geocoder service
+                    if (WeatherAPI.YAHOO.equals(Settings.getAPI()) && getVersionCode() < 271380000) {
+                        if (IS_PHONE) {
+                            DBUtils.setLocationData(locationDB, WeatherAPI.YAHOO);
+                            saveLastGPSLocData(lastGPSLocData = new LocationData());
+                        } else if (lastGPSLocData != null) {
+                            WeatherManager.getProvider(WeatherAPI.YAHOO)
+                                    .updateLocationData(lastGPSLocData);
                         }
                     }
                 }

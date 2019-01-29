@@ -257,12 +257,12 @@ public class SetupActivity extends AppCompatActivity {
         findViewById(R.id.activity_setup).requestFocus();
 
         // Set default API to HERE
-        Settings.setAPI(WeatherAPI.METNO);
+        Settings.setAPI(WeatherAPI.HERE);
         wm.updateAPI();
 
         if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
-            // If (internal) key doesn't exist, fallback to Met.no
-            Settings.setAPI(WeatherAPI.METNO);
+            // If (internal) key doesn't exist, fallback to Yahoo
+            Settings.setAPI(WeatherAPI.YAHOO);
             wm.updateAPI();
             Settings.setPersonalKey(true);
             Settings.setKeyVerified(false);

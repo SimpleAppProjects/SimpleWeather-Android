@@ -80,8 +80,8 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
         wm.updateAPI();
 
         if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
-            // If (internal) key doesn't exist, fallback to Met.no
-            Settings.setAPI(WeatherAPI.METNO);
+            // If (internal) key doesn't exist, fallback to Yahoo
+            Settings.setAPI(WeatherAPI.YAHOO);
             wm.updateAPI();
             Settings.setPersonalKey(true);
             Settings.setKeyVerified(false);

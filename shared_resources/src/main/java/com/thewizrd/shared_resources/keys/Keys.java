@@ -5,11 +5,23 @@ public class Keys {
         return null;
     }
 
+    public static String getHEREAppID() {
+        return null;
+    }
+
     public static String getHEREAppCode() {
         return null;
     }
 
-    public static String getHEREAppID() {
+    public static String getYahooAppID() {
+        return null;
+    }
+
+    public static String getYahooCliID() {
+        return null;
+    }
+
+    public static String getYahooCliSecr() {
         return null;
     }
 
