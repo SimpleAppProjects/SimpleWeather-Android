@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -13,6 +14,7 @@ import android.view.View;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.adapters.LocationPanelAdapter;
 
 public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     private boolean dragEnabled = true;
@@ -44,11 +46,14 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     }
 
     @Override
-    public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+    public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
         int dragFlags = 0;
         int swipeFlags = 0;
 
-        if (dragEnabled && swipeEnabled) {
+        if (viewHolder.getItemViewType() != LocationPanelAdapter.LocationPanelItemType.SEARCH_PANEL) {
+            dragFlags = 0;
+            swipeFlags = 0;
+        } else if (dragEnabled && swipeEnabled) {
             dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
             swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
         } else if (dragEnabled)
@@ -60,18 +65,27 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     }
 
     @Override
-    public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+    public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
         mAdapter.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
         return true;
     }
 
     @Override
-    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+    public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
         mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
     }
 
     @Override
-    public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+    public boolean canDropOver(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder current, @NonNull RecyclerView.ViewHolder target) {
+        if (!(target instanceof LocationPanelAdapter.ViewHolder))
+            return false;
+
+        LocationPanelAdapter adapter = (LocationPanelAdapter) recyclerView.getAdapter();
+        return adapter == null || !adapter.hasGPSHeader() || !adapter.hasSearchHeader() || target.getAdapterPosition() != 1;
+    }
+
+    @Override
+    public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
         if (viewHolder.getAdapterPosition() == -1)
             return;
 
@@ -100,6 +114,23 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
                 deleteIcon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
                 deleteIcon.draw(c);
+            } else if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+                float topY = viewHolder.itemView.getTop() + dY;
+                float bottomY = topY + viewHolder.itemView.getHeight();
+                float upperLimit = 0;
+                LocationPanelAdapter adapter = (LocationPanelAdapter) recyclerView.getAdapter();
+
+                if (adapter != null && adapter.hasSearchHeader() && adapter.hasGPSHeader()) {
+                    upperLimit = adapter.getGPSViewHolder().itemView.getHeight() + viewHolder.itemView.getHeight() + adapter.getFavViewHolder().itemView.getHeight();
+                } else if (adapter != null && adapter.hasSearchHeader()) {
+                    upperLimit = adapter.getFavViewHolder().itemView.getHeight();
+                }
+
+                if (topY < upperLimit) {
+                    dY = 0;
+                } else if (bottomY > recyclerView.getHeight()) {
+                    dY = recyclerView.getHeight() - viewHolder.itemView.getHeight() - viewHolder.itemView.getTop();
+                }
             }
         } catch (Exception ex) {
             Logger.writeLine(Log.INFO, ex, "SimpleWeather: ItemTouchHelperCallback: object disposed error");
@@ -109,7 +140,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     }
 
     @Override
-    public long getAnimationDuration(RecyclerView recyclerView, int animationType, float animateDx, float animateDy) {
+    public long getAnimationDuration(@NonNull RecyclerView recyclerView, int animationType, float animateDx, float animateDy) {
         if (animationType == ItemTouchHelper.ANIMATION_TYPE_SWIPE_SUCCESS)
             return 350; // Default is 250
         else

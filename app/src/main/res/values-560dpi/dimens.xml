@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- WeatherNow -->
-    <dimen name="spacer_top_size">45dp</dimen>
-    <dimen name="spacer_mid_size">45dp</dimen>
-</resources>

@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.helpers;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
+import android.support.annotation.AttrRes;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
@@ -48,5 +49,12 @@ public class ActivityUtils {
             window.setStatusBarColor(statusBarColor);
             window.setNavigationBarColor(navBarColor);
         }
+    }
+
+    public static int getAttrDimension(@NonNull Context activityContext, @AttrRes int resId) {
+        final TypedValue value = new TypedValue();
+        activityContext.getTheme().resolveAttribute(resId, value, true);
+
+        return TypedValue.complexToDimensionPixelSize(value.data, activityContext.getResources().getDisplayMetrics());
     }
 }

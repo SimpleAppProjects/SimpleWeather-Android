@@ -5,6 +5,6 @@
         android:title="@string/action_editmode"
         android:id="@+id/action_editmode"
         android:icon="@drawable/ic_mode_edit_white_24dp"
-        app:showAsAction="ifRoom|withText"
+        app:showAsAction="ifRoom"
         android:visible="false" />
 </menu>

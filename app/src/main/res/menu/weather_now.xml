@@ -5,5 +5,5 @@
         android:title="@string/action_refresh"
         android:id="@+id/action_refresh"
         android:icon="@drawable/ic_refresh_white_24dp"
-        app:showAsAction="ifRoom|withText" />
+        app:showAsAction="ifRoom" />
 </menu>

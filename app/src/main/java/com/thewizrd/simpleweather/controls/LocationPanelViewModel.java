@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.controls;
 
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.LocationData;
+import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
@@ -15,6 +16,7 @@ public class LocationPanelViewModel {
     private String weatherIcon;
     private String background;
     private LocationData locationData;
+    private int locationType = LocationType.SEARCH.getValue();
     private String weatherSource;
 
     private boolean editMode = false;
@@ -53,6 +55,12 @@ public class LocationPanelViewModel {
 
     public void setEditMode(boolean editMode) {
         this.editMode = editMode;
+    }
+
+    public int getLocationType() {
+        if (locationData != null)
+            return locationData.getLocationType().getValue();
+        return locationType;
     }
 
     public LocationPanelViewModel() {

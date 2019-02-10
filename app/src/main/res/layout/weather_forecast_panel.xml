@@ -1,94 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="@dimen/forecast_panel_width"
-    android:layout_height="@dimen/forecast_panel_height"
-    android:padding="4dp">
+    android:layout_width="130dp"
+    android:layout_height="155dp"
+    app:cardBackgroundColor="#10FFFFFF"
+    app:cardElevation="0dp"
+    app:cardUseCompatPadding="false">
 
-    <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/forecast_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-        android:textColor="@android:color/white"
-        android:textSize="@dimen/forecast_date_size"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="spread"
-        tools:text="Someday XX" />
-
-    <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/forecast_icon"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:gravity="center_vertical"
-        android:paddingBottom="4dp"
-        android:paddingLeft="8dp"
-        android:paddingStart="8dp"
-        android:paddingTop="4dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
-        android:textSize="@dimen/forecast_icon_size"
-        app:autoSizeMaxTextSize="@dimen/forecast_icon_size"
-        app:autoSizeMinTextSize="6sp"
-        app:autoSizeTextType="uniform"
-        app:fontFamily="@font/weathericons"
-        app:layout_constraintBottom_toTopOf="@+id/forecast_condition"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/forecast_date"
-        app:layout_constraintVertical_weight="1"
-        tools:fontFamily="@font/weathericons"
-        tools:text="@string/wi_wu_sunny" />
-
-    <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/forecast_condition"
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:lines="2"
-        android:padding="4dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-        android:textColor="@android:color/white"
-        android:textSize="@dimen/forecast_condition_size"
-        app:autoSizeMaxTextSize="@dimen/forecast_condition_size"
-        app:autoSizeMinTextSize="6sp"
-        app:autoSizeStepGranularity="2sp"
-        app:autoSizeTextType="uniform"
-        app:layout_constraintBottom_toTopOf="@+id/forecast_temphi"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/forecast_icon"
-        tools:text="Sprinkles early. Mostly cloudy. Mild" />
+        android:layout_height="match_parent">
 
-    <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/forecast_temphi"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-        android:textColor="@android:color/white"
-        android:textSize="@dimen/forecast_hi_size"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/forecast_condition"
-        tools:text="77º" />
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/forecast_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:padding="4dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/forecast_date_size"
+            app:layout_constraintBottom_toTopOf="@id/forecast_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="spread"
+            app:layout_constraintVertical_weight="1"
+            tools:text="Someday XX" />
 
-    <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/forecast_templo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-        android:textSize="@dimen/forecast_lo_size"
-        android:textStyle="bold"
-        app:layout_constraintBaseline_toBaselineOf="@+id/forecast_temphi"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/forecast_temphi"
-        app:layout_constraintTop_toBottomOf="@+id/forecast_condition"
-        tools:text="66º" />
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/forecast_icon"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
+            android:textSize="@dimen/forecast_icon_size"
+            app:autoSizeMaxTextSize="@dimen/forecast_icon_size"
+            app:autoSizeMinTextSize="6sp"
+            app:autoSizeTextType="uniform"
+            app:fontFamily="@font/weathericons"
+            app:layout_constraintBottom_toTopOf="@+id/forecast_condition"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/forecast_date"
+            app:layout_constraintVertical_weight="1"
+            tools:fontFamily="@font/weathericons"
+            tools:text="@string/wi_wu_sunny" />
 
-</android.support.constraint.ConstraintLayout>
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/forecast_condition"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:lines="2"
+            android:padding="4dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/forecast_condition_size"
+            app:autoSizeMaxTextSize="@dimen/forecast_condition_size"
+            app:autoSizeMinTextSize="9.5sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintBottom_toTopOf="@+id/forecast_temphi"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/forecast_icon"
+            app:layout_constraintVertical_weight="1"
+            tools:text="Sprinkles early. Mostly cloudy. Mild" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/forecast_temphi"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="center_vertical|end"
+            android:padding="4dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/forecast_lo_size"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/forecast_templo"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/forecast_condition"
+            app:layout_constraintVertical_weight="1"
+            tools:text="77º" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/forecast_templo"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="start|center_vertical"
+            android:padding="4dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textSize="@dimen/forecast_lo_size"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@+id/forecast_temphi"
+            app:layout_constraintTop_toBottomOf="@+id/forecast_condition"
+            app:layout_constraintVertical_weight="1"
+            tools:text="66º" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.design.card.MaterialCardView>

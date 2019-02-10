@@ -8,6 +8,27 @@
     android:background="@android:color/white"
     tools:context=".LocationsFragment">
 
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:elevation="@dimen/appbar_elevation"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:title="@string/label_nav_locations">
+
+            <include layout="@layout/search_action_bar" />
+
+        </android.support.v7.widget.Toolbar>
+
+    </android.support.design.widget.AppBarLayout>
+
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
@@ -16,55 +37,18 @@
         android:paddingBottom="4dp"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
-        android:paddingTop="4dp">
+        android:paddingTop="4dp"
+        app:layout_anchor="@id/app_bar"
+        app:layout_anchorGravity="bottom"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <RelativeLayout
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/locations_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            tools:listitem="@layout/location_panel" />
 
-            <LinearLayout
-                android:id="@+id/gps_follow_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <android.support.v7.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/label_currentlocation"
-                    android:textAppearance="@android:style/TextAppearance.Widget.TextView"
-                    android:textSize="18sp" />
-
-                <com.thewizrd.simpleweather.controls.LocationPanel
-                    android:id="@+id/gps_panel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginTop="4dp" />
-            </LinearLayout>
-
-            <android.support.v7.widget.AppCompatTextView
-                android:id="@+id/favorite_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/gps_follow_layout"
-                android:layout_marginBottom="4dp"
-                android:layout_marginTop="4dp"
-                android:text="@string/label_favoritelocations"
-                android:textAppearance="@android:style/TextAppearance.Widget.TextView"
-                android:textSize="18sp" />
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/locations_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/favorite_label"
-                android:orientation="vertical"
-                tools:listitem="@layout/location_panel" />
-        </RelativeLayout>
     </android.support.v4.widget.NestedScrollView>
 
     <android.support.design.button.MaterialButton
@@ -89,6 +73,9 @@
         android:id="@+id/search_fragment_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:clickable="true" />
+        android:clickable="true"
+        app:layout_anchor="@id/app_bar"
+        app:layout_anchorGravity="bottom"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </android.support.design.widget.CoordinatorLayout>

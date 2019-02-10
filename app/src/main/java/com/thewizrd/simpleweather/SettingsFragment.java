@@ -17,13 +17,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.EditTextPreferenceDialogFragmentCompat;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceCategory;
-import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceGroup;
 import android.support.v7.preference.SwitchPreferenceCompat;
 import android.text.Editable;
@@ -38,7 +36,6 @@ import android.widget.Toast;
 
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
-import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -46,15 +43,14 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
-import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import java.util.HashSet;
 import java.util.List;
 
-public class SettingsFragment extends PreferenceFragmentCompat
-        implements SharedPreferences.OnSharedPreferenceChangeListener, OnBackPressedFragmentListener {
+public class SettingsFragment extends CustomPreferenceFragmentCompat
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
 
@@ -91,33 +87,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
     // Intent queue
     private HashSet<Intent.FilterComparison> intentQueue;
 
-    private AppCompatActivity mActivity;
-    private WindowColorsInterface mWindowColorsIface;
-
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        mActivity = (AppCompatActivity) context;
-        mWindowColorsIface = (WindowColorsInterface) context;
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mActivity = null;
-        mWindowColorsIface = null;
+    protected int getTitle() {
+        return R.string.title_activity_settings;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
-        if (mWindowColorsIface != null)
-            mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
-
-        mActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        // Title
-        mActivity.getSupportActionBar().setTitle(R.string.title_activity_settings);
 
         // Register listener
         ApplicationLib app = App.getInstance();
@@ -191,9 +168,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pref_general, null);
-
-        // Setup actionbar
-        setHasOptionsMenu(false);
 
         notCategory = (PreferenceCategory) findPreference(CATEGORY_NOTIFICATION);
         apiCategory = (PreferenceCategory) findPreference(CATEGORY_API);
@@ -811,33 +785,20 @@ public class SettingsFragment extends PreferenceFragmentCompat
         }
     }
 
-    public static class AboutAppFragment extends PreferenceFragmentCompat {
+    public static class AboutAppFragment extends CustomPreferenceFragmentCompat {
         // Preference Keys
         private static final String KEY_ABOUTCREDITS = "key_aboutcredits";
         private static final String KEY_ABOUTOSLIBS = "key_aboutoslibs";
         private static final String KEY_ABOUTVERSION = "key_aboutversion";
 
-        private AppCompatActivity mActivity;
-        private WindowColorsInterface mWindowColorsIface;
-
         @Override
-        public void onAttach(Context context) {
-            super.onAttach(context);
-            mActivity = (AppCompatActivity) context;
-            mWindowColorsIface = (WindowColorsInterface) context;
-        }
-
-        @Override
-        public void onDetach() {
-            super.onDetach();
-            mActivity = null;
-            mWindowColorsIface = null;
+        protected int getTitle() {
+            return R.string.pref_title_about;
         }
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.pref_aboutapp, null);
-            setHasOptionsMenu(false);
 
             findPreference(KEY_ABOUTCREDITS).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -872,88 +833,29 @@ public class SettingsFragment extends PreferenceFragmentCompat
                 e.printStackTrace();
             }
         }
-
-        @Override
-        public void onResume() {
-            super.onResume();
-
-            if (mWindowColorsIface != null)
-                mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
-
-            // Title
-            mActivity.getSupportActionBar().setTitle(R.string.pref_title_about);
-        }
     }
 
-    public static class CreditsFragment extends PreferenceFragmentCompat {
-        private AppCompatActivity mActivity;
-        private WindowColorsInterface mWindowColorsIface;
-
+    public static class CreditsFragment extends CustomPreferenceFragmentCompat {
         @Override
-        public void onAttach(Context context) {
-            super.onAttach(context);
-            mActivity = (AppCompatActivity) context;
-            mWindowColorsIface = (WindowColorsInterface) context;
-        }
-
-        @Override
-        public void onDetach() {
-            super.onDetach();
-            mActivity = null;
-            mWindowColorsIface = null;
+        protected int getTitle() {
+            return R.string.pref_title_credits;
         }
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.pref_credits, null);
-            setHasOptionsMenu(false);
-        }
-
-        @Override
-        public void onResume() {
-            super.onResume();
-
-            if (mWindowColorsIface != null)
-                mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
-
-            // Title
-            mActivity.getSupportActionBar().setTitle(R.string.pref_title_credits);
         }
     }
 
-    public static class OSSCreditsFragment extends PreferenceFragmentCompat {
-        private AppCompatActivity mActivity;
-        private WindowColorsInterface mWindowColorsIface;
-
+    public static class OSSCreditsFragment extends CustomPreferenceFragmentCompat {
         @Override
-        public void onAttach(Context context) {
-            super.onAttach(context);
-            mActivity = (AppCompatActivity) context;
-            mWindowColorsIface = (WindowColorsInterface) context;
-        }
-
-        @Override
-        public void onDetach() {
-            super.onDetach();
-            mActivity = null;
-            mWindowColorsIface = null;
+        protected int getTitle() {
+            return R.string.pref_title_oslibs;
         }
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.pref_oslibs, null);
-            setHasOptionsMenu(false);
-        }
-
-        @Override
-        public void onResume() {
-            super.onResume();
-
-            if (mWindowColorsIface != null)
-                mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
-
-            // Title
-            mActivity.getSupportActionBar().setTitle(R.string.pref_title_oslibs);
         }
     }
 }

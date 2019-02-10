@@ -25,6 +25,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MarginLayoutParamsCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -155,7 +156,7 @@ public class SetupActivity extends AppCompatActivity {
             progressBar.setIndeterminateTintMode(PorterDuff.Mode.SRC_IN);
 
         // Tint drawable in button view
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
             for (Drawable drawable : gpsFollowButton.getCompoundDrawables()) {
                 if (drawable != null) {
                     drawable.setColorFilter(new PorterDuffColorFilter(Colors.SIMPLEBLUE, PorterDuff.Mode.SRC_IN));
@@ -609,15 +610,13 @@ public class SetupActivity extends AppCompatActivity {
 
     private void enterSearchUiTransition(Animation.AnimationListener enterAnimationListener) {
         // SearchViewContainer margin transition
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            Transition transition = new AutoTransition();
-            transition.setDuration(ANIMATION_DURATION);
-            TransitionManager.beginDelayedTransition((ViewGroup) searchViewContainer, transition);
-            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) searchViewContainer.getLayoutParams();
-            params.setMarginEnd(0);
-            params.setMarginStart(0);
-            searchViewContainer.setLayoutParams(params);
-        }
+        Transition transition = new AutoTransition();
+        transition.setDuration(ANIMATION_DURATION);
+        TransitionManager.beginDelayedTransition((ViewGroup) searchViewContainer, transition);
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) searchViewContainer.getLayoutParams();
+        MarginLayoutParamsCompat.setMarginEnd(params, 0);
+        MarginLayoutParamsCompat.setMarginStart(params, 0);
+        searchViewContainer.setLayoutParams(params);
 
         // SearchViewContainer fade/translation animation
         AnimationSet searchViewAniSet = new AnimationSet(true);
@@ -824,16 +823,14 @@ public class SetupActivity extends AppCompatActivity {
     private void exitSearchUiTransition(Animation.AnimationListener exitAnimationListener) {
         // SearchViewContainer margin transition
         searchViewContainer.setVisibility(View.VISIBLE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            Transition transition = new AutoTransition();
-            transition.setDuration(ANIMATION_DURATION);
-            TransitionManager.beginDelayedTransition((ViewGroup) searchViewContainer, transition);
-            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) searchViewContainer.getLayoutParams();
-            int marginHoriz = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
-            params.setMarginEnd(marginHoriz);
-            params.setMarginStart(marginHoriz);
-            searchViewContainer.setLayoutParams(params);
-        }
+        Transition transition = new AutoTransition();
+        transition.setDuration(ANIMATION_DURATION);
+        TransitionManager.beginDelayedTransition((ViewGroup) searchViewContainer, transition);
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) searchViewContainer.getLayoutParams();
+        int marginHoriz = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
+        MarginLayoutParamsCompat.setMarginEnd(params, marginHoriz);
+        MarginLayoutParamsCompat.setMarginStart(params, marginHoriz);
+        searchViewContainer.setLayoutParams(params);
 
         // SearchViewContainer translation animation
         TranslateAnimation searchBarAnimation = new TranslateAnimation(

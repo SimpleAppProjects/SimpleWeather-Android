@@ -15,6 +15,7 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.button.MaterialButton;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.transition.AutoTransition;
 import android.support.transition.Transition;
@@ -35,7 +36,6 @@ import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,8 +85,8 @@ import com.thewizrd.shared_resources.weatherdata.WeatherLoadedListenerInterface;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.here.HEREWeatherProvider;
 import com.thewizrd.simpleweather.adapters.LocationPanelAdapter;
-import com.thewizrd.simpleweather.controls.LocationPanel;
 import com.thewizrd.simpleweather.controls.LocationPanelViewModel;
+import com.thewizrd.simpleweather.helpers.ExtendedFab;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperCallback;
 import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
@@ -133,9 +133,6 @@ public class LocationsFragment extends Fragment
     private boolean inSearchUI;
 
     // GPS Location
-    View gpsPanelLayout;
-    LocationPanel gpsPanel;
-    LocationPanelViewModel gpsPanelViewModel;
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocCallback;
     private LocationListener mLocListnr;
@@ -197,37 +194,40 @@ public class LocationsFragment extends Fragment
                     return;
 
                 if (weather != null && weather.isValid()) {
-                    if (Settings.useFollowGPS() && location.getLocationType() == LocationType.GPS) {
-                        if (gpsPanelViewModel != null) {
-                            gpsPanelViewModel.setWeather(weather);
-                            gpsPanel.setWeatherBackground(gpsPanelViewModel);
-                            gpsPanel.setWeather(gpsPanelViewModel);
+                    // Update panel weather
+                    LocationPanelViewModel panel = null;
+
+                    if (location.getLocationType() == LocationType.GPS) {
+                        for (LocationPanelViewModel panelVM : mAdapter.getDataset()) {
+                            if (panelVM.getLocationData().getLocationType().equals(LocationType.GPS)) {
+                                panel = panelVM;
+                                break;
+                            }
                         }
                     } else {
-                        // Update panel weather
-                        LocationPanelViewModel panel = null;
                         for (LocationPanelViewModel panelVM : mAdapter.getDataset()) {
                             if (panelVM.getLocationData().getQuery().equals(location.getQuery())) {
                                 panel = panelVM;
                                 break;
                             }
                         }
-                        // Just in case
-                        if (panel == null) {
-                            for (LocationPanelViewModel panelVM : mAdapter.getDataset()) {
-                                if (panelVM.getLocationData().getName().equals(location.getName()) &&
-                                        panelVM.getLocationData().getLatitude() == location.getLatitude() &&
-                                        panelVM.getLocationData().getLongitude() == location.getLongitude() &&
-                                        panelVM.getLocationData().getTzLong().equals(location.getTzLong())) {
-                                    panel = panelVM;
-                                    break;
-                                }
+                    }
+
+                    // Just in case
+                    if (panel == null) {
+                        for (LocationPanelViewModel panelVM : mAdapter.getDataset()) {
+                            if (panelVM.getLocationData().getName().equals(location.getName()) &&
+                                    panelVM.getLocationData().getLatitude() == location.getLatitude() &&
+                                    panelVM.getLocationData().getLongitude() == location.getLongitude() &&
+                                    panelVM.getLocationData().getTzLong().equals(location.getTzLong())) {
+                                panel = panelVM;
+                                break;
                             }
                         }
-                        if (panel != null) {
-                            panel.setWeather(weather);
-                            mAdapter.notifyItemChanged(mAdapter.getDataset().indexOf(panel));
-                        }
+                    }
+                    if (panel != null) {
+                        panel.setWeather(weather);
+                        mAdapter.notifyItemChanged(mAdapter.getViewPosition(panel));
                     }
                 }
             }
@@ -370,7 +370,6 @@ public class LocationsFragment extends Fragment
         view.requestFocus();
 
         // Setup ActionBar
-        setHasOptionsMenu(true);
         if (mWindowColorsIface != null)
             mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
 
@@ -389,19 +388,17 @@ public class LocationsFragment extends Fragment
             }
         });
 
-        appBarLayout = mActivity.findViewById(R.id.app_bar);
-        mToolbar = mActivity.findViewById(R.id.toolbar);
+        appBarLayout = view.findViewById(R.id.app_bar);
+        mToolbar = view.findViewById(R.id.toolbar);
+        mToolbar.setOnMenuItemClickListener(menuItemClickListener);
         mSearchFragmentContainer = view.findViewById(R.id.search_fragment_container);
 
         int padding = getResources().getDimensionPixelSize(R.dimen.toolbar_horizontal_inset_padding);
         mToolbar.setContentInsetsRelative(padding, padding);
 
-        if (searchBarContainer == null) {
-            searchBarContainer = getLayoutInflater().inflate(R.layout.search_action_bar, mToolbar, false);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                searchBarContainer.setElevation(getResources().getDimension(R.dimen.appbar_elevation) + 2);
-            }
-            mToolbar.addView(searchBarContainer, 0);
+        searchBarContainer = mToolbar.findViewById(R.id.search_action_bar);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            searchBarContainer.setElevation(getResources().getDimension(R.dimen.appbar_elevation) + 2);
         }
 
         mSearchFragmentContainer.setOnClickListener(new View.OnClickListener() {
@@ -420,12 +417,10 @@ public class LocationsFragment extends Fragment
                 prepareSearchUI();
             }
         });
+        CoordinatorLayout.LayoutParams fabLP = (CoordinatorLayout.LayoutParams) addLocationsButton.getLayoutParams();
+        fabLP.setBehavior(new ExtendedFab.SnackBarBehavior());
 
         mRecyclerView = view.findViewById(R.id.locations_container);
-
-        gpsPanelLayout = view.findViewById(R.id.gps_follow_layout);
-        gpsPanel = view.findViewById(R.id.gps_panel);
-        gpsPanel.setOnClickListener(onPanelClickListener);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -436,7 +431,7 @@ public class LocationsFragment extends Fragment
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new LocationPanelAdapter(Glide.with(this.getContext()), new ArrayList<LocationPanelViewModel>());
+        mAdapter = new LocationPanelAdapter(Glide.with(this.getContext()));
         mAdapter.setOnClickListener(onRecyclerClickListener);
         mAdapter.setOnLongClickListener(onRecyclerLongClickListener);
         mAdapter.setOnListChangedCallback(onListChangedListener);
@@ -459,37 +454,42 @@ public class LocationsFragment extends Fragment
             prepareSearchUI();
         }
 
+        // Create options menu
+        createOptionsMenu();
+
         return view;
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    private void createOptionsMenu() {
         // Inflate the menu; this adds items to the action bar if it is present.
+        Menu menu = mToolbar.getMenu();
         optionsMenu = menu;
         menu.clear();
-        inflater.inflate(R.menu.locations, menu);
+        mToolbar.inflateMenu(R.menu.locations);
 
-        boolean onlyHomeIsLeft = (mAdapter.getItemCount() == 1);
+        boolean onlyHomeIsLeft = (mAdapter.getDataCount() == 1);
         MenuItem editMenuBtn = optionsMenu.findItem(R.id.action_editmode);
         if (editMenuBtn != null)
             editMenuBtn.setVisible(!onlyHomeIsLeft);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent AppCompatActivity in AndroidManifest.xml.
-        int id = item.getItemId();
+    private Toolbar.OnMenuItemClickListener menuItemClickListener = new Toolbar.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            // Handle action bar item clicks here. The action bar will
+            // automatically handle clicks on the Home/Up button, so long
+            // as you specify a parent AppCompatActivity in AndroidManifest.xml.
+            int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_editmode) {
-            toggleEditMode();
-            return true;
+            //noinspection SimplifiableIfStatement
+            if (id == R.id.action_editmode) {
+                toggleEditMode();
+                return true;
+            }
+
+            return false;
         }
-
-        return super.onOptionsItemSelected(item);
-    }
+    };
 
     private void resume() {
         cts = new CancellationTokenSource();
@@ -504,17 +504,10 @@ public class LocationsFragment extends Fragment
                     public void run() {
                         if (mWindowColorsIface != null)
                             mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
-
-                        if (Settings.useFollowGPS()) {
-                            gpsPanelLayout.setVisibility(View.VISIBLE);
-                        } else {
-                            gpsPanelViewModel = null;
-                            gpsPanelLayout.setVisibility(View.GONE);
-                        }
                     }
                 });
 
-                if (mAdapter.getItemCount() == 0 || Settings.useFollowGPS() && gpsPanelViewModel == null) {
+                if (mAdapter.getDataCount() == 0) {
                     // New instance; Get locations and load up weather data
                     loadLocations();
                 } else if (!mLoaded) {
@@ -597,7 +590,7 @@ public class LocationsFragment extends Fragment
             public Void call() throws Exception {
                 if (mActivity != null) {
                     // Load up saved locations
-                    List<LocationData> locations = Settings.getFavorites();
+                    List<LocationData> locations = new ArrayList<>(Settings.getFavorites());
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -609,7 +602,21 @@ public class LocationsFragment extends Fragment
                         return null;
 
                     // Setup saved favorite locations
-                    loadGPSPanel();
+                    LocationData gpsData = null;
+                    if (Settings.useFollowGPS()) {
+                        gpsData = getGPSPanel();
+
+                        final LocationPanelViewModel gpsPanelViewModel = new LocationPanelViewModel();
+                        gpsPanelViewModel.setLocationData(gpsData);
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mAdapter.add(0, gpsPanelViewModel);
+                            }
+                        });
+                    }
+
                     for (LocationData location : locations) {
                         final LocationPanelViewModel panel = new LocationPanelViewModel();
                         panel.setLocationData(location);
@@ -623,6 +630,9 @@ public class LocationsFragment extends Fragment
 
                     if (cts.getToken().isCancellationRequested())
                         return null;
+
+                    if (gpsData != null)
+                        locations.add(0, gpsData);
 
                     for (final LocationData location : locations) {
                         AsyncTask.run(new Runnable() {
@@ -639,18 +649,12 @@ public class LocationsFragment extends Fragment
         });
     }
 
-    private void loadGPSPanel() {
-        new AsyncTask<Void>().await(new Callable<Void>() {
+    private LocationData getGPSPanel() {
+        return new AsyncTask<LocationData>().await(new Callable<LocationData>() {
             @Override
-            public Void call() throws Exception {
+            public LocationData call() throws Exception {
                 // Setup gps panel
                 if (mActivity != null && Settings.useFollowGPS()) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            gpsPanelLayout.setVisibility(View.VISIBLE);
-                        }
-                    });
                     LocationData locData = Settings.getLastGPSLocData();
 
                     if (cts.getToken().isCancellationRequested())
@@ -664,17 +668,7 @@ public class LocationsFragment extends Fragment
                         return null;
 
                     if (locData != null && locData.getQuery() != null) {
-                        gpsPanelViewModel = new LocationPanelViewModel();
-                        gpsPanelViewModel.setLocationData(locData);
-
-                        final LocationData finalLocData = locData;
-                        AsyncTask.run(new Runnable() {
-                            @Override
-                            public void run() {
-                                WeatherDataLoader wLoader = new WeatherDataLoader(finalLocData, LocationsFragment.this, LocationsFragment.this);
-                                wLoader.loadWeatherData(false);
-                            }
-                        });
+                        return locData;
                     }
                 }
                 return null;
@@ -687,13 +681,19 @@ public class LocationsFragment extends Fragment
             @Override
             public Void call() throws Exception {
                 // Reload all panels if needed
-                List<LocationData> locations = Settings.getLocationData();
+                List<LocationData> locations = new ArrayList<>(Settings.getLocationData());
                 LocationData homeData = Settings.getLastGPSLocData();
-                boolean reload = (locations.size() != mAdapter.getItemCount() || Settings.useFollowGPS() && gpsPanelViewModel == null);
+                locations.add(0, homeData);
+                LocationPanelViewModel gpsPanelViewModel = null;
+                if (Settings.useFollowGPS() && mAdapter.getDataCount() > 0
+                        && mAdapter.getPanelData(0).getLocationType() == LocationType.GPS)
+                    gpsPanelViewModel = mAdapter.getPanelViewModel(0);
+
+                boolean reload = (locations.size() != mAdapter.getDataCount() || Settings.useFollowGPS() && gpsPanelViewModel == null);
 
                 // Reload if weather source differs
                 if ((gpsPanelViewModel != null && !Settings.getAPI().equals(gpsPanelViewModel.getWeatherSource())) ||
-                        (mAdapter.getItemCount() >= 1 && !Settings.getAPI().equals(mAdapter.getDataset().get(0).getWeatherSource())))
+                        (mAdapter.getDataCount() >= 1 && !Settings.getAPI().equals(mAdapter.getPanelViewModel(0).getWeatherSource())))
                     reload = true;
 
                 if (!reload && (gpsPanelViewModel != null && !homeData.getQuery().equals(gpsPanelViewModel.getLocationData().getQuery())))
@@ -712,8 +712,6 @@ public class LocationsFragment extends Fragment
                     loadLocations();
                 } else {
                     List<LocationPanelViewModel> dataset = mAdapter.getDataset();
-                    if (gpsPanelViewModel != null)
-                        dataset.add(gpsPanelViewModel);
 
                     for (final LocationPanelViewModel view : dataset) {
                         AsyncTask.run(new Runnable() {
@@ -728,6 +726,13 @@ public class LocationsFragment extends Fragment
                 return null;
             }
         });
+    }
+
+    private void removeGPSPanel() {
+        if (mAdapter != null && mAdapter.getDataCount() > 0
+                && mAdapter.getPanelData(0).getLocationType() == LocationType.GPS) {
+            mAdapter.remove(0);
+        }
     }
 
     private LocationData updateLocation() {
@@ -804,8 +809,7 @@ public class LocationsFragment extends Fragment
                                 @Override
                                 public void run() {
                                     Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
-                                    gpsPanelViewModel = null;
-                                    gpsPanelLayout.setVisibility(View.GONE);
+                                    removeGPSPanel();
                                 }
                             });
                         }
@@ -830,8 +834,7 @@ public class LocationsFragment extends Fragment
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    gpsPanelViewModel = null;
-                                    gpsPanelLayout.setVisibility(View.GONE);
+                                    removeGPSPanel();
                                 }
                             });
                             return null;
@@ -863,7 +866,7 @@ public class LocationsFragment extends Fragment
                             LocationData locData = updateLocation();
                             if (locData != null) {
                                 Settings.saveLastGPSLocData(locData);
-                                loadGPSPanel();
+                                refreshLocations();
 
                                 WearableDataListenerService.enqueueWork(App.getInstance().getAppContext(),
                                         new Intent(App.getInstance().getAppContext(), WearableDataListenerService.class)
@@ -872,8 +875,7 @@ public class LocationsFragment extends Fragment
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        gpsPanelViewModel = null;
-                                        gpsPanelLayout.setVisibility(View.GONE);
+                                        removeGPSPanel();
                                     }
                                 });
                             }
@@ -883,8 +885,7 @@ public class LocationsFragment extends Fragment
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     Settings.setFollowGPS(false);
-                    gpsPanelViewModel = null;
-                    gpsPanelLayout.setVisibility(View.GONE);
+                    removeGPSPanel();
                     Toast.makeText(mActivity, R.string.error_location_denied, Toast.LENGTH_SHORT).show();
                 }
                 return;
@@ -1103,8 +1104,8 @@ public class LocationsFragment extends Fragment
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                mAdapter.getDataset().clear();
-                                mAdapter.notifyDataSetChanged();
+                                adapter.getDataset().clear();
+                                adapter.notifyDataSetChanged();
                             }
                         });
 
@@ -1134,7 +1135,6 @@ public class LocationsFragment extends Fragment
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                int index = mAdapter.getDataset().size();
                                 mAdapter.add(panel);
                             }
                         });
@@ -1260,7 +1260,7 @@ public class LocationsFragment extends Fragment
         addLocationsButton.setVisibility(View.VISIBLE);
         int padding = getResources().getDimensionPixelSize(R.dimen.toolbar_horizontal_inset_padding);
         mToolbar.setContentInsetsRelative(padding, padding);
-        mActivity.invalidateOptionsMenu();
+        createOptionsMenu();
         hideInputMethod(mActivity == null ? null : mActivity.getCurrentFocus());
         if (searchView != null) searchView.clearFocus();
         if (searchBarContainer != null) searchBarContainer.setVisibility(View.GONE);
@@ -1327,8 +1327,8 @@ public class LocationsFragment extends Fragment
     private OnListChangedListener<LocationPanelViewModel> onListChangedListener = new OnListChangedListener<LocationPanelViewModel>() {
         @Override
         public void onChanged(ArrayList<LocationPanelViewModel> sender, ListChangedArgs e) {
-            boolean dataMoved = (e.action == ListChangedAction.REMOVE || e.action == ListChangedAction.MOVE);
-            boolean onlyHomeIsLeft = (mAdapter.getItemCount() == 1);
+            final boolean dataMoved = (e.action == ListChangedAction.REMOVE || e.action == ListChangedAction.MOVE);
+            final boolean onlyHomeIsLeft = (mAdapter.getDataCount() == 1);
 
             // Flag that data has changed
             if (mEditMode && dataMoved)
@@ -1337,23 +1337,30 @@ public class LocationsFragment extends Fragment
             if (mEditMode && (e.newStartingIndex == App.HOMEIDX || e.oldStartingIndex == App.HOMEIDX))
                 mHomeChanged = true;
 
-            // Cancel edit Mode
-            if (mEditMode && onlyHomeIsLeft)
-                toggleEditMode();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    // Cancel edit Mode
+                    if (mEditMode && onlyHomeIsLeft)
+                        toggleEditMode();
 
-            // Disable EditMode if only single location
-            if (optionsMenu != null) {
-                MenuItem editMenuBtn = optionsMenu.findItem(R.id.action_editmode);
-                if (editMenuBtn != null)
-                    editMenuBtn.setVisible(!onlyHomeIsLeft);
-            }
+                    // Disable EditMode if only single location
+                    if (optionsMenu != null) {
+                        MenuItem editMenuBtn = optionsMenu.findItem(R.id.action_editmode);
+                        if (editMenuBtn != null)
+                            editMenuBtn.setVisible(!onlyHomeIsLeft);
+                    }
+                }
+            });
         }
     };
 
     private RecyclerOnClickListenerInterface onRecyclerLongClickListener = new RecyclerOnClickListenerInterface() {
         @Override
         public void onClick(View view, int position) {
-            if (!mEditMode && mAdapter.getItemCount() > 1) toggleEditMode();
+            if (mAdapter.getItemViewType(position) == LocationPanelAdapter.LocationPanelItemType.SEARCH_PANEL) {
+                if (!mEditMode && mAdapter.getDataCount() > 1) toggleEditMode();
+            }
         }
     };
 
@@ -1375,23 +1382,21 @@ public class LocationsFragment extends Fragment
 
         if (mEditMode) {
             // Unregister events
-            gpsPanel.setOnClickListener(null);
             mAdapter.setOnClickListener(null);
             mAdapter.setOnLongClickListener(null);
         } else {
             // Register events
-            gpsPanel.setOnClickListener(onPanelClickListener);
             mAdapter.setOnClickListener(onRecyclerClickListener);
             mAdapter.setOnLongClickListener(onRecyclerLongClickListener);
         }
 
         for (LocationPanelViewModel view : mAdapter.getDataset()) {
             view.setEditMode(mEditMode);
-            mAdapter.notifyItemChanged(mAdapter.getDataset().indexOf(view));
+            mAdapter.notifyItemChanged(mAdapter.getViewPosition(view));
 
             if (!mEditMode && mDataChanged) {
                 final String query = view.getLocationData().getQuery();
-                final int pos = mAdapter.getDataset().indexOf(view);
+                final int pos = mAdapter.getViewPosition(view);
                 AsyncTask.run(new Runnable() {
                     @Override
                     public void run() {

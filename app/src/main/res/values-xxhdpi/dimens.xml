@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- WeatherNow -->
-    <dimen name="spacer_top_size">0dp</dimen>
-    <dimen name="spacer_mid_size">0dp</dimen>
-    <dimen name="label_location_size">30sp</dimen>
-    <dimen name="label_updatetime_size">12sp</dimen>
     <dimen name="weather_icon_size">84sp</dimen>
     <dimen name="weather_condition_size">24sp</dimen>
     <!-- Forecast -->

@@ -28,7 +28,7 @@ public class ForecastItemViewModel {
         wm = WeatherManager.getInstance();
 
         weatherIcon = forecast.getIcon();
-        date = forecast.getDate().format(DateTimeFormatter.ofPattern("EEEE dd", Locale.getDefault()));
+        date = forecast.getDate().format(DateTimeFormatter.ofPattern("EEE dd", Locale.getDefault()));
         condition = forecast.getCondition();
         try {
             hiTemp = (Settings.isFahrenheit() ?

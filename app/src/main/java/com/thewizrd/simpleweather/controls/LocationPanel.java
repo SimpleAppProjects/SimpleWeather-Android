@@ -7,7 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.CardView;
+import android.support.design.card.MaterialCardView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +20,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.R;
 
-public class LocationPanel extends CardView {
+public class LocationPanel extends MaterialCardView {
     private View viewLayout;
     private ImageView bgImageView;
     private TextView locationNameView;

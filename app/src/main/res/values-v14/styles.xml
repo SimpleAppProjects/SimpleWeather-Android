@@ -8,9 +8,9 @@
 
     <style name="Preference_TextAppearanceMaterialBody2" tools:ignore="PrivateResource">
         <item name="android:textSize">14sp</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <style name="PreferenceThemeOverlayMaterial.v14" parent="@style/PreferenceThemeOverlay.v14.Material">

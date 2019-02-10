@@ -1,7 +1,5 @@
 package com.thewizrd.shared_resources.utils;
 
-import org.apache.commons.lang3.text.WordUtils;
-
 public class StringUtils {
     public static boolean isNullOrEmpty(String s) {
         return s == null || s.length() == 0;
@@ -24,7 +22,21 @@ public class StringUtils {
     }
 
     public static String toUpperCase(String s) {
-        return WordUtils.capitalize(s);
+        if (isNullOrEmpty(s)) {
+            return s;
+        }
+        final char[] buffer = s.toCharArray();
+        boolean capitalizeNext = true;
+        for (int i = 0; i < buffer.length; i++) {
+            final char ch = buffer[i];
+            if (Character.isWhitespace(ch)) {
+                capitalizeNext = true;
+            } else if (capitalizeNext) {
+                buffer[i] = Character.toTitleCase(ch);
+                capitalizeNext = false;
+            }
+        }
+        return new String(buffer);
     }
 
     public static String toPascalCase(String s) {

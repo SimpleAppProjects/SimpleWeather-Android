@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/location_panel_height">
+    android:layout_height="@dimen/location_panel_height"
+    style="@style/Widget.MaterialComponents.CardView"
+    tools:context=".controls.LocationPanel">
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/image_view"
@@ -11,65 +13,66 @@
         android:layout_height="match_parent"
         app:srcCompat="@color/colorPrimary" />
 
-    <android.support.v7.widget.GridLayout
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:columnCount="2">
+        android:layout_height="match_parent">
 
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/location_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:ellipsize="marquee"
             android:gravity="center_vertical"
             android:maxLines="2"
             android:padding="10dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
             android:textSize="@dimen/location_panel_text_size"
-            app:autoSizeMaxTextSize="@dimen/location_panel_text_size"
-            app:autoSizeMinTextSize="2dp"
-            app:autoSizeTextType="uniform"
-            app:layout_column="0"
-            app:layout_columnWeight="1"
-            app:layout_gravity="center_vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/weather_temp"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="New York, NY" />
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            app:layout_column="1">
 
-            <android.support.v7.widget.AppCompatTextView
-                android:id="@+id/weather_temp"
-                android:layout_width="@dimen/location_panel_textview_size"
-                android:layout_height="@dimen/location_panel_textview_size"
-                android:layout_gravity="center"
-                android:layout_margin="5dp"
-                android:gravity="center"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                android:textSize="@dimen/location_panel_text_size"
-                app:autoSizeMaxTextSize="@dimen/location_panel_text_size"
-                app:autoSizeMinTextSize="6sp"
-                app:autoSizeTextType="uniform"
-                tools:text="50º" />
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/weather_temp"
+            android:layout_width="@dimen/location_panel_textview_size"
+            android:layout_height="@dimen/location_panel_textview_size"
+            android:layout_margin="5dp"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
+            android:textSize="@dimen/location_panel_text_size"
+            app:autoSizeMaxTextSize="@dimen/location_panel_text_size"
+            app:autoSizeMinTextSize="6sp"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/weather_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="50º" />
 
-            <android.support.v7.widget.AppCompatTextView
-                android:id="@+id/weather_icon"
-                android:layout_width="@dimen/location_panel_textview_size"
-                android:layout_height="@dimen/location_panel_textview_size"
-                android:layout_gravity="center_vertical"
-                android:layout_margin="10dp"
-                android:gravity="center"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                app:autoSizeMaxTextSize="@dimen/location_panel_icon_size"
-                app:autoSizeMinTextSize="6sp"
-                app:autoSizeTextType="uniform"
-                app:fontFamily="@font/weathericons"
-                tools:fontFamily="@font/weathericons"
-                tools:text="@string/wi_night_cloudy" />
-        </LinearLayout>
-    </android.support.v7.widget.GridLayout>
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/weather_icon"
+            android:layout_width="@dimen/location_panel_textview_size"
+            android:layout_height="@dimen/location_panel_textview_size"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
+            app:autoSizeMaxTextSize="@dimen/location_panel_icon_size"
+            app:autoSizeMinTextSize="6sp"
+            app:autoSizeTextType="uniform"
+            app:fontFamily="@font/weathericons"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="0"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:fontFamily="@font/weathericons"
+            tools:text="@string/wi_night_cloudy" />
+
+    </android.support.constraint.ConstraintLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -80,4 +83,5 @@
         android:indeterminate="true"
         android:indeterminateTint="@android:color/white"
         android:visibility="visible" />
-</android.support.v7.widget.CardView>
+
+</android.support.design.card.MaterialCardView>
