@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.multidex.MultiDex;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -94,6 +95,12 @@ public class App extends Application implements ApplicationLib, Application.Acti
         });
 
         sharedPreferenceChangeListener = new Settings.SettingsListener(context);
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 
     private void registerCommonReceiver() {
