@@ -248,7 +248,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
         try {
             forecastAPI = "https://api.met.no/weatherapi/locationforecastlts/1.3/?%s";
             forecastURL = new URL(String.format(forecastAPI, location_query));
-            sunrisesetAPI = "https://api.met.no/weatherapi/sunrise/1.1/?%s&date=%s";
+            sunrisesetAPI = "https://api.met.no/weatherapi/sunrise/2.0/?%s&date=%s&offset=+00:00";
             String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT));
             sunrisesetURL = new URL(String.format(sunrisesetAPI, location_query, date));
 

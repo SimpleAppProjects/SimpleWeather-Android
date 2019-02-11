@@ -8,11 +8,11 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.Logger;
 
-import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
@@ -57,15 +57,20 @@ public class Astronomy {
     }
 
     public Astronomy(com.thewizrd.shared_resources.weatherdata.metno.Astrodata astroRoot) {
-        sunrise = LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(
-                astroRoot.getTime().getLocation().getSun().getRise())), ZoneOffset.UTC);
-        sunset = LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(
-                astroRoot.getTime().getLocation().getSun().getSet())), ZoneOffset.UTC);
+        if (astroRoot.getLocation().getTime().getSunrise() != null) {
+            sunrise = ZonedDateTime.parse(astroRoot.getLocation().getTime().getSunrise().getTime(),
+                    DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
+        }
+        if (astroRoot.getLocation().getTime().getSunset() != null) {
+            sunset = ZonedDateTime.parse(astroRoot.getLocation().getTime().getSunset().getTime(),
+                    DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
+        }
 
         // If the sun won't set/rise, set time to the future
-        if (astroRoot.getTime().getLocation().getSun().isNever_rise()) {
+        if (sunrise == null) {
             sunrise = LocalDateTime.now().plusYears(1).minusNanos(1);
-        } else if (astroRoot.getTime().getLocation().getSun().isNever_set()) {
+        }
+        if (sunset == null) {
             sunset = LocalDateTime.now().plusYears(1).minusNanos(1);
         }
     }
