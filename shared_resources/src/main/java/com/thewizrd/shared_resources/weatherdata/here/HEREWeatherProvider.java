@@ -535,8 +535,13 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
                     alert.setExpiresDate(alert.getExpiresDate().withZoneSameLocal(offset));
                 }
             }
-        } else if ((weather.getWeatherAlerts() == null || weather.getWeatherAlerts().size() == 0) && "US".equals(location.getCountryCode())) {
-            weather.setWeatherAlerts(new NWSAlertProvider().getAlerts(location));
+        } else if ("US".equals(location.getCountryCode())) {
+            List<WeatherAlert> alerts = new ArrayList<>(new NWSAlertProvider().getAlerts(location));
+
+            if (weather.getWeatherAlerts() != null)
+                alerts.addAll(weather.getWeatherAlerts());
+
+            weather.setWeatherAlerts(alerts);
         }
 
         // Update tz for weather properties
