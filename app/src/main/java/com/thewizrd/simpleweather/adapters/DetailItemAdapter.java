@@ -7,10 +7,6 @@ import android.view.ViewGroup;
 
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
-import com.thewizrd.shared_resources.utils.Settings;
-import com.thewizrd.shared_resources.utils.StringUtils;
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
-import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.DetailCard;
 
 import java.util.ArrayList;
@@ -63,27 +59,7 @@ public class DetailItemAdapter extends RecyclerView.Adapter {
 
     public void updateItems(WeatherNowViewModel weatherNowViewModel) {
         mDataset.clear();
-
-        if (!StringUtils.isNullOrWhitespace(weatherNowViewModel.getExtras().getChance())) {
-            if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
-                mDataset.add(new DetailItemViewModel(R.string.label_cloudiness, R.string.wi_cloudy, weatherNowViewModel.getExtras().getChance()));
-            } else {
-                mDataset.add(new DetailItemViewModel(R.string.label_chance, R.string.wi_raindrop, weatherNowViewModel.getExtras().getChance()));
-            }
-
-            mDataset.add(new DetailItemViewModel(R.string.label_qpf_rain, R.string.wi_raindrops, weatherNowViewModel.getExtras().getQpfRain()));
-            mDataset.add(new DetailItemViewModel(R.string.label_qpf_snow, R.string.wi_snowflake_cold, weatherNowViewModel.getExtras().getQpfSnow()));
-        }
-
-        mDataset.add(new DetailItemViewModel(R.string.label_humidity, R.string.wi_humidity, weatherNowViewModel.getHumidity()));
-        mDataset.add(new DetailItemViewModel(R.string.label_pressure, R.string.wi_barometer,
-                weatherNowViewModel.getRisingIcon() + " " + weatherNowViewModel.getPressure()));
-        mDataset.add(new DetailItemViewModel(R.string.label_visibility, R.string.wi_fog, weatherNowViewModel.getVisibility()));
-        mDataset.add(new DetailItemViewModel(R.string.label_feelslike, R.string.wi_thermometer, weatherNowViewModel.getWindChill()));
-        mDataset.add(new DetailItemViewModel(R.string.label_wind, R.string.wi_wind_direction, weatherNowViewModel.getWindSpeed(), weatherNowViewModel.getWindDirection()));
-        mDataset.add(new DetailItemViewModel(R.string.label_sunrise, R.string.wi_sunrise, weatherNowViewModel.getSunrise()));
-        mDataset.add(new DetailItemViewModel(R.string.label_sunset, R.string.wi_sunset, weatherNowViewModel.getSunset()));
-
+        mDataset.addAll(weatherNowViewModel.getWeatherDetails());
         notifyDataSetChanged();
     }
 }

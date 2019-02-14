@@ -44,6 +44,12 @@
     <string name="credit_prefix">Data from</string>
     <string name="label_high">High</string>
     <string name="label_low">Low</string>
+    <string name="label_dewpoint">Dew Point</string>
+    <string name="label_moonrise">Moonrise</string>
+    <string name="label_moonset">Moonset</string>
+    <string name="label_moonphase">Moon Phase</string>
+    <string name="label_beaufort">Beaufort</string>
+    <string name="label_uv">UV Index</string>
     <!-- NavBar -->
     <string name="label_nav_weathernow">Weather</string>
     <string name="label_nav_locations">Locations</string>

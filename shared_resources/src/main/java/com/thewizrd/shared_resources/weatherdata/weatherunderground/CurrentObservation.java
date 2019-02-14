@@ -134,7 +134,7 @@ public class CurrentObservation {
     private ObservationLocation observationLocation;
 
     @SerializedName("dewpoint_f")
-    private int dewpointF;
+    private String dewpointF;
 
     @SerializedName("display_location")
     private DisplayLocation displayLocation;
@@ -146,7 +146,7 @@ public class CurrentObservation {
     private String pressureTrend;
 
     @SerializedName("dewpoint_c")
-    private int dewpointC;
+    private String dewpointC;
 
     @SerializedName("estimated")
     private Estimated estimated;
@@ -516,11 +516,11 @@ public class CurrentObservation {
         return observationLocation;
     }
 
-    public void setDewpointF(int dewpointF) {
+    public void setDewpointF(String dewpointF) {
         this.dewpointF = dewpointF;
     }
 
-    public int getDewpointF() {
+    public String getDewpointF() {
         return dewpointF;
     }
 
@@ -548,11 +548,11 @@ public class CurrentObservation {
         return pressureTrend;
     }
 
-    public void setDewpointC(int dewpointC) {
+    public void setDewpointC(String dewpointC) {
         this.dewpointC = dewpointC;
     }
 
-    public int getDewpointC() {
+    public String getDewpointC() {
         return dewpointC;
     }
 

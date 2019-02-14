@@ -43,6 +43,12 @@ public class Condition {
     @SerializedName("icon")
     private String icon;
 
+    @SerializedName("beaufort")
+    private Beaufort beaufort;
+
+    @SerializedName("uv")
+    private UV uv;
+
     private Condition() {
         // Needed for deserialization
     }
@@ -58,6 +64,11 @@ public class Condition {
         feelslikeC = condition.getFeelslikeC();
         icon = WeatherManager.getProvider(WeatherAPI.WEATHERUNDERGROUND)
                 .getWeatherIcon(condition.getIconUrl().replace("http://icons.wxug.com/i/c/k/", "").replace(".gif", ""));
+        try {
+            uv = new UV(Float.valueOf(condition.getUV()));
+        } catch (NumberFormatException ex) {
+            uv = null;
+        }
     }
 
     public Condition(com.thewizrd.shared_resources.weatherdata.weatheryahoo.CurrentObservation observation) {
@@ -109,9 +120,11 @@ public class Condition {
         feelslikeF = tempF;
         feelslikeC = tempC;
         // icon
+        beaufort = new Beaufort(time.getLocation().getWindSpeed().getBeaufort());
     }
 
-    public Condition(com.thewizrd.shared_resources.weatherdata.here.ObservationItem observation) {
+    public Condition(com.thewizrd.shared_resources.weatherdata.here.ObservationItem observation,
+                     com.thewizrd.shared_resources.weatherdata.here.ForecastItem forecastItem) {
         weather = StringUtils.toPascalCase(observation.getDescription());
         try {
             Float tempF = Float.valueOf(observation.getTemperature());
@@ -147,6 +160,20 @@ public class Condition {
 
         icon = WeatherManager.getProvider(WeatherAPI.HERE)
                 .getWeatherIcon(String.format("%s_%s", observation.getDaylight(), observation.getIconName()));
+
+        try {
+            int scale = Integer.valueOf(forecastItem.getBeaufortScale());
+            beaufort = new Beaufort(scale, forecastItem.getBeaufortDescription());
+        } catch (NumberFormatException ex) {
+            beaufort = null;
+        }
+
+        try {
+            float index = Float.valueOf(forecastItem.getUvIndex());
+            uv = new UV(index, forecastItem.getUvDesc());
+        } catch (NumberFormatException ex) {
+            uv = null;
+        }
     }
 
     public String getWeather() {
@@ -221,6 +248,22 @@ public class Condition {
         this.icon = icon;
     }
 
+    public Beaufort getBeaufort() {
+        return beaufort;
+    }
+
+    public void setBeaufort(Beaufort beaufort) {
+        this.beaufort = beaufort;
+    }
+
+    public UV getUV() {
+        return uv;
+    }
+
+    public void setUV(UV uv) {
+        this.uv = uv;
+    }
+
     public static Condition fromJson(JsonReader extReader) {
         Condition obj = null;
 
@@ -281,6 +324,12 @@ public class Condition {
                     case "icon":
                         obj.icon = reader.nextString();
                         break;
+                    case "beaufort":
+                        obj.beaufort = Beaufort.fromJson(reader);
+                        break;
+                    case "uv":
+                        obj.uv = UV.fromJson(reader);
+                        break;
                     default:
                         break;
                 }
@@ -340,6 +389,24 @@ public class Condition {
             // "icon" : ""
             writer.name("icon");
             writer.value(icon);
+
+            // "beaufort" : ""
+            if (beaufort != null) {
+                writer.name("beaufort");
+                if (beaufort == null)
+                    writer.nullValue();
+                else
+                    writer.value(beaufort.toJson());
+            }
+
+            // "uv" : ""
+            if (uv != null) {
+                writer.name("uv");
+                if (uv == null)
+                    writer.nullValue();
+                else
+                    writer.value(uv.toJson());
+            }
 
             // }
             writer.endObject();

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="beaufort_0">Calm</string>
+    <string name="beaufort_1">Light Air</string>
+    <string name="beaufort_2">Light Breeze</string>
+    <string name="beaufort_3">Gentle Breeze</string>
+    <string name="beaufort_4">Moderate Breeze</string>
+    <string name="beaufort_5">Fresh Breeze</string>
+    <string name="beaufort_6">Strong Breeze</string>
+    <string name="beaufort_7">Near Gale</string>
+    <string name="beaufort_8">Gale</string>
+    <string name="beaufort_9">Severe Gale</string>
+    <string name="beaufort_10">Storm</string>
+    <string name="beaufort_11">Violent Storm</string>
+    <string name="beaufort_12">Hurricane</string>
+</resources>

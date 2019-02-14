@@ -843,9 +843,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     */
 
                     // Minimum width for ea. card
-                    int minWidth = (int) ActivityUtils.dpToPx(mActivity, 125f);
+                    int minWidth = (int) ActivityUtils.dpToPx(mActivity, 125f); // Default: 125f
                     // Available columns based on min card width
-                    int availColumns = ((int) (dpWidth / minWidth)) <= 1 ? 2 : (int) (dpWidth / minWidth);
+                    int availColumns = ((int) (dpWidth / minWidth)) <= 1 ? 3 : (int) (dpWidth / minWidth);
 
                     mLayoutManager.setSpanCount(availColumns);
                 }

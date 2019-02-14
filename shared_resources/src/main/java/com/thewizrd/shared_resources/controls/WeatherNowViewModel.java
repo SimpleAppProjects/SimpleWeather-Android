@@ -1,10 +1,13 @@
 package com.thewizrd.shared_resources.controls;
 
+import android.content.Context;
 import android.text.format.DateFormat;
-import android.view.View;
+import android.util.Log;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
+import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -29,16 +32,7 @@ public class WeatherNowViewModel {
     private String weatherIcon;
 
     // Weather Details
-    private String humidity;
-    private String pressure;
-    private int risingVisiblity;
-    private String risingIcon;
-    private String visibility;
-    private String windChill;
-    private int windDirection;
-    private String windSpeed;
-    private String sunrise;
-    private String sunset;
+    private List<DetailItemViewModel> weatherDetails;
 
     // Forecast
     private List<ForecastItemViewModel> forecasts;
@@ -75,48 +69,12 @@ public class WeatherNowViewModel {
         return weatherIcon;
     }
 
-    public String getHumidity() {
-        return humidity;
-    }
-
-    public String getPressure() {
-        return pressure;
-    }
-
-    public int getRisingVisiblity() {
-        return risingVisiblity;
-    }
-
-    public String getRisingIcon() {
-        return risingIcon;
-    }
-
-    public String getVisibility() {
-        return visibility;
-    }
-
-    public String getWindChill() {
-        return windChill;
-    }
-
-    public int getWindDirection() {
-        return windDirection;
-    }
-
-    public String getWindSpeed() {
-        return windSpeed;
-    }
-
-    public String getSunrise() {
-        return sunrise;
-    }
-
-    public String getSunset() {
-        return sunset;
-    }
-
     public List<ForecastItemViewModel> getForecasts() {
         return forecasts;
+    }
+
+    public List<DetailItemViewModel> getWeatherDetails() {
+        return weatherDetails;
     }
 
     public WeatherExtrasViewModel getExtras() {
@@ -149,6 +107,7 @@ public class WeatherNowViewModel {
         wm = WeatherManager.getInstance();
 
         forecasts = new ArrayList<>();
+        weatherDetails = new ArrayList<>();
         extras = new WeatherExtrasViewModel();
     }
 
@@ -156,12 +115,15 @@ public class WeatherNowViewModel {
         wm = WeatherManager.getInstance();
 
         forecasts = new ArrayList<>();
+        weatherDetails = new ArrayList<>();
         extras = new WeatherExtrasViewModel();
         updateView(weather);
     }
 
     public void updateView(Weather weather) {
         if (weather.isValid()) {
+            Context context = SimpleLibrary.getInstance().getApp().getAppContext();
+
             // Update backgrounds
             background = wm.getWeatherBackgroundURI(weather);
             pendingBackground = wm.getWeatherBackgroundColor(weather);
@@ -180,29 +142,29 @@ public class WeatherNowViewModel {
             weatherIcon = weather.getCondition().getIcon();
 
             // WeatherDetails
-            // Astronomy
-            if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
-                sunrise = weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("HH:mm"));
-                sunset = weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("HH:mm"));
-            } else {
-                sunrise = weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("h:mm a"));
-                sunset = weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("h:mm a"));
+            weatherDetails.clear();
+            // Precipitation
+            if (weather.getPrecipitation() != null) {
+                String chance = weather.getPrecipitation().getPop() + "%";
+                String qpfRain = Settings.isFahrenheit() ?
+                        String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfRainIn()) :
+                        String.format(Locale.getDefault(), "%.2f mm", weather.getPrecipitation().getQpfRainMm());
+                String qpfSnow = Settings.isFahrenheit() ?
+                        String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfSnowIn()) :
+                        String.format(Locale.getDefault(), "%.2f cm", weather.getPrecipitation().getQpfSnowCm());
+
+                if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
+                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
+                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
+                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, chance));
+                } else {
+                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, chance));
+                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
+                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
+                }
             }
 
-            // Wind
-            windChill = Settings.isFahrenheit() ?
-                    String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getFeelslikeF())) :
-                    String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getFeelslikeC()));
-            windSpeed = Settings.isFahrenheit() ?
-                    String.format(Locale.getDefault(), "%d mph", Math.round(weather.getCondition().getWindMph())) :
-                    String.format(Locale.getDefault(), "%d kph", Math.round(weather.getCondition().getWindKph()));
-            updateWindDirection(weather.getCondition().getWindDegrees());
-
             // Atmosphere
-            humidity = weather.getAtmosphere().getHumidity();
-            if (!humidity.endsWith("%"))
-                humidity += "%";
-
             String pressureVal = Settings.isFahrenheit() ?
                     weather.getAtmosphere().getPressureIn() :
                     weather.getAtmosphere().getPressureMb();
@@ -211,12 +173,24 @@ public class WeatherNowViewModel {
 
             try {
                 float pressure = Float.parseFloat(pressureVal);
-                this.pressure = String.format(Locale.getDefault(), "%s %s", Float.toString(pressure), pressureUnit);
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.PRESSURE,
+                        String.format(Locale.getDefault(), "%s %s %s",
+                                getPressureStateIcon(weather.getAtmosphere().getPressureTrend()), Float.toString(pressure), pressureUnit)));
             } catch (Exception e) {
-                this.pressure = String.format(Locale.getDefault(), "-- %s", pressureUnit);
+                Logger.writeLine(Log.DEBUG, e);
             }
 
-            updatePressureState(weather.getAtmosphere().getPressureTrend());
+            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.HUMIDITY,
+                    weather.getAtmosphere().getHumidity().endsWith("%") ?
+                            weather.getAtmosphere().getHumidity() :
+                            weather.getAtmosphere().getHumidity() + "%"));
+
+            if (!StringUtils.isNullOrWhitespace(weather.getAtmosphere().getDewpointF())) {
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.DEWPOINT,
+                        Settings.isFahrenheit() ?
+                                String.format(Locale.getDefault(), "%dº", Math.round(Float.valueOf(weather.getAtmosphere().getDewpointF()))) :
+                                String.format(Locale.getDefault(), "%dº", Math.round(Float.valueOf(weather.getAtmosphere().getDewpointC())))));
+            }
 
             String visibilityVal = Settings.isFahrenheit() ?
                     weather.getAtmosphere().getVisibilityMi() :
@@ -226,9 +200,66 @@ public class WeatherNowViewModel {
 
             try {
                 float visibility = Float.parseFloat(visibilityVal);
-                this.visibility = String.format(Locale.getDefault(), "%s %s", Float.toString(visibility), visibilityUnit);
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.VISIBILITY,
+                        String.format(Locale.getDefault(), "%s %s", Float.toString(visibility), visibilityUnit)));
             } catch (Exception e) {
-                this.visibility = String.format(Locale.getDefault(), "-- %s", visibilityUnit);
+                Logger.writeLine(Log.DEBUG, e);
+            }
+
+            if (weather.getCondition().getUV() != null) {
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.UV,
+                        String.format(Locale.ROOT, "%s, %s",
+                                weather.getCondition().getUV().getIndex(), weather.getCondition().getUV().getDescription())));
+            }
+
+            // Wind
+            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
+                    Settings.isFahrenheit() ?
+                            String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getFeelslikeF())) :
+                            String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getFeelslikeC()))));
+            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
+                    Settings.isFahrenheit() ?
+                            String.format(Locale.getDefault(), "%d mph", Math.round(weather.getCondition().getWindMph())) :
+                            String.format(Locale.getDefault(), "%d kph", Math.round(weather.getCondition().getWindKph())),
+                    getWindIconRotation(weather.getCondition().getWindDegrees())));
+
+            if (weather.getCondition().getBeaufort() != null) {
+                weatherDetails.add(new DetailItemViewModel(weather.getCondition().getBeaufort().getScale(),
+                        weather.getCondition().getBeaufort().getDescription()));
+            }
+
+            // Astronomy
+            if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE,
+                        weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("HH:mm"))));
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET,
+                        weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("HH:mm"))));
+            } else {
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE,
+                        weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("h:mm a"))));
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET,
+                        weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("h:mm a"))));
+            }
+
+            if (weather.getAstronomy().getMoonrise() != null && weather.getAstronomy().getMoonset() != null
+                    && weather.getAstronomy().getMoonrise().compareTo(DateTimeUtils.getLocalDateTimeMIN()) > 0
+                    && weather.getAstronomy().getMoonset().compareTo(DateTimeUtils.getLocalDateTimeMIN()) > 0) {
+                if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
+                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONRISE,
+                            weather.getAstronomy().getMoonrise().format(DateTimeFormatter.ofPattern("HH:mm"))));
+                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONSET,
+                            weather.getAstronomy().getMoonset().format(DateTimeFormatter.ofPattern("HH:mm"))));
+                } else {
+                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONRISE,
+                            weather.getAstronomy().getMoonrise().format(DateTimeFormatter.ofPattern("h:mm a"))));
+                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONSET,
+                            weather.getAstronomy().getMoonset().format(DateTimeFormatter.ofPattern("h:mm a"))));
+                }
+            }
+
+            if (weather.getAstronomy().getMoonPhase() != null) {
+                weatherDetails.add(new DetailItemViewModel(weather.getAstronomy().getMoonPhase().getPhase(),
+                        weather.getAstronomy().getMoonPhase().getDescription()));
             }
 
             // Add UI elements
@@ -240,7 +271,7 @@ public class WeatherNowViewModel {
 
             // Additional Details
             weatherSource = weather.getSource();
-            String creditPrefix = SimpleLibrary.getInstance().getApp().getAppContext().getString(R.string.credit_prefix);
+            String creditPrefix = context.getString(R.string.credit_prefix);
 
             if (WeatherAPI.WEATHERUNDERGROUND.equals(weather.getSource()))
                 weatherCredit = String.format("%s WeatherUnderground", creditPrefix);
@@ -260,32 +291,26 @@ public class WeatherNowViewModel {
         }
     }
 
-    private void updatePressureState(String state) {
+    private String getPressureStateIcon(String state) {
         switch (state) {
             // Steady
             case "0":
             default:
-                risingVisiblity = View.GONE;
-                risingIcon = "";
-                break;
+                return "";
             // Rising
             case "1":
             case "+":
             case "Rising":
-                risingVisiblity = View.VISIBLE;
-                risingIcon = "\uf058\uf058";
-                break;
+                return "\uf058\uf058";
             // Falling
             case "2":
             case "-":
             case "Falling":
-                risingVisiblity = View.VISIBLE;
-                risingIcon = "\uf044\uf044";
-                break;
+                return "\uf044\uf044";
         }
     }
 
-    private void updateWindDirection(int angle) {
-        windDirection = angle - 180;
+    private int getWindIconRotation(int angle) {
+        return angle - 180;
     }
 }

@@ -6,6 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 
 import org.threeten.bp.LocalDate;
@@ -29,11 +30,21 @@ public class Astronomy {
     @SerializedName("sunset")
     private LocalDateTime sunset;
 
+    @SerializedName("moonrise")
+    private LocalDateTime moonrise;
+
+    @SerializedName("moonset")
+    private LocalDateTime moonset;
+
+    @SerializedName("moonphase")
+    private MoonPhase moonPhase;
+
     private Astronomy() {
         // Needed for deserialization
     }
 
-    public Astronomy(com.thewizrd.shared_resources.weatherdata.weatherunderground.SunPhase sun_phase) {
+    public Astronomy(com.thewizrd.shared_resources.weatherdata.weatherunderground.SunPhase sun_phase,
+                     com.thewizrd.shared_resources.weatherdata.weatherunderground.MoonPhase moonPhase) {
         LocalDate now = LocalDate.now();
 
         sunset = LocalTime.parse(String.format("%s:%s",
@@ -42,6 +53,40 @@ public class Astronomy {
         sunrise = LocalTime.parse(String.format("%s:%s",
                 sun_phase.getSunrise().getHour(), sun_phase.getSunrise().getMinute()),
                 DateTimeFormatter.ofPattern("H:mm", Locale.ROOT)).atDate(now);
+
+        moonset = LocalTime.parse(String.format("%s:%s",
+                moonPhase.getMoonset().getHour(), moonPhase.getMoonset().getMinute()),
+                DateTimeFormatter.ofPattern("H:mm", Locale.ROOT)).atDate(now);
+        moonrise = LocalTime.parse(String.format("%s:%s",
+                moonPhase.getMoonrise().getHour(), moonPhase.getMoonrise().getMinute()),
+                DateTimeFormatter.ofPattern("H:mm", Locale.ROOT)).atDate(now);
+
+        try {
+            MoonPhase.MoonPhaseType moonPhaseType;
+
+            int ageOfMoon = Integer.valueOf(moonPhase.getAgeOfMoon());
+            if (ageOfMoon >= 2 && ageOfMoon < 8) {
+                moonPhaseType = MoonPhase.MoonPhaseType.WAXING_CRESCENT;
+            } else if (ageOfMoon == 8) {
+                moonPhaseType = MoonPhase.MoonPhaseType.FIRST_QTR;
+            } else if (ageOfMoon >= 9 && ageOfMoon < 16) {
+                moonPhaseType = MoonPhase.MoonPhaseType.WAXING_GIBBOUS;
+            } else if (ageOfMoon == 16) {
+                moonPhaseType = MoonPhase.MoonPhaseType.FULL_MOON;
+            } else if (ageOfMoon >= 17 && ageOfMoon < 23) {
+                moonPhaseType = MoonPhase.MoonPhaseType.WANING_GIBBOUS;
+            } else if (ageOfMoon == 23) {
+                moonPhaseType = MoonPhase.MoonPhaseType.LAST_QTR;
+            } else if (ageOfMoon >= 24 && ageOfMoon < 29) {
+                moonPhaseType = MoonPhase.MoonPhaseType.WANING_CRESCENT;
+            } else {
+                moonPhaseType = MoonPhase.MoonPhaseType.NEWMOON;
+            }
+
+            this.moonPhase = new MoonPhase(moonPhaseType, moonPhase.getPhaseofMoon());
+        } catch (Exception e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
     }
 
     public Astronomy(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Astronomy astronomy) {
@@ -49,11 +94,17 @@ public class Astronomy {
 
         sunrise = LocalTime.parse(astronomy.getSunrise().toUpperCase(), DateTimeFormatter.ofPattern("h:m a", Locale.ROOT)).atDate(now);
         sunset = LocalTime.parse(astronomy.getSunset().toUpperCase(), DateTimeFormatter.ofPattern("h:m a", Locale.ROOT)).atDate(now);
+
+        moonrise = DateTimeUtils.getLocalDateTimeMIN();
+        moonset = DateTimeUtils.getLocalDateTimeMIN();
     }
 
     public Astronomy(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
         sunrise = LocalDateTime.ofEpochSecond(root.getSys().getSunrise(), 0, ZoneOffset.UTC);
         sunset = LocalDateTime.ofEpochSecond(root.getSys().getSunset(), 0, ZoneOffset.UTC);
+
+        moonrise = DateTimeUtils.getLocalDateTimeMIN();
+        moonset = DateTimeUtils.getLocalDateTimeMIN();
     }
 
     public Astronomy(com.thewizrd.shared_resources.weatherdata.metno.Astrodata astroRoot) {
@@ -66,6 +117,15 @@ public class Astronomy {
                     DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
         }
 
+        if (astroRoot.getLocation().getTime().getMoonrise() != null) {
+            moonrise = ZonedDateTime.parse(astroRoot.getLocation().getTime().getMoonrise().getTime(),
+                    DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
+        }
+        if (astroRoot.getLocation().getTime().getMoonset() != null) {
+            moonset = ZonedDateTime.parse(astroRoot.getLocation().getTime().getMoonset().getTime(),
+                    DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
+        }
+
         // If the sun won't set/rise, set time to the future
         if (sunrise == null) {
             sunrise = LocalDateTime.now().plusYears(1).minusNanos(1);
@@ -73,6 +133,34 @@ public class Astronomy {
         if (sunset == null) {
             sunset = LocalDateTime.now().plusYears(1).minusNanos(1);
         }
+        if (moonrise == null) {
+            moonrise = DateTimeUtils.getLocalDateTimeMIN();
+        }
+        if (moonset == null) {
+            moonset = DateTimeUtils.getLocalDateTimeMIN();
+        }
+
+        int moonPhaseValue = Math.round(astroRoot.getLocation().getTime().getMoonphase().getValue().floatValue());
+        MoonPhase.MoonPhaseType moonPhaseType;
+        if (moonPhaseValue >= 2 && moonPhaseValue < 23) {
+            moonPhaseType = MoonPhase.MoonPhaseType.WAXING_CRESCENT;
+        } else if (moonPhaseValue >= 23 && moonPhaseValue < 26) {
+            moonPhaseType = MoonPhase.MoonPhaseType.FIRST_QTR;
+        } else if (moonPhaseValue >= 26 && moonPhaseValue < 48) {
+            moonPhaseType = MoonPhase.MoonPhaseType.WAXING_GIBBOUS;
+        } else if (moonPhaseValue >= 48 && moonPhaseValue < 52) {
+            moonPhaseType = MoonPhase.MoonPhaseType.FULL_MOON;
+        } else if (moonPhaseValue >= 52 && moonPhaseValue < 73) {
+            moonPhaseType = MoonPhase.MoonPhaseType.WANING_GIBBOUS;
+        } else if (moonPhaseValue >= 73 && moonPhaseValue < 76) {
+            moonPhaseType = MoonPhase.MoonPhaseType.LAST_QTR;
+        } else if (moonPhaseValue >= 76 && moonPhaseValue < 98) {
+            moonPhaseType = MoonPhase.MoonPhaseType.WANING_CRESCENT;
+        } else { // 0, 1, 98, 99, 100
+            moonPhaseType = MoonPhase.MoonPhaseType.NEWMOON;
+        }
+
+        this.moonPhase = new MoonPhase(moonPhaseType);
     }
 
     public Astronomy(List<com.thewizrd.shared_resources.weatherdata.here.AstronomyItem> astronomy) {
@@ -82,6 +170,44 @@ public class Astronomy {
 
         sunrise = LocalTime.parse(astroData.getSunrise(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
         sunset = LocalTime.parse(astroData.getSunset(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
+        moonrise = LocalTime.parse(astroData.getMoonrise(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
+        moonset = LocalTime.parse(astroData.getMoonset(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
+
+        switch (astroData.getIconName()) {
+            case "cw_new_moon":
+            default:
+                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.NEWMOON,
+                        astroData.getMoonPhaseDesc());
+                break;
+            case "cw_waxing_crescent":
+                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.WAXING_CRESCENT,
+                        astroData.getMoonPhaseDesc());
+                break;
+            case "cw_first_qtr":
+                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.FIRST_QTR,
+                        astroData.getMoonPhaseDesc());
+                break;
+            case "cw_waxing_gibbous":
+                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.WAXING_GIBBOUS,
+                        astroData.getMoonPhaseDesc());
+                break;
+            case "cw_full_moon":
+                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.FULL_MOON,
+                        astroData.getMoonPhaseDesc());
+                break;
+            case "cw_waning_gibbous":
+                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.WANING_GIBBOUS,
+                        astroData.getMoonPhaseDesc());
+                break;
+            case "cw_last_quarter":
+                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.LAST_QTR,
+                        astroData.getMoonPhaseDesc());
+                break;
+            case "cw_waning_crescent":
+                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.WANING_CRESCENT,
+                        astroData.getMoonPhaseDesc());
+                break;
+        }
     }
 
     public LocalDateTime getSunrise() {
@@ -98,6 +224,30 @@ public class Astronomy {
 
     public void setSunset(LocalDateTime sunset) {
         this.sunset = sunset;
+    }
+
+    public LocalDateTime getMoonrise() {
+        return moonrise;
+    }
+
+    public void setMoonrise(LocalDateTime moonrise) {
+        this.moonrise = moonrise;
+    }
+
+    public LocalDateTime getMoonset() {
+        return moonset;
+    }
+
+    public void setMoonset(LocalDateTime moonset) {
+        this.moonset = moonset;
+    }
+
+    public MoonPhase getMoonPhase() {
+        return moonPhase;
+    }
+
+    public void setMoonPhase(MoonPhase moonPhase) {
+        this.moonPhase = moonPhase;
     }
 
     public static Astronomy fromJson(JsonReader extReader) {
@@ -139,6 +289,15 @@ public class Astronomy {
                     case "sunset":
                         obj.sunset = LocalDateTime.parse(reader.nextString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                         break;
+                    case "moonrise":
+                        obj.moonrise = LocalDateTime.parse(reader.nextString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                        break;
+                    case "moonset":
+                        obj.moonset = LocalDateTime.parse(reader.nextString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                        break;
+                    case "moonphase":
+                        obj.moonPhase = MoonPhase.fromJson(reader);
+                        break;
                     default:
                         break;
                 }
@@ -170,6 +329,23 @@ public class Astronomy {
             // "sunset" : ""
             writer.name("sunset");
             writer.value(sunset.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+            // "moonrise" : ""
+            writer.name("moonrise");
+            writer.value(moonrise.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+            // "moonset" : ""
+            writer.name("moonset");
+            writer.value(moonset.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+            // "moonphase" : ""
+            if (moonPhase != null) {
+                writer.name("moonphase");
+                if (moonPhase == null)
+                    writer.nullValue();
+                else
+                    writer.value(moonPhase.toJson());
+            }
 
             // }
             writer.endObject();

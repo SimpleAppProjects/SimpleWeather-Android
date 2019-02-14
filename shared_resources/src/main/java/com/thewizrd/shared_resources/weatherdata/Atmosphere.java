@@ -33,6 +33,12 @@ public class Atmosphere {
     @SerializedName("visibility_km")
     private String visibilityKm;
 
+    @SerializedName("dewpoint_f")
+    private String dewpointF;
+
+    @SerializedName("dewpoint_c")
+    private String dewpointC;
+
     private Atmosphere() {
         // Needed for deserialization
     }
@@ -44,6 +50,14 @@ public class Atmosphere {
         pressureTrend = condition.getPressureTrend();
         visibilityMi = condition.getVisibilityMi();
         visibilityKm = condition.getVisibilityKm();
+
+        try {
+            dewpointF = condition.getDewpointF();
+            dewpointC = condition.getDewpointC();
+        } catch (NumberFormatException ex) {
+            dewpointF = null;
+            dewpointC = null;
+        }
     }
 
     public Atmosphere(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Atmosphere atmosphere) {
@@ -69,8 +83,23 @@ public class Atmosphere {
         pressureMb = time.getLocation().getPressure().getValue().toString();
         pressureIn = ConversionMethods.mbToInHg(time.getLocation().getPressure().getValue().toString());
         pressureTrend = "";
-        visibilityMi = Weather.NA;
-        visibilityKm = Weather.NA;
+
+        try {
+            float visMi = 10.0f;
+            visibilityMi = Float.valueOf(visMi - (visMi * time.getLocation().getFog().getPercent().floatValue() / 100)).toString();
+            visibilityKm = ConversionMethods.miToKm(visibilityMi);
+        } catch (NumberFormatException ex) {
+            visibilityMi = Weather.NA;
+            visibilityKm = Weather.NA;
+        }
+
+        try {
+            dewpointF = ConversionMethods.CtoF(time.getLocation().getDewpointTemperature().getValue().toString());
+            dewpointC = Float.toString(time.getLocation().getDewpointTemperature().getValue().floatValue());
+        } catch (NumberFormatException ex) {
+            dewpointF = null;
+            dewpointC = null;
+        }
     }
 
     public Atmosphere(com.thewizrd.shared_resources.weatherdata.here.ObservationItem observation) {
@@ -85,6 +114,14 @@ public class Atmosphere {
             visibilityKm = ConversionMethods.miToKm(visible_mi.toString());
         } catch (NumberFormatException ex) {
             visibilityKm = observation.getVisibility();
+        }
+
+        try {
+            dewpointF = observation.getDewPoint();
+            dewpointC = ConversionMethods.FtoC(observation.getDewPoint());
+        } catch (NumberFormatException ex) {
+            dewpointF = null;
+            dewpointC = null;
         }
     }
 
@@ -134,6 +171,22 @@ public class Atmosphere {
 
     public void setVisibilityKm(String visibilityKm) {
         this.visibilityKm = visibilityKm;
+    }
+
+    public String getDewpointF() {
+        return dewpointF;
+    }
+
+    public void setDewpointF(String dewpointF) {
+        this.dewpointF = dewpointF;
+    }
+
+    public String getDewpointC() {
+        return dewpointC;
+    }
+
+    public void setDewpointC(String dewpointC) {
+        this.dewpointC = dewpointC;
     }
 
     public static Atmosphere fromJson(JsonReader extReader) {
@@ -187,6 +240,12 @@ public class Atmosphere {
                     case "visibility_km":
                         obj.visibilityKm = reader.nextString();
                         break;
+                    case "dewpoint_f":
+                        obj.dewpointF = reader.nextString();
+                        break;
+                    case "dewpoint_c":
+                        obj.dewpointC = reader.nextString();
+                        break;
                     default:
                         break;
                 }
@@ -234,6 +293,14 @@ public class Atmosphere {
             // "visibility_km" : ""
             writer.name("visibility_km");
             writer.value(visibilityKm);
+
+            // "dewpoint_f" : ""
+            writer.name("dewpoint_f");
+            writer.value(dewpointF);
+
+            // "dewpoint_c" : ""
+            writer.name("dewpoint_c");
+            writer.value(dewpointC);
 
             // }
             writer.endObject();

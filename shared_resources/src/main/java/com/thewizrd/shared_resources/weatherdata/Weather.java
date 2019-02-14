@@ -125,7 +125,7 @@ public class Weather {
         }
         condition = new Condition(root.getCurrentObservation());
         atmosphere = new Atmosphere(root.getCurrentObservation());
-        astronomy = new Astronomy(root.getSunPhase());
+        astronomy = new Astronomy(root.getSunPhase(), root.getMoonPhase());
         precipitation = new Precipitation(root.getForecast().getSimpleforecast().getForecastday().get(0));
         ttl = "60";
 
@@ -396,7 +396,8 @@ public class Weather {
         for (int i = 0; i < txtForecast.length; i++) {
             txtForecast[i] = new TextForecast(root.getDailyForecasts().getForecastLocation().getForecast().get(i));
         }
-        condition = new Condition(root.getObservations().getLocation().get(0).getObservation().get(0));
+        condition = new Condition(root.getObservations().getLocation().get(0).getObservation().get(0),
+                root.getDailyForecasts().getForecastLocation().getForecast().get(0));
         atmosphere = new Atmosphere(root.getObservations().getLocation().get(0).getObservation().get(0));
         astronomy = new Astronomy(root.getAstronomy().getAstronomy());
         precipitation = new Precipitation(root.getDailyForecasts().getForecastLocation().getForecast().get(0));
