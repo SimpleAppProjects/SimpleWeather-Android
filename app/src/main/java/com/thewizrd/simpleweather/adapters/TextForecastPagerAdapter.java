@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import com.thewizrd.shared_resources.controls.TextForecastItemViewModel;
 import com.thewizrd.simpleweather.controls.TextForecastItem;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -17,9 +18,9 @@ public class TextForecastPagerAdapter extends PagerAdapter {
     private Context context;
     private List<TextForecastItemViewModel> txt_forecast;
 
-    public TextForecastPagerAdapter(Context context, List<TextForecastItemViewModel> txt_forecast) {
+    public TextForecastPagerAdapter(Context context) {
         this.context = context;
-        this.txt_forecast = txt_forecast;
+        this.txt_forecast = new ArrayList<>();
     }
 
     @Override

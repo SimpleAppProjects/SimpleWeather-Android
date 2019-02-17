@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.simpleweather.controls.HourlyForecastItem;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -27,8 +28,8 @@ public class HourlyForecastItemAdapter extends RecyclerView.Adapter {
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public HourlyForecastItemAdapter(List<HourlyForecastItemViewModel> myDataset) {
-        mDataset = myDataset;
+    public HourlyForecastItemAdapter() {
+        mDataset = new ArrayList<>();
     }
 
     @SuppressLint("NewApi")

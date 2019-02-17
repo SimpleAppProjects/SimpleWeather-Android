@@ -2,11 +2,12 @@
 <android.support.design.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="130dp"
-    android:layout_height="155dp"
+    android:layout_width="120dp"
+    android:layout_height="200dp"
     app:cardBackgroundColor="#10FFFFFF"
     app:cardElevation="0dp"
-    app:cardUseCompatPadding="false">
+    app:cardUseCompatPadding="false"
+    tools:context=".controls.HourlyForecastItem">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -81,12 +82,91 @@
             android:textColor="@android:color/white"
             android:textSize="@dimen/forecast_lo_size"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/hrforecast_pop_icon"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/hrforecast_condition"
             app:layout_constraintVertical_weight="1"
             tools:text="77º" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/hrforecast_pop_icon"
+            android:layout_width="30dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            app:autoSizeMaxTextSize="14sp"
+            app:autoSizeMinTextSize="6sp"
+            app:autoSizeTextType="uniform"
+            app:fontFamily="@font/weathericons"
+            app:layout_constraintBottom_toTopOf="@+id/hrforecast_wind_dir"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/hrforecast_temphi"
+            app:layout_constraintVertical_weight="1"
+            tools:fontFamily="@font/weathericons"
+            tools:text="@string/wi_raindrop" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/hrforecast_pop"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="start|center_vertical"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/forecast_condition_size"
+            app:autoSizeMaxTextSize="@dimen/forecast_condition_size"
+            app:autoSizeMinTextSize="9.5sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintBottom_toBottomOf="@+id/hrforecast_pop_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@id/hrforecast_pop_icon"
+            app:layout_constraintTop_toTopOf="@+id/hrforecast_pop_icon"
+            app:layout_constraintVertical_weight="1"
+            tools:text="50%" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/hrforecast_wind_dir"
+            android:layout_width="30dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:text="@string/wi_wind_direction"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:autoSizeMaxTextSize="16dp"
+            app:autoSizeMinTextSize="6sp"
+            app:autoSizeTextType="uniform"
+            app:fontFamily="@font/weathericons"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/hrforecast_pop_icon"
+            app:layout_constraintVertical_weight="1"
+            tools:fontFamily="@font/weathericons"
+            tools:text="@string/wi_wind_direction" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/hrforecast_wind"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="start|center_vertical"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/forecast_condition_size"
+            app:autoSizeMaxTextSize="@dimen/forecast_condition_size"
+            app:autoSizeMinTextSize="9.5sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintBottom_toBottomOf="@+id/hrforecast_wind_dir"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@id/hrforecast_wind_dir"
+            app:layout_constraintTop_toTopOf="@+id/hrforecast_wind_dir"
+            app:layout_constraintVertical_weight="1"
+            tools:text="5 mph" />
 
     </android.support.constraint.ConstraintLayout>
 

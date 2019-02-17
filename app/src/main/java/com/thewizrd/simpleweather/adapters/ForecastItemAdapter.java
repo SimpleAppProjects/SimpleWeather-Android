@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.simpleweather.controls.ForecastItem;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -27,8 +28,8 @@ public class ForecastItemAdapter extends RecyclerView.Adapter {
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ForecastItemAdapter(List<ForecastItemViewModel> myDataset) {
-        mDataset = myDataset;
+    public ForecastItemAdapter() {
+        mDataset = new ArrayList<>();
     }
 
     @SuppressLint("NewApi")

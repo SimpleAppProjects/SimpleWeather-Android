@@ -47,7 +47,6 @@ import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,10 +61,7 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.gson.stream.JsonReader;
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.AsyncTask;
-import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
-import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
-import com.thewizrd.shared_resources.controls.TextForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
@@ -84,6 +80,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherLoadedListenerInterface;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.adapters.DetailItemAdapter;
 import com.thewizrd.simpleweather.adapters.ForecastItemAdapter;
+import com.thewizrd.simpleweather.adapters.HourlyForecastGraphPagerAdapter;
 import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter;
 import com.thewizrd.simpleweather.adapters.TextForecastPagerAdapter;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
@@ -100,7 +97,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 
@@ -143,9 +139,11 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     // Additional Details
     private SwitchCompat forecastSwitch;
     private ViewPager txtForecastView;
-    private LinearLayout hrforecastPanel;
+    private ConstraintLayout hrforecastPanel;
+    private SwitchCompat hrforecastSwitch;
     private RecyclerView hrforecastView;
     private HourlyForecastItemAdapter hrforecastAdapter;
+    private ViewPager hrForecastGraphView;
     // Alerts
     private View alertButton;
     // Weather Credit
@@ -487,7 +485,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         });
         forecastSwitch.setVisibility(View.GONE);
         txtForecastView = view.findViewById(R.id.txt_forecast_viewpgr);
-        txtForecastView.setAdapter(new TextForecastPagerAdapter(this.getActivity(), new ArrayList<TextForecastItemViewModel>()));
+        txtForecastView.setAdapter(new TextForecastPagerAdapter(this.getActivity()));
         txtForecastView.setVisibility(View.GONE);
         hrforecastPanel = view.findViewById(R.id.hourly_forecast_panel);
         hrforecastPanel.setVisibility(View.GONE);
@@ -524,13 +522,27 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
         forecastView.setHasFixedSize(true);
         forecastView.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.HORIZONTAL));
-        forecastAdapter = new ForecastItemAdapter(new ArrayList<ForecastItemViewModel>());
+        forecastAdapter = new ForecastItemAdapter();
         forecastView.setAdapter(forecastAdapter);
 
         hrforecastView.setHasFixedSize(true);
         hrforecastView.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.HORIZONTAL));
-        hrforecastAdapter = new HourlyForecastItemAdapter(new ArrayList<HourlyForecastItemViewModel>());
+        hrforecastAdapter = new HourlyForecastItemAdapter();
         hrforecastView.setAdapter(hrforecastAdapter);
+
+        hrForecastGraphView = view.findViewById(R.id.hourly_forecast_viewpgr);
+        hrForecastGraphView.setAdapter(new HourlyForecastGraphPagerAdapter(this.getActivity()));
+
+        hrforecastSwitch = view.findViewById(R.id.hourly_forecast_switch);
+        hrforecastSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                hrforecastSwitch.setText(isChecked ? "Details" : "Summary");
+                hrforecastView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                hrForecastGraphView.setVisibility(isChecked ? View.GONE : View.VISIBLE);
+            }
+        });
+        hrforecastSwitch.setChecked(true);
 
         // SwipeRefresh
         refreshLayout.setColorSchemeColors(Colors.SIMPLEBLUE);
@@ -892,6 +904,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                 if (weatherView.getExtras().getHourlyForecast().size() >= 1) {
                     hrforecastAdapter.updateItems(weatherView.getExtras().getHourlyForecast());
                     hrforecastPanel.setVisibility(View.VISIBLE);
+                    ((HourlyForecastGraphPagerAdapter) hrForecastGraphView.getAdapter()).updateDataset(weatherView.getExtras().getHourlyForecast());
                 } else {
                     hrforecastPanel.setVisibility(View.GONE);
                 }

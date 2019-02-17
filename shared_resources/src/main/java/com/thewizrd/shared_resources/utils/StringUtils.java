@@ -54,4 +54,12 @@ public class StringUtils {
 
         return sb.toString().trim();
     }
+
+    public static String removeNonDigitChars(String s) {
+        if (isNullOrWhitespace(s))
+            return "";
+        else {
+            return s.replaceAll("[^\\d.-]", "").trim();
+        }
+    }
 }
