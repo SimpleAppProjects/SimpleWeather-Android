@@ -2,10 +2,12 @@ package com.thewizrd.shared_resources.weatherdata.metno;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
 import java.math.BigDecimal;
 import java.net.URL;
+import java.util.List;
 
 @Root(name = "astrodata", strict = false)
 public class Astrodata {
@@ -411,8 +413,8 @@ public class Astrodata {
         @Attribute(name = "latitude", required = false)
         BigDecimal latitude;
 
-        @Element(name = "time", required = false)
-        Time time;
+        @ElementList(entry = "time", required = false, inline = true, type = Time.class)
+        List<Time> times;
 
         @Attribute(name = "height", required = false)
         String height;
@@ -428,12 +430,12 @@ public class Astrodata {
             this.latitude = value;
         }
 
-        public Time getTime() {
-            return this.time;
+        public List<Time> getTimes() {
+            return this.times;
         }
 
-        public void setTime(Time value) {
-            this.time = value;
+        public void setTimes(List<Time> value) {
+            this.times = value;
         }
 
         public String getHeight() {

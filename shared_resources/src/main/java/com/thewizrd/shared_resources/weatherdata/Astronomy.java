@@ -108,22 +108,29 @@ public class Astronomy {
     }
 
     public Astronomy(com.thewizrd.shared_resources.weatherdata.metno.Astrodata astroRoot) {
-        if (astroRoot.getLocation().getTime().getSunrise() != null) {
-            sunrise = ZonedDateTime.parse(astroRoot.getLocation().getTime().getSunrise().getTime(),
-                    DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
-        }
-        if (astroRoot.getLocation().getTime().getSunset() != null) {
-            sunset = ZonedDateTime.parse(astroRoot.getLocation().getTime().getSunset().getTime(),
-                    DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
-        }
+        int moonPhaseValue = -1;
 
-        if (astroRoot.getLocation().getTime().getMoonrise() != null) {
-            moonrise = ZonedDateTime.parse(astroRoot.getLocation().getTime().getMoonrise().getTime(),
-                    DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
-        }
-        if (astroRoot.getLocation().getTime().getMoonset() != null) {
-            moonset = ZonedDateTime.parse(astroRoot.getLocation().getTime().getMoonset().getTime(),
-                    DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
+        for (com.thewizrd.shared_resources.weatherdata.metno.Astrodata.Time time : astroRoot.getLocation().getTimes()) {
+            if (time.getSunrise() != null) {
+                sunrise = ZonedDateTime.parse(astroRoot.getLocation().getTimes().get(0).getSunrise().getTime(),
+                        DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
+            }
+            if (time.getSunset() != null) {
+                sunset = ZonedDateTime.parse(astroRoot.getLocation().getTimes().get(0).getSunset().getTime(),
+                        DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
+            }
+
+            if (time.getMoonrise() != null) {
+                moonrise = ZonedDateTime.parse(astroRoot.getLocation().getTimes().get(0).getMoonrise().getTime(),
+                        DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
+            }
+            if (time.getMoonset() != null) {
+                moonset = ZonedDateTime.parse(astroRoot.getLocation().getTimes().get(0).getMoonset().getTime(),
+                        DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
+            }
+
+            if (time.getMoonphase() != null)
+                moonPhaseValue = Math.round(time.getMoonphase().getValue().floatValue());
         }
 
         // If the sun won't set/rise, set time to the future
@@ -140,7 +147,6 @@ public class Astronomy {
             moonset = DateTimeUtils.getLocalDateTimeMIN();
         }
 
-        int moonPhaseValue = Math.round(astroRoot.getLocation().getTime().getMoonphase().getValue().floatValue());
         MoonPhase.MoonPhaseType moonPhaseType;
         if (moonPhaseValue >= 2 && moonPhaseValue < 23) {
             moonPhaseType = MoonPhase.MoonPhaseType.WAXING_CRESCENT;
