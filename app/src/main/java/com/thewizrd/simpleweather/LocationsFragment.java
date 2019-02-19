@@ -235,7 +235,7 @@ public class LocationsFragment extends Fragment
     }
 
     @Override
-    public void onWeatherError(WeatherException wEx) {
+    public void onWeatherError(final WeatherException wEx) {
         if (cts.getToken().isCancellationRequested())
             return;
 
@@ -249,6 +249,8 @@ public class LocationsFragment extends Fragment
                     snackbar.setAction(R.string.action_retry, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            // Reset counter to allow retry
+                            mErrorCounter[wEx.getErrorStatus().getValue()] = false;
                             refreshLocations();
                         }
                     });
