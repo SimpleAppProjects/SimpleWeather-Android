@@ -78,7 +78,7 @@ public class Weather {
         condition = new Condition(root.getCurrentObservation());
         atmosphere = new Atmosphere(root.getCurrentObservation().getAtmosphere());
         astronomy = new Astronomy(root.getCurrentObservation().getAstronomy());
-        ttl = "60";
+        ttl = "120";
 
         // Set feelslike temp
         if (condition.getTempF() > 80) {
