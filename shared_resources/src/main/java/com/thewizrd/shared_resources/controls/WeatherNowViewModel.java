@@ -32,6 +32,8 @@ public class WeatherNowViewModel {
     private String weatherIcon;
 
     // Weather Details
+    private String sunrise;
+    private String sunset;
     private List<DetailItemViewModel> weatherDetails;
 
     // Forecast
@@ -75,6 +77,14 @@ public class WeatherNowViewModel {
 
     public List<DetailItemViewModel> getWeatherDetails() {
         return weatherDetails;
+    }
+
+    public String getSunrise() {
+        return sunrise;
+    }
+
+    public String getSunset() {
+        return sunset;
     }
 
     public WeatherExtrasViewModel getExtras() {
@@ -230,15 +240,17 @@ public class WeatherNowViewModel {
 
             // Astronomy
             if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE,
-                        weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("HH:mm"))));
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET,
-                        weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("HH:mm"))));
+                sunrise = weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("HH:mm"));
+                sunset = weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("HH:mm"));
+
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE, sunrise));
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET, sunset));
             } else {
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE,
-                        weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("h:mm a"))));
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET,
-                        weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("h:mm a"))));
+                sunrise = weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("h:mm a"));
+                sunset = weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("h:mm a"));
+
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE, sunrise));
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET, sunset));
             }
 
             if (weather.getAstronomy().getMoonrise() != null && weather.getAstronomy().getMoonset() != null

@@ -36,6 +36,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.format.DateFormat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -83,6 +84,7 @@ import com.thewizrd.simpleweather.adapters.ForecastItemAdapter;
 import com.thewizrd.simpleweather.adapters.HourlyForecastGraphPagerAdapter;
 import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter;
 import com.thewizrd.simpleweather.adapters.TextForecastPagerAdapter;
+import com.thewizrd.simpleweather.controls.SunPhaseView;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.LocationPanelOffsetDecoration;
 import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
@@ -93,7 +95,9 @@ import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -144,6 +148,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     private RecyclerView hrforecastView;
     private HourlyForecastItemAdapter hrforecastAdapter;
     private ViewPager hrForecastGraphView;
+    private SunPhaseView sunView;
     // Alerts
     private View alertButton;
     // Weather Credit
@@ -544,6 +549,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         });
         hrforecastSwitch.setChecked(true);
 
+        sunView = view.findViewById(R.id.sun_phase_view);
+
         // SwipeRefresh
         refreshLayout.setColorSchemeColors(Colors.SIMPLEBLUE);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -569,6 +576,29 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         refreshLayout.setRefreshing(true);
 
         return view;
+    }
+
+    private void resizeSunPhasePanel() {
+        if (mActivity != null && ActivityUtils.isLargeTablet(mActivity)) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    View view = WeatherNowFragment.this.getView();
+
+                    if (view == null || view.getWidth() <= 0)
+                        return;
+
+                    int viewWidth = view.getWidth();
+
+                    if (viewWidth <= 600)
+                        sunView.getLayoutParams().width = viewWidth;
+                    else if (viewWidth <= 1200)
+                        sunView.getLayoutParams().width = (int) (viewWidth * (0.75));
+                    else
+                        sunView.getLayoutParams().width = (int) (viewWidth * (0.50));
+                }
+            });
+        }
     }
 
     private void resizeAlertPanel() {
@@ -874,7 +904,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
                 // Background
                 View mainView = WeatherNowFragment.this.getView();
-                //refreshLayout.setBackground(new ColorDrawable(weatherView.getPendingBackground()));
                 mainView.setBackground(new ColorDrawable(weatherView.getPendingBackground()));
                 mImageView.setImageAlpha(bgAlpha);
                 Glide.with(mActivity)
@@ -923,6 +952,18 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                 } else {
                     alertButton.setVisibility(View.INVISIBLE);
                 }
+
+                // Sun View
+                resizeSunPhasePanel();
+                DateTimeFormatter fmt;
+                if (DateFormat.is24HourFormat(mActivity)) {
+                    fmt = DateTimeFormatter.ofPattern("HH:mm");
+                } else {
+                    fmt = DateTimeFormatter.ofPattern("h:mm a");
+                }
+                sunView.setSunriseSetTimes(LocalTime.parse(weatherView.getSunrise(), fmt),
+                        LocalTime.parse(weatherView.getSunset(), fmt),
+                        location.getTzOffset());
 
                 weatherCredit.setText(weatherView.getWeatherCredit());
 
