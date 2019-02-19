@@ -296,17 +296,23 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         if (cts != null) cts.cancel();
 
         super.onDestroy();
+        wLoader = null;
+        weatherView = null;
         mActivity = null;
         mCallback = null;
         mWindowColorsIface = null;
+        cts = null;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        wLoader = null;
+        weatherView = null;
         mActivity = null;
         mCallback = null;
         mWindowColorsIface = null;
+        cts = null;
     }
 
     @Override
@@ -728,7 +734,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         // Don't resume if fragment is hidden
         if (this.isHidden())
             return;
-        else
+        else if (weatherView != null)
             AsyncTask.run(new Runnable() {
                 @Override
                 public void run() {
