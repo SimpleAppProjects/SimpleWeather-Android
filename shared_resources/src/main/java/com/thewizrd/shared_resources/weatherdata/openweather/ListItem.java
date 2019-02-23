@@ -12,6 +12,9 @@ public class ListItem {
     @SerializedName("rain")
     private Rain rain;
 
+    @SerializedName("snow")
+    private Snow snow;
+
     @SerializedName("dt_txt")
     private String dtTxt;
 
@@ -44,6 +47,14 @@ public class ListItem {
 
     public Rain getRain() {
         return rain;
+    }
+
+    public Snow getSnow() {
+        return snow;
+    }
+
+    public void setSnow(Snow snow) {
+        this.snow = snow;
     }
 
     public void setDtTxt(String dtTxt) {

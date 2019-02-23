@@ -9,6 +9,7 @@ import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
@@ -43,6 +44,9 @@ public class Forecast {
     @SerializedName("icon")
     private String icon;
 
+    @SerializedName("extras")
+    private ForecastExtras extras;
+
     private Forecast() {
         // Needed for deserialization
     }
@@ -67,6 +71,20 @@ public class Forecast {
         condition = forecast.getConditions();
         icon = WeatherManager.getProvider(WeatherAPI.WEATHERUNDERGROUND)
                 .getWeatherIcon(forecast.getIcon_url().replace("http://icons.wxug.com/i/c/k/", "").replace(".gif", ""));
+
+        // Extras
+        extras = new ForecastExtras();
+        extras.setFeelslikeF(Float.valueOf(WeatherUtils.getFeelsLikeTemp(highF, Integer.toString(forecast.getAvewind().getMph()), Integer.toString(forecast.getAvehumidity()))));
+        extras.setFeelslikeC(Float.valueOf(ConversionMethods.FtoC(Double.toString(extras.getFeelslikeF()))));
+        extras.setHumidity(Integer.toString(forecast.getAvehumidity()));
+        extras.setPop(Integer.toString(forecast.getPop()));
+        extras.setQpfRainIn((float) forecast.getQpf_allday().getIn());
+        extras.setQpfRainMm((float) forecast.getQpf_allday().getMm());
+        extras.setQpfSnowIn(forecast.getSnow_allday().getIn());
+        extras.setQpfSnowCm(forecast.getSnow_allday().getCm());
+        extras.setWindDegrees(forecast.getAvewind().getDegrees());
+        extras.setWindMph((float) forecast.getAvewind().getMph());
+        extras.setWindKph((float) forecast.getAvewind().getKph());
     }
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.openweather.ListItem forecast) {
@@ -94,6 +112,41 @@ public class Forecast {
         condition = StringUtils.toPascalCase(forecast.getDescription());
         icon = WeatherManager.getProvider(WeatherAPI.HERE)
                 .getWeatherIcon(String.format("%s_%s", forecast.getDaylight(), forecast.getIconName()));
+
+        // Extras
+        extras = new ForecastExtras();
+        try {
+            float comfortTempF = Float.parseFloat(forecast.getComfort());
+            extras.setFeelslikeF(comfortTempF);
+            extras.setFeelslikeC(Float.valueOf(ConversionMethods.FtoC(Float.toString(comfortTempF))));
+        } catch (NumberFormatException ignored) {
+        }
+        extras.setHumidity(forecast.getHumidity());
+        try {
+            extras.setDewpointF(forecast.getDewPoint());
+            extras.setDewpointC(ConversionMethods.FtoC(forecast.getDewPoint()));
+        } catch (NumberFormatException ignored) {
+        }
+        extras.setPop(forecast.getPrecipitationProbability());
+        try {
+            extras.setQpfRainIn(Float.valueOf(forecast.getRainFall()));
+        } catch (NumberFormatException ignored) {
+        }
+        extras.setQpfRainMm(Float.valueOf(ConversionMethods.inToMM(Float.toString(extras.getQpfRainIn()))));
+        try {
+            extras.setQpfSnowIn(Float.valueOf(forecast.getSnowFall()));
+        } catch (NumberFormatException ignored) {
+        }
+        extras.setQpfSnowCm(Float.valueOf(ConversionMethods.inToMM(Float.toString(extras.getQpfSnowIn()))) / 10);
+        extras.setPressureIn(forecast.getBarometerPressure());
+        extras.setPressureMb(ConversionMethods.inHgToMB(forecast.getBarometerPressure()));
+        extras.setWindDegrees(Integer.valueOf(forecast.getWindDirection()));
+        extras.setWindMph(Float.valueOf(forecast.getWindSpeed()));
+        extras.setWindKph(Float.valueOf(ConversionMethods.mphTokph(forecast.getWindSpeed())));
+        try {
+            extras.setUvIndex(Float.valueOf(forecast.getUvIndex()));
+        } catch (NumberFormatException ignored) {
+        }
     }
 
     public LocalDateTime getDate() {
@@ -152,6 +205,14 @@ public class Forecast {
         this.icon = icon;
     }
 
+    public ForecastExtras getExtras() {
+        return extras;
+    }
+
+    public void setExtras(ForecastExtras extras) {
+        this.extras = extras;
+    }
+
     public static Forecast fromJson(JsonReader extReader) {
         Forecast obj = null;
 
@@ -206,6 +267,9 @@ public class Forecast {
                     case "icon":
                         obj.icon = reader.nextString();
                         break;
+                    case "extras":
+                        obj.extras = ForecastExtras.fromJson(reader);
+                        break;
                     default:
                         break;
                 }
@@ -257,6 +321,15 @@ public class Forecast {
             // "icon" : ""
             writer.name("icon");
             writer.value(icon);
+
+            // "extras" : ""
+            if (extras != null) {
+                writer.name("extras");
+                if (extras == null)
+                    writer.nullValue();
+                else
+                    writer.value(extras.toJson());
+            }
 
             // }
             writer.endObject();

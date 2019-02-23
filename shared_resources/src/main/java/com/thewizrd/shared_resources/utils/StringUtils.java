@@ -1,5 +1,7 @@
 package com.thewizrd.shared_resources.utils;
 
+import android.os.Build;
+
 public class StringUtils {
     public static boolean isNullOrEmpty(String s) {
         return s == null || s.length() == 0;
@@ -60,6 +62,14 @@ public class StringUtils {
             return "";
         else {
             return s.replaceAll("[^\\d.-]", "").trim();
+        }
+    }
+
+    public static String lineSeparator() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            return System.lineSeparator();
+        } else {
+            return System.getProperty("line.separator");
         }
     }
 }

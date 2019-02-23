@@ -3,9 +3,11 @@ package com.thewizrd.simpleweather.adapters;
 import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
+import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.simpleweather.controls.HourlyForecastItem;
 
 import java.util.ArrayList;
@@ -14,6 +16,13 @@ import java.util.List;
 
 public class HourlyForecastItemAdapter extends RecyclerView.Adapter {
     private List<HourlyForecastItemViewModel> mDataset;
+
+    // Event listeners
+    private RecyclerOnClickListenerInterface onClickListener;
+
+    public void setOnClickListener(RecyclerOnClickListenerInterface onClickListener) {
+        this.onClickListener = onClickListener;
+    }
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -24,6 +33,13 @@ public class HourlyForecastItemAdapter extends RecyclerView.Adapter {
         public ViewHolder(HourlyForecastItem v) {
             super(v);
             mForecastItem = v;
+            mForecastItem.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onClickListener != null)
+                        onClickListener.onClick(v, getAdapterPosition());
+                }
+            });
         }
     }
 

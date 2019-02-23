@@ -16,7 +16,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAlertSeverity;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertType;
 
 public class WeatherAlertPanel extends RelativeLayout {
-    private View viewLayout;
     private AppCompatImageView alertIcon;
     private TextView alertTitle;
     private TextView postDate;
@@ -50,7 +49,7 @@ public class WeatherAlertPanel extends RelativeLayout {
 
     private void initialize(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        viewLayout = inflater.inflate(R.layout.weather_alert_panel, this);
+        View viewLayout = inflater.inflate(R.layout.weather_alert_panel, this);
 
         alertIcon = viewLayout.findViewById(R.id.alert_icon);
         alertTitle = viewLayout.findViewById(R.id.alert_title);

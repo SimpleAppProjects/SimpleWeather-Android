@@ -130,7 +130,8 @@ public class MainActivity extends AppCompatActivity
             // If sub-fragment exist: pop those one by one
             int backstackCount = getSupportFragmentManager().getBackStackEntryCount();
             if (current != null
-                    && (current.getClass().getName().contains("SettingsFragment$") || current instanceof WeatherAlertsFragment)) {
+                    && (current.getClass().getName().contains("SettingsFragment$")
+                    || current instanceof WeatherAlertsFragment || current instanceof WeatherDetailsFragment)) {
                 getSupportFragmentManager().popBackStack();
             } else if (backstackCount >= 1) { // If backstack entry exists pop all and goto first (home) fragment
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -240,7 +241,7 @@ public class MainActivity extends AppCompatActivity
             checkedItemId = R.id.nav_weathernow;
         } else if (fragment instanceof LocationsFragment) {
             checkedItemId = R.id.nav_locations;
-        } else if (fragment instanceof WeatherAlertsFragment) {
+        } else if (fragment instanceof WeatherAlertsFragment || fragment instanceof WeatherDetailsFragment) {
             checkedItemId = R.id.nav_weathernow;
         } else if (fragment != null && fragment.getClass().getName().contains("SettingsFragment")) {
             checkedItemId = R.id.nav_settings;

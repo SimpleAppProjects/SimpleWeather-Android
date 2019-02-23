@@ -103,7 +103,7 @@ public class UV {
 
                 switch (property) {
                     case "index":
-                        obj.index = (float) reader.nextDouble();
+                        obj.index = Float.valueOf(reader.nextString());
                         break;
                     case "desc":
                         obj.desc = reader.nextString();

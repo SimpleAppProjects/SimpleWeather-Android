@@ -227,24 +227,9 @@
                         android:textColor="@android:color/white"
                         android:textStyle="bold"
                         app:layout_constraintBottom_toTopOf="@id/forecast_border"
-                        app:layout_constraintEnd_toStartOf="@+id/forecast_switch"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
-
-                    <android.support.v7.widget.SwitchCompat
-                        android:id="@+id/forecast_switch"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@null"
-                        android:checked="false"
-                        android:padding="8dp"
-                        android:switchTextAppearance="@style/TextAppearance.AppCompat.Widget.Switch"
-                        android:text="@string/switch_daily"
-                        android:textColor="@android:color/white"
-                        app:layout_constraintBottom_toBottomOf="@+id/forecast_border"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:switchPadding="10dp" />
 
                     <View
                         android:id="@+id/forecast_border"
@@ -271,30 +256,6 @@
                         app:layout_constraintTop_toBottomOf="@+id/forecast_border"
                         tools:visibility="gone"
                         tools:listitem="@layout/weather_forecast_panel" />
-
-                    <android.support.v4.view.ViewPager
-                        android:id="@+id/txt_forecast_viewpgr"
-                        android:layout_width="match_parent"
-                        android:layout_height="150dp"
-                        android:layout_marginTop="24dp"
-                        android:layout_marginBottom="20dp"
-                        android:background="@android:color/transparent"
-                        app:layout_constrainedHeight="false"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/forecast_border"
-                        tools:visibility="visible">
-
-                        <android.support.v4.view.PagerTabStrip
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="bottom"
-                            android:paddingTop="10dp"
-                            android:paddingBottom="10dp"
-                            android:textColor="#fff" />
-
-                    </android.support.v4.view.ViewPager>
 
                 </android.support.constraint.ConstraintLayout>
 

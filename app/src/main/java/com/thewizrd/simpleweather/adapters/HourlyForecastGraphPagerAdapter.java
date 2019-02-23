@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
+import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Pair;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -24,6 +25,13 @@ import java.util.List;
 public class HourlyForecastGraphPagerAdapter extends PagerAdapter {
     private Context context;
     private List<HourlyForecastItemViewModel> hrforecasts;
+
+    // Event listeners
+    private RecyclerOnClickListenerInterface onClickListener;
+
+    public void setOnClickListener(RecyclerOnClickListenerInterface onClickListener) {
+        this.onClickListener = onClickListener;
+    }
 
     public HourlyForecastGraphPagerAdapter(Context context) {
         this.context = context;
@@ -46,9 +54,16 @@ public class HourlyForecastGraphPagerAdapter extends PagerAdapter {
 
     @NonNull
     @Override
-    public Object instantiateItem(@NonNull ViewGroup container, int position) {
+    public Object instantiateItem(@NonNull ViewGroup container, final int position) {
         LineView view = new LineView(container.getContext());
         view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onClickListener != null)
+                    onClickListener.onClick(v, position);
+            }
+        });
 
         switch (position) {
             case 0:
@@ -73,7 +88,6 @@ public class HourlyForecastGraphPagerAdapter extends PagerAdapter {
                             tempLabels.add(new Pair<>(forecastItemViewModel.getDate(), forecastItemViewModel.getHiTemp().trim()));
                             iconLabels.add(new Pair<>(forecastItemViewModel.getWeatherIcon(), 0));
                             tempData.add(temp);
-
                         } catch (NumberFormatException ex) {
                             Logger.writeLine(Log.DEBUG, ex);
                         }

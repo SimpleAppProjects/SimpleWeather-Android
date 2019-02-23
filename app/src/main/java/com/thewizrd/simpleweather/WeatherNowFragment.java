@@ -64,6 +64,7 @@ import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -75,6 +76,7 @@ import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherErrorListenerInterface;
 import com.thewizrd.shared_resources.weatherdata.WeatherLoadedListenerInterface;
@@ -83,7 +85,6 @@ import com.thewizrd.simpleweather.adapters.DetailItemAdapter;
 import com.thewizrd.simpleweather.adapters.ForecastItemAdapter;
 import com.thewizrd.simpleweather.adapters.HourlyForecastGraphPagerAdapter;
 import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter;
-import com.thewizrd.simpleweather.adapters.TextForecastPagerAdapter;
 import com.thewizrd.simpleweather.controls.SunPhaseView;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.LocationPanelOffsetDecoration;
@@ -141,13 +142,12 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     private RecyclerView forecastView;
     private ForecastItemAdapter forecastAdapter;
     // Additional Details
-    private SwitchCompat forecastSwitch;
-    private ViewPager txtForecastView;
     private ConstraintLayout hrforecastPanel;
     private SwitchCompat hrforecastSwitch;
     private RecyclerView hrforecastView;
     private HourlyForecastItemAdapter hrforecastAdapter;
     private ViewPager hrForecastGraphView;
+    private HourlyForecastGraphPagerAdapter hrGraphAdapter;
     private SunPhaseView sunView;
     // Alerts
     private View alertButton;
@@ -338,7 +338,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         }
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {
-            mFusedLocationClient = new FusedLocationProviderClient(getActivity());
+            mFusedLocationClient = new FusedLocationProviderClient(mActivity);
             mLocCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(final LocationResult locationResult) {
@@ -484,20 +484,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         forecastPanel.setVisibility(View.INVISIBLE);
         forecastView = view.findViewById(R.id.forecast_view);
         // Additional Details
-        forecastSwitch = view.findViewById(R.id.forecast_switch);
-        forecastSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                forecastSwitch.setText(isChecked ?
-                        mActivity.getString(R.string.switch_details) : mActivity.getString(R.string.switch_daily));
-                forecastView.setVisibility(isChecked ? View.GONE : View.VISIBLE);
-                txtForecastView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-            }
-        });
-        forecastSwitch.setVisibility(View.GONE);
-        txtForecastView = view.findViewById(R.id.txt_forecast_viewpgr);
-        txtForecastView.setAdapter(new TextForecastPagerAdapter(this.getActivity()));
-        txtForecastView.setVisibility(View.GONE);
         hrforecastPanel = view.findViewById(R.id.hourly_forecast_panel);
         hrforecastPanel.setVisibility(View.GONE);
         hrforecastView = view.findViewById(R.id.hourly_forecast_view);
@@ -542,7 +528,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         hrforecastView.setAdapter(hrforecastAdapter);
 
         hrForecastGraphView = view.findViewById(R.id.hourly_forecast_viewpgr);
-        hrForecastGraphView.setAdapter(new HourlyForecastGraphPagerAdapter(this.getActivity()));
+        hrGraphAdapter = new HourlyForecastGraphPagerAdapter(mActivity);
+        hrForecastGraphView.setAdapter(hrGraphAdapter);
 
         hrforecastSwitch = view.findViewById(R.id.hourly_forecast_switch);
         hrforecastSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -935,20 +922,48 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                 forecastAdapter.updateItems(weatherView.getForecasts());
                 forecastPanel.setVisibility(View.VISIBLE);
 
+                if (WeatherAPI.HERE.equals(weatherView.getWeatherSource())
+                        || WeatherAPI.WEATHERUNDERGROUND.equals(weatherView.getWeatherSource())) {
+                    forecastAdapter.setOnClickListener(new RecyclerOnClickListenerInterface() {
+                        @Override
+                        public void onClick(View view, int position) {
+                            mActivity.getSupportFragmentManager().beginTransaction()
+                                    .add(R.id.fragment_container, WeatherDetailsFragment.newInstance(location, weatherView, false))
+                                    .hide(WeatherNowFragment.this)
+                                    .addToBackStack(null)
+                                    .commit();
+                        }
+                    });
+                } else {
+                    forecastAdapter.setOnClickListener(null);
+                }
+
                 // Additional Details
                 if (weatherView.getExtras().getHourlyForecast().size() >= 1) {
                     hrforecastAdapter.updateItems(weatherView.getExtras().getHourlyForecast());
                     hrforecastPanel.setVisibility(View.VISIBLE);
-                    ((HourlyForecastGraphPagerAdapter) hrForecastGraphView.getAdapter()).updateDataset(weatherView.getExtras().getHourlyForecast());
-                } else {
-                    hrforecastPanel.setVisibility(View.GONE);
-                }
 
-                if (weatherView.getExtras().getTextForecast().size() >= 1) {
-                    forecastSwitch.setVisibility(View.VISIBLE);
-                    ((TextForecastPagerAdapter) txtForecastView.getAdapter()).updateDataset(weatherView.getExtras().getTextForecast());
+                    hrGraphAdapter.updateDataset(weatherView.getExtras().getHourlyForecast());
+
+                    if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
+                        RecyclerOnClickListenerInterface onClickListener = new RecyclerOnClickListenerInterface() {
+                            @Override
+                            public void onClick(View view, int position) {
+                                mActivity.getSupportFragmentManager().beginTransaction()
+                                        .add(R.id.fragment_container, WeatherDetailsFragment.newInstance(location, weatherView, true))
+                                        .hide(WeatherNowFragment.this)
+                                        .addToBackStack(null)
+                                        .commit();
+                            }
+                        };
+
+                        hrGraphAdapter.setOnClickListener(onClickListener);
+                        hrforecastAdapter.setOnClickListener(onClickListener);
+                    }
                 } else {
-                    forecastSwitch.setVisibility(View.GONE);
+                    hrforecastAdapter.setOnClickListener(null);
+                    hrGraphAdapter.setOnClickListener(null);
+                    hrforecastPanel.setVisibility(View.GONE);
                 }
 
                 // Alerts

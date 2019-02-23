@@ -6,11 +6,16 @@ import android.util.Log;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
+import com.thewizrd.shared_resources.weatherdata.UV;
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 import org.threeten.bp.format.DateTimeFormatter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class HourlyForecastItemViewModel {
@@ -24,12 +29,16 @@ public class HourlyForecastItemViewModel {
     private int windDirection;
     private String windSpeed;
 
+    private List<DetailItemViewModel> detailExtras;
+
     public HourlyForecastItemViewModel() {
         wm = WeatherManager.getInstance();
+        detailExtras = new ArrayList<>();
     }
 
     public HourlyForecastItemViewModel(HourlyForecast hrForecast) {
         wm = WeatherManager.getInstance();
+        detailExtras = new ArrayList<>();
 
         weatherIcon = hrForecast.getIcon();
 
@@ -47,7 +56,7 @@ public class HourlyForecastItemViewModel {
             Logger.writeLine(Log.ERROR, nFe);
         }
         pop = hrForecast.getPop() + "%";
-        updateWindDirection(hrForecast.getWindDegrees());
+        windDirection = hrForecast.getWindDegrees();
         try {
             windSpeed = (Settings.isFahrenheit() ?
                     String.format(Locale.getDefault(), "%d mph", Math.round(Double.valueOf(hrForecast.getWindMph()))) : String.format(Locale.getDefault(), "%d kph", Math.round(Double.valueOf(hrForecast.getWindKph()))));
@@ -55,10 +64,92 @@ public class HourlyForecastItemViewModel {
             windSpeed = "--";
             Logger.writeLine(Log.ERROR, nFe);
         }
-    }
 
-    private void updateWindDirection(int angle) {
-        windDirection = angle - 180;
+        // Extras
+        if (hrForecast.getExtras() != null) {
+            detailExtras.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
+                    Settings.isFahrenheit() ?
+                            String.format(Locale.getDefault(), "%dº", Math.round(hrForecast.getExtras().getFeelslikeF())) :
+                            String.format(Locale.getDefault(), "%dº", Math.round(hrForecast.getExtras().getFeelslikeC()))));
+
+            if (hrForecast.getExtras().getQpfRainIn() >= 0) {
+                String qpfRain = Settings.isFahrenheit() ?
+                        String.format(Locale.getDefault(), "%.2f in", hrForecast.getExtras().getQpfRainIn()) :
+                        String.format(Locale.getDefault(), "%.2f mm", hrForecast.getExtras().getQpfRainMm());
+                String qpfSnow = Settings.isFahrenheit() ?
+                        String.format(Locale.getDefault(), "%.2f in", hrForecast.getExtras().getQpfSnowIn()) :
+                        String.format(Locale.getDefault(), "%.2f cm", hrForecast.getExtras().getQpfSnowCm());
+
+                if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, pop));
+                } else {
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, pop));
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
+                }
+            } else {
+                if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, pop));
+                } else {
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, pop));
+                }
+            }
+
+            detailExtras.add(new DetailItemViewModel(WeatherDetailsType.HUMIDITY,
+                    hrForecast.getExtras().getHumidity().endsWith("%") ?
+                            hrForecast.getExtras().getHumidity() :
+                            hrForecast.getExtras().getHumidity() + "%"));
+
+            if (!StringUtils.isNullOrWhitespace(hrForecast.getExtras().getDewpointF())) {
+                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.DEWPOINT,
+                        Settings.isFahrenheit() ?
+                                String.format(Locale.getDefault(), "%dº", Math.round(Float.valueOf(hrForecast.getExtras().getDewpointF()))) :
+                                String.format(Locale.getDefault(), "%dº", Math.round(Float.valueOf(hrForecast.getExtras().getDewpointC())))));
+            }
+
+            if (hrForecast.getExtras().getUvIndex() >= 0) {
+                UV uv = new UV(hrForecast.getExtras().getUvIndex());
+
+                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.UV,
+                        String.format(Locale.ROOT, "%s, %s", uv.getIndex(), uv.getDescription())));
+            }
+
+            if (!StringUtils.isNullOrWhitespace(hrForecast.getExtras().getPressureIn())) {
+                String pressureVal = Settings.isFahrenheit() ?
+                        hrForecast.getExtras().getPressureIn() :
+                        hrForecast.getExtras().getPressureMb();
+
+                String pressureUnit = Settings.isFahrenheit() ? "in" : "mb";
+
+                try {
+                    float pressure = Float.parseFloat(pressureVal);
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.PRESSURE,
+                            String.format(Locale.getDefault(), "%s %s", Float.toString(pressure), pressureUnit)));
+                } catch (Exception e) {
+                    Logger.writeLine(Log.DEBUG, e);
+                }
+            }
+
+            detailExtras.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED, windSpeed, windDirection));
+
+            if (!StringUtils.isNullOrWhitespace(hrForecast.getExtras().getVisibilityMi())) {
+                String visibilityVal = Settings.isFahrenheit() ?
+                        hrForecast.getExtras().getVisibilityMi() :
+                        hrForecast.getExtras().getVisibilityKm();
+
+                String visibilityUnit = Settings.isFahrenheit() ? "mi" : "km";
+
+                try {
+                    float visibility = Float.parseFloat(visibilityVal);
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.VISIBILITY,
+                            String.format(Locale.getDefault(), "%s %s", Float.toString(visibility), visibilityUnit)));
+                } catch (Exception e) {
+                    Logger.writeLine(Log.DEBUG, e);
+                }
+            }
+        }
     }
 
     public String getWeatherIcon() {
@@ -115,5 +206,17 @@ public class HourlyForecastItemViewModel {
 
     public void setWindSpeed(String windSpeed) {
         this.windSpeed = windSpeed;
+    }
+
+    private int getWindIconRotation(int angle) {
+        return angle - 180;
+    }
+
+    public List<DetailItemViewModel> getExtras() {
+        return detailExtras;
+    }
+
+    public void setExtras(List<DetailItemViewModel> extras) {
+        this.detailExtras = extras;
     }
 }

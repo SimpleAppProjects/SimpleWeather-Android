@@ -31,6 +31,7 @@ import java.util.Collections;
 public class LineView extends HorizontalScrollView {
 
     private LineViewGraph graph;
+    private OnClickListener onClickListener;
 
     public LineView(Context context) {
         super(context);
@@ -53,8 +54,20 @@ public class LineView extends HorizontalScrollView {
         initialize(context);
     }
 
+    @Override
+    public void setOnClickListener(OnClickListener onClickListener) {
+        this.onClickListener = onClickListener;
+    }
+
     private void initialize(Context context) {
         graph = new LineViewGraph(context);
+        graph.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onClickListener != null)
+                    onClickListener.onClick(v);
+            }
+        });
 
         this.setFillViewport(true);
         this.setLayerType(LAYER_TYPE_SOFTWARE, null);
