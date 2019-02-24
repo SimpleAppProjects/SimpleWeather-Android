@@ -63,7 +63,8 @@ public class Forecast {
     }
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.weatherunderground.Forecastday1 forecast) {
-        date = ConversionMethods.toEpochDateTime(forecast.getDate().getEpoch()).toLocalDateTime();
+        date = ConversionMethods.toEpochDateTime(forecast.getDate().getEpoch())
+                .withZoneSameInstant(ZoneId.of(forecast.getDate().getTzLong())).toLocalDateTime();
         highF = forecast.getHigh().getFahrenheit();
         highC = forecast.getHigh().getCelsius();
         lowF = forecast.getLow().getFahrenheit();
