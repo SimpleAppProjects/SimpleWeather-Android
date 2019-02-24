@@ -7,6 +7,7 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.UV;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
@@ -28,6 +29,7 @@ public class HourlyForecastItemViewModel {
     private String pop;
     private int windDirection;
     private String windSpeed;
+    private String windDir;
 
     private List<DetailItemViewModel> detailExtras;
 
@@ -57,9 +59,13 @@ public class HourlyForecastItemViewModel {
         }
         pop = hrForecast.getPop() + "%";
         windDirection = hrForecast.getWindDegrees();
+        windDir = WeatherUtils.getWindDirection(hrForecast.getWindDegrees());
         try {
             windSpeed = (Settings.isFahrenheit() ?
-                    String.format(Locale.getDefault(), "%d mph", Math.round(Double.valueOf(hrForecast.getWindMph()))) : String.format(Locale.getDefault(), "%d kph", Math.round(Double.valueOf(hrForecast.getWindKph()))));
+                    String.format(Locale.getDefault(),
+                            "%d mph", Math.round(Double.valueOf(hrForecast.getWindMph()))) :
+                    String.format(Locale.getDefault(),
+                            "%d kph", Math.round(Double.valueOf(hrForecast.getWindKph()))));
         } catch (NumberFormatException nFe) {
             windSpeed = "--";
             Logger.writeLine(Log.ERROR, nFe);
@@ -72,29 +78,25 @@ public class HourlyForecastItemViewModel {
                             String.format(Locale.getDefault(), "%dº", Math.round(hrForecast.getExtras().getFeelslikeF())) :
                             String.format(Locale.getDefault(), "%dº", Math.round(hrForecast.getExtras().getFeelslikeC()))));
 
-            if (hrForecast.getExtras().getQpfRainIn() >= 0) {
-                String qpfRain = Settings.isFahrenheit() ?
-                        String.format(Locale.getDefault(), "%.2f in", hrForecast.getExtras().getQpfRainIn()) :
-                        String.format(Locale.getDefault(), "%.2f mm", hrForecast.getExtras().getQpfRainMm());
-                String qpfSnow = Settings.isFahrenheit() ?
-                        String.format(Locale.getDefault(), "%.2f in", hrForecast.getExtras().getQpfSnowIn()) :
-                        String.format(Locale.getDefault(), "%.2f cm", hrForecast.getExtras().getQpfSnowCm());
+            String qpfRain = Settings.isFahrenheit() ?
+                    String.format(Locale.getDefault(), "%.2f in", hrForecast.getExtras().getQpfRainIn()) :
+                    String.format(Locale.getDefault(), "%.2f mm", hrForecast.getExtras().getQpfRainMm());
+            String qpfSnow = Settings.isFahrenheit() ?
+                    String.format(Locale.getDefault(), "%.2f in", hrForecast.getExtras().getQpfSnowIn()) :
+                    String.format(Locale.getDefault(), "%.2f cm", hrForecast.getExtras().getQpfSnowCm());
 
-                if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
+            if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
+                if (hrForecast.getExtras().getQpfRainIn() >= 0)
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
+                if (hrForecast.getExtras().getQpfSnowIn() >= 0)
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
-                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, pop));
-                } else {
-                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, pop));
-                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
-                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
-                }
+                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, pop));
             } else {
-                if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
-                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, pop));
-                } else {
-                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, pop));
-                }
+                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, pop));
+                if (hrForecast.getExtras().getQpfRainIn() >= 0)
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
+                if (hrForecast.getExtras().getQpfSnowIn() >= 0)
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
             }
 
             detailExtras.add(new DetailItemViewModel(WeatherDetailsType.HUMIDITY,
@@ -132,7 +134,8 @@ public class HourlyForecastItemViewModel {
                 }
             }
 
-            detailExtras.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED, windSpeed, windDirection));
+            detailExtras.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
+                    String.format(Locale.ROOT, "%s, %s", windSpeed, windDir), windDirection));
 
             if (!StringUtils.isNullOrWhitespace(hrForecast.getExtras().getVisibilityMi())) {
                 String visibilityVal = Settings.isFahrenheit() ?
@@ -200,16 +203,20 @@ public class HourlyForecastItemViewModel {
         this.windDirection = windDirection;
     }
 
+    public String getWindDirLabel() {
+        return windDir;
+    }
+
+    public void setWindDirLabel(String windDirection) {
+        this.windDir = windDirection;
+    }
+
     public String getWindSpeed() {
         return windSpeed;
     }
 
     public void setWindSpeed(String windSpeed) {
         this.windSpeed = windSpeed;
-    }
-
-    private int getWindIconRotation(int angle) {
-        return angle - 180;
     }
 
     public List<DetailItemViewModel> getExtras() {

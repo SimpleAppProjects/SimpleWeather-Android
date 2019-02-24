@@ -12,6 +12,8 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.simpleweather.R;
 
+import java.util.Locale;
+
 public class HourlyForecastItem extends ConstraintLayout {
     private TextView forecastDate;
     private TextView forecastIcon;
@@ -71,6 +73,6 @@ public class HourlyForecastItem extends ConstraintLayout {
 
         forecastPoP.setText(forecastView.getPop());
         forecastWindDirection.setRotation(forecastView.getWindDirection());
-        forecastWindSpeed.setText(forecastView.getWindSpeed());
+        forecastWindSpeed.setText(String.format(Locale.ROOT, "%s, %s", forecastView.getWindSpeed(), forecastView.getWindDirLabel()));
     }
 }

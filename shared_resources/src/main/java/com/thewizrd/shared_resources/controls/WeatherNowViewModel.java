@@ -134,6 +134,9 @@ public class WeatherNowViewModel {
         if (weather.isValid()) {
             Context context = SimpleLibrary.getInstance().getApp().getAppContext();
 
+            // Update extras
+            extras.updateView(weather);
+
             // Update backgrounds
             background = wm.getWeatherBackgroundURI(weather);
             pendingBackground = wm.getWeatherBackgroundColor(weather);
@@ -229,9 +232,9 @@ public class WeatherNowViewModel {
                             String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getFeelslikeC()))));
             weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
                     Settings.isFahrenheit() ?
-                            String.format(Locale.getDefault(), "%d mph", Math.round(weather.getCondition().getWindMph())) :
-                            String.format(Locale.getDefault(), "%d kph", Math.round(weather.getCondition().getWindKph())),
-                    getWindIconRotation(weather.getCondition().getWindDegrees())));
+                            String.format(Locale.getDefault(), "%d mph, %s", Math.round(weather.getCondition().getWindMph()), WeatherUtils.getWindDirection(weather.getCondition().getWindDegrees())) :
+                            String.format(Locale.getDefault(), "%d kph, %s", Math.round(weather.getCondition().getWindKph()), WeatherUtils.getWindDirection(weather.getCondition().getWindDegrees())),
+                    weather.getCondition().getWindDegrees()));
 
             if (weather.getCondition().getBeaufort() != null) {
                 weatherDetails.add(new DetailItemViewModel(weather.getCondition().getBeaufort().getScale(),
@@ -276,8 +279,21 @@ public class WeatherNowViewModel {
 
             // Add UI elements
             forecasts.clear();
-            for (Forecast forecast : weather.getForecast()) {
-                ForecastItemViewModel forecastView = new ForecastItemViewModel(forecast);
+            boolean isDayAndNt = extras.getTextForecast().size() == weather.getForecast().length * 2;
+            boolean addTextFct = isDayAndNt || extras.getTextForecast().size() == weather.getForecast().length;
+            for (int i = 0; i < weather.getForecast().length; i++) {
+                Forecast forecast = weather.getForecast()[i];
+                ForecastItemViewModel forecastView;
+
+                if (addTextFct) {
+                    if (isDayAndNt)
+                        forecastView = new ForecastItemViewModel(forecast, extras.getTextForecast().get(i * 2), extras.getTextForecast().get((i * 2) + 1));
+                    else
+                        forecastView = new ForecastItemViewModel(forecast, extras.getTextForecast().get(i));
+                } else {
+                    forecastView = new ForecastItemViewModel(forecast);
+                }
+
                 forecasts.add(forecastView);
             }
 
@@ -295,8 +311,6 @@ public class WeatherNowViewModel {
                 weatherCredit = String.format("%s MET Norway", creditPrefix);
             else if (WeatherAPI.HERE.equals(weather.getSource()))
                 weatherCredit = String.format("%s HERE Weather", creditPrefix);
-
-            extras.updateView(weather);
 
             // Language
             weatherLocale = weather.getLocale();
@@ -320,9 +334,5 @@ public class WeatherNowViewModel {
             case "Falling":
                 return "\uf044\uf044";
         }
-    }
-
-    private int getWindIconRotation(int angle) {
-        return angle - 180;
     }
 }

@@ -15,7 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@color/bg_swipe_delete" />
+        tools:src="@color/color_background_day" />
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar"
@@ -298,10 +298,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@null"
+                        android:checked="true"
                         android:padding="8dp"
                         android:switchTextAppearance="@style/TextAppearance.AppCompat.Widget.Switch"
                         android:text="@string/label_details"
                         android:textColor="@android:color/white"
+                        android:theme="@style/SwitchStyle"
                         app:layout_constraintBottom_toBottomOf="@+id/hourly_forecast_border"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"

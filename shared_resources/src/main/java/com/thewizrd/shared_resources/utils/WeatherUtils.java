@@ -94,10 +94,10 @@ public class WeatherUtils {
                     - (0.00000199 * Math.pow(temp_f, 2) * Math.pow(humidity, 2));
 
             if (humidity < 13 && (temp_f > 80 && temp_f < 112)) {
-                double adj = ((13 - humidity) / 4) * Math.sqrt((17 - Math.abs(temp_f - 95)) / 17);
+                double adj = ((13 - humidity) / 4f) * Math.sqrt((17 - Math.abs(temp_f - 95)) / 17);
                 HI -= adj;
             } else if (humidity > 85 && (temp_f > 80 && temp_f < 87)) {
-                double adj = ((humidity - 85) / 10) * ((87 - temp_f) / 5);
+                double adj = ((humidity - 85) / 10f) * ((87 - temp_f) / 5);
                 HI += adj;
             }
 
@@ -107,6 +107,42 @@ public class WeatherUtils {
                 return temp_f;
         } else
             return temp_f;
+    }
+
+    public static String getWindDirection(float angle) {
+        if (angle >= 348.75 && angle <= 11.25) {
+            return "N";
+        } else if (angle >= 11.25 && angle <= 33.75) {
+            return "NNE";
+        } else if (angle >= 33.75 && angle <= 56.25) {
+            return "NE";
+        } else if (angle >= 56.25 && angle <= 78.75) {
+            return "ENE";
+        } else if (angle >= 78.75 && angle <= 101.25) {
+            return "E";
+        } else if (angle >= 101.25 && angle <= 123.75) {
+            return "ESE";
+        } else if (angle >= 123.75 && angle <= 146.25) {
+            return "SE";
+        } else if (angle >= 146.25 && angle <= 168.75) {
+            return "SSE";
+        } else if (angle >= 168.75 && angle <= 191.25) {
+            return "S";
+        } else if (angle >= 191.25 && angle <= 213.75) {
+            return "SSW";
+        } else if (angle >= 213.75 && angle <= 236.25) {
+            return "SW";
+        } else if (angle >= 236.25 && angle <= 258.75) {
+            return "WSW";
+        } else if (angle >= 258.75 && angle <= 281.25) {
+            return "W";
+        } else if (angle >= 281.25 && angle <= 303.75) {
+            return "WNW";
+        } else if (angle >= 303.75 && angle <= 326.25) {
+            return "NW";
+        } else/* if (angle >= 326.25 && angle <= 348.75)*/ {
+            return "NNW";
+        }
     }
 
     public static class Coordinate {

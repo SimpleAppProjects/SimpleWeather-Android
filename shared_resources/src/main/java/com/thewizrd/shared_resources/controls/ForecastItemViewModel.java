@@ -5,6 +5,7 @@ import android.util.Log;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.UV;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
@@ -25,6 +26,13 @@ public class ForecastItemViewModel {
     private String hiTemp;
     private String loTemp;
 
+    private String pop;
+    private int windDirection;
+    private String windSpeed;
+    private String windDir;
+
+    private String conditionLongDesc;
+
     private List<DetailItemViewModel> detailExtras;
 
     public ForecastItemViewModel() {
@@ -32,7 +40,7 @@ public class ForecastItemViewModel {
         detailExtras = new ArrayList<>();
     }
 
-    public ForecastItemViewModel(Forecast forecast) {
+    public ForecastItemViewModel(Forecast forecast, TextForecastItemViewModel... txtForecasts) {
         wm = WeatherManager.getInstance();
         detailExtras = new ArrayList<>();
 
@@ -61,31 +69,26 @@ public class ForecastItemViewModel {
                             String.format(Locale.getDefault(), "%dº", Math.round(forecast.getExtras().getFeelslikeF())) :
                             String.format(Locale.getDefault(), "%dº", Math.round(forecast.getExtras().getFeelslikeC()))));
 
-            if (forecast.getExtras().getQpfRainIn() >= 0) {
-                String chance = forecast.getExtras().getPop() + "%";
-                String qpfRain = Settings.isFahrenheit() ?
-                        String.format(Locale.getDefault(), "%.2f in", forecast.getExtras().getQpfRainIn()) :
-                        String.format(Locale.getDefault(), "%.2f mm", forecast.getExtras().getQpfRainMm());
-                String qpfSnow = Settings.isFahrenheit() ?
-                        String.format(Locale.getDefault(), "%.2f in", forecast.getExtras().getQpfSnowIn()) :
-                        String.format(Locale.getDefault(), "%.2f cm", forecast.getExtras().getQpfSnowCm());
+            String chance = pop = forecast.getExtras().getPop() + "%";
+            String qpfRain = Settings.isFahrenheit() ?
+                    String.format(Locale.getDefault(), "%.2f in", forecast.getExtras().getQpfRainIn()) :
+                    String.format(Locale.getDefault(), "%.2f mm", forecast.getExtras().getQpfRainMm());
+            String qpfSnow = Settings.isFahrenheit() ?
+                    String.format(Locale.getDefault(), "%.2f in", forecast.getExtras().getQpfSnowIn()) :
+                    String.format(Locale.getDefault(), "%.2f cm", forecast.getExtras().getQpfSnowCm());
 
-                if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
+            if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
+                if (forecast.getExtras().getQpfRainIn() >= 0)
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
+                if (forecast.getExtras().getQpfSnowIn() >= 0)
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
-                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, chance));
-                } else {
-                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, chance));
-                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
-                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
-                }
+                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, chance));
             } else {
-                String chance = forecast.getExtras().getPop() + "%";
-                if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
-                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, chance));
-                } else {
-                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, chance));
-                }
+                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, chance));
+                if (forecast.getExtras().getQpfRainIn() >= 0)
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
+                if (forecast.getExtras().getQpfSnowIn() >= 0)
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
             }
 
             if (!StringUtils.isNullOrWhitespace(forecast.getExtras().getHumidity())) {
@@ -126,11 +129,14 @@ public class ForecastItemViewModel {
             }
 
             if (forecast.getExtras().getWindMph() >= 0) {
+                windSpeed = Settings.isFahrenheit() ?
+                        String.format(Locale.getDefault(), "%d mph", Math.round(forecast.getExtras().getWindMph())) :
+                        String.format(Locale.getDefault(), "%d kph", Math.round(forecast.getExtras().getWindKph()));
+                windDirection = forecast.getExtras().getWindDegrees();
+                windDir = WeatherUtils.getWindDirection(windDirection);
+
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
-                        Settings.isFahrenheit() ?
-                                String.format(Locale.getDefault(), "%d mph", Math.round(forecast.getExtras().getWindMph())) :
-                                String.format(Locale.getDefault(), "%d kph", Math.round(forecast.getExtras().getWindKph())),
-                        getWindIconRotation(forecast.getExtras().getWindDegrees())));
+                        String.format(Locale.ROOT, "%s, %s", windSpeed, windDir), windDirection));
             }
 
             if (!StringUtils.isNullOrWhitespace(forecast.getExtras().getVisibilityMi())) {
@@ -147,6 +153,27 @@ public class ForecastItemViewModel {
                 } catch (Exception e) {
                     Logger.writeLine(Log.DEBUG, e);
                 }
+            }
+        }
+
+        if (txtForecasts.length > 0) {
+            try {
+                boolean dayAndNt = txtForecasts.length == 2;
+                StringBuilder sb = new StringBuilder();
+
+                TextForecastItemViewModel fctDay = txtForecasts[0];
+                sb.append(String.format(Locale.ROOT, "%s - %s", fctDay.getTitle(), fctDay.getFctText()));
+
+                if (dayAndNt) {
+                    sb.append(StringUtils.lineSeparator()).append(StringUtils.lineSeparator());
+
+                    TextForecastItemViewModel fctNt = txtForecasts[1];
+                    sb.append(String.format(Locale.ROOT, "%s - %s", fctNt.getTitle(), fctNt.getFctText()));
+                }
+
+                conditionLongDesc = sb.toString();
+            } catch (Exception e) {
+                Logger.writeLine(Log.DEBUG, e);
             }
         }
     }
@@ -191,8 +218,44 @@ public class ForecastItemViewModel {
         this.loTemp = loTemp;
     }
 
-    private int getWindIconRotation(int angle) {
-        return angle - 180;
+    public String getPop() {
+        return pop;
+    }
+
+    public void setPop(String pop) {
+        this.pop = pop;
+    }
+
+    public int getWindDirection() {
+        return windDirection;
+    }
+
+    public void setWindDirection(int windDirection) {
+        this.windDirection = windDirection;
+    }
+
+    public String getWindDirLabel() {
+        return windDir;
+    }
+
+    public void setWindDirLabel(String windDirection) {
+        this.windDir = windDirection;
+    }
+
+    public String getWindSpeed() {
+        return windSpeed;
+    }
+
+    public void setWindSpeed(String windSpeed) {
+        this.windSpeed = windSpeed;
+    }
+
+    public String getConditionLongDesc() {
+        return conditionLongDesc;
+    }
+
+    public void setConditionLongDesc(String conditionLongDesc) {
+        this.conditionLongDesc = conditionLongDesc;
     }
 
     public List<DetailItemViewModel> getExtras() {

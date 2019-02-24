@@ -440,23 +440,28 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         scrollView = view.findViewById(R.id.fragment_weather_now);
         scrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
-            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                if (mAppBarLayout != null) {
-                    if (scrollY != 0 || v.canScrollVertically(-1)) {
-                        ViewCompat.setElevation(mAppBarLayout, mAppBarElevation);
-                    } else {
-                        ViewCompat.setElevation(mAppBarLayout, 0);
+            public void onScrollChange(final NestedScrollView v, int scrollX, final int scrollY, int oldScrollX, int oldScrollY) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mAppBarLayout != null) {
+                            if (scrollY != 0 || v.canScrollVertically(-1)) {
+                                ViewCompat.setElevation(mAppBarLayout, mAppBarElevation);
+                            } else {
+                                ViewCompat.setElevation(mAppBarLayout, 0);
+                            }
+                        }
+                        if (mImageView != null) {
+                            // Default adj = 1.25
+                            float adj = 2.5f;
+                            int alpha = 255 - (int) (255 * adj * scrollY / (v.getChildAt(0).getHeight() - v.getHeight()));
+                            if (alpha >= 0)
+                                mImageView.setImageAlpha(bgAlpha = alpha);
+                            else
+                                mImageView.setImageAlpha(bgAlpha = 0);
+                        }
                     }
-                }
-                if (mImageView != null) {
-                    // Default adj = 1.25
-                    float adj = 1.50f;
-                    int alpha = 255 - (int) (255 * adj * scrollY / (v.getChildAt(0).getHeight() - v.getHeight()));
-                    if (alpha >= 0)
-                        mImageView.setImageAlpha(bgAlpha = alpha);
-                    else
-                        mImageView.setImageAlpha(bgAlpha = 0);
-                }
+                });
             }
         });
         // Condition
@@ -927,8 +932,13 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     forecastAdapter.setOnClickListener(new RecyclerOnClickListenerInterface() {
                         @Override
                         public void onClick(View view, int position) {
+                            Fragment fragment = WeatherDetailsFragment.newInstance(location, weatherView, false);
+                            Bundle args = new Bundle();
+                            args.putInt("position", position);
+                            fragment.setArguments(args);
+
                             mActivity.getSupportFragmentManager().beginTransaction()
-                                    .add(R.id.fragment_container, WeatherDetailsFragment.newInstance(location, weatherView, false))
+                                    .add(R.id.fragment_container, fragment)
                                     .hide(WeatherNowFragment.this)
                                     .addToBackStack(null)
                                     .commit();
@@ -949,8 +959,13 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                         RecyclerOnClickListenerInterface onClickListener = new RecyclerOnClickListenerInterface() {
                             @Override
                             public void onClick(View view, int position) {
+                                Fragment fragment = WeatherDetailsFragment.newInstance(location, weatherView, true);
+                                Bundle args = new Bundle();
+                                args.putInt("position", position);
+                                fragment.setArguments(args);
+
                                 mActivity.getSupportFragmentManager().beginTransaction()
-                                        .add(R.id.fragment_container, WeatherDetailsFragment.newInstance(location, weatherView, true))
+                                        .add(R.id.fragment_container, fragment)
                                         .hide(WeatherNowFragment.this)
                                         .addToBackStack(null)
                                         .commit();

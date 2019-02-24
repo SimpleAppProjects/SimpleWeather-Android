@@ -208,8 +208,8 @@ public class HourlyForecast {
         } catch (NumberFormatException ignored) {
         }
         extras.setQpfSnowCm(Float.valueOf(ConversionMethods.inToMM(Float.toString(extras.getQpfSnowIn()))) / 10);
-        extras.setPressureIn(hr_forecast.getBarometerPressure());
-        extras.setPressureMb(ConversionMethods.inHgToMB(hr_forecast.getBarometerPressure()));
+        //extras.setPressureIn(hr_forecast.getBarometerPressure());
+        //extras.setPressureMb(ConversionMethods.inHgToMB(hr_forecast.getBarometerPressure()));
         extras.setWindDegrees(windDegrees);
         extras.setWindMph(windMph);
         extras.setWindKph(windKph);

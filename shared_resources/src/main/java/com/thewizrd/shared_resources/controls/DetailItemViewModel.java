@@ -8,6 +8,7 @@ import com.thewizrd.shared_resources.weatherdata.Beaufort;
 import com.thewizrd.shared_resources.weatherdata.MoonPhase;
 
 public class DetailItemViewModel {
+    private WeatherDetailsType detailsType;
     private String label;
     private String icon;
     private String value;
@@ -19,6 +20,7 @@ public class DetailItemViewModel {
 
     public DetailItemViewModel(WeatherDetailsType detailsType, String value, int iconRotation) {
         Context context = SimpleLibrary.getInstance().getAppContext();
+        this.detailsType = detailsType;
 
         switch (detailsType) {
             case SUNRISE:
@@ -178,6 +180,14 @@ public class DetailItemViewModel {
                 this.icon = context.getString(R.string.wi_wind_beaufort_12);
                 break;
         }
+    }
+
+    public WeatherDetailsType getDetailsType() {
+        return detailsType;
+    }
+
+    public void setDetailsType(WeatherDetailsType detailsType) {
+        this.detailsType = detailsType;
     }
 
     public String getLabel() {

@@ -1,14 +1,18 @@
 package com.thewizrd.simpleweather.adapters;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
+import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.HourlyForecastItem;
+import com.thewizrd.simpleweather.helpers.ActivityUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,7 +58,30 @@ public class HourlyForecastItemAdapter extends RecyclerView.Adapter {
     // Create new views (invoked by the layout manager)
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // create a new view
-        HourlyForecastItem v = new HourlyForecastItem(parent.getContext());
+        Context context = parent.getContext();
+        HourlyForecastItem v = new HourlyForecastItem(context);
+
+        int itemWidth = context.getResources().getDimensionPixelSize(R.dimen.hrforecast_panel_width);
+        int itemHeight = context.getResources().getDimensionPixelSize(R.dimen.hrforecast_panel_height);
+
+        if (ActivityUtils.isLargeTablet(parent.getContext())) {
+            DisplayMetrics displayMetrics = parent.getContext().getResources().getDisplayMetrics();
+            float screenWidth = displayMetrics.widthPixels;
+            float screenHeight = displayMetrics.heightPixels;
+
+            int desiredWidth;
+            if (screenWidth <= 600)
+                desiredWidth = (int) (screenWidth / 6f);
+            else if (screenWidth <= 1200)
+                desiredWidth = (int) (screenWidth / 12f);
+            else
+                desiredWidth = (int) (screenWidth / 6f);
+
+            if (itemWidth < desiredWidth)
+                itemWidth = desiredWidth;
+        }
+        v.setLayoutParams(new RecyclerView.LayoutParams(itemWidth, itemHeight));
+
         return new ViewHolder(v);
     }
 

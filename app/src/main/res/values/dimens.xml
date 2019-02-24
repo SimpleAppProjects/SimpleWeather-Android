@@ -27,6 +27,10 @@
     <dimen name="label_updatetime_size">12sp</dimen>
     <dimen name="detail_label_size">12sp</dimen>
     <dimen name="detail_value_size">12sp</dimen>
+    <dimen name="forecast_panel_height">200dp</dimen>
+    <dimen name="forecast_panel_width">120dp</dimen>
+    <dimen name="hrforecast_panel_height">200dp</dimen>
+    <dimen name="hrforecast_panel_width">120dp</dimen>
     <!-- Locations -->
     <dimen name="location_panel_height">72dp</dimen>
     <dimen name="location_panel_text_size">16sp</dimen>

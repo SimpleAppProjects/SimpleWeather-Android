@@ -1,14 +1,18 @@
 package com.thewizrd.simpleweather.adapters;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
+import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.ForecastItem;
+import com.thewizrd.simpleweather.helpers.ActivityUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,7 +58,24 @@ public class ForecastItemAdapter extends RecyclerView.Adapter {
     // Create new views (invoked by the layout manager)
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // create a new view
-        ForecastItem v = new ForecastItem(parent.getContext());
+        Context context = parent.getContext();
+        ForecastItem v = new ForecastItem(context);
+
+        int itemWidth = context.getResources().getDimensionPixelSize(R.dimen.forecast_panel_width);
+        int itemHeight = context.getResources().getDimensionPixelSize(R.dimen.forecast_panel_height);
+
+        if (ActivityUtils.isLargeTablet(parent.getContext())) {
+            DisplayMetrics displayMetrics = parent.getContext().getResources().getDisplayMetrics();
+            float screenWidth = displayMetrics.widthPixels;
+            float screenHeight = displayMetrics.heightPixels;
+
+            int desiredWidth = (int) (screenWidth / 5f);
+            if (itemWidth < desiredWidth) {
+                itemWidth = desiredWidth;
+            }
+        }
+        v.setLayoutParams(new RecyclerView.LayoutParams(itemWidth, itemHeight));
+
         return new ViewHolder(v);
     }
 

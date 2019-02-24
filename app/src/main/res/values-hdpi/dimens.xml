@@ -4,8 +4,6 @@
     <dimen name="weather_icon_size">72sp</dimen>
     <dimen name="weather_condition_size">18sp</dimen>
     <!-- Forecast -->
-    <dimen name="forecast_panel_width">130dp</dimen>
-    <dimen name="forecast_panel_height">155dp</dimen>
     <dimen name="forecast_icon_size">32sp</dimen>
     <dimen name="forecast_date_size">12sp</dimen>
     <dimen name="forecast_condition_size">10sp</dimen>

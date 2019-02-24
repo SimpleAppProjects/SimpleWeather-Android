@@ -8,7 +8,10 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
+import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.R;
+
+import java.util.Locale;
 
 public class ForecastItem extends ConstraintLayout {
     private View viewLayout;
@@ -17,6 +20,10 @@ public class ForecastItem extends ConstraintLayout {
     private TextView forecastCondition;
     private TextView forecastTempHi;
     private TextView forecastTempLo;
+    private TextView forecastPoPIcon;
+    private TextView forecastPoP;
+    private TextView forecastWindDirection;
+    private TextView forecastWindSpeed;
 
     public ForecastItem(Context context) {
         super(context);
@@ -48,6 +55,10 @@ public class ForecastItem extends ConstraintLayout {
         forecastCondition = viewLayout.findViewById(R.id.forecast_condition);
         forecastTempHi = viewLayout.findViewById(R.id.forecast_temphi);
         forecastTempLo = viewLayout.findViewById(R.id.forecast_templo);
+        forecastPoPIcon = viewLayout.findViewById(R.id.forecast_pop_icon);
+        forecastPoP = viewLayout.findViewById(R.id.forecast_pop);
+        forecastWindDirection = viewLayout.findViewById(R.id.forecast_wind_dir);
+        forecastWindSpeed = viewLayout.findViewById(R.id.forecast_wind);
     }
 
     public void setForecast(ForecastItemViewModel forecastView) {
@@ -56,5 +67,23 @@ public class ForecastItem extends ConstraintLayout {
         forecastCondition.setText(forecastView.getCondition());
         forecastTempHi.setText(forecastView.getHiTemp());
         forecastTempLo.setText(forecastView.getLoTemp());
+
+        if (StringUtils.isNullOrWhitespace(forecastView.getWindSpeed())
+                || StringUtils.isNullOrWhitespace(forecastView.getPop().replace("%", ""))) {
+            forecastPoPIcon.setVisibility(GONE);
+            forecastPoP.setVisibility(GONE);
+            forecastWindDirection.setVisibility(GONE);
+            forecastWindSpeed.setVisibility(GONE);
+        } else {
+            forecastPoPIcon.setVisibility(VISIBLE);
+            forecastPoP.setVisibility(VISIBLE);
+            forecastWindDirection.setVisibility(VISIBLE);
+            forecastWindSpeed.setVisibility(VISIBLE);
+        }
+
+        forecastPoPIcon.setText(R.string.wi_raindrop);
+        forecastPoP.setText(forecastView.getPop());
+        forecastWindDirection.setRotation(forecastView.getWindDirection());
+        forecastWindSpeed.setText(String.format(Locale.ROOT, "%s, %s", forecastView.getWindSpeed(), forecastView.getWindDirLabel()));
     }
 }

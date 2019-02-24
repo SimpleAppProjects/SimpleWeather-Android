@@ -61,7 +61,7 @@ public class HourlyForecastGraphPagerAdapter extends PagerAdapter {
             @Override
             public void onClick(View v) {
                 if (onClickListener != null)
-                    onClickListener.onClick(v, position);
+                    onClickListener.onClick(v, 0);
             }
         });
 

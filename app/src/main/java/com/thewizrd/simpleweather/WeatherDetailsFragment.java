@@ -35,6 +35,7 @@ public class WeatherDetailsFragment extends Fragment {
     private Toolbar toolbar;
     private TextView locationHeader;
     private RecyclerView recyclerView;
+    private LinearLayoutManager layoutManager;
 
     private AppCompatActivity mActivity;
     private WindowColorsInterface mWindowColorsIface;
@@ -81,6 +82,13 @@ public class WeatherDetailsFragment extends Fragment {
 
         locationHeader = view.findViewById(R.id.location_name);
         recyclerView = view.findViewById(R.id.recycler_view);
+
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        recyclerView.setHasFixedSize(true);
+        // use a linear layout manager
+        recyclerView.setLayoutManager(layoutManager = new LinearLayoutManager(mActivity));
+        recyclerView.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.VERTICAL));
 
         return view;
     }
@@ -131,17 +139,16 @@ public class WeatherDetailsFragment extends Fragment {
                 @Override
                 public void run() {
                     locationHeader.setText(weatherView.getLocation());
-                    // use this setting to improve performance if you know that changes
-                    // in content do not change the layout size of the RecyclerView
-                    recyclerView.setHasFixedSize(true);
-                    // use a linear layout manager
-                    recyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
-                    recyclerView.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.VERTICAL));
                     // specify an adapter (see also next example)
                     if (isHourly && weatherView.getExtras().getHourlyForecast().size() > 0)
                         recyclerView.setAdapter(new WeatherDetailsAdapter(weatherView.getExtras().getHourlyForecast()));
                     else if (!isHourly) {
                         recyclerView.setAdapter(new WeatherDetailsAdapter(weatherView.getForecasts()));
+                    }
+
+                    if (getArguments() != null) {
+                        int scrollToPosition = getArguments().getInt("position", 0);
+                        layoutManager.scrollToPosition(scrollToPosition);
                     }
                 }
             });
