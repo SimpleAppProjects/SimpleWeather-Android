@@ -115,14 +115,13 @@ public class LineView extends HorizontalScrollView {
     }
 
     /*
-        Based on LineView from http://www.androidtrainee.com/draw-android-line-chart-with-animation/
-        Graph background (under line) based on - https://github.com/jjoe64/GraphView (LineGraphSeries)
+     *  Single series line graph
+     *  Based on LineView from http://www.androidtrainee.com/draw-android-line-chart-with-animation/
+     *  Graph background (under line) based on - https://github.com/jjoe64/GraphView (LineGraphSeries)
      */
     class LineViewGraph extends View {
         private int mViewHeight;
         //drawBackground
-        private boolean autoSetDataOfGird = true;
-        private boolean autoSetGridWidth = true;
         private int dataOfAGird = 10;
         private float bottomTextHeight = 0;
         private ArrayList<Pair<String, String>> dataLabels; // X, Y labels
@@ -233,31 +232,42 @@ public class LineView extends HorizontalScrollView {
                 drawIconsLabels = false;
 
             Rect r = new Rect();
+            Rect r2 = new Rect();
             int longestWidth = 0;
             String longestStr = "";
             bottomTextDescent = 0;
             for (Pair<String, String> p : dataLabels) {
                 String s = p.getKey();
+                String s2 = p.getValue();
                 bottomTextPaint.getTextBounds(s, 0, s.length(), r);
+                bottomTextPaint.getTextBounds(s2, 0, s2.length(), r2);
                 if (bottomTextHeight < r.height()) {
                     bottomTextHeight = r.height();
                 }
-                if (autoSetGridWidth && (longestWidth < r.width())) {
+                if (bottomTextHeight < r2.height()) {
+                    bottomTextHeight = r2.height();
+                }
+                if (longestWidth < r.width()) {
                     longestWidth = r.width();
                     longestStr = s;
+                }
+                if (longestWidth < r2.width()) {
+                    longestWidth = r2.width();
+                    longestStr = s2;
                 }
                 if (bottomTextDescent < (Math.abs(r.bottom))) {
                     bottomTextDescent = Math.abs(r.bottom);
                 }
+                if (bottomTextDescent < (Math.abs(r2.bottom))) {
+                    bottomTextDescent = Math.abs(r2.bottom);
+                }
             }
 
-            if (autoSetGridWidth) {
-                if (backgroundGridWidth < longestWidth) {
-                    backgroundGridWidth = longestWidth + (int) bottomTextPaint.measureText(longestStr, 0, 1);
-                }
-                if (sideLineLength < longestWidth / 2) {
-                    sideLineLength = longestWidth / 2;
-                }
+            if (backgroundGridWidth < longestWidth) {
+                backgroundGridWidth = longestWidth + (int) bottomTextPaint.measureText(longestStr, 0, 1);
+            }
+            if (sideLineLength < longestWidth / 2f) {
+                sideLineLength = longestWidth / 2f;
             }
 
             refreshXCoordinateList(getHorizontalGridNum());
@@ -273,11 +283,9 @@ public class LineView extends HorizontalScrollView {
             }
             float biggestData = 0;
             for (ArrayList<Float> list : dataLists) {
-                if (autoSetDataOfGird) {
-                    for (Float i : list) {
-                        if (biggestData < i) {
-                            biggestData = i;
-                        }
+                for (Float i : list) {
+                    if (biggestData < i) {
+                        biggestData = i;
                     }
                 }
                 dataOfAGird = 1;
@@ -342,10 +350,19 @@ public class LineView extends HorizontalScrollView {
                         drawDotLists.add(new ArrayList<LineViewGraph.Dot>());
                     }
                 }
+                float maxValue = 0;
+                float minValue = 0;
+                for (int k = 0; k < dataLists.size(); k++) {
+                    float kMax = Collections.max(dataLists.get(k));
+                    float kMin = Collections.min(dataLists.get(k));
+
+                    if (maxValue < kMax)
+                        maxValue = kMax;
+                    if (minValue > kMin)
+                        minValue = kMin;
+                }
                 for (int k = 0; k < dataLists.size(); k++) {
                     int drawDotSize = drawDotLists.get(k).isEmpty() ? 0 : drawDotLists.get(k).size();
-                    float maxValue = Collections.max(dataLists.get(k));
-                    float minValue = Collections.min(dataLists.get(k));
 
                     for (int i = 0; i < dataLists.get(k).size(); i++) {
                         float x = xCoordinateList.get(i);
@@ -420,26 +437,27 @@ public class LineView extends HorizontalScrollView {
 
             Path mPathBackground = new Path();
             Paint mPaintBackground = new Paint();
-            float firstX = -1;
-            float firstY = -1;
             float graphHeight = getGraphHeight();
             float graphWidth = this.getWidth();
             float graphLeft = this.getLeft();
             float graphTop = this.getTop() + topLineLength;
-            // needed to end the path for background
-            float lastUsedEndY = 0;
 
             for (int k = 0; k < drawDotLists.size(); k++) {
+                float firstX = -1;
+                float firstY = -1;
+                // needed to end the path for background
+                float lastUsedEndY = 0;
+
                 linePaint.setColor(Colors.WHITE);
                 mPaintBackground.setColor(ColorUtils.setAlphaComponent(colorArray[k % 3], 0x50));
                 for (int i = 0; i < drawDotLists.get(k).size() - 1; i++) {
                     Dot dot = drawDotLists.get(k).get(i);
                     Dot nextDot = drawDotLists.get(k).get(i + 1);
 
-                    float startX = (float) dot.x;
-                    float startY = (float) dot.y;
-                    float endX = (float) nextDot.x;
-                    float endY = (float) nextDot.y;
+                    float startX = dot.x;
+                    float startY = dot.y;
+                    float endX = nextDot.x;
+                    float endY = nextDot.y;
 
                     if (firstX == -1) {
                         canvas.drawLine(0, dot.y, dot.x, dot.y, linePaint);
@@ -448,28 +466,28 @@ public class LineView extends HorizontalScrollView {
                     canvas.drawLine(dot.x, dot.y, nextDot.x, nextDot.y, linePaint);
 
                     // Draw top label
-                    if (drawDataLabels)
+                    if (k == 0 && drawDataLabels)
                         canvas.drawText(dataLabels.get(i).getValue(), sideLineLength + backgroundGridWidth * i, dot.y - bottomTextHeight, bottomTextPaint);
 
                     if (firstX == -1) {
                         firstX = 0;
                         firstY = startY;
-                        if (drawGraphBackground)
+                        if (k == 0 && drawGraphBackground)
                             mPathBackground.moveTo(0, startY);
                     }
 
-                    if (drawGraphBackground) {
+                    if (k == 0 && drawGraphBackground) {
                         mPathBackground.lineTo(startX, startY);
                         mPathBackground.lineTo(endX, endY);
                     }
 
                     // Draw last items
                     if (i + 1 == drawDotLists.get(k).size() - 1) {
-                        if (drawDataLabels)
+                        if (k == 0 && drawDataLabels)
                             canvas.drawText(dataLabels.get(i + 1).getValue(), sideLineLength + backgroundGridWidth * (i + 1), nextDot.y - bottomTextHeight, bottomTextPaint);
                         canvas.drawLine(nextDot.x, nextDot.y, graphWidth, nextDot.y, linePaint);
 
-                        if (drawGraphBackground) {
+                        if (k == 0 && drawGraphBackground) {
                             mPathBackground.lineTo(endX, endY);
                             mPathBackground.lineTo(graphWidth, endY);
                         }
@@ -478,7 +496,7 @@ public class LineView extends HorizontalScrollView {
                     lastUsedEndY = endY;
                 }
 
-                if (drawGraphBackground && firstX != -1) {
+                if (k == 0 && drawGraphBackground && firstX != -1) {
                     // end / close path
                     if (lastUsedEndY != graphHeight + graphTop) {
                         // dont draw line to same point, otherwise the path is completely broken
