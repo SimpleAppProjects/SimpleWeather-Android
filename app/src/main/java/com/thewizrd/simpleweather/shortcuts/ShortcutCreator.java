@@ -9,7 +9,6 @@ import android.graphics.drawable.Icon;
 import android.os.Build;
 
 import com.thewizrd.shared_resources.AsyncTask;
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.LocationData;
@@ -17,6 +16,7 @@ import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.MainActivity;
+import com.thewizrd.simpleweather.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +75,7 @@ public class ShortcutCreator {
                             @Override
                             public Bitmap call() throws Exception {
                                 return ImageUtils.tintedBitmapFromDrawable(context, wm.getWeatherIconResource(weather.getCondition().getIcon()),
-                                        Colors.SIMPLEBLUE);
+                                        context.getColor(R.color.colorPrimaryDark));
                             }
                         });
                         ShortcutInfo shortcut = new ShortcutInfo.Builder(context, location.getQuery())
