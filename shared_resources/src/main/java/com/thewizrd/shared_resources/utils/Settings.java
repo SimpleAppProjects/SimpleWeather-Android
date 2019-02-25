@@ -243,7 +243,7 @@ public class Settings {
                             break;
                         // Add and set tz_long column in db
                         case 1:
-                            if (IS_PHONE && locationDB.locationsDAO().getLocationDataCount() == 0) {
+                            if (IS_PHONE && locationDB.locationsDAO().getLocationDataCount() > 0) {
                                 DBUtils.setLocationData(locationDB, getAPI());
                             }
                             break;
@@ -362,6 +362,18 @@ public class Settings {
             public Weather call() throws Exception {
                 loadIfNeeded();
                 return weatherDB.weatherDAO().getWeatherData(key);
+            }
+        });
+    }
+
+    public static Weather getWeatherDataByCoordinate(final LocationData location) {
+        return new AsyncTask<Weather>().await(new Callable<Weather>() {
+            @Override
+            public Weather call() throws Exception {
+                loadIfNeeded();
+                String query = String.format(Locale.ROOT, "\"latitude\":\"%s\",\"longitude\":\"%s\"",
+                        Double.toString(location.getLatitude()), Double.toString(location.getLongitude()));
+                return weatherDB.weatherDAO().getWeatherDataByCoord("%" + query + "%");
             }
         });
     }

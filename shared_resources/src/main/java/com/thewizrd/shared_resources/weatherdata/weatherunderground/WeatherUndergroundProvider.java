@@ -443,7 +443,7 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
     public void updateLocationData(LocationData location) {
         LocationQueryViewModel qview = getLocation(location.getName());
 
-        if (qview != null) {
+        if (qview != null && !StringUtils.isNullOrWhitespace(qview.getLocationQuery())) {
             location.setName(qview.getLocationName());
             location.setLatitude(qview.getLocationLat());
             location.setLongitude(qview.getLocationLong());
@@ -479,7 +479,7 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
         LocationQueryViewModel qview = getLocation(new WeatherUtils.Coordinate(coord));
 
         if (StringUtils.isNullOrEmpty(qview.getLocationQuery()))
-            query = String.format("/q/%s", coord);
+            query = String.format(Locale.ROOT, "/q/%s", coord);
         else
             query = qview.getLocationQuery();
 

@@ -31,6 +31,9 @@ public interface WeatherDAO {
     @Query("SELECT * FROM weatherdata WHERE `query` = :query")
     public Weather getWeatherData(String query);
 
+    @Query("SELECT * FROM weatherdata WHERE `locationblob` LIKE :searchQuery LIMIT 1")
+    public Weather getWeatherDataByCoord(String searchQuery);
+
     @Query("SELECT COUNT(*) FROM weatherdata")
     public int getWeatherDataCount();
 

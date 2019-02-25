@@ -183,7 +183,7 @@ public class WeatherUtils {
 
         @Override
         public String toString() {
-            return String.format(Locale.ROOT, "%f,%f", lat, _long);
+            return String.format(Locale.ROOT, "%s,%s", Double.toString(lat), Double.toString(_long));
         }
     }
 

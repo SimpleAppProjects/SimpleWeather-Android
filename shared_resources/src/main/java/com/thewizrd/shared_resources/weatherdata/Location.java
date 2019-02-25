@@ -68,8 +68,8 @@ public class Location {
     public Location(com.thewizrd.shared_resources.weatherdata.openweather.ForecastRootobject root) {
         // Use location name from location provider
         name = null;
-        latitude = Float.toString(root.getCity().getCoord().getLat());
-        longitude = Float.toString(root.getCity().getCoord().getLon());
+        latitude = Double.toString(root.getCity().getCoord().getLat());
+        longitude = Double.toString(root.getCity().getCoord().getLon());
         tzOffset = ZoneOffset.UTC;
         tzShort = "UTC";
     }
@@ -86,8 +86,8 @@ public class Location {
     public Location(com.thewizrd.shared_resources.weatherdata.here.LocationItem location) {
         // Use location name from location provider
         name = null;
-        latitude = Float.toString(location.getLatitude());
-        longitude = Float.toString(location.getLongitude());
+        latitude = Double.toString(location.getLatitude());
+        longitude = Double.toString(location.getLongitude());
         tzOffset = ZoneOffset.UTC;
         tzShort = "UTC";
     }

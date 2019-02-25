@@ -371,7 +371,7 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
     public void updateLocationData(LocationData location) {
         LocationQueryViewModel qview = getLocation(location.getName());
 
-        if (qview != null) {
+        if (qview != null && !StringUtils.isNullOrWhitespace(qview.getLocationQuery())) {
             location.setName(qview.getLocationName());
             location.setLatitude(qview.getLocationLat());
             location.setLongitude(qview.getLocationLong());
@@ -388,30 +388,12 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
 
     @Override
     public String updateLocationQuery(Weather weather) {
-        String query = "";
-        WeatherUtils.Coordinate coord = new WeatherUtils.Coordinate(Double.valueOf(weather.getLocation().getLatitude()), Double.valueOf(weather.getLocation().getLongitude()));
-        LocationQueryViewModel qview = getLocation(coord);
-
-        if (StringUtils.isNullOrEmpty(qview.getLocationQuery()))
-            query = String.format(Locale.ROOT, "lat=%f&lon=%f", coord.getLatitude(), coord.getLongitude());
-        else
-            query = qview.getLocationQuery();
-
-        return query;
+        return String.format(Locale.ROOT, "lat=%s&lon=%s", weather.getLocation().getLatitude(), weather.getLocation().getLongitude());
     }
 
     @Override
     public String updateLocationQuery(LocationData location) {
-        String query = "";
-        WeatherUtils.Coordinate coord = new WeatherUtils.Coordinate(location.getLatitude(), location.getLongitude());
-        LocationQueryViewModel qview = getLocation(coord);
-
-        if (StringUtils.isNullOrEmpty(qview.getLocationQuery()))
-            query = String.format(Locale.ROOT, "lat=%f&lon=%f", coord.getLatitude(), coord.getLongitude());
-        else
-            query = qview.getLocationQuery();
-
-        return query;
+        return String.format(Locale.ROOT, "lat=%s&lon=%s", Double.toString(location.getLatitude()), Double.toString(location.getLongitude()));
     }
 
     @Override

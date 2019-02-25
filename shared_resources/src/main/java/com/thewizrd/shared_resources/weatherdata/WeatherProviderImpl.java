@@ -57,6 +57,8 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
         if (StringUtils.isNullOrWhitespace(weather.getLocation().getName()))
             weather.getLocation().setName(location.getName());
 
+        weather.getLocation().setLatitude(Double.toString(location.getLatitude()));
+        weather.getLocation().setLongitude(Double.toString(location.getLongitude()));
         weather.getLocation().setTzShort(location.getTzShort());
         weather.getLocation().setTzOffset(location.getTzOffset());
 
@@ -85,7 +87,7 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
     public void updateLocationData(LocationData location) {
         LocationQueryViewModel qview = getLocation(location.getQuery());
 
-        if (qview != null) {
+        if (qview != null && !StringUtils.isNullOrWhitespace(qview.getLocationQuery())) {
             location.setName(qview.getLocationName());
             location.setLatitude(qview.getLocationLat());
             location.setLongitude(qview.getLocationLong());

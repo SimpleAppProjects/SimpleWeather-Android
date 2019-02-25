@@ -142,7 +142,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
         LocationQueryViewModel location = null;
 
         String queryAPI = "https://reverse.geocoder.cit.api.here.com/6.2/reversegeocode.json";
-        String location_query = String.format(Locale.ROOT, "%f,%f", coord.getLatitude(), coord.getLongitude());
+        String location_query = String.format(Locale.ROOT, "%s,%s", Double.toString(coord.getLatitude()), Double.toString(coord.getLongitude()));
         String query = "?prox=%s,150&mode=retrieveAddresses&maxresults=1&additionaldata=Country2,true&gen=9&jsonattributes=1" +
                 "&locationattributes=adminInfo,timeZone,-mapView,-mapReference&language=%s&app_id=%s&app_code=%s";
         HttpURLConnection client = null;
@@ -616,11 +616,11 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
     // Fix format of query to pass to Geocoder API
     @Override
     public void updateLocationData(LocationData location) {
-        String location_query = String.format(Locale.ROOT, "%f,%f", location.getLatitude(), location.getLongitude());
+        String location_query = String.format(Locale.ROOT, "%s,%s", Double.toString(location.getLatitude()), Double.toString(location.getLongitude()));
 
         LocationQueryViewModel qview = getLocation(location_query);
 
-        if (qview != null) {
+        if (qview != null && !StringUtils.isNullOrWhitespace(qview.getLocationQuery())) {
             location.setName(qview.getLocationName());
             location.setLatitude(qview.getLocationLat());
             location.setLongitude(qview.getLocationLong());
@@ -637,30 +637,12 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
 
     @Override
     public String updateLocationQuery(Weather weather) {
-        String query = "";
-        String coord = String.format(Locale.ROOT, "%s,%s", weather.getLocation().getLatitude(), weather.getLocation().getLongitude());
-        LocationQueryViewModel qview = getLocation(new WeatherUtils.Coordinate(coord));
-
-        if (StringUtils.isNullOrEmpty(qview.getLocationQuery()))
-            query = String.format("latitude=%s&longitude=%s", weather.getLocation().getLatitude(), weather.getLocation().getLongitude());
-        else
-            query = qview.getLocationQuery();
-
-        return query;
+        return String.format(Locale.ROOT, "latitude=%s&longitude=%s", weather.getLocation().getLatitude(), weather.getLocation().getLongitude());
     }
 
     @Override
     public String updateLocationQuery(LocationData location) {
-        String query = "";
-        String coord = String.format(Locale.ROOT, "%s,%s", location.getLatitude(), location.getLongitude());
-        LocationQueryViewModel qview = getLocation(new WeatherUtils.Coordinate(coord));
-
-        if (StringUtils.isNullOrEmpty(qview.getLocationQuery()))
-            query = String.format("latitude=%s&longitude=%s", location.getLatitude(), location.getLongitude());
-        else
-            query = qview.getLocationQuery();
-
-        return query;
+        return String.format(Locale.ROOT, "latitude=%s&longitude=%s", location.getLatitude(), location.getLongitude());
     }
 
     @Override

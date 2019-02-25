@@ -205,8 +205,17 @@ public class WeatherDataLoader {
             try {
                 weather = Settings.getWeatherData(location.getQuery());
 
-                if (wm.supportsAlerts())
+                if (weather != null && wm.supportsAlerts()) {
                     weather.setWeatherAlerts(Settings.getWeatherAlertData(location.getQuery()));
+                }
+
+                if (weather == null) {
+                    // If weather is still unavailable try manually searching for it
+                    weather = Settings.getWeatherDataByCoordinate(location);
+                    if (weather != null && wm.supportsAlerts()) {
+                        weather.setWeatherAlerts(Settings.getWeatherAlertData(weather.getQuery()));
+                    }
+                }
             } catch (Exception ex) {
                 weather = null;
                 Logger.writeLine(Log.ERROR, ex, "WeatherDataLoader: error loading saved weather data");
@@ -229,7 +238,7 @@ public class WeatherDataLoader {
         try {
             weather = Settings.getWeatherData(location.getQuery());
 
-            if (wm.supportsAlerts())
+            if (weather != null && wm.supportsAlerts())
                 weather.setWeatherAlerts(Settings.getWeatherAlertData(location.getQuery()));
         } catch (Exception ex) {
             weather = null;
