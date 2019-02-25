@@ -493,8 +493,12 @@ public class WeatherWidgetService extends JobIntentService {
                                 weather = getWeather();
                             } else {
                                 WeatherDataLoader wloader = new WeatherDataLoader(locData);
-                                wloader.loadWeatherData(false);
-                                weather = wloader.getWeather();
+                                try {
+                                    wloader.loadWeatherData(false);
+                                    weather = wloader.getWeather();
+                                } catch (Exception e) {
+                                    weather = null;
+                                }
                             }
 
                             if (weather != null) {
@@ -555,8 +559,12 @@ public class WeatherWidgetService extends JobIntentService {
                                     weather = getWeather();
                                 } else {
                                     WeatherDataLoader wloader = new WeatherDataLoader(locData);
-                                    wloader.loadWeatherData(false);
-                                    weather = wloader.getWeather();
+                                    try {
+                                        wloader.loadWeatherData(false);
+                                        weather = wloader.getWeather();
+                                    } catch (Exception e) {
+                                        weather = null;
+                                    }
                                 }
 
                                 if (weather != null) {
@@ -601,8 +609,12 @@ public class WeatherWidgetService extends JobIntentService {
                                     weather = getWeather();
                                 } else {
                                     WeatherDataLoader wloader = new WeatherDataLoader(locData);
-                                    wloader.loadWeatherData(false);
-                                    weather = wloader.getWeather();
+                                    try {
+                                        wloader.loadWeatherData(false);
+                                        weather = wloader.getWeather();
+                                    } catch (Exception e) {
+                                        weather = null;
+                                    }
                                 }
 
                                 if (weather != null) {
@@ -647,8 +659,12 @@ public class WeatherWidgetService extends JobIntentService {
                                     weather = getWeather();
                                 } else {
                                     WeatherDataLoader wloader = new WeatherDataLoader(locData);
-                                    wloader.loadWeatherData(false);
-                                    weather = wloader.getWeather();
+                                    try {
+                                        wloader.loadWeatherData(false);
+                                        weather = wloader.getWeather();
+                                    } catch (Exception e) {
+                                        weather = null;
+                                    }
                                 }
 
                                 if (weather != null) {
@@ -693,8 +709,12 @@ public class WeatherWidgetService extends JobIntentService {
                                     weather = getWeather();
                                 } else {
                                     WeatherDataLoader wloader = new WeatherDataLoader(locData);
-                                    wloader.loadWeatherData(false);
-                                    weather = wloader.getWeather();
+                                    try {
+                                        wloader.loadWeatherData(false);
+                                        weather = wloader.getWeather();
+                                    } catch (Exception e) {
+                                        weather = null;
+                                    }
                                 }
 
                                 if (weather != null) {
@@ -983,8 +1003,12 @@ public class WeatherWidgetService extends JobIntentService {
                             throw new InterruptedException();
 
                         WeatherDataLoader wloader = new WeatherDataLoader(locData);
-                        wloader.loadWeatherData(false);
-                        weather = wloader.getWeather();
+                        try {
+                            wloader.loadWeatherData(false);
+                            weather = wloader.getWeather();
+                        } catch (Exception e) {
+                            weather = null;
+                        }
                         if (weather != null)
                             WidgetUtils.saveWeatherData(appWidgetId, weather);
                         else

@@ -126,15 +126,15 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Set the result to CANCELED.  This will cause the widget host to cancel
-        // out of the widget placement if they press the back button.
-        resultValue = new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-        setResult(RESULT_CANCELED, resultValue);
-
         // Find the widget id from the intent.
         if (getIntent() != null && getIntent().getExtras() != null) {
             mAppWidgetId = getIntent().getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
         }
+
+        // Set the result to CANCELED.  This will cause the widget host to cancel
+        // out of the widget placement if they press the back button.
+        resultValue = new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+        setResult(RESULT_CANCELED, resultValue);
 
         if (mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
             // If they gave us an intent without the widget id, just bail.
