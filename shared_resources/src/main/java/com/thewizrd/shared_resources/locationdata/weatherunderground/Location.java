@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.weatherdata.weatheryahoo;
+package com.thewizrd.shared_resources.locationdata.weatherunderground;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -9,7 +9,7 @@ import org.simpleframework.xml.Text;
 import java.util.List;
 
 @Root(name = "location")
-public class GeoLocation {
+public class Location {
 
     @Element(name = "zip", required = false)
     private String zip;
@@ -306,7 +306,7 @@ public class GeoLocation {
     public static class DistanceMi {
 
         @Element(name = "#cdata-section", required = false)
-        private String cdataSection;
+        String cdataSection;
 
         public String getCdataSection() {
             return this.cdataSection;

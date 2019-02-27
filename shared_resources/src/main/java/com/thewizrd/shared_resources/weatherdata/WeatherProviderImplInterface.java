@@ -1,6 +1,7 @@
 package com.thewizrd.shared_resources.weatherdata;
 
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
@@ -8,6 +9,8 @@ import java.util.Collection;
 import java.util.List;
 
 public interface WeatherProviderImplInterface {
+    String getWeatherAPI();
+
     boolean isKeyRequired();
 
     boolean supportsWeatherLocale();
@@ -51,4 +54,7 @@ public interface WeatherProviderImplInterface {
     int getWeatherBackgroundColor(Weather weather);
 
     int getWeatherIconResource(String icon);
+
+    LocationProviderImpl getLocationProvider();
+
 }

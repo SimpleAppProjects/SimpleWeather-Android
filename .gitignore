@@ -1,5 +1,6 @@
 *.iml
 *.bak
+*.orig
 .gradle
 /local.properties
 /.idea/assetWizardSettings.xml

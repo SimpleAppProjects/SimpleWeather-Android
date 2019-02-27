@@ -6,6 +6,7 @@ import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -19,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+// Wrapper class for supported Weather Providers
 public class WeatherManager implements WeatherProviderImplInterface {
     private static WeatherManager instance;
     private static WeatherProviderImpl weatherProvider;
@@ -99,6 +101,11 @@ public class WeatherManager implements WeatherProviderImplInterface {
     }
 
     // Provider dependent methods
+    @Override
+    public String getWeatherAPI() {
+        return weatherProvider.getWeatherAPI();
+    }
+
     @Override
     public boolean isKeyRequired() {
         return weatherProvider.isKeyRequired();
@@ -267,5 +274,10 @@ public class WeatherManager implements WeatherProviderImplInterface {
     @Override
     public int getWeatherIconResource(String icon) {
         return weatherProvider.getWeatherIconResource(icon);
+    }
+
+    @Override
+    public LocationProviderImpl getLocationProvider() {
+        return weatherProvider.getLocationProvider();
     }
 }

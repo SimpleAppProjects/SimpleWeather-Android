@@ -292,7 +292,6 @@ public class WeatherDataLoader {
         }
     }
 
-    // TODO: make async
     private void saveWeatherAlerts() {
         if (weather.getWeatherAlerts() != null) {
             new AsyncTask<Void>().await(new Callable<Void>() {

@@ -1,8 +1,8 @@
-package com.thewizrd.shared_resources.weatherdata.here;
+package com.thewizrd.shared_resources.locationdata.here;
 
 import com.google.gson.annotations.SerializedName;
 
-public class NavigationPositionItem {
+public class DisplayPosition {
 
     @SerializedName("latitude")
     private double latitude;

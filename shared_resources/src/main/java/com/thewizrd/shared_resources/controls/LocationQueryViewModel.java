@@ -2,8 +2,13 @@ package com.thewizrd.shared_resources.controls;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.locationdata.here.AdditionalDataItem;
+import com.thewizrd.shared_resources.locationdata.here.ResultItem;
+import com.thewizrd.shared_resources.locationdata.here.SuggestionsItem;
+import com.thewizrd.shared_resources.locationdata.weatherunderground.AC_RESULTS;
+import com.thewizrd.shared_resources.locationdata.weatherunderground.Location;
 import com.thewizrd.shared_resources.utils.StringUtils;
-import com.thewizrd.shared_resources.weatherdata.here.AdditionalDataItem;
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 
 import java.util.Locale;
 
@@ -23,14 +28,19 @@ public class LocationQueryViewModel {
         locationQuery = "";
     }
 
-    public LocationQueryViewModel(com.thewizrd.shared_resources.weatherdata.weatherunderground.AC_RESULTS location) {
-        setLocation(location);
+    public LocationQueryViewModel(AC_RESULTS location, String weatherAPI) {
+        setLocation(location, weatherAPI);
     }
 
-    public void setLocation(com.thewizrd.shared_resources.weatherdata.weatherunderground.AC_RESULTS location) {
+    public void setLocation(AC_RESULTS location, String weatherAPI) {
         locationName = location.getName();
         locationCountry = location.getC();
-        locationQuery = location.getL();
+
+        if (WeatherAPI.WEATHERUNDERGROUND.equals(weatherAPI)) {
+            locationQuery = location.getL();
+        } else {
+            locationQuery = String.format("lat=%s&lon=%s", location.getLat(), location.getLon());
+        }
 
         locationLat = Double.valueOf(location.getLat());
         locationLong = Double.valueOf(location.getLon());
@@ -38,14 +48,18 @@ public class LocationQueryViewModel {
         locationTZLong = location.getTz();
     }
 
-    public LocationQueryViewModel(com.thewizrd.shared_resources.weatherdata.weatherunderground.Location location) {
-        setLocation(location);
+    public LocationQueryViewModel(Location location, String weatherAPI) {
+        setLocation(location, weatherAPI);
     }
 
-    public void setLocation(com.thewizrd.shared_resources.weatherdata.weatherunderground.Location location) {
+    public void setLocation(Location location, String weatherAPI) {
         locationName = String.format("%s, %s", location.getCity(), location.getState());
         locationCountry = location.getCountry();
-        locationQuery = location.getQuery();
+        if (WeatherAPI.WEATHERUNDERGROUND.equals(weatherAPI)) {
+            locationQuery = location.getQuery();
+        } else {
+            locationQuery = String.format("lat=%s&lon=%s", location.getLat(), location.getLon());
+        }
 
         locationLat = Double.valueOf(location.getLat());
         locationLong = Double.valueOf(location.getLon());
@@ -53,71 +67,11 @@ public class LocationQueryViewModel {
         locationTZLong = location.getTzUnix();
     }
 
-    public LocationQueryViewModel(com.thewizrd.shared_resources.weatherdata.weatheryahoo.AC_RESULTS location) {
+    public LocationQueryViewModel(SuggestionsItem location) {
         setLocation(location);
     }
 
-    public void setLocation(com.thewizrd.shared_resources.weatherdata.weatheryahoo.AC_RESULTS location) {
-        locationName = location.getName();
-        locationCountry = location.getC();
-        locationQuery = String.format("lat=%s&lon=%s", location.getLat(), location.getLon());
-
-        locationLat = Double.valueOf(location.getLat());
-        locationLong = Double.valueOf(location.getLon());
-
-        locationTZLong = location.getTz();
-    }
-
-    public LocationQueryViewModel(com.thewizrd.shared_resources.weatherdata.weatheryahoo.GeoLocation location) {
-        setLocation(location);
-    }
-
-    public void setLocation(com.thewizrd.shared_resources.weatherdata.weatheryahoo.GeoLocation location) {
-        locationName = String.format("%s, %s", location.getCity(), location.getState());
-        locationCountry = location.getCountry();
-        locationQuery = String.format("lat=%s&lon=%s", location.getLat(), location.getLon());
-
-        locationLat = Double.valueOf(location.getLat());
-        locationLong = Double.valueOf(location.getLon());
-
-        locationTZLong = location.getTzUnix();
-    }
-
-    public LocationQueryViewModel(com.thewizrd.shared_resources.weatherdata.openweather.AC_RESULTS location) {
-        setLocation(location);
-    }
-
-    public void setLocation(com.thewizrd.shared_resources.weatherdata.openweather.AC_RESULTS location) {
-        locationName = location.getName();
-        locationCountry = location.getC();
-        locationQuery = String.format("lat=%s&lon=%s", location.getLat(), location.getLon());
-
-        locationLat = Double.valueOf(location.getLat());
-        locationLong = Double.valueOf(location.getLon());
-
-        locationTZLong = location.getTz();
-    }
-
-    public LocationQueryViewModel(com.thewizrd.shared_resources.weatherdata.openweather.Location location) {
-        setLocation(location);
-    }
-
-    public void setLocation(com.thewizrd.shared_resources.weatherdata.openweather.Location location) {
-        locationName = String.format("%s, %s", location.getCity(), location.getState());
-        locationCountry = location.getCountry();
-        locationQuery = String.format("lat=%s&lon=%s", location.getLat(), location.getLon());
-
-        locationLat = Double.valueOf(location.getLat());
-        locationLong = Double.valueOf(location.getLon());
-
-        locationTZLong = location.getTzUnix();
-    }
-
-    public LocationQueryViewModel(com.thewizrd.shared_resources.weatherdata.here.SuggestionsItem location) {
-        setLocation(location);
-    }
-
-    public void setLocation(com.thewizrd.shared_resources.weatherdata.here.SuggestionsItem location) {
+    public void setLocation(SuggestionsItem location) {
         String town, region;
 
         // Try to get district name or fallback to city name
@@ -147,11 +101,11 @@ public class LocationQueryViewModel {
         locationTZLong = null;
     }
 
-    public LocationQueryViewModel(com.thewizrd.shared_resources.weatherdata.here.ResultItem location) {
+    public LocationQueryViewModel(ResultItem location) {
         setLocation(location);
     }
 
-    public void setLocation(com.thewizrd.shared_resources.weatherdata.here.ResultItem location) {
+    public void setLocation(ResultItem location) {
         String country = null, region = null, town = null;
 
         if (location.getLocation().getAddress().getAdditionalData() != null) {

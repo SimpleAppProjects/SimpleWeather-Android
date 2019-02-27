@@ -5,9 +5,8 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.thewizrd.shared_resources.R;
-import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -18,12 +17,15 @@ import java.util.List;
 
 public abstract class WeatherProviderImpl implements WeatherProviderImplInterface {
     protected Handler mMainHandler;
+    protected LocationProviderImpl locationProvider;
 
     public WeatherProviderImpl() {
         mMainHandler = new Handler(Looper.getMainLooper());
     }
 
     // Variables
+    public abstract String getWeatherAPI();
+
     public abstract boolean isKeyRequired();
 
     public abstract boolean supportsWeatherLocale();
@@ -34,12 +36,18 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
 
     // Methods
     // AutoCompleteQuery
-    public abstract Collection<LocationQueryViewModel> getLocations(String ac_query);
+    public final Collection<LocationQueryViewModel> getLocations(String ac_query) {
+        return locationProvider.getLocations(ac_query, getWeatherAPI());
+    }
 
     // GeopositionQuery
-    public abstract LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate);
+    public final LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate) {
+        return locationProvider.getLocation(coordinate, getWeatherAPI());
+    }
 
-    public abstract LocationQueryViewModel getLocation(String query);
+    public final LocationQueryViewModel getLocation(String query) {
+        return locationProvider.getLocation(query, getWeatherAPI());
+    }
 
     // Weather
     public abstract Weather getWeather(String location_query) throws WeatherException;
@@ -84,22 +92,8 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
 
     // Utils Methods
     @Override
-    public void updateLocationData(LocationData location) {
-        LocationQueryViewModel qview = getLocation(location.getQuery());
-
-        if (qview != null && !StringUtils.isNullOrWhitespace(qview.getLocationQuery())) {
-            location.setName(qview.getLocationName());
-            location.setLatitude(qview.getLocationLat());
-            location.setLongitude(qview.getLocationLong());
-            location.setTzLong(qview.getLocationTZLong());
-
-            // Update DB here or somewhere else
-            if (SimpleLibrary.getInstance().getApp().isPhone()) {
-                Settings.updateLocation(location);
-            } else {
-                Settings.saveHomeData(location);
-            }
-        }
+    public final void updateLocationData(LocationData location) {
+        locationProvider.updateLocationData(location, getWeatherAPI());
     }
 
     public abstract String updateLocationQuery(Weather weather);
@@ -626,5 +620,10 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
         }
 
         return weatherIcon;
+    }
+
+    @Override
+    public final LocationProviderImpl getLocationProvider() {
+        return locationProvider;
     }
 }

@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.weatherdata.weatherunderground;
+package com.thewizrd.shared_resources.locationdata.weatherunderground;
 
 import com.google.gson.annotations.SerializedName;
 

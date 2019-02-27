@@ -7,6 +7,7 @@ import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.keys.Keys;
+import com.thewizrd.shared_resources.locationdata.weatherunderground.WULocationProvider;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -16,26 +17,32 @@ import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
 import org.threeten.bp.ZoneOffset;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
 public final class WeatherUndergroundProvider extends WeatherProviderImpl {
+
+    public WeatherUndergroundProvider() {
+        super();
+        locationProvider = new WULocationProvider();
+    }
+
+    @Override
+    public String getWeatherAPI() {
+        return WeatherAPI.WEATHERUNDERGROUND;
+    }
 
     @Override
     public boolean supportsWeatherLocale() {
@@ -55,153 +62,6 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
     @Override
     public boolean needsExternalAlertData() {
         return false;
-    }
-
-    @Override
-    public Collection<LocationQueryViewModel> getLocations(String ac_query) {
-        List<LocationQueryViewModel> locations = null;
-
-        String queryAPI = "https://autocomplete.wunderground.com/aq?query=";
-        String options = "&h=0&cities=1";
-        HttpURLConnection client = null;
-        // Limit amount of results shown
-        int maxResults = 10;
-
-        try {
-            // Connect to webstream
-            URL queryURL = new URL(queryAPI + URLEncoder.encode(ac_query, "UTF-8") + options);
-            client = (HttpURLConnection) queryURL.openConnection();
-            InputStream stream = client.getInputStream();
-
-            // Load data
-            locations = new ArrayList<>();
-            AC_Rootobject root = JSONParser.deserializer(stream, AC_Rootobject.class);
-
-            for (AC_RESULTS result : root.getRESULTS()) {
-                // Filter: only store city results
-                if (!"city".equals(result.getType()))
-                    continue;
-
-                locations.add(new LocationQueryViewModel(result));
-
-                // Limit amount of results
-                maxResults--;
-                if (maxResults <= 0)
-                    break;
-            }
-
-            // End Stream
-            stream.close();
-        } catch (Exception ex) {
-            locations = new ArrayList<>();
-            Logger.writeLine(Log.ERROR, ex, "WeatherUndergroundProvider: error getting locations");
-        } finally {
-            if (client != null)
-                client.disconnect();
-        }
-
-        if (locations == null || locations.size() == 0) {
-            locations = Collections.singletonList(new LocationQueryViewModel());
-        }
-
-        return locations;
-    }
-
-    @Override
-    public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coord) {
-        LocationQueryViewModel location = null;
-
-        String queryAPI = "https://api.wunderground.com/auto/wui/geo/GeoLookupXML/index.xml?query=";
-        String options = "";
-        String query = String.format(Locale.ROOT, "%s,%s", coord.getLatitude(), coord.getLongitude());
-        HttpURLConnection client = null;
-        Location result = null;
-        WeatherException wEx = null;
-
-        try {
-            // Connect to webstream
-            URL queryURL = new URL(queryAPI + query + options);
-            client = (HttpURLConnection) queryURL.openConnection();
-            InputStream stream = client.getInputStream();
-
-            // Load data
-            Serializer deserializer = new Persister();
-            result = deserializer.read(Location.class, stream, false);
-
-            // End Stream
-            stream.close();
-        } catch (Exception ex) {
-            result = null;
-            if (ex instanceof IOException) {
-                wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
-                final WeatherException finalWEx = wEx;
-                mMainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(SimpleLibrary.getInstance().getApp().getAppContext(), finalWEx.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            Logger.writeLine(Log.ERROR, ex, "WeatherUndergroundProvider: error getting location");
-        } finally {
-            if (client != null)
-                client.disconnect();
-        }
-
-        if (result != null && !StringUtils.isNullOrWhitespace(result.getQuery()))
-            location = new LocationQueryViewModel(result);
-        else
-            location = new LocationQueryViewModel();
-
-        return location;
-    }
-
-    @Override
-    public LocationQueryViewModel getLocation(String location_query) {
-        LocationQueryViewModel location = null;
-
-        String queryAPI = "https://autocomplete.wunderground.com/aq?query=";
-        String options = "&h=0&cities=1";
-        HttpURLConnection client = null;
-        AC_RESULTS result = null;
-        WeatherException wEx = null;
-
-        try {
-            // Connect to webstream
-            URL queryURL = new URL(queryAPI + URLEncoder.encode(location_query, "UTF-8") + options);
-            client = (HttpURLConnection) queryURL.openConnection();
-            InputStream stream = client.getInputStream();
-
-            // Load data
-            AC_Rootobject root = JSONParser.deserializer(stream, AC_Rootobject.class);
-            result = root.getRESULTS().get(0);
-
-            // End Stream
-            stream.close();
-        } catch (Exception ex) {
-            result = null;
-            if (ex instanceof IOException) {
-                wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
-                final WeatherException finalWEx = wEx;
-                mMainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(SimpleLibrary.getInstance().getApp().getAppContext(), finalWEx.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            Logger.writeLine(Log.ERROR, ex, "WeatherUndergroundProvider: error getting location");
-        } finally {
-            if (client != null)
-                client.disconnect();
-        }
-
-        if (result != null && !StringUtils.isNullOrWhitespace(result.getL()))
-            location = new LocationQueryViewModel(result);
-        else
-            location = new LocationQueryViewModel();
-
-        return location;
     }
 
     @Override
@@ -436,26 +296,6 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
             alerts = new ArrayList<>();
 
         return alerts;
-    }
-
-    // Use location name here instead of query since we use the AutoComplete API
-    @Override
-    public void updateLocationData(LocationData location) {
-        LocationQueryViewModel qview = getLocation(location.getName());
-
-        if (qview != null && !StringUtils.isNullOrWhitespace(qview.getLocationQuery())) {
-            location.setName(qview.getLocationName());
-            location.setLatitude(qview.getLocationLat());
-            location.setLongitude(qview.getLocationLong());
-            location.setTzLong(qview.getLocationTZLong());
-
-            // Update DB here or somewhere else
-            if (SimpleLibrary.getInstance().getApp().isPhone()) {
-                Settings.updateLocation(location);
-            } else {
-                Settings.saveHomeData(location);
-            }
-        }
     }
 
     @Override
