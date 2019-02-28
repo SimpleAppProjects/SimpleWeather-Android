@@ -28,4 +28,8 @@ public class Keys {
     public static String getOWMKey() {
         return null;
     }
+
+    public static String getLocIQKey() {
+        return null;
+    }
 }

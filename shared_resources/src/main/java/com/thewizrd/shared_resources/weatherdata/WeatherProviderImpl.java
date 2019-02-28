@@ -4,9 +4,12 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.skedgo.converter.TimezoneMapper;
 import com.thewizrd.shared_resources.R;
+import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
+import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -62,6 +65,26 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
         if (supportsAlerts() && needsExternalAlertData())
             weather.setWeatherAlerts(getAlerts(location));
 
+        if (StringUtils.isNullOrWhitespace(location.getTzLong())) {
+            if (!StringUtils.isNullOrWhitespace(weather.getLocation().getTzLong())) {
+                location.setTzLong(weather.getLocation().getTzLong());
+            } else if (location.getLongitude() != 0 && location.getLatitude() != 0) {
+                String tzId = TimezoneMapper.latLngToTimezoneString(location.getLatitude(), location.getLongitude());
+                if (!"unknown".equals(tzId))
+                    location.setTzLong(tzId);
+            }
+
+            // Update DB here or somewhere else
+            if (SimpleLibrary.getInstance().getApp().isPhone()) {
+                Settings.updateLocation(location);
+            } else {
+                Settings.saveHomeData(location);
+            }
+        }
+
+        if (StringUtils.isNullOrWhitespace(weather.getLocation().getTzLong()))
+            weather.getLocation().setTzLong(location.getTzLong());
+
         if (StringUtils.isNullOrWhitespace(weather.getLocation().getName()))
             weather.getLocation().setName(location.getName());
 
@@ -69,9 +92,6 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
         weather.getLocation().setLongitude(Double.toString(location.getLongitude()));
         weather.getLocation().setTzShort(location.getTzShort());
         weather.getLocation().setTzOffset(location.getTzOffset());
-
-        if (StringUtils.isNullOrWhitespace(weather.getLocation().getTzLong()))
-            weather.getLocation().setTzLong(location.getTzLong());
 
         return weather;
     }

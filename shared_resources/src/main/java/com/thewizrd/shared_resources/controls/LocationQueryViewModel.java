@@ -5,6 +5,8 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.here.AdditionalDataItem;
 import com.thewizrd.shared_resources.locationdata.here.ResultItem;
 import com.thewizrd.shared_resources.locationdata.here.SuggestionsItem;
+import com.thewizrd.shared_resources.locationdata.locationiq.AutoCompleteQuery;
+import com.thewizrd.shared_resources.locationdata.locationiq.GeoLocation;
 import com.thewizrd.shared_resources.locationdata.weatherunderground.AC_RESULTS;
 import com.thewizrd.shared_resources.locationdata.weatherunderground.Location;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -141,13 +143,121 @@ public class LocationQueryViewModel {
         else
             locationName = String.format("%s, %s", town, region);
         locationCountry = country;
-        locationQuery = String.format(Locale.ROOT, "latitude=%f&longitude=%f",
-                location.getLocation().getDisplayPosition().getLatitude(), location.getLocation().getDisplayPosition().getLongitude());
+        locationQuery = String.format(Locale.ROOT, "latitude=%s&longitude=%s",
+                Double.toString(location.getLocation().getDisplayPosition().getLatitude()), Double.toString(location.getLocation().getDisplayPosition().getLongitude()));
 
         locationLat = location.getLocation().getDisplayPosition().getLatitude();
         locationLong = location.getLocation().getDisplayPosition().getLongitude();
 
         locationTZLong = location.getLocation().getAdminInfo().getTimeZone().getId();
+    }
+
+    public LocationQueryViewModel(AutoCompleteQuery result) {
+        setLocation(result);
+    }
+
+    private void setLocation(AutoCompleteQuery result) {
+        String town, region;
+
+        // Try to get district name or fallback to city name
+        if (!StringUtils.isNullOrEmpty(result.getAddress().getNeighbourhood()))
+            town = result.getAddress().getNeighbourhood();
+        else if (!StringUtils.isNullOrEmpty(result.getAddress().getHamlet()))
+            town = result.getAddress().getHamlet();
+        else if (!StringUtils.isNullOrEmpty(result.getAddress().getSuburb()))
+            town = result.getAddress().getSuburb();
+        else if (!StringUtils.isNullOrEmpty(result.getAddress().getVillage()))
+            town = result.getAddress().getVillage();
+        else if (!StringUtils.isNullOrEmpty(result.getAddress().getTown()))
+            town = result.getAddress().getTown();
+        else if (!StringUtils.isNullOrWhitespace(result.getAddress().getCity()))
+            town = result.getAddress().getCity();
+        else
+            town = result.getAddress().getName();
+
+        // Try to get district name or fallback to city name
+        if (!StringUtils.isNullOrEmpty(result.getAddress().getRegion()))
+            region = result.getAddress().getRegion();
+        else if (!StringUtils.isNullOrEmpty(result.getAddress().getCounty()))
+            region = result.getAddress().getCounty();
+        else if (!StringUtils.isNullOrEmpty(result.getAddress().getStateDistrict()))
+            region = result.getAddress().getStateDistrict();
+        else if (!StringUtils.isNullOrEmpty(result.getAddress().getState()))
+            region = result.getAddress().getState();
+        else
+            region = result.getAddress().getCountry();
+
+        if (!StringUtils.isNullOrEmpty(result.getAddress().getName()) && !(result.getAddress().getName().equals(town)))
+            locationName = String.format("%s, %s, %s", result.getAddress().getName(), town, region);
+        else
+            locationName = String.format("%s, %s", town, region);
+
+        if (!StringUtils.isNullOrWhitespace(result.getAddress().getCountryCode()))
+            locationCountry = result.getAddress().getCountryCode().toUpperCase(Locale.ROOT);
+        else
+            locationCountry = result.getAddress().getCountry();
+
+        locationQuery = String.format(Locale.ROOT, "lat=%s&lon=%s",
+                result.getLat(), result.getLon());
+
+        locationLat = Double.valueOf(result.getLat());
+        locationLong = Double.valueOf(result.getLon());
+
+        locationTZLong = null;
+    }
+
+    public LocationQueryViewModel(GeoLocation result) {
+        setLocation(result);
+    }
+
+    private void setLocation(GeoLocation result) {
+        String town, region;
+
+        // Try to get district name or fallback to city name
+        if (!StringUtils.isNullOrEmpty(result.getAddress().getNeighbourhood()))
+            town = result.getAddress().getNeighbourhood();
+        else if (!StringUtils.isNullOrEmpty(result.getAddress().getHamlet()))
+            town = result.getAddress().getHamlet();
+        else if (!StringUtils.isNullOrEmpty(result.getAddress().getSuburb()))
+            town = result.getAddress().getSuburb();
+        else if (!StringUtils.isNullOrEmpty(result.getAddress().getVillage()))
+            town = result.getAddress().getVillage();
+        else if (!StringUtils.isNullOrEmpty(result.getAddress().getTown()))
+            town = result.getAddress().getTown();
+        else if (!StringUtils.isNullOrWhitespace(result.getAddress().getCity()))
+            town = result.getAddress().getCity();
+        else
+            town = result.getAddress().getName();
+
+        // Try to get district name or fallback to city name
+        if (!StringUtils.isNullOrEmpty(result.getAddress().getRegion()))
+            region = result.getAddress().getRegion();
+        else if (!StringUtils.isNullOrEmpty(result.getAddress().getCounty()))
+            region = result.getAddress().getCounty();
+        else if (!StringUtils.isNullOrEmpty(result.getAddress().getStateDistrict()))
+            region = result.getAddress().getStateDistrict();
+        else if (!StringUtils.isNullOrEmpty(result.getAddress().getState()))
+            region = result.getAddress().getState();
+        else
+            region = result.getAddress().getCountry();
+
+        if (!StringUtils.isNullOrEmpty(result.getAddress().getName()) && !(result.getAddress().getName().equals(town)))
+            locationName = String.format("%s, %s, %s", result.getAddress().getName(), town, region);
+        else
+            locationName = String.format("%s, %s", town, region);
+
+        if (!StringUtils.isNullOrWhitespace(result.getAddress().getCountryCode()))
+            locationCountry = result.getAddress().getCountryCode().toUpperCase(Locale.ROOT);
+        else
+            locationCountry = result.getAddress().getCountry();
+
+        locationQuery = String.format(Locale.ROOT, "lat=%s&lon=%s",
+                result.getLat(), result.getLon());
+
+        locationLat = Double.valueOf(result.getLat());
+        locationLong = Double.valueOf(result.getLon());
+
+        locationTZLong = null;
     }
 
     public String getLocationName() {
