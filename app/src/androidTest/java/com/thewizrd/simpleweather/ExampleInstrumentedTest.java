@@ -12,6 +12,7 @@ import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -19,7 +20,6 @@ import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
-import com.thewizrd.shared_resources.weatherdata.here.HEREWeatherProvider;
 import com.thewizrd.simpleweather.widgets.WidgetUtils;
 
 import org.junit.Before;
@@ -115,7 +115,7 @@ public class ExampleInstrumentedTest {
             loc = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
                 @Override
                 public LocationQueryViewModel call() throws Exception {
-                    return new HEREWeatherProvider().getLocationfromLocID(query_vm.getLocationQuery());
+                    return new HERELocationProvider().getLocationfromLocID(query_vm.getLocationQuery());
                 }
             });
         }
@@ -144,7 +144,7 @@ public class ExampleInstrumentedTest {
             loc = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
                 @Override
                 public LocationQueryViewModel call() throws Exception {
-                    return new HEREWeatherProvider().getLocationfromLocID(query_vm.getLocationQuery());
+                    return new HERELocationProvider().getLocationfromLocID(query_vm.getLocationQuery());
                 }
             });
         }

@@ -77,6 +77,8 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Callable;
 
 public class WeatherWidgetConfigActivity extends AppCompatActivity {
@@ -591,20 +593,43 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             }
         });
         searchView.addTextChangedListener(new TextWatcher() {
+            private Timer timer = new Timer();
+            private final long DELAY = 1000; // milliseconds
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // nothing to do here
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (mSearchFragment != null) {
-                    clearButtonView.setVisibility(StringUtils.isNullOrEmpty(s.toString()) ? View.GONE : View.VISIBLE);
-                    mSearchFragment.fetchLocations(s.toString());
+            public void onTextChanged(final CharSequence s, int start, int before, int count) {
+                // user is typing: reset already started timer (if existing)
+                if (timer != null) {
+                    timer.cancel();
                 }
             }
 
             @Override
-            public void afterTextChanged(Editable e) {
+            public void afterTextChanged(final Editable e) {
+                timer = new Timer();
+                timer.schedule(
+                        new TimerTask() {
+                            @Override
+                            public void run() {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        final String newText = e.toString();
+
+                                        if (mSearchFragment != null) {
+                                            clearButtonView.setVisibility(StringUtils.isNullOrEmpty(newText) ? View.GONE : View.VISIBLE);
+                                            mSearchFragment.fetchLocations(newText);
+                                        }
+                                    }
+                                });
+                            }
+                        }, DELAY
+                );
             }
         });
         clearButtonView.setVisibility(View.GONE);

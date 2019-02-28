@@ -30,6 +30,7 @@ import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQuery;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
+import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -37,7 +38,6 @@ import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
-import com.thewizrd.shared_resources.weatherdata.here.HEREWeatherProvider;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -166,7 +166,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                 query_vm = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
                     @Override
                     public LocationQueryViewModel call() throws Exception {
-                        return new HEREWeatherProvider().getLocationfromLocID(loc.getLocationQuery());
+                        return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery());
                     }
                 });
             }

@@ -74,6 +74,8 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Callable;
 
 public class SetupActivity extends AppCompatActivity {
@@ -258,12 +260,12 @@ public class SetupActivity extends AppCompatActivity {
         findViewById(R.id.activity_setup).requestFocus();
 
         // Set default API to HERE
-        Settings.setAPI(WeatherAPI.HERE);
+        Settings.setAPI(WeatherAPI.METNO);
         wm.updateAPI();
 
         if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
             // If (internal) key doesn't exist, fallback to Yahoo
-            Settings.setAPI(WeatherAPI.YAHOO);
+            Settings.setAPI(WeatherAPI.METNO);
             wm.updateAPI();
             Settings.setPersonalKey(true);
             Settings.setKeyVerified(false);
@@ -710,30 +712,51 @@ public class SetupActivity extends AppCompatActivity {
             }
         });
         searchView.addTextChangedListener(new TextWatcher() {
+            private Timer timer = new Timer();
+            private final long DELAY = 1000; // milliseconds
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // nothing to do here
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                final String newText = s.toString();
-
-                if (mSearchFragment != null) {
-                    // Cancel pending searches
-                    if (cts != null) cts.cancel();
-                    progressBar.setVisibility(View.GONE);
-
-                    // If we're using searchfragment
-                    // make sure gps feature is off
-                    Settings.setFollowGPS(false);
-
-                    clearButtonView.setVisibility(TextUtils.isEmpty(s) ? View.GONE : View.VISIBLE);
-                    mSearchFragment.fetchLocations(newText);
+            public void onTextChanged(final CharSequence s, int start, int before, int count) {
+                // user is typing: reset already started timer (if existing)
+                if (timer != null) {
+                    timer.cancel();
                 }
             }
 
             @Override
-            public void afterTextChanged(Editable e) {
+            public void afterTextChanged(final Editable e) {
+                timer = new Timer();
+                timer.schedule(
+                        new TimerTask() {
+                            @Override
+                            public void run() {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        final String newText = e.toString();
+
+                                        if (mSearchFragment != null) {
+                                            // Cancel pending searches
+                                            if (cts != null) cts.cancel();
+                                            progressBar.setVisibility(View.GONE);
+
+                                            // If we're using searchfragment
+                                            // make sure gps feature is off
+                                            Settings.setFollowGPS(false);
+
+                                            clearButtonView.setVisibility(TextUtils.isEmpty(e) ? View.GONE : View.VISIBLE);
+                                            mSearchFragment.fetchLocations(newText);
+                                        }
+                                    }
+                                });
+                            }
+                        }, DELAY
+                );
             }
         });
         clearButtonView.setVisibility(View.GONE);

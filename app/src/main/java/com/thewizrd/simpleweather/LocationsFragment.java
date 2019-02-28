@@ -70,6 +70,7 @@ import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
+import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -83,7 +84,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherErrorListenerInterface;
 import com.thewizrd.shared_resources.weatherdata.WeatherLoadedListenerInterface;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
-import com.thewizrd.shared_resources.weatherdata.here.HEREWeatherProvider;
 import com.thewizrd.simpleweather.adapters.LocationPanelAdapter;
 import com.thewizrd.simpleweather.controls.LocationPanelViewModel;
 import com.thewizrd.simpleweather.helpers.ExtendedFab;
@@ -96,6 +96,8 @@ import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Callable;
 
 public class LocationsFragment extends Fragment
@@ -1066,7 +1068,7 @@ public class LocationsFragment extends Fragment
                             query_vm = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
                                 @Override
                                 public LocationQueryViewModel call() throws Exception {
-                                    return new HEREWeatherProvider().getLocationfromLocID(loc.getLocationQuery());
+                                    return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery());
                                 }
                             });
                         }
@@ -1179,20 +1181,43 @@ public class LocationsFragment extends Fragment
             }
         });
         searchView.addTextChangedListener(new TextWatcher() {
+            private Timer timer = new Timer();
+            private final long DELAY = 1000; // milliseconds
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // nothing to do here
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (mSearchFragment != null) {
-                    clearButtonView.setVisibility(StringUtils.isNullOrEmpty(s.toString()) ? View.GONE : View.VISIBLE);
-                    mSearchFragment.fetchLocations(s.toString());
+            public void onTextChanged(final CharSequence s, int start, int before, int count) {
+                // user is typing: reset already started timer (if existing)
+                if (timer != null) {
+                    timer.cancel();
                 }
             }
 
             @Override
-            public void afterTextChanged(Editable e) {
+            public void afterTextChanged(final Editable e) {
+                timer = new Timer();
+                timer.schedule(
+                        new TimerTask() {
+                            @Override
+                            public void run() {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        final String newText = e.toString();
+
+                                        if (mSearchFragment != null) {
+                                            clearButtonView.setVisibility(StringUtils.isNullOrEmpty(newText) ? View.GONE : View.VISIBLE);
+                                            mSearchFragment.fetchLocations(newText);
+                                        }
+                                    }
+                                });
+                            }
+                        }, DELAY
+                );
             }
         });
         clearButtonView.setVisibility(View.GONE);
