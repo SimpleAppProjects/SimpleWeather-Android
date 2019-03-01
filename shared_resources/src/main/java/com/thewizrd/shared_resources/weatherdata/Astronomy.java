@@ -47,19 +47,49 @@ public class Astronomy {
                      com.thewizrd.shared_resources.weatherdata.weatherunderground.MoonPhase moonPhase) {
         LocalDate now = LocalDate.now();
 
-        sunset = LocalTime.parse(String.format("%s:%s",
-                sun_phase.getSunset().getHour(), sun_phase.getSunset().getMinute()),
-                DateTimeFormatter.ofPattern("H:mm", Locale.ROOT)).atDate(now);
-        sunrise = LocalTime.parse(String.format("%s:%s",
-                sun_phase.getSunrise().getHour(), sun_phase.getSunrise().getMinute()),
-                DateTimeFormatter.ofPattern("H:mm", Locale.ROOT)).atDate(now);
+        try {
+            sunrise = LocalTime.parse(String.format("%s:%s",
+                    sun_phase.getSunrise().getHour(), sun_phase.getSunrise().getMinute()),
+                    DateTimeFormatter.ofPattern("H:mm", Locale.ROOT)).atDate(now);
+        } catch (Exception e) {
+            Logger.writeLine(Log.DEBUG, e);
+        }
+        try {
+            sunset = LocalTime.parse(String.format("%s:%s",
+                    sun_phase.getSunset().getHour(), sun_phase.getSunset().getMinute()),
+                    DateTimeFormatter.ofPattern("H:mm", Locale.ROOT)).atDate(now);
+        } catch (Exception e) {
+            Logger.writeLine(Log.DEBUG, e);
+        }
 
-        moonset = LocalTime.parse(String.format("%s:%s",
-                moonPhase.getMoonset().getHour(), moonPhase.getMoonset().getMinute()),
-                DateTimeFormatter.ofPattern("H:mm", Locale.ROOT)).atDate(now);
-        moonrise = LocalTime.parse(String.format("%s:%s",
-                moonPhase.getMoonrise().getHour(), moonPhase.getMoonrise().getMinute()),
-                DateTimeFormatter.ofPattern("H:mm", Locale.ROOT)).atDate(now);
+        try {
+            moonrise = LocalTime.parse(String.format("%s:%s",
+                    moonPhase.getMoonrise().getHour(), moonPhase.getMoonrise().getMinute()),
+                    DateTimeFormatter.ofPattern("H:mm", Locale.ROOT)).atDate(now);
+        } catch (Exception e) {
+            Logger.writeLine(Log.DEBUG, e);
+        }
+        try {
+            moonset = LocalTime.parse(String.format("%s:%s",
+                    moonPhase.getMoonset().getHour(), moonPhase.getMoonset().getMinute()),
+                    DateTimeFormatter.ofPattern("H:mm", Locale.ROOT)).atDate(now);
+        } catch (Exception e) {
+            Logger.writeLine(Log.DEBUG, e);
+        }
+
+        // If the sun won't set/rise, set time to the future
+        if (sunrise == null) {
+            sunrise = LocalDateTime.now().plusYears(1).minusNanos(1);
+        }
+        if (sunset == null) {
+            sunset = LocalDateTime.now().plusYears(1).minusNanos(1);
+        }
+        if (moonrise == null) {
+            moonrise = DateTimeUtils.getLocalDateTimeMIN();
+        }
+        if (moonset == null) {
+            moonset = DateTimeUtils.getLocalDateTimeMIN();
+        }
 
         try {
             MoonPhase.MoonPhaseType moonPhaseType;
@@ -92,19 +122,57 @@ public class Astronomy {
     public Astronomy(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Astronomy astronomy) {
         LocalDate now = LocalDate.now();
 
-        sunrise = LocalTime.parse(astronomy.getSunrise().toUpperCase(), DateTimeFormatter.ofPattern("h:m a", Locale.ROOT)).atDate(now);
-        sunset = LocalTime.parse(astronomy.getSunset().toUpperCase(), DateTimeFormatter.ofPattern("h:m a", Locale.ROOT)).atDate(now);
+        try {
+            sunrise = LocalTime.parse(astronomy.getSunrise().toUpperCase(), DateTimeFormatter.ofPattern("h:m a", Locale.ROOT)).atDate(now);
+        } catch (Exception e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
+        try {
+            sunset = LocalTime.parse(astronomy.getSunset().toUpperCase(), DateTimeFormatter.ofPattern("h:m a", Locale.ROOT)).atDate(now);
+        } catch (Exception e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
 
-        moonrise = DateTimeUtils.getLocalDateTimeMIN();
-        moonset = DateTimeUtils.getLocalDateTimeMIN();
+        // If the sun won't set/rise, set time to the future
+        if (sunrise == null) {
+            sunrise = LocalDateTime.now().plusYears(1).minusNanos(1);
+        }
+        if (sunset == null) {
+            sunset = LocalDateTime.now().plusYears(1).minusNanos(1);
+        }
+        if (moonrise == null) {
+            moonrise = DateTimeUtils.getLocalDateTimeMIN();
+        }
+        if (moonset == null) {
+            moonset = DateTimeUtils.getLocalDateTimeMIN();
+        }
     }
 
     public Astronomy(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
-        sunrise = LocalDateTime.ofEpochSecond(root.getSys().getSunrise(), 0, ZoneOffset.UTC);
-        sunset = LocalDateTime.ofEpochSecond(root.getSys().getSunset(), 0, ZoneOffset.UTC);
+        try {
+            sunrise = LocalDateTime.ofEpochSecond(root.getSys().getSunrise(), 0, ZoneOffset.UTC);
+        } catch (Exception e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
+        try {
+            sunset = LocalDateTime.ofEpochSecond(root.getSys().getSunset(), 0, ZoneOffset.UTC);
+        } catch (Exception e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
 
-        moonrise = DateTimeUtils.getLocalDateTimeMIN();
-        moonset = DateTimeUtils.getLocalDateTimeMIN();
+        // If the sun won't set/rise, set time to the future
+        if (sunrise == null) {
+            sunrise = LocalDateTime.now().plusYears(1).minusNanos(1);
+        }
+        if (sunset == null) {
+            sunset = LocalDateTime.now().plusYears(1).minusNanos(1);
+        }
+        if (moonrise == null) {
+            moonrise = DateTimeUtils.getLocalDateTimeMIN();
+        }
+        if (moonset == null) {
+            moonset = DateTimeUtils.getLocalDateTimeMIN();
+        }
     }
 
     public Astronomy(com.thewizrd.shared_resources.weatherdata.metno.Astrodata astroRoot) {
@@ -174,10 +242,40 @@ public class Astronomy {
 
         LocalDate now = LocalDate.now();
 
-        sunrise = LocalTime.parse(astroData.getSunrise(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
-        sunset = LocalTime.parse(astroData.getSunset(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
-        moonrise = LocalTime.parse(astroData.getMoonrise(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
-        moonset = LocalTime.parse(astroData.getMoonset(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
+        try {
+            sunrise = LocalTime.parse(astroData.getSunrise(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
+        } catch (Exception e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
+        try {
+            sunset = LocalTime.parse(astroData.getSunset(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
+        } catch (Exception e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
+        try {
+            moonrise = LocalTime.parse(astroData.getMoonrise(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
+        } catch (Exception e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
+        try {
+            moonset = LocalTime.parse(astroData.getMoonset(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
+        } catch (Exception e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
+
+        // If the sun won't set/rise, set time to the future
+        if (sunrise == null) {
+            sunrise = LocalDateTime.now().plusYears(1).minusNanos(1);
+        }
+        if (sunset == null) {
+            sunset = LocalDateTime.now().plusYears(1).minusNanos(1);
+        }
+        if (moonrise == null) {
+            moonrise = DateTimeUtils.getLocalDateTimeMIN();
+        }
+        if (moonset == null) {
+            moonset = DateTimeUtils.getLocalDateTimeMIN();
+        }
 
         switch (astroData.getIconName()) {
             case "cw_new_moon":
