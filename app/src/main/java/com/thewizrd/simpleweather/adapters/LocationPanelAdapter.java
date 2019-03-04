@@ -269,8 +269,11 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     public void remove(int position) {
         LocationPanelViewModel panel = getPanelViewModel(position);
 
-        mDataset.remove(getDataPosition(position));
-        notifyItemRemoved(getViewPosition(panel));
+        int dataPosition = getDataPosition(position);
+        int viewPosition = getViewPosition(panel);
+
+        mDataset.remove(dataPosition);
+        notifyItemRemoved(viewPosition);
 
         if (panel.getLocationType() == LocationType.GPS.getValue())
             hasGPSPanel = false;
@@ -312,6 +315,8 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
                     remove(position);
                 }
             });
+        } else {
+            remove(position);
         }
     }
 
