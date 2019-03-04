@@ -1,37 +1,56 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/widgetBackground"
+    android:id="@+id/widget"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_background_day"
-    android:padding="@dimen/widget_margin"
     tools:layout_height="72dp"
     tools:layout_width="72dp">
+
+    <ImageView
+        android:id="@+id/widgetBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/widget_background"
+        android:tint="@color/color_background_day" />
 
     <ImageView
         android:id="@+id/refresh_button"
         android:layout_width="20dp"
         android:layout_height="20dp"
+        android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
         android:layout_gravity="center"
         android:padding="2dp"
         android:src="@drawable/ic_refresh_white_24dp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        style="@style/ShadowText" />
 
     <ProgressBar
         android:id="@+id/refresh_progress"
-        style="@style/Widget.AppCompat.ProgressBar"
         android:layout_width="20dp"
         android:layout_height="20dp"
+        android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
         android:indeterminate="true"
         android:indeterminateTint="@android:color/white"
         android:padding="4dp"
-        android:visibility="visible" />
+        android:visibility="visible"
+        style="@style/ShadowProgressBar" />
+
+    <ImageView
+        android:id="@+id/settings_button"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_gravity="center"
+        android:padding="4dp"
+        android:src="@drawable/ic_settings_black_24dp"
+        android:tint="@android:color/white"
+        style="@style/ShadowText" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -40,14 +59,14 @@
 
         <ImageView
             android:id="@+id/weather_icon"
+            style="@style/ShadowText"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_gravity="center"
-            android:layout_margin="4dp"
             android:layout_weight="1"
             android:adjustViewBounds="true"
             android:gravity="center"
-            android:maxWidth="75dp"
+            android:maxWidth="70dp"
             android:scaleType="fitCenter"
             android:tint="@android:color/white"
             tools:src="@drawable/day_sunny" />
@@ -57,12 +76,12 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_gravity="center"
-            android:layout_margin="0dp"
             android:layout_weight="0.6"
             android:adjustViewBounds="true"
             android:gravity="center"
             android:maxWidth="75dp"
             android:scaleType="fitCenter"
+            style="@style/ShadowText"
             tools:src="@drawable/notification_temp_pos75" />
 
         <TextView
@@ -75,7 +94,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="--"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            style="@style/ShadowText"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             tools:text="New York, NY" />

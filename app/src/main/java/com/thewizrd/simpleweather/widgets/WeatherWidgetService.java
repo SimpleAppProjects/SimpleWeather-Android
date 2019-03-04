@@ -18,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.AlarmClock;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v4.app.JobIntentService;
 import android.support.v4.content.ContextCompat;
@@ -26,7 +27,6 @@ import android.text.Spanned;
 import android.text.format.DateFormat;
 import android.text.style.TextAppearanceSpan;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -40,6 +40,7 @@ import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -48,7 +49,6 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
@@ -90,6 +90,8 @@ public class WeatherWidgetService extends JobIntentService {
     public static final String ACTION_REFRESHGPSWIDGETS = "SimpleWeather.Droid.action.REFRESH_GPSWIDGETS";
 
     public static final String EXTRA_FORCEREFRESH = "SimpleWeather.Droid.extra.FORCE_REFRESH";
+    public static final String EXTRA_LOCATIONNAME = "SimpleWeather.Droid.extra.LOCATION_NAME";
+    public static final String EXTRA_LOCATIONQUERY = "SimpleWeather.Droid.extra.LOCATION_QUERY";
 
     private static final int JOB_ID = 1000;
 
@@ -750,7 +752,7 @@ public class WeatherWidgetService extends JobIntentService {
 
             PendingIntent clickPendingIntent =
                     PendingIntent.getActivity(this, 0, configureIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            views.setOnClickPendingIntent(R.id.widgetBackground, clickPendingIntent);
+            views.setOnClickPendingIntent(R.id.widget, clickPendingIntent);
 
             mAppWidgetManager.updateAppWidget(appWidgetIds, views);
         }
@@ -838,8 +840,11 @@ public class WeatherWidgetService extends JobIntentService {
         }
 
         for (int widgetId : appWidgetIds) {
-            if (!(!Settings.useFollowGPS() && WidgetUtils.isGPS(widgetId)))
+            if (!(!Settings.useFollowGPS() && WidgetUtils.isGPS(widgetId))) {
+                WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(widgetId);
+                views.setTextColor(R.id.clock_panel, getTextColor(background));
                 mAppWidgetManager.partiallyUpdateAppWidget(widgetId, views);
+            }
         }
 
         Logger.writeLine(Log.INFO, "%s: Refreshed clock", TAG);
@@ -877,9 +882,32 @@ public class WeatherWidgetService extends JobIntentService {
         // Build an update that holds the updated widget contents
         RemoteViews updateViews = new RemoteViews(context.getPackageName(), provider.getWidgetLayoutId());
 
+        // Background & Text Color
+        WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
+        int textColor = getTextColor(background);
+        if (background == WidgetUtils.WidgetBackground.BLACK) {
+            updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.BLACK);
+            updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
+        } else if (background == WidgetUtils.WidgetBackground.WHITE) {
+            updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.WHITE);
+            updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
+        } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
+            updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.BLACK);
+            updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0x00);
+        } else {
+            int color = wm.getWeatherBackgroundColor(weather);
+            updateViews.setInt(R.id.widgetBackground, "setColorFilter", color);
+            updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
+        }
+
         // Progress bar
         updateViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
+        updateViews.setInt(R.id.refresh_button, "setColorFilter", textColor);
         updateViews.setViewVisibility(R.id.refresh_progress, View.GONE);
+        WidgetUtils.setProgessBarTint(updateViews, R.id.refresh_progress, textColor);
+
+        // Settings button
+        updateViews.setInt(R.id.settings_button, "setColorFilter", textColor);
 
         // Set on click refresh intent
         setOnRefreshIntent(context, provider, appWidgetId, updateViews);
@@ -891,61 +919,46 @@ public class WeatherWidgetService extends JobIntentService {
         if (provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x2)
             tempTextSize = 96;
         updateViews.setImageViewBitmap(R.id.condition_temp,
-                ImageUtils.weatherIconToBitmap(context, temp, tempTextSize));
+                ImageUtils.weatherIconToBitmap(context, temp, tempTextSize, textColor, true));
 
         // Location Name
         updateViews.setTextViewText(R.id.location_name, weather.getLocation().getName());
+        updateViews.setTextColor(R.id.location_name, textColor);
         // Update Time
         String updatetext = getUpdateTimeText(Settings.getUpdateTime(), false);
         updateViews.setTextViewText(R.id.update_time, updatetext);
-
-        // Background
-        int color = wm.getWeatherBackgroundColor(weather);
-        updateViews.setInt(R.id.widgetBackground, "setBackgroundColor", color);
+        updateViews.setTextColor(R.id.update_time, textColor);
 
         // WeatherIcon
         updateViews.setImageViewResource(R.id.weather_icon,
                 wm.getWeatherIconResource(weather.getCondition().getIcon()));
+        if (background == WidgetUtils.WidgetBackground.BLACK) {
+            updateViews.setInt(R.id.weather_icon, "setColorFilter", Colors.WHITE);
+        } else if (background == WidgetUtils.WidgetBackground.WHITE) {
+            updateViews.setInt(R.id.weather_icon, "setColorFilter", Colors.BLACK);
+        } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
+            updateViews.setInt(R.id.weather_icon, "setColorFilter", Colors.WHITE);
+        } else {
+            updateViews.setInt(R.id.weather_icon, "setColorFilter", 0);
+        }
 
         // Set data for larger widgets
         if (provider.getWidgetType() != WidgetType.Widget1x1) {
             // Condition text
             updateViews.setTextViewText(R.id.condition_weather, weather.getCondition().getWeather());
+            updateViews.setTextColor(R.id.condition_weather, textColor);
 
-            // Details
-            if (provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x2) {
-                // Feels like temp
-                updateViews.setTextViewText(R.id.condition_feelslike,
-                        (Settings.isFahrenheit() ?
-                                Math.round(weather.getCondition().getFeelslikeF()) : Math.round(weather.getCondition().getFeelslikeC())) + "º");
-
-                // Wind
-                updateViews.setTextViewText(R.id.condition_wind,
-                        (Settings.isFahrenheit() ?
-                                Math.round(weather.getCondition().getWindMph()) + " mph" : Math.round(weather.getCondition().getWindKph()) + " kph"));
-
-                // Show precipitation % if available
-                if (weather.getPrecipitation() != null) {
-                    updateViews.setViewVisibility(R.id.condition_pop_panel, View.VISIBLE);
-                    updateViews.setTextViewText(R.id.condition_pop, weather.getPrecipitation().getPop() + "%");
-
-                    if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI()))
-                        updateViews.setImageViewResource(R.id.condition_pop_label, R.drawable.ic_cloudy);
-                    else
-                        updateViews.setImageViewResource(R.id.condition_pop_label, R.drawable.ic_raindrop);
-                } else {
-                    updateViews.setViewVisibility(R.id.condition_pop_panel, View.GONE);
-                }
-
-                // Open default clock/calendar app
-                if (provider.getWidgetType() == WidgetType.Widget4x2) {
-                    updateViews.setOnClickPendingIntent(R.id.date_panel, getDefaultCalendarIntent(context));
-                    updateViews.setOnClickPendingIntent(R.id.clock_panel, getDefaultClockIntent(context));
-                }
+            // Open default clock/calendar app
+            if (provider.getWidgetType() == WidgetType.Widget4x2) {
+                updateViews.setOnClickPendingIntent(R.id.date_panel, getDefaultCalendarIntent(context));
+                updateViews.setOnClickPendingIntent(R.id.clock_panel, getDefaultClockIntent(context));
+            } else if (provider.getWidgetType() == WidgetType.Widget4x1) {
+                updateViews.setTextColor(R.id.forecast_date, textColor);
             }
         }
 
         setOnClickIntent(context, location, updateViews);
+        setOnSettingsClickIntent(context, updateViews, location, appWidgetId);
 
         return updateViews;
     }
@@ -972,7 +985,27 @@ public class WeatherWidgetService extends JobIntentService {
         PendingIntent clickPendingIntent =
                 PendingIntent.getActivity(context, location.hashCode(), onClickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         if (updateViews != null)
-            updateViews.setOnClickPendingIntent(R.id.widgetBackground, clickPendingIntent);
+            updateViews.setOnClickPendingIntent(R.id.widget, clickPendingIntent);
+    }
+
+    private static void setOnSettingsClickIntent(Context context, RemoteViews updateViews, LocationData location, int appWidgetId) {
+        // When user clicks on widget, launch to Config activity
+        Intent onClickIntent = new Intent(context.getApplicationContext(), WeatherWidgetConfigActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        if (Settings.getHomeData().equals(location)) {
+            onClickIntent.putExtra(EXTRA_LOCATIONQUERY, "GPS");
+        } else {
+            onClickIntent.putExtra(EXTRA_LOCATIONNAME, location == null ? null : location.getName());
+            onClickIntent.putExtra(EXTRA_LOCATIONQUERY, location == null ? null : location.getQuery());
+        }
+
+        onClickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+
+        PendingIntent clickPendingIntent =
+                PendingIntent.getActivity(context, appWidgetId, onClickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        if (updateViews != null)
+            updateViews.setOnClickPendingIntent(R.id.settings_button, clickPendingIntent);
     }
 
     // TODO: Merge into function below
@@ -1033,22 +1066,22 @@ public class WeatherWidgetService extends JobIntentService {
                 if (weather.getForecast().length < forecastLength)
                     forecastLength = weather.getForecast().length;
 
-                if (provider.getWidgetType() == WidgetType.Widget4x1) {
-                    if (cellWidth > 3)
-                        updateViews.setViewVisibility(R.id.condition_weather, View.VISIBLE);
-                    else
-                        updateViews.setViewVisibility(R.id.condition_weather, View.GONE);
-                } else if (provider.getWidgetType() == WidgetType.Widget4x2) {
+                if (provider.getWidgetType() == WidgetType.Widget4x2) {
                     float clockSize = mContext.getResources().getDimension(R.dimen.clock_text_size);
                     float dateSize = mContext.getResources().getDimension(R.dimen.date_text_size);
                     float scale = (cellHeight != maxCellHeight) ? 1.25f : 1f;
 
-                    updateViews.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_PX, clockSize * scale);
-                    updateViews.setTextViewTextSize(R.id.date_panel, TypedValue.COMPLEX_UNIT_PX, dateSize * scale);
+                    WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
+                    int textColor = getTextColor(background);
+
+                    //updateViews.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_PX, clockSize * scale);
+                    updateViews.setTextColor(R.id.clock_panel, textColor);
+                    //updateViews.setTextViewTextSize(R.id.date_panel, TypedValue.COMPLEX_UNIT_PX, dateSize * scale);
+                    updateViews.setTextColor(R.id.date_panel, textColor);
                 }
 
                 updateViews.removeAllViews(R.id.forecast_layout);
-                buildForecastPanel(updateViews, provider, weather, forecastLength, cellHeight == maxCellHeight);
+                buildForecastPanel(updateViews, provider, weather, appWidgetId, forecastLength, cellWidth == maxCellWidth);
                 mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews);
                 return null;
             }
@@ -1099,17 +1132,22 @@ public class WeatherWidgetService extends JobIntentService {
                 float dateSize = mContext.getResources().getDimension(R.dimen.date_text_size);
                 float scale = (cellHeight != maxCellHeight) ? 1.25f : 1f;
 
-                updateViews.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_PX, clockSize * scale);
-                updateViews.setTextViewTextSize(R.id.date_panel, TypedValue.COMPLEX_UNIT_PX, dateSize * scale);
+                WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetIds[i]);
+                int textColor = getTextColor(background);
+
+                //updateViews.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_PX, clockSize * scale);
+                updateViews.setTextColor(R.id.clock_panel, textColor);
+                //updateViews.setTextViewTextSize(R.id.date_panel, TypedValue.COMPLEX_UNIT_PX, dateSize * scale);
+                updateViews.setTextColor(R.id.date_panel, textColor);
             }
 
-            buildForecastPanel(updateViews, provider, weather, forecastLength, cellHeight == maxCellHeight);
+            buildForecastPanel(updateViews, provider, weather, appWidgetIds[i], forecastLength, cellWidth == maxCellWidth);
             mAppWidgetManager.partiallyUpdateAppWidget(appWidgetIds[i], updateViews);
         }
     }
 
     private void buildForecastPanel(
-            RemoteViews updateViews, WeatherWidgetProvider provider, Weather weather,
+            RemoteViews updateViews, WeatherWidgetProvider provider, Weather weather, int appWidgetId,
             int forecastLength, boolean forceSmall) {
         if (weather == null)
             return;
@@ -1125,9 +1163,23 @@ public class WeatherWidgetService extends JobIntentService {
             else
                 forecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_panel_medium);
 
+            // Background & Text Color
+            WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
+            int textColor = getTextColor(background);
+            if (background == WidgetUtils.WidgetBackground.BLACK) {
+                forecastPanel.setInt(R.id.forecast_icon, "setColorFilter", Colors.WHITE);
+            } else if (background == WidgetUtils.WidgetBackground.WHITE) {
+                forecastPanel.setInt(R.id.forecast_icon, "setColorFilter", Colors.BLACK);
+            } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
+                forecastPanel.setInt(R.id.forecast_icon, "setColorFilter", Colors.WHITE);
+            } else {
+                forecastPanel.setInt(R.id.forecast_icon, "setColorFilter", 0);
+            }
+
             forecastPanel.setTextViewText(R.id.forecast_date, forecast.getDate().format(DateTimeFormatter.ofPattern("eee")));
-            forecastPanel.setImageViewResource(R.id.forecast_icon,
-                    wm.getWeatherIconResource(forecast.getIcon()));
+            forecastPanel.setTextColor(R.id.forecast_date, textColor);
+            forecastPanel.setImageViewResource(R.id.forecast_icon, wm.getWeatherIconResource(forecast.getIcon()));
+
             String hiTemp;
             String loTemp;
             try {
@@ -1143,7 +1195,9 @@ public class WeatherWidgetService extends JobIntentService {
                 Logger.writeLine(Log.ERROR, nFe);
             }
             forecastPanel.setTextViewText(R.id.forecast_hi, hiTemp);
+            forecastPanel.setTextColor(R.id.forecast_hi, textColor);
             forecastPanel.setTextViewText(R.id.forecast_lo, loTemp);
+            forecastPanel.setTextColor(R.id.forecast_lo, textColor);
 
             updateViews.addView(R.id.forecast_layout, forecastPanel);
         }
@@ -1200,7 +1254,7 @@ public class WeatherWidgetService extends JobIntentService {
         if (shortFormat)
             return updatetime;
         else
-            return String.format("%s %s", mContext.getString(R.string.update_prefix).toLowerCase(), updatetime);
+            return String.format("%s %s", mContext.getString(R.string.widget_updateprefix), updatetime);
     }
 
     private Weather getWeather() {
@@ -1339,5 +1393,18 @@ public class WeatherWidgetService extends JobIntentService {
                 return locationChanged;
             }
         });
+    }
+
+    private @ColorInt
+    int getTextColor(WidgetUtils.WidgetBackground background) {
+        if (background == WidgetUtils.WidgetBackground.BLACK) {
+            return Colors.WHITE;
+        } else if (background == WidgetUtils.WidgetBackground.WHITE) {
+            return Colors.BLACK;
+        } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
+            return Colors.WHITE;
+        } else {
+            return Colors.WHITE;
+        }
     }
 }

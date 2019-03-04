@@ -19,6 +19,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
         android:textColor="@android:color/white"
         android:textSize="12sp"
+        style="@style/ShadowText"
         tools:text="Mon" />
 
     <RelativeLayout
@@ -70,6 +71,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 android:textStyle="bold"
+                style="@style/ShadowText"
                 tools:text="70º" />
 
             <TextView
@@ -85,6 +87,7 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
+                style="@style/ShadowText"
                 tools:text="52º" />
 
         </LinearLayout>

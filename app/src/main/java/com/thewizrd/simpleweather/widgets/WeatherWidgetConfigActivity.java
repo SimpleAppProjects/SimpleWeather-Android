@@ -106,6 +106,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
     private ArrayAdapter<ComboBoxItem> locAdapter;
     private TextView locSummary;
     private Spinner refreshSpinner;
+    private Spinner bgSpinner;
+    private TextView bgSummary;
     private AppBarLayout appBarLayout;
     private Toolbar mToolbar;
     private View searchBarContainer;
@@ -212,7 +214,6 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
                 if (locSpinner.getSelectedItem() instanceof ComboBoxItem) {
                     ComboBoxItem item = (ComboBoxItem) locSpinner.getSelectedItem();
-
                     locSummary.setText(item.getDisplay());
 
                     if ("Search".equals(item.getValue()))
@@ -230,7 +231,18 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
             }
         });
-        locSpinner.setSelection(0);
+        if (getIntent() != null
+                && !StringUtils.isNullOrWhitespace(getIntent().getStringExtra(WeatherWidgetService.EXTRA_LOCATIONQUERY))) {
+            String locName = getIntent().getStringExtra(WeatherWidgetService.EXTRA_LOCATIONNAME);
+            String locQuery = getIntent().getStringExtra(WeatherWidgetService.EXTRA_LOCATIONQUERY);
+
+            if (locName != null)
+                locSpinner.setSelection(locAdapter.getPosition(new ComboBoxItem(locName, locQuery)));
+            else
+                locSpinner.setSelection(0);
+        } else {
+            locSpinner.setSelection(0);
+        }
 
         // Setup interval spinner
         refreshSpinner = findViewById(R.id.interval_pref_spinner);
@@ -257,7 +269,6 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (refreshSpinner.getSelectedItem() instanceof ComboBoxItem) {
                     ComboBoxItem item = (ComboBoxItem) refreshSpinner.getSelectedItem();
-
                     refreshSummary.setText(item.getDisplay());
                 }
             }
@@ -275,6 +286,41 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             }
         }
         refreshSpinner.setSelection(index);
+
+        // Setup widget background spinner
+        bgSpinner = findViewById(R.id.bgcolor_pref_spinner);
+        bgSummary = findViewById(R.id.bgcolor_pref_summary);
+        List<ComboBoxItem> bgList = new ArrayList<>();
+        String[] bgEntries = getResources().getStringArray(R.array.bgcolor_entries);
+        String[] bgValues = getResources().getStringArray(R.array.bgcolor_values);
+        for (int i = 0; i < bgEntries.length; i++) {
+            bgList.add(new ComboBoxItem(bgEntries[i], bgValues[i]));
+        }
+        ArrayAdapter<ComboBoxItem> bgAdapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item,
+                bgList);
+        bgAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        bgSpinner.setAdapter(bgAdapter);
+        findViewById(R.id.bgcolor_pref).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bgSpinner.performClick();
+            }
+        });
+        bgSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (bgSpinner.getSelectedItem() instanceof ComboBoxItem) {
+                    ComboBoxItem item = (ComboBoxItem) bgSpinner.getSelectedItem();
+                    bgSummary.setText(item.getDisplay());
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        bgSpinner.setSelection(WidgetUtils.getWidgetBackground(mAppWidgetId).getValue());
 
         cts = new CancellationTokenSource();
 
@@ -488,7 +534,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         searchFragment.setRecyclerOnClickListener(new RecyclerOnClickListenerInterface() {
             @Override
             public void onClick(View view, int position) {
-                if (mSearchFragment != null)
+                if (mSearchFragment == null)
                     return;
 
                 LocationQueryAdapter adapter = searchFragment.getAdapter();
@@ -559,6 +605,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 }
 
                 // Save data
+                WeatherWidgetConfigActivity.this.query_vm = query_vm;
                 ComboBoxItem item = new ComboBoxItem(query_vm.getLocationName(), query_vm.getLocationQuery());
                 int idx = locAdapter.getCount() - 1;
                 locAdapter.insert(item, idx);
@@ -846,24 +893,21 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             ComboBoxItem locationItem = (ComboBoxItem) locSpinner.getSelectedItem();
             LocationData locData = null;
 
-            switch (locationItem.getValue()) {
-                case "GPS":
-                    Settings.setFollowGPS(true);
+            // Widget ID exists in prefs
+            if (WidgetUtils.exists(mAppWidgetId)) {
+                locData = WidgetUtils.getLocationData(mAppWidgetId);
 
-                    if (gpsQuery_vm == null || mLocation == null) {
-                        fetchGeoLocation();
-                    } else {
-                        locData = new LocationData(gpsQuery_vm, mLocation);
-                        Settings.saveLastGPSLocData(locData);
-
-                        // Save locdata for widget
-                        WidgetUtils.saveLocationData(mAppWidgetId, null);
-                        WidgetUtils.addWidgetId("GPS", mAppWidgetId);
-                    }
-                    break;
-                default:
-                    // Get location data
-                    if (locSpinner.getSelectedItem() instanceof ComboBoxItem) {
+                // Handle location changes
+                if ("GPS".equals(locationItem.getValue())) {
+                    // Changing location to GPS
+                    // Reset data for widget
+                    WidgetUtils.deleteWidget(mAppWidgetId);
+                    WidgetUtils.saveLocationData(mAppWidgetId, null);
+                    WidgetUtils.addWidgetId("GPS", mAppWidgetId);
+                } else {
+                    // Changing location to whatever
+                    if (locData == null || !locationItem.getValue().equals(locData.getQuery())) {
+                        // Get location data
                         ComboBoxItem item = (ComboBoxItem) locSpinner.getSelectedItem();
                         boolean exists = false;
                         for (LocationData loc : favorites) {
@@ -895,13 +939,70 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         }
 
                         // Save locdata for widget
-                        if (WidgetUtils.isGPS(mAppWidgetId))
-                            WidgetUtils.removeWidgetId("GPS", mAppWidgetId);
+                        WidgetUtils.deleteWidget(mAppWidgetId);
                         WidgetUtils.saveLocationData(mAppWidgetId, locData);
                         WidgetUtils.addWidgetId(locData.getQuery(), mAppWidgetId);
                     }
-                    break;
+                }
+            } else {
+                switch (locationItem.getValue()) {
+                    case "GPS":
+                        Settings.setFollowGPS(true);
+
+                        if (gpsQuery_vm == null || mLocation == null) {
+                            fetchGeoLocation();
+                        } else {
+                            locData = new LocationData(gpsQuery_vm, mLocation);
+                            Settings.saveLastGPSLocData(locData);
+
+                            // Save locdata for widget
+                            WidgetUtils.deleteWidget(mAppWidgetId);
+                            WidgetUtils.saveLocationData(mAppWidgetId, null);
+                            WidgetUtils.addWidgetId("GPS", mAppWidgetId);
+                        }
+                        break;
+                    default:
+                        // Get location data
+                        ComboBoxItem item = (ComboBoxItem) locSpinner.getSelectedItem();
+                        boolean exists = false;
+                        for (LocationData loc : favorites) {
+                            if (loc.getQuery().equals(item.getValue())) {
+                                locData = loc;
+                                exists = true;
+                                break;
+                            }
+                        }
+                        if (!exists) {
+                            locData = null;
+                        }
+
+                        if (locData == null && query_vm != null) {
+                            locData = new LocationData(query_vm);
+
+                            if (!locData.isValid()) {
+                                setResult(RESULT_CANCELED, resultValue);
+                                finish();
+                                return;
+                            }
+
+                            // Add location to favs
+                            Settings.addLocation(locData);
+                        } else if (locData == null) {
+                            setResult(RESULT_CANCELED, resultValue);
+                            finish();
+                            return;
+                        }
+
+                        // Save locdata for widget
+                        WidgetUtils.deleteWidget(mAppWidgetId);
+                        WidgetUtils.saveLocationData(mAppWidgetId, locData);
+                        WidgetUtils.addWidgetId(locData.getQuery(), mAppWidgetId);
+                        break;
+                }
             }
+
+            // Save widget preferences
+            WidgetUtils.setWidgetBackground(mAppWidgetId, bgSpinner.getSelectedItemPosition());
 
             // Trigger widget service to update widget
             WeatherWidgetService.enqueueWork(this,

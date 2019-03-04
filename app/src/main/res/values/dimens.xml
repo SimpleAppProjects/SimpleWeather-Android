@@ -46,8 +46,8 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <dimen name="collapsingtoolbar_maxHeight">300dp</dimen>
 
     <!-- Widget -->
-    <dimen name="clock_text_size">24sp</dimen>
-    <dimen name="date_text_size">12sp</dimen>
+    <dimen name="clock_text_size">36sp</dimen>
+    <dimen name="date_text_size">16sp</dimen>
     <dimen name="location_text_size_small">12sp</dimen>
     <dimen name="location_text_size_large">14sp</dimen>
     <!-- Notification -->

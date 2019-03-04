@@ -29,4 +29,22 @@ public class ComboBoxItem {
     public String toString() {
         return display;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ComboBoxItem that = (ComboBoxItem) o;
+
+        if (display != null ? !display.equals(that.display) : that.display != null) return false;
+        return value != null ? value.equals(that.value) : that.value == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = display != null ? display.hashCode() : 0;
+        result = 31 * result + (value != null ? value.hashCode() : 0);
+        return result;
+    }
 }

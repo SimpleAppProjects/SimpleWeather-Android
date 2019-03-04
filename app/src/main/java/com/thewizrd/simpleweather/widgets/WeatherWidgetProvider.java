@@ -13,7 +13,6 @@ import android.widget.RemoteViews;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
-import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.simpleweather.R;
 
 public abstract class WeatherWidgetProvider extends AppWidgetProvider {
@@ -125,14 +124,7 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
 
         for (int id : appWidgetIds) {
             // Remove id from list
-            if (WidgetUtils.isGPS(id)) {
-                WidgetUtils.removeWidgetId("GPS", id);
-            } else {
-                LocationData locData = WidgetUtils.getLocationData(id);
-                if (locData != null) {
-                    WidgetUtils.removeWidgetId(locData.getQuery(), id);
-                }
-            }
+            WidgetUtils.deleteWidget(id);
         }
     }
 }

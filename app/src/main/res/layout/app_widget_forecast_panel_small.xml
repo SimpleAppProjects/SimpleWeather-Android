@@ -19,6 +19,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
         android:textColor="@android:color/white"
         android:textSize="12sp"
+        style="@style/ShadowText"
         tools:text="Mon" />
 
     <ImageView
@@ -50,8 +51,9 @@
             android:text="--"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
-            android:textSize="9sp"
+            android:textSize="10sp"
             android:textStyle="bold"
+            style="@style/ShadowText"
             tools:text="70º" />
 
         <TextView
@@ -65,7 +67,8 @@
             android:text="|"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
-            android:textSize="9sp" />
+            android:textSize="10sp"
+            style="@style/ShadowText" />
 
         <TextView
             android:id="@+id/forecast_lo"
@@ -76,7 +79,8 @@
             android:text="--"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
-            android:textSize="9sp"
+            android:textSize="10sp"
+            style="@style/ShadowText"
             tools:text="52º" />
 
     </LinearLayout>

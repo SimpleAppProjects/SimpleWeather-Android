@@ -3,8 +3,12 @@ package com.thewizrd.simpleweather.widgets;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.os.Build;
+import android.support.annotation.IdRes;
 import android.util.Log;
+import android.util.SparseArray;
+import android.widget.RemoteViews;
 
 import com.google.android.gms.common.util.ArrayUtils;
 import com.google.gson.reflect.TypeToken;
@@ -20,6 +24,8 @@ import com.thewizrd.simpleweather.App;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.StringReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,9 +46,39 @@ public class WidgetUtils {
     private static final String KEY_WEATHERDATA = "key_weatherdata";
     private static final String KEY_LOCATIONDATA = "key_locationdata";
     private static final String KEY_LOCATIONQUERY = "key_locationquery";
+    private static final String KEY_WIDGETBACKGROUND = "key_widgetbackground";
 
     static {
         init();
+    }
+
+    enum WidgetBackground {
+        CURRENT_CONDITIONS(0),
+        WHITE(1),
+        BLACK(2),
+        TRANSPARENT(3);
+
+        private final int value;
+
+        public int getValue() {
+            return value;
+        }
+
+        private WidgetBackground(int value) {
+            this.value = value;
+        }
+
+        private static SparseArray<WidgetBackground> map = new SparseArray<>();
+
+        static {
+            for (WidgetBackground errorStatus : values()) {
+                map.put(errorStatus.value, errorStatus);
+            }
+        }
+
+        public static WidgetBackground valueOf(int value) {
+            return map.get(value);
+        }
     }
 
     private static void init() {
@@ -231,6 +267,23 @@ public class WidgetUtils {
         return false;
     }
 
+    public static boolean exists(int appWidgetId) {
+        LocationData locData = getLocationData(appWidgetId);
+        if (locData != null) {
+            String listJson = widgetPrefs.getString(locData.getQuery(), "");
+            if (!StringUtils.isNullOrWhitespace(listJson)) {
+                Type intArrListType = new TypeToken<ArrayList<Integer>>() {
+                }.getType();
+                ArrayList<Integer> idList = JSONParser.deserializer(listJson, intArrListType);
+                if (idList != null) {
+                    return idList.contains(appWidgetId);
+                }
+            }
+        }
+
+        return false;
+    }
+
     private static boolean saveIds(String key, List<Integer> idList) {
         String json = JSONParser.serializer(idList, ArrayList.class);
         return editor.putString(key, json)
@@ -365,5 +418,64 @@ public class WidgetUtils {
         }
 
         return false;
+    }
+
+    public static WidgetBackground getWidgetBackground(int widgetId) {
+        SharedPreferences prefs = getPreferences(widgetId);
+
+        String value = prefs.getString(KEY_WIDGETBACKGROUND, "0");
+        if (StringUtils.isNullOrWhitespace(value))
+            value = "0";
+
+        switch (Integer.valueOf(value)) {
+            case 0:
+            default:
+                return WidgetBackground.CURRENT_CONDITIONS;
+            case 1:
+                return WidgetBackground.WHITE;
+            case 2:
+                return WidgetBackground.BLACK;
+            case 3:
+                return WidgetBackground.TRANSPARENT;
+        }
+    }
+
+    public static void setWidgetBackground(int widgetId, int value) {
+        SharedPreferences.Editor editor = getEditor(widgetId);
+
+        editor.putString(KEY_WIDGETBACKGROUND, Integer.toString(value));
+        editor.commit();
+    }
+
+    // https://stackoverflow.com/a/53930384
+    public static void setProgessBarTint(RemoteViews view, @IdRes int viewId, int color) {
+        Method setTintMethod = null;
+        try {
+            setTintMethod = RemoteViews.class.getMethod("setProgressTintList", int.class, ColorStateList.class);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        if (setTintMethod != null) {
+            try {
+                setTintMethod.invoke(view, viewId, ColorStateList.valueOf(color));
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void deleteWidget(int id) {
+        if (isGPS(id)) {
+            removeWidgetId("GPS", id);
+        } else {
+            LocationData locData = getLocationData(id);
+            if (locData != null) {
+                removeWidgetId(locData.getQuery(), id);
+            }
+        }
     }
 }

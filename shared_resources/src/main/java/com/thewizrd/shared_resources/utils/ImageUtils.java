@@ -11,7 +11,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -46,7 +45,15 @@ public class ImageUtils {
         return weatherIconToBitmap(context, text, textSize, Color.WHITE);
     }
 
+    public static Bitmap weatherIconToBitmap(Context context, String text, int textSize, boolean addShadow) {
+        return weatherIconToBitmap(context, text, textSize, Color.WHITE, addShadow);
+    }
+
     public static Bitmap weatherIconToBitmap(Context context, String text, int textSize, int textColor) {
+        return weatherIconToBitmap(context, text, textSize, textColor, false);
+    }
+
+    public static Bitmap weatherIconToBitmap(Context context, String text, int textSize, int textColor, boolean addShadow) {
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         Typeface weathericons = ResourcesCompat.getFont(context, R.font.weathericons);
         paint.setSubpixelText(true);
@@ -55,6 +62,9 @@ public class ImageUtils {
         paint.setColor(textColor);
         paint.setTextSize(textSize);
         paint.setTextAlign(Paint.Align.LEFT);
+        if (addShadow) {
+            paint.setShadowLayer(1, 1, 1, Color.parseColor("#000000"));
+        }
 
         float baseline = -paint.ascent();
         int width = (int) (paint.measureText(text) + 0.5f);
@@ -69,6 +79,10 @@ public class ImageUtils {
 
     public static Bitmap bitmapFromDrawable(Context context, int resDrawable) {
         Drawable drawable = ContextCompat.getDrawable(context, resDrawable);
+        return bitmapFromDrawable(drawable);
+    }
+
+    public static Bitmap bitmapFromDrawable(Context context, Drawable drawable) {
         return bitmapFromDrawable(drawable);
     }
 
