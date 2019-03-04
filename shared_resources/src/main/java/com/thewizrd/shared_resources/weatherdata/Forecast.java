@@ -76,17 +76,35 @@ public class Forecast {
 
         // Extras
         extras = new ForecastExtras();
-        extras.setFeelslikeF(Float.valueOf(WeatherUtils.getFeelsLikeTemp(highF, Integer.toString(forecast.getAvewind().getMph()), Integer.toString(forecast.getAvehumidity()))));
-        extras.setFeelslikeC(Float.valueOf(ConversionMethods.FtoC(Double.toString(extras.getFeelslikeF()))));
-        extras.setHumidity(Integer.toString(forecast.getAvehumidity()));
-        extras.setPop(Integer.toString(forecast.getPop()));
-        extras.setQpfRainIn((float) forecast.getQpf_allday().getIn());
-        extras.setQpfRainMm((float) forecast.getQpf_allday().getMm());
-        extras.setQpfSnowIn(forecast.getSnow_allday().getIn());
-        extras.setQpfSnowCm(forecast.getSnow_allday().getCm());
-        extras.setWindDegrees(forecast.getAvewind().getDegrees());
-        extras.setWindMph((float) forecast.getAvewind().getMph());
-        extras.setWindKph((float) forecast.getAvewind().getKph());
+        try {
+            extras.setFeelslikeF(Float.valueOf(WeatherUtils.getFeelsLikeTemp(highF, Integer.toString(forecast.getAvewind().getMph()), Integer.toString(forecast.getAvehumidity()))));
+            extras.setFeelslikeC(Float.valueOf(ConversionMethods.FtoC(Double.toString(extras.getFeelslikeF()))));
+        } catch (NumberFormatException e) {
+        }
+        try {
+            extras.setHumidity(Integer.toString(forecast.getAvehumidity()));
+        } catch (NumberFormatException e) {
+        }
+        try {
+            extras.setPop(Integer.toString(forecast.getPop()));
+        } catch (NumberFormatException e) {
+        }
+        try {
+            extras.setQpfRainIn((float) forecast.getQpf_allday().getIn());
+            extras.setQpfRainMm((float) forecast.getQpf_allday().getMm());
+        } catch (NumberFormatException e) {
+        }
+        try {
+            extras.setQpfSnowIn(forecast.getSnow_allday().getIn());
+            extras.setQpfSnowCm(forecast.getSnow_allday().getCm());
+        } catch (NumberFormatException e) {
+        }
+        try {
+            extras.setWindDegrees(forecast.getAvewind().getDegrees());
+            extras.setWindMph((float) forecast.getAvewind().getMph());
+            extras.setWindKph((float) forecast.getAvewind().getKph());
+        } catch (NumberFormatException e) {
+        }
     }
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.openweather.ListItem forecast) {
