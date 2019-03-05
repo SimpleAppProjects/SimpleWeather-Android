@@ -595,21 +595,16 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
     public String getWeatherIcon(boolean isNight, String icon) {
         String weatherIcon = "";
 
-        if (icon.contains("nt_mostlycloudy") || icon.contains("nt_partlysunny") || icon.contains("nt_cloudy"))
+        if (icon.contains("mostlycloudy") || icon.contains("partlysunny") || icon.contains("nt_cloudy"))
             if (isNight)
                 weatherIcon = WeatherIcons.NIGHT_ALT_CLOUDY;
             else
                 weatherIcon = WeatherIcons.DAY_CLOUDY;
-        else if (icon.contains("nt_partlycloudy") || icon.contains("nt_mostlysunny"))
+        else if (icon.contains("partlycloudy") || icon.contains("mostlysunny"))
             if (isNight)
                 weatherIcon = WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY;
             else
                 weatherIcon = WeatherIcons.DAY_SUNNY_OVERCAST;
-        else if (icon.contains("nt_clear") || icon.contains("nt_sunny") || icon.contains("nt_unknown"))
-            if (isNight)
-                weatherIcon = WeatherIcons.NIGHT_CLEAR;
-            else
-                weatherIcon = WeatherIcons.DAY_SUNNY;
         else if (icon.contains("chancerain"))
             weatherIcon = WeatherIcons.RAIN;
         else if (icon.contains("clear") || icon.contains("sunny"))
