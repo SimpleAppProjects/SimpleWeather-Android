@@ -25,6 +25,7 @@
             android:gravity="center_vertical"
             android:maxLines="2"
             android:padding="10dp"
+            style="@style/ShadowText"
             android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
             android:textSize="@dimen/location_panel_text_size"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -35,13 +36,13 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="New York, NY" />
 
-
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/weather_temp"
             android:layout_width="@dimen/location_panel_textview_size"
             android:layout_height="@dimen/location_panel_textview_size"
             android:layout_margin="5dp"
             android:gravity="center"
+            style="@style/ShadowText"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
             android:textSize="@dimen/location_panel_text_size"
@@ -59,6 +60,7 @@
             android:layout_height="@dimen/location_panel_textview_size"
             android:layout_margin="10dp"
             android:gravity="center"
+            style="@style/ShadowText"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
             app:autoSizeMaxTextSize="@dimen/location_panel_icon_size"
@@ -76,7 +78,7 @@
 
     <ProgressBar
         android:id="@+id/progressBar"
-        style="@style/Widget.AppCompat.ProgressBar"
+        style="@style/ShadowProgressBar"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_gravity="center"

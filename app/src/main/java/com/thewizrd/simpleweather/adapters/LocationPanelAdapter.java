@@ -1,9 +1,12 @@
 package com.thewizrd.simpleweather.adapters;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -16,6 +19,7 @@ import android.widget.TextView;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Tasks;
@@ -23,6 +27,7 @@ import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.helpers.ObservableArrayList;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.LocationData;
@@ -30,6 +35,7 @@ import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.LocationPanel;
 import com.thewizrd.simpleweather.controls.LocationPanelViewModel;
+import com.thewizrd.simpleweather.helpers.ColorsUtils;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperAdapterInterface;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
 
@@ -162,7 +168,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (holder instanceof HeaderSetterInterface) {
             ((HeaderSetterInterface) holder).setHeader();
         } else {
-            ViewHolder vHolder = (ViewHolder) holder;
+            final ViewHolder vHolder = (ViewHolder) holder;
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
             final LocationPanelViewModel panelView = getPanelViewModel(position);
@@ -175,10 +181,21 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
                                 .centerCrop()
                                 .error(vHolder.mLocView.getColorDrawable())
                                 .placeholder(vHolder.mLocView.getColorDrawable()))
-                        .into(new BitmapImageViewTarget(vHolder.mBgImageView));
+                        .into(new BitmapImageViewTarget(vHolder.mBgImageView) {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                super.onResourceReady(resource, transition);
+                                Palette p = Palette.from(resource).generate();
+                                int textColor = Colors.WHITE;
+                                if (ColorsUtils.isSuperLight(p))
+                                    textColor = Colors.BLACK;
+                                vHolder.mLocView.setTextColor(textColor);
+                            }
+                        });
             } else {
                 mGlide.clear(vHolder.mBgImageView);
                 vHolder.mBgImageView.setImageDrawable(vHolder.mLocView.getColorDrawable());
+                vHolder.mLocView.setTextColor(Colors.WHITE);
             }
 
             vHolder.mLocView.setWeather(panelView);

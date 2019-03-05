@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Outline;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
@@ -53,6 +52,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -128,6 +128,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     private SwipeRefreshLayout refreshLayout;
     private NestedScrollView scrollView;
     private View conditionPanel;
+    private BitmapImageViewTarget imageViewTarget;
     // Condition
     private TextView updateTime;
     private TextView weatherIcon;
@@ -430,6 +431,39 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         mTitleView = view.findViewById(R.id.toolbar_title);
         mTitleView.setText(R.string.title_activity_weather_now);
         mToolbar = view.findViewById(R.id.toolbar);
+        imageViewTarget = new BitmapImageViewTarget(mImageView) {
+            /* Testing Only
+            @Override
+            protected void setResource(final Bitmap resource) {
+                super.setResource(resource);
+                if (resource != null) {
+                    AsyncTask.run(new Runnable() {
+                        @Override
+                        public void run() {
+                            int color = weatherView.getPendingBackground();
+                            Palette p = Palette.from(resource).generate();
+                            Palette.Swatch swatch = ColorsUtils.getPreferredSwatch(p);
+                            if (swatch != null) color = swatch.getRgb();
+
+                            final int finalColor = color;
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (mWindowColorsIface != null)
+                                        mWindowColorsIface.setWindowBarColors(finalColor);
+                                    // Background
+                                    View mainView = WeatherNowFragment.this.getView();
+                                    if (mainView != null) {
+                                        mainView.setBackgroundColor(finalColor);
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+            */
+        };
 
         conditionPanel = view.findViewById(R.id.condition_panel);
 
@@ -629,10 +663,12 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
     private void resume() {
         cts = new CancellationTokenSource();
-        if (scrollView != null) scrollView.scrollTo(0, 0);
-        if (weatherView.getPendingBackground() != 0 && mWindowColorsIface != null) {
-            mWindowColorsIface.setWindowBarColors(weatherView.getPendingBackground());
-        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (scrollView != null) scrollView.scrollTo(0, 0);
+            }
+        });
 
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
@@ -902,12 +938,16 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
                 // Background
                 View mainView = WeatherNowFragment.this.getView();
-                mainView.setBackground(new ColorDrawable(weatherView.getPendingBackground()));
+                if (mainView != null) {
+                    mainView.setBackgroundColor(weatherView.getPendingBackground());
+                }
+
                 mImageView.setImageAlpha(bgAlpha);
                 Glide.with(mActivity)
+                        .asBitmap()
                         .load(weatherView.getBackground())
                         .apply(new RequestOptions().centerCrop())
-                        .into(mImageView);
+                        .into(imageViewTarget);
 
                 // Location
                 mTitleView.setText(weatherView.getLocation());
@@ -1026,7 +1066,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     Location location = null;
 
                     if (cts.getToken().isCancellationRequested())
-                        return null;
+                        return false;
 
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
                         location = new AsyncTask<Location>().await(new Callable<Location>() {
@@ -1118,7 +1158,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                         }
 
                         if (cts.getToken().isCancellationRequested())
-                            return null;
+                            return false;
 
                         // Save oldkey
                         String oldkey = lastGPSLocData.getQuery();

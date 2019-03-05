@@ -5,6 +5,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.card.MaterialCardView;
@@ -103,5 +104,11 @@ public class LocationPanel extends MaterialCardView {
     public void showLoading(boolean show) {
         progressBar.setVisibility(show ? VISIBLE : GONE);
         setClickable(!show);
+    }
+
+    public void setTextColor(@ColorInt int color) {
+        locationNameView.setTextColor(color);
+        locationTempView.setTextColor(color);
+        locationWeatherIcon.setTextColor(color);
     }
 }

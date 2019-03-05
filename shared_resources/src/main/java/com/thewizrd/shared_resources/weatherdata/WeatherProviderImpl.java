@@ -175,98 +175,118 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
 
         // Apply background based on weather condition
         switch (icon) {
-            // Rain/Snow/Sleet/Hail/Storms
-            case WeatherIcons.DAY_HAIL:
-            case WeatherIcons.DAY_LIGHTNING:
+            // Rain
             case WeatherIcons.DAY_RAIN:
             case WeatherIcons.DAY_RAIN_MIX:
             case WeatherIcons.DAY_RAIN_WIND:
             case WeatherIcons.DAY_SHOWERS:
             case WeatherIcons.DAY_SLEET:
-            case WeatherIcons.DAY_SLEET_STORM:
-            case WeatherIcons.DAY_SNOW:
-            case WeatherIcons.DAY_SNOW_THUNDERSTORM:
-            case WeatherIcons.DAY_SNOW_WIND:
             case WeatherIcons.DAY_SPRINKLE:
-            case WeatherIcons.DAY_STORM_SHOWERS:
-            case WeatherIcons.DAY_THUNDERSTORM:
+                rgbHex = "#ff78b0c8";
+                break;
             case WeatherIcons.NIGHT_ALT_HAIL:
-            case WeatherIcons.NIGHT_ALT_LIGHTNING:
             case WeatherIcons.NIGHT_ALT_RAIN:
             case WeatherIcons.NIGHT_ALT_RAIN_MIX:
             case WeatherIcons.NIGHT_ALT_RAIN_WIND:
             case WeatherIcons.NIGHT_ALT_SHOWERS:
             case WeatherIcons.NIGHT_ALT_SLEET:
-            case WeatherIcons.NIGHT_ALT_SLEET_STORM:
-            case WeatherIcons.NIGHT_ALT_SNOW:
-            case WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM:
-            case WeatherIcons.NIGHT_ALT_SNOW_WIND:
             case WeatherIcons.NIGHT_ALT_SPRINKLE:
-            case WeatherIcons.NIGHT_ALT_STORM_SHOWERS:
-            case WeatherIcons.NIGHT_ALT_THUNDERSTORM:
-            case WeatherIcons.HAIL:
             case WeatherIcons.RAIN:
             case WeatherIcons.RAIN_MIX:
             case WeatherIcons.RAIN_WIND:
             case WeatherIcons.SHOWERS:
             case WeatherIcons.SLEET:
-            case WeatherIcons.SNOW:
             case WeatherIcons.SPRINKLE:
-            case WeatherIcons.STORM_SHOWERS:
-            case WeatherIcons.THUNDERSTORM:
-            case WeatherIcons.SNOW_WIND:
+                rgbHex = "#ff181810";
+                break;
+            // Tornado / Hurricane / Thunderstorm / Tropical Storm
+            case WeatherIcons.DAY_LIGHTNING:
+            case WeatherIcons.DAY_THUNDERSTORM:
+                rgbHex = "#ff687080";
+                break;
+            case WeatherIcons.NIGHT_ALT_LIGHTNING:
+            case WeatherIcons.NIGHT_ALT_THUNDERSTORM:
             case WeatherIcons.LIGHTNING:
-                // lighter than night color + cloudiness
-                rgbHex = "#354374";
+            case WeatherIcons.THUNDERSTORM:
+                rgbHex = "#ff303868";
+                break;
+            case WeatherIcons.DAY_STORM_SHOWERS:
+            case WeatherIcons.DAY_SLEET_STORM:
+            case WeatherIcons.STORM_SHOWERS:
+            case WeatherIcons.NIGHT_ALT_STORM_SHOWERS:
+            case WeatherIcons.NIGHT_ALT_SLEET_STORM:
+            case WeatherIcons.HAIL:
+            case WeatherIcons.HURRICANE:
+            case WeatherIcons.TORNADO:
+                rgbHex = "#ff283840";
                 break;
             // Dust
             case WeatherIcons.DUST:
-                // Foggy / Haze
+            case WeatherIcons.SANDSTORM:
+                rgbHex = "#ffaf9f6d";
+                break;
+            // Foggy / Haze
             case WeatherIcons.DAY_FOG:
             case WeatherIcons.DAY_HAZE:
-            case WeatherIcons.NIGHT_FOG:
             case WeatherIcons.FOG:
-                // add haziness
-                rgbHex = "#8FA3C4";
+            case WeatherIcons.NIGHT_FOG:
+            case WeatherIcons.SMOG:
+            case WeatherIcons.SMOKE:
+                rgbHex = "#ff888888";
                 break;
-            // Night
-            case WeatherIcons.NIGHT_CLEAR:
-            case WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY:
-                // Night background
-                rgbHex = "#1A244A";
+            // Snow / Snow Showers/Storm
+            case WeatherIcons.DAY_SNOW:
+            case WeatherIcons.DAY_SNOW_THUNDERSTORM:
+            case WeatherIcons.NIGHT_ALT_SNOW:
+            case WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM:
+            case WeatherIcons.SNOW:
+                rgbHex = "#ff5088b0";
                 break;
-            // Mostly/Partly Cloudy
-            case WeatherIcons.DAY_CLOUDY:
-            case WeatherIcons.DAY_CLOUDY_GUSTS:
-            case WeatherIcons.DAY_CLOUDY_WINDY:
-            case WeatherIcons.DAY_CLOUDY_HIGH:
-            case WeatherIcons.DAY_SUNNY_OVERCAST:
-            case WeatherIcons.NIGHT_ALT_CLOUDY:
-            case WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS:
-            case WeatherIcons.NIGHT_ALT_CLOUDY_WINDY:
-            case WeatherIcons.NIGHT_ALT_CLOUDY_HIGH:
+            case WeatherIcons.SNOW_WIND:
+            case WeatherIcons.DAY_SNOW_WIND:
+            case WeatherIcons.NIGHT_ALT_SNOW_WIND:
+                rgbHex = "#ff888888";
+                break;
+            /* Ambigious weather conditions */
+            // (Mostly) Cloudy
             case WeatherIcons.CLOUD:
             case WeatherIcons.CLOUDY:
             case WeatherIcons.CLOUDY_GUSTS:
             case WeatherIcons.CLOUDY_WINDY:
-                if (isNight(weather)) {
-                    // Add night background plus cloudiness
-                    rgbHex = "#102543";
-                } else {
-                    // add day bg + cloudiness
-                    rgbHex = "#7794C4";
-                }
+            case WeatherIcons.DAY_CLOUDY:
+            case WeatherIcons.DAY_CLOUDY_GUSTS:
+            case WeatherIcons.DAY_CLOUDY_HIGH:
+            case WeatherIcons.DAY_CLOUDY_WINDY:
+            case WeatherIcons.NIGHT_ALT_CLOUDY:
+            case WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS:
+            case WeatherIcons.NIGHT_ALT_CLOUDY_HIGH:
+            case WeatherIcons.NIGHT_ALT_CLOUDY_WINDY:
+                if (isNight(weather))
+                    rgbHex = "#ff182030";
+                else
+                    rgbHex = "#ff4880a8";
                 break;
+            // Partly Cloudy
+            case WeatherIcons.DAY_SUNNY_OVERCAST:
+            case WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY:
+                if (isNight(weather))
+                    rgbHex = "#ff384050";
+                else
+                    rgbHex = "#ff3868a8";
+                break;
+            case WeatherIcons.DAY_SUNNY:
             case WeatherIcons.NA:
+            case WeatherIcons.NIGHT_CLEAR:
+            case WeatherIcons.SNOWFLAKE_COLD:
+            case WeatherIcons.DAY_HOT:
+            case WeatherIcons.WINDY:
+            case WeatherIcons.STRONG_WIND:
             default:
                 // Set background based using sunset/rise times
-                if (isNight(weather)) {
-                    // Night background
-                    rgbHex = "#1A244A";
-                } else {
-                    // set day bg
-                    rgbHex = "#4874BF";
-                }
+                if (isNight(weather))
+                    rgbHex = "#ff202020";
+                else
+                    rgbHex = "#ff6890b8";
                 break;
         }
 
@@ -275,10 +295,10 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             // Set background based using sunset/rise times
             if (isNight(weather)) {
                 // Night background
-                rgbHex = "#1A244A";
+                rgbHex = "#ff202020";
             } else {
                 // set day bg
-                rgbHex = "#4874BF";
+                rgbHex = "#ff6890b8";
             }
         }
 
@@ -286,7 +306,7 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
     }
 
     @Override
-    public String getWeatherBackgroundURI(Weather weather) {
+    public final String getWeatherBackgroundURI(Weather weather) {
         String icon = weather.getCondition().getIcon();
         String file = null;
 
@@ -298,16 +318,15 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             case WeatherIcons.DAY_RAIN_WIND:
             case WeatherIcons.DAY_SHOWERS:
             case WeatherIcons.DAY_SLEET:
-            case WeatherIcons.DAY_SLEET_STORM:
             case WeatherIcons.DAY_SPRINKLE:
-            case WeatherIcons.HAIL:
+                file = "file:///android_asset/backgrounds/RainyDay.jpg";
+                break;
             case WeatherIcons.NIGHT_ALT_HAIL:
             case WeatherIcons.NIGHT_ALT_RAIN:
             case WeatherIcons.NIGHT_ALT_RAIN_MIX:
             case WeatherIcons.NIGHT_ALT_RAIN_WIND:
             case WeatherIcons.NIGHT_ALT_SHOWERS:
             case WeatherIcons.NIGHT_ALT_SLEET:
-            case WeatherIcons.NIGHT_ALT_SLEET_STORM:
             case WeatherIcons.NIGHT_ALT_SPRINKLE:
             case WeatherIcons.RAIN:
             case WeatherIcons.RAIN_MIX:
@@ -315,19 +334,26 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             case WeatherIcons.SHOWERS:
             case WeatherIcons.SLEET:
             case WeatherIcons.SPRINKLE:
-                file = "file:///android_asset/backgrounds/RainySky.jpg";
+                file = "file:///android_asset/backgrounds/RainyNight.jpg";
                 break;
             // Tornado / Hurricane / Thunderstorm / Tropical Storm
             case WeatherIcons.DAY_LIGHTNING:
-            case WeatherIcons.DAY_STORM_SHOWERS:
             case WeatherIcons.DAY_THUNDERSTORM:
+                file = "file:///android_asset/backgrounds/Thunderstorm-Day.jpg";
+                break;
             case WeatherIcons.NIGHT_ALT_LIGHTNING:
-            case WeatherIcons.NIGHT_ALT_STORM_SHOWERS:
             case WeatherIcons.NIGHT_ALT_THUNDERSTORM:
-            case WeatherIcons.HURRICANE:
             case WeatherIcons.LIGHTNING:
-            case WeatherIcons.STORM_SHOWERS:
             case WeatherIcons.THUNDERSTORM:
+                file = "file:///android_asset/backgrounds/Thunderstorm-Night.jpg";
+                break;
+            case WeatherIcons.DAY_STORM_SHOWERS:
+            case WeatherIcons.DAY_SLEET_STORM:
+            case WeatherIcons.STORM_SHOWERS:
+            case WeatherIcons.NIGHT_ALT_STORM_SHOWERS:
+            case WeatherIcons.NIGHT_ALT_SLEET_STORM:
+            case WeatherIcons.HAIL:
+            case WeatherIcons.HURRICANE:
             case WeatherIcons.TORNADO:
                 file = "file:///android_asset/backgrounds/StormySky.jpg";
                 break;
@@ -348,13 +374,15 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             // Snow / Snow Showers/Storm
             case WeatherIcons.DAY_SNOW:
             case WeatherIcons.DAY_SNOW_THUNDERSTORM:
-            case WeatherIcons.DAY_SNOW_WIND:
             case WeatherIcons.NIGHT_ALT_SNOW:
             case WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM:
-            case WeatherIcons.NIGHT_ALT_SNOW_WIND:
             case WeatherIcons.SNOW:
-            case WeatherIcons.SNOW_WIND:
                 file = "file:///android_asset/backgrounds/Snow.jpg";
+                break;
+            case WeatherIcons.SNOW_WIND:
+            case WeatherIcons.DAY_SNOW_WIND:
+            case WeatherIcons.NIGHT_ALT_SNOW_WIND:
+                file = "file:///android_asset/backgrounds/Snow-Windy.jpg";
                 break;
             /* Ambigious weather conditions */
             // (Mostly) Cloudy
