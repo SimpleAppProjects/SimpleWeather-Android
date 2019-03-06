@@ -125,6 +125,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
     private static final int SETUP_REQUEST_CODE = 10;
+    private static final int MAX_LOCATIONS = Settings.getMaxLocations();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -193,6 +194,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         for (LocationData location : favorites) {
             comboList.add(comboList.size() - 1, new ComboBoxItem(location.getName(), location.getQuery()));
         }
+        if (comboList.size() > MAX_LOCATIONS)
+            comboList.remove(comboList.size() - 1);
 
         locAdapter = new ArrayAdapter<>(
                 this, android.R.layout.simple_spinner_item,
@@ -611,6 +614,10 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 locAdapter.insert(item, idx);
                 locSpinner.setSelection(idx);
                 locSummary.setText(item.getDisplay());
+
+                if (locAdapter.getCount() > MAX_LOCATIONS) {
+                    locAdapter.remove(locAdapter.getItem(locAdapter.getCount() - 1));
+                }
 
                 // Hide dialog
                 showLoading(false);

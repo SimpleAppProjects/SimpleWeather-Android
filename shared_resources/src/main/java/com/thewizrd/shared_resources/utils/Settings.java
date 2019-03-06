@@ -49,6 +49,7 @@ public class Settings {
     // Data
     public static final int CURRENT_DBVERSION = 3;
     private static final int CACHE_LIMIT = 10;
+    private static final int MAX_LOCATIONS = 10;
 
     // Units
     private static final String FAHRENHEIT = "F";
@@ -940,5 +941,9 @@ public class Settings {
         SharedPreferences.Editor versionEditor = versionPrefs.edit();
         versionEditor.putString(KEY_CURRENTVERSION, Integer.toString(value));
         versionEditor.apply();
+    }
+
+    public static int getMaxLocations() {
+        return MAX_LOCATIONS;
     }
 }

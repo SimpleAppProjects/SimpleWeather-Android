@@ -144,6 +144,8 @@ public class LocationsFragment extends Fragment
 
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
 
+    private static final int MAX_LOCATIONS = Settings.getMaxLocations();
+
     // OptionsMenu
     private Menu optionsMenu;
 
@@ -1284,7 +1286,9 @@ public class LocationsFragment extends Fragment
             }
         }
 
-        addLocationsButton.setVisibility(View.VISIBLE);
+        if (mAdapter.getDataCount() < MAX_LOCATIONS)
+            addLocationsButton.setVisibility(View.VISIBLE);
+
         int padding = getResources().getDimensionPixelSize(R.dimen.toolbar_horizontal_inset_padding);
         mToolbar.setContentInsetsRelative(padding, padding);
         createOptionsMenu();
@@ -1367,6 +1371,9 @@ public class LocationsFragment extends Fragment
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    // Hide FAB; Don't allow adding more locations
+                    addLocationsButton.setVisibility(mAdapter.getDataCount() >= MAX_LOCATIONS ? View.GONE : View.VISIBLE);
+
                     // Cancel edit Mode
                     if (mEditMode && onlyHomeIsLeft)
                         toggleEditMode();
