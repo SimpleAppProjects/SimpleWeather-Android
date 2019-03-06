@@ -334,10 +334,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                 wLoader = new WeatherDataLoader(location, this, this);
         }
 
-        if (savedInstanceState != null) {
-            bgAlpha = savedInstanceState.getInt("alpha", 255);
-        }
-
         if (WearableHelper.isGooglePlayServicesInstalled()) {
             mFusedLocationClient = new FusedLocationProviderClient(mActivity);
             mLocCallback = new LocationCallback() {
@@ -805,14 +801,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
         super.onPause();
         loaded = false;
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        // Save data
-        outState.putInt("alpha", bgAlpha);
-
-        super.onSaveInstanceState(outState);
     }
 
     private void restore() {
