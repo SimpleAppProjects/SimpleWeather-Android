@@ -20,6 +20,8 @@ public abstract class LocationProviderImpl implements LocationProviderImplInterf
     }
 
     // Variables
+    public abstract String getLocationAPI();
+
     public abstract boolean isKeyRequired();
 
     public abstract boolean supportsLocale();

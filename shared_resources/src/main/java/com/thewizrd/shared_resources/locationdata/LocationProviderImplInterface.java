@@ -7,6 +7,8 @@ import com.thewizrd.shared_resources.weatherdata.LocationData;
 import java.util.Collection;
 
 public interface LocationProviderImplInterface {
+    String getLocationAPI();
+
     boolean isKeyRequired();
 
     boolean supportsLocale();

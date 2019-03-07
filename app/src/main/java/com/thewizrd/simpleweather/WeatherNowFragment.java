@@ -36,6 +36,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
+import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -135,6 +136,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     private TextView weatherIcon;
     private TextView weatherCondition;
     private TextView weatherTemp;
+    private TextView bgAttribution;
     // Details
     private RecyclerView detailsContainer;
     private DetailItemAdapter detailsAdapter;
@@ -500,6 +502,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         weatherIcon = view.findViewById(R.id.weather_icon);
         weatherCondition = view.findViewById(R.id.weather_condition);
         weatherTemp = view.findViewById(R.id.weather_temp);
+        bgAttribution = view.findViewById(R.id.bg_attribution);
+        bgAttribution.setMovementMethod(LinkMovementMethod.getInstance());
         // Details
         detailsContainer = view.findViewById(R.id.details_container);
         detailsContainer.setHasFixedSize(false);
@@ -948,6 +952,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                 weatherTemp.setText(weatherView.getCurTemp());
                 weatherCondition.setText(weatherView.getCurCondition());
                 weatherIcon.setText(weatherView.getWeatherIcon());
+                bgAttribution.setText(getBackgroundAttribution(weatherView.getBackground()));
 
                 // WeatherDetails
                 detailsAdapter.updateItems(weatherView);
@@ -1194,5 +1199,37 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             default:
                 break;
         }
+    }
+
+    private CharSequence getBackgroundAttribution(String backgroundURI) {
+        CharSequence attrib = "";
+
+        if (!StringUtils.isNullOrWhitespace(backgroundURI)) {
+            if (backgroundURI.contains("DaySky")) {
+                attrib = mActivity.getText(R.string.attrib_daysky);
+            } else if (backgroundURI.contains("FoggySky")) {
+                attrib = mActivity.getText(R.string.attrib_foggysky);
+            } else if (backgroundURI.contains("NightSky")) {
+                attrib = mActivity.getText(R.string.attrib_nightsky);
+            } else if (backgroundURI.contains("PartlyCloudy-Day")) {
+                attrib = mActivity.getText(R.string.attrib_ptcloudyday);
+            } else if (backgroundURI.contains("RainyDay")) {
+                attrib = mActivity.getText(R.string.attrib_rainyday);
+            } else if (backgroundURI.contains("RainyNight")) {
+                attrib = mActivity.getText(R.string.attrib_rainynt);
+            } else if (backgroundURI.contains("Snow-Windy")) {
+                attrib = mActivity.getText(R.string.attrib_snowwindy);
+            } else if (backgroundURI.contains("Snow")) {
+                attrib = mActivity.getText(R.string.attrib_snow);
+            } else if (backgroundURI.contains("StormySky")) {
+                attrib = mActivity.getText(R.string.attrib_stormy);
+            } else if (backgroundURI.contains("Thunderstorm-Day")) {
+                attrib = mActivity.getText(R.string.attrib_tstormday);
+            } else if (backgroundURI.contains("Thunderstorm-Night")) {
+                attrib = mActivity.getText(R.string.attrib_tstormnt);
+            }
+        }
+
+        return attrib;
     }
 }

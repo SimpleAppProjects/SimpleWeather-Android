@@ -14,6 +14,7 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +27,11 @@ import java.util.HashSet;
 import java.util.Locale;
 
 public final class HERELocationProvider extends LocationProviderImpl {
+
+    @Override
+    public String getLocationAPI() {
+        return WeatherAPI.HERE;
+    }
 
     @Override
     public boolean supportsLocale() {

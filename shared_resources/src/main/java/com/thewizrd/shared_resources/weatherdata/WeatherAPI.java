@@ -28,4 +28,13 @@ public class WeatherAPI {
             new ProviderEntry("MET Norway", METNO,
                     "https://www.met.no/en", "https://www.met.no/en")
     ));
+
+    public static List<ProviderEntry> LocationAPIs = new ArrayList<>(asList(
+            new ProviderEntry("HERE Maps", HERE,
+                    "https://www.here.com/en", "https://developer.here.com/"),
+            new ProviderEntry("WeatherUnderground", WEATHERUNDERGROUND,
+                    "https://www.wunderground.com", "https://www.wunderground.com"),
+            new ProviderEntry("LocationIQ", LOCATIONIQ,
+                    "https://locationiq.com", "https://locationiq.com")
+    ));
 }

@@ -12,6 +12,7 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
@@ -28,6 +29,11 @@ import java.util.List;
 import java.util.Locale;
 
 public class WULocationProvider extends LocationProviderImpl {
+
+    @Override
+    public String getLocationAPI() {
+        return WeatherAPI.WEATHERUNDERGROUND;
+    }
 
     @Override
     public boolean supportsLocale() {
