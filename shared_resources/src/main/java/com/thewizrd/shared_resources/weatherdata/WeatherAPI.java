@@ -14,6 +14,7 @@ public class WeatherAPI {
     public static final String OPENWEATHERMAP = "openweather";
     public static final String METNO = "Metno";
     public static final String HERE = "Here";
+    public static final String LOCATIONIQ = "LocIQ";
 
     public static List<ProviderEntry> APIs = new ArrayList<>(asList(
             new ProviderEntry("HERE Weather", HERE,

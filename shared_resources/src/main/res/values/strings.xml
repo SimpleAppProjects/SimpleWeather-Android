@@ -11,6 +11,7 @@
     <string name="api_owm">OpenWeatherMap</string>
     <string name="api_wu">WeatherUnderground</string>
     <string name="api_yahoo">Yahoo Weather</string>
+    <string name="api_lociq">LocationIQ</string>
     <string name="label_gpsfollow">Current Location</string>
     <string name="label_apiregister">Register for API key here</string>
     <!-- MainActivity -->
@@ -66,7 +67,7 @@
     <string name="pref_title_about_app">About SimpleWeather</string>
     <string name="pref_title_credits">Credits</string>
     <string name="pref_title_oslibs">Open Source Libraries</string>
-    <string name="pref_category_providers">Weather Providers</string>
+    <string name="pref_category_providers">Data Providers</string>
     <string name="copyright_here">
         The HERE Logo is a trademark or registered trademark of HERE Global B.V.
     </string>

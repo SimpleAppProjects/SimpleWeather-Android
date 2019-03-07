@@ -39,6 +39,12 @@
                 android:action="android.intent.action.VIEW"
                 android:data="https://www.met.no/en" />
         </Preference>
+        <Preference android:title="@string/api_lociq" />
+        <Preference android:layout="@layout/credit_lociq">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://locationiq.com" />
+        </Preference>
 
     </PreferenceCategory>
 
