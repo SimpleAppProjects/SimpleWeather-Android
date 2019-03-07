@@ -80,6 +80,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 public class WeatherWidgetConfigActivity extends AppCompatActivity {
     // Widget id for ConfigurationActivity
@@ -1094,7 +1095,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 @SuppressLint("MissingPermission")
                 @Override
                 public Location call() throws Exception {
-                    return Tasks.await(mFusedLocationClient.getLastLocation());
+                    return Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
                 }
             });
 

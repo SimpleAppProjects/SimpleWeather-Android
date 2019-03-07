@@ -47,6 +47,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.helpers.AcceptDenyDialogBuilder;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 public class SetupActivity extends WearableActivity implements MenuItem.OnMenuItemClickListener {
 
@@ -424,7 +425,7 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                 @SuppressLint("MissingPermission")
                 @Override
                 public Location call() throws Exception {
-                    return Tasks.await(mFusedLocationClient.getLastLocation());
+                    return Tasks.await(mFusedLocationClient.getLastLocation(), 10, TimeUnit.SECONDS);
                 }
             });
 

@@ -104,6 +104,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Locale;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 public class WeatherNowFragment extends Fragment implements WeatherLoadedListenerInterface,
         WeatherErrorListenerInterface, ActivityCompat.OnRequestPermissionsResultCallback {
@@ -1061,7 +1062,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             @SuppressLint("MissingPermission")
                             @Override
                             public Location call() throws Exception {
-                                return Tasks.await(mFusedLocationClient.getLastLocation());
+                                return Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
                             }
                         });
 
