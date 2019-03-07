@@ -134,7 +134,7 @@ public class SetupActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setup);
 
         // Make full transparent statusBar
-        ActivityUtils.setTransparentWindow(getWindow(), Colors.TRANSPARENT, Colors.TRANSPARENT);
+        ActivityUtils.setTransparentWindow(getWindow(), Colors.SIMPLEBLUE, Colors.SIMPLEBLUE);
 
         wm = WeatherManager.getInstance();
 

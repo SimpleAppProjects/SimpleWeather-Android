@@ -965,8 +965,8 @@ public class WeatherWidgetService extends JobIntentService {
     }
 
     private static void setOnRefreshIntent(Context context, WeatherWidgetProvider provider, int appWidgetId, RemoteViews updateViews) {
-        Intent refreshIntent = new Intent(context, WeatherWidgetBroadcastReceiver.class)
-                .setAction(ACTION_REFRESHWIDGET)
+        Intent refreshIntent = new Intent(context, provider.getClass())
+                .setAction(WeatherWidgetProvider.ACTION_REFRESHWIDGETS)
                 .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, new int[]{appWidgetId})
                 .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, provider.getWidgetType().getValue());
         PendingIntent refreshPendingIntent =
