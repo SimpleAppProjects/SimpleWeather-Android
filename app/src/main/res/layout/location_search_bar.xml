@@ -44,7 +44,7 @@
             android:layout_weight="1"
             android:fontFamily="sans-serif"
             android:gravity="center_vertical"
-            android:hint="@string/location_search_hint"
+            android:hint="@string/setup_location_prompt"
             android:textColorHint="@color/colorPrimary"
             android:textColor="@color/colorPrimary"
             android:textSize="14sp" />

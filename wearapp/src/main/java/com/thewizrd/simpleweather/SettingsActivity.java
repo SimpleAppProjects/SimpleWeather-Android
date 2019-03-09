@@ -43,6 +43,13 @@ import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
 import java.util.List;
 
+import static com.thewizrd.shared_resources.utils.Settings.KEY_API;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_APIKEY;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_DATASYNC;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_FOLLOWGPS;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_USECELSIUS;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_USEPERSONALKEY;
+
 public class SettingsActivity extends WearableActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +68,6 @@ public class SettingsActivity extends WearableActivity {
 
     @Override
     public void onBackPressed() {
-        String KEY_API = "API";
-
         if (getFragmentManager().findFragmentById(android.R.id.content) instanceof SettingsFragment) {
             SettingsFragment fragment = (SettingsFragment) getFragmentManager().findFragmentById(android.R.id.content);
             ListPreference keyPref = (ListPreference) fragment.findPreference(KEY_API);
@@ -83,14 +88,8 @@ public class SettingsActivity extends WearableActivity {
 
         // Preference Keys
         private static final String KEY_ABOUTAPP = "key_aboutapp";
-        private static final String KEY_FOLLOWGPS = "key_followgps";
-        private static final String KEY_API = "API";
-        private static final String KEY_APIKEY = "API_KEY";
-        private static final String KEY_USECELSIUS = "key_usecelsius";
-        private static final String KEY_DATASYNC = "key_datasync";
         private static final String KEY_CONNSTATUS = "key_connectionstatus";
         private static final String KEY_APIREGISTER = "key_apiregister";
-        private static final String KEY_USEPERSONALKEY = "key_usepersonalkey";
 
         private static final String CATEGORY_API = "category_api";
 

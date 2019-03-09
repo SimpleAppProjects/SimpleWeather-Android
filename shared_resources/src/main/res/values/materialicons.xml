@@ -8,4 +8,5 @@
     <string name="materialicon_search">&#xE8B6;</string>
     <string name="materialicon_place">&#xE55F;</string>
     <string name="materialicon_back">&#xE5C4;</string>
+    <string name="materialicon_settings">&#xE8B8;</string>
 </resources>

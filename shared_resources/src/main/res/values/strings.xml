@@ -14,6 +14,12 @@
     <string name="api_lociq">LocationIQ</string>
     <string name="label_gpsfollow">Current Location</string>
     <string name="label_apiregister">Register for API key here</string>
+    <string name="label_getstarted">Get Started</string>
+    <string name="setup_welcome_prompt">Welcome to SimpleWeather</string>
+    <string name="setup_welcome_tagline_prompt">Just a simple weather app</string>
+    <string name="setup_location_prompt">Add a location to start</string>
+    <string name="setup_preferences_prompt">Customize your settings below</string>
+    <string name="label_continue">Continue</string>
     <!-- MainActivity -->
     <string name="title_activity_weather_now">Weather</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>

@@ -20,7 +20,7 @@ public class LaunchActivity extends AppCompatActivity {
         Intent intent = null;
 
         try {
-            if (Settings.isWeatherLoaded()) {
+            if (Settings.isWeatherLoaded() && Settings.isOnBoardingComplete()) {
                 intent = new Intent(this, MainActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             } else {

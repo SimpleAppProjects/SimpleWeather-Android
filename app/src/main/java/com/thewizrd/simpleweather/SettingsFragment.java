@@ -49,6 +49,16 @@ import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 import java.util.HashSet;
 import java.util.List;
 
+import static com.thewizrd.shared_resources.utils.Settings.KEY_API;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_APIKEY;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_FOLLOWGPS;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_NOTIFICATIONICON;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_ONGOINGNOTIFICATION;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_REFRESHINTERVAL;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_USEALERTS;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_USECELSIUS;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_USEPERSONALKEY;
+
 public class SettingsFragment extends CustomPreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -56,17 +66,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
 
     // Preference Keys
     private static final String KEY_ABOUTAPP = "key_aboutapp";
-    private static final String KEY_FOLLOWGPS = "key_followgps";
-    private static final String KEY_API = "API";
-    private static final String KEY_APIKEY = "API_KEY";
-    private static final String KEY_USECELSIUS = "key_usecelsius";
-    private static final String KEY_REFRESHINTERVAL = "key_refreshinterval";
-    private static final String KEY_ONGOINGNOTIFICATION = "key_ongoingnotification";
-    private static final String KEY_NOTIFICATIONICON = "key_notificationicon";
-    private static final String KEY_USEALERTS = "key_usealerts";
     private static final String KEY_APIREGISTER = "key_apiregister";
-    private static final String KEY_USEPERSONALKEY = "key_usepersonalkey";
-
     private static final String CATEGORY_NOTIFICATION = "category_notification";
     private static final String CATEGORY_API = "category_api";
 
@@ -150,8 +150,6 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
 
     @Override
     public boolean onBackPressed() {
-        String KEY_API = "API";
-
         if (mActivity.getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof SettingsFragment) {
             SettingsFragment fragment = (SettingsFragment) mActivity.getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             ListPreference keyPref = (ListPreference) fragment.findPreference(KEY_API);

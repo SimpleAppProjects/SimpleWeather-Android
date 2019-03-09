@@ -110,4 +110,5 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'com.ibm.icu:icu4j:62.1' // Keep @ 62.1 - 63.1 requires Java 7 (API 21+)
     implementation 'com.jakewharton.threetenabp:threetenabp:1.1.1'
+    implementation 'com.stepstone.stepper:material-stepper:4.3.1'
 }

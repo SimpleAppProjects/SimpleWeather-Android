@@ -1,10 +1,7 @@
 package com.thewizrd.simpleweather;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.appwidget.AppWidgetManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,28 +19,18 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
-import com.thewizrd.shared_resources.controls.LocationQuery;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
-import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
-import com.thewizrd.shared_resources.utils.WeatherException;
-import com.thewizrd.shared_resources.weatherdata.LocationData;
-import com.thewizrd.shared_resources.weatherdata.Weather;
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
-import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.Callable;
 
 public class LocationSearchFragment extends Fragment {
     private RecyclerView mRecyclerView;
@@ -61,9 +48,6 @@ public class LocationSearchFragment extends Fragment {
     public void setRecyclerOnClickListener(RecyclerOnClickListenerInterface listener) {
         recyclerClickListener = listener;
     }
-
-    // Widget id for ConfigurationActivity
-    private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 
     public LocationSearchFragment() {
         // Required empty public constructor
@@ -123,154 +107,9 @@ public class LocationSearchFragment extends Fragment {
         return mAdapter;
     }
 
-    private RecyclerOnClickListenerInterface recyclerClickListener = new RecyclerOnClickListenerInterface() {
-        @Override
-        public void onClick(final View view, final int position) {
-            AsyncTask.run(new Runnable() {
-                @Override
-                public void run() {
-                    if (mActivity != null) {
-                        // Get selected query view
-                        LocationQuery v = (LocationQuery) view;
-                        LocationQueryViewModel query_vm = null;
+    private RecyclerOnClickListenerInterface recyclerClickListener;
 
-                        try {
-                            if (!StringUtils.isNullOrEmpty(mAdapter.getDataset().get(position).getLocationQuery()))
-                                query_vm = mAdapter.getDataset().get(position);
-                        } catch (ArrayIndexOutOfBoundsException ex) {
-                            query_vm = null;
-                        } finally {
-                            if (query_vm == null)
-                                query_vm = new LocationQueryViewModel();
-                        }
-
-                        if (StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
-                            // Stop since there is no valid query
-                            return;
-                        }
-
-                        if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired()) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(App.getInstance().getAppContext(), R.string.werror_invalidkey, Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                            return;
-                        }
-
-                        // Cancel pending search
-                        ctsCancel();
-                        CancellationToken ctsToken = cts.getToken();
-
-                        showLoading(true);
-
-                        if (ctsToken.isCancellationRequested()) {
-                            showLoading(false);
-                            return;
-                        }
-
-                        // Need to get FULL location data for HERE API
-                        // Data provided is incomplete
-                        if (WeatherAPI.HERE.equals(Settings.getAPI())
-                                && query_vm.getLocationLat() == -1 && query_vm.getLocationLong() == -1
-                                && query_vm.getLocationTZLong() == null) {
-                            final LocationQueryViewModel loc = query_vm;
-                            query_vm = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
-                                @Override
-                                public LocationQueryViewModel call() throws Exception {
-                                    return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery());
-                                }
-                            });
-                        }
-
-                        // Get weather data
-                        LocationData location = new LocationData(query_vm);
-                        if (!location.isValid()) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(App.getInstance().getAppContext(), R.string.werror_noweather, Toast.LENGTH_SHORT).show();
-                                    showLoading(false);
-                                }
-                            });
-                            return;
-                        }
-                        Weather weather = Settings.getWeatherData(location.getQuery());
-                        if (weather == null) {
-                            try {
-                                weather = wm.getWeather(location);
-                            } catch (final WeatherException wEx) {
-                                weather = null;
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(App.getInstance().getAppContext(), wEx.getMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }
-                        }
-
-                        if (weather == null) {
-                            showLoading(false);
-                            return;
-                        }
-
-                        // We got our data so disable controls just in case
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mAdapter.getDataset().clear();
-                                mAdapter.notifyDataSetChanged();
-                                mRecyclerView.setEnabled(false);
-                            }
-                        });
-
-                        // Save weather data
-                        Settings.deleteLocations();
-                        Settings.addLocation(location);
-                        if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
-                            Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
-                        Settings.saveWeatherData(weather);
-
-                        // If we're using search
-                        // make sure gps feature is off
-                        Settings.setFollowGPS(false);
-                        Settings.setWeatherLoaded(true);
-
-                        // Send data for wearables
-                        WearableDataListenerService.enqueueWork(mActivity,
-                                new Intent(mActivity, WearableDataListenerService.class)
-                                        .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
-                        WearableDataListenerService.enqueueWork(mActivity,
-                                new Intent(mActivity, WearableDataListenerService.class)
-                                        .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
-                        WearableDataListenerService.enqueueWork(mActivity,
-                                new Intent(mActivity, WearableDataListenerService.class)
-                                        .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
-
-                        if (mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
-                            // Start WeatherNow Activity with weather data
-                            Intent intent = new Intent(mActivity, MainActivity.class);
-                            intent.putExtra("data", location.toJson());
-
-                            mActivity.startActivity(intent);
-                            mActivity.finishAffinity();
-                        } else {
-                            // Create return intent
-                            Intent resultValue = new Intent();
-                            resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-                            resultValue.putExtra("data", location.toJson());
-                            mActivity.setResult(Activity.RESULT_OK, resultValue);
-                            mActivity.finish();
-                        }
-                    }
-                }
-            });
-        }
-    };
-
-    private void showLoading(final boolean show) {
+    public void showLoading(final boolean show) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -287,11 +126,6 @@ public class LocationSearchFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            mAppWidgetId = getArguments().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
-        }
-
         mActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
     }
 

@@ -52,8 +52,8 @@ public class Settings {
     private static final int MAX_LOCATIONS = 10;
 
     // Units
-    private static final String FAHRENHEIT = "F";
-    private static final String CELSIUS = "C";
+    public static final String FAHRENHEIT = "F";
+    public static final String CELSIUS = "C";
 
     private static final String DEFAULT_UPDATE_INTERVAL;
     public static final int DEFAULTINTERVAL;
@@ -67,28 +67,29 @@ public class Settings {
     private static final SharedPreferences versionPrefs;
 
     // Settings Keys
-    private static final String KEY_API = "API";
-    private static final String KEY_APIKEY = "API_KEY";
+    public static final String KEY_API = "API";
+    public static final String KEY_APIKEY = "API_KEY";
     private static final String KEY_APIKEY_VERIFIED = "API_KEY_VERIFIED";
-    private static final String KEY_USECELSIUS = "key_usecelsius";
-    private static final String KEY_UNITS = "Units";
+    public static final String KEY_USECELSIUS = "key_usecelsius";
+    public static final String KEY_UNITS = "Units";
     private static final String KEY_WEATHERLOADED = "weatherLoaded";
-    private static final String KEY_FOLLOWGPS = "key_followgps";
+    public static final String KEY_FOLLOWGPS = "key_followgps";
     private static final String KEY_LASTGPSLOCATION = "key_lastgpslocation";
-    private static final String KEY_REFRESHINTERVAL = "key_refreshinterval";
+    public static final String KEY_REFRESHINTERVAL = "key_refreshinterval";
     private static final String KEY_UPDATETIME = "key_updatetime";
     private static final String KEY_DBVERSION = "key_dbversion";
-    private static final String KEY_USEALERTS = "key_usealerts";
-    private static final String KEY_USEPERSONALKEY = "key_usepersonalkey";
+    public static final String KEY_USEALERTS = "key_usealerts";
+    public static final String KEY_USEPERSONALKEY = "key_usepersonalkey";
     private static final String KEY_CURRENTVERSION = "key_currentversion";
     // !ANDROID_WEAR
-    private static final String KEY_ONGOINGNOTIFICATION = "key_ongoingnotification";
-    private static final String KEY_NOTIFICATIONICON = "key_notificationicon";
+    public static final String KEY_ONGOINGNOTIFICATION = "key_ongoingnotification";
+    public static final String KEY_NOTIFICATIONICON = "key_notificationicon";
+    private static final String KEY_ONBOARDINGCOMPLETE = "key_onboardcomplete";
     public static final String TEMPERATURE_ICON = "0";
     public static final String CONDITION_ICON = "1";
     // END - !ANDROID_WEAR
     // ANDROID_WEAR - only
-    private static final String KEY_DATASYNC = "key_datasync";
+    public static final String KEY_DATASYNC = "key_datasync";
     // END
 
     // App data files
@@ -298,6 +299,8 @@ public class Settings {
                                     .updateLocationData(lastGPSLocData);
                         }
                     }
+                    // v1.3.8+ - Added Onboarding Wizard
+                    Settings.setOnBoardingComplete(true);
                 }
                 setVersionCode(packageInfo.versionCode);
                 return null;
@@ -872,6 +875,11 @@ public class Settings {
             return preferences.getBoolean(KEY_ONGOINGNOTIFICATION, false);
     }
 
+    public static void setOngoingNotification(boolean value) {
+        editor.putBoolean(KEY_ONGOINGNOTIFICATION, value);
+        editor.commit();
+    }
+
     public static String getNotificationIcon() {
         if (!preferences.contains(KEY_NOTIFICATIONICON)) {
             return TEMPERATURE_ICON;
@@ -945,5 +953,17 @@ public class Settings {
 
     public static int getMaxLocations() {
         return MAX_LOCATIONS;
+    }
+
+    public static boolean isOnBoardingComplete() {
+        if (!preferences.contains(KEY_ONBOARDINGCOMPLETE))
+            return false;
+        else
+            return preferences.getBoolean(KEY_ONBOARDINGCOMPLETE, false);
+    }
+
+    public static void setOnBoardingComplete(boolean value) {
+        editor.putBoolean(KEY_ONBOARDINGCOMPLETE, value);
+        editor.commit();
     }
 }
