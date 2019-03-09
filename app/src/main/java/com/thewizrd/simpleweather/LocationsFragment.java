@@ -20,7 +20,6 @@ import android.support.design.widget.Snackbar;
 import android.support.transition.AutoTransition;
 import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -102,8 +101,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 public class LocationsFragment extends Fragment
-        implements WeatherLoadedListenerInterface, WeatherErrorListenerInterface,
-        ActivityCompat.OnRequestPermissionsResultCallback, OnBackPressedFragmentListener {
+        implements WeatherLoadedListenerInterface, WeatherErrorListenerInterface, OnBackPressedFragmentListener {
     private boolean mLoaded = false;
     private boolean mEditMode = false;
     private boolean mDataChanged = false;
@@ -751,7 +749,7 @@ public class LocationsFragment extends Fragment
                 if (Settings.useFollowGPS()) {
                     if (mActivity != null && ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                             ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                        requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                                 PERMISSION_LOCATION_REQUEST_CODE);
                         return null;
                     }

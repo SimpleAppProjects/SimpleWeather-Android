@@ -20,7 +20,6 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -107,8 +106,7 @@ import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-public class WeatherNowFragment extends Fragment implements WeatherLoadedListenerInterface,
-        WeatherErrorListenerInterface, ActivityCompat.OnRequestPermissionsResultCallback {
+public class WeatherNowFragment extends Fragment implements WeatherLoadedListenerInterface, WeatherErrorListenerInterface {
     private LocationData location = null;
     private boolean loaded = false;
     private int bgAlpha = 255;
@@ -1052,7 +1050,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                 if (mActivity != null && Settings.useFollowGPS() && (location == null || location.getLocationType() == LocationType.GPS)) {
                     if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                             ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                        requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                                 PERMISSION_LOCATION_REQUEST_CODE);
                         return false;
                     }
