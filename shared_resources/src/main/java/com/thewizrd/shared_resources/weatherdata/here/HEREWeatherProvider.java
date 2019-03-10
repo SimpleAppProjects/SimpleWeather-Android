@@ -4,6 +4,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.ibm.icu.util.ULocale;
+import com.thewizrd.shared_resources.BuildConfig;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
@@ -156,7 +157,11 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
-        queryAPI = "https://weather.cit.api.here.com/weather/1.0/report.json?product=alerts&product=forecast_7days_simple" +
+        queryAPI = "https://weather.api.here.com/weather/1.0/report.json";
+        if (BuildConfig.DEBUG)
+            queryAPI = "https://weather.cit.api.here.com/weather/1.0/report.json";
+
+        queryAPI += "?product=alerts&product=forecast_7days_simple" +
                 "&product=forecast_hourly&product=forecast_astronomy&product=observation&oneobservation=true&%s" +
                 "&language=%s&metric=false&app_id=%s&app_code=%s";
 
@@ -294,8 +299,11 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
-        queryAPI = "https://weather.cit.api.here.com/weather/1.0/report.json?product=alerts&%s" +
-                "&language=%s&metric=false&app_id=%s&app_code=%s";
+        queryAPI = "https://weather.api.here.com/weather/1.0/report.json";
+        if (BuildConfig.DEBUG)
+            queryAPI = "https://weather.cit.api.here.com/weather/1.0/report.json";
+
+        queryAPI += "?product=alerts&%s&language=%s&metric=false&app_id=%s&app_code=%s";
 
         String key = Settings.usePersonalKey() ? Settings.getAPIKEY() : getAPIKey();
         String app_id = "";

@@ -4,6 +4,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.ibm.icu.util.ULocale;
+import com.thewizrd.shared_resources.BuildConfig;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.keys.Keys;
@@ -47,7 +48,10 @@ public final class HERELocationProvider extends LocationProviderImpl {
     public Collection<LocationQueryViewModel> getLocations(String ac_query, String weatherAPI) {
         Collection<LocationQueryViewModel> locations = null;
 
-        String queryAPI = "https://autocomplete.geocoder.cit.api.here.com/6.2/suggest.json";
+        String queryAPI = "https://autocomplete.geocoder.api.here.com/6.2/suggest.json";
+        if (BuildConfig.DEBUG)
+            queryAPI = "https://autocomplete.geocoder.cit.api.here.com/6.2/suggest.json";
+
         String query = "?query=%s&app_id=%s&app_code=%s&language=%s&maxresults=10";
         HttpURLConnection client = null;
         WeatherException wEx = null;
@@ -128,6 +132,9 @@ public final class HERELocationProvider extends LocationProviderImpl {
         LocationQueryViewModel location = null;
 
         String queryAPI = "https://reverse.geocoder.cit.api.here.com/6.2/reversegeocode.json";
+        if (BuildConfig.DEBUG)
+            queryAPI = "https://reverse.geocoder.api.here.com/6.2/reversegeocode.json";
+
         String location_query = String.format(Locale.ROOT, "%s,%s", Double.toString(coord.getLatitude()), Double.toString(coord.getLongitude()));
         String query = "?prox=%s,150&mode=retrieveAddresses&maxresults=1&additionaldata=Country2,true&gen=9&jsonattributes=1" +
                 "&locationattributes=adminInfo,timeZone,-mapView,-mapReference&language=%s&app_id=%s&app_code=%s";
@@ -195,6 +202,9 @@ public final class HERELocationProvider extends LocationProviderImpl {
         LocationQueryViewModel location = null;
 
         String queryAPI = "https://reverse.geocoder.cit.api.here.com/6.2/reversegeocode.json";
+        if (BuildConfig.DEBUG)
+            queryAPI = "https://reverse.geocoder.api.here.com/6.2/reversegeocode.json";
+
         String query = "?prox=%s,150&mode=retrieveAddresses&maxresults=1&additionaldata=Country2,true&gen=9&jsonattributes=1" +
                 "&locationattributes=adminInfo,timeZone,-mapView,-mapReference&language=%s&app_id=%s&app_code=%s";
         HttpURLConnection client = null;
@@ -259,7 +269,10 @@ public final class HERELocationProvider extends LocationProviderImpl {
     public LocationQueryViewModel getLocationfromLocID(String locationID) {
         LocationQueryViewModel location = null;
 
-        String queryAPI = "https://geocoder.cit.api.here.com/6.2/geocode.json";
+        String queryAPI = "https://geocoder.api.here.com/6.2/geocode.json";
+        if (BuildConfig.DEBUG)
+            queryAPI = "https://geocoder.cit.api.here.com/6.2/geocode.json";
+
         String query = "?locationid=%s&mode=retrieveAddresses&maxresults=1&additionaldata=Country2,true&gen=9&jsonattributes=1" +
                 "&locationattributes=adminInfo,timeZone,-mapView,-mapReference&language=%s&app_id=%s&app_code=%s";
         HttpURLConnection client = null;
