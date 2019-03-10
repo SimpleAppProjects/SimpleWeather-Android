@@ -21,8 +21,6 @@ public class WeatherAPI {
                     "https://www.here.com/en", "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"),
             new ProviderEntry("Yahoo Weather", YAHOO,
                     "https://www.yahoo.com/weather?ilc=401", "https://www.yahoo.com/weather?ilc=401"),
-            new ProviderEntry("WeatherUnderground", WEATHERUNDERGROUND,
-                    "https://www.wunderground.com", "https://www.wunderground.com/signup?mode=api_signup"),
             new ProviderEntry("OpenWeatherMap", OPENWEATHERMAP,
                     "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"),
             new ProviderEntry("MET Norway", METNO,
@@ -32,8 +30,6 @@ public class WeatherAPI {
     public static List<ProviderEntry> LocationAPIs = new ArrayList<>(asList(
             new ProviderEntry("HERE Maps", HERE,
                     "https://www.here.com/en", "https://developer.here.com/"),
-            new ProviderEntry("WeatherUnderground", WEATHERUNDERGROUND,
-                    "https://www.wunderground.com", "https://www.wunderground.com"),
             new ProviderEntry("LocationIQ", LOCATIONIQ,
                     "https://locationiq.com", "https://locationiq.com")
     ));

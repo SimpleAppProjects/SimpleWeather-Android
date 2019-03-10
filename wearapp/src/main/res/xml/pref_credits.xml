@@ -5,12 +5,6 @@
     <PreferenceCategory android:title="@string/pref_category_providers">
 
         <Preference
-            android:summary="@string/copyright_wunderground"
-            android:title="@string/api_wu" />
-        <Preference android:layout="@layout/credit_wunderground">
-            <intent android:data="https://www.wunderground.com" />
-        </Preference>
-        <Preference
             android:summary="@string/copyright_here"
             android:title="@string/api_here" />
         <Preference android:layout="@layout/credit_here">

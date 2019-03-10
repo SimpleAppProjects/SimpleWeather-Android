@@ -6,7 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.thewizrd.shared_resources.SimpleLibrary;
-import com.thewizrd.shared_resources.locationdata.weatherunderground.OWMWULocationProvider;
+import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -42,7 +42,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
 
     public MetnoWeatherProvider() {
         super();
-        locationProvider = new OWMWULocationProvider();
+        locationProvider = new HERELocationProvider();
     }
 
     @Override

@@ -301,6 +301,27 @@ public class Settings {
                     }
                     // v1.3.8+ - Added Onboarding Wizard
                     Settings.setOnBoardingComplete(true);
+                    // v1.3.8+
+                    // The current WeatherUnderground API is no longer in service
+                    // Disable this provider and migrate to HERE
+                    if (WeatherAPI.WEATHERUNDERGROUND.equals(Settings.getAPI())) {
+                        // Set default API to HERE
+                        setAPI(WeatherAPI.HERE);
+                        WeatherManager wm = WeatherManager.getInstance();
+                        wm.updateAPI();
+
+                        if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
+                            // If (internal) key doesn't exist, fallback to Yahoo
+                            setAPI(WeatherAPI.YAHOO);
+                            wm.updateAPI();
+                            setPersonalKey(true);
+                            setKeyVerified(false);
+                        } else {
+                            // If key exists, go ahead
+                            setPersonalKey(false);
+                            setKeyVerified(true);
+                        }
+                    }
                 }
                 setVersionCode(packageInfo.versionCode);
                 return null;

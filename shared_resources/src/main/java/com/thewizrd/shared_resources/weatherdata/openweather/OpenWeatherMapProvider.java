@@ -6,7 +6,7 @@ import android.widget.Toast;
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.keys.Keys;
-import com.thewizrd.shared_resources.locationdata.weatherunderground.OWMWULocationProvider;
+import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -33,7 +33,7 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
 
     public OpenWeatherMapProvider() {
         super();
-        locationProvider = new OWMWULocationProvider();
+        locationProvider = new HERELocationProvider();
     }
 
     @Override

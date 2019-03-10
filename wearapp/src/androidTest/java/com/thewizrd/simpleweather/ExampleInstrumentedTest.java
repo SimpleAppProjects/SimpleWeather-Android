@@ -108,7 +108,7 @@ public class ExampleInstrumentedTest {
         LocationData locationData = new LocationData(loc);
         Weather weather = wm.getWeather(locationData);
 
-        Settings.setAPI(WeatherAPI.METNO);
+        Settings.setAPI(WeatherAPI.YAHOO);
         wm.updateAPI();
 
         if ((weather != null && !weather.getSource().equals(Settings.getAPI()))
