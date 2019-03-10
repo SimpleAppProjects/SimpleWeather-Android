@@ -5,7 +5,7 @@
     <string name="search">Search</string>
     <string name="location_search_hint">Enter Location</string>
     <string name="api_label">Weather Provider</string>
-    <string name="key_hint">API Key</string>
+    <string name="key_hint">Provider Key</string>
     <string name="api_here">HERE Weather</string>
     <string name="api_metno">MET Norway</string>
     <string name="api_owm">OpenWeatherMap</string>
@@ -13,7 +13,7 @@
     <string name="api_yahoo">Yahoo Weather</string>
     <string name="api_lociq">LocationIQ</string>
     <string name="label_gpsfollow">Current Location</string>
-    <string name="label_apiregister">Register for API key here</string>
+    <string name="label_apiregister">Register for Provider key here</string>
     <string name="label_getstarted">Get Started</string>
     <string name="setup_welcome_prompt">Welcome to SimpleWeather</string>
     <string name="setup_welcome_tagline_prompt">Just a simple weather app</string>
@@ -85,20 +85,20 @@
         YAHOO! is a registered trademark of Yahoo! Inc. both in the United States and internationally.
     </string>
     <string name="pref_summary_currentlocation">Allow access to current location via GPS</string>
-    <string name="pref_summary_apikey">Enter API Key required for %1$s</string>
-    <string name="message_enter_apikey">"Please enter an API Key"</string>
+    <string name="pref_summary_apikey">Enter Provider Key required for %1$s</string>
+    <string name="message_enter_apikey">"Please enter a Provider Key"</string>
     <string name="message_keyverified">Key Verified</string>
     <string name="message_keyinvalid">Key Invalid</string>
     <string name="pref_title_onnotification">On-going Notification</string>
     <string name="pref_summary_notification">Show persistent notification displaying current weather conditions</string>
-    <string name="pref_title_api">Weather API</string>
+    <string name="pref_title_api">Weather Provider</string>
     <string name="pref_category_notification">Notifications</string>
     <string name="pref_title_notificationicon">Notification Icon</string>
     <string name="pref_title_alerts">Weather Alerts</string>
     <string name="pref_summary_alerts">Show notifications for weather alerts</string>
     <string name="pref_summary_alerts_disabled">Weather alerts are not supported by this weather provider</string>
     <string name="pref_title_apiregister">Create an account</string>
-    <string name="pref_summary_apiregister">Create an account to register for an API key</string>
+    <string name="pref_summary_apiregister">Create an account to register for a Provider key</string>
 
     <!-- Locations -->
     <string name="label_btn_add_location">Add Location</string>
@@ -114,7 +114,7 @@
     <!-- Weather Exceptions -->
     <string name="werror_noweather">Unable to load weather data!!</string>
     <string name="werror_networkerror">Network Connection Error!!</string>
-    <string name="werror_invalidkey">Invalid API Key</string>
+    <string name="werror_invalidkey">Invalid Provider Key</string>
     <string name="werror_querynotfound">No cities match your search query</string>
     <string name="werror_unknown">Unknown error occurred!!</string>
 
@@ -165,7 +165,7 @@
     <!-- HERE API -->
     <string name="here_key1_name">App ID</string>
     <string name="here_key2_name">App Code</string>
-    <string name="pref_title_personalkey">Personal API Key</string>
+    <string name="pref_title_personalkey">Personal Provider Key</string>
     <string name="pref_summary_personalkey">Use personal weather provider key</string>
 
 </resources>
