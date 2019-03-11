@@ -24,6 +24,7 @@ import com.google.android.gms.wearable.WearableListenerService;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.helpers.WearConnectionStatus;
+import com.thewizrd.shared_resources.helpers.WearWeatherJSON;
 import com.thewizrd.shared_resources.helpers.WearableDataSync;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -40,6 +41,7 @@ import org.threeten.bp.ZoneOffset;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -137,14 +139,6 @@ public class WearableDataListenerService extends WearableListenerService {
                     } else if (item.getUri().getPath().compareTo(WearableHelper.LocationPath) == 0) {
                         DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
                         updateLocation(dataMap);
-                    } else if (item.getUri().getPath().compareTo(WearableHelper.WeatherPath) == 0) {
-                        final DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-                        AsyncTask.run(new Runnable() {
-                            @Override
-                            public void run() {
-                                updateWeather(dataMap);
-                            }
-                        });
                     }
                 }
             }
@@ -165,6 +159,9 @@ public class WearableDataListenerService extends WearableListenerService {
                     .sendBroadcast(new Intent(WearableHelper.IsSetupPath)
                             .putExtra(EXTRA_DEVICESETUPSTATUS, isDeviceSetup)
                             .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.getValue()));
+        } else if (messageEvent.getPath().equals(WearableHelper.WeatherPath)) {
+            byte[] data = messageEvent.getData();
+            updateWeather(data);
         }
     }
 
@@ -389,17 +386,9 @@ public class WearableDataListenerService extends WearableListenerService {
                     return null;
                 }
 
-                DataItem dataItem = Tasks.await(Wearable.getDataClient(WearableDataListenerService.this)
-                        .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp.getId(), WearableHelper.WeatherPath)));
-
-                if (dataItem == null) {
-                    // Send message to device to get settings
-                    int result = Tasks.await(Wearable.getMessageClient(WearableDataListenerService.this)
-                            .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.WeatherPath, new byte[0]));
-                } else {
-                    // Update with data
-                    updateWeather(DataMapItem.fromDataItem(dataItem).getDataMap());
-                }
+                // Send message to device to get weather
+                Tasks.await(Wearable.getMessageClient(WearableDataListenerService.this)
+                        .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.WeatherPath, new byte[0]));
                 return null;
             }
         });
@@ -416,7 +405,7 @@ public class WearableDataListenerService extends WearableListenerService {
                 }
 
                 // Send message to device to get settings
-                int result = Tasks.await(Wearable.getMessageClient(WearableDataListenerService.this)
+                Tasks.await(Wearable.getMessageClient(WearableDataListenerService.this)
                         .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.WeatherPath, new byte[]{1}));
                 return null;
             }
@@ -487,12 +476,15 @@ public class WearableDataListenerService extends WearableListenerService {
         }
     }
 
-    private void updateWeather(final DataMap dataMap) {
+    private void updateWeather(final byte[] data) {
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                if (dataMap != null && !dataMap.isEmpty()) {
-                    long update_time = dataMap.getLong("update_time", 0);
+                String dataJson = new String(data, Charset.forName("UTF-8"));
+                WearWeatherJSON weatherDataJSON = WearWeatherJSON.fromJson(new JsonReader(new StringReader(dataJson)));
+
+                if (weatherDataJSON != null && weatherDataJSON.isValid()) {
+                    long update_time = weatherDataJSON.getUpdateTime();
                     if (update_time != 0) {
                         if (Settings.getHomeData() != null) {
                             LocalDateTime upDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(update_time), ZoneOffset.UTC);
@@ -511,11 +503,11 @@ public class WearableDataListenerService extends WearableListenerService {
                         }
                     }
 
-                    String weatherJSON = dataMap.getString("weatherData", "");
+                    String weatherJSON = weatherDataJSON.getWeatherData();
                     if (!StringUtils.isNullOrWhitespace(weatherJSON)) {
                         try (JsonReader weatherTextReader = new JsonReader(new StringReader(weatherJSON))) {
                             Weather weatherData = Weather.fromJson(weatherTextReader);
-                            List<String> alerts = dataMap.getStringArrayList("weatherAlerts");
+                            List<String> alerts = weatherDataJSON.getWeatherAlerts();
 
                             if (weatherData != null && weatherData.isValid()) {
                                 if (alerts.size() > 0) {

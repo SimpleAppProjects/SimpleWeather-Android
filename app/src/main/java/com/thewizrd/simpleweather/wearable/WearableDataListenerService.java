@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -24,6 +25,7 @@ import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.helpers.WearWeatherJSON;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -38,6 +40,7 @@ import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import org.threeten.bp.Instant;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -156,7 +159,7 @@ public class WearableDataListenerService extends WearableListenerService {
     }
 
     @Override
-    public void onMessageReceived(MessageEvent messageEvent) {
+    public void onMessageReceived(final MessageEvent messageEvent) {
         if (messageEvent.getPath().equals(WearableHelper.StartActivityPath)) {
             Intent startIntent = new Intent(this, LaunchActivity.class)
                     .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -185,7 +188,7 @@ public class WearableDataListenerService extends WearableListenerService {
                 AsyncTask.run(new Runnable() {
                     @Override
                     public void run() {
-                        createWeatherDataRequest(true);
+                        createWeatherDataRequest(messageEvent.getSourceNodeId());
                     }
                 });
             } else {
@@ -222,7 +225,6 @@ public class WearableDataListenerService extends WearableListenerService {
                 } else if (intent != null && ACTION_SENDLOCATIONUPDATE.equals(intent.getAction())) {
                     createLocationDataRequest(true);
                 } else if (intent != null && ACTION_SENDWEATHERUPDATE.equals(intent.getAction())) {
-                    createWeatherDataRequest(true);
                 }
                 return null;
             }
@@ -327,20 +329,21 @@ public class WearableDataListenerService extends WearableListenerService {
         Logger.writeLine(Log.ERROR, "%s: CreateLocationDataRequest(): urgent: %s", TAG, Boolean.toString(urgent));
     }
 
-    private void createWeatherDataRequest(boolean urgent) {
+    private void createWeatherDataRequest(@Nullable String nodeID) {
         // Don't send anything unless we're setup
         if (!Settings.isWeatherLoaded())
             return;
 
-        if (mWearNodesWithApp == null) {
-            // Create requests if nodes exist with app support
-            mWearNodesWithApp = findWearDevicesWithApp();
+        if (nodeID == null) {
+            if (mWearNodesWithApp == null) {
+                // Create requests if nodes exist with app support
+                mWearNodesWithApp = findWearDevicesWithApp();
 
-            if (mWearNodesWithApp == null || mWearNodesWithApp.size() == 0)
-                return;
+                if (mWearNodesWithApp == null || mWearNodesWithApp.size() == 0)
+                    return;
+            }
         }
 
-        PutDataMapRequest mapRequest = PutDataMapRequest.create(WearableHelper.WeatherPath);
         LocationData homeData = Settings.getHomeData();
         Weather weatherData = Settings.getWeatherData(homeData.getQuery());
         List<WeatherAlert> alertData = Settings.getWeatherAlertData(homeData.getQuery());
@@ -348,39 +351,38 @@ public class WearableDataListenerService extends WearableListenerService {
         if (weatherData != null) {
             weatherData.setWeatherAlerts(alertData);
 
-            // location
-            // update_time
-            // forecast
-            // hr_forecast
-            // txt_forecast
-            // condition
-            // atmosphere
-            // astronomy
-            // precipitation
-            // ttl
-            // source
-            // query
-            // locale
+            WearWeatherJSON weatherJSON = new WearWeatherJSON();
 
-            mapRequest.getDataMap().putString("weatherData", weatherData.toJson());
+            weatherJSON.setWeatherData(weatherData.toJson());
+
             ArrayList<String> alerts = new ArrayList<>();
             if (weatherData.getWeatherAlerts().size() > 0) {
                 for (WeatherAlert alert : weatherData.getWeatherAlerts()) {
                     alerts.add(alert.toJson());
                 }
             }
-            mapRequest.getDataMap().putStringArrayList("weatherAlerts", alerts);
-            mapRequest.getDataMap().putLong("update_time", Instant.now().toEpochMilli());
-            PutDataRequest request = mapRequest.asPutDataRequest();
-            if (urgent) request.setUrgent();
-            try {
-                Tasks.await(Wearable.getDataClient(this)
-                        .putDataItem(request));
-            } catch (ExecutionException | InterruptedException e) {
-                Logger.writeLine(Log.ERROR, e);
+            weatherJSON.setWeatherAlerts(alerts);
+            weatherJSON.setUpdateTime(Instant.now().toEpochMilli());
+
+            if (nodeID == null) {
+                for (Node node : mWearNodesWithApp) {
+                    try {
+                        Tasks.await(Wearable.getMessageClient(this)
+                                .sendMessage(node.getId(), WearableHelper.WeatherPath, weatherJSON.toJson().getBytes(Charset.forName("UTF-8"))));
+                    } catch (ExecutionException | InterruptedException e) {
+                        Logger.writeLine(Log.ERROR, e);
+                    }
+                }
+            } else {
+                try {
+                    Tasks.await(Wearable.getMessageClient(this)
+                            .sendMessage(nodeID, WearableHelper.WeatherPath, weatherJSON.toJson().getBytes(Charset.forName("UTF-8"))));
+                } catch (ExecutionException | InterruptedException e) {
+                    Logger.writeLine(Log.ERROR, e);
+                }
             }
 
-            Logger.writeLine(Log.ERROR, "%s: CreateWeatherDataRequest(): urgent: %s", TAG, Boolean.toString(urgent));
+            Logger.writeLine(Log.ERROR, "%s: CreateWeatherDataRequest(): urgent: %s", TAG, Boolean.toString(true));
         }
     }
 
