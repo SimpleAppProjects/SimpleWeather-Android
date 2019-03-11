@@ -11,8 +11,8 @@ android {
         minSdkVersion 23
         targetSdkVersion 28
         // NOTE: Version Code Format (TargetSDK, Version Name, Build Number, Variant Code (Android: 00, WearOS: 01)
-        versionCode 271380001
-        versionName "1.3.8"
+        versionCode 282000001
+        versionName "2.0.0"
 
         vectorDrawables.useSupportLibrary = true
     }
@@ -63,7 +63,7 @@ dependencies {
     annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
 
     implementation 'com.jakewharton.timber:timber:4.5.1'
-    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.ibm.icu:icu4j:62.1' // Keep @ 62.1 - 63.1 requires Java 7 (API 21+)
     implementation 'com.jakewharton.threetenabp:threetenabp:1.1.1'
 }
