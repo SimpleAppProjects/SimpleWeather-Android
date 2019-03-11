@@ -11,7 +11,6 @@ import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.simpleweather.R;
 
 public class ForecastItem extends LinearLayout {
-    private View viewLayout;
     private TextView forecastDate;
     private TextView forecastIcon;
     private TextView forecastTempHi;
@@ -40,7 +39,7 @@ public class ForecastItem extends LinearLayout {
 
     private void initialize(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        viewLayout = inflater.inflate(R.layout.weather_forecast_panel, this);
+        View viewLayout = inflater.inflate(R.layout.weather_forecast_panel, this);
 
         forecastDate = viewLayout.findViewById(R.id.forecast_date);
         forecastIcon = viewLayout.findViewById(R.id.forecast_icon);

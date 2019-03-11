@@ -14,7 +14,7 @@
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/search_button"
-            android:layout_width="36dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/space"
             android:layout_gravity="center_vertical"
@@ -23,15 +23,16 @@
             android:tint="@android:color/white"
             app:backgroundTint="@color/colorPrimary"
             app:elevation="2dp"
+            app:fabCustomSize="36dp"
             app:srcCompat="@drawable/ic_search_black_24dp" />
 
         <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/space"
+            android:layout_alignTop="@+id/search_button"
             android:layout_alignBottom="@+id/search_button"
             android:layout_alignParentEnd="true"
-            android:layout_alignTop="@+id/search_button"
             android:layout_gravity="center_vertical"
             android:layout_toEndOf="@+id/search_button"
             android:gravity="center_vertical"
@@ -43,7 +44,8 @@
             app:autoSizeMaxTextSize="14sp"
             app:autoSizeMinTextSize="6sp"
             app:autoSizeStepGranularity="1sp"
-            app:autoSizeTextType="uniform" />
+            app:autoSizeTextType="uniform"
+            app:fontFamily="sans-serif-condensed" />
 
         <Space
             android:id="@+id/space"
@@ -53,22 +55,24 @@
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/location_button"
-            android:layout_width="36dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/space"
             android:layout_marginStart="4dp"
             android:clickable="true"
+            android:gravity="center"
             app:backgroundTint="@color/colorPrimary"
             app:elevation="2dp"
+            app:fabCustomSize="36dp"
             app:srcCompat="@drawable/ic_my_location_white_24dp" />
 
         <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/space"
+            android:layout_alignTop="@+id/location_button"
             android:layout_alignBottom="@+id/location_button"
             android:layout_alignParentEnd="true"
-            android:layout_alignTop="@+id/location_button"
-            android:layout_below="@+id/space"
             android:layout_gravity="center_vertical"
             android:layout_toEndOf="@+id/location_button"
             android:gravity="center_vertical"
@@ -76,10 +80,12 @@
             android:paddingStart="8dp"
             android:text="@string/label_gpsfollow"
             android:textColor="@android:color/white"
-            app:autoSizeMaxTextSize="14dp"
-            app:autoSizeMinTextSize="2dp"
+            android:textSize="14sp"
+            app:autoSizeMaxTextSize="14sp"
+            app:autoSizeMinTextSize="6sp"
             app:autoSizeStepGranularity="1sp"
-            app:autoSizeTextType="uniform" />
+            app:autoSizeTextType="uniform"
+            app:fontFamily="sans-serif-condensed" />
 
     </RelativeLayout>
 

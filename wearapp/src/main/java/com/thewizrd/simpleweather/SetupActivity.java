@@ -38,6 +38,7 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.WearableDataSync;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -284,7 +285,7 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                progressBar.setVisibility(View.VISIBLE);
+                enableControls(false);
             }
         });
 
@@ -306,7 +307,7 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                progressBar.setVisibility(View.VISIBLE);
+                                enableControls(false);
                             }
                         });
 
@@ -335,6 +336,20 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                         }
 
                         if (ctsToken.isCancellationRequested()) throw new InterruptedException();
+
+                        // Need to get FULL location data for HERE API
+                        // Data provided is incomplete
+                        if (WeatherAPI.HERE.equals(view.getLocationSource())
+                                && view.getLocationLat() == -1 && view.getLocationLong() == -1
+                                && view.getLocationTZLong() == null) {
+                            final LocationQueryViewModel loc = view;
+                            view = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
+                                @Override
+                                public LocationQueryViewModel call() throws Exception {
+                                    return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
+                                }
+                            });
+                        }
 
                         // Get Weather Data
                         LocationData location = new LocationData(view, mLocation);

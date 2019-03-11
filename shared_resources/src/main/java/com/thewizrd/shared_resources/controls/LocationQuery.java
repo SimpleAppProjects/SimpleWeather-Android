@@ -11,7 +11,6 @@ import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.utils.StringUtils;
 
 public class LocationQuery extends LinearLayout {
-    private View viewLayout;
     private TextView locationNameView;
     private TextView locationCountryView;
     private TextView pinIcon;
@@ -33,7 +32,7 @@ public class LocationQuery extends LinearLayout {
 
     private void initialize(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        viewLayout = inflater.inflate(R.layout.location_query_view, this);
+        View viewLayout = inflater.inflate(R.layout.location_query_view, this);
 
         locationNameView = viewLayout.findViewById(R.id.location_name);
         locationCountryView = viewLayout.findViewById(R.id.location_country);
@@ -43,8 +42,10 @@ public class LocationQuery extends LinearLayout {
     public void setLocation(LocationQueryViewModel view) {
         locationNameView.setText(view.getLocationName());
         locationCountryView.setText(view.getLocationCountry());
-        pinIcon.setVisibility(
-                StringUtils.isNullOrWhitespace(view.getLocationQuery()) && StringUtils.isNullOrWhitespace(view.getLocationCountry()) ?
-                        View.INVISIBLE : View.VISIBLE);
+        if (pinIcon != null) {
+            pinIcon.setVisibility(
+                    StringUtils.isNullOrWhitespace(view.getLocationQuery()) && StringUtils.isNullOrWhitespace(view.getLocationCountry()) ?
+                            View.INVISIBLE : View.VISIBLE);
+        }
     }
 }

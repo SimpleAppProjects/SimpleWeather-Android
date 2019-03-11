@@ -26,6 +26,7 @@
             android:layout_centerVertical="true"
             android:layout_toStartOf="@id/spacer"
             android:tint="@android:color/white"
+            app:backgroundTint="@color/colorPrimary"
             app:srcCompat="@drawable/ic_keyboard_voice_black_24dp" />
 
         <Space
@@ -41,6 +42,7 @@
             android:layout_centerVertical="true"
             android:layout_toEndOf="@id/spacer"
             android:tint="@android:color/white"
+            app:backgroundTint="@color/colorPrimary"
             app:srcCompat="@drawable/ic_keyboard_black_24dp" />
 
     </RelativeLayout>

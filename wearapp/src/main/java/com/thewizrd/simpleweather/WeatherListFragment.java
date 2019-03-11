@@ -49,7 +49,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
         View outerView = super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_weather_list, (ViewGroup) outerView, true);
 
-        recyclerView = outerView.findViewById(R.id.recycler_view);
+        recyclerView = view.findViewById(R.id.recycler_view);
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         recyclerView.setHasFixedSize(true);

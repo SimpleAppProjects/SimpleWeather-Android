@@ -239,7 +239,7 @@ public class MainActivity extends Activity implements MenuItem.OnMenuItemClickLi
     private class NavDrawerAdapter extends WearableNavigationDrawerView.WearableNavigationDrawerAdapter {
         private Context mContext;
         private final List<NavDrawerItem> navDrawerItems = Arrays.asList(
-                new NavDrawerItem(R.string.label_condition, R.drawable.ic_logo),
+                new NavDrawerItem(R.string.label_condition, R.drawable.day_sunny),
                 new NavDrawerItem(R.string.title_fragment_alerts, R.drawable.ic_error_white),
                 new NavDrawerItem(R.string.label_forecast, R.drawable.ic_date_range_black_24dp),
                 new NavDrawerItem(R.string.label_hourlyforecast, R.drawable.ic_access_time_black_24dp),

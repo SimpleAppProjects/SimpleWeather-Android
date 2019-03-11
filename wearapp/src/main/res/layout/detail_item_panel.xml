@@ -7,18 +7,7 @@
     android:orientation="horizontal">
 
     <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/forecast_date"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_weight="1"
-        android:padding="4dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-        android:textColor="@android:color/white"
-        tools:text="Thu 08" />
-
-    <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/forecast_icon"
+        android:id="@+id/detail_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
@@ -28,33 +17,30 @@
         android:textColor="@android:color/white"
         app:fontFamily="@font/weathericons"
         tools:fontFamily="@font/weathericons"
-        tools:text="@string/wi_wu_sunny" />
+        tools:text="@string/wi_moon_alt_waxing_crescent_1" />
 
     <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/forecast_temphi"
-        android:layout_width="wrap_content"
+        android:id="@+id/detail_label"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        android:padding="4dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
         android:textColor="@android:color/white"
-        tools:text="77º" />
+        tools:text="Moon Phase" />
 
     <android.support.v7.widget.AppCompatTextView
-        android:layout_width="wrap_content"
+        android:id="@+id/detail_value"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:text="/"
+        android:layout_weight="1"
+        android:padding="4dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-        android:textColor="@android:color/white" />
-
-    <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/forecast_templo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:padding="2dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-        android:textColor="@android:color/secondary_text_light_nodisable"
-        tools:text="66º" />
+        android:textColor="@android:color/white"
+        app:fontFamily="@font/weathericons"
+        tools:fontFamily="@font/weathericons"
+        tools:text="Waxing Cresent" />
 
 </LinearLayout>

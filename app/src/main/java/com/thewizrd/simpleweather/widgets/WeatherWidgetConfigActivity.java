@@ -501,16 +501,21 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         searchView.requestFocus();
     }
 
-    private void showLoading(boolean show) {
+    private void showLoading(final boolean show) {
         if (mSearchFragment == null)
             return;
 
-        progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
 
-        if (show || (!show && StringUtils.isNullOrEmpty(searchView.getText().toString())))
-            clearButtonView.setVisibility(View.GONE);
-        else
-            clearButtonView.setVisibility(View.VISIBLE);
+                if (show || (!show && StringUtils.isNullOrEmpty(searchView.getText().toString())))
+                    clearButtonView.setVisibility(View.GONE);
+                else
+                    clearButtonView.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     @Override
@@ -537,92 +542,123 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         final LocationSearchFragment searchFragment = new LocationSearchFragment();
         searchFragment.setRecyclerOnClickListener(new RecyclerOnClickListenerInterface() {
             @Override
-            public void onClick(View view, int position) {
+            public void onClick(final View view, final int position) {
                 if (mSearchFragment == null)
                     return;
 
-                LocationQueryAdapter adapter = searchFragment.getAdapter();
-                LocationQuery v = (LocationQuery) view;
-                LocationQueryViewModel query_vm = null;
+                AsyncTask.run(new Runnable() {
+                    @Override
+                    public void run() {
+                        final LocationQueryAdapter adapter = searchFragment.getAdapter();
+                        LocationQuery v = (LocationQuery) view;
+                        LocationQueryViewModel query_vm = null;
 
-                try {
-                    if (!StringUtils.isNullOrEmpty(adapter.getDataset().get(position).getLocationQuery()))
-                        query_vm = adapter.getDataset().get(position);
-                } catch (Exception e) {
-                    query_vm = null;
-                } finally {
-                    if (query_vm == null)
-                        query_vm = new LocationQueryViewModel();
-                }
+                        try {
+                            if (!StringUtils.isNullOrEmpty(adapter.getDataset().get(position).getLocationQuery()))
+                                query_vm = adapter.getDataset().get(position);
+                        } catch (Exception e) {
+                            query_vm = null;
+                        } finally {
+                            if (query_vm == null)
+                                query_vm = new LocationQueryViewModel();
+                        }
 
-                if (StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
-                    // Stop since there is no valid query
-                    return;
-                }
+                        if (StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
+                            // Stop since there is no valid query
+                            return;
+                        }
 
-                // Cancel other tasks
-                mSearchFragment.ctsCancel();
+                        // Cancel other tasks
+                        mSearchFragment.ctsCancel();
 
-                showLoading(true);
+                        showLoading(true);
 
-                if (mSearchFragment.ctsCancelRequested()) {
-                    showLoading(false);
-                    query_vm = null;
-                    return;
-                }
+                        if (mSearchFragment.ctsCancelRequested()) {
+                            showLoading(false);
+                            query_vm = null;
+                            return;
+                        }
 
-                // Check if location already exists
-                LocationData loc = null;
-                boolean exists = false;
-                for (LocationData l : favorites) {
-                    if (l.getQuery().equals(query_vm.getLocationQuery())) {
-                        loc = l;
-                        exists = true;
-                        break;
+                        // Check if location already exists
+                        LocationData loc = null;
+                        boolean exists = false;
+                        for (LocationData l : favorites) {
+                            if (l.getQuery().equals(query_vm.getLocationQuery())) {
+                                loc = l;
+                                exists = true;
+                                break;
+                            }
+                        }
+                        if (exists) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    showLoading(false);
+                                    exitSearchUi(false);
+                                }
+                            });
+
+                            // Set selection
+                            query_vm = null;
+                            final LocationData finalLoc = loc;
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    locSpinner.setSelection(
+                                            locAdapter.getPosition(new ComboBoxItem(finalLoc.getName(), finalLoc.getQuery())));
+                                }
+                            });
+                            return;
+                        }
+
+                        if (mSearchFragment.ctsCancelRequested()) {
+                            showLoading(false);
+                            query_vm = null;
+                            return;
+                        }
+
+                        // We got our data so disable controls just in case
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                adapter.getDataset().clear();
+                                adapter.notifyDataSetChanged();
+
+                                if (mSearchFragment != null && mSearchFragment.getView() != null &&
+                                        mSearchFragment.getView().findViewById(R.id.recycler_view) instanceof RecyclerView) {
+                                    RecyclerView recyclerView = mSearchFragment.getView().findViewById(R.id.recycler_view);
+                                    recyclerView.setEnabled(false);
+                                }
+                            }
+                        });
+
+                        // Save data
+                        WeatherWidgetConfigActivity.this.query_vm = query_vm;
+                        final ComboBoxItem item = new ComboBoxItem(query_vm.getLocationName(), query_vm.getLocationQuery());
+                        final int idx = locAdapter.getCount() - 1;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                locAdapter.insert(item, idx);
+                                locSpinner.setSelection(idx);
+                                locSummary.setText(item.getDisplay());
+
+                                if (locAdapter.getCount() > MAX_LOCATIONS) {
+                                    locAdapter.remove(locAdapter.getItem(locAdapter.getCount() - 1));
+                                }
+                            }
+                        });
+
+                        // Hide dialog
+                        showLoading(false);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                exitSearchUi(false);
+                            }
+                        });
                     }
-                }
-                if (exists) {
-                    showLoading(false);
-                    exitSearchUi(false);
-
-                    // Set selection
-                    query_vm = null;
-                    locSpinner.setSelection(
-                            locAdapter.getPosition(new ComboBoxItem(loc.getName(), loc.getQuery())));
-                    return;
-                }
-
-                if (mSearchFragment.ctsCancelRequested()) {
-                    showLoading(false);
-                    query_vm = null;
-                    return;
-                }
-
-                // We got our data so disable controls just in case
-                adapter.getDataset().clear();
-                adapter.notifyDataSetChanged();
-
-                if (mSearchFragment != null && mSearchFragment.getView() != null &&
-                        mSearchFragment.getView().findViewById(R.id.recycler_view) instanceof RecyclerView) {
-                    RecyclerView recyclerView = mSearchFragment.getView().findViewById(R.id.recycler_view);
-                    recyclerView.setEnabled(false);
-                }
-
-                // Save data
-                WeatherWidgetConfigActivity.this.query_vm = query_vm;
-                ComboBoxItem item = new ComboBoxItem(query_vm.getLocationName(), query_vm.getLocationQuery());
-                int idx = locAdapter.getCount() - 1;
-                locAdapter.insert(item, idx);
-                locSpinner.setSelection(idx);
-                locSummary.setText(item.getDisplay());
-
-                if (locAdapter.getCount() > MAX_LOCATIONS) {
-                    locAdapter.remove(locAdapter.getItem(locAdapter.getCount() - 1));
-                }
-
-                // Hide dialog
-                showLoading(false);
-                exitSearchUi(false);
+                });
             }
         });
         searchFragment.setUserVisibleHint(false);
