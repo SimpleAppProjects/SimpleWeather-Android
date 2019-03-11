@@ -128,7 +128,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     private SwipeRefreshLayout refreshLayout;
     private NestedScrollView scrollView;
     private View conditionPanel;
-    private BitmapImageViewTarget imageViewTarget;
     // Condition
     private TextView updateTime;
     private TextView weatherIcon;
@@ -428,39 +427,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         mTitleView = view.findViewById(R.id.toolbar_title);
         mTitleView.setText(R.string.title_activity_weather_now);
         mToolbar = view.findViewById(R.id.toolbar);
-        imageViewTarget = new BitmapImageViewTarget(mImageView) {
-            /* Testing Only
-            @Override
-            protected void setResource(final Bitmap resource) {
-                super.setResource(resource);
-                if (resource != null) {
-                    AsyncTask.run(new Runnable() {
-                        @Override
-                        public void run() {
-                            int color = weatherView.getPendingBackground();
-                            Palette p = Palette.from(resource).generate();
-                            Palette.Swatch swatch = ColorsUtils.getPreferredSwatch(p);
-                            if (swatch != null) color = swatch.getRgb();
-
-                            final int finalColor = color;
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (mWindowColorsIface != null)
-                                        mWindowColorsIface.setWindowBarColors(finalColor);
-                                    // Background
-                                    View mainView = WeatherNowFragment.this.getView();
-                                    if (mainView != null) {
-                                        mainView.setBackgroundColor(finalColor);
-                                    }
-                                }
-                            });
-                        }
-                    });
-                }
-            }
-            */
-        };
 
         conditionPanel = view.findViewById(R.id.condition_panel);
 
@@ -935,10 +901,10 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
                 mImageView.setImageAlpha(bgAlpha);
                 Glide.with(mActivity)
-                        .asBitmap()
                         .load(weatherView.getBackground())
-                        .apply(new RequestOptions().centerCrop())
-                        .into(imageViewTarget);
+                        .apply(new RequestOptions().centerCrop()
+                                .format(DecodeFormat.PREFER_RGB_565))
+                        .into(mImageView);
 
                 // Location
                 mTitleView.setText(weatherView.getLocation());

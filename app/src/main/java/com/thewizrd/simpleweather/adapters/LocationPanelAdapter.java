@@ -180,6 +180,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
                         .load(panelView.getBackground())
                         .apply(new RequestOptions()
                                 .centerCrop()
+                                .format(DecodeFormat.PREFER_RGB_565)
                                 .error(vHolder.mLocView.getColorDrawable())
                                 .placeholder(vHolder.mLocView.getColorDrawable()))
                         .into(new BitmapImageViewTarget(vHolder.mBgImageView) {
