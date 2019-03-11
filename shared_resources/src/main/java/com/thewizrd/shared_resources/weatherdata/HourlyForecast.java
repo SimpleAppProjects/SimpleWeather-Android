@@ -179,9 +179,15 @@ public class HourlyForecast {
                 .getWeatherIcon(String.format("%s_%s", hr_forecast.getDaylight(), hr_forecast.getIconName()));
 
         pop = hr_forecast.getPrecipitationProbability();
-        windDegrees = Integer.valueOf(hr_forecast.getWindDirection());
-        windMph = Float.valueOf(hr_forecast.getWindSpeed());
-        windKph = Float.valueOf(ConversionMethods.mphTokph(hr_forecast.getWindSpeed()));
+        try {
+            windDegrees = Integer.valueOf(hr_forecast.getWindDirection());
+        } catch (NumberFormatException ignored) {
+        }
+        try {
+            windMph = Float.valueOf(hr_forecast.getWindSpeed());
+            windKph = Float.valueOf(ConversionMethods.mphTokph(hr_forecast.getWindSpeed()));
+        } catch (NumberFormatException ignored) {
+        }
 
         // Extras
         extras = new ForecastExtras();
