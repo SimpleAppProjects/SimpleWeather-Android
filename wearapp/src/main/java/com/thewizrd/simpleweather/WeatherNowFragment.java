@@ -46,13 +46,13 @@ import com.thewizrd.shared_resources.helpers.WearConnectionStatus;
 import com.thewizrd.shared_resources.helpers.WearableDataSync;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
-import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
@@ -531,7 +531,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                         forceRefresh = true;
                     } else {
                         // Reset locdata if source is different
-                        if (!Settings.getAPI().equals(locData.getSource()))
+                        if (!Settings.getAPI().equals(locData.getWeatherSource()))
                             Settings.saveHomeData(new LocationData());
 
                         if (updateLocation()) {

@@ -1,7 +1,7 @@
 package com.thewizrd.simpleweather.controls;
 
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Settings;
-import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;

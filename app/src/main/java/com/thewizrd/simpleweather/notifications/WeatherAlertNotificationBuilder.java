@@ -15,10 +15,10 @@ import android.util.Log;
 
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertType;
 import com.thewizrd.simpleweather.App;

@@ -6,6 +6,7 @@ import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -178,16 +179,6 @@ public class WeatherManager implements WeatherProviderImplInterface {
             @Override
             public LocationQueryViewModel call() throws Exception {
                 return weatherProvider.getLocation(coordinate);
-            }
-        });
-    }
-
-    @Override
-    public LocationQueryViewModel getLocation(final String query) {
-        return new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
-            @Override
-            public LocationQueryViewModel call() throws Exception {
-                return weatherProvider.getLocation(query);
             }
         });
     }

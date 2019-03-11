@@ -51,8 +51,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -67,13 +67,13 @@ import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
-import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
@@ -231,8 +231,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                         }
                     }
 
-                    if (wm.supportsAlerts() && Settings.useAlerts() &&
-                            weather.getWeatherAlerts() != null && weather.getWeatherAlerts().size() > 0) {
+                    if (wm.supportsAlerts() && Settings.useAlerts()
+                            && weather.getWeatherAlerts() != null && weather.getWeatherAlerts().size() > 0) {
                         // Alerts are posted to the user here. Set them as notified.
                         AsyncTask.run(new Runnable() {
                             @Override
@@ -823,7 +823,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                         forceRefresh = true;
                     } else {
                         // Reset locdata if source is different
-                        if (!Settings.getAPI().equals(locData.getSource()))
+                        if (!Settings.getAPI().equals(locData.getWeatherSource()))
                             Settings.saveLastGPSLocData(new LocationData());
 
                         if (updateLocation()) {

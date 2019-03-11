@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.weatherdata;
+package com.thewizrd.shared_resources.locationdata;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
@@ -16,6 +16,7 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.weatherdata.LocationType;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneId;
@@ -39,13 +40,17 @@ public class LocationData {
     @ColumnInfo(name = "tz_long")
     private String tzLong;
     private LocationType locationType = LocationType.SEARCH;
-    private String source;
+    @ColumnInfo(name = "source")
+    private String weatherSource;
+    @ColumnInfo(name = "locsource")
+    private String locationSource;
 
+    @NonNull
     public String getQuery() {
         return query;
     }
 
-    public void setQuery(String query) {
+    public void setQuery(@NonNull String query) {
         this.query = query;
     }
 
@@ -114,16 +119,24 @@ public class LocationData {
         this.locationType = locationType;
     }
 
-    public String getSource() {
-        return source;
+    public String getWeatherSource() {
+        return weatherSource;
     }
 
-    public void setSource(String source) {
-        this.source = source;
+    public void setWeatherSource(String source) {
+        this.weatherSource = source;
+    }
+
+    public String getLocationSource() {
+        return locationSource;
+    }
+
+    public void setLocationSource(String locationSource) {
+        this.locationSource = locationSource;
     }
 
     public LocationData() {
-        source = Settings.getAPI();
+        weatherSource = Settings.getAPI();
     }
 
     @Ignore
@@ -133,7 +146,8 @@ public class LocationData {
         latitude = query_vm.getLocationLat();
         longitude = query_vm.getLocationLong();
         tzLong = query_vm.getLocationTZLong();
-        source = Settings.getAPI();
+        weatherSource = query_vm.getWeatherSource();
+        locationSource = query_vm.getLocationSource();
     }
 
     @Ignore
@@ -148,7 +162,8 @@ public class LocationData {
         longitude = location.getLongitude();
         tzLong = query_vm.getLocationTZLong();
         locationType = LocationType.GPS;
-        source = Settings.getAPI();
+        weatherSource = query_vm.getWeatherSource();
+        locationSource = query_vm.getLocationSource();
     }
 
     @Override
@@ -173,7 +188,8 @@ public class LocationData {
         hashCode = hashCode * -1521134295 + (int) (temp ^ (temp >>> 32));
         hashCode = hashCode * -1521134295 + (tzLong != null ? tzLong.hashCode() : 0);
         hashCode = hashCode * -1521134295 + locationType.hashCode();
-        hashCode = hashCode * -1521134295 + (source != null ? source.hashCode() : 0);
+        hashCode = hashCode * -1521134295 + (weatherSource != null ? weatherSource.hashCode() : 0);
+        hashCode = hashCode * -1521134295 + (locationSource != null ? locationSource.hashCode() : 0);
         return hashCode;
     }
 
@@ -214,7 +230,10 @@ public class LocationData {
                         obj.locationType = LocationType.valueOf(Integer.valueOf(reader.nextString()));
                         break;
                     case "source":
-                        obj.source = reader.nextString();
+                        obj.weatherSource = reader.nextString();
+                        break;
+                    case "locsource":
+                        obj.locationSource = reader.nextString();
                         break;
                 }
             }
@@ -264,7 +283,11 @@ public class LocationData {
 
             // "source" : ""
             writer.name("source");
-            writer.value(source);
+            writer.value(weatherSource);
+
+            // "locsource" : ""
+            writer.name("locsource");
+            writer.value(locationSource);
 
             // }
             writer.endObject();
@@ -276,7 +299,7 @@ public class LocationData {
     }
 
     public boolean isValid() {
-        return !StringUtils.isNullOrWhitespace(query) && !StringUtils.isNullOrWhitespace(source);
+        return !StringUtils.isNullOrWhitespace(query) && !StringUtils.isNullOrWhitespace(weatherSource) && !StringUtils.isNullOrWhitespace(locationSource);
     }
 
     @Override

@@ -5,9 +5,9 @@ import android.content.pm.PackageInfo;
 import android.util.Log;
 
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertProviderInterface;
 

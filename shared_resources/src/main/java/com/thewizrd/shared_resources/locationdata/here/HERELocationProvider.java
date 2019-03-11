@@ -11,7 +11,6 @@ import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -41,7 +40,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
 
     @Override
     public boolean isKeyRequired() {
-        return true;
+        return false;
     }
 
     @Override
@@ -61,17 +60,8 @@ public final class HERELocationProvider extends LocationProviderImpl {
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
-        String key = Settings.usePersonalKey() ? Settings.getAPIKEY() : getAPIKey();
-        String app_id = "";
-        String app_code = "";
-
-        if (!StringUtils.isNullOrWhitespace(key)) {
-            String[] keyArr = key.split(";");
-            if (keyArr.length > 0) {
-                app_id = keyArr[0];
-                app_code = keyArr[keyArr.length > 1 ? keyArr.length - 1 : 0];
-            }
-        }
+        String app_id = getAppID();
+        String app_code = getAppCode();
 
         try {
             // Connect to webstream
@@ -89,7 +79,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
                 if ("city".equals(result.getMatchLevel())
                         || "district".equals(result.getMatchLevel())
                         || "postalCode".equals(result.getMatchLevel()))
-                    added = locations.add(new LocationQueryViewModel(result));
+                    added = locations.add(new LocationQueryViewModel(result, weatherAPI));
                 else
                     continue;
 
@@ -145,17 +135,8 @@ public final class HERELocationProvider extends LocationProviderImpl {
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
-        String key = Settings.usePersonalKey() ? Settings.getAPIKEY() : getAPIKey();
-        String app_id = "";
-        String app_code = "";
-
-        if (!StringUtils.isNullOrWhitespace(key)) {
-            String[] keyArr = key.split(";");
-            if (keyArr.length > 0) {
-                app_id = keyArr[0];
-                app_code = keyArr[keyArr.length > 1 ? keyArr.length - 1 : 0];
-            }
-        }
+        String app_id = getAppID();
+        String app_code = getAppCode();
 
         try {
             // Connect to webstream
@@ -190,83 +171,14 @@ public final class HERELocationProvider extends LocationProviderImpl {
         }
 
         if (result != null && !StringUtils.isNullOrWhitespace(result.getLocation().getLocationId()))
-            location = new LocationQueryViewModel(result);
+            location = new LocationQueryViewModel(result, weatherAPI);
         else
             location = new LocationQueryViewModel();
 
         return location;
     }
 
-    @Override
-    public LocationQueryViewModel getLocation(String location_query, String weatherAPI) {
-        LocationQueryViewModel location = null;
-
-        String queryAPI = "https://reverse.geocoder.cit.api.here.com/6.2/reversegeocode.json";
-        if (BuildConfig.DEBUG)
-            queryAPI = "https://reverse.geocoder.api.here.com/6.2/reversegeocode.json";
-
-        String query = "?prox=%s,150&mode=retrieveAddresses&maxresults=1&additionaldata=Country2,true&gen=9&jsonattributes=1" +
-                "&locationattributes=adminInfo,timeZone,-mapView,-mapReference&language=%s&app_id=%s&app_code=%s";
-        HttpURLConnection client = null;
-        ResultItem result = null;
-        WeatherException wEx = null;
-
-        ULocale uLocale = ULocale.forLocale(Locale.getDefault());
-        String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
-
-        String key = Settings.usePersonalKey() ? Settings.getAPIKEY() : getAPIKey();
-        String app_id = "";
-        String app_code = "";
-
-        if (!StringUtils.isNullOrWhitespace(key)) {
-            String[] keyArr = key.split(";");
-            if (keyArr.length > 0) {
-                app_id = keyArr[0];
-                app_code = keyArr[keyArr.length > 1 ? keyArr.length - 1 : 0];
-            }
-        }
-
-        try {
-            // Connect to webstream
-            URL queryURL = new URL(String.format(queryAPI + query, location_query, locale, app_id, app_code));
-            client = (HttpURLConnection) queryURL.openConnection();
-            InputStream stream = client.getInputStream();
-
-            // Load data
-            Geo_Rootobject root = JSONParser.deserializer(stream, Geo_Rootobject.class);
-
-            if (root.getResponse().getView().size() > 0 && root.getResponse().getView().get(0).getResult().size() > 0)
-                result = root.getResponse().getView().get(0).getResult().get(0);
-
-            // End Stream
-            stream.close();
-        } catch (Exception ex) {
-            result = null;
-            if (ex instanceof IOException) {
-                wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
-                final WeatherException finalWEx = wEx;
-                mMainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(SimpleLibrary.getInstance().getApp().getAppContext(), finalWEx.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting location");
-        } finally {
-            if (client != null)
-                client.disconnect();
-        }
-
-        if (result != null && !StringUtils.isNullOrWhitespace(result.getLocation().getLocationId()))
-            location = new LocationQueryViewModel(result);
-        else
-            location = new LocationQueryViewModel();
-
-        return location;
-    }
-
-    public LocationQueryViewModel getLocationfromLocID(String locationID) {
+    public LocationQueryViewModel getLocationfromLocID(String locationID, String weatherAPI) {
         LocationQueryViewModel location = null;
 
         String queryAPI = "https://geocoder.api.here.com/6.2/geocode.json";
@@ -282,17 +194,8 @@ public final class HERELocationProvider extends LocationProviderImpl {
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
-        String key = Settings.usePersonalKey() ? Settings.getAPIKEY() : getAPIKey();
-        String app_id = "";
-        String app_code = "";
-
-        if (!StringUtils.isNullOrWhitespace(key)) {
-            String[] keyArr = key.split(";");
-            if (keyArr.length > 0) {
-                app_id = keyArr[0];
-                app_code = keyArr[keyArr.length > 1 ? keyArr.length - 1 : 0];
-            }
-        }
+        String app_id = getAppID();
+        String app_code = getAppCode();
 
         try {
             // Connect to webstream
@@ -327,7 +230,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
         }
 
         if (result != null && !StringUtils.isNullOrWhitespace(result.getLocation().getLocationId()))
-            location = new LocationQueryViewModel(result);
+            location = new LocationQueryViewModel(result, weatherAPI);
         else
             location = new LocationQueryViewModel();
 

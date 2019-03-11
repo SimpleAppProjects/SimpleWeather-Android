@@ -1,6 +1,7 @@
 package com.thewizrd.shared_resources.weatherdata;
 
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -22,8 +23,6 @@ public interface WeatherProviderImplInterface {
     Collection<LocationQueryViewModel> getLocations(String ac_query);
 
     LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate);
-
-    LocationQueryViewModel getLocation(String query);
 
     Weather getWeather(String location_query) throws WeatherException;
 

@@ -144,54 +144,6 @@ public final class OWMWULocationProvider extends LocationProviderImpl {
     }
 
     @Override
-    public LocationQueryViewModel getLocation(String location_query, String weatherAPI) {
-        LocationQueryViewModel location = null;
-
-        String queryAPI = "https://autocomplete.wunderground.com/aq?query=";
-        String options = "&h=0&cities=1";
-        HttpURLConnection client = null;
-        AC_RESULTS result = null;
-        WeatherException wEx = null;
-
-        try {
-            // Connect to webstream
-            URL queryURL = new URL(queryAPI + URLEncoder.encode(location_query, "UTF-8") + options);
-            client = (HttpURLConnection) queryURL.openConnection();
-            InputStream stream = client.getInputStream();
-
-            // Load data
-            AC_Rootobject root = JSONParser.deserializer(stream, AC_Rootobject.class);
-            result = root.getRESULTS().get(0);
-
-            // End Stream
-            stream.close();
-        } catch (Exception ex) {
-            result = null;
-            if (ex instanceof IOException) {
-                wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
-                final WeatherException finalWEx = wEx;
-                mMainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(SimpleLibrary.getInstance().getApp().getAppContext(), finalWEx.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            Logger.writeLine(Log.ERROR, ex, "MetnoWeatherProvider: error getting location");
-        } finally {
-            if (client != null)
-                client.disconnect();
-        }
-
-        if (result != null && !StringUtils.isNullOrWhitespace(result.getL()))
-            location = new LocationQueryViewModel(result, weatherAPI);
-        else
-            location = new LocationQueryViewModel();
-
-        return location;
-    }
-
-    @Override
     public boolean isKeyValid(String key) {
         return false;
     }

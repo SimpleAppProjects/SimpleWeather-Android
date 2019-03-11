@@ -1,14 +1,10 @@
 package com.thewizrd.shared_resources.utils;
 
-import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Room;
-import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
 import android.os.Build;
-import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -19,8 +15,8 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.database.LocationsDatabase;
 import com.thewizrd.shared_resources.database.WeatherDatabase;
 import com.thewizrd.shared_resources.helpers.WearableDataSync;
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Favorites;
-import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
@@ -47,7 +43,7 @@ public class Settings {
     private static WeatherDatabase weatherDB;
 
     // Data
-    public static final int CURRENT_DBVERSION = 3;
+    public static final int CURRENT_DBVERSION = 4;
     private static final int CACHE_LIMIT = 10;
     private static final int MAX_LOCATIONS = 10;
 
@@ -58,7 +54,7 @@ public class Settings {
     private static final String DEFAULT_UPDATE_INTERVAL;
     public static final int DEFAULTINTERVAL;
 
-    private static final boolean IS_PHONE;
+    static final boolean IS_PHONE;
 
     // Shared Settings
     private static final SharedPreferences preferences;
@@ -204,14 +200,14 @@ public class Settings {
         if (IS_PHONE && locationDB == null) {
             locationDB = Room.databaseBuilder(context,
                     LocationsDatabase.class, "locations.db")
-//                    .addMigrations(MIGRATION_0_1, MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(DBMigrations.MIGRATION_0_3, DBMigrations.LOC_MIGRATION_3_4)
                     .build();
         }
 
         if (weatherDB == null) {
             weatherDB = Room.databaseBuilder(context,
                     WeatherDatabase.class, "weatherdata.db")
-//                    .addMigrations(MIGRATION_0_1, MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(DBMigrations.MIGRATION_0_3, DBMigrations.W_MIGRATION_3_4)
                     .build();
         }
 
@@ -236,30 +232,7 @@ public class Settings {
             @Override
             public Void call() throws Exception {
                 /* DB Migration */
-                // Migrate old data if available
-                if (getDBVersion() < CURRENT_DBVERSION) {
-                    switch (getDBVersion()) {
-                        // Move data from json to db
-                        case 0:
-                            // Not available here
-                            break;
-                        // Add and set tz_long column in db
-                        case 1:
-                            if (IS_PHONE && locationDB.locationsDAO().getLocationDataCount() > 0) {
-                                DBUtils.setLocationData(locationDB, getAPI());
-                            }
-                            break;
-                        // Room DB migration
-                        case 2:
-                            // Move db from appdata to db folder
-                            // Handled in init method
-                            break;
-                        default:
-                            break;
-                    }
-
-                    setDBVersion(CURRENT_DBVERSION);
-                }
+                DBMigrations.performMigrations(weatherDB, locationDB);
 
                 if (!StringUtils.isNullOrWhitespace(getLastGPSLocation())) {
                     try {
@@ -274,81 +247,11 @@ public class Settings {
                 }
 
                 /* Version-specific Migration */
-                Context context = SimpleLibrary.getInstance().getAppContext();
-                PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-                if (isWeatherLoaded() && getVersionCode() < packageInfo.versionCode) {
-                    // v1.3.7 - Yahoo (YQL) is no longer in service
-                    // Update location data from HERE Geocoder service
-                    if (WeatherAPI.HERE.equals(Settings.getAPI()) && getVersionCode() < 271370400) {
-                        if (IS_PHONE) {
-                            DBUtils.setLocationData(locationDB, WeatherAPI.HERE);
-                            saveLastGPSLocData(lastGPSLocData = new LocationData());
-                        } else if (lastGPSLocData != null) {
-                            WeatherManager.getProvider(WeatherAPI.HERE)
-                                    .updateLocationData(lastGPSLocData);
-                        }
-                    }
-                    // v1.3.8+ - Yahoo API is back in service (but updated)
-                    // Update location data from current geocoder service
-                    if (WeatherAPI.YAHOO.equals(Settings.getAPI()) && getVersionCode() < 271380000) {
-                        if (IS_PHONE) {
-                            DBUtils.setLocationData(locationDB, WeatherAPI.YAHOO);
-                            saveLastGPSLocData(lastGPSLocData = new LocationData());
-                        } else if (lastGPSLocData != null) {
-                            WeatherManager.getProvider(WeatherAPI.YAHOO)
-                                    .updateLocationData(lastGPSLocData);
-                        }
-                    }
-                    // v1.3.8+ - Added Onboarding Wizard
-                    Settings.setOnBoardingComplete(true);
-                    // v1.3.8+
-                    // The current WeatherUnderground API is no longer in service
-                    // Disable this provider and migrate to HERE
-                    if (WeatherAPI.WEATHERUNDERGROUND.equals(Settings.getAPI())) {
-                        // Set default API to HERE
-                        setAPI(WeatherAPI.HERE);
-                        WeatherManager wm = WeatherManager.getInstance();
-                        wm.updateAPI();
-
-                        if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
-                            // If (internal) key doesn't exist, fallback to Yahoo
-                            setAPI(WeatherAPI.YAHOO);
-                            wm.updateAPI();
-                            setPersonalKey(true);
-                            setKeyVerified(false);
-                        } else {
-                            // If key exists, go ahead
-                            setPersonalKey(false);
-                            setKeyVerified(true);
-                        }
-                    }
-                }
-                setVersionCode(packageInfo.versionCode);
+                VersionMigrations.performMigrations(weatherDB, locationDB);
                 return null;
             }
         });
     }
-
-    private static final Migration MIGRATION_0_1 = new Migration(0, 1) {
-        @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            // Since we didn't alter the table, there's nothing else to do here.
-        }
-    };
-
-    private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
-        @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            // Since we didn't alter the table, there's nothing else to do here.
-        }
-    };
-
-    private static final Migration MIGRATION_2_3 = new Migration(2, 3) {
-        @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            // Since we didn't alter the table, there's nothing else to do here.
-        }
-    };
 
     // DAO interfacing methods
     public static List<LocationData> getFavorites() {
@@ -924,11 +827,11 @@ public class Settings {
     }
     // END - !ANDROID_WEAR
 
-    private static int getDBVersion() {
+    static int getDBVersion() {
         return Integer.parseInt(preferences.getString(KEY_DBVERSION, "0"));
     }
 
-    private static void setDBVersion(int value) {
+    static void setDBVersion(int value) {
         editor.putString(KEY_DBVERSION, Integer.toString(value));
         editor.commit();
     }
@@ -962,11 +865,11 @@ public class Settings {
         editor.commit();
     }
 
-    private static int getVersionCode() {
+    static int getVersionCode() {
         return Integer.parseInt(versionPrefs.getString(KEY_CURRENTVERSION, "0"));
     }
 
-    private static void setVersionCode(int value) {
+    static void setVersionCode(int value) {
         SharedPreferences.Editor versionEditor = versionPrefs.edit();
         versionEditor.putString(KEY_CURRENTVERSION, Integer.toString(value));
         versionEditor.apply();
@@ -977,6 +880,8 @@ public class Settings {
     }
 
     public static boolean isOnBoardingComplete() {
+        loadIfNeeded();
+
         if (!preferences.contains(KEY_ONBOARDINGCOMPLETE))
             return false;
         else

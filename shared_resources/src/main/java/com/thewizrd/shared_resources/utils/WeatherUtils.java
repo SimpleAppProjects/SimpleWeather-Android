@@ -7,6 +7,7 @@ import android.util.SparseArray;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 
 import org.threeten.bp.LocalDateTime;
@@ -158,6 +159,11 @@ public class WeatherUtils {
         }
 
         public Coordinate(Location location) {
+            lat = location.getLatitude();
+            _long = location.getLongitude();
+        }
+
+        public Coordinate(LocationData location) {
             lat = location.getLatitude();
             _long = location.getLongitude();
         }

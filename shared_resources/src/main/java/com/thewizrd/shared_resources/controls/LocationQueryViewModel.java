@@ -24,6 +24,9 @@ public class LocationQueryViewModel {
 
     private String locationTZLong;
 
+    private String locationSource;
+    private String weatherSource;
+
     public LocationQueryViewModel() {
         locationName = SimpleLibrary.getInstance().getAppContext().getString(R.string.error_noresults);
         locationCountry = "";
@@ -40,6 +43,8 @@ public class LocationQueryViewModel {
 
         if (WeatherAPI.WEATHERUNDERGROUND.equals(weatherAPI)) {
             locationQuery = location.getL();
+        } else if (WeatherAPI.HERE.equals(weatherAPI)) {
+            locationQuery = String.format("latitude=%s&longitude=%s", location.getLat(), location.getLon());
         } else {
             locationQuery = String.format("lat=%s&lon=%s", location.getLat(), location.getLon());
         }
@@ -48,6 +53,9 @@ public class LocationQueryViewModel {
         locationLong = Double.valueOf(location.getLon());
 
         locationTZLong = location.getTz();
+
+        locationSource = WeatherAPI.WEATHERUNDERGROUND;
+        weatherSource = weatherAPI;
     }
 
     public LocationQueryViewModel(Location location, String weatherAPI) {
@@ -59,6 +67,8 @@ public class LocationQueryViewModel {
         locationCountry = location.getCountry();
         if (WeatherAPI.WEATHERUNDERGROUND.equals(weatherAPI)) {
             locationQuery = location.getQuery();
+        } else if (WeatherAPI.HERE.equals(weatherAPI)) {
+            locationQuery = String.format("latitude=%s&longitude=%s", location.getLat(), location.getLon());
         } else {
             locationQuery = String.format("lat=%s&lon=%s", location.getLat(), location.getLon());
         }
@@ -67,13 +77,16 @@ public class LocationQueryViewModel {
         locationLong = Double.valueOf(location.getLon());
 
         locationTZLong = location.getTzUnix();
+
+        locationSource = WeatherAPI.WEATHERUNDERGROUND;
+        weatherSource = weatherAPI;
     }
 
-    public LocationQueryViewModel(SuggestionsItem location) {
-        setLocation(location);
+    public LocationQueryViewModel(SuggestionsItem location, String weatherAPI) {
+        setLocation(location, weatherAPI);
     }
 
-    public void setLocation(SuggestionsItem location) {
+    public void setLocation(SuggestionsItem location, String weatherAPI) {
         String town, region;
 
         // Try to get district name or fallback to city name
@@ -101,13 +114,16 @@ public class LocationQueryViewModel {
         locationLong = -1;
 
         locationTZLong = null;
+
+        locationSource = WeatherAPI.HERE;
+        weatherSource = weatherAPI;
     }
 
-    public LocationQueryViewModel(ResultItem location) {
-        setLocation(location);
+    public LocationQueryViewModel(ResultItem location, String weatherAPI) {
+        setLocation(location, weatherAPI);
     }
 
-    public void setLocation(ResultItem location) {
+    public void setLocation(ResultItem location, String weatherAPI) {
         String country = null, region = null, town = null;
 
         if (location.getLocation().getAddress().getAdditionalData() != null) {
@@ -143,20 +159,23 @@ public class LocationQueryViewModel {
         else
             locationName = String.format("%s, %s", town, region);
         locationCountry = country;
-        locationQuery = String.format(Locale.ROOT, "latitude=%s&longitude=%s",
-                Double.toString(location.getLocation().getDisplayPosition().getLatitude()), Double.toString(location.getLocation().getDisplayPosition().getLongitude()));
 
         locationLat = location.getLocation().getDisplayPosition().getLatitude();
         locationLong = location.getLocation().getDisplayPosition().getLongitude();
 
         locationTZLong = location.getLocation().getAdminInfo().getTimeZone().getId();
+
+        locationSource = WeatherAPI.HERE;
+        weatherSource = weatherAPI;
+
+        updateLocationQuery();
     }
 
-    public LocationQueryViewModel(AutoCompleteQuery result) {
-        setLocation(result);
+    public LocationQueryViewModel(AutoCompleteQuery result, String weatherAPI) {
+        setLocation(result, weatherAPI);
     }
 
-    private void setLocation(AutoCompleteQuery result) {
+    private void setLocation(AutoCompleteQuery result, String weatherAPI) {
         String town, region;
 
         // Try to get district name or fallback to city name
@@ -197,20 +216,22 @@ public class LocationQueryViewModel {
         else
             locationCountry = result.getAddress().getCountry();
 
-        locationQuery = String.format(Locale.ROOT, "lat=%s&lon=%s",
-                result.getLat(), result.getLon());
-
         locationLat = Double.valueOf(result.getLat());
         locationLong = Double.valueOf(result.getLon());
 
         locationTZLong = null;
+
+        locationSource = WeatherAPI.LOCATIONIQ;
+        weatherSource = weatherAPI;
+
+        updateLocationQuery();
     }
 
-    public LocationQueryViewModel(GeoLocation result) {
-        setLocation(result);
+    public LocationQueryViewModel(GeoLocation result, String weatherAPI) {
+        setLocation(result, weatherAPI);
     }
 
-    private void setLocation(GeoLocation result) {
+    private void setLocation(GeoLocation result, String weatherAPI) {
         String town, region;
 
         // Try to get district name or fallback to city name
@@ -251,13 +272,25 @@ public class LocationQueryViewModel {
         else
             locationCountry = result.getAddress().getCountry();
 
-        locationQuery = String.format(Locale.ROOT, "lat=%s&lon=%s",
-                result.getLat(), result.getLon());
-
         locationLat = Double.valueOf(result.getLat());
         locationLong = Double.valueOf(result.getLon());
 
         locationTZLong = null;
+
+        locationSource = WeatherAPI.LOCATIONIQ;
+        weatherSource = weatherAPI;
+
+        updateLocationQuery();
+    }
+
+    private void updateLocationQuery() {
+        if (WeatherAPI.WEATHERUNDERGROUND.equals(weatherSource)) {
+            locationQuery = String.format(Locale.ROOT, "/q/%s,%s", Double.toString(locationLat), Double.toString(locationLong));
+        } else if (WeatherAPI.HERE.equals(weatherSource)) {
+            locationQuery = String.format(Locale.ROOT, "latitude=%s&longitude=%s", Double.toString(locationLat), Double.toString(locationLong));
+        } else {
+            locationQuery = String.format(Locale.ROOT, "lat=%s&lon=%s", Double.toString(locationLat), Double.toString(locationLong));
+        }
     }
 
     public String getLocationName() {
@@ -306,6 +339,22 @@ public class LocationQueryViewModel {
 
     public void setLocationTZLong(String locationTZLong) {
         this.locationTZLong = locationTZLong;
+    }
+
+    public String getLocationSource() {
+        return locationSource;
+    }
+
+    public void setLocationSource(String locationSource) {
+        this.locationSource = locationSource;
+    }
+
+    public String getWeatherSource() {
+        return weatherSource;
+    }
+
+    public void setWeatherSource(String weatherSource) {
+        this.weatherSource = weatherSource;
     }
 
     @Override

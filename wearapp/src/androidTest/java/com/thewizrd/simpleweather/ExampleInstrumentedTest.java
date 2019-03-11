@@ -11,11 +11,11 @@ import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.WeatherException;
-import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
@@ -112,7 +112,7 @@ public class ExampleInstrumentedTest {
         wm.updateAPI();
 
         if ((weather != null && !weather.getSource().equals(Settings.getAPI()))
-                || (weather == null && locationData != null && !locationData.getSource().equals(Settings.getAPI()))) {
+                || (weather == null && locationData != null && !locationData.getWeatherSource().equals(Settings.getAPI()))) {
             // Update location query and source for new API
             String oldKey = locationData.getQuery();
 
@@ -121,7 +121,7 @@ public class ExampleInstrumentedTest {
             else
                 locationData.setQuery(wm.updateLocationQuery(locationData));
 
-            locationData.setSource(Settings.getAPI());
+            locationData.setWeatherSource(Settings.getAPI());
         }
 
         weather = wm.getWeather(locationData);

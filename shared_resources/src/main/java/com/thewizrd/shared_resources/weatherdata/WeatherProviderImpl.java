@@ -8,6 +8,7 @@ import com.skedgo.converter.TimezoneMapper;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -19,7 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 public abstract class WeatherProviderImpl implements WeatherProviderImplInterface {
-    protected Handler mMainHandler;
+    protected final Handler mMainHandler;
     protected LocationProviderImpl locationProvider;
 
     public WeatherProviderImpl() {
@@ -46,10 +47,6 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
     // GeopositionQuery
     public final LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate) {
         return locationProvider.getLocation(coordinate, getWeatherAPI());
-    }
-
-    public final LocationQueryViewModel getLocation(String query) {
-        return locationProvider.getLocation(query, getWeatherAPI());
     }
 
     // Weather

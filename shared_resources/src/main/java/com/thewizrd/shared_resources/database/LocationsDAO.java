@@ -8,8 +8,8 @@ import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Transaction;
 import android.arch.persistence.room.Update;
 
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Favorites;
-import com.thewizrd.shared_resources.weatherdata.LocationData;
 
 import java.util.List;
 
@@ -37,7 +37,7 @@ public interface LocationsDAO {
 
     @Transaction
     @Query("SELECT locations.`query`, locations.`name`, locations.`latitude`," +
-            " locations.`longitude`, locations.`tz_long`, locations.`locationType`, locations.`source` FROM locations" +
+            " locations.`longitude`, locations.`tz_long`, locations.`locationType`, locations.`source`, locations.`locsource` FROM locations" +
             " INNER JOIN favorites ON locations.`query` = favorites.`query`" +
             " ORDER BY favorites.position")
     public List<LocationData> getFavorites();

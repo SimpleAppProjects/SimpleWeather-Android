@@ -8,12 +8,11 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
-import com.thewizrd.shared_resources.weatherdata.LocationData;
 
 import java.util.Collection;
 
 public abstract class LocationProviderImpl implements LocationProviderImplInterface {
-    protected Handler mMainHandler;
+    protected final Handler mMainHandler;
 
     public LocationProviderImpl() {
         mMainHandler = new Handler(Looper.getMainLooper());
@@ -33,8 +32,6 @@ public abstract class LocationProviderImpl implements LocationProviderImplInterf
     // GeopositionQuery
     public abstract LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate, String weatherAPI);
 
-    public abstract LocationQueryViewModel getLocation(String query, String weatherAPI);
-
     // KeyCheck
     public abstract boolean isKeyValid(String key);
 
@@ -43,7 +40,7 @@ public abstract class LocationProviderImpl implements LocationProviderImplInterf
     // Utils Methods
     @Override
     public void updateLocationData(LocationData location, String weatherAPI) {
-        LocationQueryViewModel qview = getLocation(location.getQuery(), weatherAPI);
+        LocationQueryViewModel qview = getLocation(new WeatherUtils.Coordinate(location), weatherAPI);
 
         if (qview != null && !StringUtils.isNullOrWhitespace(qview.getLocationQuery())) {
             location.setName(qview.getLocationName());

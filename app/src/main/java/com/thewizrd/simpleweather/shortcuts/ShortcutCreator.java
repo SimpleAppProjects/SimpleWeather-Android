@@ -9,9 +9,9 @@ import android.graphics.drawable.Icon;
 import android.os.Build;
 
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.Settings;
-import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;

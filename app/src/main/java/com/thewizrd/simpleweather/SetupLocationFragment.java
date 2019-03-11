@@ -69,12 +69,12 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
-import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
@@ -387,14 +387,14 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
 
                         // Need to get FULL location data for HERE API
                         // Data provided is incomplete
-                        if (WeatherAPI.HERE.equals(Settings.getAPI())
+                        if (WeatherAPI.HERE.equals(query_vm.getLocationSource())
                                 && query_vm.getLocationLat() == -1 && query_vm.getLocationLong() == -1
                                 && query_vm.getLocationTZLong() == null) {
                             final LocationQueryViewModel loc = query_vm;
                             query_vm = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
                                 @Override
                                 public LocationQueryViewModel call() throws Exception {
-                                    return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery());
+                                    return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
                                 }
                             });
                         }

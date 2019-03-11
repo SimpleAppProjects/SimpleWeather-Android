@@ -11,7 +11,6 @@ import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -62,7 +61,7 @@ public final class LocationIQProvider extends LocationProviderImpl {
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
         // TODO: NOTE: Decide if we will allow users to provide their own keys for loc providers
-        String key = Settings.usePersonalKey() ? Settings.getAPIKEY() : getAPIKey();
+        String key = getAPIKey();
 
         try {
             // Connect to webstream
@@ -80,7 +79,7 @@ public final class LocationIQProvider extends LocationProviderImpl {
                 boolean added = false;
                 // Filter: only store city results
                 if ("place".equals(result.getJsonMemberClass()))
-                    added = locations.add(new LocationQueryViewModel(result));
+                    added = locations.add(new LocationQueryViewModel(result, weatherAPI));
                 else
                     continue;
 
@@ -132,7 +131,7 @@ public final class LocationIQProvider extends LocationProviderImpl {
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
         // TODO: NOTE: Decide if we will allow users to provide their own keys for loc providers
-        String key = Settings.usePersonalKey() ? Settings.getAPIKEY() : getAPIKey();
+        String key = getAPIKey();
 
         try {
             // Connect to webstream
@@ -164,60 +163,7 @@ public final class LocationIQProvider extends LocationProviderImpl {
         }
 
         if (result != null && !StringUtils.isNullOrWhitespace(result.getOsmId()))
-            location = new LocationQueryViewModel(result);
-        else
-            location = new LocationQueryViewModel();
-
-        return location;
-    }
-
-    @Override
-    public LocationQueryViewModel getLocation(String location_query, String weatherAPI) {
-        LocationQueryViewModel location = null;
-
-        String queryAPI = "https://api.locationiq.com/v1/reverse.php";
-        String query = "key=%s&%s&format=json&zoom=14&namedetails=0&addressdetails=1&accept-language=%s&normalizecity=1";
-        HttpURLConnection client = null;
-        GeoLocation result = null;
-        WeatherException wEx = null;
-
-        ULocale uLocale = ULocale.forLocale(Locale.getDefault());
-        String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
-
-        // TODO: NOTE: Decide if we will allow users to provide their own keys for loc providers
-        String key = Settings.usePersonalKey() ? Settings.getAPIKEY() : getAPIKey();
-
-        try {
-            // Connect to webstream
-            URL queryURL = new URL(String.format(queryAPI + query, key, location_query, locale));
-            client = (HttpURLConnection) queryURL.openConnection();
-            InputStream stream = client.getInputStream();
-
-            // Load data
-            result = JSONParser.deserializer(stream, GeoLocation.class);
-
-            // End Stream
-            stream.close();
-        } catch (Exception ex) {
-            result = null;
-            if (ex instanceof IOException) {
-                wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
-                final WeatherException finalWEx = wEx;
-                mMainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(SimpleLibrary.getInstance().getApp().getAppContext(), finalWEx.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            Logger.writeLine(Log.ERROR, ex, "LocationIQProvider: error getting location");
-        } finally {
-            if (client != null)
-                client.disconnect();
-        }
-
-        if (result != null && !StringUtils.isNullOrWhitespace(result.getOsmId()))
-            location = new LocationQueryViewModel(result);
+            location = new LocationQueryViewModel(result, weatherAPI);
         else
             location = new LocationQueryViewModel();
 

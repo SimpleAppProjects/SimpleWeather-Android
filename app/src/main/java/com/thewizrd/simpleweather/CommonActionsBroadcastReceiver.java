@@ -7,9 +7,9 @@ import android.util.Log;
 
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;

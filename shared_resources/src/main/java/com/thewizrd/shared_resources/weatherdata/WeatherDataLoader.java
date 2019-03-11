@@ -9,6 +9,7 @@ import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -163,7 +164,7 @@ public class WeatherDataLoader {
 
             try {
                 if ((weather != null && !weather.getSource().equals(Settings.getAPI()))
-                        || (weather == null && location != null && !location.getSource().equals(Settings.getAPI()))) {
+                        || (weather == null && location != null && !location.getWeatherSource().equals(Settings.getAPI()))) {
                     // Update location query and source for new API
                     String oldKey = location.getQuery();
 
@@ -172,7 +173,7 @@ public class WeatherDataLoader {
                     else
                         location.setQuery(wm.updateLocationQuery(location));
 
-                    location.setSource(Settings.getAPI());
+                    location.setWeatherSource(Settings.getAPI());
 
                     // Update database as well
                     if (SimpleLibrary.getInstance().getApp().isPhone()) {
@@ -279,7 +280,8 @@ public class WeatherDataLoader {
 
         if (SimpleLibrary.getInstance().getApp().isPhone()) {
             // Update weather data for Wearables
-            mLocalBroadcastManager.sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE));
+            if (location.equals(Settings.getHomeData()))
+                mLocalBroadcastManager.sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE));
 
             // Update cached weather data for widgets
             mLocalBroadcastManager.sendBroadcast(

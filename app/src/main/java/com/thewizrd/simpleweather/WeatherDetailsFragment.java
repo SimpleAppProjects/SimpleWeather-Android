@@ -18,9 +18,9 @@ import android.widget.TextView;
 
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
-import com.thewizrd.shared_resources.weatherdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.simpleweather.adapters.WeatherDetailsAdapter;
 import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
