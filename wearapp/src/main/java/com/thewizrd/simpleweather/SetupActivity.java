@@ -130,8 +130,13 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                         mLocation = locationResult.getLastLocation();
 
                     if (mLocation == null) {
-                        enableControls(true);
-                        Toast.makeText(SetupActivity.this, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                enableControls(true);
+                                Toast.makeText(SetupActivity.this, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     } else {
                         fetchGeoLocation();
                     }
@@ -154,8 +159,13 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                     });
 
                     if (!locationAvailability.isLocationAvailable()) {
-                        enableControls(true);
-                        Toast.makeText(SetupActivity.this, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                enableControls(true);
+                                Toast.makeText(SetupActivity.this, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
                 }
             };

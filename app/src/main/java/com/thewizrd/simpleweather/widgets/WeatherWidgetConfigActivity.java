@@ -342,7 +342,12 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         mLocation = locationResult.getLastLocation();
 
                     if (mLocation == null) {
-                        Toast.makeText(WeatherWidgetConfigActivity.this, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(WeatherWidgetConfigActivity.this, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     } else {
                         fetchGeoLocation();
                     }
@@ -365,7 +370,12 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     });
 
                     if (!locationAvailability.isLocationAvailable()) {
-                        Toast.makeText(WeatherWidgetConfigActivity.this, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(WeatherWidgetConfigActivity.this, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
                 }
             };

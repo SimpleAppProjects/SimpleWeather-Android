@@ -191,8 +191,13 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                         mLocation = locationResult.getLastLocation();
 
                     if (mLocation == null) {
-                        enableControls(true);
-                        Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                enableControls(true);
+                                Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     } else {
                         fetchGeoLocation();
                     }
@@ -215,8 +220,13 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                     });
 
                     if (!locationAvailability.isLocationAvailable()) {
-                        enableControls(true);
-                        Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                enableControls(true);
+                                Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
                 }
             };
