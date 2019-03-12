@@ -126,9 +126,17 @@ public class Forecast {
     public Forecast(com.thewizrd.shared_resources.weatherdata.here.ForecastItem forecast) {
         date = ZonedDateTime.parse(forecast.getUtcTime()).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
         highF = forecast.getHighTemperature();
-        highC = ConversionMethods.FtoC(forecast.getHighTemperature());
+        try {
+            highC = ConversionMethods.FtoC(forecast.getHighTemperature());
+        } catch (NumberFormatException ignored) {
+            highC = forecast.getHighTemperature();
+        }
         lowF = forecast.getLowTemperature();
-        lowC = ConversionMethods.FtoC(forecast.getLowTemperature());
+        try {
+            lowC = ConversionMethods.FtoC(forecast.getLowTemperature());
+        } catch (NumberFormatException ignored) {
+            lowC = forecast.getLowTemperature();
+        }
         condition = StringUtils.toPascalCase(forecast.getDescription());
         icon = WeatherManager.getProvider(WeatherAPI.HERE)
                 .getWeatherIcon(String.format("%s_%s", forecast.getDaylight(), forecast.getIconName()));

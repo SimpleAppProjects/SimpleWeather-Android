@@ -120,9 +120,8 @@ public class ForecastItemViewModel {
                 String pressureUnit = Settings.isFahrenheit() ? "in" : "mb";
 
                 try {
-                    float pressure = Float.parseFloat(pressureVal);
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.PRESSURE,
-                            String.format(Locale.getDefault(), "%s %s", Float.toString(pressure), pressureUnit)));
+                            String.format(Locale.getDefault(), "%s %s", pressureVal, pressureUnit)));
                 } catch (Exception e) {
                     Logger.writeLine(Log.DEBUG, e);
                 }
@@ -147,9 +146,8 @@ public class ForecastItemViewModel {
                 String visibilityUnit = Settings.isFahrenheit() ? "mi" : "km";
 
                 try {
-                    float visibility = Float.parseFloat(visibilityVal);
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.VISIBILITY,
-                            String.format(Locale.getDefault(), "%s %s", Float.toString(visibility), visibilityUnit)));
+                            String.format(Locale.getDefault(), "%s %s", visibilityVal, visibilityUnit)));
                 } catch (Exception e) {
                     Logger.writeLine(Log.DEBUG, e);
                 }

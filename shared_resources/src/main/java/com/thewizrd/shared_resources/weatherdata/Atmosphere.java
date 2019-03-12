@@ -104,8 +104,12 @@ public class Atmosphere {
 
     public Atmosphere(com.thewizrd.shared_resources.weatherdata.here.ObservationItem observation) {
         humidity = observation.getHumidity();
-        pressureMb = ConversionMethods.inHgToMB(observation.getBarometerPressure());
         pressureIn = observation.getBarometerPressure();
+        try {
+            pressureMb = ConversionMethods.inHgToMB(observation.getBarometerPressure());
+        } catch (NumberFormatException ex) {
+            pressureMb = observation.getBarometerPressure();
+        }
         pressureTrend = observation.getBarometerTrend();
         visibilityMi = observation.getVisibility();
 

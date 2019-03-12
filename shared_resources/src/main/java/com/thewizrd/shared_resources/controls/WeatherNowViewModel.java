@@ -185,10 +185,9 @@ public class WeatherNowViewModel {
             String pressureUnit = Settings.isFahrenheit() ? "in" : "mb";
 
             try {
-                float pressure = Float.parseFloat(pressureVal);
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.PRESSURE,
                         String.format(Locale.getDefault(), "%s %s %s",
-                                getPressureStateIcon(weather.getAtmosphere().getPressureTrend()), Float.toString(pressure), pressureUnit)));
+                                getPressureStateIcon(weather.getAtmosphere().getPressureTrend()), pressureVal, pressureUnit)));
             } catch (Exception e) {
                 Logger.writeLine(Log.DEBUG, e);
             }
@@ -212,9 +211,8 @@ public class WeatherNowViewModel {
             String visibilityUnit = Settings.isFahrenheit() ? "mi" : "km";
 
             try {
-                float visibility = Float.parseFloat(visibilityVal);
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.VISIBILITY,
-                        String.format(Locale.getDefault(), "%s %s", Float.toString(visibility), visibilityUnit)));
+                        String.format(Locale.getDefault(), "%s %s", visibilityVal, visibilityUnit)));
             } catch (Exception e) {
                 Logger.writeLine(Log.DEBUG, e);
             }

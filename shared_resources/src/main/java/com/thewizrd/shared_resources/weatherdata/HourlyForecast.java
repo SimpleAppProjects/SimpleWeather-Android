@@ -172,7 +172,11 @@ public class HourlyForecast {
     public HourlyForecast(com.thewizrd.shared_resources.weatherdata.here.ForecastItem1 hr_forecast) {
         setDate(ZonedDateTime.parse(hr_forecast.getUtcTime()));
         highF = hr_forecast.getTemperature();
-        highC = ConversionMethods.FtoC(hr_forecast.getTemperature());
+        try {
+            highC = ConversionMethods.FtoC(hr_forecast.getTemperature());
+        } catch (NumberFormatException ignored) {
+            highC = hr_forecast.getTemperature();
+        }
         condition = StringUtils.toPascalCase(hr_forecast.getDescription());
 
         icon = WeatherManager.getProvider(WeatherAPI.HERE)
