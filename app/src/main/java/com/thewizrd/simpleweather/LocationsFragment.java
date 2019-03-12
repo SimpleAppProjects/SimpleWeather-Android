@@ -313,23 +313,53 @@ public class LocationsFragment extends Fragment
         mErrorCounter = new boolean[WeatherUtils.ErrorStatus.values().length];
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {
-            mFusedLocationClient = new FusedLocationProviderClient(getActivity());
+            mFusedLocationClient = new FusedLocationProviderClient(mActivity);
             mLocCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
+                    if (locationResult != null && locationResult.getLastLocation() != null) {
+                        addGPSPanel();
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
 
+                    new AsyncTask<Void>().await(new Callable<Void>() {
+                        @Override
+                        public Void call() throws Exception {
+                            return Tasks.await(mFusedLocationClient.removeLocationUpdates(mLocCallback));
+                        }
+                    });
                 }
 
                 @Override
                 public void onLocationAvailability(LocationAvailability locationAvailability) {
+                    new AsyncTask<Void>().await(new Callable<Void>() {
+                        @Override
+                        public Void call() throws Exception {
+                            return Tasks.await(mFusedLocationClient.flushLocations());
+                        }
+                    });
 
+                    if (!locationAvailability.isLocationAvailable()) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
                 }
             };
         } else {
             mLocListnr = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-
+                    addGPSPanel();
                 }
 
                 @Override
@@ -612,15 +642,17 @@ public class LocationsFragment extends Fragment
                     if (Settings.useFollowGPS()) {
                         gpsData = getGPSPanel();
 
-                        final LocationPanelViewModel gpsPanelViewModel = new LocationPanelViewModel();
-                        gpsPanelViewModel.setLocationData(gpsData);
+                        if (gpsData != null) {
+                            final LocationPanelViewModel gpsPanelViewModel = new LocationPanelViewModel();
+                            gpsPanelViewModel.setLocationData(gpsData);
 
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mAdapter.add(0, gpsPanelViewModel);
-                            }
-                        });
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mAdapter.add(0, gpsPanelViewModel);
+                                }
+                            });
+                        }
                     }
 
                     for (LocationData location : locations) {
@@ -695,7 +727,8 @@ public class LocationsFragment extends Fragment
                         && mAdapter.getPanelData(0).getLocationType() == LocationType.GPS)
                     gpsPanelViewModel = mAdapter.getPanelViewModel(0);
 
-                boolean reload = (locations.size() != mAdapter.getDataCount() || Settings.useFollowGPS() && gpsPanelViewModel == null);
+                boolean reload = (locations.size() != mAdapter.getDataCount() ||
+                        Settings.useFollowGPS() && gpsPanelViewModel == null || !Settings.useFollowGPS() && gpsPanelViewModel != null);
 
                 // Reload if weather source differs
                 if ((gpsPanelViewModel != null && !Settings.getAPI().equals(gpsPanelViewModel.getWeatherSource())) ||
@@ -730,6 +763,39 @@ public class LocationsFragment extends Fragment
                     }
                 }
                 return null;
+            }
+        });
+    }
+
+    private void addGPSPanel() {
+        AsyncTask.run(new Runnable() {
+            @Override
+            public void run() {
+                // Setup saved favorite locations
+                LocationData gpsData = null;
+                if (Settings.useFollowGPS()) {
+                    gpsData = getGPSPanel();
+
+                    if (gpsData != null) {
+                        final LocationPanelViewModel gpsPanelViewModel = new LocationPanelViewModel();
+                        gpsPanelViewModel.setLocationData(gpsData);
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mAdapter.add(0, gpsPanelViewModel);
+                            }
+                        });
+                    }
+                }
+
+                if (cts.getToken().isCancellationRequested())
+                    return;
+
+                if (gpsData != null) {
+                    WeatherDataLoader wLoader = new WeatherDataLoader(gpsData, LocationsFragment.this, LocationsFragment.this);
+                    wLoader.loadWeatherData(false);
+                }
             }
         });
     }
