@@ -42,11 +42,12 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
-import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.LaunchActivity;
 import com.thewizrd.simpleweather.R;
 
+import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,8 +61,6 @@ public class WeatherComplicationService extends ComplicationProviderService {
     private Handler mMainHandler;
 
     private WeatherManager wm;
-    private static Weather weather;
-    private static LocationData locData;
 
     private FusedLocationProviderClient mFusedLocationClient;
     private Location mLocation;
@@ -198,7 +197,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
         super.onComplicationActivated(complicationId, type, manager);
         complicationIds.add(complicationId);
 
-        startAlarm(App.getInstance().getAppContext());
+        startAlarm(mContext);
     }
 
     @Override
@@ -206,7 +205,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
         super.onComplicationDeactivated(complicationId);
         complicationIds.remove(Integer.valueOf(complicationId));
 
-        cancelAlarm(App.getInstance().getAppContext());
+        cancelAlarm(mContext);
     }
 
     protected static boolean complicationsExist() {
@@ -224,8 +223,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
                 ComplicationData complicationData = null;
 
                 if (Settings.isWeatherLoaded()) {
-                    weather = getWeather();
-                    complicationData = buildUpdate(type, weather);
+                    complicationData = buildUpdate(type, getWeather());
                 }
 
                 if (complicationData != null) {
@@ -240,7 +238,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
                 // Add id to list in case it wasn't before
                 if (complicationIds.size() == 0) {
                     complicationIds.add(complicationId);
-                    startAlarm(App.getInstance().getAppContext());
+                    startAlarm(mContext);
                 }
             }
         });
@@ -290,13 +288,31 @@ public class WeatherComplicationService extends ComplicationProviderService {
 
                     WeatherDataLoader wloader = new WeatherDataLoader(Settings.getHomeData());
 
-                    if (Settings.getDataSync() == WearableDataSync.OFF)
+                    if (Settings.getDataSync() == WearableDataSync.OFF) {
                         wloader.loadWeatherData(false);
-                    else
+                    } else {
                         wloader.forceLoadSavedWeatherData();
+                    }
 
-                    locData = Settings.getHomeData();
                     weather = wloader.getWeather();
+
+                    if (weather != null && Settings.getDataSync() != WearableDataSync.OFF) {
+                        int ttl = Settings.DEFAULTINTERVAL;
+                        try {
+                            ttl = Integer.parseInt(weather.getTtl());
+                        } catch (NumberFormatException ex) {
+                            Logger.writeLine(Log.ERROR, ex);
+                        }
+
+                        // Check file age
+                        ZonedDateTime updateTime = weather.getUpdateTime();
+
+                        Duration span = Duration.between(ZonedDateTime.now(), updateTime).abs();
+                        if (span.toMinutes() < ttl) {
+                            WearableDataListenerService.enqueueWork(mContext, new Intent(mContext, WearableDataListenerService.class)
+                                    .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE));
+                        }
+                    }
                 } catch (Exception ex) {
                     Logger.writeLine(Log.ERROR, ex, "%s: GetWeather error", TAG);
                     return null;
@@ -314,8 +330,8 @@ public class WeatherComplicationService extends ComplicationProviderService {
                 boolean locationChanged = false;
 
                 if (Settings.useFollowGPS()) {
-                    if (ContextCompat.checkSelfPermission(App.getInstance().getAppContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                            ContextCompat.checkSelfPermission(App.getInstance().getAppContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                            ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         return false;
                     }
 
@@ -350,7 +366,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
                             });
                         }
                     } else {
-                        LocationManager locMan = (LocationManager) App.getInstance().getAppContext().getSystemService(Context.LOCATION_SERVICE);
+                        LocationManager locMan = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
                         boolean isGPSEnabled = false;
                         boolean isNetEnabled = false;
                         if (locMan != null) {

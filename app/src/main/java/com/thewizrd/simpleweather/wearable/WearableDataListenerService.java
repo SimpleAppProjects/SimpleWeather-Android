@@ -225,6 +225,7 @@ public class WearableDataListenerService extends WearableListenerService {
                 } else if (intent != null && ACTION_SENDLOCATIONUPDATE.equals(intent.getAction())) {
                     createLocationDataRequest(true);
                 } else if (intent != null && ACTION_SENDWEATHERUPDATE.equals(intent.getAction())) {
+                    createWeatherDataRequest(null);
                 }
                 return null;
             }

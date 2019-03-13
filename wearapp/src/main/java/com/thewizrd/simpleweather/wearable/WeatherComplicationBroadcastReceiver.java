@@ -8,8 +8,9 @@ public class WeatherComplicationBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
-            WeatherComplicationIntentService.enqueueWork(context,
-                    new Intent(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE)
+            WearableDataListenerService.enqueueWork(context,
+                    new Intent(context, WearableDataListenerService.class)
+                            .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE)
                             .putExtra(WearableDataListenerService.EXTRA_FORCEUPDATE, true));
             return;
         }

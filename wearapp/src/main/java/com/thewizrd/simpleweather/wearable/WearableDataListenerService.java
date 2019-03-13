@@ -1,14 +1,23 @@
 package com.thewizrd.simpleweather.wearable;
 
+import android.annotation.TargetApi;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.wearable.phone.PhoneDeviceType;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.wearable.CapabilityClient;
 import com.google.android.gms.wearable.CapabilityInfo;
@@ -28,12 +37,15 @@ import com.thewizrd.shared_resources.helpers.WearWeatherJSON;
 import com.thewizrd.shared_resources.helpers.WearableDataSync;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.simpleweather.App;
+import com.thewizrd.simpleweather.R;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
@@ -47,6 +59,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 
 public class WearableDataListenerService extends WearableListenerService {
     private static final String TAG = "WearableDataListenerService";
@@ -76,9 +89,60 @@ public class WearableDataListenerService extends WearableListenerService {
         acceptDataUpdates = value;
     }
 
+    private static final int JOB_ID = 1001;
+    private static final String NOT_CHANNEL_ID = "SimpleWeather.generalnotif";
+
+    public static void enqueueWork(Context context, Intent work) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(work);
+        } else {
+            context.startService(work);
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private static void initChannel() {
+        // Gets an instance of the NotificationManager service
+        Context context = App.getInstance().getAppContext();
+        NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+        NotificationChannel mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID);
+
+        if (mChannel == null) {
+            String notchannel_name = context.getResources().getString(R.string.not_channel_name_general);
+
+            mChannel = new NotificationChannel(NOT_CHANNEL_ID, notchannel_name, NotificationManager.IMPORTANCE_LOW);
+            // Configure the notification channel.
+            mChannel.setShowBadge(false);
+            mChannel.enableLights(false);
+            mChannel.enableVibration(false);
+            mNotifyMgr.createNotificationChannel(mChannel);
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private static Notification getForegroundNotification() {
+        Context context = App.getInstance().getAppContext();
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(context, NOT_CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_logo)
+                        .setContentTitle(context.getString(R.string.not_title_wearable_sync))
+                        .setProgress(0, 0, true)
+                        .setColor(Colors.SIMPLEBLUE)
+                        .setOnlyAlertOnce(true)
+                        .setPriority(NotificationManager.IMPORTANCE_LOW);
+
+        return mBuilder.build();
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            initChannel();
+
+            startForeground(JOB_ID, getForegroundNotification());
+        }
 
         mMainHandler = new Handler(Looper.getMainLooper());
 
@@ -119,6 +183,10 @@ public class WearableDataListenerService extends WearableListenerService {
     @Override
     public void onDestroy() {
         mLoaded = false;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            stopForeground(true);
+        }
 
         super.onDestroy();
     }
@@ -184,58 +252,42 @@ public class WearableDataListenerService extends WearableListenerService {
 
     @Override
     public int onStartCommand(@NonNull final Intent intent, int flags, int startId) {
-        if (ACTION_OPENONPHONE.equals(intent.getAction())) {
-            AsyncTask.run(new Runnable() {
-                @Override
-                public void run() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            startForeground(JOB_ID, getForegroundNotification());
+
+        Tasks.call(Executors.newSingleThreadExecutor(), new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                if (ACTION_OPENONPHONE.equals(intent.getAction())) {
                     openAppOnPhone();
-                }
-            });
-            return START_NOT_STICKY;
-        } else if (ACTION_UPDATECONNECTIONSTATUS.equals(intent.getAction())) {
-            LocalBroadcastManager.getInstance(this)
-                    .sendBroadcast(new Intent(ACTION_UPDATECONNECTIONSTATUS)
-                            .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.getValue()));
-            return START_NOT_STICKY;
-        } else if (ACTION_REQUESTSETTINGSUPDATE.equals(intent.getAction())) {
-            AsyncTask.run(new Runnable() {
-                @Override
-                public void run() {
+                } else if (ACTION_UPDATECONNECTIONSTATUS.equals(intent.getAction())) {
+                    LocalBroadcastManager.getInstance(WearableDataListenerService.this)
+                            .sendBroadcast(new Intent(ACTION_UPDATECONNECTIONSTATUS)
+                                    .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.getValue()));
+                } else if (ACTION_REQUESTSETTINGSUPDATE.equals(intent.getAction())) {
                     sendSettingsRequest();
-                }
-            });
-            return START_NOT_STICKY;
-        } else if (ACTION_REQUESTLOCATIONUPDATE.equals(intent.getAction())) {
-            AsyncTask.run(new Runnable() {
-                @Override
-                public void run() {
+                } else if (ACTION_REQUESTLOCATIONUPDATE.equals(intent.getAction())) {
                     sendLocationRequest();
-                }
-            });
-            return START_NOT_STICKY;
-        } else if (ACTION_REQUESTWEATHERUPDATE.equals(intent.getAction())) {
-            AsyncTask.run(new Runnable() {
-                @Override
-                public void run() {
+                } else if (ACTION_REQUESTWEATHERUPDATE.equals(intent.getAction())) {
                     boolean forceUpdate = intent.getBooleanExtra(EXTRA_FORCEUPDATE, false);
                     if (!forceUpdate)
                         sendWeatherRequest();
                     else
                         sendWeatherUpdateRequest();
-                }
-            });
-            return START_NOT_STICKY;
-        } else if (ACTION_REQUESTSETUPSTATUS.equals(intent.getAction())) {
-            AsyncTask.run(new Runnable() {
-                @Override
-                public void run() {
+                } else if (ACTION_REQUESTSETUPSTATUS.equals(intent.getAction())) {
                     sendSetupStatusRequest();
                 }
-            });
-            return START_NOT_STICKY;
-        }
+                return null;
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                    stopForeground(true);
+            }
+        });
 
-        return super.onStartCommand(intent, flags, startId);
+        return START_NOT_STICKY;
     }
 
     private Node checkIfPhoneHasApp() {
