@@ -175,12 +175,14 @@ public class MainActivity extends Activity implements MenuItem.OnMenuItemClickLi
                 ft.commit();
             } else if (current instanceof WeatherListFragment) {
                 WeatherListFragment forecastFragment = (WeatherListFragment) current;
-                if (forecastFragment.getArguments() != null &&
-                        WeatherListType.valueOf(forecastFragment.getArguments().getInt("WeatherListType", 0)) != weatherListType) {
-                    Bundle args = new Bundle();
-                    args.putInt("WeatherListType", weatherListType.getValue());
-                    forecastFragment.setArguments(args);
-                    forecastFragment.initialize();
+                if (forecastFragment.getArguments() != null) {
+                    Bundle args = forecastFragment.getArguments();
+                    if (WeatherListType.valueOf(args.getInt("WeatherListType", 0)) != weatherListType) {
+                        args.putInt("WeatherListType", weatherListType.getValue());
+                        // Note: Causes IllegalStateException if args already set (not null)
+                        // forecastFragment.setArguments(args);
+                        forecastFragment.initialize();
+                    }
                 }
             }
         } else if (WeatherDetailsFragment.class.equals(targetFragmentType)) {

@@ -15,8 +15,6 @@ import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.simpleweather.adapters.ForecastItemAdapter;
 import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter;
 
-import static com.thewizrd.simpleweather.WeatherListType.valueOf;
-
 public class WeatherListFragment extends SwipeDismissFragment {
     private WeatherNowViewModel weatherView = null;
 
@@ -88,7 +86,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
             RecyclerView.Adapter adapter = null;
 
             if (getArguments() != null)
-                weatherType = valueOf(getArguments().getInt("WeatherListType", 0));
+                weatherType = WeatherListType.valueOf(getArguments().getInt("WeatherListType", 0));
 
             switch (weatherType) {
                 default:
