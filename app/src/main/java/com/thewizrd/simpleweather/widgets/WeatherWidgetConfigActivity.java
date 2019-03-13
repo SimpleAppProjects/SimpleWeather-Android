@@ -654,25 +654,34 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(final Editable e) {
-                timer = new Timer();
-                timer.schedule(
-                        new TimerTask() {
-                            @Override
-                            public void run() {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        final String newText = e.toString();
+                // If string is null or empty (ex. from clearing text) run right away
+                if (StringUtils.isNullOrEmpty(e.toString())) {
+                    runSearchOp(e);
+                } else {
+                    timer = new Timer();
+                    timer.schedule(
+                            new TimerTask() {
+                                @Override
+                                public void run() {
+                                    runSearchOp(e);
+                                }
+                            }, DELAY
+                    );
+                }
+            }
 
-                                        if (mSearchFragment != null) {
-                                            clearButtonView.setVisibility(StringUtils.isNullOrEmpty(newText) ? View.GONE : View.VISIBLE);
-                                            mSearchFragment.fetchLocations(newText);
-                                        }
-                                    }
-                                });
-                            }
-                        }, DELAY
-                );
+            private void runSearchOp(final Editable e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final String newText = e.toString();
+
+                        if (mSearchFragment != null) {
+                            clearButtonView.setVisibility(StringUtils.isNullOrEmpty(newText) ? View.GONE : View.VISIBLE);
+                            mSearchFragment.fetchLocations(newText);
+                        }
+                    }
+                });
             }
         });
         clearButtonView.setVisibility(View.GONE);

@@ -906,31 +906,40 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
 
             @Override
             public void afterTextChanged(final Editable e) {
-                timer = new Timer();
-                timer.schedule(
-                        new TimerTask() {
-                            @Override
-                            public void run() {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        final String newText = e.toString();
+                // If string is null or empty (ex. from clearing text) run right away
+                if (StringUtils.isNullOrEmpty(e.toString())) {
+                    runSearchOp(e);
+                } else {
+                    timer = new Timer();
+                    timer.schedule(
+                            new TimerTask() {
+                                @Override
+                                public void run() {
+                                    runSearchOp(e);
+                                }
+                            }, DELAY
+                    );
+                }
+            }
 
-                                        if (mSearchFragment != null) {
-                                            progressBar.setVisibility(View.GONE);
+            private void runSearchOp(final Editable e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final String newText = e.toString();
 
-                                            // If we're using searchfragment
-                                            // make sure gps feature is off
-                                            Settings.setFollowGPS(false);
+                        if (mSearchFragment != null) {
+                            progressBar.setVisibility(View.GONE);
 
-                                            clearButtonView.setVisibility(TextUtils.isEmpty(e) ? View.GONE : View.VISIBLE);
-                                            mSearchFragment.fetchLocations(newText);
-                                        }
-                                    }
-                                });
-                            }
-                        }, DELAY
-                );
+                            // If we're using searchfragment
+                            // make sure gps feature is off
+                            Settings.setFollowGPS(false);
+
+                            clearButtonView.setVisibility(TextUtils.isEmpty(e) ? View.GONE : View.VISIBLE);
+                            mSearchFragment.fetchLocations(newText);
+                        }
+                    }
+                });
             }
         });
         clearButtonView.setVisibility(View.GONE);
