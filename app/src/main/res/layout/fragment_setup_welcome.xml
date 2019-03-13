@@ -66,6 +66,7 @@
         android:lines="2"
         android:text="@string/setup_welcome_tagline_prompt"
         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+        android:textColor="@color/colorTextHint"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
