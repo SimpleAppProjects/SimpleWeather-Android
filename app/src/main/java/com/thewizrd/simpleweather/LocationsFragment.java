@@ -505,8 +505,13 @@ public class LocationsFragment extends Fragment
 
         boolean onlyHomeIsLeft = (mAdapter.getDataCount() == 1);
         MenuItem editMenuBtn = optionsMenu.findItem(R.id.action_editmode);
-        if (editMenuBtn != null)
+        if (editMenuBtn != null) {
             editMenuBtn.setVisible(!onlyHomeIsLeft);
+            // Change EditMode button drwble
+            editMenuBtn.setIcon(mEditMode ? R.drawable.ic_done_white_24dp : R.drawable.ic_mode_edit_white_24dp);
+            // Change EditMode button label
+            editMenuBtn.setTitle(mEditMode ? R.string.abc_action_mode_done : R.string.action_editmode);
+        }
     }
 
     private Toolbar.OnMenuItemClickListener menuItemClickListener = new Toolbar.OnMenuItemClickListener() {
