@@ -288,7 +288,7 @@ public class LocationsFragment extends Fragment
                     // Navigate to WeatherNowFragment
                     Fragment fragment = WeatherNowFragment.newInstance(locData);
                     mActivity.getSupportFragmentManager().beginTransaction()
-                            .add(R.id.fragment_container, fragment, null)
+                            .add(R.id.fragment_container, fragment, "favorites")
                             .hide(LocationsFragment.this)
                             .addToBackStack(null)
                             .commit();

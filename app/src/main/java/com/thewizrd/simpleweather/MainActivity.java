@@ -186,6 +186,11 @@ public class MainActivity extends AppCompatActivity
                         current = getSupportFragmentManager().findFragmentByTag("settings");
                         transaction.remove(current);
                     }
+                    // If an extra WeatherNowFragment exists remove it
+                    if (getSupportFragmentManager().findFragmentByTag("favorites") != null) {
+                        current = getSupportFragmentManager().findFragmentByTag("favorites");
+                        transaction.remove(current);
+                    }
                 }
 
                 if (getSupportFragmentManager().findFragmentByTag("locations") != null) {
