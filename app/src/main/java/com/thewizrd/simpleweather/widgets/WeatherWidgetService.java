@@ -133,6 +133,12 @@ public class WeatherWidgetService extends JobIntentService {
         mAppWidgetManager = AppWidgetManager.getInstance(mContext);
         wm = WeatherManager.getInstance();
 
+        // Check if alarm is already set
+        mAlarmStarted = (PendingIntent.getBroadcast(mContext, 0,
+                new Intent(mContext, WeatherWidgetBroadcastReceiver.class)
+                        .setAction(ACTION_UPDATEWEATHER),
+                PendingIntent.FLAG_NO_CREATE) != null);
+
         final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override

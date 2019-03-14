@@ -29,7 +29,7 @@ public class WeatherComplicationIntentService extends JobIntentService {
 
     private Context mContext;
     private ProviderUpdateRequester updateRequester;
-    private static boolean alarmStarted = false;
+    private static boolean mAlarmStarted = false;
 
     private static final int JOB_ID = 1000;
 
@@ -49,6 +49,12 @@ public class WeatherComplicationIntentService extends JobIntentService {
         mContext = getApplicationContext();
         updateRequester = new ProviderUpdateRequester(mContext,
                 new ComponentName(mContext, WeatherComplicationService.class));
+
+        // Check if alarm is already set
+        mAlarmStarted = (PendingIntent.getBroadcast(mContext, 0,
+                new Intent(mContext, WeatherComplicationBroadcastReceiver.class)
+                        .setAction(ACTION_UPDATECOMPLICATIONS),
+                PendingIntent.FLAG_NO_CREATE) != null);
 
         final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -98,7 +104,7 @@ public class WeatherComplicationIntentService extends JobIntentService {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         int interval = Settings.DEFAULTINTERVAL;
 
-        boolean startNow = !alarmStarted;
+        boolean startNow = !mAlarmStarted;
         long intervalMillis = Duration.ofMinutes(interval).toMillis();
         long triggerAtTime = SystemClock.elapsedRealtime() + intervalMillis;
 
@@ -110,7 +116,7 @@ public class WeatherComplicationIntentService extends JobIntentService {
         PendingIntent pendingIntent = getAlarmIntent(context);
         am.cancel(pendingIntent);
         am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, triggerAtTime, intervalMillis, pendingIntent);
-        alarmStarted = true;
+        mAlarmStarted = true;
 
         Logger.writeLine(Log.INFO, "%s: Updated alarm", TAG);
     }
@@ -120,7 +126,7 @@ public class WeatherComplicationIntentService extends JobIntentService {
         if (!complicationsExist()) {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             am.cancel(getAlarmIntent(context));
-            alarmStarted = false;
+            mAlarmStarted = false;
 
             Logger.writeLine(Log.INFO, "%s: Canceled alarm", TAG);
         }
@@ -128,9 +134,9 @@ public class WeatherComplicationIntentService extends JobIntentService {
 
     private void startAlarm(Context context) {
         // Start alarm if dependent features are enabled
-        if (!alarmStarted && complicationsExist()) {
+        if (!mAlarmStarted && complicationsExist()) {
             updateAlarm(context);
-            alarmStarted = true;
+            mAlarmStarted = true;
         }
     }
 }
