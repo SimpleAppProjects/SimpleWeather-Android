@@ -44,7 +44,7 @@
             android:theme="@style/WearAppTheme" />
         <activity
             android:name=".SettingsActivity"
-            android:theme="@style/WearSettingsTheme"></activity>
+            android:theme="@style/WearSettingsTheme" />
 
         <service
             android:name=".wearable.WearableDataListenerService"
