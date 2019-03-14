@@ -197,6 +197,8 @@ public class WeatherComplicationService extends ComplicationProviderService {
         super.onComplicationActivated(complicationId, type, manager);
         complicationIds.add(complicationId);
 
+        Logger.writeLine(Log.INFO, "%s: Complication activated", TAG);
+
         startAlarm(mContext);
     }
 
@@ -204,6 +206,8 @@ public class WeatherComplicationService extends ComplicationProviderService {
     public void onComplicationDeactivated(int complicationId) {
         super.onComplicationDeactivated(complicationId);
         complicationIds.remove(Integer.valueOf(complicationId));
+
+        Logger.writeLine(Log.INFO, "%s: Complication deactivated", TAG);
 
         cancelAlarm(mContext);
     }
@@ -237,6 +241,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
 
                 // Add id to list in case it wasn't before
                 if (complicationIds.size() == 0) {
+                    Logger.writeLine(Log.INFO, "%s: No complications exist. Adding..", TAG);
                     complicationIds.add(complicationId);
                     startAlarm(mContext);
                 }

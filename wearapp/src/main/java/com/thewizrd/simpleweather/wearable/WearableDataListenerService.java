@@ -276,6 +276,8 @@ public class WearableDataListenerService extends WearableListenerService {
                         sendWeatherUpdateRequest();
                 } else if (ACTION_REQUESTSETUPSTATUS.equals(intent.getAction())) {
                     sendSetupStatusRequest();
+                } else {
+                    Logger.writeLine(Log.INFO, "%s: Unhandled action: %s", TAG, intent.getAction());
                 }
                 return null;
             }

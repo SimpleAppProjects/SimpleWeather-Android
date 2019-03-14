@@ -82,6 +82,8 @@ public class WeatherComplicationIntentService extends JobIntentService {
             startAlarm(App.getInstance().getAppContext());
         } else if (ACTION_CANCELALARM.equals(intent.getAction())) {
             cancelAlarms(App.getInstance().getAppContext());
+        } else {
+            Logger.writeLine(Log.INFO, "%s: Unhandled action: %s", TAG, intent.getAction());
         }
     }
 
