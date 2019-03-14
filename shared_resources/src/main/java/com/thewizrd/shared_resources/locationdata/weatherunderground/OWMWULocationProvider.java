@@ -8,6 +8,7 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -58,6 +59,9 @@ public final class OWMWULocationProvider extends LocationProviderImpl {
             // Connect to webstream
             URL queryURL = new URL(queryAPI + URLEncoder.encode(ac_query, "UTF-8") + options);
             client = (HttpURLConnection) queryURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
+
             InputStream stream = client.getInputStream();
 
             // Load data
@@ -109,6 +113,9 @@ public final class OWMWULocationProvider extends LocationProviderImpl {
             // Connect to webstream
             URL queryURL = new URL(queryAPI + query + options);
             client = (HttpURLConnection) queryURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
+
             InputStream stream = client.getInputStream();
 
             // Load data

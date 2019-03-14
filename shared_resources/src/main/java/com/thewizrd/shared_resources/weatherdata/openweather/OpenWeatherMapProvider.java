@@ -78,6 +78,8 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
             // Connect to webstream
             URL queryURL = new URL(queryAPI + query + key);
             client = (HttpURLConnection) queryURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
 
             // Check for errors
             switch (client.getResponseCode()) {
@@ -150,8 +152,13 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
             InputStream forecastStream = null;
 
             client = (HttpURLConnection) currentURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
             currentStream = client.getInputStream();
+
             client = (HttpURLConnection) forecastURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
             forecastStream = client.getInputStream();
 
             // Reset exception

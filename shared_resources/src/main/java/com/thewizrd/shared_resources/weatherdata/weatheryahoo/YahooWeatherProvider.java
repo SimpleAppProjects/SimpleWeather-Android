@@ -9,6 +9,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -110,6 +111,9 @@ public class YahooWeatherProvider extends WeatherProviderImpl {
             String authorization = request.getAuthorizationHeader(null);
 
             client = (HttpURLConnection) weatherURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
+
             // Add headers to request
             client.addRequestProperty("Authorization", authorization);
             client.addRequestProperty("Yahoo-App-Id", getAppID());

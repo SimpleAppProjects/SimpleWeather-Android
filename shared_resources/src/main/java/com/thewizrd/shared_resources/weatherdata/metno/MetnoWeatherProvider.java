@@ -9,6 +9,7 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -114,6 +115,8 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
             String version = String.format("v%s", packageInfo.versionName);
 
             client = (HttpURLConnection) forecastURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
             client.setInstanceFollowRedirects(true);
             client.addRequestProperty("Accept-Encoding", "gzip");
             client.addRequestProperty("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version));
@@ -124,6 +127,8 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
             }
 
             client = (HttpURLConnection) sunrisesetURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
             client.setInstanceFollowRedirects(true);
             client.addRequestProperty("Accept-Encoding", "gzip");
             client.addRequestProperty("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version));

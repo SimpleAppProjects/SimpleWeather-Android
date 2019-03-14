@@ -11,6 +11,7 @@ import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -67,6 +68,9 @@ public final class HERELocationProvider extends LocationProviderImpl {
             // Connect to webstream
             URL queryURL = new URL(String.format(queryAPI + query, URLEncoder.encode(ac_query, "UTF-8"), app_id, app_code, locale));
             client = (HttpURLConnection) queryURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
+
             InputStream stream = client.getInputStream();
 
             // Load data
@@ -142,6 +146,9 @@ public final class HERELocationProvider extends LocationProviderImpl {
             // Connect to webstream
             URL queryURL = new URL(String.format(queryAPI + query, location_query, locale, app_id, app_code));
             client = (HttpURLConnection) queryURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
+
             InputStream stream = client.getInputStream();
 
             // Load data
@@ -201,6 +208,9 @@ public final class HERELocationProvider extends LocationProviderImpl {
             // Connect to webstream
             URL queryURL = new URL(String.format(queryAPI + query, locationID, locale, app_id, app_code));
             client = (HttpURLConnection) queryURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
+
             InputStream stream = client.getInputStream();
 
             // Load data
@@ -265,6 +275,8 @@ public final class HERELocationProvider extends LocationProviderImpl {
             // Connect to webstream
             URL queryURL = new URL(String.format("%s?app_id=%s&app_code=%s", queryAPI, app_id, app_code));
             client = (HttpURLConnection) queryURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
 
             // Check for errors
             switch (client.getResponseCode()) {

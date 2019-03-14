@@ -93,6 +93,8 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
             // Connect to webstream
             URL queryURL = new URL(String.format("%s?app_id=%s&app_code=%s", queryAPI, app_id, app_code));
             client = (HttpURLConnection) queryURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
 
             // Check for errors
             switch (client.getResponseCode()) {
@@ -183,6 +185,9 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
             weatherURL = new URL(String.format(queryAPI, location_query, locale, app_id, app_code));
 
             client = (HttpURLConnection) weatherURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
+
             InputStream stream = client.getInputStream();
 
             // Reset exception
@@ -321,6 +326,9 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
             weatherURL = new URL(String.format(queryAPI, location.getQuery(), locale, app_id, app_code));
 
             client = (HttpURLConnection) weatherURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
+
             InputStream stream = client.getInputStream();
 
             // Load data

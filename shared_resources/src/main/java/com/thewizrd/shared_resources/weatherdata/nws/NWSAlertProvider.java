@@ -8,6 +8,7 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertProviderInterface;
 
@@ -38,6 +39,8 @@ public final class NWSAlertProvider implements WeatherAlertProviderInterface {
             String version = String.format("v%s", packageInfo.versionName);
 
             client = (HttpURLConnection) weatherURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
             client.setInstanceFollowRedirects(true);
             client.addRequestProperty("Accept", "application/ld+json");
             client.addRequestProperty("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version));

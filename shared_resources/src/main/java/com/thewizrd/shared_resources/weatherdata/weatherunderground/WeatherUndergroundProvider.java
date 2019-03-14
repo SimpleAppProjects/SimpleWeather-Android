@@ -81,6 +81,9 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
             // Connect to webstream
             URL queryURL = new URL(queryAPI + key + query);
             client = (HttpURLConnection) queryURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
+
             InputStream stream = client.getInputStream();
 
             // Load data
@@ -146,6 +149,9 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
             weatherURL = new URL(queryAPI + location_query + options);
 
             client = (HttpURLConnection) weatherURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
+
             InputStream stream = client.getInputStream();
 
             // Reset exception
@@ -266,6 +272,9 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
             weatherURL = new URL(queryAPI + location.getQuery() + options);
 
             client = (HttpURLConnection) weatherURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
+
             InputStream stream = client.getInputStream();
 
             // Reset exception

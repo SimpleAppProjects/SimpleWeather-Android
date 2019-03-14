@@ -11,6 +11,7 @@ import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -67,6 +68,9 @@ public final class LocationIQProvider extends LocationProviderImpl {
             // Connect to webstream
             URL queryURL = new URL(String.format(queryAPI + query, key, URLEncoder.encode(ac_query, "UTF-8"), locale));
             client = (HttpURLConnection) queryURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
+
             InputStream stream = client.getInputStream();
 
             // Load data
@@ -137,6 +141,9 @@ public final class LocationIQProvider extends LocationProviderImpl {
             // Connect to webstream
             URL queryURL = new URL(String.format(queryAPI + query, key, Double.toString(coord.getLatitude()), Double.toString(coord.getLongitude()), locale));
             client = (HttpURLConnection) queryURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
+
             InputStream stream = client.getInputStream();
 
             // Load data
@@ -187,6 +194,8 @@ public final class LocationIQProvider extends LocationProviderImpl {
             // Connect to webstream
             URL queryURL = new URL(String.format("%s?token=%s", queryAPI, key));
             client = (HttpURLConnection) queryURL.openConnection();
+            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
+            client.setReadTimeout(Settings.READ_TIMEOUT);
 
             // Check for errors
             switch (client.getResponseCode()) {
