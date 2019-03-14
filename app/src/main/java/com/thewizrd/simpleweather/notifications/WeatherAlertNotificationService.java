@@ -3,9 +3,16 @@ package com.thewizrd.simpleweather.notifications;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v4.app.JobIntentService;
 
+import com.google.gson.reflect.TypeToken;
+import com.thewizrd.shared_resources.utils.JSONParser;
+import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.simpleweather.App;
+
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -23,28 +30,52 @@ public class WeatherAlertNotificationService extends JobIntentService {
 
     private static HashMap<Integer, String> mNotifications;
 
+    // Shared Settings
+    private static SharedPreferences notifPrefs = App.getInstance().getAppContext().getSharedPreferences("notifications", Context.MODE_PRIVATE);
+    private static SharedPreferences.Editor editor = notifPrefs.edit();
+
+    private static final String KEY_NOTIFS = "notifications";
+
     static {
-        if (mNotifications == null)
-            mNotifications = new HashMap<>();
+        initialize();
+    }
+
+    private static void initialize() {
+        if (mNotifications == null) {
+            String listJson = notifPrefs.getString(KEY_NOTIFS, "");
+            if (!StringUtils.isNullOrWhitespace(listJson)) {
+                Type mapKeyValue = new TypeToken<HashMap<Integer, String>>() {
+                }.getType();
+                HashMap<Integer, String> map = JSONParser.deserializer(listJson, mapKeyValue);
+                if (map != null) {
+                    mNotifications = map;
+                }
+            } else {
+                mNotifications = new HashMap<>();
+            }
+        }
     }
 
     public static void enqueueWork(Context context, Intent work) {
-        enqueueWork(context, WeatherAlertNotificationService.class,
-                JOB_ID, work);
+        enqueueWork(context, WeatherAlertNotificationService.class, JOB_ID, work);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        if (mNotifications == null) initialize();
+    }
 
-        if (mNotifications == null)
-            mNotifications = new HashMap<>();
+    @Override
+    public void onDestroy() {
+        String json = JSONParser.serializer(mNotifications, HashMap.class);
+        editor.putString(KEY_NOTIFS, json).commit();
+
+        super.onDestroy();
     }
 
     public static void addNotification(int notID, String title) {
-        if (mNotifications == null)
-            mNotifications = new HashMap<>();
-
+        if (mNotifications == null) initialize();
         mNotifications.put(notID, title);
     }
 
@@ -56,10 +87,7 @@ public class WeatherAlertNotificationService extends JobIntentService {
     }
 
     public static Set<Map.Entry<Integer, String>> getNotifications() {
-        if (mNotifications != null)
-            return mNotifications.entrySet();
-        else
-            return null;
+        return mNotifications.entrySet();
     }
 
     @Override

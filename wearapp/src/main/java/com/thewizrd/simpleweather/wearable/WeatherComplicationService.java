@@ -22,7 +22,6 @@ import android.support.wearable.complications.ComplicationText;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
@@ -49,8 +48,6 @@ import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZonedDateTime;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -67,14 +64,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
     private LocationCallback mLocCallback;
     private LocationListener mLocListnr;
 
-    private static List<Integer> complicationIds;
-
     private static LocalDateTime updateTime = DateTimeUtils.getLocalDateTimeMIN();
-
-    static {
-        if (complicationIds == null)
-            complicationIds = new ArrayList<>();
-    }
 
     public static LocalDateTime getUpdateTime() {
         return updateTime;
@@ -88,9 +78,6 @@ public class WeatherComplicationService extends ComplicationProviderService {
 
         mContext = getApplicationContext();
         wm = WeatherManager.getInstance();
-
-        if (complicationIds == null)
-            complicationIds = new ArrayList<>();
 
         final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -170,14 +157,6 @@ public class WeatherComplicationService extends ComplicationProviderService {
         }
     }
 
-    private static int[] getComplicationIds() {
-        if (complicationIds == null) {
-            return new int[0];
-        } else {
-            return ArrayUtils.toPrimitiveArray(complicationIds);
-        }
-    }
-
     private void startAlarm(Context context) {
         // Tell service to start alarm
         WeatherComplicationIntentService.enqueueWork(context,
@@ -195,7 +174,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
     @Override
     public void onComplicationActivated(int complicationId, int type, ComplicationManager manager) {
         super.onComplicationActivated(complicationId, type, manager);
-        complicationIds.add(complicationId);
+        ComplicationUtils.addComplicationId(complicationId);
 
         Logger.writeLine(Log.INFO, "%s: Complication activated", TAG);
 
@@ -205,18 +184,11 @@ public class WeatherComplicationService extends ComplicationProviderService {
     @Override
     public void onComplicationDeactivated(int complicationId) {
         super.onComplicationDeactivated(complicationId);
-        complicationIds.remove(Integer.valueOf(complicationId));
+        ComplicationUtils.removeComplicationId(complicationId);
 
         Logger.writeLine(Log.INFO, "%s: Complication deactivated", TAG);
 
         cancelAlarm(mContext);
-    }
-
-    protected static boolean complicationsExist() {
-        if (complicationIds == null)
-            return false;
-        else
-            return complicationIds.size() > 0;
     }
 
     @Override
@@ -240,9 +212,9 @@ public class WeatherComplicationService extends ComplicationProviderService {
                 }
 
                 // Add id to list in case it wasn't before
-                if (complicationIds.size() == 0) {
+                if (!ComplicationUtils.complicationsExist()) {
                     Logger.writeLine(Log.INFO, "%s: No complications exist. Adding..", TAG);
-                    complicationIds.add(complicationId);
+                    ComplicationUtils.addComplicationId(complicationId);
                     startAlarm(mContext);
                 }
             }

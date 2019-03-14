@@ -24,7 +24,6 @@ import java.util.concurrent.Callable;
 public class WeatherManager implements WeatherProviderImplInterface {
     private static WeatherManager instance;
     private static WeatherProviderImpl weatherProvider;
-    private static Weather weatherData;
 
     // Prevent instance from being created outside of this class
     private WeatherManager() {
@@ -42,11 +41,6 @@ public class WeatherManager implements WeatherProviderImplInterface {
         String API = Settings.getAPI();
 
         weatherProvider = getProvider(API);
-    }
-
-    // Shouldn't be used in anything other than WeatherNow
-    public void updateWeather(Weather weather) {
-        weatherData = weather;
     }
 
     // Static Methods

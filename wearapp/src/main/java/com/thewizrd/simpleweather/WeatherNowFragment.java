@@ -121,7 +121,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     return;
 
                 if (weather != null && weather.isValid()) {
-                    wm.updateWeather(weather);
                     weatherView.updateView(weather);
                     updateView(weatherView);
                     if (mCallback != null) mCallback.onWeatherViewUpdated(weatherView);

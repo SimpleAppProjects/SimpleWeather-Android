@@ -38,10 +38,6 @@ public class WeatherComplicationIntentService extends JobIntentService {
                 JOB_ID, work);
     }
 
-    private boolean complicationsExist() {
-        return WeatherComplicationService.complicationsExist();
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -123,7 +119,7 @@ public class WeatherComplicationIntentService extends JobIntentService {
 
     private void cancelAlarms(Context context) {
         // Cancel alarm if dependent features are turned off
-        if (!complicationsExist()) {
+        if (!ComplicationUtils.complicationsExist()) {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             am.cancel(getAlarmIntent(context));
             mAlarmStarted = false;
@@ -134,7 +130,7 @@ public class WeatherComplicationIntentService extends JobIntentService {
 
     private void startAlarm(Context context) {
         // Start alarm if dependent features are enabled
-        if (!mAlarmStarted && complicationsExist()) {
+        if (!mAlarmStarted && ComplicationUtils.complicationsExist()) {
             updateAlarm(context);
             mAlarmStarted = true;
         }
