@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.os.SystemClock;
 import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -35,10 +36,9 @@ public class WeatherAlertNotificationBuilder {
 
     // Sets an ID for the notification
     private static final String TAG = "SimpleWeather.WeatherAlerts";
-    private static final int PERSISTENT_NOT_ID = 0;
     private static final String NOT_CHANNEL_ID = "SimpleWeather.weatheralerts";
     private static final int MIN_GROUPCOUNT = 3;
-    private static final int SUMMARY_ID = 0;
+    private static final int SUMMARY_ID = -1;
 
     public static void createNotifications(LocationData location, List<WeatherAlert> alerts) {
         final Context context = App.getInstance().getAppContext();
@@ -100,9 +100,10 @@ public class WeatherAlertNotificationBuilder {
 
             // Builds the notification and issues it.
             // Tag: location.query; id: weather alert type
+            int notId = (int) (SystemClock.uptimeMillis() + alertVM.getAlertType().getValue());
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-                WeatherAlertNotificationService.addNotification(alertVM.getAlertType().getValue(), title);
-            mNotifyMgr.notify(location.getQuery(), alertVM.getAlertType().getValue(), mBuilder.build());
+                WeatherAlertNotificationService.addNotification(notId, title);
+            mNotifyMgr.notify(TAG, notId, mBuilder.build());
         }
 
         boolean buildSummary = false;
@@ -115,7 +116,7 @@ public class WeatherAlertNotificationBuilder {
                 if (statNotifs != null && statNotifs.length > 0) {
                     int count = 0;
                     for (StatusBarNotification not : statNotifs) {
-                        if (location.getQuery().equals(not.getTag()))
+                        if (TAG.equals(not.getTag()))
                             count++;
                     }
 
@@ -135,12 +136,12 @@ public class WeatherAlertNotificationBuilder {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                 // Add active notification titles to summary notification
                 for (Map.Entry<Integer, String> notif : WeatherAlertNotificationService.getNotifications()) {
-                    mNotifyMgr.cancel(location.getQuery(), notif.getKey());
+                    mNotifyMgr.cancel(TAG, notif.getKey());
                     inboxStyle.addLine(notif.getValue());
                 }
 
                 inboxStyle.setBigContentTitle(context.getString(R.string.title_fragment_alerts));
-                inboxStyle.setSummaryText(location.getName());
+                inboxStyle.setSummaryText(context.getString(R.string.app_name));
             } else {
                 inboxStyle.setSummaryText(context.getString(R.string.title_fragment_alerts));
             }
@@ -165,7 +166,7 @@ public class WeatherAlertNotificationBuilder {
                             .setSmallIcon(R.drawable.ic_error_white)
                             .setLargeIcon(iconBmp)
                             .setContentTitle(context.getString(R.string.title_fragment_alerts))
-                            .setContentText(location.getName())
+                            .setContentText(context.getString(R.string.app_name))
                             .setStyle(inboxStyle)
                             .setGroup(TAG)
                             .setGroupSummary(true)
@@ -177,7 +178,7 @@ public class WeatherAlertNotificationBuilder {
                 mSummaryBuilder.setDeleteIntent(GetDeleteAllNotificationsIntent());
 
             // Builds the summary notification and issues it.
-            mNotifyMgr.notify(location.getQuery(), SUMMARY_ID, mSummaryBuilder.build());
+            mNotifyMgr.notify(TAG, SUMMARY_ID, mSummaryBuilder.build());
         }
     }
 

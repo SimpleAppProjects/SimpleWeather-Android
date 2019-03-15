@@ -43,6 +43,7 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
+import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
@@ -407,14 +408,14 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
 
                 // On-going notification
                 if ((boolean) newValue) {
-                    WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                            .setAction(WeatherWidgetService.ACTION_REFRESHNOTIFICATION));
+                    WeatherNotificationService.enqueueWork(context, new Intent(context, WeatherNotificationService.class)
+                            .setAction(WeatherNotificationService.ACTION_REFRESHNOTIFICATION));
 
                     if (notCategory.findPreference(KEY_NOTIFICATIONICON) == null)
                         notCategory.addPreference(notificationIcon);
                 } else {
-                    WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                            .setAction(WeatherWidgetService.ACTION_REMOVENOTIFICATION));
+                    WeatherNotificationService.enqueueWork(context, new Intent(context, WeatherNotificationService.class)
+                            .setAction(WeatherNotificationService.ACTION_REMOVENOTIFICATION));
 
                     notCategory.removePreference(notificationIcon);
                 }
@@ -428,8 +429,8 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 Context context = App.getInstance().getAppContext();
-                WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                        .setAction(WeatherWidgetService.ACTION_REFRESHNOTIFICATION));
+                WeatherNotificationService.enqueueWork(context, new Intent(context, WeatherNotificationService.class)
+                        .setAction(WeatherNotificationService.ACTION_REFRESHNOTIFICATION));
                 return true;
             }
         });

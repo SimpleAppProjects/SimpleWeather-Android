@@ -22,8 +22,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.MainActivity;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.widgets.WeatherWidgetBroadcastReceiver;
-import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -32,7 +30,7 @@ public class WeatherNotificationBuilder {
     private static final String TAG = "WeatherNotificationBuilder";
 
     // Sets an ID for the notification
-    private static final int PERSISTENT_NOT_ID = 0;
+    static final int PERSISTENT_NOT_ID = 1;
     private static final String NOT_CHANNEL_ID = "SimpleWeather.ongoingweather";
 
     private static Notification mNotification;
@@ -95,9 +93,9 @@ public class WeatherNotificationBuilder {
         // Progress bar
         updateViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
         updateViews.setViewVisibility(R.id.refresh_progress, View.GONE);
-        Intent refreshClickIntent = new Intent(context, WeatherWidgetBroadcastReceiver.class)
-                .setAction(WeatherWidgetService.ACTION_REFRESHNOTIFICATION)
-                .putExtra(WeatherWidgetService.EXTRA_FORCEREFRESH, true);
+        Intent refreshClickIntent = new Intent(context, WeatherNotificationBroadcastReceiver.class)
+                .setAction(WeatherNotificationService.ACTION_REFRESHNOTIFICATION)
+                .putExtra(WeatherNotificationService.EXTRA_FORCEREFRESH, true);
         PendingIntent prgPendingIntent = PendingIntent.getBroadcast(context, 0, refreshClickIntent, 0);
         updateViews.setOnClickPendingIntent(R.id.refresh_button, prgPendingIntent);
 
@@ -132,7 +130,7 @@ public class WeatherNotificationBuilder {
         isShowing = true;
     }
 
-    private static void initChannel(NotificationManager mNotifyMgr) {
+    static void initChannel(NotificationManager mNotifyMgr) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID);
 
@@ -154,7 +152,7 @@ public class WeatherNotificationBuilder {
     }
 
     @SuppressLint("NewApi")
-    public static void showRefresh(boolean show) {
+    static Notification getNotification() {
         // Gets an instance of the NotificationManager service
         Context context = App.getInstance().getAppContext();
         NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -182,6 +180,7 @@ public class WeatherNotificationBuilder {
                             new NotificationCompat.Builder(context, NOT_CHANNEL_ID)
                                     .setSmallIcon(R.drawable.ic_logo)
                                     .setPriority(NotificationCompat.PRIORITY_LOW)
+                                    .setOnlyAlertOnce(true)
                                     .setOngoing(true);
 
                     mNotification = mBuilder.build();
@@ -190,6 +189,15 @@ public class WeatherNotificationBuilder {
                 Logger.writeLine(Log.DEBUG, ex, "SimpleWeather: %s: error access notifications");
             }
         }
+
+        return mNotification;
+    }
+
+    public static void showRefresh(boolean show) {
+        // Gets an instance of the NotificationManager service
+        Context context = App.getInstance().getAppContext();
+        NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        getNotification();
 
         // Build update
         RemoteViews updateViews = null;
@@ -209,7 +217,7 @@ public class WeatherNotificationBuilder {
         isShowing = true;
     }
 
-    public static void removeNotification() {
+    static void removeNotification() {
         Context context = App.getInstance().getAppContext();
         NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotifyMgr.cancel(PERSISTENT_NOT_ID);

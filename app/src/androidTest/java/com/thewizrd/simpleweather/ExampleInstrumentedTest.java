@@ -187,16 +187,37 @@ public class ExampleInstrumentedTest {
         vm.setLocationQuery("11413");
         vm.setLocationTZLong("America/New_York");
         List<WeatherAlert> la = new ArrayList<>();
-        WeatherAlert alert = new WeatherAlert();
-        alert.setAttribution("Attribution");
-        alert.setDate(ZonedDateTime.now(ZoneOffset.UTC));
-        alert.setExpiresDate(ZonedDateTime.now(ZoneOffset.UTC).plusDays(5));
-        alert.setMessage("Message");
-        alert.setTitle("Title");
-        alert.setType(WeatherAlertType.HIGHWIND);
-        alert.setNotified(false);
-        la.add(alert);
+        for (int i = 0; i < WeatherAlertType.values().length; i++) {
+            WeatherAlert alert = new WeatherAlert();
+            alert.setAttribution("Attribution");
+            alert.setDate(ZonedDateTime.now(ZoneOffset.UTC));
+            alert.setExpiresDate(ZonedDateTime.now(ZoneOffset.UTC).plusDays(5));
+            alert.setMessage("Message");
+            alert.setTitle("Title");
+            alert.setType(WeatherAlertType.valueOf(i));
+            alert.setNotified(false);
+            la.add(alert);
+        }
         WeatherAlertNotificationBuilder.createNotifications(new LocationData(vm), la);
+
+        LocationQueryViewModel vm2 = new LocationQueryViewModel();
+        vm2.setLocationCountry("US");
+        vm2.setLocationName("New York City, NY");
+        vm2.setLocationQuery("10007");
+        vm2.setLocationTZLong("America/New_York");
+        List<WeatherAlert> la2 = new ArrayList<>();
+        for (int i = 0; i < WeatherAlertType.values().length; i++) {
+            WeatherAlert alert = new WeatherAlert();
+            alert.setAttribution("Attribution");
+            alert.setDate(ZonedDateTime.now(ZoneOffset.UTC));
+            alert.setExpiresDate(ZonedDateTime.now(ZoneOffset.UTC).plusDays(5));
+            alert.setMessage("Message");
+            alert.setTitle("Title");
+            alert.setType(WeatherAlertType.valueOf(i));
+            alert.setNotified(false);
+            la2.add(alert);
+        }
+        WeatherAlertNotificationBuilder.createNotifications(new LocationData(vm2), la2);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {

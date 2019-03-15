@@ -90,6 +90,7 @@ import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.LocationPanelOffsetDecoration;
 import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationBuilder;
+import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
@@ -231,8 +232,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
                         // Update ongoing notification if its not showing
                         if (Settings.showOngoingNotification() && !WeatherNotificationBuilder.isShowing()) {
-                            WeatherWidgetService.enqueueWork(App.getInstance().getAppContext(), new Intent(App.getInstance().getAppContext(), WeatherWidgetService.class)
-                                    .setAction(WeatherWidgetService.ACTION_REFRESHNOTIFICATION));
+                            WeatherNotificationService.enqueueWork(App.getInstance().getAppContext(), new Intent(App.getInstance().getAppContext(), WeatherNotificationService.class)
+                                    .setAction(WeatherNotificationService.ACTION_REFRESHNOTIFICATION));
                         }
                     }
 

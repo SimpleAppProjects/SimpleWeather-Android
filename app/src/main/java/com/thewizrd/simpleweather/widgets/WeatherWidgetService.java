@@ -55,6 +55,7 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.MainActivity;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationBuilder;
+import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler;
 
@@ -79,9 +80,6 @@ public class WeatherWidgetService extends JobIntentService {
     public static final String ACTION_CANCELALARM = "SimpleWeather.Droid.action.CANCEL_ALARM";
     public static final String ACTION_UPDATEALARM = "SimpleWeather.Droid.action.UPDATE_ALARM";
 
-    public static final String ACTION_REFRESHNOTIFICATION = "SimpleWeather.Droid.action.REFRESH_NOTIFICATION";
-    public static final String ACTION_REMOVENOTIFICATION = "SimpleWeather.Droid.action.REMOVE_NOTIFICATION";
-
     public static final String ACTION_STARTCLOCK = "SimpleWeather.Droid.action.START_CLOCKALARM";
     public static final String ACTION_CANCELCLOCK = "SimpleWeather.Droid.action.CANCEL_CLOCKALARM";
 
@@ -90,7 +88,6 @@ public class WeatherWidgetService extends JobIntentService {
     public static final String ACTION_RESETGPSWIDGETS = "SimpleWeather.Droid.action.RESET_GPSWIDGETS";
     public static final String ACTION_REFRESHGPSWIDGETS = "SimpleWeather.Droid.action.REFRESH_GPSWIDGETS";
 
-    public static final String EXTRA_FORCEREFRESH = "SimpleWeather.Droid.extra.FORCE_REFRESH";
     public static final String EXTRA_LOCATIONNAME = "SimpleWeather.Droid.extra.LOCATION_NAME";
     public static final String EXTRA_LOCATIONQUERY = "SimpleWeather.Droid.extra.LOCATION_QUERY";
 
@@ -295,8 +292,8 @@ public class WeatherWidgetService extends JobIntentService {
                 // Update clock widget instances
                 int[] appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS);
                 refreshDate(appWidgetIds);
-            } else if (ACTION_REFRESHNOTIFICATION.equals(intent.getAction())) {
-                final boolean forceRefresh = intent.getBooleanExtra(EXTRA_FORCEREFRESH, false);
+            } else if (WeatherNotificationService.ACTION_REFRESHNOTIFICATION.equals(intent.getAction())) {
+                final boolean forceRefresh = intent.getBooleanExtra(WeatherNotificationService.EXTRA_FORCEREFRESH, false);
 
                 if (Settings.isWeatherLoaded()) {
                     Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
@@ -309,8 +306,6 @@ public class WeatherWidgetService extends JobIntentService {
                     if (Settings.showOngoingNotification() && weather != null)
                         WeatherNotificationBuilder.updateNotification(weather);
                 }
-            } else if (ACTION_REMOVENOTIFICATION.equals(intent.getAction())) {
-                WeatherNotificationBuilder.removeNotification();
             } else if (ACTION_UPDATEWEATHER.equals(intent.getAction())) {
                 if (Settings.isWeatherLoaded()) {
                     // Send broadcast to signal update

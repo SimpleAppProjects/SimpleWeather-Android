@@ -117,10 +117,7 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
-        <receiver
-            android:name=".notifications.WeatherNotificationBroadcastReceiver"
-            android:enabled="@bool/enable_alertnotifservice"
-            android:exported="@bool/enable_alertnotifservice" />
+        <receiver android:name=".notifications.WeatherNotificationBroadcastReceiver" />
 
         <service
             android:name=".wearable.WearableDataListenerService"
@@ -144,7 +141,12 @@
         <service
             android:name=".notifications.WeatherAlertNotificationService"
             android:enabled="@bool/enable_alertnotifservice"
-            android:exported="false" />
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service
+            android:name=".notifications.WeatherNotificationService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <uses-library
             android:name="com.google.android.wearable"
