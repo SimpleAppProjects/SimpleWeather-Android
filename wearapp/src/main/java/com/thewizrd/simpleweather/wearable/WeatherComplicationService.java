@@ -285,7 +285,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
                         ZonedDateTime updateTime = weather.getUpdateTime();
 
                         Duration span = Duration.between(ZonedDateTime.now(), updateTime).abs();
-                        if (span.toMinutes() < ttl) {
+                        if (span.toMinutes() > ttl) {
                             WearableDataListenerService.enqueueWork(mContext, new Intent(mContext, WearableDataListenerService.class)
                                     .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE));
                         }
