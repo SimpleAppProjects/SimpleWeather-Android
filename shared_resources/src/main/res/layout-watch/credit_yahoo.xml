@@ -12,6 +12,6 @@
         android:layout_height="50dp"
         android:layout_gravity="center"
         android:adjustViewBounds="true"
-        app:srcCompat="@drawable/yahoo" />
+        app:srcCompat="@drawable/yahoo_dark" />
 
 </LinearLayout>
