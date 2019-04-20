@@ -208,6 +208,12 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
         if (weather.getAstronomy().getSunset().compareTo(LocalDateTime.MIN) > 0 &&
                 weather.getAstronomy().getSunset().toLocalTime().compareTo(LocalTime.MAX) < 0)
             weather.getAstronomy().setSunset(weather.getAstronomy().getSunset().plusSeconds(offset.getTotalSeconds()));
+        if (weather.getAstronomy().getMoonrise().compareTo(LocalDateTime.MIN) > 0 &&
+                weather.getAstronomy().getMoonrise().toLocalTime().compareTo(LocalTime.MAX) < 0)
+            weather.getAstronomy().setMoonrise(weather.getAstronomy().getMoonrise().plusSeconds(offset.getTotalSeconds()));
+        if (weather.getAstronomy().getMoonset().compareTo(LocalDateTime.MIN) > 0 &&
+                weather.getAstronomy().getMoonset().toLocalTime().compareTo(LocalTime.MAX) < 0)
+            weather.getAstronomy().setMoonset(weather.getAstronomy().getMoonset().plusSeconds(offset.getTotalSeconds()));
 
         // Set condition here
         LocalTime now = ZonedDateTime.now(ZoneOffset.UTC).withZoneSameInstant(offset).toLocalTime();
