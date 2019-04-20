@@ -111,6 +111,14 @@ public class WeatherDataLoader {
                         else
                             Settings.saveHomeData(location);
                     }
+                    if (StringUtils.isNullOrWhitespace(location.getLocationSource())) {
+                        location.setLocationSource(wm.getLocationProvider().getLocationAPI());
+
+                        if (SimpleLibrary.getInstance().getApp().isPhone())
+                            Settings.updateLocation(location);
+                        else
+                            Settings.saveHomeData(location);
+                    }
 
                     saveWeatherData();
                 }

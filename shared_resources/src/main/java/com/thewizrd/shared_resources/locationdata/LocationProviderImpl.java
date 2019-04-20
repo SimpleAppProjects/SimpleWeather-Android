@@ -3,6 +3,7 @@ package com.thewizrd.shared_resources.locationdata;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.skedgo.converter.TimezoneMapper;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -47,6 +48,12 @@ public abstract class LocationProviderImpl implements LocationProviderImplInterf
             location.setLatitude(qview.getLocationLat());
             location.setLongitude(qview.getLocationLong());
             location.setTzLong(qview.getLocationTZLong());
+            if (StringUtils.isNullOrWhitespace(location.getTzLong()) && location.getLongitude() != 0 && location.getLatitude() != 0) {
+                String tzId = TimezoneMapper.latLngToTimezoneString(location.getLatitude(), location.getLongitude());
+                if (!"unknown".equals(tzId))
+                    location.setTzLong(tzId);
+            }
+            location.setLocationSource(qview.getLocationSource());
 
             // Update DB here or somewhere else
             if (SimpleLibrary.getInstance().getApp().isPhone()) {
