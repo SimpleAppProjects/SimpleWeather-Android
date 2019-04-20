@@ -59,9 +59,6 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
 
         Weather weather = getWeather(location.getQuery());
 
-        if (supportsAlerts() && needsExternalAlertData())
-            weather.setWeatherAlerts(getAlerts(location));
-
         if (StringUtils.isNullOrWhitespace(location.getTzLong())) {
             if (!StringUtils.isNullOrWhitespace(weather.getLocation().getTzLong())) {
                 location.setTzLong(weather.getLocation().getTzLong());
@@ -89,6 +86,9 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
         weather.getLocation().setLongitude(Double.toString(location.getLongitude()));
         weather.getLocation().setTzShort(location.getTzShort());
         weather.getLocation().setTzOffset(location.getTzOffset());
+
+        if (supportsAlerts() && needsExternalAlertData())
+            weather.setWeatherAlerts(getAlerts(location));
 
         return weather;
     }
