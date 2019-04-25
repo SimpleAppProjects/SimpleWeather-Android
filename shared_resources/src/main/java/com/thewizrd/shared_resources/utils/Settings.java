@@ -216,7 +216,7 @@ public class Settings {
         preferences.registerOnSharedPreferenceChangeListener(SimpleLibrary.getInstance().getApp().getSharedPreferenceListener());
     }
 
-    private static void loadIfNeeded() {
+    public static void loadIfNeeded() {
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
             public Void call() throws Exception {

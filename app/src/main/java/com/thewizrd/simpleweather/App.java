@@ -19,6 +19,8 @@ import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 
+import static com.thewizrd.shared_resources.utils.Settings.loadIfNeeded;
+
 public class App extends Application implements ApplicationLib, Application.ActivityLifecycleCallbacks {
     public static final int HOMEIDX = 0;
 
@@ -95,6 +97,9 @@ public class App extends Application implements ApplicationLib, Application.Acti
         });
 
         sharedPreferenceChangeListener = new Settings.SettingsListener(context);
+
+        // Load data if needed
+        loadIfNeeded();
     }
 
     @Override
