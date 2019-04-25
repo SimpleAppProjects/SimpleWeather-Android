@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
 
 def buildType = ""
 
@@ -100,6 +101,9 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:16.0.0'
     implementation 'com.google.android.gms:play-services-wearable:16.0.1'
 
+    implementation 'com.google.firebase:firebase-core:16.0.8'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
+
     implementation 'android.arch.core:runtime:1.1.1'
     implementation 'android.arch.persistence.room:runtime:1.1.1'
     annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
@@ -112,3 +116,5 @@ dependencies {
     implementation 'com.jakewharton.threetenabp:threetenabp:1.1.1'
     implementation 'com.stepstone.stepper:material-stepper:4.3.1'
 }
+
+apply plugin: 'com.google.gms.google-services'

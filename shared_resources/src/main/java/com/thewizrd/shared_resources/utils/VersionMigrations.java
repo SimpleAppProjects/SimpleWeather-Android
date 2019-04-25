@@ -1,9 +1,12 @@
 package com.thewizrd.shared_resources.utils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.database.LocationsDatabase;
 import com.thewizrd.shared_resources.database.WeatherDatabase;
@@ -15,6 +18,9 @@ class VersionMigrations {
     static void performMigrations(final WeatherDatabase weatherDB, final LocationsDatabase locationDB) throws PackageManager.NameNotFoundException {
         Context context = SimpleLibrary.getInstance().getAppContext();
         PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+
+        @SuppressLint("MissingPermission")
+        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
 
         if (Settings.isWeatherLoaded() && Settings.getVersionCode() < packageInfo.versionCode) {
             // v1.3.7 - Yahoo (YQL) is no longer in service
@@ -75,6 +81,10 @@ class VersionMigrations {
                     }
                 }
             }
+            Bundle bundle = new Bundle();
+            bundle.putString("API", Settings.getAPI());
+            bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));
+            mFirebaseAnalytics.logEvent("App_Upgrading", bundle);
         }
         Settings.setVersionCode(packageInfo.versionCode);
     }
