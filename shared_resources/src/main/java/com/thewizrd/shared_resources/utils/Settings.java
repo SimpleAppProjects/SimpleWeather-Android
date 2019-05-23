@@ -867,13 +867,13 @@ public class Settings {
         editor.commit();
     }
 
-    static int getVersionCode() {
-        return Integer.parseInt(versionPrefs.getString(KEY_CURRENTVERSION, "0"));
+    static long getVersionCode() {
+        return Long.parseLong(versionPrefs.getString(KEY_CURRENTVERSION, "0"));
     }
 
-    static void setVersionCode(int value) {
+    static void setVersionCode(long value) {
         SharedPreferences.Editor versionEditor = versionPrefs.edit();
-        versionEditor.putString(KEY_CURRENTVERSION, Integer.toString(value));
+        versionEditor.putString(KEY_CURRENTVERSION, Long.toString(value));
         versionEditor.apply();
     }
 

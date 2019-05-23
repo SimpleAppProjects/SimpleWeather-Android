@@ -3,8 +3,8 @@ package com.thewizrd.shared_resources.utils;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.thewizrd.shared_resources.SimpleLibrary;
@@ -15,14 +15,20 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 class VersionMigrations {
-    static void performMigrations(final WeatherDatabase weatherDB, final LocationsDatabase locationDB) throws PackageManager.NameNotFoundException {
+    static void performMigrations(final WeatherDatabase weatherDB, final LocationsDatabase locationDB) {
         Context context = SimpleLibrary.getInstance().getAppContext();
-        PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+        long versionCode = 0;
+        try {
+            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            versionCode = packageInfo.versionCode;
+        } catch (Exception e) {
+            Logger.writeLine(Log.DEBUG, e);
+        }
 
         @SuppressLint("MissingPermission")
         FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
 
-        if (Settings.isWeatherLoaded() && Settings.getVersionCode() < packageInfo.versionCode) {
+        if (Settings.isWeatherLoaded() && Settings.getVersionCode() < versionCode) {
             // v1.3.7 - Yahoo (YQL) is no longer in service
             // Update location data from HERE Geocoder service
             if (WeatherAPI.HERE.equals(Settings.getAPI()) && Settings.getVersionCode() < 271370400) {
@@ -86,6 +92,6 @@ class VersionMigrations {
             bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));
             mFirebaseAnalytics.logEvent("App_Upgrading", bundle);
         }
-        Settings.setVersionCode(packageInfo.versionCode);
+        if (versionCode > 0) Settings.setVersionCode(versionCode);
     }
 }
