@@ -107,9 +107,8 @@
 -keep class org.simpleframework.xml.util.** { *; }
 
 # Crashlytics
--keepattributes *Annotation*                      // Keep Crashlytics annotations
--keepattributes SourceFile,LineNumberTable        // Keep file names/line numbers
--keep public class * extends java.lang.Exception  // Keep custom exceptions (opt)
+-keepattributes SourceFile,LineNumberTable        # Keep file names/line numbers
+-keep public class * extends java.lang.Exception  # Keep custom exceptions (opt)
 
 # To let Crashlytics automatically upload the ProGuard or DexGuard mapping file, remove this line from the config file
 # -printmapping mapping.txt
@@ -117,3 +116,8 @@
 # For faster builds with ProGuard, exclude Crashlytics. Add the following lines to your ProGuard config file:
 # -keep class com.crashlytics.** { *; }
 # -dontwarn com.crashlytics.**
+
+# R8 Compatibility Rules
+-keepclassmembers,allowobfuscation class * {
+  @com.google.gson.annotations.SerializedName <fields>;
+}

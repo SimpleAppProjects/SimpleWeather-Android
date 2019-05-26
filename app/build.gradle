@@ -28,7 +28,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 28
         // NOTE: Version Code Format (TargetSDK, Version Name, Build Number, Variant Code (Android: 00, WearOS: 01)
-        versionCode 282030000
+        versionCode 282030200
         versionName "2.0.3"
 
         multiDexEnabled true
@@ -45,6 +45,7 @@ android {
         }
         release {
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             manifestPlaceholders = [allowBackup: true]
         }

@@ -12,7 +12,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 28
         // NOTE: Version Code Format (TargetSDK, Version Name, Build Number, Variant Code (Android: 00, WearOS: 01)
-        versionCode 282030001
+        versionCode 282030201
         versionName "2.0.3"
 
         vectorDrawables.useSupportLibrary = true
@@ -28,6 +28,7 @@ android {
         }
         release {
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             manifestPlaceholders = [allowBackup: true]
         }
