@@ -131,8 +131,8 @@ public class SettingsActivity extends WearableActivity {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     SwitchPreference pref = (SwitchPreference) preference;
                     if ((boolean) newValue) {
-                        if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                                getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        if (mActivity != null && mActivity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                                mActivity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                                     PERMISSION_LOCATION_REQUEST_CODE);
                             return false;
@@ -402,8 +402,8 @@ public class SettingsActivity extends WearableActivity {
                         .addCategory(Intent.CATEGORY_BROWSABLE)
                         .setData(WearableHelper.getPlayStoreURI());
 
-                RemoteIntent.startRemoteActivity(getActivity(), intentAndroid,
-                        new ConfirmationResultReceiver(getActivity()));
+                RemoteIntent.startRemoteActivity(mActivity, intentAndroid,
+                        new ConfirmationResultReceiver(mActivity));
 
                 return true;
             }
@@ -415,8 +415,8 @@ public class SettingsActivity extends WearableActivity {
                 Intent intentAndroid = new Intent(preference.getIntent())
                         .addCategory(Intent.CATEGORY_BROWSABLE);
 
-                RemoteIntent.startRemoteActivity(getActivity(), intentAndroid,
-                        new ConfirmationResultReceiver(getActivity()));
+                RemoteIntent.startRemoteActivity(mActivity, intentAndroid,
+                        new ConfirmationResultReceiver(mActivity));
 
                 return true;
             }
@@ -476,7 +476,7 @@ public class SettingsActivity extends WearableActivity {
                         // functionality that depends on this permission.
                         followGps.setChecked(false);
                         Settings.setFollowGPS(false);
-                        Toast.makeText(getActivity(), R.string.error_location_denied, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mActivity, R.string.error_location_denied, Toast.LENGTH_SHORT).show();
                     }
                     return;
                 default:
@@ -488,9 +488,9 @@ public class SettingsActivity extends WearableActivity {
         public void onResume() {
             super.onResume();
 
-            LocalBroadcastManager.getInstance(getActivity())
+            LocalBroadcastManager.getInstance(mActivity)
                     .registerReceiver(connStatusReceiver, new IntentFilter(WearableDataListenerService.ACTION_UPDATECONNECTIONSTATUS));
-            getActivity().startService(new Intent(getActivity(), WearableDataListenerService.class)
+            mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
                     .setAction(WearableDataListenerService.ACTION_UPDATECONNECTIONSTATUS));
         }
 
@@ -521,7 +521,7 @@ public class SettingsActivity extends WearableActivity {
                 }
             }
 
-            LocalBroadcastManager.getInstance(getActivity())
+            LocalBroadcastManager.getInstance(mActivity)
                     .unregisterReceiver(connStatusReceiver);
 
             super.onPause();
@@ -566,7 +566,7 @@ public class SettingsActivity extends WearableActivity {
             });
 
             try {
-                PackageInfo packageInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
+                PackageInfo packageInfo = mActivity.getPackageManager().getPackageInfo(mActivity.getPackageName(), 0);
                 findPreference(KEY_ABOUTVERSION).setSummary(String.format("v%s", packageInfo.versionName));
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
@@ -584,13 +584,13 @@ public class SettingsActivity extends WearableActivity {
         @Override
         public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
             if (preference != null && preference.getIntent() != null) {
-                RemoteIntent.startRemoteActivity(getActivity(), preference.getIntent()
+                RemoteIntent.startRemoteActivity(mActivity, preference.getIntent()
                                 .setAction(Intent.ACTION_VIEW).addCategory(Intent.CATEGORY_BROWSABLE),
                         null);
 
                 // Show open on phone animation
                 new ConfirmationOverlay().setType(ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION)
-                        .setMessage(getActivity().getString(R.string.message_openedonphone))
+                        .setMessage(mActivity.getString(R.string.message_openedonphone))
                         .showAbove(getView());
 
                 return true;

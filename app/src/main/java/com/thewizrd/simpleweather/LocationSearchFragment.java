@@ -191,7 +191,7 @@ public class LocationSearchFragment extends Fragment {
         mRecyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager = new LinearLayoutManager(mActivity);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
@@ -218,14 +218,12 @@ public class LocationSearchFragment extends Fragment {
 
                     if (ctsToken.isCancellationRequested()) return;
 
-                    if (mActivity != null) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mAdapter.setLocations(new ArrayList<>(results));
-                            }
-                        });
-                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mAdapter.setLocations(new ArrayList<>(results));
+                        }
+                    });
                 }
             });
         } else if (StringUtils.isNullOrWhitespace(queryString)) {
@@ -238,18 +236,22 @@ public class LocationSearchFragment extends Fragment {
     }
 
     private void showInputMethod(View view) {
-        InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
-                Context.INPUT_METHOD_SERVICE);
-        if (imm != null && view != null) {
-            imm.showSoftInput(view, 0);
+        if (mActivity != null) {
+            InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            if (imm != null && view != null) {
+                imm.showSoftInput(view, 0);
+            }
         }
     }
 
     private void hideInputMethod(View view) {
-        InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
-                Context.INPUT_METHOD_SERVICE);
-        if (imm != null && view != null) {
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        if (mActivity != null) {
+            InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            if (imm != null && view != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
         }
     }
 }

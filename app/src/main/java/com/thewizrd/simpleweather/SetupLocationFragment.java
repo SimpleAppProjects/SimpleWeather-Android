@@ -468,15 +468,17 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                         Settings.setWeatherLoaded(true);
 
                         // Send data for wearables
-                        WearableDataListenerService.enqueueWork(mActivity,
-                                new Intent(mActivity, WearableDataListenerService.class)
-                                        .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
-                        WearableDataListenerService.enqueueWork(mActivity,
-                                new Intent(mActivity, WearableDataListenerService.class)
-                                        .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
-                        WearableDataListenerService.enqueueWork(mActivity,
-                                new Intent(mActivity, WearableDataListenerService.class)
-                                        .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
+                        if (mActivity != null) {
+                            WearableDataListenerService.enqueueWork(mActivity,
+                                    new Intent(mActivity, WearableDataListenerService.class)
+                                            .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
+                            WearableDataListenerService.enqueueWork(mActivity,
+                                    new Intent(mActivity, WearableDataListenerService.class)
+                                            .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
+                            WearableDataListenerService.enqueueWork(mActivity,
+                                    new Intent(mActivity, WearableDataListenerService.class)
+                                            .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
+                        }
 
                         // Setup complete
                         mDataManager.getArguments().putString("data", location.toJson());
@@ -607,12 +609,14 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                         Settings.setWeatherLoaded(true);
 
                         // Send data for wearables
-                        mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
-                                .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
-                        mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
-                                .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
-                        mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
-                                .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
+                        if (mActivity != null) {
+                            mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
+                                    .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
+                            mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
+                                    .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
+                            mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
+                                    .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
+                        }
 
                         // Setup complete
                         mDataManager.getArguments().putString("data", location.toJson());
@@ -637,7 +641,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     }
 
     private void updateLocation() {
-        if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+        if (mActivity != null && ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_LOCATION_REQUEST_CODE);
@@ -1009,7 +1013,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
             }
         }
 
-        hideInputMethod(mActivity.getCurrentFocus());
+        if (mActivity != null) hideInputMethod(mActivity.getCurrentFocus());
         searchView.clearFocus();
         if (searchBarContainer != null) searchBarContainer.setVisibility(View.GONE);
         ViewCompat.setElevation(appBarLayout, 0);
@@ -1059,18 +1063,22 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     }
 
     private void showInputMethod(View view) {
-        InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
-                Context.INPUT_METHOD_SERVICE);
-        if (imm != null && view != null) {
-            imm.showSoftInput(view, 0);
+        if (mActivity != null) {
+            InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            if (imm != null && view != null) {
+                imm.showSoftInput(view, 0);
+            }
         }
     }
 
     private void hideInputMethod(View view) {
-        InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
-                Context.INPUT_METHOD_SERVICE);
-        if (imm != null && view != null) {
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        if (mActivity != null) {
+            InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            if (imm != null && view != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
         }
     }
 

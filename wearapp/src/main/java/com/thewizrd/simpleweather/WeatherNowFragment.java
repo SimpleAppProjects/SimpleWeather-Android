@@ -650,6 +650,11 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
+                if (mActivity == null) {
+                    cancelDataSync();
+                    return null;
+                }
+
                 if (!receiverRegistered) {
                     IntentFilter filter = new IntentFilter();
                     filter.addAction(WearableHelper.SettingsPath);

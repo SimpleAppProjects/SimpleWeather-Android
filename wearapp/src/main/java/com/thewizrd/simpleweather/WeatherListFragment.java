@@ -35,11 +35,6 @@ public class WeatherListFragment extends SwipeDismissFragment {
         return fragment;
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -79,7 +74,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
     }
 
     public void initialize() {
-        if (weatherView != null) {
+        if (weatherView != null && mActivity != null) {
             if (getView() != null)
                 getView().setBackgroundColor(weatherView.getPendingBackground());
             // specify an adapter (see also next example)
@@ -91,15 +86,15 @@ public class WeatherListFragment extends SwipeDismissFragment {
             switch (weatherType) {
                 default:
                 case FORECAST:
-                    recyclerView.setLayoutManager(new WearableLinearLayoutManager(getActivity()));
+                    recyclerView.setLayoutManager(new WearableLinearLayoutManager(mActivity));
                     adapter = new ForecastItemAdapter(weatherView.getForecasts());
                     break;
                 case HOURLYFORECAST:
-                    recyclerView.setLayoutManager(new WearableLinearLayoutManager(getActivity()));
+                    recyclerView.setLayoutManager(new WearableLinearLayoutManager(mActivity));
                     adapter = new HourlyForecastItemAdapter(weatherView.getExtras().getHourlyForecast());
                     break;
                 case ALERTS:
-                    recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                    recyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
                     adapter = new WeatherAlertPanelAdapter(weatherView.getExtras().getAlerts());
                     break;
             }

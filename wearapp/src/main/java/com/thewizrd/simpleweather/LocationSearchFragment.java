@@ -49,7 +49,6 @@ public class LocationSearchFragment extends SwipeDismissFragment {
     private RecyclerView.LayoutManager mLayoutManager;
     private ProgressBar mProgressBar;
     private EditText mSearchView;
-    private Activity mActivity;
 
     private FloatingActionButton keyboardButton;
     private FloatingActionButton voiceButton;
@@ -90,12 +89,6 @@ public class LocationSearchFragment extends SwipeDismissFragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        mActivity = (Activity) context;
-    }
-
-    @Override
     public void onPause() {
         super.onPause();
         if (cts != null) cts.cancel();
@@ -105,20 +98,12 @@ public class LocationSearchFragment extends SwipeDismissFragment {
     public void onDestroy() {
         super.onDestroy();
         if (cts != null) cts.cancel();
-        mActivity = null;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         if (cts != null) cts.cancel();
-        mActivity = null;
-    }
-
-    private void runOnUiThread(Runnable action) {
-        if (mActivity != null) {
-            mActivity.runOnUiThread(action);
-        }
     }
 
     public LocationQueryAdapter getAdapter() {
@@ -357,7 +342,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
         mRecyclerView.setEdgeItemsCenteringEnabled(true);
 
         // use a linear layout manager
-        mLayoutManager = new WearableLinearLayoutManager(getActivity());
+        mLayoutManager = new WearableLinearLayoutManager(mActivity);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
@@ -398,15 +383,13 @@ public class LocationSearchFragment extends SwipeDismissFragment {
 
                     if (ctsToken.isCancellationRequested()) return;
 
-                    if (mActivity != null) {
-                        mActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mAdapter.setLocations(new ArrayList<>(results));
-                                mProgressBar.setVisibility(View.GONE);
-                            }
-                        });
-                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mAdapter.setLocations(new ArrayList<>(results));
+                            mProgressBar.setVisibility(View.GONE);
+                        }
+                    });
                 }
             });
         } else if (StringUtils.isNullOrWhitespace(queryString)) {
@@ -440,14 +423,22 @@ public class LocationSearchFragment extends SwipeDismissFragment {
     }
 
     private void showInputMethod(View view) {
-        InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+        if (mActivity != null) {
+            InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+            }
+        }
     }
 
     private void hideInputMethod(View view) {
-        InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null && view != null) {
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        if (mActivity != null) {
+            InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            if (imm != null && view != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
         }
     }
 }

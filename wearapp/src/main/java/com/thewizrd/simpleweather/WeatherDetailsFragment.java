@@ -29,11 +29,6 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
         return fragment;
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -75,13 +70,13 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
     }
 
     public void initialize() {
-        if (weatherView != null) {
+        if (weatherView != null && mActivity != null) {
             if (getView() != null)
                 getView().setBackgroundColor(weatherView.getPendingBackground());
 
             //weatherCredit.setText(weatherView.getWeatherCredit());
 
-            recyclerView.setLayoutManager(new WearableLinearLayoutManager(getActivity()));
+            recyclerView.setLayoutManager(new WearableLinearLayoutManager(mActivity));
             // specify an adapter (see also next example)
             RecyclerView.Adapter adapter = new DetailItemAdapter(weatherView);
             recyclerView.setAdapter(adapter);

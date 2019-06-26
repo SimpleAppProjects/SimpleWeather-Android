@@ -107,15 +107,13 @@ public class WeatherAlertsFragment extends Fragment {
 
     private void initialize() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (mActivity != null) {
-                mActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mWindowColorsIface != null)
-                            mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
-                    }
-                });
-            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mWindowColorsIface != null)
+                        mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
+                }
+            });
         }
 
         if (weatherView == null) {
@@ -129,8 +127,8 @@ public class WeatherAlertsFragment extends Fragment {
             }
         }
 
-        if (weatherView != null && mActivity != null) {
-            mActivity.runOnUiThread(new Runnable() {
+        if (weatherView != null) {
+            runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     locationHeader.setText(weatherView.getLocation());
@@ -176,5 +174,10 @@ public class WeatherAlertsFragment extends Fragment {
         super.onDetach();
         mActivity = null;
         mWindowColorsIface = null;
+    }
+
+    private void runOnUiThread(Runnable action) {
+        if (mActivity != null)
+            mActivity.runOnUiThread(action);
     }
 }
