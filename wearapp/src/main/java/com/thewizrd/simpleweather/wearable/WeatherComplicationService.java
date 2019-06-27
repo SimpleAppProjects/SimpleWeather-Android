@@ -14,6 +14,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationManager;
@@ -27,6 +28,8 @@ import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -63,6 +66,11 @@ public class WeatherComplicationService extends ComplicationProviderService {
     private Location mLocation;
     private LocationCallback mLocCallback;
     private LocationListener mLocListnr;
+
+    /**
+     * Tracks the status of the location updates request.
+     */
+    private boolean mRequestingLocationUpdates;
 
     private static LocalDateTime updateTime = DateTimeUtils.getLocalDateTimeMIN();
 
@@ -110,12 +118,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
                                         .putExtra(WeatherComplicationIntentService.EXTRA_FORCEUPDATE, true));
                     }
 
-                    new AsyncTask<Void>().await(new Callable<Void>() {
-                        @Override
-                        public Void call() throws Exception {
-                            return Tasks.await(mFusedLocationClient.removeLocationUpdates(mLocCallback));
-                        }
-                    });
+                    stopLocationUpdates();
                 }
 
                 @Override
@@ -155,6 +158,29 @@ public class WeatherComplicationService extends ComplicationProviderService {
                 }
             };
         }
+
+        mRequestingLocationUpdates = false;
+    }
+
+    /**
+     * Removes location updates from the FusedLocationApi.
+     */
+    private void stopLocationUpdates() {
+        if (!mRequestingLocationUpdates) {
+            Logger.writeLine(Log.DEBUG, "WeatherComplicationService: stopLocationUpdates: updates never requested, no-op.");
+            return;
+        }
+
+        // It is a good practice to remove location requests when the activity is in a paused or
+        // stopped state. Doing so helps battery performance and is especially
+        // recommended in applications that request frequent location updates.
+        mFusedLocationClient.removeLocationUpdates(mLocCallback)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        mRequestingLocationUpdates = false;
+                    }
+                });
     }
 
     private void startAlarm(Context context) {
@@ -323,24 +349,17 @@ public class WeatherComplicationService extends ComplicationProviderService {
                             }
                         });
 
-                        if (location == null) {
+                        /**
+                         * Request start of location updates. Does nothing if
+                         * updates have already been requested.
+                         */
+                        if (location == null && !mRequestingLocationUpdates) {
                             final LocationRequest mLocationRequest = new LocationRequest();
                             mLocationRequest.setInterval(10000);
                             mLocationRequest.setFastestInterval(1000);
                             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                            new AsyncTask<Void>().await(new Callable<Void>() {
-                                @SuppressLint("MissingPermission")
-                                @Override
-                                public Void call() throws Exception {
-                                    return Tasks.await(mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper()));
-                                }
-                            });
-                            new AsyncTask<Void>().await(new Callable<Void>() {
-                                @Override
-                                public Void call() throws Exception {
-                                    return Tasks.await(mFusedLocationClient.flushLocations());
-                                }
-                            });
+                            mRequestingLocationUpdates = true;
+                            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper());
                         }
                     } else {
                         LocationManager locMan = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
@@ -371,7 +390,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
                         }
                     }
 
-                    if (location != null) {
+                    if (location != null && !mRequestingLocationUpdates) {
                         LocationData lastGPSLocData = Settings.getLastGPSLocData();
 
                         // Check previous location difference

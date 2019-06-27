@@ -18,6 +18,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.wear.widget.drawer.WearableActionDrawerView;
 import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.AcceptDenyDialog;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,6 +32,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
@@ -38,6 +41,7 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.WearableDataSync;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -61,6 +65,11 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
     private LocationCallback mLocCallback;
     private LocationListener mLocListnr;
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
+
+    /**
+     * Tracks the status of the location updates request.
+     */
+    private boolean mRequestingLocationUpdates;
 
     private CancellationTokenSource cts;
 
@@ -141,12 +150,7 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                         fetchGeoLocation();
                     }
 
-                    new AsyncTask<Void>().await(new Callable<Void>() {
-                        @Override
-                        public Void call() throws Exception {
-                            return Tasks.await(mFusedLocationClient.removeLocationUpdates(mLocCallback));
-                        }
-                    });
+                    stopLocationUpdates();
                 }
 
                 @Override
@@ -193,12 +197,37 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                 }
             };
         }
+
+        mRequestingLocationUpdates = false;
+    }
+
+    /**
+     * Removes location updates from the FusedLocationApi.
+     */
+    private void stopLocationUpdates() {
+        if (!mRequestingLocationUpdates) {
+            Logger.writeLine(Log.DEBUG, "SetupActivity: stopLocationUpdates: updates never requested, no-op.");
+            return;
+        }
+
+        // It is a good practice to remove location requests when the activity is in a paused or
+        // stopped state. Doing so helps battery performance and is especially
+        // recommended in applications that request frequent location updates.
+        mFusedLocationClient.removeLocationUpdates(mLocCallback)
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        mRequestingLocationUpdates = false;
+                    }
+                });
     }
 
     @Override
     protected void onPause() {
         if (cts != null) cts.cancel();
         super.onPause();
+        // Remove location updates to save battery.
+        stopLocationUpdates();
     }
 
     @Override
@@ -439,24 +468,17 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                 }
             });
 
-            if (location == null) {
+            /**
+             * Request start of location updates. Does nothing if
+             * updates have already been requested.
+             */
+            if (location == null && !mRequestingLocationUpdates) {
                 final LocationRequest mLocationRequest = new LocationRequest();
                 mLocationRequest.setInterval(10000);
                 mLocationRequest.setFastestInterval(1000);
                 mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                new AsyncTask<Void>().await(new Callable<Void>() {
-                    @SuppressLint("MissingPermission")
-                    @Override
-                    public Void call() throws Exception {
-                        return Tasks.await(mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper()));
-                    }
-                });
-                new AsyncTask<Void>().await(new Callable<Void>() {
-                    @Override
-                    public Void call() throws Exception {
-                        return Tasks.await(mFusedLocationClient.flushLocations());
-                    }
-                });
+                mRequestingLocationUpdates = true;
+                mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper());
             }
         } else {
             LocationManager locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -491,7 +513,7 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
             }
         }
 
-        if (location != null) {
+        if (location != null && !mRequestingLocationUpdates) {
             mLocation = location;
             fetchGeoLocation();
         }

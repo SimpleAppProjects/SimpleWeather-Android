@@ -58,6 +58,8 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.CancellationTokenSource;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.gson.stream.JsonReader;
 import com.ibm.icu.util.ULocale;
@@ -162,6 +164,11 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     private LocationCallback mLocCallback;
     private LocationListener mLocListnr;
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
+
+    /**
+     * Tracks the status of the location updates request.
+     */
+    private boolean mRequestingLocationUpdates;
 
     public WeatherNowFragment() {
         // Required empty public constructor
@@ -360,12 +367,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                                 refreshWeather(false);
                             }
 
-                            new AsyncTask<Void>().await(new Callable<Void>() {
-                                @Override
-                                public Void call() throws Exception {
-                                    return Tasks.await(mFusedLocationClient.removeLocationUpdates(mLocCallback));
-                                }
-                            });
+                            stopLocationUpdates();
                         }
                     });
                 }
@@ -403,6 +405,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             };
         }
 
+        mRequestingLocationUpdates = false;
         loaded = true;
     }
 
@@ -580,6 +583,27 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         refreshLayout.setRefreshing(true);
 
         return view;
+    }
+
+    /**
+     * Removes location updates from the FusedLocationApi.
+     */
+    private void stopLocationUpdates() {
+        if (!mRequestingLocationUpdates) {
+            Logger.writeLine(Log.DEBUG, "WeatherNow: stopLocationUpdates: updates never requested, no-op.");
+            return;
+        }
+
+        // It is a good practice to remove location requests when the activity is in a paused or
+        // stopped state. Doing so helps battery performance and is especially
+        // recommended in applications that request frequent location updates.
+        mFusedLocationClient.removeLocationUpdates(mLocCallback)
+                .addOnCompleteListener(mActivity, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        mRequestingLocationUpdates = false;
+                    }
+                });
     }
 
     private void resizeSunPhasePanel() {
@@ -776,6 +800,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         }
 
         super.onPause();
+        // Remove location updates to save battery.
+        stopLocationUpdates();
         loaded = false;
     }
 
@@ -1042,24 +1068,17 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             }
                         });
 
-                        if (location == null) {
+                        /**
+                         * Request start of location updates. Does nothing if
+                         * updates have already been requested.
+                         */
+                        if (location == null && !mRequestingLocationUpdates) {
                             final LocationRequest mLocationRequest = new LocationRequest();
                             mLocationRequest.setInterval(10000);
                             mLocationRequest.setFastestInterval(1000);
                             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                            new AsyncTask<Void>().await(new Callable<Void>() {
-                                @SuppressLint("MissingPermission")
-                                @Override
-                                public Void call() throws Exception {
-                                    return Tasks.await(mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper()));
-                                }
-                            });
-                            new AsyncTask<Void>().await(new Callable<Void>() {
-                                @Override
-                                public Void call() throws Exception {
-                                    return Tasks.await(mFusedLocationClient.flushLocations());
-                                }
-                            });
+                            mRequestingLocationUpdates = true;
+                            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper());
                         }
                     } else {
                         LocationManager locMan = null;
@@ -1093,7 +1112,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                         }
                     }
 
-                    if (location != null) {
+                    if (location != null && !mRequestingLocationUpdates) {
                         LocationData lastGPSLocData = Settings.getLastGPSLocData();
 
                         // Check previous location difference

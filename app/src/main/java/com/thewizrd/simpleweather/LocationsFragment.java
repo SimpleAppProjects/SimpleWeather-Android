@@ -32,6 +32,7 @@ import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -58,6 +59,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
@@ -72,6 +75,7 @@ import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -138,6 +142,11 @@ public class LocationsFragment extends Fragment
     private LocationCallback mLocCallback;
     private LocationListener mLocListnr;
     private CancellationTokenSource cts;
+
+    /**
+     * Tracks the status of the location updates request.
+     */
+    private boolean mRequestingLocationUpdates;
 
     private static final int ANIMATION_DURATION = 240;
 
@@ -378,8 +387,30 @@ public class LocationsFragment extends Fragment
                 }
             };
         }
+
+        mRequestingLocationUpdates = false;
     }
 
+    /**
+     * Removes location updates from the FusedLocationApi.
+     */
+    private void stopLocationUpdates() {
+        if (!mRequestingLocationUpdates) {
+            Logger.writeLine(Log.DEBUG, "LocationsFragment: stopLocationUpdates: updates never requested, no-op.");
+            return;
+        }
+
+        // It is a good practice to remove location requests when the activity is in a paused or
+        // stopped state. Doing so helps battery performance and is especially
+        // recommended in applications that request frequent location updates.
+        mFusedLocationClient.removeLocationUpdates(mLocCallback)
+                .addOnCompleteListener(mActivity, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        mRequestingLocationUpdates = false;
+                    }
+                });
+    }
 
     @Override
     public boolean onBackPressed() {
@@ -585,6 +616,9 @@ public class LocationsFragment extends Fragment
         if (mSearchFragment != null) mSearchFragment.ctsCancel();
 
         super.onPause();
+
+        // Remove location updates to save battery.
+        stopLocationUpdates();
 
         mLoaded = false;
 
@@ -840,24 +874,17 @@ public class LocationsFragment extends Fragment
                             }
                         });
 
-                        if (location == null) {
+                        /**
+                         * Request start of location updates. Does nothing if
+                         * updates have already been requested.
+                         */
+                        if (location == null && !mRequestingLocationUpdates) {
                             final LocationRequest mLocationRequest = new LocationRequest();
                             mLocationRequest.setInterval(10000);
                             mLocationRequest.setFastestInterval(1000);
                             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                            new AsyncTask<Void>().await(new Callable<Void>() {
-                                @SuppressLint("MissingPermission")
-                                @Override
-                                public Void call() throws Exception {
-                                    return Tasks.await(mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper()));
-                                }
-                            });
-                            new AsyncTask<Void>().await(new Callable<Void>() {
-                                @Override
-                                public Void call() throws Exception {
-                                    return Tasks.await(mFusedLocationClient.flushLocations());
-                                }
-                            });
+                            mRequestingLocationUpdates = true;
+                            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper());
                         }
                     } else {
                         LocationManager locMan = null;
@@ -892,7 +919,7 @@ public class LocationsFragment extends Fragment
                         }
                     }
 
-                    if (location != null) {
+                    if (location != null && !mRequestingLocationUpdates) {
                         LocationQueryViewModel view = null;
 
                         if (cts.getToken().isCancellationRequested())
