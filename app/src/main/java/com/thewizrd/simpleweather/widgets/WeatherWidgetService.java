@@ -123,6 +123,13 @@ public class WeatherWidgetService extends JobIntentService {
                 JOB_ID, work);
     }
 
+    private boolean isCtsCancelRequested() {
+        if (cts != null)
+            return cts.getToken().isCancellationRequested();
+        else
+            return true;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -485,13 +492,13 @@ public class WeatherWidgetService extends JobIntentService {
                             locData = WidgetUtils.getLocationData(id);
                         }
 
-                        if (cts.getToken().isCancellationRequested())
+                        if (isCtsCancelRequested())
                             throw new InterruptedException();
 
                         Weather weather = null;
 
                         if (locData != null) {
-                            if (cts.getToken().isCancellationRequested())
+                            if (isCtsCancelRequested())
                                 throw new InterruptedException();
 
                             if (locData.equals(Settings.getHomeData())) {
@@ -551,13 +558,13 @@ public class WeatherWidgetService extends JobIntentService {
                                 locData = WidgetUtils.getLocationData(id);
                             }
 
-                            if (cts.getToken().isCancellationRequested())
+                            if (isCtsCancelRequested())
                                 throw new InterruptedException();
 
                             Weather weather = null;
 
                             if (locData != null) {
-                                if (cts.getToken().isCancellationRequested())
+                                if (isCtsCancelRequested())
                                     throw new InterruptedException();
 
                                 if (locData.equals(Settings.getHomeData())) {
@@ -601,13 +608,13 @@ public class WeatherWidgetService extends JobIntentService {
                                 locData = WidgetUtils.getLocationData(id);
                             }
 
-                            if (cts.getToken().isCancellationRequested())
+                            if (isCtsCancelRequested())
                                 throw new InterruptedException();
 
                             Weather weather = null;
 
                             if (locData != null) {
-                                if (cts.getToken().isCancellationRequested())
+                                if (isCtsCancelRequested())
                                     throw new InterruptedException();
 
                                 if (locData.equals(Settings.getHomeData())) {
@@ -651,13 +658,13 @@ public class WeatherWidgetService extends JobIntentService {
                                 locData = WidgetUtils.getLocationData(id);
                             }
 
-                            if (cts.getToken().isCancellationRequested())
+                            if (isCtsCancelRequested())
                                 throw new InterruptedException();
 
                             Weather weather = null;
 
                             if (locData != null) {
-                                if (cts.getToken().isCancellationRequested())
+                                if (isCtsCancelRequested())
                                     throw new InterruptedException();
 
                                 if (locData.equals(Settings.getHomeData())) {
@@ -701,13 +708,13 @@ public class WeatherWidgetService extends JobIntentService {
                                 locData = WidgetUtils.getLocationData(id);
                             }
 
-                            if (cts.getToken().isCancellationRequested())
+                            if (isCtsCancelRequested())
                                 throw new InterruptedException();
 
                             Weather weather = null;
 
                             if (locData != null) {
-                                if (cts.getToken().isCancellationRequested())
+                                if (isCtsCancelRequested())
                                     throw new InterruptedException();
 
                                 if (locData.equals(Settings.getHomeData())) {
@@ -1016,14 +1023,14 @@ public class WeatherWidgetService extends JobIntentService {
         new AsyncTaskEx<Void, InterruptedException>().await(new CallableEx<Void, InterruptedException>() {
             @Override
             public Void call() throws InterruptedException {
-                if (cts.getToken().isCancellationRequested()) throw new InterruptedException();
+                if (isCtsCancelRequested()) throw new InterruptedException();
 
                 if (!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId))
                     return null;
 
                 Weather weather = WidgetUtils.getWeatherData(appWidgetId);
 
-                if (cts.getToken().isCancellationRequested()) throw new InterruptedException();
+                if (isCtsCancelRequested()) throw new InterruptedException();
 
                 if (weather == null) {
                     LocationData locData = null;
@@ -1032,10 +1039,10 @@ public class WeatherWidgetService extends JobIntentService {
                     else
                         locData = WidgetUtils.getLocationData(appWidgetId);
 
-                    if (cts.getToken().isCancellationRequested()) throw new InterruptedException();
+                    if (isCtsCancelRequested()) throw new InterruptedException();
 
                     if (locData != null) {
-                        if (cts.getToken().isCancellationRequested())
+                        if (isCtsCancelRequested())
                             throw new InterruptedException();
 
                         WeatherDataLoader wloader = new WeatherDataLoader(locData);
@@ -1274,7 +1281,7 @@ public class WeatherWidgetService extends JobIntentService {
                     if (Settings.useFollowGPS())
                         updateLocation();
 
-                    if (cts.getToken().isCancellationRequested()) throw new InterruptedException();
+                    if (isCtsCancelRequested()) throw new InterruptedException();
 
                     WeatherDataLoader wloader = new WeatherDataLoader(Settings.getHomeData());
                     if (refreshWeather)
@@ -1339,7 +1346,7 @@ public class WeatherWidgetService extends JobIntentService {
                             isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
                         }
 
-                        if (isGPSEnabled || isNetEnabled && !cts.getToken().isCancellationRequested()) {
+                        if (isGPSEnabled || isNetEnabled && !isCtsCancelRequested()) {
                             Criteria locCriteria = new Criteria();
                             locCriteria.setAccuracy(Criteria.ACCURACY_COARSE);
                             locCriteria.setCostAllowed(false);
@@ -1349,10 +1356,10 @@ public class WeatherWidgetService extends JobIntentService {
                         }
                     }
 
-                    if (location != null && !cts.getToken().isCancellationRequested()) {
+                    if (location != null && !isCtsCancelRequested()) {
                         LocationData lastGPSLocData = Settings.getLastGPSLocData();
 
-                        if (cts.getToken().isCancellationRequested()) return locationChanged;
+                        if (isCtsCancelRequested()) return locationChanged;
 
                         // Check previous location difference
                         if (lastGPSLocData.getQuery() != null &&
@@ -1382,7 +1389,7 @@ public class WeatherWidgetService extends JobIntentService {
                             return false;
                         }
 
-                        if (cts.getToken().isCancellationRequested()) return locationChanged;
+                        if (isCtsCancelRequested()) return locationChanged;
 
                         // Save oldkey
                         String oldkey = lastGPSLocData.getQuery();

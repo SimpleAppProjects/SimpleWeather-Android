@@ -125,7 +125,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (cts.getToken().isCancellationRequested())
+                if (isCtsCancelRequested())
                     return;
 
                 if (weather != null && weather.isValid()) {
@@ -162,7 +162,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (!cts.getToken().isCancellationRequested())
+                    if (!isCtsCancelRequested())
                         Toast.makeText(mActivity, wEx.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });
@@ -231,7 +231,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     AsyncTask.run(new Runnable() {
                         @Override
                         public void run() {
-                            if (cts.getToken().isCancellationRequested())
+                            if (isCtsCancelRequested())
                                 return;
 
                             if (Settings.useFollowGPS() && updateLocation()) {
@@ -254,7 +254,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     AsyncTask.run(new Runnable() {
                         @Override
                         public void run() {
-                            if (cts.getToken().isCancellationRequested())
+                            if (isCtsCancelRequested())
                                 return;
 
                             if (Settings.useFollowGPS() && updateLocation()) {
@@ -293,7 +293,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (cts.getToken().isCancellationRequested())
+                if (isCtsCancelRequested())
                     return;
 
                 if (WearableHelper.LocationPath.equals(intent.getAction()) || WearableHelper.WeatherPath.equals(intent.getAction())) {
@@ -468,6 +468,13 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             mActivity.runOnUiThread(action);
     }
 
+    private boolean isCtsCancelRequested() {
+        if (cts != null)
+            return cts.getToken().isCancellationRequested();
+        else
+            return true;
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -578,7 +585,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     wLoader = new WeatherDataLoader(location, WeatherNowFragment.this, WeatherNowFragment.this);
                 }
 
-                if (cts.getToken().isCancellationRequested())
+                if (isCtsCancelRequested())
                     return null;
 
                 // Load up weather data
@@ -812,10 +819,10 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             new AsyncTask<Void>().await(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
-                    if (cts.getToken().isCancellationRequested())
+                    if (isCtsCancelRequested())
                         return null;
 
-                    if (Settings.getDataSync() == WearableDataSync.OFF)
+                    if (Settings.getDataSync() == WearableDataSync.OFF && wLoader != null)
                         wLoader.loadWeatherData(forceRefresh);
                     else
                         dataSyncResume();
@@ -829,7 +836,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (cts.getToken().isCancellationRequested())
+                if (isCtsCancelRequested())
                     return;
 
                 // Background
@@ -868,7 +875,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
                     Location location = null;
 
-                    if (cts.getToken().isCancellationRequested())
+                    if (isCtsCancelRequested())
                         return false;
 
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
@@ -947,7 +954,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
                         LocationQueryViewModel view = null;
 
-                        if (cts.getToken().isCancellationRequested())
+                        if (isCtsCancelRequested())
                             return false;
 
                         view = wm.getLocation(location);
@@ -959,7 +966,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             return false;
                         }
 
-                        if (cts.getToken().isCancellationRequested())
+                        if (isCtsCancelRequested())
                             return false;
 
                         // Save location as last known

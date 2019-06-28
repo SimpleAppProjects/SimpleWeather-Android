@@ -864,7 +864,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             new AsyncTask<Void>().await(new Callable<Void>() {
                 @Override
                 public Void call() {
-                    if (!isCtsCancelRequested())
+                    if (wLoader != null && !isCtsCancelRequested())
                         wLoader.loadWeatherData(forceRefresh);
                     return null;
                 }

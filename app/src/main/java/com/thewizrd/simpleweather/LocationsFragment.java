@@ -199,11 +199,18 @@ public class LocationsFragment extends Fragment
             mActivity.runOnUiThread(action);
     }
 
+    private boolean isCtsCancelRequested() {
+        if (cts != null)
+            return cts.getToken().isCancellationRequested();
+        else
+            return true;
+    }
+
     public void onWeatherLoaded(final LocationData location, final Weather weather) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (cts.getToken().isCancellationRequested())
+                if (isCtsCancelRequested())
                     return;
 
                 if (weather != null && weather.isValid()) {
@@ -250,7 +257,7 @@ public class LocationsFragment extends Fragment
 
     @Override
     public void onWeatherError(final WeatherException wEx) {
-        if (cts.getToken().isCancellationRequested())
+        if (isCtsCancelRequested())
             return;
 
         switch (wEx.getErrorStatus()) {
@@ -674,7 +681,7 @@ public class LocationsFragment extends Fragment
                         }
                     });
 
-                    if (cts.getToken().isCancellationRequested())
+                    if (isCtsCancelRequested())
                         return null;
 
                     // Setup saved favorite locations
@@ -706,7 +713,7 @@ public class LocationsFragment extends Fragment
                         });
                     }
 
-                    if (cts.getToken().isCancellationRequested())
+                    if (isCtsCancelRequested())
                         return null;
 
                     if (gpsData != null)
@@ -735,14 +742,14 @@ public class LocationsFragment extends Fragment
                 if (mActivity != null && Settings.useFollowGPS()) {
                     LocationData locData = Settings.getLastGPSLocData();
 
-                    if (cts.getToken().isCancellationRequested())
+                    if (isCtsCancelRequested())
                         return null;
 
                     if (locData == null || locData.getQuery() == null) {
                         locData = updateLocation();
                     }
 
-                    if (cts.getToken().isCancellationRequested())
+                    if (isCtsCancelRequested())
                         return null;
 
                     if (locData != null && locData.getQuery() != null) {
@@ -778,7 +785,7 @@ public class LocationsFragment extends Fragment
                 if (!reload && (gpsPanelViewModel != null && !homeData.getQuery().equals(gpsPanelViewModel.getLocationData().getQuery())))
                     reload = true;
 
-                if (cts.getToken().isCancellationRequested())
+                if (isCtsCancelRequested())
                     return null;
 
                 if (reload) {
@@ -829,7 +836,7 @@ public class LocationsFragment extends Fragment
                     }
                 }
 
-                if (cts.getToken().isCancellationRequested())
+                if (isCtsCancelRequested())
                     return;
 
                 if (gpsData != null) {
@@ -863,7 +870,7 @@ public class LocationsFragment extends Fragment
 
                     Location location = null;
 
-                    if (cts.getToken().isCancellationRequested())
+                    if (isCtsCancelRequested())
                         return null;
 
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
@@ -929,12 +936,12 @@ public class LocationsFragment extends Fragment
                     if (location != null && !mRequestingLocationUpdates) {
                         LocationQueryViewModel view = null;
 
-                        if (cts.getToken().isCancellationRequested())
+                        if (isCtsCancelRequested())
                             return null;
 
                         view = wm.getLocation(location);
 
-                        if (cts.getToken().isCancellationRequested())
+                        if (isCtsCancelRequested())
                             return null;
 
                         if (StringUtils.isNullOrEmpty(view.getLocationQuery()))

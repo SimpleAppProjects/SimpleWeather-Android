@@ -353,6 +353,13 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    private boolean isCtsCancelRequested() {
+        if (cts != null)
+            return cts.getToken().isCancellationRequested();
+        else
+            return true;
+    }
+
     private void prepareSearchUI() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         mToolbar.getMenu().clear();
@@ -1092,7 +1099,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                             isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
                         }
 
-                        if (isGPSEnabled || isNetEnabled && !cts.getToken().isCancellationRequested()) {
+                        if (isGPSEnabled || isNetEnabled && !isCtsCancelRequested()) {
                             Criteria locCriteria = new Criteria();
                             locCriteria.setAccuracy(Criteria.ACCURACY_COARSE);
                             locCriteria.setCostAllowed(false);
@@ -1102,7 +1109,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         }
                     }
 
-                    if (location != null && !cts.getToken().isCancellationRequested()) {
+                    if (location != null && !isCtsCancelRequested()) {
                         LocationQueryViewModel query_vm = null;
 
                         TaskCompletionSource<LocationQueryViewModel> tcs = new TaskCompletionSource<>(cts.getToken());
@@ -1124,7 +1131,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                             return false;
                         }
 
-                        if (cts.getToken().isCancellationRequested()) return locationChanged;
+                        if (isCtsCancelRequested()) return locationChanged;
 
                         // Save location as last known
                         Settings.saveLastGPSLocData(new LocationData(query_vm, location));
