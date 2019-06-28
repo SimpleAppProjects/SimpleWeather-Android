@@ -108,6 +108,7 @@ import java.io.StringReader;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class WeatherNowFragment extends Fragment implements WeatherLoadedListenerInterface, WeatherErrorListenerInterface {
     private LocationData location = null;
@@ -1064,7 +1065,13 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             @SuppressLint("MissingPermission")
                             @Override
                             public Location call() throws Exception {
-                                return Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
+                                Location result = null;
+                                try {
+                                    result = Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
+                                } catch (TimeoutException e) {
+                                    Logger.writeLine(Log.ERROR, e);
+                                }
+                                return result;
                             }
                         });
 

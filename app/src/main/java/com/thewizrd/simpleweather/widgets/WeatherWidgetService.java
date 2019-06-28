@@ -66,6 +66,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class WeatherWidgetService extends JobIntentService {
     private static String TAG = "WeatherWidgetService";
@@ -1320,7 +1321,13 @@ public class WeatherWidgetService extends JobIntentService {
                             @SuppressLint("MissingPermission")
                             @Override
                             public Location call() throws Exception {
-                                return Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
+                                Location result = null;
+                                try {
+                                    result = Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
+                                } catch (TimeoutException e) {
+                                    Logger.writeLine(Log.ERROR, e);
+                                }
+                                return result;
                             }
                         });
                     } else {

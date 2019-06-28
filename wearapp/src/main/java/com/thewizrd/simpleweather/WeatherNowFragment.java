@@ -75,6 +75,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class WeatherNowFragment extends Fragment implements WeatherLoadedListenerInterface,
         WeatherErrorListenerInterface, SharedPreferences.OnSharedPreferenceChangeListener {
@@ -875,7 +876,13 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             @SuppressLint("MissingPermission")
                             @Override
                             public Location call() throws Exception {
-                                return Tasks.await(mFusedLocationClient.getLastLocation(), 10, TimeUnit.SECONDS);
+                                Location result = null;
+                                try {
+                                    result = Tasks.await(mFusedLocationClient.getLastLocation(), 10, TimeUnit.SECONDS);
+                                } catch (TimeoutException e) {
+                                    Logger.writeLine(Log.ERROR, e);
+                                }
+                                return result;
                             }
                         });
 

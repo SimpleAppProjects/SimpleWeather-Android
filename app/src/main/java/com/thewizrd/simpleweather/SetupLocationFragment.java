@@ -88,6 +88,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class SetupLocationFragment extends Fragment implements Step, OnBackPressedFragmentListener {
 
@@ -684,7 +685,13 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                 @SuppressLint("MissingPermission")
                 @Override
                 public Location call() throws Exception {
-                    return Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
+                    Location result = null;
+                    try {
+                        result = Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
+                    } catch (TimeoutException e) {
+                        Logger.writeLine(Log.ERROR, e);
+                    }
+                    return result;
                 }
             });
 
