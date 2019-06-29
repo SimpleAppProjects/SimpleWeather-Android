@@ -770,8 +770,7 @@ public class LocationsFragment extends Fragment
                 LocationData homeData = Settings.getLastGPSLocData();
                 locations.add(0, homeData);
                 LocationPanelViewModel gpsPanelViewModel = null;
-                if (Settings.useFollowGPS() && mAdapter.getDataCount() > 0
-                        && mAdapter.getPanelData(0).getLocationType() == LocationType.GPS)
+                if (mAdapter.getDataCount() > 0 && mAdapter.getPanelData(0).getLocationType() == LocationType.GPS)
                     gpsPanelViewModel = mAdapter.getPanelViewModel(0);
 
                 boolean reload = (locations.size() != mAdapter.getDataCount() ||
