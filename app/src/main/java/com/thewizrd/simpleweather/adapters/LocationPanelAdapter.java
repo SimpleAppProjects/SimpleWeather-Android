@@ -292,10 +292,11 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         int viewPosition = getViewPosition(panel);
 
         mDataset.remove(dataPosition);
-        notifyItemRemoved(viewPosition);
 
         if (panel.getLocationType() == LocationType.GPS.getValue())
             hasGPSPanel = false;
+
+        notifyItemRemoved(viewPosition);
     }
 
     public void removeAll() {
@@ -327,16 +328,12 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
                 getPanelData(position).getQuery());
 
         // Remove panel
-        if (Thread.currentThread() != mMainHandler.getLooper().getThread()) {
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    remove(position);
-                }
-            });
-        } else {
-            remove(position);
-        }
+        mMainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                remove(position);
+            }
+        });
     }
 
     public void onItemMove(int fromPosition, int toPosition) {
