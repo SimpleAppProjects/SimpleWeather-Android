@@ -45,21 +45,29 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
                         new Intent(context, WearableDataListenerService.class)
                                 .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
             } else if (CommonActions.ACTION_WEATHER_UPDATEWIDGETLOCATION.equals(intent.getAction())) {
-                String oldKey = intent.getStringExtra("oldKey");
-                String locationJson = intent.getStringExtra("location");
-                LocationData location = LocationData.fromJson(new JsonReader(new StringReader(locationJson)));
-
-                if (WidgetUtils.exists(oldKey)) {
-                    WidgetUtils.updateWidgetIds(oldKey, location);
-                }
-            } else if (CommonActions.ACTION_WEATHER_UPDATEWIDGETWEATHER.equals(intent.getAction())) {
-                final String locationQuery = intent.getStringExtra("locationQuery");
-                String weatherJson = intent.getStringExtra("weather");
-                final Weather weather = Weather.fromJson(new JsonReader(new StringReader(weatherJson)));
+                final String oldKey = intent.getStringExtra("oldKey");
+                final String locationJson = intent.getStringExtra("location");
 
                 new AsyncTask<Void>().await(new Callable<Void>() {
                     @Override
                     public Void call() throws Exception {
+                        LocationData location = LocationData.fromJson(new JsonReader(new StringReader(locationJson)));
+
+                        if (WidgetUtils.exists(oldKey)) {
+                            WidgetUtils.updateWidgetIds(oldKey, location);
+                        }
+                        return null;
+                    }
+                });
+            } else if (CommonActions.ACTION_WEATHER_UPDATEWIDGETWEATHER.equals(intent.getAction())) {
+                final String locationQuery = intent.getStringExtra("locationQuery");
+                final String weatherJson = intent.getStringExtra("weather");
+
+                new AsyncTask<Void>().await(new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        Weather weather = Weather.fromJson(new JsonReader(new StringReader(weatherJson)));
+
                         if (WidgetUtils.exists(locationQuery)) {
                             int[] ids = WidgetUtils.getWidgetIds(locationQuery);
                             for (int id : ids) {

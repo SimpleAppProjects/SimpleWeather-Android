@@ -312,14 +312,16 @@ public class WearableDataListenerService extends WearableListenerService {
      * I am just grabbing the first one (which should be the only one).
      */
     private static Node pickBestNodeId(Collection<Node> nodes) {
-        Node bestNodeid = null;
+        Node bestNode = null;
 
         // Find a nearby node/phone or pick one arbitrarily. Realistically, there is only one phone.
         for (Node node : nodes) {
-            bestNodeid = node;
+            if (node.isNearby()) {
+                return node;
+            }
+            bestNode = node;
         }
-
-        return bestNodeid;
+        return bestNode;
     }
 
     private boolean connect() {
@@ -483,57 +485,67 @@ public class WearableDataListenerService extends WearableListenerService {
         });
     }
 
-    private void updateSettings(DataMap dataMap) {
-        if (dataMap != null && !dataMap.isEmpty()) {
-            String API = dataMap.getString("API", "");
-            String API_KEY = dataMap.getString("API_KEY", "");
-            boolean keyVerified = dataMap.getBoolean("KeyVerified", false);
-            if (!StringUtils.isNullOrWhitespace(API)) {
-                Settings.setAPI(API);
-                if (WeatherManager.isKeyRequired(API)) {
-                    Settings.setAPIKEY(API_KEY);
-                    Settings.setKeyVerified(false);
-                } else {
-                    Settings.setAPIKEY("");
-                    Settings.setKeyVerified(false);
+    private void updateSettings(final DataMap dataMap) {
+        AsyncTask.run(new Runnable() {
+            @Override
+            public void run() {
+                if (dataMap != null && !dataMap.isEmpty()) {
+                    String API = dataMap.getString("API", "");
+                    String API_KEY = dataMap.getString("API_KEY", "");
+                    boolean keyVerified = dataMap.getBoolean("KeyVerified", false);
+                    if (!StringUtils.isNullOrWhitespace(API)) {
+                        Settings.setAPI(API);
+                        if (WeatherManager.isKeyRequired(API)) {
+                            Settings.setAPIKEY(API_KEY);
+                            Settings.setKeyVerified(false);
+                        } else {
+                            Settings.setAPIKEY("");
+                            Settings.setKeyVerified(false);
+                        }
+                    }
+
+                    Settings.setFollowGPS(dataMap.getBoolean("FollowGPS", false));
+
+                    // Send callback to receiver
+                    LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
+                            new Intent(WearableHelper.SettingsPath));
                 }
             }
-
-            Settings.setFollowGPS(dataMap.getBoolean("FollowGPS", false));
-
-            // Send callback to receiver
-            LocalBroadcastManager.getInstance(this).sendBroadcast(
-                    new Intent(WearableHelper.SettingsPath));
-        }
+        });
     }
 
-    private void updateLocation(DataMap dataMap) {
-        if (dataMap != null && !dataMap.isEmpty()) {
-            String locationJSON = dataMap.getString("locationData", "");
-            if (!StringUtils.isNullOrWhitespace(locationJSON)) {
-                try (JsonReader reader = new JsonReader(new StringReader(locationJSON))) {
-                    LocationData locationData = LocationData.fromJson(reader);
+    private void updateLocation(final DataMap dataMap) {
+        AsyncTask.run(new Runnable() {
+            @Override
+            public void run() {
+                if (dataMap != null && !dataMap.isEmpty()) {
+                    String locationJSON = dataMap.getString("locationData", "");
+                    if (!StringUtils.isNullOrWhitespace(locationJSON)) {
+                        try (JsonReader reader = new JsonReader(new StringReader(locationJSON))) {
+                            LocationData locationData = LocationData.fromJson(reader);
 
-                    if (locationData != null) {
-                        if (!locationData.equals(Settings.getHomeData())) {
-                            Settings.saveHomeData(locationData);
+                            if (locationData != null) {
+                                if (!locationData.equals(Settings.getHomeData())) {
+                                    Settings.saveHomeData(locationData);
+                                }
+
+                                // Send callback to receiver
+                                LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
+                                        new Intent(WearableHelper.LocationPath));
+                            }
+                        } catch (IOException e) {
+                            //e.printStackTrace();
                         }
-
-                        // Send callback to receiver
-                        LocalBroadcastManager.getInstance(this).sendBroadcast(
-                                new Intent(WearableHelper.LocationPath));
                     }
-                } catch (IOException e) {
-                    //e.printStackTrace();
                 }
             }
-        }
+        });
     }
 
     private void updateWeather(final byte[] data) {
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.run(new Runnable() {
             @Override
-            public Void call() throws Exception {
+            public void run() {
                 String dataJson = new String(data, Charset.forName("UTF-8"));
                 WearWeatherJSON weatherDataJSON = WearWeatherJSON.fromJson(new JsonReader(new StringReader(dataJson)));
 
@@ -552,7 +564,7 @@ public class WearableDataListenerService extends WearableListenerService {
                                 // Send callback to receiver
                                 LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
                                         new Intent(WearableHelper.WeatherPath));
-                                return null;
+                                return;
                             }
                         }
                     }
@@ -596,7 +608,6 @@ public class WearableDataListenerService extends WearableListenerService {
                         }
                     }
                 }
-                return null;
             }
         });
     }

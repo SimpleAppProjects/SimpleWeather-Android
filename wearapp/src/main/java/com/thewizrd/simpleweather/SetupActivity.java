@@ -328,9 +328,9 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
             }
         });
 
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.run(new Runnable() {
             @Override
-            public Void call() throws Exception {
+            public void run() {
                 try {
                     if (mLocation != null) {
                         LocationQueryViewModel view = null;
@@ -360,7 +360,7 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
 
                         if (StringUtils.isNullOrWhitespace(view.getLocationQuery())) {
                             enableControls(true);
-                            return null;
+                            return;
                         }
 
                         if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired()) {
@@ -371,7 +371,7 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                                 }
                             });
                             enableControls(true);
-                            return null;
+                            return;
                         }
 
                         if (ctsToken.isCancellationRequested()) throw new InterruptedException();
@@ -386,7 +386,7 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                                 }
                             });
                             enableControls(true);
-                            return null;
+                            return;
                         }
 
                         if (ctsToken.isCancellationRequested()) throw new InterruptedException();
@@ -413,7 +413,7 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
 
                         if (weather == null) {
                             enableControls(true);
-                            return null;
+                            return;
                         }
 
                         if (ctsToken.isCancellationRequested()) throw new InterruptedException();
@@ -445,7 +445,6 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                     Settings.setFollowGPS(false);
                     Settings.setWeatherLoaded(false);
                 }
-                return null;
             }
         });
     }

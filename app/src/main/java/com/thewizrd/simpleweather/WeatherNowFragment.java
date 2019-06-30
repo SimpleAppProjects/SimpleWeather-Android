@@ -380,13 +380,18 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     if (isCtsCancelRequested())
                         return;
 
-                    if (Settings.useFollowGPS() && updateLocation()) {
-                        // Setup loader from updated location
-                        wLoader = new WeatherDataLoader(WeatherNowFragment.this.location,
-                                WeatherNowFragment.this, WeatherNowFragment.this);
+                    AsyncTask.run(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (Settings.useFollowGPS() && updateLocation()) {
+                                // Setup loader from updated location
+                                wLoader = new WeatherDataLoader(WeatherNowFragment.this.location,
+                                        WeatherNowFragment.this, WeatherNowFragment.this);
 
-                        refreshWeather(false);
-                    }
+                                refreshWeather(false);
+                            }
+                        }
+                    });
                 }
 
                 @Override
@@ -1184,7 +1189,12 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     // permission was granted, yay!
                     // Do the task you need to do.
                     //FetchGeoLocation();
-                    updateLocation();
+                    AsyncTask.run(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateLocation();
+                        }
+                    });
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.

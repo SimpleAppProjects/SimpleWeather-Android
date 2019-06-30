@@ -535,9 +535,9 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
             }
         });
 
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.run(new Runnable() {
             @Override
-            public Void call() {
+            public void run() {
                 try {
                     if (mLocation != null) {
                         LocationQueryViewModel view = null;
@@ -566,7 +566,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
 
                         if (StringUtils.isNullOrWhitespace(view.getLocationQuery())) {
                             enableControls(true);
-                            return null;
+                            return;
                         }
 
                         if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired()) {
@@ -577,7 +577,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                                 }
                             });
                             enableControls(true);
-                            return null;
+                            return;
                         }
 
                         if (ctsToken.isCancellationRequested()) throw new InterruptedException();
@@ -592,7 +592,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                                 }
                             });
                             enableControls(true);
-                            return null;
+                            return;
                         }
 
                         if (ctsToken.isCancellationRequested()) throw new InterruptedException();
@@ -619,7 +619,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
 
                         if (weather == null) {
                             enableControls(true);
-                            return null;
+                            return;
                         }
 
                         if (ctsToken.isCancellationRequested()) throw new InterruptedException();
@@ -665,7 +665,6 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                     Settings.setFollowGPS(false);
                     Settings.setWeatherLoaded(false);
                 }
-                return null;
             }
         });
     }
