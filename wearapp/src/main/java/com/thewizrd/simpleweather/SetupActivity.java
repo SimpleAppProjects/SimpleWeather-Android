@@ -87,19 +87,21 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
         wm = WeatherManager.getInstance();
 
         // Set default API to HERE
-        Settings.setAPI(WeatherAPI.HERE);
-        wm.updateAPI();
-
-        if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
-            // If (internal) key doesn't exist, fallback to Yahoo
-            Settings.setAPI(WeatherAPI.YAHOO);
+        if (!Settings.isWeatherLoaded() && !Settings.isOnBoardingComplete()) {
+            Settings.setAPI(WeatherAPI.HERE);
             wm.updateAPI();
-            Settings.setPersonalKey(true);
-            Settings.setKeyVerified(false);
-        } else {
-            // If key exists, go ahead
-            Settings.setPersonalKey(false);
-            Settings.setKeyVerified(true);
+
+            if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
+                // If (internal) key doesn't exist, fallback to Yahoo
+                Settings.setAPI(WeatherAPI.YAHOO);
+                wm.updateAPI();
+                Settings.setPersonalKey(true);
+                Settings.setKeyVerified(false);
+            } else {
+                // If key exists, go ahead
+                Settings.setPersonalKey(false);
+                Settings.setKeyVerified(true);
+            }
         }
 
         // Controls
