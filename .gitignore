@@ -17,6 +17,8 @@ shared_resources/src/main/java/com/thewizrd/shared_resources/keys/Keys.java
 app/debug
 app/release
 app/google-services.json
+app/src/*/google-services.json
 wearapp/debug
 wearapp/release
 wearapp/google-services.json
+wearapp/src/*/google-services.json

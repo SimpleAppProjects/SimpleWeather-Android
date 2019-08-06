@@ -65,7 +65,7 @@
         android:visibility="gone"
         tools:visibility="visible" />
 
-    <android.support.v7.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/search_close_button"
         style="@style/MaterialIcon"
         android:layout_width="wrap_content"

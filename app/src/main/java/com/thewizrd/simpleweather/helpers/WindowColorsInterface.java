@@ -1,6 +1,6 @@
 package com.thewizrd.simpleweather.helpers;
 
-import android.support.annotation.ColorInt;
+import androidx.annotation.ColorInt;
 
 public interface WindowColorsInterface {
     void setWindowBarColors(@ColorInt int color);

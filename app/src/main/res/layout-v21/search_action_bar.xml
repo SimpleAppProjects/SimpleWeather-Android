@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/search_action_bar"
@@ -11,7 +11,7 @@
     tools:layout_height="?attr/actionBarSize"
     tools:visibility="visible">
 
-    <android.support.v7.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/search_back_button"
         style="@style/MaterialIcon"
         android:layout_width="wrap_content"
@@ -70,7 +70,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible" />
 
-    <android.support.v7.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/search_close_button"
         style="@style/MaterialIcon"
         android:layout_width="wrap_content"
@@ -90,4 +90,4 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:fontFamily="@font/materialicons_regular" />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

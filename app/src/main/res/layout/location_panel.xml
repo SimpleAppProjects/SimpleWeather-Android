@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,17 +7,17 @@
     style="@style/Widget.MaterialComponents.CardView"
     tools:context=".controls.LocationPanel">
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:srcCompat="@color/colorPrimary" />
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/location_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="New York, NY" />
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/weather_temp"
             android:layout_width="@dimen/location_panel_textview_size"
             android:layout_height="@dimen/location_panel_textview_size"
@@ -54,7 +54,7 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="50º" />
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/weather_icon"
             android:layout_width="@dimen/location_panel_textview_size"
             android:layout_height="@dimen/location_panel_textview_size"
@@ -74,7 +74,7 @@
             tools:fontFamily="@font/weathericons"
             tools:text="@string/wi_night_cloudy" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -86,4 +86,4 @@
         android:indeterminateTint="@android:color/white"
         android:visibility="visible" />
 
-</android.support.design.card.MaterialCardView>
+</com.google.android.material.card.MaterialCardView>

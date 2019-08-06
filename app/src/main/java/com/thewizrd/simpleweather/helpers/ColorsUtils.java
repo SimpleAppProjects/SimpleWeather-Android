@@ -1,7 +1,7 @@
 package com.thewizrd.simpleweather.helpers;
 
-import android.support.v4.graphics.ColorUtils;
-import android.support.v7.graphics.Palette;
+import androidx.core.graphics.ColorUtils;
+import androidx.palette.graphics.Palette;
 
 import com.thewizrd.shared_resources.utils.Colors;
 

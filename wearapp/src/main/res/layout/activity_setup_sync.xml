@@ -24,7 +24,7 @@
         android:layout_height="0dp"
         android:layout_centerInParent="true" />
 
-    <android.support.wear.widget.CircularProgressLayout
+    <androidx.wear.widget.CircularProgressLayout
         android:id="@+id/circular_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
         app:indeterminate="true"
         app:strokeWidth="4dp">
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/cancel_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
@@ -46,6 +46,6 @@
             android:padding="8dp"
             app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
 
-    </android.support.wear.widget.CircularProgressLayout>
+    </androidx.wear.widget.CircularProgressLayout>
 
 </RelativeLayout>

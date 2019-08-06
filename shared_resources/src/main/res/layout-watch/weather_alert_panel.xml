@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="RtlCompat">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/header_card"
         android:layout_width="match_parent"
         android:layout_height="24dp"
@@ -21,7 +21,7 @@
             android:layout_height="match_parent"
             android:orientation="horizontal">
 
-            <android.support.v7.widget.AppCompatImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/alert_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="16dp"
@@ -31,7 +31,7 @@
                 android:paddingStart="4dp"
                 app:srcCompat="@drawable/fire" />
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/alert_title"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -48,7 +48,7 @@
                 app:autoSizeTextType="uniform"
                 tools:text="Winter Weather Advisory" />
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/expand_icon"
                 style="@style/MaterialIcon"
                 android:layout_width="wrap_content"
@@ -64,9 +64,9 @@
                 tools:fontFamily="@font/materialicons_regular" />
         </LinearLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/body_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -75,12 +75,12 @@
         app:cardCornerRadius="0dp"
         tools:visibility="visible">
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/body_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="24dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             tools:text="TextView" />
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 </RelativeLayout>

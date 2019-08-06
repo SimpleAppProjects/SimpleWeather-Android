@@ -1,8 +1,6 @@
 package com.thewizrd.simpleweather.controls;
 
 import android.content.Context;
-import android.support.constraint.ConstraintLayout;
-import android.support.design.card.MaterialCardView;
 import android.text.Layout;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -14,6 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+
+import com.google.android.material.card.MaterialCardView;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;

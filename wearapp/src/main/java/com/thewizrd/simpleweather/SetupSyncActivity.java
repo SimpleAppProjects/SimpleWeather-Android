@@ -6,12 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.wear.widget.CircularProgressLayout;
 import android.support.wearable.view.ConfirmationOverlay;
 import android.view.View;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.wear.widget.CircularProgressLayout;
 
 import com.google.android.wearable.intent.RemoteIntent;
 import com.thewizrd.shared_resources.helpers.WearConnectionStatus;

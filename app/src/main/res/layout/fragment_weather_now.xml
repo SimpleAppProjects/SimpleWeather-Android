@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,7 +7,7 @@
     android:background="@color/colorPrimary"
     tools:context=".WeatherNowFragment">
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@color/color_background_day" />
 
-    <android.support.design.widget.AppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,7 +26,7 @@
         app:elevation="0dp"
         android:stateListAnimator="@null">
 
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -42,7 +42,7 @@
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp">
 
-                <android.support.v7.widget.AppCompatTextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/toolbar_title"
                     style="@style/ShadowText"
                     android:layout_width="match_parent"
@@ -56,7 +56,7 @@
                     app:autoSizeTextType="uniform"
                     tools:text="A Really Long String of Text, New York, United States" />
 
-                <android.support.v7.widget.AppCompatTextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/label_updatetime"
                     style="@style/ShadowText"
                     android:layout_width="match_parent"
@@ -69,11 +69,11 @@
 
             </LinearLayout>
 
-        </android.support.v7.widget.Toolbar>
+        </androidx.appcompat.widget.Toolbar>
 
-    </android.support.design.widget.AppBarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
-    <android.support.v4.widget.SwipeRefreshLayout
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -81,7 +81,7 @@
         app:layout_anchorGravity="bottom"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <android.support.v4.widget.NestedScrollView
+        <androidx.core.widget.NestedScrollView
             android:id="@+id/fragment_weather_now"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -90,11 +90,11 @@
             android:visibility="gone"
             tools:visibility="visible">
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <android.support.constraint.ConstraintLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/condition_panel"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -122,7 +122,7 @@
                         app:layout_constraintTop_toTopOf="parent"
                         tools:visibility="visible">
 
-                        <android.support.v7.widget.AppCompatTextView
+                        <androidx.appcompat.widget.AppCompatTextView
                             style="@style/MaterialIcon"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -143,7 +143,7 @@
                             android:text="@string/title_fragment_alerts"
                             android:textColor="@android:color/white" />
 
-                        <android.support.v7.widget.AppCompatTextView
+                        <androidx.appcompat.widget.AppCompatTextView
                             style="@style/MaterialIcon"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -156,7 +156,7 @@
 
                     </LinearLayout>
 
-                    <android.support.v7.widget.AppCompatTextView
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/weather_icon"
                         style="@style/ShadowText"
                         android:layout_width="wrap_content"
@@ -193,7 +193,7 @@
                         app:layout_constraintTop_toBottomOf="@+id/alert_button"
                         tools:text="Sunny" />
 
-                    <android.support.v7.widget.AppCompatTextView
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/weather_temp"
                         style="@style/ShadowText"
                         android:layout_width="wrap_content"
@@ -223,9 +223,9 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         tools:text="Attribution text goes here" />
 
-                </android.support.constraint.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <android.support.constraint.ConstraintLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/forecast_panel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -258,7 +258,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/forecast_label" />
 
-                    <android.support.v7.widget.RecyclerView
+                    <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/forecast_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -266,7 +266,7 @@
                         android:layout_marginBottom="20dp"
                         android:background="@android:color/transparent"
                         android:orientation="horizontal"
-                        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                         app:layout_constrainedHeight="false"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -275,9 +275,9 @@
                         tools:visibility="gone"
                         tools:listitem="@layout/weather_forecast_panel" />
 
-                </android.support.constraint.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <android.support.constraint.ConstraintLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/hourly_forecast_panel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -311,7 +311,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/hourly_forecast_label" />
 
-                    <android.support.v7.widget.SwitchCompat
+                    <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/hourly_forecast_switch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -327,7 +327,7 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:switchPadding="10dp" />
 
-                    <android.support.v7.widget.RecyclerView
+                    <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/hourly_forecast_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -335,13 +335,13 @@
                         android:layout_marginBottom="20dp"
                         android:background="@android:color/transparent"
                         android:orientation="horizontal"
-                        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/hourly_forecast_border"
                         tools:listitem="@layout/weather_hrforecast_panel" />
 
-                    <android.support.v4.view.ViewPager
+                    <androidx.viewpager.widget.ViewPager
                         android:id="@+id/hourly_forecast_viewpgr"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
@@ -353,7 +353,7 @@
                         app:layout_constraintTop_toBottomOf="@id/hourly_forecast_border"
                         tools:visibility="visible">
 
-                        <android.support.v4.view.PagerTabStrip
+                        <androidx.viewpager.widget.PagerTabStrip
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_gravity="bottom"
@@ -361,9 +361,9 @@
                             android:paddingBottom="10dp"
                             android:textColor="#fff" />
 
-                    </android.support.v4.view.ViewPager>
+                    </androidx.viewpager.widget.ViewPager>
 
-                </android.support.constraint.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <TextView
                     android:id="@+id/details_label"
@@ -389,7 +389,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/details_label"
                     app:layout_constraintBottom_toTopOf="@id/details_container" />
 
-                <android.support.v7.widget.RecyclerView
+                <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/details_container"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -401,7 +401,7 @@
                     android:paddingLeft="@dimen/activity_horizontal_margin"
                     android:paddingEnd="@dimen/activity_horizontal_margin"
                     android:paddingRight="@dimen/activity_horizontal_margin"
-                    app:layoutManager="android.support.v7.widget.GridLayoutManager"
+                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                     app:layout_constraintBottom_toTopOf="@+id/sun_phase_view"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -459,10 +459,10 @@
                     app:layout_constraintTop_toBottomOf="@+id/sun_phase_view"
                     tools:text="Data from WeatherUnderground" />
 
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </android.support.v4.widget.NestedScrollView>
+        </androidx.core.widget.NestedScrollView>
 
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

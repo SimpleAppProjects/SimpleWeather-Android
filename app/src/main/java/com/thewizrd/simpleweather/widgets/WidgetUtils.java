@@ -5,10 +5,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Build;
-import android.support.annotation.IdRes;
 import android.util.Log;
 import android.util.SparseArray;
 import android.widget.RemoteViews;
+
+import androidx.annotation.IdRes;
 
 import com.google.android.gms.common.util.ArrayUtils;
 import com.google.gson.reflect.TypeToken;

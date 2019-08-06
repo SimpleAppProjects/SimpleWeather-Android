@@ -9,13 +9,13 @@
     android:fitsSystemWindows="true"
     tools:context=".SetupActivity">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@null"
         android:orientation="vertical">
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/main_logo"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -38,7 +38,7 @@
             app:layout_constraintVertical_bias="1.0"
             tools:fontFamily="@font/materialicons_regular" />
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/welcome_subtext"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -99,7 +99,7 @@
                 android:text="@string/pref_summary_fahrenheit"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
-            <android.support.v7.widget.SwitchCompat
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/units_pref_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -156,7 +156,7 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 tools:text="1 hour" />
 
-            <android.support.v7.widget.AppCompatSpinner
+            <androidx.appcompat.widget.AppCompatSpinner
                 android:id="@+id/interval_pref_spinner"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -215,7 +215,7 @@
                 android:text="@string/pref_summary_notification"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
-            <android.support.v7.widget.SwitchCompat
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/notification_pref_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -276,7 +276,7 @@
                 android:text="@string/pref_summary_alerts"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
-            <android.support.v7.widget.SwitchCompat
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/alerts_pref_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -286,6 +286,6 @@
 
         </RelativeLayout>
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>

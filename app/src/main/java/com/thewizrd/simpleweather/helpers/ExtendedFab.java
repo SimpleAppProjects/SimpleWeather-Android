@@ -1,12 +1,14 @@
 package com.thewizrd.simpleweather.helpers;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.design.button.MaterialButton;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.util.AttributeSet;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 
 public class ExtendedFab {
     public static class SnackBarBehavior extends CoordinatorLayout.Behavior<MaterialButton> {

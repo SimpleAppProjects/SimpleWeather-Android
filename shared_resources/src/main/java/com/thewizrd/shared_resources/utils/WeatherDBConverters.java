@@ -1,7 +1,8 @@
 package com.thewizrd.shared_resources.utils;
 
-import android.arch.persistence.room.TypeConverter;
 import android.util.Log;
+
+import androidx.room.TypeConverter;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;

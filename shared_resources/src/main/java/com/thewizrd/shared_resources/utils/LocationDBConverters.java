@@ -1,6 +1,6 @@
 package com.thewizrd.shared_resources.utils;
 
-import android.arch.persistence.room.TypeConverter;
+import androidx.room.TypeConverter;
 
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,11 +8,11 @@
     app:cardElevation="0dp"
     app:cardUseCompatPadding="false">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/detail_label"
             style="@style/WeatherDetails"
             android:layout_width="0dp"
@@ -31,7 +31,7 @@
             app:layout_constraintVertical_weight="1"
             tools:text="Label" />
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/detail_icon"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -54,7 +54,7 @@
             tools:fontFamily="@font/weathericons"
             tools:text="@string/wi_barometer" />
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/detail_value"
             style="@style/WeatherDetails"
             android:layout_width="0dp"
@@ -75,6 +75,6 @@
             tools:fontFamily="@font/weathericons"
             tools:text=" 50.00 in" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</android.support.design.card.MaterialCardView>
+</com.google.android.material.card.MaterialCardView>

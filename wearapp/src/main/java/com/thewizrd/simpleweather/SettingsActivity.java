@@ -16,9 +16,6 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
-import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.wear.widget.SwipeDismissFrameLayout;
 import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.ConfirmationOverlay;
 import android.text.Spannable;
@@ -26,6 +23,10 @@ import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.wear.widget.SwipeDismissFrameLayout;
 
 import com.google.android.wearable.intent.RemoteIntent;
 import com.thewizrd.shared_resources.controls.ProviderEntry;

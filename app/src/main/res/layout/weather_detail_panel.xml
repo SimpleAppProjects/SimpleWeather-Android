@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <android.support.design.card.MaterialCardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/header_card"
         android:layout_width="match_parent"
         android:layout_height="78dp"
@@ -20,11 +20,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/forecast_icon"
                 android:layout_width="72dp"
                 android:layout_height="0dp"
@@ -49,7 +49,7 @@
                 tools:fontFamily="@font/weathericons"
                 tools:text="@string/wi_day_rain" />
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/forecast_date"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -70,7 +70,7 @@
                 app:layout_constraintVertical_weight="1"
                 tools:text="Someday XX" />
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/forecast_condition"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -89,7 +89,7 @@
                 app:layout_constraintVertical_weight="1"
                 tools:text="50º / 44º - Sprinkles early. Mostly cloudy. Mild" />
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/forecast_extra"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -111,11 +111,11 @@
                 tools:text="&#xf078; 100%&#x2003;&#xf050; 5 mph, WNW"
                 tools:visibility="visible" />
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </android.support.design.card.MaterialCardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <android.support.design.card.MaterialCardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/body_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -128,7 +128,7 @@
         app:layout_constraintTop_toBottomOf="@+id/header_card"
         tools:visibility="visible">
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/body_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -140,6 +140,6 @@
             android:paddingRight="16dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             tools:text="Hello \t\t\t\t\t 50%\nHello" />
-    </android.support.design.card.MaterialCardView>
+    </com.google.android.material.card.MaterialCardView>
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

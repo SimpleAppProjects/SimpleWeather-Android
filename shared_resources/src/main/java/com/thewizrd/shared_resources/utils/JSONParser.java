@@ -1,7 +1,8 @@
 package com.thewizrd.shared_resources.utils;
 
-import android.support.v4.util.AtomicFile;
 import android.util.Log;
+
+import androidx.core.util.AtomicFile;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

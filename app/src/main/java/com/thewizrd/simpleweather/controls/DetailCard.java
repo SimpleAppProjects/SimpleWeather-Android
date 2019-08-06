@@ -1,11 +1,12 @@
 package com.thewizrd.simpleweather.controls;
 
 import android.content.Context;
-import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.simpleweather.R;
