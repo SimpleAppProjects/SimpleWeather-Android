@@ -1,17 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@null"
-    android:paddingStart="@dimen/list_horizontal_padding"
-    android:paddingLeft="@dimen/list_horizontal_padding"
-    android:paddingTop="@dimen/list_vertical_padding"
-    android:paddingEnd="@dimen/list_horizontal_padding"
-    android:paddingRight="@dimen/list_horizontal_padding"
-    android:paddingBottom="@dimen/list_vertical_padding">
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
     <TextView
         android:id="@+id/location_name"
@@ -58,4 +49,4 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:fontFamily="@font/materialicons_regular" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</merge>

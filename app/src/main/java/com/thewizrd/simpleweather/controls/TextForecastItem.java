@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -40,6 +41,9 @@ public class TextForecastItem extends LinearLayout {
     private void initialize(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
         viewLayout = inflater.inflate(R.layout.txt_forecast_panel, this);
+
+        viewLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        viewLayout.setBackgroundColor(0x10FFFFFF);
 
         forecastIcon = viewLayout.findViewById(R.id.txt_forecasticon);
         forecastPoP = viewLayout.findViewById(R.id.txtforecast_pop);

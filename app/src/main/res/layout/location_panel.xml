@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/location_panel_height"
-    style="@style/Widget.MaterialComponents.CardView"
-    tools:context=".controls.LocationPanel">
+    tools:context=".controls.LocationPanel"
+    tools:parentTag="com.google.android.material.card.MaterialCardView">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/image_view"
@@ -86,4 +84,4 @@
         android:indeterminateTint="@android:color/white"
         android:visibility="visible" />
 
-</com.google.android.material.card.MaterialCardView>
+</merge>

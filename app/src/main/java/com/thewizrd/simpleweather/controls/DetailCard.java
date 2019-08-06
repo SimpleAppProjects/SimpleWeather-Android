@@ -2,16 +2,17 @@ package com.thewizrd.simpleweather.controls;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
-
+import com.google.android.material.card.MaterialCardView;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.simpleweather.R;
 
-public class DetailCard extends ConstraintLayout {
+public class DetailCard extends MaterialCardView {
     private TextView detailLabel;
     private TextView detailIcon;
     private TextView detailValue;
@@ -34,6 +35,12 @@ public class DetailCard extends ConstraintLayout {
     private void initialize(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.card_weather_detail, this);
+
+        int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, context.getResources().getDisplayMetrics());
+        setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
+        setCardBackgroundColor(0x10FFFFFF);
+        setCardElevation(0);
+        setUseCompatPadding(false);
 
         detailLabel = view.findViewById(R.id.detail_label);
         detailIcon = view.findViewById(R.id.detail_icon);

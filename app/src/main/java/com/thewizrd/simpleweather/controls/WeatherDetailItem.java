@@ -10,6 +10,7 @@ import android.text.style.TabStopSpan;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -62,6 +63,9 @@ public class WeatherDetailItem extends ConstraintLayout {
     private void initialize(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View viewLayout = inflater.inflate(R.layout.weather_detail_panel, this);
+
+        viewLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        viewLayout.setBackgroundColor(Colors.WHITE);
 
         forecastDate = viewLayout.findViewById(R.id.forecast_date);
         forecastIcon = viewLayout.findViewById(R.id.forecast_icon);

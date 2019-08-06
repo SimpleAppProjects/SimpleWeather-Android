@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -39,6 +40,9 @@ public class DetailItem extends LinearLayout {
     private void initialize(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.detail_item_panel, this);
+
+        view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        setOrientation(HORIZONTAL);
 
         detailLabel = view.findViewById(R.id.detail_label);
         detailIcon = view.findViewById(R.id.detail_icon);

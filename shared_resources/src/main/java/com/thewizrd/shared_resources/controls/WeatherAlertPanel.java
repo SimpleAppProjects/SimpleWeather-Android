@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -51,6 +52,8 @@ public class WeatherAlertPanel extends RelativeLayout {
     private void initialize(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View viewLayout = inflater.inflate(R.layout.weather_alert_panel, this);
+
+        viewLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         alertIcon = viewLayout.findViewById(R.id.alert_icon);
         alertTitle = viewLayout.findViewById(R.id.alert_title);

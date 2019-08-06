@@ -4,17 +4,17 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
-
+import com.google.android.material.card.MaterialCardView;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.R;
 
 import java.util.Locale;
 
-public class ForecastItem extends ConstraintLayout {
+public class ForecastItem extends MaterialCardView {
     private View viewLayout;
     private TextView forecastDate;
     private TextView forecastIcon;
@@ -50,6 +50,11 @@ public class ForecastItem extends ConstraintLayout {
     private void initialize(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
         viewLayout = inflater.inflate(R.layout.weather_forecast_panel, this);
+
+        setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        setCardBackgroundColor(0x10FFFFFF);
+        setCardElevation(0);
+        setUseCompatPadding(false);
 
         forecastDate = viewLayout.findViewById(R.id.forecast_date);
         forecastIcon = viewLayout.findViewById(R.id.forecast_icon);

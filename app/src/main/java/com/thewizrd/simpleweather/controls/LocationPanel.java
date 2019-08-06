@@ -8,6 +8,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -59,6 +60,9 @@ public class LocationPanel extends MaterialCardView {
     private void initialize(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
         viewLayout = inflater.inflate(R.layout.location_panel, this);
+
+        int height = context.getResources().getDimensionPixelSize(R.dimen.location_panel_height);
+        viewLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
 
         bgImageView = viewLayout.findViewById(R.id.image_view);
         locationNameView = viewLayout.findViewById(R.id.location_name);
