@@ -26,8 +26,8 @@
                 android:fontFamily="sans-serif-medium"
                 android:gravity="center_horizontal"
                 android:paddingStart="@dimen/header_start_padding"
-                android:paddingTop="16dp"
-                android:paddingEnd="@dimen/header_start_padding"
+                android:paddingTop="@dimen/header_top_padding"
+                android:paddingEnd="@dimen/header_end_padding"
                 android:textAppearance="@android:style/TextAppearance.Material.Large.Inverse"
                 android:textColor="@android:color/white"
                 tools:text="New York, New York" />

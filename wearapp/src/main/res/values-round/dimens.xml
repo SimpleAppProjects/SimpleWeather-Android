@@ -2,9 +2,8 @@
 <resources>
 
     <dimen name="header_start_padding">36dp</dimen>
-    <dimen name="header_end_padding">22dp</dimen>
-    <dimen name="list_start_padding">36dp</dimen>
-    <dimen name="list_end_padding">22dp</dimen>
+    <dimen name="header_end_padding">36dp</dimen>
+    <dimen name="header_top_padding">24dp</dimen>
 
     <dimen name="horizontal_padding">16dp</dimen>
 
