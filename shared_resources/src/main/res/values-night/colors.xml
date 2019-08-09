@@ -1,0 +1,6 @@
+<resources>
+    <color name="invColorText">@android:color/white</color>
+    <color name="invButtonColor">@color/cardview_dark_background</color>
+    <color name="invButtonColorText">@android:color/white</color>
+    <color name="invButtonColorTextHint">@color/colorTextHint</color>
+</resources>

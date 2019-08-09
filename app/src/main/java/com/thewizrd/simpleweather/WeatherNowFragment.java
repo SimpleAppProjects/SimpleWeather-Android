@@ -447,8 +447,10 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
         conditionPanel = view.findViewById(R.id.condition_panel);
 
-        if (mWindowColorsIface != null)
-            mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
+        if (mWindowColorsIface != null) {
+            int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+            mWindowColorsIface.setWindowBarColors(color);
+        }
 
         refreshLayout = view.findViewById(R.id.refresh_layout);
         scrollView = view.findViewById(R.id.fragment_weather_now);

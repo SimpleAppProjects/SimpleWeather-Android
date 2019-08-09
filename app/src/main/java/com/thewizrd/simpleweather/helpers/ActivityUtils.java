@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.helpers;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -60,5 +61,21 @@ public class ActivityUtils {
         activityContext.getTheme().resolveAttribute(resId, value, true);
 
         return TypedValue.complexToDimensionPixelSize(value.data, activityContext.getResources().getDisplayMetrics());
+    }
+
+    public static int getAttrValue(@NonNull Context activityContext, @AttrRes int resId) {
+        final TypedValue value = new TypedValue();
+        activityContext.getTheme().resolveAttribute(resId, value, true);
+
+        return value.data;
+    }
+
+    @ColorInt
+    public static int getColor(@NonNull Context activityContext, @AttrRes int resId) {
+        final TypedArray array = activityContext.getTheme().obtainStyledAttributes(new int[]{resId});
+        int color = array.getColor(0, 0);
+        array.recycle();
+
+        return color;
     }
 }

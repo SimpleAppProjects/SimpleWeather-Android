@@ -5,7 +5,7 @@
     android:id="@+id/fragment_locations"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="?android:attr/colorBackground"
     tools:context=".LocationsFragment">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -23,7 +23,9 @@
             app:popupTheme="@style/AppTheme.PopupOverlay"
             app:title="@string/label_nav_locations">
 
-            <include layout="@layout/search_action_bar" />
+            <include
+                layout="@layout/search_action_bar"
+                tools:visibility="invisible" />
 
         </androidx.appcompat.widget.Toolbar>
 
@@ -61,9 +63,11 @@
         android:layout_marginRight="16dp"
         android:layout_marginBottom="8dp"
         android:text="@string/label_fab_add_location"
+        android:textColor="@android:color/white"
         app:cornerRadius="@dimen/fab_size"
         app:elevation="6dp"
         app:icon="@drawable/ic_add_location_white_24dp"
+        app:iconTint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

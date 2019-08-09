@@ -20,10 +20,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.simpleweather.adapters.WeatherDetailsAdapter;
+import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
 
 import java.io.StringReader;
@@ -117,8 +117,10 @@ public class WeatherDetailsFragment extends Fragment {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (mWindowColorsIface != null)
-                        mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
+                    if (mWindowColorsIface != null) {
+                        int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+                        mWindowColorsIface.setWindowBarColors(color);
+                    }
                 }
             });
         }

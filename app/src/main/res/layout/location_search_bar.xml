@@ -11,8 +11,7 @@
     android:layout_marginTop="8dp"
     android:clickable="true"
     android:elevation="@dimen/appbar_elevation"
-    android:orientation="horizontal"
-    app:cardBackgroundColor="@color/cardview_light_background">
+    android:orientation="horizontal">
 
     <LinearLayout
         android:id="@+id/search_box_collapsed"
@@ -31,7 +30,7 @@
             android:importantForAccessibility="no"
             android:padding="4dp"
             android:text="@string/materialicon_search"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/invButtonColorText"
             app:fontFamily="@font/materialicons_regular"
             tools:fontFamily="@font/materialicons_regular" />
 
@@ -45,8 +44,8 @@
             android:fontFamily="sans-serif"
             android:gravity="center_vertical"
             android:hint="@string/setup_location_prompt"
-            android:textColorHint="@color/colorPrimary"
-            android:textColor="@color/colorPrimary"
+            android:textColorHint="@color/invButtonColorText"
+            android:textColor="@color/invButtonColorText"
             android:textSize="14sp" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

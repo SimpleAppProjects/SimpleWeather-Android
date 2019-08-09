@@ -1,7 +1,6 @@
 package com.thewizrd.shared_resources.controls;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +11,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.ViewCompat;
 
 import com.thewizrd.shared_resources.R;
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.StringUtils;
 
 public class LocationQuery extends ConstraintLayout {
@@ -40,12 +38,6 @@ public class LocationQuery extends ConstraintLayout {
         View viewLayout = inflater.inflate(R.layout.location_query_view, this);
 
         viewLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-
-        if (context.getResources().getConfiguration().uiMode == Configuration.UI_MODE_TYPE_WATCH) {
-            setBackground(null);
-        } else {
-            setBackgroundColor(Colors.WHITE);
-        }
 
         int horizPadding = context.getResources().getDimensionPixelSize(R.dimen.list_horizontal_padding);
         int vertPadding = context.getResources().getDimensionPixelSize(R.dimen.list_vertical_padding);

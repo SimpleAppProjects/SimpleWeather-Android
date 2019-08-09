@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.preferences;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -35,5 +36,6 @@ public class OSSCreditsPreference extends Preference {
         WebView webView = holder.itemView.findViewById(R.id.webview);
         webView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
         webView.loadUrl("file:///android_asset/credits/licenses.html");
+        webView.setBackgroundColor(Color.TRANSPARENT);
     }
 }

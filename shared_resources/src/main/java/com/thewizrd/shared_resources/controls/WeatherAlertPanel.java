@@ -13,9 +13,7 @@ import androidx.cardview.widget.CardView;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
-import com.thewizrd.shared_resources.utils.Colors;
-import com.thewizrd.shared_resources.weatherdata.WeatherAlertSeverity;
-import com.thewizrd.shared_resources.weatherdata.WeatherAlertType;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 
 public class WeatherAlertPanel extends RelativeLayout {
     private AppCompatImageView alertIcon;
@@ -79,100 +77,11 @@ public class WeatherAlertPanel extends RelativeLayout {
     }
 
     public void setAlert(WeatherAlertViewModel alertView) {
-        headerCard.setCardBackgroundColor(getColorFromAlertSeverity(alertView.getAlertSeverity()));
-        alertIcon.setImageResource(getDrawableFromAlertType(alertView.getAlertType()));
+        headerCard.setCardBackgroundColor(WeatherUtils.getColorFromAlertSeverity(alertView.getAlertSeverity()));
+        alertIcon.setImageResource(WeatherUtils.getDrawableFromAlertType(alertView.getAlertType()));
         alertTitle.setText(alertView.getTitle());
         if (postDate != null)
             postDate.setText(alertView.getPostDate());
         bodyTextView.setText(String.format("%s\n%s\n%s", alertView.getExpireDate(), alertView.getMessage(), alertView.getAttribution()));
-    }
-
-    private int getDrawableFromAlertType(WeatherAlertType type) {
-        int drawable = -1;
-
-        switch (type) {
-            case DENSEFOG:
-                drawable = R.drawable.fog;
-                break;
-            case FIRE:
-                drawable = R.drawable.fire;
-                break;
-            case FLOODWARNING:
-            case FLOODWATCH:
-                drawable = R.drawable.flood;
-                break;
-            case HEAT:
-                drawable = R.drawable.hot;
-                break;
-            case HIGHWIND:
-                drawable = R.drawable.strong_wind;
-                break;
-            case HURRICANELOCALSTATEMENT:
-            case HURRICANEWINDWARNING:
-                drawable = R.drawable.hurricane;
-                break;
-            case SEVERETHUNDERSTORMWARNING:
-            case SEVERETHUNDERSTORMWATCH:
-                drawable = R.drawable.thunderstorm;
-                break;
-            case TORNADOWARNING:
-            case TORNADOWATCH:
-                drawable = R.drawable.tornado;
-                break;
-            case VOLCANO:
-                drawable = R.drawable.volcano;
-                break;
-            case WINTERWEATHER:
-                drawable = R.drawable.snowflake_cold;
-                break;
-            case DENSESMOKE:
-                drawable = R.drawable.smoke;
-                break;
-            case DUSTADVISORY:
-                drawable = R.drawable.dust;
-                break;
-            case EARTHQUAKEWARNING:
-                drawable = R.drawable.earthquake;
-                break;
-            case GALEWARNING:
-                drawable = R.drawable.gale_warning;
-                break;
-            case SMALLCRAFT:
-                drawable = R.drawable.small_craft_advisory;
-                break;
-            case STORMWARNING:
-                drawable = R.drawable.storm_warning;
-                break;
-            case TSUNAMIWARNING:
-            case TSUNAMIWATCH:
-                drawable = R.drawable.tsunami;
-                break;
-            case SEVEREWEATHER:
-            case SPECIALWEATHERALERT:
-            default:
-                drawable = R.drawable.ic_error_white;
-                break;
-        }
-
-        return drawable;
-    }
-
-    private int getColorFromAlertSeverity(WeatherAlertSeverity severity) {
-        int color;
-
-        switch (severity) {
-            case SEVERE:
-                color = Colors.ORANGERED;
-                break;
-            case EXTREME:
-                color = Colors.RED;
-                break;
-            case MODERATE:
-            default:
-                color = Colors.ORANGE;
-                break;
-        }
-
-        return color;
     }
 }

@@ -160,6 +160,24 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         collapsingToolbar = findViewById(R.id.collapsing_toolbar);
         mSearchFragmentContainer = findViewById(R.id.search_fragment_container);
         scrollView = findViewById(R.id.scrollView);
+        scrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                if (v.canScrollVertically(-1) || v.canScrollVertically(1)) {
+                    // enable scrolling
+                    if (!inSearchUI) {
+                        // Set scroll flag
+                        AppBarLayout.LayoutParams toolbarParams = (AppBarLayout.LayoutParams) collapsingToolbar.getLayoutParams();
+                        toolbarParams.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED);
+                    }
+                } else {
+                    // disable scrolling
+                    // Unset scroll flag
+                    AppBarLayout.LayoutParams toolbarParams = (AppBarLayout.LayoutParams) collapsingToolbar.getLayoutParams();
+                    toolbarParams.setScrollFlags(toolbarParams.getScrollFlags() & ~AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL);
+                }
+            }
+        });
 
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -763,7 +781,9 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         // Set scroll flag
         AppBarLayout.LayoutParams toolbarParams = (AppBarLayout.LayoutParams) collapsingToolbar.getLayoutParams();
         toolbarParams.height = getResources().getDimensionPixelSize(R.dimen.collapsingtoolbar_maxHeight);
-        toolbarParams.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED);
+        if (scrollView.canScrollVertically(-1) || scrollView.canScrollVertically(1)) {
+            toolbarParams.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED);
+        }
 
         hideInputMethod(getCurrentFocus());
         searchView.clearFocus();
@@ -813,6 +833,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == SETUP_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 // Get result data

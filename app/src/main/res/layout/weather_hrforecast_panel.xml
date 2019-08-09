@@ -36,6 +36,7 @@
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
+            android:textColor="@android:color/white"
             android:textSize="@dimen/forecast_icon_size"
             app:autoSizeMaxTextSize="@dimen/forecast_icon_size"
             app:autoSizeMinTextSize="6sp"

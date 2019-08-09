@@ -1,0 +1,51 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@null"
+    tools:layout_height="128dp">
+
+    <ImageView
+        android:id="@+id/alert_icon"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="false"
+        android:layout_marginStart="@dimen/not_weather_icon_marginStart"
+        android:layout_marginLeft="@dimen/not_weather_icon_marginStart"
+        android:adjustViewBounds="true"
+        android:gravity="center"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_error_white"
+        android:tint="@color/not_icon_tint" />
+
+    <TextView
+        android:id="@+id/alert_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_toStartOf="@id/alert_icon"
+        android:layout_toLeftOf="@id/alert_icon"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.Compat.Notification.Title"
+        android:textSize="@dimen/not_primary_textSize"
+        tools:text="Heat Advisory - New York, NY" />
+
+    <TextView
+        android:id="@+id/alert_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/alert_title"
+        android:layout_toStartOf="@id/alert_icon"
+        android:layout_toLeftOf="@id/alert_icon"
+        android:ellipsize="end"
+        android:text="--"
+        android:textAppearance="@style/TextAppearance.Compat.Notification"
+        android:textSize="@dimen/not_primary_textSize"
+        tools:text="Valid until Thursday, August 8, 2019 8:00 PM -04:00" />
+
+</RelativeLayout>

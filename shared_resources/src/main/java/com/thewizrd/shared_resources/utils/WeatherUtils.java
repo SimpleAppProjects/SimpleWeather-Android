@@ -9,6 +9,8 @@ import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.shared_resources.weatherdata.WeatherAlertSeverity;
+import com.thewizrd.shared_resources.weatherdata.WeatherAlertType;
 
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZonedDateTime;
@@ -144,6 +146,95 @@ public class WeatherUtils {
         } else/* if (angle >= 326.25 && angle <= 348.75)*/ {
             return "NNW";
         }
+    }
+
+    public static int getDrawableFromAlertType(WeatherAlertType type) {
+        int drawable = -1;
+
+        switch (type) {
+            case DENSEFOG:
+                drawable = R.drawable.fog;
+                break;
+            case FIRE:
+                drawable = R.drawable.fire;
+                break;
+            case FLOODWARNING:
+            case FLOODWATCH:
+                drawable = R.drawable.flood;
+                break;
+            case HEAT:
+                drawable = R.drawable.hot;
+                break;
+            case HIGHWIND:
+                drawable = R.drawable.strong_wind;
+                break;
+            case HURRICANELOCALSTATEMENT:
+            case HURRICANEWINDWARNING:
+                drawable = R.drawable.hurricane;
+                break;
+            case SEVERETHUNDERSTORMWARNING:
+            case SEVERETHUNDERSTORMWATCH:
+                drawable = R.drawable.thunderstorm;
+                break;
+            case TORNADOWARNING:
+            case TORNADOWATCH:
+                drawable = R.drawable.tornado;
+                break;
+            case VOLCANO:
+                drawable = R.drawable.volcano;
+                break;
+            case WINTERWEATHER:
+                drawable = R.drawable.snowflake_cold;
+                break;
+            case DENSESMOKE:
+                drawable = R.drawable.smoke;
+                break;
+            case DUSTADVISORY:
+                drawable = R.drawable.dust;
+                break;
+            case EARTHQUAKEWARNING:
+                drawable = R.drawable.earthquake;
+                break;
+            case GALEWARNING:
+                drawable = R.drawable.gale_warning;
+                break;
+            case SMALLCRAFT:
+                drawable = R.drawable.small_craft_advisory;
+                break;
+            case STORMWARNING:
+                drawable = R.drawable.storm_warning;
+                break;
+            case TSUNAMIWARNING:
+            case TSUNAMIWATCH:
+                drawable = R.drawable.tsunami;
+                break;
+            case SEVEREWEATHER:
+            case SPECIALWEATHERALERT:
+            default:
+                drawable = R.drawable.ic_error_white;
+                break;
+        }
+
+        return drawable;
+    }
+
+    public static int getColorFromAlertSeverity(WeatherAlertSeverity severity) {
+        int color;
+
+        switch (severity) {
+            case SEVERE:
+                color = Colors.ORANGERED;
+                break;
+            case EXTREME:
+                color = Colors.RED;
+                break;
+            case MODERATE:
+            default:
+                color = Colors.ORANGE;
+                break;
+        }
+
+        return color;
     }
 
     public static class Coordinate {

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    android:background="?attr/colorPrimary"
     tools:context=".WeatherNowFragment">
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -24,7 +24,7 @@
         android:background="@android:color/transparent"
         android:theme="@style/AppTheme.AppBarOverlay"
         app:elevation="0dp"
-        android:stateListAnimator="@null">
+        tools:stateListAnimator="@null">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -218,6 +218,7 @@
                         android:padding="4dp"
                         android:linksClickable="true"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                        android:textColor="@android:color/white"
                         android:textSize="10sp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"

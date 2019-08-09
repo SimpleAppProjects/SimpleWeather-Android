@@ -20,7 +20,6 @@ import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherDetailsType;
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.simpleweather.R;
@@ -65,7 +64,6 @@ public class WeatherDetailItem extends ConstraintLayout {
         View viewLayout = inflater.inflate(R.layout.weather_detail_panel, this);
 
         viewLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        viewLayout.setBackgroundColor(Colors.WHITE);
 
         forecastDate = viewLayout.findViewById(R.id.forecast_date);
         forecastIcon = viewLayout.findViewById(R.id.forecast_icon);
@@ -139,14 +137,16 @@ public class WeatherDetailItem extends ConstraintLayout {
                 int start = sb.length();
                 sb.append(detailItem.getLabel());
                 sb.append("\t");
-                sb.setSpan(new ForegroundColorSpan(Colors.GRAY), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                int colorSecondary = ActivityUtils.getColor(context, android.R.attr.textColorSecondary);
+                sb.setSpan(new ForegroundColorSpan(colorSecondary), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 sb.setSpan(new TabStopSpan.Standard((int) ActivityUtils.dpToPx(context, 150)), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
                 start = sb.length();
                 sb.append(detailItem.getValue());
                 if (i < forecastView.getExtras().size() - 1)
                     sb.append(StringUtils.lineSeparator());
-                sb.setSpan(new ForegroundColorSpan(Colors.BLACK), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                int colorPrimary = ActivityUtils.getColor(context, android.R.attr.textColorPrimary);
+                sb.setSpan(new ForegroundColorSpan(colorPrimary), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
 
             if (sbExtra.length() > 0) {
@@ -194,14 +194,16 @@ public class WeatherDetailItem extends ConstraintLayout {
                 int start = sb.length();
                 sb.append(detailItem.getLabel());
                 sb.append("\t");
-                sb.setSpan(new ForegroundColorSpan(Colors.GRAY), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                int colorSecondary = ActivityUtils.getColor(context, android.R.attr.textColorSecondary);
+                sb.setSpan(new ForegroundColorSpan(colorSecondary), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 sb.setSpan(new TabStopSpan.Standard((int) ActivityUtils.dpToPx(context, 150)), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
                 start = sb.length();
                 sb.append(detailItem.getValue());
                 if (i < forecastView.getExtras().size() - 1)
                     sb.append(StringUtils.lineSeparator());
-                sb.setSpan(new ForegroundColorSpan(Colors.BLACK), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                int colorPrimary = ActivityUtils.getColor(context, android.R.attr.textColorPrimary);
+                sb.setSpan(new ForegroundColorSpan(colorPrimary), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
 
             if (sbExtra.length() > 0) {

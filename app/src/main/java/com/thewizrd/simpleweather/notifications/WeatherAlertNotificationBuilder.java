@@ -11,6 +11,7 @@ import android.os.SystemClock;
 import android.service.notification.StatusBarNotification;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -21,8 +22,8 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
-import com.thewizrd.shared_resources.weatherdata.WeatherAlertType;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.MainActivity;
 import com.thewizrd.simpleweather.R;
@@ -60,30 +61,25 @@ public class WeatherAlertNotificationBuilder {
         for (WeatherAlert alert : alerts) {
             final WeatherAlertViewModel alertVM = new WeatherAlertViewModel(alert);
 
-            Bitmap iconBmp = new AsyncTask<Bitmap>().await(new Callable<Bitmap>() {
-                @Override
-                public Bitmap call() throws Exception {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        return ImageUtils.tintedBitmapFromDrawable(context, getDrawableFromAlertType(alertVM.getAlertType()),
-                                Colors.BLACK);
-                    } else {
-                        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-                        Bitmap tintedBmp = ImageUtils.tintedBitmapFromDrawable(context, getDrawableFromAlertType(alertVM.getAlertType()),
-                                Colors.WHITE);
-                        return Bitmap.createScaledBitmap(tintedBmp, (int) (24 * metrics.density), (int) (24 * metrics.density), false);
-                    }
-                }
-            });
-
             String title = String.format("%s - %s", alertVM.getTitle(), location.getName());
+
+            RemoteViews view = new RemoteViews(context.getPackageName(), R.layout.alert_notification_layout);
+            // Alert icon
+            view.setImageViewResource(R.id.alert_icon, WeatherUtils.getDrawableFromAlertType(alertVM.getAlertType()));
+
+            // Alert Title
+            view.setTextViewText(R.id.alert_title, title);
+
+            // Alert text
+            view.setTextViewText(R.id.alert_text, alertVM.getExpireDate());
 
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(context, NOT_CHANNEL_ID)
                             .setSmallIcon(R.drawable.ic_error_white)
-                            .setLargeIcon(iconBmp)
                             .setContentTitle(title)
                             .setContentText(alertVM.getExpireDate())
-                            .setStyle(new NotificationCompat.BigTextStyle().bigText(alertVM.getExpireDate()))
+                            .setCustomContentView(view)
+                            .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                             .setContentIntent(clickPendingIntent)
                             .setOnlyAlertOnce(true)
                             .setAutoCancel(true)
@@ -221,52 +217,5 @@ public class WeatherAlertNotificationBuilder {
                 mNotifyMgr.createNotificationChannel(mChannel);
             }
         }
-    }
-
-    private static int getDrawableFromAlertType(WeatherAlertType type) {
-        int iconRes = R.drawable.ic_logo;
-        switch (type) {
-            case DENSEFOG:
-                iconRes = R.drawable.fog;
-                break;
-            case FIRE:
-                iconRes = R.drawable.fire;
-                break;
-            case FLOODWARNING:
-            case FLOODWATCH:
-                iconRes = R.drawable.flood;
-                break;
-            case HEAT:
-                iconRes = R.drawable.hot;
-                break;
-            case HIGHWIND:
-                iconRes = R.drawable.strong_wind;
-                break;
-            case HURRICANELOCALSTATEMENT:
-            case HURRICANEWINDWARNING:
-                iconRes = R.drawable.hurricane;
-                break;
-            case SEVERETHUNDERSTORMWARNING:
-            case SEVERETHUNDERSTORMWATCH:
-                iconRes = R.drawable.thunderstorm;
-                break;
-            case TORNADOWARNING:
-            case TORNADOWATCH:
-                iconRes = R.drawable.tornado;
-                break;
-            case VOLCANO:
-                iconRes = R.drawable.volcano;
-                break;
-            case WINTERWEATHER:
-                iconRes = R.drawable.snowflake_cold;
-                break;
-            case SEVEREWEATHER:
-            case SPECIALWEATHERALERT:
-            default:
-                iconRes = R.drawable.ic_error_white;
-                break;
-        }
-
-        return iconRes;
     }
 }

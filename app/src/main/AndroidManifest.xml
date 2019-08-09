@@ -46,6 +46,7 @@
             android:name=".widgets.WeatherWidgetConfigActivity"
             android:label="@string/title_activity_widget_config"
             android:theme="@style/SetupTheme"
+            android:configChanges="orientation|screenSize"
             android:windowSoftInputMode="stateAlwaysHidden|adjustNothing">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />

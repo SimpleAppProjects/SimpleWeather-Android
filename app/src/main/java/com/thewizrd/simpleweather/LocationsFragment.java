@@ -75,7 +75,6 @@ import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -90,6 +89,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherLoadedListenerInterface;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.adapters.LocationPanelAdapter;
 import com.thewizrd.simpleweather.controls.LocationPanelViewModel;
+import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.ExtendedFab;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperCallback;
 import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
@@ -446,8 +446,10 @@ public class LocationsFragment extends Fragment
         view.requestFocus();
 
         // Setup ActionBar
-        if (mWindowColorsIface != null)
-            mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
+        if (mWindowColorsIface != null) {
+            int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+            mWindowColorsIface.setWindowBarColors(color);
+        }
 
         mScrollView = view.findViewById(R.id.scrollView);
         /*
@@ -583,8 +585,10 @@ public class LocationsFragment extends Fragment
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (mWindowColorsIface != null)
-                            mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
+                        if (mWindowColorsIface != null) {
+                            int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+                            mWindowColorsIface.setWindowBarColors(color);
+                        }
                     }
                 });
 

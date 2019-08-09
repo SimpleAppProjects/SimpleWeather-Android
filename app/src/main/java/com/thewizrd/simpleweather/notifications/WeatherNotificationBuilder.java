@@ -16,6 +16,7 @@ import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
 
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Weather;
@@ -47,7 +48,7 @@ public class WeatherNotificationBuilder {
         WeatherManager wm = WeatherManager.getInstance();
 
         // Build update
-        RemoteViews updateViews = new RemoteViews(context.getPackageName(), R.layout.notification_layout);
+        RemoteViews updateViews = new RemoteViews(context.getPackageName(), R.layout.weather_notification_layout);
 
         String temp = (Settings.isFahrenheit() ?
                 Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC())) + "º";
@@ -204,7 +205,7 @@ public class WeatherNotificationBuilder {
         RemoteViews updateViews = null;
 
         if (mNotification.contentView == null)
-            updateViews = new RemoteViews(context.getPackageName(), R.layout.notification_layout);
+            updateViews = new RemoteViews(context.getPackageName(), R.layout.weather_notification_layout);
         else
             updateViews = mNotification.contentView;
 

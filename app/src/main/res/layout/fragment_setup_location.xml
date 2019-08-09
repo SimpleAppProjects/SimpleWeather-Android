@@ -8,6 +8,7 @@
     android:fitsSystemWindows="true"
     android:focusable="true"
     android:focusableInTouchMode="true"
+    tools:background="?colorPrimary"
     tools:context=".SetupLocationFragment">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -82,11 +83,11 @@
         android:layout_height="48dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/button_background_inverse"
-        android:backgroundTint="@android:color/white"
+        android:backgroundTint="@color/invButtonColor"
         android:drawableStart="@drawable/ic_my_location_white_24dp"
         android:drawableLeft="@drawable/ic_my_location_white_24dp"
         android:drawablePadding="8dp"
-        android:drawableTint="@color/colorPrimary"
+        android:drawableTint="@color/invButtonColorText"
         android:drawableTintMode="src_in"
         android:foreground="?selectableItemBackground"
         android:paddingStart="12dp"
@@ -94,7 +95,7 @@
         android:paddingEnd="16dp"
         android:paddingRight="16dp"
         android:text="@string/label_gpsfollow"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/invButtonColorText"
         app:elevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -21,9 +21,9 @@ import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
 
 import java.io.StringReader;
@@ -111,8 +111,10 @@ public class WeatherAlertsFragment extends Fragment {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (mWindowColorsIface != null)
-                        mWindowColorsIface.setWindowBarColors(Colors.SIMPLEBLUE);
+                    if (mWindowColorsIface != null) {
+                        int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+                        mWindowColorsIface.setWindowBarColors(color);
+                    }
                 }
             });
         }

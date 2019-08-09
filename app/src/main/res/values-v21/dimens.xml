@@ -5,7 +5,7 @@
     <dimen name="activity_settings_vertical_margin">0dp</dimen>
 
     <!-- Notification -->
-    <dimen name="not_weather_icon_size">48sp</dimen>
+    <dimen name="not_weather_icon_size">48dp</dimen>
     <dimen name="not_weather_icon_marginStart">4dp</dimen>
     <dimen name="not_primary_textSize">14sp</dimen>
 
