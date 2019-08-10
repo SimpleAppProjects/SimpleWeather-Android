@@ -1,6 +1,7 @@
 package com.thewizrd.shared_resources.utils;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.location.Location;
 import android.text.format.DateFormat;
 import android.util.SparseArray;
@@ -232,6 +233,22 @@ public class WeatherUtils {
             default:
                 color = Colors.ORANGE;
                 break;
+        }
+
+        return color;
+    }
+
+    public static int getColorFromTempF(float temp_f) {
+        int color;
+
+        if (temp_f <= 47.5) {
+            color = Colors.LIGHTBLUE;
+        } else if (temp_f >= 85) {
+            color = Colors.RED;
+        } else if (temp_f >= 70) {
+            color = Colors.ORANGE;
+        } else {
+            color = Colors.SIMPLEBLUE;
         }
 
         return color;

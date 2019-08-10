@@ -19,6 +19,7 @@ import androidx.core.app.NotificationCompat;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
@@ -127,7 +128,7 @@ public class WeatherNotificationBuilder {
         mBuilder.setContentIntent(clickPendingIntent);
 
         // Builds the notification and issues it.
-        mNotification = mBuilder.build();
+        mNotification = mBuilder.setColor(WeatherUtils.getColorFromTempF((float) weather.getCondition().getTempF())).build();
         mNotifyMgr.notify(PERSISTENT_NOT_ID, mNotification);
         isShowing = true;
     }

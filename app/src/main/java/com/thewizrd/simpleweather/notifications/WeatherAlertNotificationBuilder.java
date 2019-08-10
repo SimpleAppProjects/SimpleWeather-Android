@@ -83,6 +83,7 @@ public class WeatherAlertNotificationBuilder {
                             .setContentIntent(clickPendingIntent)
                             .setOnlyAlertOnce(true)
                             .setAutoCancel(true)
+                            .setColor(WeatherUtils.getColorFromAlertSeverity(alert.getSeverity()))
                             .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
@@ -169,7 +170,8 @@ public class WeatherAlertNotificationBuilder {
                             .setGroupSummary(true)
                             .setContentIntent(clickPendingIntent)
                             .setOnlyAlertOnce(true)
-                            .setAutoCancel(true);
+                            .setAutoCancel(true)
+                            .setColor(Colors.SIMPLEBLUE);
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
                 mSummaryBuilder.setDeleteIntent(GetDeleteAllNotificationsIntent());
