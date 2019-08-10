@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -37,6 +38,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
@@ -160,24 +162,17 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         collapsingToolbar = findViewById(R.id.collapsing_toolbar);
         mSearchFragmentContainer = findViewById(R.id.search_fragment_container);
         scrollView = findViewById(R.id.scrollView);
-        scrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+
+        // Disable drag on AppBarLayout
+        CoordinatorLayout.LayoutParams appBarLayoutParams = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
+        AppBarLayout.Behavior appBarBehavior = new AppBarLayout.Behavior();
+        appBarBehavior.setDragCallback(new AppBarLayout.Behavior.DragCallback() {
             @Override
-            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                if (v.canScrollVertically(-1) || v.canScrollVertically(1)) {
-                    // enable scrolling
-                    if (!inSearchUI) {
-                        // Set scroll flag
-                        AppBarLayout.LayoutParams toolbarParams = (AppBarLayout.LayoutParams) collapsingToolbar.getLayoutParams();
-                        toolbarParams.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED);
-                    }
-                } else {
-                    // disable scrolling
-                    // Unset scroll flag
-                    AppBarLayout.LayoutParams toolbarParams = (AppBarLayout.LayoutParams) collapsingToolbar.getLayoutParams();
-                    toolbarParams.setScrollFlags(toolbarParams.getScrollFlags() & ~AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL);
-                }
+            public boolean canDrag(@NonNull final AppBarLayout appBarLayout) {
+                return false;
             }
         });
+        appBarLayoutParams.setBehavior(appBarBehavior);
 
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -358,6 +353,13 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
             startActivityForResult(intent, SETUP_REQUEST_CODE);
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        appBarLayout.setExpanded(true, true);
     }
 
     @Override
@@ -781,9 +783,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         // Set scroll flag
         AppBarLayout.LayoutParams toolbarParams = (AppBarLayout.LayoutParams) collapsingToolbar.getLayoutParams();
         toolbarParams.height = getResources().getDimensionPixelSize(R.dimen.collapsingtoolbar_maxHeight);
-        if (scrollView.canScrollVertically(-1) || scrollView.canScrollVertically(1)) {
-            toolbarParams.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED);
-        }
+        toolbarParams.setScrollFlags(toolbarParams.getScrollFlags() | AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL);
 
         hideInputMethod(getCurrentFocus());
         searchView.clearFocus();
