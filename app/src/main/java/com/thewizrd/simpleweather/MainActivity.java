@@ -181,8 +181,8 @@ public class MainActivity extends AppCompatActivity
                     // If current frag is Settings sub-fragment pop all off
                     if (current.getClass().getName().contains("SettingsFragment$"))
                         getSupportFragmentManager().popBackStack("settings", 0);
+                    /* NOTE: Don't pop here so we don't trigger onResume/onHiddenChanged of root fragment */
                     // If a Settings fragment exists remove it
-                    // Don't pop here so we don't trigger onResume/onHiddenChanged of root fragment
                     if (getSupportFragmentManager().findFragmentByTag("settings") != null) {
                         current = getSupportFragmentManager().findFragmentByTag("settings");
                         transaction.remove(current);
@@ -190,6 +190,10 @@ public class MainActivity extends AppCompatActivity
                     // If an extra WeatherNowFragment exists remove it
                     if (getSupportFragmentManager().findFragmentByTag("favorites") != null) {
                         current = getSupportFragmentManager().findFragmentByTag("favorites");
+                        transaction.remove(current);
+                    }
+                    // If current frag is Weather(Alerts||Details)Fragment remove it
+                    if (current instanceof WeatherAlertsFragment || current instanceof WeatherDetailsFragment) {
                         transaction.remove(current);
                     }
                 }
