@@ -1,15 +1,20 @@
 package com.thewizrd.simpleweather.preferences;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
+import android.widget.TextView;
 
+import androidx.core.text.HtmlCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
+import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.simpleweather.R;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.concurrent.Callable;
 
 public class OSSCreditsPreference extends Preference {
 
@@ -33,9 +38,33 @@ public class OSSCreditsPreference extends Preference {
     public void onBindViewHolder(PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
 
-        WebView webView = holder.itemView.findViewById(R.id.webview);
-        webView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
-        webView.loadUrl("file:///android_asset/credits/licenses.html");
-        webView.setBackgroundColor(Color.TRANSPARENT);
+        final Context context = getContext();
+
+        TextView webView = holder.itemView.findViewById(R.id.textview);
+
+        String creditsText = new AsyncTask<String>().await(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                StringBuilder sBuilder = new StringBuilder();
+                InputStreamReader sReader = null;
+                try {
+                    sReader = new InputStreamReader(context.getAssets().open("credits/licenses.html"));
+
+                    int c = 0;
+                    while ((c = sReader.read()) != -1) {
+                        sBuilder.append((char) c);
+                    }
+                } catch (IOException ignored) {
+                } finally {
+                    if (sReader != null)
+                        sReader.close();
+                }
+
+                return sBuilder.toString();
+            }
+        });
+
+        webView.setText(HtmlCompat.fromHtml(creditsText.replace("\n", "<br/>"), HtmlCompat.FROM_HTML_MODE_COMPACT));
+        webView.setMovementMethod(LinkMovementMethod.getInstance());
     }
 }
