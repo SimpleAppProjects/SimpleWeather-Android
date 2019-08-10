@@ -155,6 +155,7 @@
     <string name="not_channel_desc_alerts">Notifications for weather alerts</string>
     <string name="not_channel_name_general">General notifications</string>
     <string name="not_title_wearable_sync">Syncing with wearable device…</string>
+    <string name="not_title_device_sync">Syncing with device…</string>
 
     <!-- Alerts -->
     <string name="datetime_day_ago">%1$dd ago</string>

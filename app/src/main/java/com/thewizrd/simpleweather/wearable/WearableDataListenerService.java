@@ -97,7 +97,7 @@ public class WearableDataListenerService extends WearableListenerService {
         Context context = App.getInstance().getAppContext();
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context, NOT_CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_logo)
+                        .setSmallIcon(R.drawable.ic_watch_white_24dp)
                         .setContentTitle(context.getString(R.string.not_title_wearable_sync))
                         .setProgress(0, 0, true)
                         .setColor(Colors.SIMPLEBLUE)
