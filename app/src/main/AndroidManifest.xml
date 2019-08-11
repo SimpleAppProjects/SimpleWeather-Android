@@ -39,6 +39,7 @@
             android:name=".MainActivity"
             android:label="@string/title_activity_weather_now"
             android:theme="@style/AppTheme"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:clearTaskOnLaunch="true"
             android:finishOnTaskLaunch="true"
             android:windowSoftInputMode="stateAlwaysHidden|adjustNothing" />
@@ -46,7 +47,7 @@
             android:name=".widgets.WeatherWidgetConfigActivity"
             android:label="@string/title_activity_widget_config"
             android:theme="@style/SetupTheme"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:windowSoftInputMode="stateAlwaysHidden|adjustNothing">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />

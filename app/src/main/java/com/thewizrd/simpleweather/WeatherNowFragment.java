@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.graphics.Outline;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -44,7 +45,6 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.ViewPager;
@@ -490,7 +490,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         // Details
         detailsContainer = view.findViewById(R.id.details_container);
         detailsContainer.setHasFixedSize(false);
-        mLayoutManager = new GridLayoutManager(mActivity, 4, LinearLayoutManager.VERTICAL, false);
+        mLayoutManager = new GridLayoutManager(mActivity, 4, RecyclerView.VERTICAL, false);
         detailsContainer.setLayoutManager(mLayoutManager);
 
         int horizMargin = 16;
@@ -592,6 +592,41 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         refreshLayout.setRefreshing(true);
 
         return view;
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        // Resize necessary views
+        adjustConditionPanelLayout();
+        adjustDetailsLayout();
+        if (wm.supportsAlerts() && weatherView.getExtras().getAlerts().size() > 0) {
+            resizeAlertPanel();
+        }
+        resizeSunPhasePanel();
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Scroll back to the top
+                if (scrollView != null) scrollView.scrollTo(0, 0);
+            }
+        });
+        mImageView.post(new Runnable() {
+            @Override
+            public void run() {
+                // Reload background image
+                if (weatherView != null) {
+                    Glide.with(mActivity)
+                            .load(weatherView.getBackground())
+                            .apply(new RequestOptions().centerCrop()
+                                    .format(DecodeFormat.PREFER_RGB_565)
+                                    .skipMemoryCache(true))
+                            .into(mImageView);
+                }
+            }
+        });
     }
 
     /**
@@ -789,6 +824,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         }
 
         if (!hidden && weatherView != null && this.isVisible()) {
+            adjustConditionPanelLayout();
+            adjustDetailsLayout();
+
             AsyncTask.run(new Runnable() {
                 @Override
                 public void run() {
@@ -890,7 +928,15 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) conditionPanel.getLayoutParams();
                     lp.height = (int) height;
                     lp.bottomMargin = bottomAppBar.getHeight();
+                    conditionPanel.setLayoutParams(lp);
                 }
+            }
+        });
+
+        weatherIcon.post(new Runnable() {
+            @Override
+            public void run() {
+                weatherIcon.setLayoutParams(weatherIcon.getLayoutParams());
             }
         });
     }

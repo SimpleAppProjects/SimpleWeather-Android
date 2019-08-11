@@ -48,6 +48,10 @@ import java.util.concurrent.Executors;
 public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements ItemTouchHelperAdapterInterface {
 
+    public static class Payload {
+        public static final int IMAGE_UPDATE = 0;
+    }
+
     public static class LocationPanelItemType {
         public static final int GPS_PANEL = LocationType.GPS.getValue();
         public static final int SEARCH_PANEL = LocationType.SEARCH.getValue();
@@ -165,8 +169,22 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        //
+    }
+
+    @Override
     // Replace the contents of a view (invoked by the layout manager)
-    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
+        super.onBindViewHolder(holder, position, payloads);
+
+        final boolean imageUpdateOnly;
+        if (!payloads.isEmpty()) {
+            imageUpdateOnly = payloads.get(0).equals(Payload.IMAGE_UPDATE);
+        } else {
+            imageUpdateOnly = false;
+        }
+
         if (holder instanceof HeaderSetterInterface) {
             ((HeaderSetterInterface) holder).setHeader();
         } else {
@@ -176,32 +194,44 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
             final LocationPanelViewModel panelView = getPanelViewModel(position);
 
             // Background
-            if (panelView != null && !StringUtils.isNullOrWhitespace(panelView.getBackground())) {
-                mGlide.asBitmap()
-                        .load(panelView.getBackground())
-                        .apply(new RequestOptions()
-                                .centerCrop()
-                                .format(DecodeFormat.PREFER_RGB_565)
-                                .error(vHolder.mLocView.getColorDrawable())
-                                .placeholder(vHolder.mLocView.getColorDrawable()))
-                        .into(new BitmapImageViewTarget(vHolder.mBgImageView) {
-                            @Override
-                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                super.onResourceReady(resource, transition);
-                                Palette p = Palette.from(resource).generate();
-                                int textColor = Colors.WHITE;
-                                if (ColorsUtils.isSuperLight(p))
-                                    textColor = Colors.BLACK;
-                                vHolder.mLocView.setTextColor(textColor);
-                            }
-                        });
-            } else {
-                mGlide.clear(vHolder.mBgImageView);
-                vHolder.mBgImageView.setImageDrawable(vHolder.mLocView.getColorDrawable());
-                vHolder.mLocView.setTextColor(Colors.WHITE);
-            }
+            vHolder.mBgImageView.post(new Runnable() {
+                @Override
+                public void run() {
+                    updatePanelBackground(vHolder, panelView, imageUpdateOnly);
+                }
+            });
 
-            vHolder.mLocView.setWeather(panelView);
+            if (!imageUpdateOnly) {
+                vHolder.mLocView.setWeather(panelView);
+            }
+        }
+    }
+
+    private void updatePanelBackground(final ViewHolder vHolder, final LocationPanelViewModel panelView, boolean skipCache) {
+        if (panelView != null && !StringUtils.isNullOrWhitespace(panelView.getBackground())) {
+            mGlide.asBitmap()
+                    .load(panelView.getBackground())
+                    .apply(new RequestOptions()
+                            .centerCrop()
+                            .format(DecodeFormat.PREFER_RGB_565)
+                            .error(vHolder.mLocView.getColorDrawable())
+                            .placeholder(vHolder.mLocView.getColorDrawable())
+                            .skipMemoryCache(skipCache))
+                    .into(new BitmapImageViewTarget(vHolder.mBgImageView) {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            super.onResourceReady(resource, transition);
+                            Palette p = Palette.from(resource).generate();
+                            int textColor = Colors.WHITE;
+                            if (ColorsUtils.isSuperLight(p))
+                                textColor = Colors.BLACK;
+                            vHolder.mLocView.setTextColor(textColor);
+                        }
+                    });
+        } else {
+            mGlide.clear(vHolder.mBgImageView);
+            vHolder.mBgImageView.setImageDrawable(vHolder.mLocView.getColorDrawable());
+            vHolder.mLocView.setTextColor(Colors.WHITE);
         }
     }
 
@@ -370,6 +400,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
             header = itemView.findViewById(R.id.header);
         }
 
+        @Override
         public void setHeader() {
             header.setText(R.string.label_currentlocation);
         }
@@ -383,6 +414,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
             header = itemView.findViewById(R.id.header);
         }
 
+        @Override
         public void setHeader() {
             header.setText(R.string.label_favoritelocations);
         }
