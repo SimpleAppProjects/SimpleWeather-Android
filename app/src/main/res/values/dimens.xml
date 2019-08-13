@@ -21,6 +21,7 @@
     <dimen name="toolbar_horizontal_inset_padding">16dp</dimen>
     <dimen name="fab_size">56dp</dimen>
     <dimen name="fab_expanded_height">68dp</dimen>
+    <dimen name="floating_window_z">16dp</dimen>
 
     <!-- WeatherNow -->
     <dimen name="label_location_size">18sp</dimen>

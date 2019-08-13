@@ -2,22 +2,34 @@ package com.thewizrd.simpleweather;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.TranslateAnimation;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,12 +44,15 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class LocationSearchFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private LocationQueryAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private ProgressBar mProgressBar;
+    private View mBackButton;
     private View mClearButton;
     private EditText mSearchView;
     private FragmentActivity mActivity;
@@ -45,6 +60,8 @@ public class LocationSearchFragment extends Fragment {
     private CancellationTokenSource cts;
 
     private WeatherManager wm;
+
+    private static final int ANIMATION_DURATION = 240;
 
     public void setRecyclerOnClickListener(RecyclerOnClickListenerInterface listener) {
         recyclerClickListener = listener;
@@ -80,6 +97,7 @@ public class LocationSearchFragment extends Fragment {
 
     @Override
     public void onPause() {
+        mSearchView.clearFocus();
         super.onPause();
         ctsCancel();
     }
@@ -137,9 +155,95 @@ public class LocationSearchFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_location_search, container, false);
 
-        mProgressBar = mActivity.findViewById(R.id.search_progressBar);
-        mClearButton = mActivity.findViewById(R.id.search_close_button);
-        mSearchView = mActivity.findViewById(R.id.search_view);
+        mProgressBar = view.findViewById(R.id.search_progressBar);
+        mBackButton = view.findViewById(R.id.search_back_button);
+        mClearButton = view.findViewById(R.id.search_close_button);
+        mSearchView = view.findViewById(R.id.search_view);
+
+        // Initialize
+        mBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mActivity != null) mActivity.onBackPressed();
+            }
+        });
+
+        mClearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSearchView.setText("");
+            }
+        });
+        mClearButton.setVisibility(View.GONE);
+
+        mSearchView.addTextChangedListener(new TextWatcher() {
+            private Timer timer = new Timer();
+            private final long DELAY = 1000; // milliseconds
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // nothing to do here
+            }
+
+            @Override
+            public void onTextChanged(final CharSequence s, int start, int before, int count) {
+                // user is typing: reset already started timer (if existing)
+                if (timer != null) {
+                    timer.cancel();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(final Editable e) {
+                // If string is null or empty (ex. from clearing text) run right away
+                if (StringUtils.isNullOrEmpty(e.toString())) {
+                    runSearchOp(e);
+                } else {
+                    timer = new Timer();
+                    timer.schedule(
+                            new TimerTask() {
+                                @Override
+                                public void run() {
+                                    runSearchOp(e);
+                                }
+                            }, DELAY
+                    );
+                }
+            }
+
+            private void runSearchOp(final Editable e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final String newText = e.toString();
+
+                        mClearButton.setVisibility(StringUtils.isNullOrEmpty(newText) ? View.GONE : View.VISIBLE);
+                        fetchLocations(newText);
+                    }
+                });
+            }
+        });
+        mSearchView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    showInputMethod(v.findFocus());
+                } else {
+                    hideInputMethod(v);
+                }
+            }
+        });
+        mSearchView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    fetchLocations(v.getText().toString());
+                    hideInputMethod(v);
+                    return true;
+                }
+                return false;
+            }
+        });
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             mProgressBar.setIndeterminateDrawable(
@@ -234,6 +338,39 @@ public class LocationSearchFragment extends Fragment {
             mAdapter.getDataset().clear();
             mAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        final View root = getView();
+        if (root != null) {
+            final View searchBarContainer = root.findViewById(R.id.search_action_bar);
+            searchBarContainer.postOnAnimation(new Runnable() {
+                @Override
+                public void run() {
+                    // SearchActionBarContainer fade/translation animation
+                    AnimationSet searchBarAniSet = new AnimationSet(true);
+                    searchBarAniSet.setInterpolator(new DecelerateInterpolator());
+                    AlphaAnimation searchBarFadeAni = new AlphaAnimation(0.0f, 1.0f);
+                    TranslateAnimation searchBarAnimation = new TranslateAnimation(
+                            Animation.RELATIVE_TO_SELF, 0,
+                            Animation.RELATIVE_TO_SELF, 0,
+                            Animation.ABSOLUTE, searchBarContainer.getLayoutParams().height,
+                            Animation.ABSOLUTE, 0);
+                    searchBarAniSet.setDuration((long) (ANIMATION_DURATION * 1.5));
+                    searchBarAniSet.setFillEnabled(false);
+                    searchBarAniSet.addAnimation(searchBarFadeAni);
+                    searchBarAniSet.addAnimation(searchBarAnimation);
+
+                    searchBarContainer.setVisibility(View.VISIBLE);
+                    searchBarContainer.startAnimation(searchBarAniSet);
+                }
+            });
+        }
+
+        mSearchView.requestFocus();
     }
 
     private void showInputMethod(View view) {

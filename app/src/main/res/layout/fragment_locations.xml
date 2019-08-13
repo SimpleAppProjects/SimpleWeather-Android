@@ -12,7 +12,8 @@
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:theme="@style/AppTheme.AppBarOverlay"
+        tools:stateListAnimator="@null">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -22,10 +23,6 @@
             app:elevation="@dimen/appbar_elevation"
             app:popupTheme="@style/AppTheme.PopupOverlay"
             app:title="@string/label_nav_locations">
-
-            <include
-                layout="@layout/search_action_bar"
-                tools:visibility="invisible" />
 
         </androidx.appcompat.widget.Toolbar>
 
@@ -78,8 +75,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true"
-        app:layout_anchor="@id/app_bar"
-        app:layout_anchorGravity="bottom"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:focusable="true"
+        android:translationZ="@dimen/floating_window_z" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

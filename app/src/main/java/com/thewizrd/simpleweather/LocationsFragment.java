@@ -5,17 +5,14 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,11 +23,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -100,8 +93,6 @@ import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -130,13 +121,8 @@ public class LocationsFragment extends Fragment
     // Search
     private AppBarLayout appBarLayout;
     private Toolbar mToolbar;
-    private View searchBarContainer;
     private View mSearchFragmentContainer;
     private LocationSearchFragment mSearchFragment;
-    private EditText searchView;
-    private TextView clearButtonView;
-    private TextView backButtonView;
-    private ProgressBar progressBar;
     private boolean inSearchUI;
 
     // GPS Location
@@ -470,14 +456,6 @@ public class LocationsFragment extends Fragment
         mToolbar = view.findViewById(R.id.toolbar);
         mToolbar.setOnMenuItemClickListener(menuItemClickListener);
         mSearchFragmentContainer = view.findViewById(R.id.search_fragment_container);
-
-        int padding = getResources().getDimensionPixelSize(R.dimen.toolbar_horizontal_inset_padding);
-        mToolbar.setContentInsetsRelative(padding, padding);
-
-        searchBarContainer = mToolbar.findViewById(R.id.search_action_bar);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            searchBarContainer.setElevation(getResources().getDimension(R.dimen.appbar_elevation) + 2);
-        }
 
         mSearchFragmentContainer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1018,36 +996,15 @@ public class LocationsFragment extends Fragment
     }
 
     @Override
-    public void onAttachFragment(Fragment childFragment) {
+    public void onAttachFragment(@NonNull Fragment childFragment) {
         if (childFragment instanceof LocationSearchFragment) {
             mSearchFragment = (LocationSearchFragment) childFragment;
-
-            if (inSearchUI)
-                setupSearchUi();
         }
     }
 
     private void prepareSearchUI() {
-        optionsMenu.clear();
-        mToolbar.setContentInsetsRelative(0, 0);
-
         enterSearchUi();
-        enterSearchUiTransition(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                //ViewCompat.setElevation(appBarLayout, getResources().getDimension(R.dimen.appbar_elevation) + 1);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
+        enterSearchUiTransition(null);
     }
 
     private void enterSearchUi() {
@@ -1062,7 +1019,6 @@ public class LocationsFragment extends Fragment
         transaction.show(mSearchFragment);
         transaction.commitNowAllowingStateLoss();
         getChildFragmentManager().executePendingTransactions();
-        setupSearchUi();
     }
 
     private void enterSearchUiTransition(Animation.AnimationListener enterAnimationListener) {
@@ -1073,38 +1029,14 @@ public class LocationsFragment extends Fragment
         TranslateAnimation fragmentAnimation = new TranslateAnimation(
                 Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0,
-                Animation.ABSOLUTE, addLocationsButton.getY(),
+                Animation.ABSOLUTE, mSearchFragmentContainer.getRootView().getHeight(),
                 Animation.ABSOLUTE, 0);
         fragmentAniSet.setDuration(ANIMATION_DURATION);
         fragmentAniSet.setFillEnabled(false);
         fragmentAniSet.addAnimation(fragFadeAni);
         fragmentAniSet.addAnimation(fragmentAnimation);
         fragmentAniSet.setAnimationListener(enterAnimationListener);
-
-        // SearchActionBarContainer fade/translation animation
-        AnimationSet searchBarAniSet = new AnimationSet(true);
-        searchBarAniSet.setInterpolator(new DecelerateInterpolator());
-        AlphaAnimation searchBarFadeAni = new AlphaAnimation(0.0f, 1.0f);
-        TranslateAnimation searchBarAnimation = new TranslateAnimation(
-                Animation.RELATIVE_TO_SELF, 0,
-                Animation.RELATIVE_TO_SELF, 0,
-                Animation.ABSOLUTE, mToolbar.getHeight(),
-                Animation.ABSOLUTE, 0);
-        searchBarAniSet.setDuration((long) (ANIMATION_DURATION * 1.5));
-        searchBarAniSet.setFillEnabled(false);
-        searchBarAniSet.addAnimation(searchBarFadeAni);
-        searchBarAniSet.addAnimation(searchBarAnimation);
-
         mSearchFragmentContainer.startAnimation(fragmentAniSet);
-        searchBarContainer.setVisibility(View.VISIBLE);
-        searchBarContainer.startAnimation(searchBarAniSet);
-    }
-
-    private void setupSearchUi() {
-        if (searchView == null) {
-            prepareSearchView();
-        }
-        searchView.requestFocus();
     }
 
     private void addSearchFragment() {
@@ -1145,10 +1077,10 @@ public class LocationsFragment extends Fragment
                         mSearchFragment.ctsCancel();
                         CancellationToken ctsToken = mSearchFragment.getCancellationTokenSource().getToken();
 
-                        showLoading(true);
+                        mSearchFragment.showLoading(true);
 
                         if (ctsToken.isCancellationRequested()) {
-                            showLoading(false);
+                            mSearchFragment.showLoading(false);
                             return;
                         }
 
@@ -1165,7 +1097,7 @@ public class LocationsFragment extends Fragment
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    showLoading(false);
+                                    mSearchFragment.showLoading(false);
                                     exitSearchUi(false);
                                 }
                             });
@@ -1173,7 +1105,7 @@ public class LocationsFragment extends Fragment
                         }
 
                         if (ctsToken.isCancellationRequested()) {
-                            showLoading(false);
+                            mSearchFragment.showLoading(false);
                             return;
                         }
 
@@ -1197,7 +1129,7 @@ public class LocationsFragment extends Fragment
                                 @Override
                                 public void run() {
                                     Toast.makeText(App.getInstance().getAppContext(), R.string.werror_noweather, Toast.LENGTH_SHORT).show();
-                                    showLoading(false);
+                                    mSearchFragment.showLoading(false);
                                 }
                             });
                             return;
@@ -1218,7 +1150,7 @@ public class LocationsFragment extends Fragment
                         }
 
                         if (weather == null) {
-                            showLoading(false);
+                            mSearchFragment.showLoading(false);
                             return;
                         }
 
@@ -1268,7 +1200,7 @@ public class LocationsFragment extends Fragment
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                showLoading(false);
+                                mSearchFragment.showLoading(false);
                                 exitSearchUi(false);
                             }
                         });
@@ -1276,101 +1208,9 @@ public class LocationsFragment extends Fragment
                 });
             }
         });
-        searchFragment.setUserVisibleHint(true);
+        searchFragment.setUserVisibleHint(false);
         ft.add(R.id.search_fragment_container, searchFragment);
         ft.commitNowAllowingStateLoss();
-    }
-
-    private void prepareSearchView() {
-        searchView = mToolbar.findViewById(R.id.search_view);
-        clearButtonView = mToolbar.findViewById(R.id.search_close_button);
-        backButtonView = mToolbar.findViewById(R.id.search_back_button);
-        progressBar = mToolbar.findViewById(R.id.search_progressBar);
-        clearButtonView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchView.setText("");
-            }
-        });
-        backButtonView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                exitSearchUi(false);
-            }
-        });
-        searchView.addTextChangedListener(new TextWatcher() {
-            private Timer timer = new Timer();
-            private final long DELAY = 1000; // milliseconds
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // nothing to do here
-            }
-
-            @Override
-            public void onTextChanged(final CharSequence s, int start, int before, int count) {
-                // user is typing: reset already started timer (if existing)
-                if (timer != null) {
-                    timer.cancel();
-                }
-            }
-
-            @Override
-            public void afterTextChanged(final Editable e) {
-                // If string is null or empty (ex. from clearing text) run right away
-                if (StringUtils.isNullOrEmpty(e.toString())) {
-                    runSearchOp(e);
-                } else {
-                    timer = new Timer();
-                    timer.schedule(
-                            new TimerTask() {
-                                @Override
-                                public void run() {
-                                    runSearchOp(e);
-                                }
-                            }, DELAY
-                    );
-                }
-            }
-
-            private void runSearchOp(final Editable e) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        final String newText = e.toString();
-
-                        if (mSearchFragment != null) {
-                            clearButtonView.setVisibility(StringUtils.isNullOrEmpty(newText) ? View.GONE : View.VISIBLE);
-                            mSearchFragment.fetchLocations(newText);
-                        }
-                    }
-                });
-            }
-        });
-        clearButtonView.setVisibility(View.GONE);
-        searchView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    showInputMethod(v.findFocus());
-                } else {
-                    hideInputMethod(v);
-                }
-            }
-        });
-        searchView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    if (mSearchFragment != null) {
-                        mSearchFragment.fetchLocations(v.getText().toString());
-                        hideInputMethod(v);
-                    }
-                    return true;
-                }
-                return false;
-            }
-        });
     }
 
     private void removeSearchFragment() {
@@ -1382,10 +1222,7 @@ public class LocationsFragment extends Fragment
         transaction.commitNowAllowingStateLoss();
     }
 
-    @SuppressLint("RestrictedApi")
     private void exitSearchUi(boolean skipAnimation) {
-        searchView.setText("");
-
         if (mSearchFragment != null) {
             // Exit transition
             if (skipAnimation) {
@@ -1414,12 +1251,7 @@ public class LocationsFragment extends Fragment
         if (mAdapter.getDataCount() < MAX_LOCATIONS)
             addLocationsButton.setVisibility(View.VISIBLE);
 
-        int padding = getResources().getDimensionPixelSize(R.dimen.toolbar_horizontal_inset_padding);
-        mToolbar.setContentInsetsRelative(padding, padding);
-        createOptionsMenu();
         hideInputMethod(mActivity == null ? null : mActivity.getCurrentFocus());
-        if (searchView != null) searchView.clearFocus();
-        if (searchBarContainer != null) searchBarContainer.setVisibility(View.GONE);
         if (mMainView != null) mMainView.requestFocus();
         inSearchUI = false;
     }
@@ -1433,31 +1265,13 @@ public class LocationsFragment extends Fragment
                 Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0,
                 Animation.ABSOLUTE, 0,
-                Animation.ABSOLUTE, addLocationsButton.getY());
+                Animation.ABSOLUTE, mSearchFragmentContainer.getRootView().getHeight());
         fragmentAniSet.setDuration(ANIMATION_DURATION);
         fragmentAniSet.setFillEnabled(false);
         fragmentAniSet.addAnimation(fragFadeAni);
         fragmentAniSet.addAnimation(fragmentAnimation);
         fragmentAniSet.setAnimationListener(exitAnimationListener);
-
         mSearchFragmentContainer.startAnimation(fragmentAniSet);
-    }
-
-    private void showLoading(final boolean show) {
-        if (mSearchFragment == null)
-            return;
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-
-                if (show || (!show && StringUtils.isNullOrEmpty(searchView.getText().toString())))
-                    clearButtonView.setVisibility(View.GONE);
-                else
-                    clearButtonView.setVisibility(View.VISIBLE);
-            }
-        });
     }
 
     private void showInputMethod(View view) {

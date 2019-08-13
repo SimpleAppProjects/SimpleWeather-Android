@@ -75,6 +75,7 @@
                     android:singleLine="true"
                     android:text="@string/pref_location"
                     android:textAppearance="@style/TextAppearance.AppCompat"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textSize="18sp" />
 
                 <TextView
@@ -86,6 +87,7 @@
                     android:layout_alignLeft="@+id/location_pref_title"
                     android:maxLines="4"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="?android:attr/textColorPrimary"
                     tools:text="@string/pref_item_gpslocation" />
 
                 <androidx.appcompat.widget.AppCompatSpinner
@@ -120,6 +122,7 @@
                     android:singleLine="true"
                     android:text="@string/pref_title_refreshinterval"
                     android:textAppearance="@style/TextAppearance.AppCompat"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textSize="18sp" />
 
                 <TextView
@@ -131,6 +134,7 @@
                     android:layout_alignLeft="@+id/interval_pref_title"
                     android:maxLines="4"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="?android:attr/textColorPrimary"
                     tools:text="1 hour" />
 
                 <androidx.appcompat.widget.AppCompatSpinner
@@ -162,6 +166,7 @@
                     android:singleLine="true"
                     android:text="@string/pref_title_bgcolor"
                     android:textAppearance="@style/TextAppearance.AppCompat"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textSize="18sp"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
@@ -173,6 +178,7 @@
                     android:layout_height="wrap_content"
                     android:maxLines="4"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="?android:attr/textColorPrimary"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="@+id/bgcolor_pref_title"
                     app:layout_constraintTop_toBottomOf="@+id/bgcolor_pref_title"
@@ -195,9 +201,9 @@
     <RelativeLayout
         android:id="@+id/search_fragment_container"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:clickable="true"
-        android:fitsSystemWindows="true"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:focusable="true"
+        android:translationZ="@dimen/floating_window_z" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

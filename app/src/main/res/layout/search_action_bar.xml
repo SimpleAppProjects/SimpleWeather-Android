@@ -4,11 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/search_action_bar"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="?attr/actionBarSize"
     android:background="?android:attr/colorBackground"
-    android:orientation="horizontal"
     android:visibility="gone"
-    tools:layout_height="?attr/actionBarSize"
     tools:visibility="visible">
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -46,7 +44,7 @@
         android:imeOptions="actionSearch|flagNoExtractUi"
         android:inputType="textFilter"
         android:textColor="@color/invButtonColorText"
-        android:textColorHint="@color/colorPrimaryLight"
+        android:textColorHint="@color/invButtonColorTextHint"
         app:layout_constraintBottom_toTopOf="@id/shadow"
         app:layout_constraintEnd_toStartOf="@+id/search_progressBar"
         app:layout_constraintStart_toEndOf="@id/search_back_button"
