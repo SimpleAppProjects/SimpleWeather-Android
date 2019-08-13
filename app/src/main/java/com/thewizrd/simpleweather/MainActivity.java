@@ -1,7 +1,9 @@
 package com.thewizrd.simpleweather;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -30,11 +32,14 @@ public class MainActivity extends AppCompatActivity
         WeatherViewLoadedListener, WindowColorsInterface {
 
     private BottomNavigationView mBottomNavView;
+    private View mFragmentContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mFragmentContainer = findViewById(R.id.fragment_container);
 
         // Make full transparent statusBar
         ActivityUtils.setTransparentWindow(getWindow(), Colors.TRANSPARENT, Colors.TRANSPARENT);
@@ -110,6 +115,14 @@ public class MainActivity extends AppCompatActivity
                 ShortcutCreator.updateShortcuts();
             }
         });
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        int bg_color = ActivityUtils.getColor(this, android.R.attr.colorBackground);
+        mFragmentContainer.getRootView().setBackgroundColor(bg_color);
     }
 
     @Override

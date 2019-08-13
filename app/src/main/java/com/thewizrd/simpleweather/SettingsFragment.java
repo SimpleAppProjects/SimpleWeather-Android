@@ -461,7 +461,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         });
         updateAlertPreference(WeatherManager.getInstance().supportsAlerts());
 
-        tintIcons(getPreferenceScreen(), Colors.SIMPLEBLUE);
+        tintIcons(getPreferenceScreen(), ContextCompat.getColor(mActivity, R.color.colorPrimaryLight));
     }
 
     private static void tintIcons(Preference preference, int color) {

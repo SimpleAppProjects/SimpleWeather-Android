@@ -37,6 +37,7 @@ import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.LocationPanel;
 import com.thewizrd.simpleweather.controls.LocationPanelViewModel;
+import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.ColorsUtils;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperAdapterInterface;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
@@ -61,6 +62,8 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public interface HeaderSetterInterface {
         void setHeader();
+
+        void setHeaderTextColor();
     }
 
     private ObservableArrayList<LocationPanelViewModel> mDataset;
@@ -187,6 +190,9 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         if (holder instanceof HeaderSetterInterface) {
             ((HeaderSetterInterface) holder).setHeader();
+            if (imageUpdateOnly) {
+                ((HeaderSetterInterface) holder).setHeaderTextColor();
+            }
         } else {
             final ViewHolder vHolder = (ViewHolder) holder;
             // - get element from your dataset at this position
@@ -404,6 +410,11 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         public void setHeader() {
             header.setText(R.string.label_currentlocation);
         }
+
+        @Override
+        public void setHeaderTextColor() {
+            header.setTextColor(ActivityUtils.getColor(header.getContext(), android.R.attr.textColorPrimary));
+        }
     }
 
     public class FavHeaderViewHolder extends RecyclerView.ViewHolder implements HeaderSetterInterface {
@@ -417,6 +428,11 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         @Override
         public void setHeader() {
             header.setText(R.string.label_favoritelocations);
+        }
+
+        @Override
+        public void setHeaderTextColor() {
+            header.setTextColor(ActivityUtils.getColor(header.getContext(), android.R.attr.textColorPrimary));
         }
     }
 }

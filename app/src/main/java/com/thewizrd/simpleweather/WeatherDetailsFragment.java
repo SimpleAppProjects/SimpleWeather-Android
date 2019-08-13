@@ -1,45 +1,21 @@
 package com.thewizrd.simpleweather;
 
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.simpleweather.adapters.WeatherDetailsAdapter;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
-import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
 
-import java.io.StringReader;
-
-public class WeatherDetailsFragment extends Fragment {
-    private LocationData location = null;
-    private WeatherNowViewModel weatherView = null;
+public class WeatherDetailsFragment extends WeatherListFragment {
     private boolean isHourly = false;
-
-    private Toolbar toolbar;
-    private TextView locationHeader;
-    private RecyclerView recyclerView;
-    private LinearLayoutManager layoutManager;
-
-    private AppCompatActivity mActivity;
-    private WindowColorsInterface mWindowColorsIface;
 
     public static WeatherDetailsFragment newInstance(LocationData location, WeatherNowViewModel weatherViewModel, boolean isHourly) {
         WeatherDetailsFragment fragment = new WeatherDetailsFragment();
@@ -56,63 +32,14 @@ public class WeatherDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null) {
-            if (location == null) {
-                String json = savedInstanceState.getString("data", null);
-                location = LocationData.fromJson(new JsonReader(new StringReader(json)));
-            }
-
             isHourly = savedInstanceState.getBoolean("isHourly", false);
         }
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Use this to return your custom view for this Fragment
-        View view = inflater.inflate(R.layout.fragment_weather_alerts, container, false);
-
-        // Setup Actionbar
-        toolbar = view.findViewById(R.id.toolbar);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mActivity != null) mActivity.onBackPressed();
-            }
-        });
+    protected void initialize() {
         toolbar.setTitle(R.string.label_forecast);
 
-        locationHeader = view.findViewById(R.id.location_name);
-        recyclerView = view.findViewById(R.id.recycler_view);
-
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        recyclerView.setHasFixedSize(true);
-        // use a linear layout manager
-        recyclerView.setLayoutManager(layoutManager = new LinearLayoutManager(mActivity));
-        recyclerView.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.VERTICAL));
-
-        return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if (isHidden())
-            return;
-        else
-            initialize();
-    }
-
-    @Override
-    public void onHiddenChanged(boolean hidden) {
-        super.onHiddenChanged(hidden);
-
-        if (!hidden && isVisible())
-            initialize();
-    }
-
-    private void initialize() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             runOnUiThread(new Runnable() {
                 @Override
@@ -135,11 +62,14 @@ public class WeatherDetailsFragment extends Fragment {
             }
         }
 
+        if (recyclerView.getItemDecorationCount() == 0)
+            recyclerView.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.VERTICAL));
+
         if (weatherView != null) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    locationHeader.setText(weatherView.getLocation());
+                    locationName.setText(weatherView.getLocation());
                     // specify an adapter (see also next example)
                     if (isHourly && weatherView.getExtras().getHourlyForecast().size() > 0)
                         recyclerView.setAdapter(new WeatherDetailsAdapter(weatherView.getExtras().getHourlyForecast()));
@@ -159,35 +89,8 @@ public class WeatherDetailsFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         // Save data
-        outState.putString("data", location.toJson());
         outState.putBoolean("isHourly", isHourly);
 
         super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        mActivity = (AppCompatActivity) context;
-        mWindowColorsIface = (WindowColorsInterface) context;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mActivity = null;
-        mWindowColorsIface = null;
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mActivity = null;
-        mWindowColorsIface = null;
-    }
-
-    private void runOnUiThread(Runnable action) {
-        if (mActivity != null)
-            mActivity.runOnUiThread(action);
     }
 }

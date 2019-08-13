@@ -516,6 +516,24 @@ public class LocationsFragment extends Fragment
         return view;
     }
 
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount(), LocationPanelAdapter.Payload.IMAGE_UPDATE);
+        int bg_color = ActivityUtils.getColor(mActivity, R.attr.colorSurface);
+        int controlColor = ActivityUtils.getColor(mActivity, R.attr.colorControlNormal);
+        int colorPrimary = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+        mMainView.setBackgroundColor(bg_color);
+        // Setup ActionBar
+        if (mWindowColorsIface != null) {
+            int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+            mWindowColorsIface.setWindowBarColors(color);
+        }
+        mToolbar.setBackgroundColor(colorPrimary);
+        addLocationsButton.setBackgroundTintList(ContextCompat.getColorStateList(mActivity, R.color.mtrl_btn_bg_color_selector));
+    }
+
     private void createOptionsMenu() {
         // Inflate the menu; this adds items to the action bar if it is present.
         Menu menu = mToolbar.getMenu();
