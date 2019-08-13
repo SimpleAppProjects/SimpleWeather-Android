@@ -137,10 +137,10 @@ public class LocationsFragment extends Fragment
     private boolean mRequestingLocationUpdates;
 
     private static final int ANIMATION_DURATION = 240;
-
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
-
     private static final int MAX_LOCATIONS = Settings.getMaxLocations();
+
+    private static final String KEY_SEARCHUI = "SearchUI";
 
     // OptionsMenu
     private Menu optionsMenu;
@@ -503,7 +503,7 @@ public class LocationsFragment extends Fragment
         mLoaded = true;
 
         // Get SearchUI state
-        if (savedInstanceState != null && savedInstanceState.getBoolean("SearchUI", false)) {
+        if (savedInstanceState != null && savedInstanceState.getBoolean(KEY_SEARCHUI, false)) {
             inSearchUI = true;
 
             // Restart SearchUI
@@ -660,10 +660,7 @@ public class LocationsFragment extends Fragment
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         // Save ActionMode state
-        outState.putBoolean("SearchUI", inSearchUI);
-
-        if (inSearchUI)
-            exitSearchUi(true);
+        outState.putBoolean(KEY_SEARCHUI, inSearchUI);
 
         super.onSaveInstanceState(outState);
     }

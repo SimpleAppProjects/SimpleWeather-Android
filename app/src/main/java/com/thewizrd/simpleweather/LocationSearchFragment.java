@@ -63,6 +63,8 @@ public class LocationSearchFragment extends Fragment {
 
     private static final int ANIMATION_DURATION = 240;
 
+    private static final String KEY_SEARCHTEXT = "search_text";
+
     public void setRecyclerOnClickListener(RecyclerOnClickListenerInterface listener) {
         recyclerClickListener = listener;
     }
@@ -304,6 +306,13 @@ public class LocationSearchFragment extends Fragment {
         mAdapter.setOnClickListener(recyclerClickListener);
         mRecyclerView.setAdapter(mAdapter);
 
+        if (savedInstanceState != null) {
+            String text = savedInstanceState.getString(KEY_SEARCHTEXT);
+            if (!StringUtils.isNullOrWhitespace(text)) {
+                mSearchView.setText(text, TextView.BufferType.EDITABLE);
+            }
+        }
+
         return view;
     }
 
@@ -401,5 +410,14 @@ public class LocationSearchFragment extends Fragment {
         ft.detach(this);
         ft.attach(this);
         ft.commit();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putString(KEY_SEARCHTEXT,
+                mSearchView.getText() != null && !StringUtils.isNullOrWhitespace(mSearchView.getText().toString())
+                        ? mSearchView.getText().toString() : "");
+
+        super.onSaveInstanceState(outState);
     }
 }

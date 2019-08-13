@@ -116,6 +116,10 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
     private static final int SETUP_REQUEST_CODE = 10;
     private static final int MAX_LOCATIONS = Settings.getMaxLocations();
 
+    private static final String KEY_SEARCH = "Search";
+    private static final String KEY_GPS = "GPS";
+    private static final String KEY_SEARCHUI = "SearchUI";
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -177,8 +181,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         locSummary = findViewById(R.id.location_pref_summary);
 
         List<ComboBoxItem> comboList = new ArrayList<>();
-        comboList.add(new ComboBoxItem(getString(R.string.pref_item_gpslocation), "GPS"));
-        comboList.add(new ComboBoxItem(getString(R.string.label_btn_add_location), "Search"));
+        comboList.add(new ComboBoxItem(getString(R.string.pref_item_gpslocation), KEY_GPS));
+        comboList.add(new ComboBoxItem(getString(R.string.label_btn_add_location), KEY_SEARCH));
         List<LocationData> favs = Settings.getFavorites();
         favorites = new ArrayList<>(favs);
         for (LocationData location : favorites) {
@@ -209,7 +213,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     ComboBoxItem item = (ComboBoxItem) locSpinner.getSelectedItem();
                     locSummary.setText(item.getDisplay());
 
-                    if ("Search".equals(item.getValue()))
+                    if (KEY_SEARCH.equals(item.getValue()))
                         // Setup search UI
                         prepareSearchUI();
                     else
@@ -330,6 +334,14 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
             startActivityForResult(intent, SETUP_REQUEST_CODE);
         }
+
+        // Get SearchUI state
+        if (savedInstanceState != null && savedInstanceState.getBoolean(KEY_SEARCHUI, false)) {
+            inSearchUI = true;
+
+            // Restart SearchUI
+            prepareSearchUI();
+        }
     }
 
     @Override
@@ -410,8 +422,12 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
-        if (inSearchUI)
-            exitSearchUi(true);
+        // Save ActionMode state
+        outState.putBoolean(KEY_SEARCHUI, inSearchUI);
+
+        // Reset to last selected item
+        if (inSearchUI && query_vm == null && selectedItem != null)
+            locSpinner.setSelection(locAdapter.getPosition(selectedItem));
 
         super.onSaveInstanceState(outState);
     }
@@ -747,7 +763,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 locData = WidgetUtils.getLocationData(mAppWidgetId);
 
                 // Handle location changes
-                if ("GPS".equals(locationItem.getValue())) {
+                if (KEY_GPS.equals(locationItem.getValue())) {
                     // Changing location to GPS
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                             ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -769,7 +785,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     // Reset data for widget
                     WidgetUtils.deleteWidget(mAppWidgetId);
                     WidgetUtils.saveLocationData(mAppWidgetId, null);
-                    WidgetUtils.addWidgetId("GPS", mAppWidgetId);
+                    WidgetUtils.addWidgetId(KEY_GPS, mAppWidgetId);
                 } else {
                     // Changing location to whatever
                     if (locData == null || !locationItem.getValue().equals(locData.getQuery())) {
@@ -812,7 +828,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 }
             } else {
                 switch (locationItem.getValue()) {
-                    case "GPS":
+                    case KEY_GPS:
                         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
@@ -833,7 +849,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         // Save locdata for widget
                         WidgetUtils.deleteWidget(mAppWidgetId);
                         WidgetUtils.saveLocationData(mAppWidgetId, null);
-                        WidgetUtils.addWidgetId("GPS", mAppWidgetId);
+                        WidgetUtils.addWidgetId(KEY_GPS, mAppWidgetId);
                         break;
                     default:
                         // Get location data
