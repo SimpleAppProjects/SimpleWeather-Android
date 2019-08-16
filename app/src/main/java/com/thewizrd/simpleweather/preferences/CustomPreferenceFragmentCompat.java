@@ -1,6 +1,7 @@
-package com.thewizrd.simpleweather;
+package com.thewizrd.simpleweather.preferences;
 
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,6 +18,7 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
+import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
 
@@ -27,8 +29,10 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
     protected AppCompatActivity mActivity;
     protected WindowColorsInterface mWindowColorsIface;
 
+    private Configuration prevConfig;
+
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mActivity = (AppCompatActivity) context;
         mWindowColorsIface = (WindowColorsInterface) context;
@@ -52,6 +56,8 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
     @Override
     public void onResume() {
         super.onResume();
+
+        prevConfig = new Configuration(getResources().getConfiguration());
 
         if (mWindowColorsIface != null) {
             int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
@@ -89,9 +95,14 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        final FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
-        ft.detach(this);
-        ft.attach(this);
-        ft.commit();
+        int diff = newConfig.diff(prevConfig);
+        if ((diff & ActivityInfo.CONFIG_UI_MODE) != 0) {
+            final FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+            ft.detach(this);
+            ft.attach(this);
+            ft.commit();
+        }
+
+        prevConfig = new Configuration(newConfig);
     }
 }

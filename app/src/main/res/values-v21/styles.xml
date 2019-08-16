@@ -1,7 +1,15 @@
 <resources>
 
     <style name="AppTheme" parent="AppTheme.Base">
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlayMaterial.v14</item>
+    </style>
+
+    <style name="PreferenceThemeOverlayMaterial.v14" parent="@style/PreferenceThemeOverlay">
+        <item name="switchPreferenceCompatStyle">@style/PreferenceSwitchCompatMaterialStyle</item>
+    </style>
+
+    <style name="PreferenceSwitchCompatMaterialStyle" parent="@style/Preference.SwitchPreferenceCompat.Material">
+        <item name="android:widgetLayout">@layout/pref_widget_switch_compat</item>
     </style>
 
     <style name="Preference_TextAppearanceMaterialBody2">
