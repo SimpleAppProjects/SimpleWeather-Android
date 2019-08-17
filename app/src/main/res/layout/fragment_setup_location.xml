@@ -11,32 +11,6 @@
     tools:background="?colorPrimary"
     tools:context=".SetupLocationFragment">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        app:elevation="0dp"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:paddingStart="0dp"
-            android:paddingLeft="0dp"
-            android:paddingEnd="0dp"
-            android:paddingRight="0dp"
-            app:contentInsetLeft="0dp"
-            app:contentInsetStart="0dp"
-            app:elevation="0dp"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight">
-
-        </androidx.appcompat.widget.Toolbar>
-
-    </com.google.android.material.appbar.AppBarLayout>
-
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/main_logo"
         android:layout_width="match_parent"
@@ -56,7 +30,7 @@
         app:layout_constraintHeight_max="150dp"
         app:layout_constraintHeight_min="100dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/app_bar"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0"
         tools:fontFamily="@font/materialicons_regular" />
 
@@ -124,10 +98,11 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:clickable="true"
-        android:elevation="4dp"
+        android:focusable="true"
+        android:translationZ="@dimen/floating_window_z"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/app_bar" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

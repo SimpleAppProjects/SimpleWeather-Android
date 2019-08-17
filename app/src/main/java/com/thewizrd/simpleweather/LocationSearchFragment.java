@@ -69,6 +69,10 @@ public class LocationSearchFragment extends Fragment {
 
     private static final String KEY_SEARCHTEXT = "search_text";
 
+    public RecyclerOnClickListenerInterface getRecyclerOnClickListener() {
+        return recyclerClickListener;
+    }
+
     public void setRecyclerOnClickListener(RecyclerOnClickListenerInterface listener) {
         recyclerClickListener = listener;
     }

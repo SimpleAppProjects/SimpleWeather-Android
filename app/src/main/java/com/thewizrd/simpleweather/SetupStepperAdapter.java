@@ -23,7 +23,6 @@ public class SetupStepperAdapter extends AbstractFragmentStepAdapter {
     public Step createStep(int position) {
         switch (position) {
             case 0:
-            default:
                 return new SetupWelcomeFragment();
             case 1:
             case 2:
@@ -34,6 +33,27 @@ public class SetupStepperAdapter extends AbstractFragmentStepAdapter {
                 } else {
                     return new SetupSettingsFragment();
                 }
+            default:
+                throw new IllegalArgumentException("Unsupported position: " + position);
+        }
+    }
+
+    @Override
+    public long getItemId(int position) {
+        switch (position) {
+            case 0:
+                return position;
+            case 1:
+            case 2:
+                if (isWeatherLoaded && position == 1) {
+                    return 2;
+                } else if (position == 1) {
+                    return 1;
+                } else {
+                    return 2;
+                }
+            default:
+                throw new IllegalArgumentException("Unsupported position: " + position);
         }
     }
 

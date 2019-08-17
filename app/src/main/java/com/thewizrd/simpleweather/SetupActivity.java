@@ -60,6 +60,7 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
         int startingStepPosition = 0;
         if (savedInstanceState != null) {
             startingStepPosition = savedInstanceState.getInt(CURRENT_STEP_POSITION_KEY, 0);
+            if (Settings.isWeatherLoaded() && startingStepPosition > 1) startingStepPosition = 1;
             args = savedInstanceState.getBundle("args");
         }
 
@@ -82,7 +83,7 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putInt(CURRENT_STEP_POSITION_KEY, mStepperLayout.getCurrentStepPosition());
         outState.putBundle("args", args);
         super.onSaveInstanceState(outState);
