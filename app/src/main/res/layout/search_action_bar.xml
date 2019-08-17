@@ -5,7 +5,7 @@
     android:id="@+id/search_action_bar"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:background="?android:attr/colorBackground"
+    android:background="@android:color/transparent"
     android:visibility="gone"
     tools:visibility="visible">
 

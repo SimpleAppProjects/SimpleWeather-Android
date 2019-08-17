@@ -8,9 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,6 +22,9 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.DarkMode;
+import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
 
@@ -95,7 +100,22 @@ public abstract class WeatherListFragment extends Fragment {
     }
 
     // Initialize views here
-    protected abstract void initialize();
+    @CallSuper
+    protected void initialize() {
+        int bg_color = Settings.getUserThemeMode() != DarkMode.AMOLED_DARK ?
+                ActivityUtils.getColor(mActivity, android.R.attr.colorBackground) : Colors.BLACK;
+        int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+        int bar_color = currentNightMode <= AppCompatDelegate.MODE_NIGHT_NO ?
+                ActivityUtils.getColor(mActivity, R.attr.colorPrimary) :
+                bg_color;
+        // Setup ActionBar
+        if (mWindowColorsIface != null) {
+            mWindowColorsIface.setWindowBarColors(bar_color);
+        }
+        getView().setBackgroundColor(bg_color);
+        toolbar.setBackgroundColor(Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ? Colors.BLACK : bar_color);
+        locationHeader.setCardBackgroundColor(bg_color);
+    }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
@@ -135,15 +155,22 @@ public abstract class WeatherListFragment extends Fragment {
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        int bg_color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+        int bg_color = Settings.getUserThemeMode() != DarkMode.AMOLED_DARK ?
+                ActivityUtils.getColor(mActivity, android.R.attr.colorBackground) : Colors.BLACK;
         int controlColor = ActivityUtils.getColor(mActivity, R.attr.colorControlNormal);
         int colorPrimary = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
         int txtColorPrimary = ActivityUtils.getColor(mActivity, android.R.attr.textColorPrimary);
+        // Setup ActionBar
         if (mWindowColorsIface != null) {
-            mWindowColorsIface.setWindowBarColors(colorPrimary);
+            int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+            if (currentNightMode < AppCompatDelegate.MODE_NIGHT_NO) {
+                mWindowColorsIface.setWindowBarColors(colorPrimary);
+            } else {
+                mWindowColorsIface.setWindowBarColors(bg_color);
+            }
         }
         getView().setBackgroundColor(bg_color);
-        toolbar.setBackgroundColor(colorPrimary);
+        toolbar.setBackgroundColor(Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ? Colors.BLACK : colorPrimary);
         locationHeader.setCardBackgroundColor(bg_color);
         locationName.setTextColor(txtColorPrimary);
 

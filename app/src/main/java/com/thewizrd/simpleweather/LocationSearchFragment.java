@@ -39,8 +39,12 @@ import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
+import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.DarkMode;
+import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.simpleweather.helpers.ActivityUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -314,6 +318,15 @@ public class LocationSearchFragment extends Fragment {
         }
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        int bg_color = Settings.getUserThemeMode() != DarkMode.AMOLED_DARK ?
+                ActivityUtils.getColor(mActivity, android.R.attr.colorBackground) : Colors.BLACK;
+        getView().setBackgroundColor(bg_color);
     }
 
     public void fetchLocations(final String queryString) {

@@ -11,13 +11,16 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
+import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.DarkMode;
+import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
@@ -59,13 +62,22 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
 
         prevConfig = new Configuration(getResources().getConfiguration());
 
+        int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+        int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+        if (currentNightMode > AppCompatDelegate.MODE_NIGHT_NO) {
+            if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
+                color = Colors.BLACK;
+            } else {
+                color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+            }
+        }
         if (mWindowColorsIface != null) {
-            int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
             mWindowColorsIface.setWindowBarColors(color);
         }
 
-        // Title
+        // Toolbar
         mToolbar.setTitle(getTitle());
+        mToolbar.setBackgroundColor(color);
     }
 
     @Override
@@ -97,10 +109,21 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
 
         int diff = newConfig.diff(prevConfig);
         if ((diff & ActivityInfo.CONFIG_UI_MODE) != 0) {
-            final FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
-            ft.detach(this);
-            ft.attach(this);
-            ft.commit();
+            int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+            int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+            if (currentNightMode > AppCompatDelegate.MODE_NIGHT_NO) {
+                if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
+                    color = Colors.BLACK;
+                } else {
+                    color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+                }
+            }
+            if (mWindowColorsIface != null) {
+                mWindowColorsIface.setWindowBarColors(color);
+            }
+            mToolbar.setBackgroundColor(color);
+
+            getListView().setAdapter(getListView().getAdapter());
         }
 
         prevConfig = new Configuration(newConfig);

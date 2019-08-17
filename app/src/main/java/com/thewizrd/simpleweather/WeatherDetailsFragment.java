@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather;
 
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,7 +11,6 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.simpleweather.adapters.WeatherDetailsAdapter;
-import com.thewizrd.simpleweather.helpers.ActivityUtils;
 
 public class WeatherDetailsFragment extends WeatherListFragment {
     private boolean isHourly = false;
@@ -38,19 +36,9 @@ public class WeatherDetailsFragment extends WeatherListFragment {
 
     @Override
     protected void initialize() {
-        toolbar.setTitle(R.string.label_forecast);
+        super.initialize();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (mWindowColorsIface != null) {
-                        int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-                        mWindowColorsIface.setWindowBarColors(color);
-                    }
-                }
-            });
-        }
+        toolbar.setTitle(R.string.label_forecast);
 
         if (weatherView == null) {
             if (location == null)

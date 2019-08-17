@@ -8,6 +8,7 @@ import android.view.View;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -20,6 +21,8 @@ import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.DarkMode;
+import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
 import com.thewizrd.simpleweather.preferences.SettingsFragment;
@@ -30,17 +33,40 @@ import java.io.StringReader;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener,
-        WeatherViewLoadedListener, WindowColorsInterface {
+        WeatherViewLoadedListener, WindowColorsInterface, DarkMode.OnThemeChangeListener {
 
     private BottomNavigationView mBottomNavView;
     private View mFragmentContainer;
+    private View mRootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Set user theme
+        int bg_color;
+        switch (Settings.getUserThemeMode()) {
+            case FOLLOW_SYSTEM: // System
+            default:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                bg_color = ActivityUtils.getColor(this, android.R.attr.colorBackground);
+                break;
+            case DARK: // Dark
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                bg_color = ActivityUtils.getColor(MainActivity.this, android.R.attr.colorBackground);
+                break;
+            case AMOLED_DARK: // Dark (AMOLED)
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                bg_color = Colors.BLACK;
+                break;
+        }
+
         setContentView(R.layout.activity_main);
 
         mFragmentContainer = findViewById(R.id.fragment_container);
+
+        mRootView = (View) mFragmentContainer.getParent();
+        mRootView.setBackgroundColor(bg_color);
 
         // Make full transparent statusBar
         ActivityUtils.setTransparentWindow(getWindow(), Colors.TRANSPARENT, Colors.TRANSPARENT);
@@ -122,8 +148,10 @@ public class MainActivity extends AppCompatActivity
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        int bg_color = ActivityUtils.getColor(this, android.R.attr.colorBackground);
-        mFragmentContainer.getRootView().setBackgroundColor(bg_color);
+        int color = Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ?
+                Colors.BLACK :
+                ActivityUtils.getColor(MainActivity.this, android.R.attr.colorBackground);
+        mRootView.setBackgroundColor(color);
     }
 
     @Override
@@ -283,7 +311,15 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 // Actionbar, BottonNavBar & StatusBar
-                setWindowBarColors(weatherNowView.getPendingBackground());
+                int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+                if (currentNightMode < AppCompatDelegate.MODE_NIGHT_NO)
+                    setWindowBarColors(weatherNowView.getPendingBackground());
+                else {
+                    int color = Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ?
+                            Colors.BLACK :
+                            ActivityUtils.getColor(MainActivity.this, android.R.attr.colorBackground);
+                    setWindowBarColors(color);
+                }
             }
         });
     }
@@ -304,5 +340,14 @@ public class MainActivity extends AppCompatActivity
                 mBottomNavView.setBackgroundColor(navBarColor);
             }
         });
+    }
+
+    @Override
+    public void onThemeChanged(DarkMode mode) {
+        int color = ActivityUtils.getColor(MainActivity.this, android.R.attr.colorBackground);
+        if (mode == DarkMode.AMOLED_DARK) {
+            color = Colors.BLACK;
+        }
+        mRootView.setBackgroundColor(color);
     }
 }

@@ -10,7 +10,11 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.DarkMode;
+import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.helpers.ActivityUtils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -39,6 +43,10 @@ public class OSSCreditsPreference extends Preference {
         super.onBindViewHolder(holder);
 
         final Context context = getContext();
+
+        int bg_color = Settings.getUserThemeMode() != DarkMode.AMOLED_DARK ?
+                ActivityUtils.getColor(context, android.R.attr.colorBackground) : Colors.BLACK;
+        holder.itemView.setBackgroundColor(bg_color);
 
         TextView webView = holder.itemView.findViewById(R.id.textview);
 

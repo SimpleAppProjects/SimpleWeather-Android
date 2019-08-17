@@ -170,4 +170,10 @@
     <string name="pref_title_personalkey">Personal Provider Key</string>
     <string name="pref_summary_personalkey">Use personal weather provider key</string>
 
+    <!-- Dark Theme -->
+    <string name="pref_title_userthememode">Dark Theme</string>
+    <string name="userthememode_default">Follow System (Default)</string>
+    <string name="userthememode_dark">Dark</string>
+    <string name="userthememode_black">Dark (AMOLED)</string>
+
 </resources>

@@ -27,6 +27,14 @@
             android:title="@string/pref_title_refreshinterval"
             app:icon="@drawable/ic_access_time_white_24dp" />
 
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/userthememode_entries"
+            android:entryValues="@array/userthememode_values"
+            android:key="key_usertheme"
+            android:summary="%s"
+            android:title="@string/pref_title_userthememode" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

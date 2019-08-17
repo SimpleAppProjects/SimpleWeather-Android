@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
@@ -68,6 +69,8 @@ import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
+import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.DarkMode;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -432,9 +435,17 @@ public class LocationsFragment extends Fragment
         view.requestFocus();
 
         // Setup ActionBar
+        int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+        int bar_color;
+        if (currentNightMode < AppCompatDelegate.MODE_NIGHT_NO) {
+            bar_color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+        } else {
+            bar_color = Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ?
+                    Colors.BLACK :
+                    ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+        }
         if (mWindowColorsIface != null) {
-            int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-            mWindowColorsIface.setWindowBarColors(color);
+            mWindowColorsIface.setWindowBarColors(bar_color);
         }
 
         mScrollView = view.findViewById(R.id.scrollView);
@@ -454,6 +465,7 @@ public class LocationsFragment extends Fragment
 
         appBarLayout = view.findViewById(R.id.app_bar);
         mToolbar = view.findViewById(R.id.toolbar);
+        mToolbar.setBackgroundColor(bar_color);
         mToolbar.setOnMenuItemClickListener(menuItemClickListener);
         mSearchFragmentContainer = view.findViewById(R.id.search_fragment_container);
 
@@ -524,13 +536,20 @@ public class LocationsFragment extends Fragment
         int bg_color = ActivityUtils.getColor(mActivity, R.attr.colorSurface);
         int controlColor = ActivityUtils.getColor(mActivity, R.attr.colorControlNormal);
         int colorPrimary = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-        mMainView.setBackgroundColor(bg_color);
         // Setup ActionBar
         if (mWindowColorsIface != null) {
-            int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-            mWindowColorsIface.setWindowBarColors(color);
+            int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+            if (currentNightMode < AppCompatDelegate.MODE_NIGHT_NO) {
+                mWindowColorsIface.setWindowBarColors(colorPrimary);
+            } else {
+                int color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+                if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
+                    color = Colors.BLACK;
+                }
+                mWindowColorsIface.setWindowBarColors(color);
+            }
         }
-        mToolbar.setBackgroundColor(colorPrimary);
+        mToolbar.setBackgroundColor(Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ? Colors.BLACK : colorPrimary);
         addLocationsButton.setBackgroundTintList(ContextCompat.getColorStateList(mActivity, R.color.mtrl_btn_bg_color_selector));
     }
 
@@ -573,21 +592,32 @@ public class LocationsFragment extends Fragment
     private void resume() {
         cts = new CancellationTokenSource();
 
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+                int color;
+                if (currentNightMode < AppCompatDelegate.MODE_NIGHT_NO) {
+                    color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+                } else {
+                    color = Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ?
+                            Colors.BLACK :
+                            ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+                }
+
+                if (mWindowColorsIface != null) {
+                    mWindowColorsIface.setWindowBarColors(color);
+                }
+
+                mToolbar.setBackgroundColor(color);
+            }
+        });
+
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 // Update view on resume
                 // ex. If temperature unit changed
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mWindowColorsIface != null) {
-                            int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-                            mWindowColorsIface.setWindowBarColors(color);
-                        }
-                    }
-                });
-
                 if (mAdapter.getDataCount() == 0) {
                     // New instance; Get locations and load up weather data
                     loadLocations();

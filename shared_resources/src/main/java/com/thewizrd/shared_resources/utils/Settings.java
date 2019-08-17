@@ -84,6 +84,7 @@ public class Settings {
     public static final String KEY_ONGOINGNOTIFICATION = "key_ongoingnotification";
     public static final String KEY_NOTIFICATIONICON = "key_notificationicon";
     private static final String KEY_ONBOARDINGCOMPLETE = "key_onboardcomplete";
+    public static final String KEY_USERTHEME = "key_usertheme";
     public static final String TEMPERATURE_ICON = "0";
     public static final String CONDITION_ICON = "1";
     // END - !ANDROID_WEAR
@@ -826,6 +827,20 @@ public class Settings {
 
     public static void setAlerts(boolean value) {
         editor.putBoolean(KEY_USEALERTS, value);
+        editor.commit();
+    }
+
+    public static DarkMode getUserThemeMode() {
+        if (!preferences.contains(KEY_USERTHEME)) {
+            setUserThemeMode(DarkMode.FOLLOW_SYSTEM);
+            return DarkMode.FOLLOW_SYSTEM;
+        } else {
+            return DarkMode.valueOf(Integer.parseInt(preferences.getString(KEY_USERTHEME, "0")));
+        }
+    }
+
+    public static void setUserThemeMode(DarkMode value) {
+        editor.putString(KEY_USERTHEME, Integer.toString(value.getValue()));
         editor.commit();
     }
     // END - !ANDROID_WEAR

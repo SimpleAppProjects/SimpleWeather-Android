@@ -35,6 +35,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -73,6 +74,7 @@ import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
+import com.thewizrd.shared_resources.utils.DarkMode;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -114,7 +116,7 @@ import java.util.concurrent.TimeoutException;
 public class WeatherNowFragment extends Fragment implements WeatherLoadedListenerInterface, WeatherErrorListenerInterface {
     private LocationData location = null;
     private boolean loaded = false;
-    private int bgAlpha = 255;
+    private int bgAlpha = 0xFF; // int: 255
 
     private WeatherManager wm;
     private WeatherDataLoader wLoader = null;
@@ -447,10 +449,19 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
         conditionPanel = view.findViewById(R.id.condition_panel);
 
+        int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+        int color;
+        if (currentNightMode <= AppCompatDelegate.MODE_NIGHT_NO) {
+            color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+        } else {
+            color = Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ?
+                    Colors.BLACK :
+                    ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+        }
         if (mWindowColorsIface != null) {
-            int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
             mWindowColorsIface.setWindowBarColors(color);
         }
+        view.setBackgroundColor(color);
 
         refreshLayout = view.findViewById(R.id.refresh_layout);
         scrollView = view.findViewById(R.id.fragment_weather_now);
@@ -467,10 +478,11 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                                 ViewCompat.setElevation(mAppBarLayout, 0);
                             }
                         }
-                        if (mImageView != null) {
+                        final int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+                        if (currentNightMode <= AppCompatDelegate.MODE_NIGHT_NO && mImageView != null) {
                             // Default adj = 1.25
                             float adj = 2.5f;
-                            int alpha = 255 - (int) (255 * adj * scrollY / (v.getChildAt(0).getHeight() - v.getHeight()));
+                            int alpha = 0xFF - (int) (0xFF * adj * scrollY / (v.getChildAt(0).getHeight() - v.getHeight()));
                             if (alpha >= 0)
                                 mImageView.setImageAlpha(bgAlpha = alpha);
                             else
@@ -613,20 +625,27 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                 if (scrollView != null) scrollView.scrollTo(0, 0);
             }
         });
-        mImageView.post(new Runnable() {
-            @Override
-            public void run() {
-                // Reload background image
-                if (weatherView != null) {
-                    Glide.with(mActivity)
-                            .load(weatherView.getBackground())
-                            .apply(new RequestOptions().centerCrop()
-                                    .format(DecodeFormat.PREFER_RGB_565)
-                                    .skipMemoryCache(true))
-                            .into(mImageView);
+
+        int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+
+        if (currentNightMode <= AppCompatDelegate.MODE_NIGHT_NO) {
+            mImageView.post(new Runnable() {
+                @Override
+                public void run() {
+                    // Reload background image
+                    if (weatherView != null) {
+                        Glide.with(mActivity)
+                                .load(weatherView.getBackground())
+                                .apply(new RequestOptions().centerCrop()
+                                        .format(DecodeFormat.PREFER_RGB_565)
+                                        .skipMemoryCache(true))
+                                .into(mImageView);
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            mImageView.setImageDrawable(null);
+        }
     }
 
     /**
@@ -827,6 +846,28 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             adjustConditionPanelLayout();
             adjustDetailsLayout();
 
+            int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+
+            if (currentNightMode > AppCompatDelegate.MODE_NIGHT_NO) {
+                int color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+                if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
+                    color = Colors.BLACK;
+                }
+
+                View mainView = this.getView();
+
+                if (mainView != null) {
+                    mainView.setBackgroundColor(color);
+                }
+                if (mWindowColorsIface != null)
+                    mWindowColorsIface.setWindowBarColors(color);
+
+                mImageView.setImageDrawable(null);
+                mImageView.setImageAlpha(bgAlpha = 0xFF);
+
+                bgAttribution.setVisibility(View.INVISIBLE);
+            }
+
             AsyncTask.run(new Runnable() {
                 @Override
                 public void run() {
@@ -983,16 +1024,37 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
                 // Background
                 View mainView = WeatherNowFragment.this.getView();
-                if (mainView != null) {
-                    mainView.setBackgroundColor(weatherView.getPendingBackground());
-                }
 
-                mImageView.setImageAlpha(bgAlpha);
-                Glide.with(mActivity)
-                        .load(weatherView.getBackground())
-                        .apply(new RequestOptions().centerCrop()
-                                .format(DecodeFormat.PREFER_RGB_565))
-                        .into(mImageView);
+                int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+
+                if (currentNightMode <= AppCompatDelegate.MODE_NIGHT_NO) {
+                    if (mainView != null) {
+                        mainView.setBackgroundColor(weatherView.getPendingBackground());
+                    }
+
+                    mImageView.setImageAlpha(bgAlpha);
+                    Glide.with(mActivity)
+                            .load(weatherView.getBackground())
+                            .apply(new RequestOptions().centerCrop()
+                                    .format(DecodeFormat.PREFER_RGB_565))
+                            .into(mImageView);
+
+                    bgAttribution.setVisibility(View.VISIBLE);
+                } else {
+                    int color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+                    if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
+                        color = Colors.BLACK;
+                    }
+
+                    if (mainView != null) {
+                        mainView.setBackgroundColor(color);
+                    }
+
+                    mImageView.setImageDrawable(null);
+                    mImageView.setImageAlpha(bgAlpha = 0xFF);
+
+                    bgAttribution.setVisibility(View.INVISIBLE);
+                }
 
                 // Location
                 mTitleView.setText(weatherView.getLocation());

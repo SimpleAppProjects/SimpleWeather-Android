@@ -31,6 +31,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
@@ -95,6 +96,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
     private WeatherManager wm;
 
     // Views
+    private View mRootView;
     private NestedScrollView scrollView;
     private Spinner locSpinner;
     private ArrayAdapter<ComboBoxItem> locAdapter;
@@ -139,6 +141,24 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             finish();
         }
 
+        // Set user theme
+        int bg_color;
+        switch (Settings.getUserThemeMode()) {
+            case FOLLOW_SYSTEM: // System
+            default:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                bg_color = ActivityUtils.getColor(this, android.R.attr.colorBackground);
+                break;
+            case DARK: // Dark
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                bg_color = ActivityUtils.getColor(this, android.R.attr.colorBackground);
+                break;
+            case AMOLED_DARK: // Dark (AMOLED)
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                bg_color = Colors.BLACK;
+                break;
+        }
+
         setContentView(R.layout.activity_widget_setup);
 
         // Make full transparent statusBar
@@ -153,6 +173,9 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         collapsingToolbar = findViewById(R.id.collapsing_toolbar);
         mSearchFragmentContainer = findViewById(R.id.search_fragment_container);
         scrollView = findViewById(R.id.scrollView);
+
+        mRootView = (View) appBarLayout.getParent();
+        mRootView.setBackgroundColor(bg_color);
 
         // Disable drag on AppBarLayout
         CoordinatorLayout.LayoutParams appBarLayoutParams = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();

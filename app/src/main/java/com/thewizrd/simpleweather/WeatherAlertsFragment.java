@@ -1,14 +1,11 @@
 package com.thewizrd.simpleweather;
 
-import android.os.Build;
-
 import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Weather;
-import com.thewizrd.simpleweather.helpers.ActivityUtils;
 
 import java.util.List;
 
@@ -33,17 +30,7 @@ public class WeatherAlertsFragment extends WeatherListFragment {
 
     @Override
     protected void initialize() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (mWindowColorsIface != null) {
-                        int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-                        mWindowColorsIface.setWindowBarColors(color);
-                    }
-                }
-            });
-        }
+        super.initialize();
 
         if (weatherView == null) {
             if (location == null)

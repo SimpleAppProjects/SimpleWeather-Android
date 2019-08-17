@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.preference.EditTextPreference;
 import androidx.preference.EditTextPreferenceDialogFragmentCompat;
@@ -39,6 +40,7 @@ import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
+import com.thewizrd.shared_resources.utils.DarkMode;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
@@ -46,10 +48,12 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -62,9 +66,10 @@ import static com.thewizrd.shared_resources.utils.Settings.KEY_REFRESHINTERVAL;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_USEALERTS;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_USECELSIUS;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_USEPERSONALKEY;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_USERTHEME;
 
 public class SettingsFragment extends CustomPreferenceFragmentCompat
-        implements SharedPreferences.OnSharedPreferenceChangeListener {
+        implements SharedPreferences.OnSharedPreferenceChangeListener, DarkMode.OnThemeChangeListener {
 
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
 
@@ -84,6 +89,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
     private ListPreference notificationIcon;
     private SwitchPreferenceCompat alertNotification;
     private Preference registerPref;
+    private ListPreference themePref;
 
     private PreferenceCategory notCategory;
     private PreferenceCategory apiCategory;
@@ -91,9 +97,69 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
     // Intent queue
     private HashSet<Intent.FilterComparison> intentQueue;
 
+    private List<DarkMode.OnThemeChangeListener> mThemeChangeListeners;
+
     @Override
     protected int getTitle() {
         return R.string.title_activity_settings;
+    }
+
+    /**
+     * Registers a listener.
+     */
+    private void registerOnThemeChangeListener(DarkMode.OnThemeChangeListener listener) {
+        synchronized (this) {
+            if (mThemeChangeListeners == null) {
+                mThemeChangeListeners = new ArrayList<>();
+            }
+
+            if (!mThemeChangeListeners.contains(listener)) {
+                mThemeChangeListeners.add(listener);
+            }
+        }
+    }
+
+    /**
+     * Unregisters a listener.
+     */
+    private void unregisterOnThemeChangeListener(DarkMode.OnThemeChangeListener listener) {
+        synchronized (this) {
+            if (mThemeChangeListeners != null) {
+                mThemeChangeListeners.remove(listener);
+            }
+        }
+    }
+
+    private void dispatchThemeChanged(DarkMode mode) {
+        List<DarkMode.OnThemeChangeListener> list;
+
+        synchronized (this) {
+            if (mThemeChangeListeners == null) return;
+            list = new ArrayList<>(mThemeChangeListeners);
+        }
+
+        final int N = list.size();
+        for (int i = 0; i < N; i++) {
+            list.get(i).onThemeChanged(mode);
+        }
+    }
+
+    @Override
+    public void onThemeChanged(DarkMode mode) {
+        if (mode != DarkMode.FOLLOW_SYSTEM) {
+            int color = mode != DarkMode.AMOLED_DARK ?
+                    ActivityUtils.getColor(mActivity, android.R.attr.colorBackground) : Colors.BLACK;
+            if (mWindowColorsIface != null) {
+                mWindowColorsIface.setWindowBarColors(color);
+            }
+            mToolbar.setBackgroundColor(color);
+        } else {
+            int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+            if (mWindowColorsIface != null) {
+                mWindowColorsIface.setWindowBarColors(color);
+            }
+            mToolbar.setBackgroundColor(color);
+        }
     }
 
     @Override
@@ -104,6 +170,8 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         ApplicationLib app = App.getInstance();
         app.getPreferences().unregisterOnSharedPreferenceChangeListener(app.getSharedPreferenceListener());
         app.getPreferences().registerOnSharedPreferenceChangeListener(this);
+        registerOnThemeChangeListener(this);
+        registerOnThemeChangeListener((DarkMode.OnThemeChangeListener) mActivity);
 
         // Initialize queue
         intentQueue = new HashSet<>();
@@ -138,6 +206,8 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         ApplicationLib app = App.getInstance();
         app.getPreferences().unregisterOnSharedPreferenceChangeListener(this);
         app.getPreferences().registerOnSharedPreferenceChangeListener(app.getSharedPreferenceListener());
+        unregisterOnThemeChangeListener((DarkMode.OnThemeChangeListener) mActivity);
+        unregisterOnThemeChangeListener(this);
 
         for (Intent.FilterComparison filter : intentQueue) {
             if (CommonActions.ACTION_SETTINGS_UPDATEAPI.equals(filter.getIntent().getAction())) {
@@ -223,6 +293,31 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                     }
                 }
 
+                return true;
+            }
+        });
+
+        themePref = (ListPreference) findPreference(KEY_USERTHEME);
+        themePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                DarkMode mode;
+                switch (newValue.toString()) {
+                    case "0": // System
+                    default:
+                        mode = DarkMode.FOLLOW_SYSTEM;
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                        break;
+                    case "1": // Dark
+                        mode = DarkMode.DARK;
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                        break;
+                    case "2": // Dark (AMOLED / Black)
+                        mode = DarkMode.AMOLED_DARK;
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                        break;
+                }
+                dispatchThemeChanged(mode);
                 return true;
             }
         });

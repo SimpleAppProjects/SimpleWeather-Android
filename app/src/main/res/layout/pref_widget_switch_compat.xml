@@ -24,4 +24,5 @@
     android:focusable="false"
     android:clickable="false"
     android:background="@null"
+    app:thumbTint="@color/switch_thumb_tint"
     app:trackTint="@color/switch_track_tint" />

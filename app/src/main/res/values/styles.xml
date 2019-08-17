@@ -7,6 +7,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorPrimaryLight</item>
         <item name="actionButtonStyle">@style/ActionButton</item>
+        <item name="android:windowBackground">?colorPrimary</item>
     </style>
 
     <style name="AppTheme" parent="AppTheme.Base">

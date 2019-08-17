@@ -190,9 +190,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         if (holder instanceof HeaderSetterInterface) {
             ((HeaderSetterInterface) holder).setHeader();
-            if (imageUpdateOnly) {
-                ((HeaderSetterInterface) holder).setHeaderTextColor();
-            }
+            ((HeaderSetterInterface) holder).setHeaderTextColor();
         } else {
             final ViewHolder vHolder = (ViewHolder) holder;
             // - get element from your dataset at this position
