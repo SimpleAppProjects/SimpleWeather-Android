@@ -144,4 +144,6 @@ public class Colors {
     public static final int YELLOWGREEN = 0xFF9ACD32;
 
     public static final int SIMPLEBLUE = 0xFF0070C0;
+    public static final int SIMPLEBLUEDARK = 0xFF00468F;
+    public static final int SIMPLEBLUELIGHT = 0xFF599EF3;
 }

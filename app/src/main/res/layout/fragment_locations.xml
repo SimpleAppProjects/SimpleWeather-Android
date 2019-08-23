@@ -11,19 +11,30 @@
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:fitsSystemWindows="true"
         android:theme="@style/AppTheme.AppBarOverlay"
         tools:stateListAnimator="@null">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:elevation="@dimen/appbar_elevation"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:title="@string/label_nav_locations">
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
+            app:layout_scrollFlags="noScroll"
+            app:statusBarScrim="?attr/colorPrimary"
+            app:titleEnabled="false">
 
-        </androidx.appcompat.widget.Toolbar>
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:elevation="@dimen/appbar_elevation"
+                app:layout_collapseMode="pin"
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                app:title="@string/label_nav_locations" />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -32,10 +43,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
-        android:paddingBottom="4dp"
         android:paddingLeft="8dp"
-        android:paddingRight="8dp"
         android:paddingTop="4dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="4dp"
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">

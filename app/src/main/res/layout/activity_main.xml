@@ -4,29 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
-    <FrameLayout
+    <com.thewizrd.simpleweather.helpers.WindowInsetsFrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@null"
         app:layout_constraintBottom_toTopOf="@id/bottom_nav_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <ViewStub
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:layout="@layout/fragment_weather_now"
-            tools:visibility="visible" />
-
-    </FrameLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav_bar"
@@ -38,8 +27,6 @@
         app:layout_constraintTop_toBottomOf="@id/fragment_container"
         app:menu="@menu/activity_main_drawer"
         app:itemIconTint="@color/colorTextHint"
-        app:itemTextColor="@color/colorTextHint">
-
-    </com.google.android.material.bottomnavigation.BottomNavigationView>
+        app:itemTextColor="@color/colorTextHint" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

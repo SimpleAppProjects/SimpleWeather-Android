@@ -32,6 +32,9 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -55,6 +58,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.thewizrd.shared_resources.AsyncTask;
@@ -122,7 +126,8 @@ public class LocationsFragment extends Fragment
     private MaterialButton addLocationsButton;
 
     // Search
-    private AppBarLayout appBarLayout;
+    private AppBarLayout mAppBarLayout;
+    private CollapsingToolbarLayout mCollapsingToolbar;
     private Toolbar mToolbar;
     private View mSearchFragmentContainer;
     private LocationSearchFragment mSearchFragment;
@@ -434,20 +439,6 @@ public class LocationsFragment extends Fragment
         view.setFocusableInTouchMode(true);
         view.requestFocus();
 
-        // Setup ActionBar
-        int currentNightMode = AppCompatDelegate.getDefaultNightMode();
-        int bar_color;
-        if (currentNightMode < AppCompatDelegate.MODE_NIGHT_NO) {
-            bar_color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-        } else {
-            bar_color = Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ?
-                    Colors.BLACK :
-                    ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
-        }
-        if (mWindowColorsIface != null) {
-            mWindowColorsIface.setWindowBarColors(bar_color);
-        }
-
         mScrollView = view.findViewById(R.id.scrollView);
         /*
            Capture touch events on ScrollView
@@ -463,9 +454,17 @@ public class LocationsFragment extends Fragment
             }
         });
 
-        appBarLayout = view.findViewById(R.id.app_bar);
+        mAppBarLayout = view.findViewById(R.id.app_bar);
+        ViewCompat.setOnApplyWindowInsetsListener(mAppBarLayout, new OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) mSearchFragmentContainer.getLayoutParams();
+                layoutParams.topMargin = insets.getSystemWindowInsetTop();
+                return insets;
+            }
+        });
+        mCollapsingToolbar = view.findViewById(R.id.collapsing_toolbar);
         mToolbar = view.findViewById(R.id.toolbar);
-        mToolbar.setBackgroundColor(bar_color);
         mToolbar.setOnMenuItemClickListener(menuItemClickListener);
         mSearchFragmentContainer = view.findViewById(R.id.search_fragment_container);
 
@@ -475,6 +474,7 @@ public class LocationsFragment extends Fragment
                 exitSearchUi(false);
             }
         });
+        ViewCompat.setOnApplyWindowInsetsListener(mSearchFragmentContainer, null);
 
         addLocationsButton = view.findViewById(R.id.fab);
         addLocationsButton.setOnClickListener(new View.OnClickListener() {
@@ -487,6 +487,9 @@ public class LocationsFragment extends Fragment
         });
         CoordinatorLayout.LayoutParams fabLP = (CoordinatorLayout.LayoutParams) addLocationsButton.getLayoutParams();
         fabLP.setBehavior(new ExtendedFab.SnackBarBehavior());
+
+        // Set colors
+        updateWindowColors();
 
         mRecyclerView = view.findViewById(R.id.locations_container);
 
@@ -533,24 +536,25 @@ public class LocationsFragment extends Fragment
         super.onConfigurationChanged(newConfig);
 
         mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount(), LocationPanelAdapter.Payload.IMAGE_UPDATE);
-        int bg_color = ActivityUtils.getColor(mActivity, R.attr.colorSurface);
-        int controlColor = ActivityUtils.getColor(mActivity, R.attr.colorControlNormal);
-        int colorPrimary = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-        // Setup ActionBar
-        if (mWindowColorsIface != null) {
-            int currentNightMode = AppCompatDelegate.getDefaultNightMode();
-            if (currentNightMode < AppCompatDelegate.MODE_NIGHT_NO) {
-                mWindowColorsIface.setWindowBarColors(colorPrimary);
+        addLocationsButton.setBackgroundTintList(ContextCompat.getColorStateList(mActivity, R.color.mtrl_btn_bg_color_selector));
+        updateWindowColors();
+    }
+
+    private void updateWindowColors() {
+        int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+        int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+        if (currentNightMode == AppCompatDelegate.MODE_NIGHT_YES) {
+            if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
+                color = Colors.BLACK;
             } else {
-                int color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
-                if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
-                    color = Colors.BLACK;
-                }
-                mWindowColorsIface.setWindowBarColors(color);
+                color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
             }
         }
-        mToolbar.setBackgroundColor(Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ? Colors.BLACK : colorPrimary);
-        addLocationsButton.setBackgroundTintList(ContextCompat.getColorStateList(mActivity, R.color.mtrl_btn_bg_color_selector));
+        mAppBarLayout.setBackgroundColor(color);
+        mCollapsingToolbar.setStatusBarScrimColor(color);
+        if (mWindowColorsIface != null) {
+            mWindowColorsIface.setWindowBarColors(color);
+        }
     }
 
     private void createOptionsMenu() {
@@ -595,21 +599,7 @@ public class LocationsFragment extends Fragment
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                int currentNightMode = AppCompatDelegate.getDefaultNightMode();
-                int color;
-                if (currentNightMode < AppCompatDelegate.MODE_NIGHT_NO) {
-                    color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-                } else {
-                    color = Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ?
-                            Colors.BLACK :
-                            ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
-                }
-
-                if (mWindowColorsIface != null) {
-                    mWindowColorsIface.setWindowBarColors(color);
-                }
-
-                mToolbar.setBackgroundColor(color);
+                updateWindowColors();
             }
         });
 

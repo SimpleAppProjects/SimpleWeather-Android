@@ -5,10 +5,12 @@ import android.app.Application;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.multidex.MultiDex;
 
@@ -26,7 +28,6 @@ public class App extends Application implements ApplicationLib, Application.Acti
     public static final int HOMEIDX = 0;
 
     private static ApplicationLib sInstance = null;
-    public static Settings Settings = null;
 
     private Context context;
     private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
@@ -101,6 +102,21 @@ public class App extends Application implements ApplicationLib, Application.Acti
 
         // Load data if needed
         loadIfNeeded();
+
+        // Set Default Theme
+        switch (Settings.getUserThemeMode()) {
+            case FOLLOW_SYSTEM: // System
+            default:
+                if (Build.VERSION.SDK_INT >= 29)
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                else
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);
+                break;
+            case DARK: // Dark
+            case AMOLED_DARK: // Dark (AMOLED)
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                break;
+        }
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.thewizrd.simpleweather;
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 
@@ -54,8 +53,7 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
         setContentView(R.layout.activity_setup);
 
         // Make full transparent statusBar
-        int color = ActivityUtils.getColor(this, R.attr.colorPrimary);
-        ActivityUtils.setTransparentWindow(getWindow(), color, color);
+        ActivityUtils.setTransparentWindow(getWindow(), Colors.TRANSPARENT, Colors.TRANSPARENT);
 
         int startingStepPosition = 0;
         if (savedInstanceState != null) {
@@ -71,15 +69,6 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
         mStepperLayout.setCompleteButtonColor(Colors.WHITE);
         mStepperLayout.setAdapter(new SetupStepperAdapter(getSupportFragmentManager(), this), startingStepPosition);
         mStepperLayout.setListener(this);
-    }
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        // Make full transparent statusBar
-        int color = ActivityUtils.getColor(this, R.attr.colorPrimary);
-        ActivityUtils.setTransparentWindow(getWindow(), color, color);
     }
 
     @Override

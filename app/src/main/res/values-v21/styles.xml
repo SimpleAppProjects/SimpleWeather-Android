@@ -1,10 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="AppTheme" parent="AppTheme.Base">
-        <item name="preferenceTheme">@style/PreferenceThemeOverlayMaterial.v14</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlayMaterial</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
-    <style name="PreferenceThemeOverlayMaterial.v14" parent="@style/PreferenceThemeOverlay">
+    <style name="PreferenceThemeOverlayMaterial" parent="@style/PreferenceThemeOverlay">
         <item name="switchPreferenceCompatStyle">@style/PreferenceSwitchCompatMaterialStyle</item>
     </style>
 

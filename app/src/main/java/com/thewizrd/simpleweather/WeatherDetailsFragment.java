@@ -38,7 +38,7 @@ public class WeatherDetailsFragment extends WeatherListFragment {
     protected void initialize() {
         super.initialize();
 
-        toolbar.setTitle(R.string.label_forecast);
+        mToolbar.setTitle(R.string.label_forecast);
 
         if (weatherView == null) {
             if (location == null)

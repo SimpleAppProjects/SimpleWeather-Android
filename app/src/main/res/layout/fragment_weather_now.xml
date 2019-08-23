@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorPrimary"
     tools:context=".WeatherNowFragment">
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -12,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
+        android:fitsSystemWindows="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -23,6 +23,7 @@
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:theme="@style/AppTheme.AppBarOverlay"
+        android:fitsSystemWindows="true"
         app:elevation="0dp"
         tools:stateListAnimator="@null">
 

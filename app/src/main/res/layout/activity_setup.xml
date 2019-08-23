@@ -15,6 +15,7 @@
         android:id="@+id/stepperLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
         app:ms_stepperType="dots"
         app:ms_bottomNavigationBackground="?attr/colorPrimary"
         app:ms_activeStepColor="#fff"

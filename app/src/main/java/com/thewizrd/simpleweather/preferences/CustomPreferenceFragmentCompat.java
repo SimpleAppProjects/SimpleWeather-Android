@@ -17,6 +17,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.DarkMode;
@@ -28,6 +29,8 @@ import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
 public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentCompat
         implements OnBackPressedFragmentListener {
 
+    private AppBarLayout mAppBarLayout;
+    private CollapsingToolbarLayout mCollapsingToolbar;
     protected Toolbar mToolbar;
     protected AppCompatActivity mActivity;
     protected WindowColorsInterface mWindowColorsIface;
@@ -62,22 +65,9 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
 
         prevConfig = new Configuration(getResources().getConfiguration());
 
-        int currentNightMode = AppCompatDelegate.getDefaultNightMode();
-        int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-        if (currentNightMode > AppCompatDelegate.MODE_NIGHT_NO) {
-            if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
-                color = Colors.BLACK;
-            } else {
-                color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
-            }
-        }
-        if (mWindowColorsIface != null) {
-            mWindowColorsIface.setWindowBarColors(color);
-        }
-
         // Toolbar
         mToolbar.setTitle(getTitle());
-        mToolbar.setBackgroundColor(color);
+        updateWindowColors();
     }
 
     @Override
@@ -86,6 +76,8 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
 
         View inflatedView = super.onCreateView(inflater, container, savedInstanceState);
 
+        mAppBarLayout = root.findViewById(R.id.app_bar);
+        mCollapsingToolbar = root.findViewById(R.id.collapsing_toolbar);
         mToolbar = root.findViewById(R.id.toolbar);
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,23 +101,31 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
 
         int diff = newConfig.diff(prevConfig);
         if ((diff & ActivityInfo.CONFIG_UI_MODE) != 0) {
-            int currentNightMode = AppCompatDelegate.getDefaultNightMode();
-            int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-            if (currentNightMode > AppCompatDelegate.MODE_NIGHT_NO) {
-                if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
-                    color = Colors.BLACK;
-                } else {
-                    color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
-                }
-            }
-            if (mWindowColorsIface != null) {
-                mWindowColorsIface.setWindowBarColors(color);
-            }
-            mToolbar.setBackgroundColor(color);
-
+            updateWindowColors();
             getListView().setAdapter(getListView().getAdapter());
         }
 
         prevConfig = new Configuration(newConfig);
+    }
+
+    protected final void updateWindowColors() {
+        updateWindowColors(Settings.getUserThemeMode());
+    }
+
+    protected final void updateWindowColors(DarkMode mode) {
+        int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+        int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+        if (currentNightMode == AppCompatDelegate.MODE_NIGHT_YES) {
+            if (mode == DarkMode.AMOLED_DARK) {
+                color = Colors.BLACK;
+            } else {
+                color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+            }
+        }
+        mAppBarLayout.setBackgroundColor(color);
+        mCollapsingToolbar.setStatusBarScrimColor(color);
+        if (mWindowColorsIface != null) {
+            mWindowColorsIface.setWindowBarColors(color);
+        }
     }
 }

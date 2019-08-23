@@ -330,7 +330,7 @@ public class LocationSearchFragment extends Fragment {
 
         int bg_color = Settings.getUserThemeMode() != DarkMode.AMOLED_DARK ?
                 ActivityUtils.getColor(mActivity, android.R.attr.colorBackground) : Colors.BLACK;
-        getView().setBackgroundColor(bg_color);
+        view.setBackgroundColor(bg_color);
     }
 
     public void fetchLocations(final String queryString) {

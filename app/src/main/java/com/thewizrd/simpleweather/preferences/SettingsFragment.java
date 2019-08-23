@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Spannable;
@@ -24,6 +25,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -48,7 +50,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
@@ -146,20 +147,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
 
     @Override
     public void onThemeChanged(DarkMode mode) {
-        if (mode != DarkMode.FOLLOW_SYSTEM) {
-            int color = mode != DarkMode.AMOLED_DARK ?
-                    ActivityUtils.getColor(mActivity, android.R.attr.colorBackground) : Colors.BLACK;
-            if (mWindowColorsIface != null) {
-                mWindowColorsIface.setWindowBarColors(color);
-            }
-            mToolbar.setBackgroundColor(color);
-        } else {
-            int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-            if (mWindowColorsIface != null) {
-                mWindowColorsIface.setWindowBarColors(color);
-            }
-            mToolbar.setBackgroundColor(color);
-        }
+        updateWindowColors(mode);
     }
 
     @Override
@@ -265,7 +253,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                 } else {
                     preference.setIcon(R.drawable.ic_fahrenheit);
                 }
-                tintIcons(unitPref, Colors.SIMPLEBLUE);
+                tintIcons(unitPref, Colors.SIMPLEBLUELIGHT);
                 return true;
             }
         });
@@ -306,7 +294,10 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                     case "0": // System
                     default:
                         mode = DarkMode.FOLLOW_SYSTEM;
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                        if (Build.VERSION.SDK_INT >= 29)
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                        else
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);
                         break;
                     case "1": // Dark
                         mode = DarkMode.DARK;
@@ -558,10 +549,10 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         });
         updateAlertPreference(WeatherManager.getInstance().supportsAlerts());
 
-        tintIcons(getPreferenceScreen(), ContextCompat.getColor(mActivity, R.color.colorPrimaryLight));
+        tintIcons(getPreferenceScreen(), Colors.SIMPLEBLUELIGHT);
     }
 
-    private static void tintIcons(Preference preference, int color) {
+    private static void tintIcons(Preference preference, @ColorInt int color) {
         if (preference instanceof PreferenceGroup) {
             PreferenceGroup group = ((PreferenceGroup) preference);
             for (int i = 0; i < group.getPreferenceCount(); i++) {

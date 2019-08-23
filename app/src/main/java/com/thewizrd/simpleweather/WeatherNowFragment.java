@@ -41,7 +41,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -436,13 +438,23 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                 @Override
                 public void getOutline(View view, Outline outline) {
                     // L, T, R, B
-                    outline.setRect(0, mAppBarLayout.getHeight(), view.getWidth(), mAppBarLayout.getHeight() + 1);
+                    outline.setRect(0, view.getHeight(), view.getWidth(), view.getHeight() + 1);
                     outline.setAlpha(0.5f);
                 }
             });
         }
         ViewCompat.setElevation(mAppBarLayout, 0);
         mImageView = view.findViewById(R.id.image_view);
+        ViewCompat.setOnApplyWindowInsetsListener(mImageView, new OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                layoutParams.topMargin = -insets.getSystemWindowInsetTop();
+                layoutParams.bottomMargin = -insets.getSystemWindowInsetBottom();
+                return insets;
+            }
+        });
+
         mTitleView = view.findViewById(R.id.toolbar_title);
         mTitleView.setText(R.string.title_activity_weather_now);
         mToolbar = view.findViewById(R.id.toolbar);
@@ -451,7 +463,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
         int currentNightMode = AppCompatDelegate.getDefaultNightMode();
         int color;
-        if (currentNightMode <= AppCompatDelegate.MODE_NIGHT_NO) {
+        if (currentNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
             color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
         } else {
             color = Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ?
@@ -479,7 +491,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             }
                         }
                         final int currentNightMode = AppCompatDelegate.getDefaultNightMode();
-                        if (currentNightMode <= AppCompatDelegate.MODE_NIGHT_NO && mImageView != null) {
+                        if (currentNightMode != AppCompatDelegate.MODE_NIGHT_YES && mImageView != null) {
                             // Default adj = 1.25
                             float adj = 2.5f;
                             int alpha = 0xFF - (int) (0xFF * adj * scrollY / (v.getChildAt(0).getHeight() - v.getHeight()));
@@ -628,7 +640,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
         int currentNightMode = AppCompatDelegate.getDefaultNightMode();
 
-        if (currentNightMode <= AppCompatDelegate.MODE_NIGHT_NO) {
+        if (currentNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
             mImageView.post(new Runnable() {
                 @Override
                 public void run() {
@@ -848,7 +860,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
             int currentNightMode = AppCompatDelegate.getDefaultNightMode();
 
-            if (currentNightMode > AppCompatDelegate.MODE_NIGHT_NO) {
+            if (currentNightMode == AppCompatDelegate.MODE_NIGHT_YES) {
                 int color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
                 if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
                     color = Colors.BLACK;
@@ -965,10 +977,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             public void run() {
                 if (mActivity != null) {
                     View bottomAppBar = mActivity.findViewById(R.id.bottom_nav_bar);
-                    float height = Math.abs((mAppBarLayout.getY() + mAppBarLayout.getHeight() / 2f - mAppBarElevation) - (bottomAppBar.getY() - bottomAppBar.getHeight()));
+                    float height = Math.abs((mAppBarLayout.getY() + mAppBarLayout.getHeight() / 2f - mAppBarElevation) - (bottomAppBar.getY() - bottomAppBar.getHeight() / 2f));
                     ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) conditionPanel.getLayoutParams();
                     lp.height = (int) height;
-                    lp.bottomMargin = bottomAppBar.getHeight();
                     conditionPanel.setLayoutParams(lp);
                 }
             }
@@ -1027,7 +1038,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
                 int currentNightMode = AppCompatDelegate.getDefaultNightMode();
 
-                if (currentNightMode <= AppCompatDelegate.MODE_NIGHT_NO) {
+                if (currentNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
                     if (mainView != null) {
                         mainView.setBackgroundColor(weatherView.getPendingBackground());
                     }

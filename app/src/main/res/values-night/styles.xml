@@ -8,7 +8,7 @@
         <item name="colorAccent">@color/colorPrimaryLight</item>
         <item name="actionButtonStyle">@style/ActionButton</item>
         <item name="alertDialogTheme">@style/AlertDialogTheme</item>
-        <item name="android:windowBackground">?colorPrimary</item>
+        <item name="android:windowBackground">?attr/colorPrimary</item>
     </style>
 
     <style name="AlertDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">

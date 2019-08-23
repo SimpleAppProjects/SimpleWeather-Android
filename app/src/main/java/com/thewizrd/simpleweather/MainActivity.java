@@ -9,6 +9,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -43,33 +44,14 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Set user theme
-        int bg_color;
-        switch (Settings.getUserThemeMode()) {
-            case FOLLOW_SYSTEM: // System
-            default:
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-                bg_color = ActivityUtils.getColor(this, android.R.attr.colorBackground);
-                break;
-            case DARK: // Dark
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                bg_color = ActivityUtils.getColor(MainActivity.this, android.R.attr.colorBackground);
-                break;
-            case AMOLED_DARK: // Dark (AMOLED)
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                bg_color = Colors.BLACK;
-                break;
-        }
+        // Make full transparent statusBar
+        ActivityUtils.setTransparentWindow(getWindow(), Colors.TRANSPARENT, Colors.TRANSPARENT);
 
         setContentView(R.layout.activity_main);
 
         mFragmentContainer = findViewById(R.id.fragment_container);
-
         mRootView = (View) mFragmentContainer.getParent();
-        mRootView.setBackgroundColor(bg_color);
-
-        // Make full transparent statusBar
-        ActivityUtils.setTransparentWindow(getWindow(), Colors.TRANSPARENT, Colors.TRANSPARENT);
+        updateWindowColors();
 
         mBottomNavView = findViewById(R.id.bottom_nav_bar);
         mBottomNavView.setOnNavigationItemSelectedListener(this);
@@ -142,16 +124,6 @@ public class MainActivity extends AppCompatActivity
                 ShortcutCreator.updateShortcuts();
             }
         });
-    }
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        int color = Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ?
-                Colors.BLACK :
-                ActivityUtils.getColor(MainActivity.this, android.R.attr.colorBackground);
-        mRootView.setBackgroundColor(color);
     }
 
     @Override
@@ -312,7 +284,7 @@ public class MainActivity extends AppCompatActivity
             public void run() {
                 // Actionbar, BottonNavBar & StatusBar
                 int currentNightMode = AppCompatDelegate.getDefaultNightMode();
-                if (currentNightMode < AppCompatDelegate.MODE_NIGHT_NO)
+                if (currentNightMode != AppCompatDelegate.MODE_NIGHT_YES)
                     setWindowBarColors(weatherNowView.getPendingBackground());
                 else {
                     int color = Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ?
@@ -334,12 +306,31 @@ public class MainActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                // Actionbar, BottonNavBar & StatusBar
-                ActivityUtils.setTransparentWindow(getWindow(),
-                        statusBarColor, navBarColor);
+                // Actionbar, BottomNavBar & StatusBar
+                //ActivityUtils.setTransparentWindow(getWindow(), statusBarColor, navBarColor);
+                if (navBarColor == Colors.BLACK) {
+                    mBottomNavView.setItemRippleColor(ContextCompat.getColorStateList(MainActivity.this, com.google.android.material.R.color.ripple_material_dark));
+                } else {
+                    mBottomNavView.setItemRippleColor(ContextCompat.getColorStateList(MainActivity.this, com.google.android.material.R.color.ripple_material_light));
+                }
                 mBottomNavView.setBackgroundColor(navBarColor);
             }
         });
+    }
+
+    private void updateWindowColors() {
+        int color = ActivityUtils.getColor(this, android.R.attr.colorBackground);
+        if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
+            color = Colors.BLACK;
+        }
+        mRootView.setBackgroundColor(color);
+        getWindow().getDecorView().setBackgroundColor(color);
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        updateWindowColors();
     }
 
     @Override

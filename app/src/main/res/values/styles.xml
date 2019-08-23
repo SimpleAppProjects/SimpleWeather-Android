@@ -7,7 +7,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorPrimaryLight</item>
         <item name="actionButtonStyle">@style/ActionButton</item>
-        <item name="android:windowBackground">?colorPrimary</item>
+        <item name="android:windowBackground">?attr/colorPrimary</item>
     </style>
 
     <style name="AppTheme" parent="AppTheme.Base">
@@ -15,7 +15,7 @@
     </style>
 
     <style name="AppTheme.Launcher">
-        <item name="android:background">@drawable/ic_splash_screen</item>
+        <item name="android:windowBackground">@drawable/ic_splash_screen</item>
     </style>
 
     <style name="SetupTheme" parent="AppTheme" />
