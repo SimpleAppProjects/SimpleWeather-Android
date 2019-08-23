@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:iconSpaceReserved="false">
+
+    <com.thewizrd.simpleweather.preferences.ListAdapterPreference
+        android:key="key_location"
+        android:title="@string/pref_location"
+        android:summary="%s"
+        android:persistent="false" />
+
+    <ListPreference
+        android:defaultValue="60"
+        android:entries="@array/refreshinterval_entries"
+        android:entryValues="@array/refreshinterval_values"
+        android:key="key_refreshinterval"
+        android:persistent="false"
+        android:summary="%s"
+        android:title="@string/pref_title_refreshinterval" />
+
+    <ListPreference
+        android:defaultValue="0"
+        android:entries="@array/bgcolor_entries"
+        android:entryValues="@array/bgcolor_values"
+        android:key="key_bgcolor"
+        android:persistent="false"
+        android:summary="%s"
+        android:title="@string/pref_title_bgcolor" />
+
+</PreferenceScreen>

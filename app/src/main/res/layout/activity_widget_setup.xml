@@ -21,11 +21,8 @@
             android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/collapsingtoolbar_maxHeight"
-            android:fitsSystemWindows="true"
             android:minHeight="?attr/actionBarSize"
             app:statusBarScrim="?attr/colorPrimary"
-            app:expandedTitleMarginEnd="64dp"
-            app:expandedTitleMarginStart="48dp"
             app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Title"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
@@ -34,6 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:theme="@style/ThemeOverlay.AppCompat.DayNight.ActionBar"
+                app:titleMarginStart="0dp"
                 app:layout_collapseMode="pin"
                 tools:title="@string/widget_configure_prompt" />
 
@@ -41,159 +39,11 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/scrollView"
+    <FrameLayout
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fillViewport="true"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <RelativeLayout
-                android:id="@+id/location_pref"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="64dp"
-                android:padding="16dp">
-
-                <TextView
-                    android:id="@+id/location_pref_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentTop="true"
-                    android:ellipsize="marquee"
-                    android:fadingEdge="horizontal"
-                    android:singleLine="true"
-                    android:text="@string/pref_location"
-                    android:textAppearance="@style/TextAppearance.AppCompat"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:id="@+id/location_pref_summary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/location_pref_title"
-                    android:layout_alignStart="@+id/location_pref_title"
-                    android:layout_alignLeft="@+id/location_pref_title"
-                    android:maxLines="4"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textColor="?android:attr/textColorPrimary"
-                    tools:text="@string/pref_item_gpslocation" />
-
-                <androidx.appcompat.widget.AppCompatSpinner
-                    android:id="@+id/location_pref_spinner"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:visibility="invisible" />
-
-            </RelativeLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#50AAAAAA" />
-
-            <RelativeLayout
-                android:id="@+id/interval_pref"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="64dp"
-                android:padding="16dp">
-
-                <TextView
-                    android:id="@+id/interval_pref_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentTop="true"
-                    android:ellipsize="marquee"
-                    android:fadingEdge="horizontal"
-                    android:singleLine="true"
-                    android:text="@string/pref_title_refreshinterval"
-                    android:textAppearance="@style/TextAppearance.AppCompat"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:id="@+id/interval_pref_summary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/interval_pref_title"
-                    android:layout_alignStart="@+id/interval_pref_title"
-                    android:layout_alignLeft="@+id/interval_pref_title"
-                    android:maxLines="4"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textColor="?android:attr/textColorPrimary"
-                    tools:text="1 hour" />
-
-                <androidx.appcompat.widget.AppCompatSpinner
-                    android:id="@+id/interval_pref_spinner"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:visibility="invisible" />
-
-            </RelativeLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#50AAAAAA" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/bgcolor_pref"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="64dp"
-                android:padding="16dp">
-
-                <TextView
-                    android:id="@+id/bgcolor_pref_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="marquee"
-                    android:fadingEdge="horizontal"
-                    android:singleLine="true"
-                    android:text="@string/pref_title_bgcolor"
-                    android:textAppearance="@style/TextAppearance.AppCompat"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:textSize="18sp"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/bgcolor_pref_summary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:maxLines="4"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textColor="?android:attr/textColorPrimary"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toStartOf="@+id/bgcolor_pref_title"
-                    app:layout_constraintTop_toBottomOf="@+id/bgcolor_pref_title"
-                    tools:text="Current Condition" />
-
-                <androidx.appcompat.widget.AppCompatSpinner
-                    android:id="@+id/bgcolor_pref_spinner"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:visibility="invisible"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </LinearLayout>
-
-    </androidx.core.widget.NestedScrollView>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <RelativeLayout
         android:id="@+id/search_fragment_container"
