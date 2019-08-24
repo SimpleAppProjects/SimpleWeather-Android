@@ -12,6 +12,7 @@
 /captures
 .externalNativeBuild
 API_KEY.txt
+shared_resources/.cxx
 shared_resources/src/main/jni
 shared_resources/src/main/java/com/thewizrd/shared_resources/keys/Keys.java
 app/debug
