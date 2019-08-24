@@ -25,7 +25,7 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.DarkMode;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
-import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
+import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
 import com.thewizrd.simpleweather.preferences.SettingsFragment;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
@@ -34,7 +34,7 @@ import java.io.StringReader;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener,
-        WeatherViewLoadedListener, WindowColorsInterface, DarkMode.OnThemeChangeListener {
+        WeatherViewLoadedListener, SystemBarColorManager, DarkMode.OnThemeChangeListener {
 
     private BottomNavigationView mBottomNavView;
     private View mFragmentContainer;
@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
         // Make full transparent statusBar
-        ActivityUtils.setTransparentWindow(getWindow(), Colors.TRANSPARENT, Colors.TRANSPARENT);
+        ActivityUtils.setTransparentWindow(getWindow(), Colors.SIMPLEBLUE, Colors.TRANSPARENT, Colors.TRANSPARENT);
 
         setContentView(R.layout.activity_main);
 
@@ -285,35 +285,35 @@ public class MainActivity extends AppCompatActivity
                 // Actionbar, BottonNavBar & StatusBar
                 int currentNightMode = AppCompatDelegate.getDefaultNightMode();
                 if (currentNightMode != AppCompatDelegate.MODE_NIGHT_YES)
-                    setWindowBarColors(weatherNowView.getPendingBackground());
+                    setSystemBarColors(Colors.TRANSPARENT, weatherNowView.getPendingBackground(), Colors.TRANSPARENT);
                 else {
                     int color = Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ?
                             Colors.BLACK :
                             ActivityUtils.getColor(MainActivity.this, android.R.attr.colorBackground);
-                    setWindowBarColors(color);
+                    setSystemBarColors(Colors.TRANSPARENT, color, Colors.TRANSPARENT);
                 }
             }
         });
     }
 
     @Override
-    public void setWindowBarColors(@ColorInt final int color) {
-        setWindowBarColors(color, color);
+    public void setSystemBarColors(@ColorInt final int statusBarColor, @ColorInt final int navBarColor) {
+        setSystemBarColors(statusBarColor, navBarColor, navBarColor);
     }
 
     @Override
-    public void setWindowBarColors(@ColorInt final int statusBarColor, @ColorInt final int navBarColor) {
+    public void setSystemBarColors(@ColorInt final int statusBarColor, @ColorInt final int toolbarColor, @ColorInt final int navBarColor) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // Actionbar, BottomNavBar & StatusBar
-                //ActivityUtils.setTransparentWindow(getWindow(), statusBarColor, navBarColor);
+                ActivityUtils.setTransparentWindow(getWindow(), Colors.TRANSPARENT, statusBarColor, navBarColor);
                 if (navBarColor == Colors.BLACK) {
                     mBottomNavView.setItemRippleColor(ContextCompat.getColorStateList(MainActivity.this, com.google.android.material.R.color.ripple_material_dark));
                 } else {
                     mBottomNavView.setItemRippleColor(ContextCompat.getColorStateList(MainActivity.this, com.google.android.material.R.color.ripple_material_light));
                 }
-                mBottomNavView.setBackgroundColor(navBarColor);
+                mBottomNavView.setBackgroundColor(toolbarColor);
             }
         });
     }

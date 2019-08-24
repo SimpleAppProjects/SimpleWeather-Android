@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather;
 
-import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,15 +10,10 @@ import android.widget.TextView;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.card.MaterialCardView;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
@@ -27,25 +21,19 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.DarkMode;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.simpleweather.fragments.ToolbarFragment;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
-import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
 
 import java.io.StringReader;
 
-public abstract class WeatherListFragment extends Fragment {
+public abstract class WeatherListFragment extends ToolbarFragment {
     protected LocationData location = null;
     protected WeatherNowViewModel weatherView = null;
 
-    protected AppBarLayout mAppBarLayout;
-    protected CollapsingToolbarLayout mCollapsingToolbar;
-    protected Toolbar mToolbar;
     protected MaterialCardView locationHeader;
     protected TextView locationName;
     protected RecyclerView recyclerView;
     protected LinearLayoutManager layoutManager;
-
-    protected AppCompatActivity mActivity;
-    protected WindowColorsInterface mWindowColorsIface;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,20 +45,19 @@ public abstract class WeatherListFragment extends Fragment {
         }
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container, @Nullable Bundle savedInstanceState) {
+        ViewGroup root = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
         // Use this to return your custom view for this Fragment
-        View view = inflater.inflate(R.layout.fragment_weather_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_weather_list, root, true);
 
         // Setup Actionbar
-        mAppBarLayout = view.findViewById(R.id.app_bar);
-        mCollapsingToolbar = view.findViewById(R.id.collapsing_toolbar);
-        mToolbar = view.findViewById(R.id.toolbar);
-        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+        getToolbar().setNavigationIcon(
+                ActivityUtils.getResourceId(getAppCompatActivity(), R.attr.homeAsUpIndicator));
+        getToolbar().setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mActivity != null) mActivity.onBackPressed();
+                if (getAppCompatActivity() != null) getAppCompatActivity().onBackPressed();
             }
         });
 
@@ -91,7 +78,7 @@ public abstract class WeatherListFragment extends Fragment {
         // in content do not change the layout size of the RecyclerView
         recyclerView.setHasFixedSize(true);
         // use a linear layout manager
-        recyclerView.setLayoutManager(layoutManager = new LinearLayoutManager(mActivity));
+        recyclerView.setLayoutManager(layoutManager = new LinearLayoutManager(getAppCompatActivity()));
 
         return view;
     }
@@ -129,49 +116,21 @@ public abstract class WeatherListFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        mActivity = (AppCompatActivity) context;
-        mWindowColorsIface = (WindowColorsInterface) context;
-    }
+    public void updateWindowColors() {
+        super.updateWindowColors();
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mActivity = null;
-        mWindowColorsIface = null;
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mActivity = null;
-        mWindowColorsIface = null;
-    }
-
-    protected void runOnUiThread(Runnable action) {
-        if (mActivity != null)
-            mActivity.runOnUiThread(action);
-    }
-
-    private void updateWindowColors() {
         int currentNightMode = AppCompatDelegate.getDefaultNightMode();
-        int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+        int color = ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary);
         if (currentNightMode == AppCompatDelegate.MODE_NIGHT_YES) {
             if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
                 color = Colors.BLACK;
             } else {
-                color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+                color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
             }
         }
-        int bg_color = color != Colors.BLACK ? ActivityUtils.getColor(mActivity, android.R.attr.colorBackground) : color;
-        mAppBarLayout.setBackgroundColor(color);
-        mCollapsingToolbar.setStatusBarScrimColor(color);
+        int bg_color = color != Colors.BLACK ? ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground) : color;
         locationHeader.setCardBackgroundColor(bg_color);
         recyclerView.setBackgroundColor(bg_color);
-        if (mWindowColorsIface != null) {
-            mWindowColorsIface.setWindowBarColors(color);
-        }
     }
 
     @Override

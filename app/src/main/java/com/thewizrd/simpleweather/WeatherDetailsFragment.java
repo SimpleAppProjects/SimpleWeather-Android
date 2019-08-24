@@ -26,6 +26,11 @@ public class WeatherDetailsFragment extends WeatherListFragment {
     }
 
     @Override
+    protected int getTitle() {
+        return R.string.label_forecast;
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -38,8 +43,6 @@ public class WeatherDetailsFragment extends WeatherListFragment {
     protected void initialize() {
         super.initialize();
 
-        mToolbar.setTitle(R.string.label_forecast);
-
         if (weatherView == null) {
             if (location == null)
                 location = Settings.getHomeData();
@@ -51,7 +54,7 @@ public class WeatherDetailsFragment extends WeatherListFragment {
         }
 
         if (recyclerView.getItemDecorationCount() == 0)
-            recyclerView.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.VERTICAL));
+            recyclerView.addItemDecoration(new DividerItemDecoration(getAppCompatActivity(), DividerItemDecoration.VERTICAL));
 
         if (weatherView != null) {
             runOnUiThread(new Runnable() {

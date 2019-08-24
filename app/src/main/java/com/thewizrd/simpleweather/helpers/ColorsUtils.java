@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.helpers;
 
+import androidx.annotation.ColorInt;
 import androidx.core.graphics.ColorUtils;
 import androidx.palette.graphics.Palette;
 
@@ -37,11 +38,19 @@ public class ColorsUtils {
         return !isLegibleOnWallpaper(Colors.BLACK, p.getSwatches());
     }
 
+    public static boolean isSuperLight(@ColorInt int color) {
+        return !isLegible(Colors.WHITE, color);
+    }
+
+    public static boolean isSuperDark(@ColorInt int color) {
+        return !isLegible(Colors.BLACK, color);
+    }
+
     /**
      * Given a color, returns true if that color is legible on
      * the given wallpaper color swatches, else returns false.
      */
-    private static boolean isLegibleOnWallpaper(int color, List<Palette.Swatch> wallpaperSwatches) {
+    private static boolean isLegibleOnWallpaper(@ColorInt int color, List<Palette.Swatch> wallpaperSwatches) {
         int legiblePopulation = 0;
         int illegiblePopulation = 0;
         for (Palette.Swatch swatch : wallpaperSwatches) {
@@ -57,7 +66,7 @@ public class ColorsUtils {
     /**
      * @return Whether the foreground color is legible on the background color.
      */
-    private static boolean isLegible(int foreground, int background) {
+    private static boolean isLegible(@ColorInt int foreground, @ColorInt int background) {
         background = ColorUtils.setAlphaComponent(background, 255);
         return ColorUtils.calculateContrast(foreground, background) >= MIN_CONTRAST_RATIO;
     }

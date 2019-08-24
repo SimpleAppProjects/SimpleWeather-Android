@@ -44,7 +44,7 @@ public class WeatherNowViewModel {
 
     // Background
     private String background;
-    private int pendingBackground;
+    private int pendingBackground = -1;
 
     private String weatherCredit;
     private String weatherSource;

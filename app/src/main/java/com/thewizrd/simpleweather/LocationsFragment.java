@@ -27,11 +27,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.MarginLayoutParamsCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -57,8 +56,6 @@ import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.thewizrd.shared_resources.AsyncTask;
@@ -67,14 +64,11 @@ import com.thewizrd.shared_resources.controls.LocationQuery;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.ListChangedAction;
 import com.thewizrd.shared_resources.helpers.ListChangedArgs;
-import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
-import com.thewizrd.shared_resources.utils.Colors;
-import com.thewizrd.shared_resources.utils.DarkMode;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -89,10 +83,9 @@ import com.thewizrd.shared_resources.weatherdata.WeatherLoadedListenerInterface;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.adapters.LocationPanelAdapter;
 import com.thewizrd.simpleweather.controls.LocationPanelViewModel;
-import com.thewizrd.simpleweather.helpers.ActivityUtils;
+import com.thewizrd.simpleweather.fragments.ToolbarFragment;
 import com.thewizrd.simpleweather.helpers.ExtendedFab;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperCallback;
-import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
@@ -104,19 +97,15 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class LocationsFragment extends Fragment
-        implements WeatherLoadedListenerInterface, WeatherErrorListenerInterface, OnBackPressedFragmentListener {
+public class LocationsFragment extends ToolbarFragment
+        implements WeatherLoadedListenerInterface, WeatherErrorListenerInterface {
     private boolean mLoaded = false;
     private boolean mEditMode = false;
     private boolean mDataChanged = false;
     private boolean mHomeChanged = false;
     private boolean[] mErrorCounter;
 
-    private AppCompatActivity mActivity;
-    private WindowColorsInterface mWindowColorsIface;
-
     // Views
-    private View mMainView;
     private NestedScrollView mScrollView;
     private RecyclerView mRecyclerView;
     private LocationPanelAdapter mAdapter;
@@ -126,9 +115,6 @@ public class LocationsFragment extends Fragment
     private MaterialButton addLocationsButton;
 
     // Search
-    private AppBarLayout mAppBarLayout;
-    private CollapsingToolbarLayout mCollapsingToolbar;
-    private Toolbar mToolbar;
     private View mSearchFragmentContainer;
     private LocationSearchFragment mSearchFragment;
     private boolean inSearchUI;
@@ -161,10 +147,8 @@ public class LocationsFragment extends Fragment
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        mActivity = (AppCompatActivity) context;
-        mWindowColorsIface = (WindowColorsInterface) context;
+    protected int getTitle() {
+        return R.string.label_nav_locations;
     }
 
     @Override
@@ -175,23 +159,13 @@ public class LocationsFragment extends Fragment
         if (mSearchFragment != null) mSearchFragment.ctsCancel();
 
         super.onDestroy();
-
-        mActivity = null;
-        mWindowColorsIface = null;
     }
 
     @Override
     public void onDetach() {
         if (inSearchUI) exitSearchUi(true);
-        super.onDetach();
         if (mSearchFragment != null) mSearchFragment.ctsCancel();
-        mActivity = null;
-        mWindowColorsIface = null;
-    }
-
-    private void runOnUiThread(Runnable action) {
-        if (mActivity != null)
-            mActivity.runOnUiThread(action);
+        super.onDetach();
     }
 
     private boolean isCtsCancelRequested() {
@@ -261,7 +235,7 @@ public class LocationsFragment extends Fragment
                 // Show error message and prompt to refresh
                 // Only warn once
                 if (!mErrorCounter[wEx.getErrorStatus().getValue()]) {
-                    Snackbar snackbar = Snackbar.make(mMainView, wEx.getMessage(), Snackbar.LENGTH_LONG);
+                    Snackbar snackbar = Snackbar.make(getRootView(), wEx.getMessage(), Snackbar.LENGTH_LONG);
                     snackbar.setAction(R.string.action_retry, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -278,7 +252,7 @@ public class LocationsFragment extends Fragment
                 // Show error message
                 // Only warn once
                 if (!mErrorCounter[wEx.getErrorStatus().getValue()]) {
-                    Snackbar.make(mMainView, wEx.getMessage(), Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(getRootView(), wEx.getMessage(), Snackbar.LENGTH_LONG).show();
                     mErrorCounter[wEx.getErrorStatus().getValue()] = true;
                 }
                 break;
@@ -294,12 +268,12 @@ public class LocationsFragment extends Fragment
 
                 if (locData.equals(Settings.getHomeData())) {
                     // Pop all since we're going home
-                    mActivity.getSupportFragmentManager()
+                    getAppCompatActivity().getSupportFragmentManager()
                             .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 } else {
                     // Navigate to WeatherNowFragment
                     Fragment fragment = WeatherNowFragment.newInstance(locData);
-                    mActivity.getSupportFragmentManager().beginTransaction()
+                    getAppCompatActivity().getSupportFragmentManager().beginTransaction()
                             .add(R.id.fragment_container, fragment, "favorites")
                             .hide(LocationsFragment.this)
                             .addToBackStack(null)
@@ -325,7 +299,7 @@ public class LocationsFragment extends Fragment
         mErrorCounter = new boolean[WeatherUtils.ErrorStatus.values().length];
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {
-            mFusedLocationClient = new FusedLocationProviderClient(mActivity);
+            mFusedLocationClient = new FusedLocationProviderClient(getAppCompatActivity());
             mLocCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
@@ -335,7 +309,7 @@ public class LocationsFragment extends Fragment
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getAppCompatActivity(), R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -361,7 +335,7 @@ public class LocationsFragment extends Fragment
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getAppCompatActivity(), R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -407,7 +381,7 @@ public class LocationsFragment extends Fragment
         // stopped state. Doing so helps battery performance and is especially
         // recommended in applications that request frequent location updates.
         mFusedLocationClient.removeLocationUpdates(mLocCallback)
-                .addOnCompleteListener(mActivity, new OnCompleteListener<Void>() {
+                .addOnCompleteListener(getAppCompatActivity(), new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         mRequestingLocationUpdates = false;
@@ -428,13 +402,12 @@ public class LocationsFragment extends Fragment
         return false;
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container,
                              Bundle savedInstanceState) {
+        ViewGroup root = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_locations, container, false);
-        mMainView = view;
+        View view = inflater.inflate(R.layout.fragment_locations, root, true);
         // Request focus away from RecyclerView
         view.setFocusableInTouchMode(true);
         view.requestFocus();
@@ -463,9 +436,8 @@ public class LocationsFragment extends Fragment
                 return insets;
             }
         });
-        mCollapsingToolbar = view.findViewById(R.id.collapsing_toolbar);
-        mToolbar = view.findViewById(R.id.toolbar);
-        mToolbar.setOnMenuItemClickListener(menuItemClickListener);
+
+        getToolbar().setOnMenuItemClickListener(menuItemClickListener);
         mSearchFragmentContainer = view.findViewById(R.id.search_fragment_container);
 
         mSearchFragmentContainer.setOnClickListener(new View.OnClickListener() {
@@ -488,9 +460,6 @@ public class LocationsFragment extends Fragment
         CoordinatorLayout.LayoutParams fabLP = (CoordinatorLayout.LayoutParams) addLocationsButton.getLayoutParams();
         fabLP.setBehavior(new ExtendedFab.SnackBarBehavior());
 
-        // Set colors
-        updateWindowColors();
-
         mRecyclerView = view.findViewById(R.id.locations_container);
 
         // use this setting to improve performance if you know that changes
@@ -498,7 +467,7 @@ public class LocationsFragment extends Fragment
         mRecyclerView.setHasFixedSize(false);
 
         // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(mActivity);
+        mLayoutManager = new LinearLayoutManager(getAppCompatActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
@@ -528,7 +497,14 @@ public class LocationsFragment extends Fragment
         // Create options menu
         createOptionsMenu();
 
-        return view;
+        return root;
+    }
+
+    @Override
+    public void updateWindowColors() {
+        super.updateWindowColors();
+
+        addLocationsButton.setBackgroundTintList(ContextCompat.getColorStateList(getAppCompatActivity(), R.color.mtrl_btn_bg_color_selector));
     }
 
     @Override
@@ -536,33 +512,14 @@ public class LocationsFragment extends Fragment
         super.onConfigurationChanged(newConfig);
 
         mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount(), LocationPanelAdapter.Payload.IMAGE_UPDATE);
-        addLocationsButton.setBackgroundTintList(ContextCompat.getColorStateList(mActivity, R.color.mtrl_btn_bg_color_selector));
-        updateWindowColors();
-    }
-
-    private void updateWindowColors() {
-        int currentNightMode = AppCompatDelegate.getDefaultNightMode();
-        int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-        if (currentNightMode == AppCompatDelegate.MODE_NIGHT_YES) {
-            if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
-                color = Colors.BLACK;
-            } else {
-                color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
-            }
-        }
-        mAppBarLayout.setBackgroundColor(color);
-        mCollapsingToolbar.setStatusBarScrimColor(color);
-        if (mWindowColorsIface != null) {
-            mWindowColorsIface.setWindowBarColors(color);
-        }
     }
 
     private void createOptionsMenu() {
         // Inflate the menu; this adds items to the action bar if it is present.
-        Menu menu = mToolbar.getMenu();
+        Menu menu = getToolbar().getMenu();
         optionsMenu = menu;
         menu.clear();
-        mToolbar.inflateMenu(R.menu.locations);
+        getToolbar().inflateMenu(R.menu.locations);
 
         boolean onlyHomeIsLeft = (mAdapter.getDataCount() == 1);
         MenuItem editMenuBtn = optionsMenu.findItem(R.id.action_editmode);
@@ -595,13 +552,6 @@ public class LocationsFragment extends Fragment
 
     private void resume() {
         cts = new CancellationTokenSource();
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                updateWindowColors();
-            }
-        });
 
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
@@ -689,7 +639,7 @@ public class LocationsFragment extends Fragment
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                if (mActivity != null) {
+                if (getAppCompatActivity() != null) {
                     // Load up saved locations
                     List<LocationData> locations = new ArrayList<>(Settings.getFavorites());
                     runOnUiThread(new Runnable() {
@@ -757,7 +707,7 @@ public class LocationsFragment extends Fragment
             @Override
             public LocationData call() throws Exception {
                 // Setup gps panel
-                if (mActivity != null && Settings.useFollowGPS()) {
+                if (getAppCompatActivity() != null && Settings.useFollowGPS()) {
                     LocationData locData = Settings.getLastGPSLocData();
 
                     if (isCtsCancelRequested())
@@ -878,8 +828,8 @@ public class LocationsFragment extends Fragment
                 LocationData locationData = null;
 
                 if (Settings.useFollowGPS()) {
-                    if (mActivity != null && ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                            ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    if (getAppCompatActivity() != null && ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                            ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                                 PERMISSION_LOCATION_REQUEST_CODE);
                         return null;
@@ -919,8 +869,8 @@ public class LocationsFragment extends Fragment
                         }
                     } else {
                         LocationManager locMan = null;
-                        if (mActivity != null)
-                            locMan = (LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
+                        if (getAppCompatActivity() != null)
+                            locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
                         boolean isGPSEnabled = false;
                         boolean isNetEnabled = false;
                         if (locMan != null) {
@@ -943,7 +893,7 @@ public class LocationsFragment extends Fragment
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getAppCompatActivity(), R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
                                     removeGPSPanel();
                                 }
                             });
@@ -1021,7 +971,7 @@ public class LocationsFragment extends Fragment
                     // functionality that depends on this permission.
                     Settings.setFollowGPS(false);
                     removeGPSPanel();
-                    Toast.makeText(mActivity, R.string.error_location_denied, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getAppCompatActivity(), R.string.error_location_denied, Toast.LENGTH_SHORT).show();
                 }
                 return;
             }
@@ -1286,8 +1236,8 @@ public class LocationsFragment extends Fragment
         if (mAdapter.getDataCount() < MAX_LOCATIONS)
             addLocationsButton.setVisibility(View.VISIBLE);
 
-        hideInputMethod(mActivity == null ? null : mActivity.getCurrentFocus());
-        if (mMainView != null) mMainView.requestFocus();
+        hideInputMethod(getAppCompatActivity() == null ? null : getAppCompatActivity().getCurrentFocus());
+        if (getRootView() != null) getRootView().requestFocus();
         inSearchUI = false;
     }
 
@@ -1310,8 +1260,8 @@ public class LocationsFragment extends Fragment
     }
 
     private void showInputMethod(View view) {
-        if (mActivity != null) {
-            InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
+        if (getAppCompatActivity() != null) {
+            InputMethodManager imm = (InputMethodManager) getAppCompatActivity().getSystemService(
                     Context.INPUT_METHOD_SERVICE);
             if (imm != null && view != null) {
                 imm.showSoftInput(view, 0);
@@ -1320,8 +1270,8 @@ public class LocationsFragment extends Fragment
     }
 
     private void hideInputMethod(View view) {
-        if (mActivity != null) {
-            InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
+        if (getAppCompatActivity() != null) {
+            InputMethodManager imm = (InputMethodManager) getAppCompatActivity().getSystemService(
                     Context.INPUT_METHOD_SERVICE);
             if (imm != null && view != null) {
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -1415,7 +1365,7 @@ public class LocationsFragment extends Fragment
         }
 
         if (!mEditMode && mHomeChanged) {
-            WeatherWidgetService.enqueueWork(mActivity, new Intent(mActivity, WeatherWidgetService.class)
+            WeatherWidgetService.enqueueWork(getAppCompatActivity(), new Intent(getAppCompatActivity(), WeatherWidgetService.class)
                     .setAction(WeatherWidgetService.ACTION_UPDATEWEATHER));
 
             WearableDataListenerService.enqueueWork(App.getInstance().getAppContext(),
@@ -1433,7 +1383,7 @@ public class LocationsFragment extends Fragment
     private boolean isAnimating;
 
     private int getCollapsedFabWidth() {
-        return mActivity.getResources().getDimensionPixelSize(R.dimen.fab_size);
+        return getAppCompatActivity().getResources().getDimensionPixelSize(R.dimen.fab_size);
     }
 
     @SuppressWarnings("WeakerAccess")

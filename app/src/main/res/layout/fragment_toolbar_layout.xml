@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:statusBarBackground="?attr/colorPrimary"
-    tools:context=".preferences.SettingsFragment">
+    app:statusBarBackground="?attr/colorPrimary">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"
@@ -22,9 +21,7 @@
             android:layout_height="?attr/actionBarSize"
             app:elevation="@dimen/appbar_elevation"
             app:layout_collapseMode="pin"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:navigationIcon="?attr/homeAsUpIndicator"
-            app:title="@string/title_activity_settings" />
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

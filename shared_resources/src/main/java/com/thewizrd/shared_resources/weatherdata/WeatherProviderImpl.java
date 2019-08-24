@@ -4,6 +4,8 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.ColorInt;
+
 import com.skedgo.converter.TimezoneMapper;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
@@ -166,6 +168,7 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
     }
 
     @Override
+    @ColorInt
     public int getWeatherBackgroundColor(Weather weather) {
         String rgbHex = null;
         String icon = weather.getCondition().getIcon();

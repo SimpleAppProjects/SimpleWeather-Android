@@ -93,9 +93,10 @@ import com.thewizrd.simpleweather.adapters.ForecastItemAdapter;
 import com.thewizrd.simpleweather.adapters.HourlyForecastGraphPagerAdapter;
 import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter;
 import com.thewizrd.simpleweather.controls.SunPhaseView;
+import com.thewizrd.simpleweather.fragments.WindowColorFragment;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.LocationPanelOffsetDecoration;
-import com.thewizrd.simpleweather.helpers.WindowColorsInterface;
+import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationBuilder;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
@@ -115,7 +116,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class WeatherNowFragment extends Fragment implements WeatherLoadedListenerInterface, WeatherErrorListenerInterface {
+public class WeatherNowFragment extends WindowColorFragment
+        implements WeatherLoadedListenerInterface, WeatherErrorListenerInterface {
     private LocationData location = null;
     private boolean loaded = false;
     private int bgAlpha = 0xFF; // int: 255
@@ -124,7 +126,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     private WeatherDataLoader wLoader = null;
     private WeatherNowViewModel weatherView = null;
     private AppCompatActivity mActivity;
-    private WindowColorsInterface mWindowColorsIface;
+    private SystemBarColorManager mSysBarColorsIface;
     private WeatherViewLoadedListener mCallback;
     private CancellationTokenSource cts;
 
@@ -308,7 +310,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         super.onAttach(context);
         mActivity = (AppCompatActivity) context;
         mCallback = (WeatherViewLoadedListener) context;
-        mWindowColorsIface = (WindowColorsInterface) context;
+        mSysBarColorsIface = (SystemBarColorManager) context;
     }
 
     @Override
@@ -321,7 +323,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         weatherView = null;
         mActivity = null;
         mCallback = null;
-        mWindowColorsIface = null;
+        mSysBarColorsIface = null;
         cts = null;
     }
 
@@ -332,7 +334,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         weatherView = null;
         mActivity = null;
         mCallback = null;
-        mWindowColorsIface = null;
+        mSysBarColorsIface = null;
         cts = null;
     }
 
@@ -460,20 +462,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         mToolbar = view.findViewById(R.id.toolbar);
 
         conditionPanel = view.findViewById(R.id.condition_panel);
-
-        int currentNightMode = AppCompatDelegate.getDefaultNightMode();
-        int color;
-        if (currentNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
-            color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-        } else {
-            color = Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ?
-                    Colors.BLACK :
-                    ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
-        }
-        if (mWindowColorsIface != null) {
-            mWindowColorsIface.setWindowBarColors(color);
-        }
-        view.setBackgroundColor(color);
 
         refreshLayout = view.findViewById(R.id.refresh_layout);
         scrollView = view.findViewById(R.id.fragment_weather_now);
@@ -858,25 +846,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             adjustConditionPanelLayout();
             adjustDetailsLayout();
 
-            int currentNightMode = AppCompatDelegate.getDefaultNightMode();
-
-            if (currentNightMode == AppCompatDelegate.MODE_NIGHT_YES) {
-                int color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
-                if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
-                    color = Colors.BLACK;
-                }
-
-                View mainView = this.getView();
-
-                if (mainView != null) {
-                    mainView.setBackgroundColor(color);
-                }
-                if (mWindowColorsIface != null)
-                    mWindowColorsIface.setWindowBarColors(color);
-
+            if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
                 mImageView.setImageDrawable(null);
                 mImageView.setImageAlpha(bgAlpha = 0xFF);
-
                 bgAttribution.setVisibility(View.INVISIBLE);
             }
 
@@ -1026,6 +998,30 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         }
     }
 
+    @Override
+    public void updateWindowColors() {
+        // Background
+        View mRootView = WeatherNowFragment.this.getView();
+        if (mRootView != null) {
+            int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+            int color;
+            if (currentNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
+                if (weatherView != null && weatherView.getPendingBackground() != -1)
+                    color = weatherView.getPendingBackground();
+                else
+                    color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+            } else {
+                color = Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ?
+                        Colors.BLACK :
+                        ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+            }
+            if (mSysBarColorsIface != null) {
+                mSysBarColorsIface.setSystemBarColors(Colors.TRANSPARENT, color, Colors.TRANSPARENT);
+            }
+            mRootView.setBackgroundColor(color);
+        }
+    }
+
     private void updateView(final WeatherNowViewModel weatherView) {
         runOnUiThread(new Runnable() {
             @Override
@@ -1034,15 +1030,11 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     return;
 
                 // Background
-                View mainView = WeatherNowFragment.this.getView();
+                updateWindowColors();
 
                 int currentNightMode = AppCompatDelegate.getDefaultNightMode();
 
                 if (currentNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
-                    if (mainView != null) {
-                        mainView.setBackgroundColor(weatherView.getPendingBackground());
-                    }
-
                     mImageView.setImageAlpha(bgAlpha);
                     Glide.with(mActivity)
                             .load(weatherView.getBackground())
@@ -1052,15 +1044,6 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
                     bgAttribution.setVisibility(View.VISIBLE);
                 } else {
-                    int color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
-                    if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
-                        color = Colors.BLACK;
-                    }
-
-                    if (mainView != null) {
-                        mainView.setBackgroundColor(color);
-                    }
-
                     mImageView.setImageDrawable(null);
                     mImageView.setImageAlpha(bgAlpha = 0xFF);
 

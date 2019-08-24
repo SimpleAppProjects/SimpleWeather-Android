@@ -29,6 +29,11 @@ public class WeatherAlertsFragment extends WeatherListFragment {
     }
 
     @Override
+    protected int getTitle() {
+        return R.string.title_fragment_alerts;
+    }
+
+    @Override
     protected void initialize() {
         super.initialize();
 

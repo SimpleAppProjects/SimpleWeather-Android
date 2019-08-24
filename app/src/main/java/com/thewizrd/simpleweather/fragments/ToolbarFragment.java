@@ -1,8 +1,6 @@
-package com.thewizrd.simpleweather.preferences;
+package com.thewizrd.simpleweather.fragments;
 
 import android.content.Context;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,16 +8,11 @@ import android.view.ViewGroup;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.view.OnApplyWindowInsetsListener;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.preference.PreferenceFragmentCompat;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
@@ -29,18 +22,33 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
-import com.thewizrd.simpleweather.helpers.WindowColorManager;
 
-public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentCompat
-        implements OnBackPressedFragmentListener, WindowColorManager {
+public abstract class ToolbarFragment extends WindowColorFragment
+        implements OnBackPressedFragmentListener {
 
+    private AppCompatActivity mActivity;
+    private SystemBarColorManager mSysBarColorsIface;
+
+    // Views
     private AppBarLayout mAppBarLayout;
     private CoordinatorLayout mRootView;
-    protected Toolbar mToolbar;
-    protected AppCompatActivity mActivity;
-    protected SystemBarColorManager mSysBarColorsIface;
+    private Toolbar mToolbar;
 
-    private Configuration prevConfig;
+    public final AppBarLayout getAppBarLayout() {
+        return mAppBarLayout;
+    }
+
+    public final CoordinatorLayout getRootView() {
+        return mRootView;
+    }
+
+    public final Toolbar getToolbar() {
+        return mToolbar;
+    }
+
+    public final AppCompatActivity getAppCompatActivity() {
+        return mActivity;
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -57,6 +65,19 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        mActivity = null;
+        mSysBarColorsIface = null;
+    }
+
+    protected void runOnUiThread(Runnable action) {
+        if (mActivity != null)
+            mActivity.runOnUiThread(action);
+    }
+
+    @Override
     public boolean onBackPressed() {
         return false;
     }
@@ -65,20 +86,9 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
     int getTitle();
 
     @Override
-    public void onResume() {
-        super.onResume();
-
-        prevConfig = new Configuration(getResources().getConfiguration());
-
-        // Toolbar
-        mToolbar.setTitle(getTitle());
-    }
-
-    @Override
+    @CallSuper
     public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container, Bundle savedInstanceState) {
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_settings, container, false);
-
-        View inflatedView = super.onCreateView(inflater, container, savedInstanceState);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_toolbar_layout, container, false);
 
         mRootView = (CoordinatorLayout) root;
         mAppBarLayout = root.findViewById(R.id.app_bar);
@@ -90,60 +100,25 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
             }
         });
 
-        CoordinatorLayout.LayoutParams lp = new CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        lp.setBehavior(new AppBarLayout.ScrollingViewBehavior());
-        inflatedView.setLayoutParams(lp);
-
-        root.addView(inflatedView);
+        // Toolbar
+        mToolbar.setTitle(getTitle());
 
         return root;
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        updateWindowColors();
-    }
-
     @CallSuper
-    @Override
-    public void onHiddenChanged(boolean hidden) {
-        super.onHiddenChanged(hidden);
-
-        if (!hidden && this.isVisible()) {
-            updateWindowColors();
-        }
-    }
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        int diff = newConfig.diff(prevConfig);
-        if ((diff & ActivityInfo.CONFIG_UI_MODE) != 0) {
-            updateWindowColors();
-            getListView().setAdapter(getListView().getAdapter());
-        }
-
-        prevConfig = new Configuration(newConfig);
-    }
-
-    public final void updateWindowColors() {
-        updateWindowColors(Settings.getUserThemeMode());
-    }
-
-    protected final void updateWindowColors(DarkMode mode) {
+    public void updateWindowColors() {
         int currentNightMode = AppCompatDelegate.getDefaultNightMode();
         int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
         if (currentNightMode == AppCompatDelegate.MODE_NIGHT_YES) {
-            if (mode == DarkMode.AMOLED_DARK) {
+            if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
                 color = Colors.BLACK;
             } else {
                 color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
             }
         }
         int bg_color = color != Colors.BLACK ? ActivityUtils.getColor(mActivity, android.R.attr.colorBackground) : color;
-        mRootView.setBackgroundColor(bg_color);
+        ActivityUtils.setTransparentWindow(mActivity.getWindow(), bg_color, Colors.TRANSPARENT, Colors.TRANSPARENT);
         mAppBarLayout.setBackgroundColor(color);
         mRootView.setStatusBarBackgroundColor(color);
         if (mSysBarColorsIface != null) {
