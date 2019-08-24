@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.location.Criteria;
 import android.location.Location;
@@ -84,6 +85,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.adapters.LocationPanelAdapter;
 import com.thewizrd.simpleweather.controls.LocationPanelViewModel;
 import com.thewizrd.simpleweather.fragments.ToolbarFragment;
+import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.ExtendedFab;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperCallback;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
@@ -544,7 +546,7 @@ public class LocationsFragment extends ToolbarFragment
     public void updateWindowColors() {
         super.updateWindowColors();
 
-        addLocationsButton.setBackgroundTintList(ContextCompat.getColorStateList(getAppCompatActivity(), R.color.mtrl_btn_bg_color_selector));
+        addLocationsButton.setBackgroundTintList(ColorStateList.valueOf(ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary)));
     }
 
     @Override
