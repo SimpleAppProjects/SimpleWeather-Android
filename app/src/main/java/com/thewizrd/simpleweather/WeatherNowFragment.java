@@ -967,9 +967,9 @@ public class WeatherNowFragment extends WindowColorFragment
             public void run() {
                 if (mActivity != null) {
                     View bottomAppBar = mActivity.findViewById(R.id.bottom_nav_bar);
-                    float height = Math.abs((mAppBarLayout.getY() + mAppBarLayout.getHeight() / 2f - mAppBarElevation) - (bottomAppBar.getY() - bottomAppBar.getHeight() / 2f));
+                    int height = Math.abs(mAppBarLayout.getBottom() - bottomAppBar.getTop());
                     ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) conditionPanel.getLayoutParams();
-                    lp.height = (int) height;
+                    lp.height = height;
                     conditionPanel.setLayoutParams(lp);
                 }
             }
