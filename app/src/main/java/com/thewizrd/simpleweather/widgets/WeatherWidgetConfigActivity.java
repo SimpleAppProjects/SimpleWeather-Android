@@ -520,6 +520,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             // Set scroll flag
             AppBarLayout.LayoutParams toolbarParams = (AppBarLayout.LayoutParams) collapsingToolbar.getLayoutParams();
             toolbarParams.setScrollFlags(toolbarParams.getScrollFlags() | AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL);
+            Configuration config = mActivity.getResources().getConfiguration();
+            appBarLayout.setExpanded(config.orientation == Configuration.ORIENTATION_PORTRAIT || ActivityUtils.isLargeTablet(mActivity), false);
 
             hideInputMethod(mActivity == null ? null : mActivity.getCurrentFocus());
             inSearchUI = false;
