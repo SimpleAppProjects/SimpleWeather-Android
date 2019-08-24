@@ -427,12 +427,18 @@ public class LocationsFragment extends ToolbarFragment
             }
         });
 
-        mAppBarLayout = view.findViewById(R.id.app_bar);
-        ViewCompat.setOnApplyWindowInsetsListener(mAppBarLayout, new OnApplyWindowInsetsListener() {
+        ViewCompat.setOnApplyWindowInsetsListener(mScrollView, new OnApplyWindowInsetsListener() {
+            private int paddingStart = ViewCompat.getPaddingStart(mScrollView);
+            private int paddingTop = mScrollView.getPaddingTop();
+            private int paddingEnd = ViewCompat.getPaddingEnd(mScrollView);
+            private int paddingBottom = mScrollView.getPaddingBottom();
+
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) mSearchFragmentContainer.getLayoutParams();
-                layoutParams.topMargin = insets.getSystemWindowInsetTop();
+                ViewCompat.setPaddingRelative(v,
+                        paddingStart + insets.getSystemWindowInsetLeft(),
+                        paddingTop,
+                        paddingEnd + insets.getSystemWindowInsetRight(), paddingBottom);
                 return insets;
             }
         });
@@ -446,7 +452,23 @@ public class LocationsFragment extends ToolbarFragment
                 exitSearchUi(false);
             }
         });
-        ViewCompat.setOnApplyWindowInsetsListener(mSearchFragmentContainer, null);
+
+        ViewCompat.setOnApplyWindowInsetsListener(mSearchFragmentContainer, new OnApplyWindowInsetsListener() {
+            private int paddingStart = ViewCompat.getPaddingStart(mSearchFragmentContainer);
+            private int paddingTop = mSearchFragmentContainer.getPaddingTop();
+            private int paddingEnd = ViewCompat.getPaddingEnd(mSearchFragmentContainer);
+            private int paddingBottom = mSearchFragmentContainer.getPaddingBottom();
+
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                ViewCompat.setPaddingRelative(v,
+                        paddingStart + insets.getSystemWindowInsetLeft(),
+                        paddingTop + insets.getSystemWindowInsetTop(),
+                        paddingEnd + insets.getSystemWindowInsetRight(),
+                        paddingBottom + insets.getSystemWindowInsetBottom());
+                return insets;
+            }
+        });
 
         addLocationsButton = view.findViewById(R.id.fab);
         addLocationsButton.setOnClickListener(new View.OnClickListener() {
@@ -457,6 +479,24 @@ public class LocationsFragment extends ToolbarFragment
                 prepareSearchUI();
             }
         });
+
+        ViewCompat.setOnApplyWindowInsetsListener(addLocationsButton, new OnApplyWindowInsetsListener() {
+            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) addLocationsButton.getLayoutParams();
+            private int marginStart = MarginLayoutParamsCompat.getMarginStart(layoutParams);
+            private int marginEnd = MarginLayoutParamsCompat.getMarginEnd(layoutParams);
+
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+
+                MarginLayoutParamsCompat.setMarginStart(layoutParams, marginStart + insets.getSystemWindowInsetLeft());
+                MarginLayoutParamsCompat.setMarginEnd(layoutParams, marginEnd + insets.getSystemWindowInsetRight());
+
+                v.setLayoutParams(layoutParams);
+                return insets;
+            }
+        });
+
         CoordinatorLayout.LayoutParams fabLP = (CoordinatorLayout.LayoutParams) addLocationsButton.getLayoutParams();
         fabLP.setBehavior(new ExtendedFab.SnackBarBehavior());
 

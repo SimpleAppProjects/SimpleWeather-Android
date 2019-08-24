@@ -440,12 +440,21 @@ public class WeatherNowFragment extends WindowColorFragment
                 @Override
                 public void getOutline(View view, Outline outline) {
                     // L, T, R, B
-                    outline.setRect(0, view.getHeight(), view.getWidth(), view.getHeight() + 1);
+                    outline.setRect(view.getPaddingStart(), view.getHeight(), view.getWidth() + view.getPaddingEnd(), view.getHeight() + 1);
                     outline.setAlpha(0.5f);
                 }
             });
         }
         ViewCompat.setElevation(mAppBarLayout, 0);
+
+        ViewCompat.setOnApplyWindowInsetsListener(mAppBarLayout, new OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
+                return insets;
+            }
+        });
+
         mImageView = view.findViewById(R.id.image_view);
         ViewCompat.setOnApplyWindowInsetsListener(mImageView, new OnApplyWindowInsetsListener() {
             @Override
@@ -464,6 +473,15 @@ public class WeatherNowFragment extends WindowColorFragment
         conditionPanel = view.findViewById(R.id.condition_panel);
 
         refreshLayout = view.findViewById(R.id.refresh_layout);
+        ViewCompat.setOnApplyWindowInsetsListener(refreshLayout, new OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                layoutParams.setMargins(insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), 0);
+                return insets;
+            }
+        });
+
         scrollView = view.findViewById(R.id.fragment_weather_now);
         scrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
