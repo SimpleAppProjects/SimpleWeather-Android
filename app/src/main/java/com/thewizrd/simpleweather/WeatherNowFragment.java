@@ -542,6 +542,9 @@ public class WeatherNowFragment extends WindowColorFragment
                 final double decelMinusOne = DECELERATION_RATE - 1.0;
                 return mFlingFriction * mPhysicalCoeff * Math.exp(DECELERATION_RATE / decelMinusOne * l);
             }
+            /*
+             * End of values from OverScroller class
+             */
 
             @Override
             public void onFlingStarted(int startScrollY, int velocityY) {
