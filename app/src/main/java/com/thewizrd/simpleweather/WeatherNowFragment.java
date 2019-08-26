@@ -10,6 +10,7 @@ import android.content.res.Configuration;
 import android.graphics.Outline;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -25,7 +26,9 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.widget.CompoundButton;
@@ -92,6 +95,7 @@ import com.thewizrd.simpleweather.adapters.DetailItemAdapter;
 import com.thewizrd.simpleweather.adapters.ForecastItemAdapter;
 import com.thewizrd.simpleweather.adapters.HourlyForecastGraphPagerAdapter;
 import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter;
+import com.thewizrd.simpleweather.controls.ObservableNestedScrollView;
 import com.thewizrd.simpleweather.controls.SunPhaseView;
 import com.thewizrd.simpleweather.fragments.WindowColorFragment;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
@@ -137,7 +141,7 @@ public class WeatherNowFragment extends WindowColorFragment
     private ImageView mImageView;
     private float mAppBarElevation;
     private SwipeRefreshLayout refreshLayout;
-    private NestedScrollView scrollView;
+    private ObservableNestedScrollView scrollView;
     private View conditionPanel;
     // Condition
     private TextView updateTime;
@@ -422,6 +426,7 @@ public class WeatherNowFragment extends WindowColorFragment
         loaded = true;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -485,7 +490,7 @@ public class WeatherNowFragment extends WindowColorFragment
         scrollView = view.findViewById(R.id.fragment_weather_now);
         scrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
-            public void onScrollChange(final NestedScrollView v, int scrollX, final int scrollY, int oldScrollX, int oldScrollY) {
+            public void onScrollChange(final NestedScrollView v, int scrollX, final int scrollY, int oldScrollX, final int oldScrollY) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -496,6 +501,7 @@ public class WeatherNowFragment extends WindowColorFragment
                                 ViewCompat.setElevation(mAppBarLayout, 0);
                             }
                         }
+
                         final int currentNightMode = AppCompatDelegate.getDefaultNightMode();
                         if (currentNightMode != AppCompatDelegate.MODE_NIGHT_YES && mImageView != null) {
                             // Default adj = 1.25
@@ -508,6 +514,96 @@ public class WeatherNowFragment extends WindowColorFragment
                         }
                     }
                 });
+            }
+        });
+        scrollView.setOnFlingListener(new ObservableNestedScrollView.OnFlingListener() {
+            private int oldScrollY;
+            private int startvelocityY;
+
+            /*
+             * Values from OverScroller class
+             */
+            private final float DECELERATION_RATE = (float) (Math.log(0.78) / Math.log(0.9));
+            private final float INFLEXION = 0.35f; // Tension lines cross at (INFLEXION, 1)
+            // Fling friction
+            private float mFlingFriction = ViewConfiguration.getScrollFriction();
+            private final float ppi = mActivity.getResources().getDisplayMetrics().density * 160.0f;
+            private float mPhysicalCoeff = SensorManager.GRAVITY_EARTH // g (m/s^2)
+                    * 39.37f // inch/meter
+                    * ppi
+                    * 0.84f; // look and feel tuning
+
+            private double getSplineDeceleration(int velocity) {
+                return Math.log(INFLEXION * Math.abs(velocity) / (mFlingFriction * mPhysicalCoeff));
+            }
+
+            private double getSplineFlingDistance(int velocity) {
+                final double l = getSplineDeceleration(velocity);
+                final double decelMinusOne = DECELERATION_RATE - 1.0;
+                return mFlingFriction * mPhysicalCoeff * Math.exp(DECELERATION_RATE / decelMinusOne * l);
+            }
+
+            @Override
+            public void onFlingStarted(int startScrollY, int velocityY) {
+                oldScrollY = startScrollY;
+                startvelocityY = velocityY;
+            }
+
+            @Override
+            public void onFlingStopped(int scrollY) {
+                int condPnlHeight = conditionPanel.getHeight();
+                int THRESHOLD = condPnlHeight / 2;
+                int scrollOffset = scrollView.computeVerticalScrollOffset();
+                int dY = scrollY - oldScrollY;
+                boolean mScrollHandled = false;
+
+                Log.d("ScrollView", String.format("onFlingStopped: height: %d; offset|scrollY: %d; prevScrollY: %d; dY: %d;", condPnlHeight, scrollOffset, oldScrollY, dY));
+
+                if (dY < 0 && scrollOffset < condPnlHeight - THRESHOLD) {
+                    scrollView.smoothScrollTo(0, 0);
+                    mScrollHandled = true;
+                } else if (scrollOffset < condPnlHeight && scrollOffset >= condPnlHeight - THRESHOLD) {
+                    scrollView.smoothScrollTo(0, condPnlHeight);
+                    mScrollHandled = true;
+                } else if (dY > 0 && scrollOffset < condPnlHeight - THRESHOLD) {
+                    scrollView.smoothScrollTo(0, condPnlHeight);
+                    mScrollHandled = true;
+                }
+
+                if (!mScrollHandled && scrollOffset < condPnlHeight) {
+                    int animDY = (int) getSplineFlingDistance(startvelocityY);
+                    int animScrollY = oldScrollY + animDY;
+
+                    Log.d("ScrollView", String.format("onFlingStopped: height: %d; animScrollY: %d; prevScrollY: %d; animDY: %d;", condPnlHeight, animScrollY, oldScrollY, animDY));
+
+                    if (startvelocityY < 0 && animScrollY < condPnlHeight - THRESHOLD) {
+                        scrollView.smoothScrollTo(0, 0);
+                    } else if (animScrollY < condPnlHeight && animScrollY >= condPnlHeight - THRESHOLD) {
+                        scrollView.smoothScrollTo(0, condPnlHeight);
+                    } else if (startvelocityY > 0 && animScrollY < condPnlHeight - THRESHOLD) {
+                        scrollView.smoothScrollTo(0, condPnlHeight);
+                    }
+                }
+            }
+        });
+        scrollView.setTouchScrollListener(new ObservableNestedScrollView.OnTouchScrollChangeListener() {
+            @Override
+            public void onTouchScrollChange(int scrollY, int oldScrollY) {
+                int condPnlHeight = conditionPanel.getHeight();
+                int THRESHOLD = condPnlHeight / 2;
+                int scrollOffset = scrollView.computeVerticalScrollOffset();
+                int dY = scrollY - oldScrollY;
+
+                Log.d("ScrollView", String.format("onTouchScrollChange: height: %d; offset: %d; scrollY: %d; prevScrollY: %d; dY: %d",
+                        condPnlHeight, scrollOffset, scrollY, oldScrollY, dY));
+
+                if (dY < 0 && scrollY < condPnlHeight - THRESHOLD) {
+                    scrollView.smoothScrollTo(0, 0);
+                } else if (scrollY < condPnlHeight && scrollY >= condPnlHeight - THRESHOLD) {
+                    scrollView.smoothScrollTo(0, condPnlHeight);
+                } else if (dY > 0 && scrollY < condPnlHeight) {
+                    scrollView.smoothScrollTo(0, condPnlHeight);
+                }
             }
         });
         // Condition
@@ -531,6 +627,17 @@ public class WeatherNowFragment extends WindowColorFragment
         detailsContainer.addItemDecoration(new LocationPanelOffsetDecoration(margin));
         detailsAdapter = new DetailItemAdapter();
         detailsContainer.setAdapter(detailsAdapter);
+
+        // Disable touch events on container
+        // View does not scroll
+        detailsContainer.setFocusable(false);
+        detailsContainer.setFocusableInTouchMode(false);
+        detailsContainer.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
 
         // Forecast
         forecastPanel = view.findViewById(R.id.forecast_panel);

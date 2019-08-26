@@ -82,7 +82,7 @@
         app:layout_anchorGravity="bottom"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.core.widget.NestedScrollView
+        <com.thewizrd.simpleweather.controls.ObservableNestedScrollView
             android:id="@+id/fragment_weather_now"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -463,7 +463,7 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </androidx.core.widget.NestedScrollView>
+        </com.thewizrd.simpleweather.controls.ObservableNestedScrollView>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
