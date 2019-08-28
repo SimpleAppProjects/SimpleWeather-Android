@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.Outline;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -36,7 +37,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SwitchCompat;
@@ -49,6 +52,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -58,6 +62,8 @@ import androidx.viewpager.widget.ViewPager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -99,6 +105,7 @@ import com.thewizrd.simpleweather.controls.ObservableNestedScrollView;
 import com.thewizrd.simpleweather.controls.SunPhaseView;
 import com.thewizrd.simpleweather.fragments.WindowColorFragment;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
+import com.thewizrd.simpleweather.helpers.ColorsUtils;
 import com.thewizrd.simpleweather.helpers.LocationPanelOffsetDecoration;
 import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationBuilder;
@@ -1447,12 +1454,18 @@ public class WeatherNowFragment extends WindowColorFragment
         if (!StringUtils.isNullOrWhitespace(backgroundURI)) {
             if (backgroundURI.contains("DaySky")) {
                 attrib = mActivity.getText(R.string.attrib_daysky);
+            } else if (backgroundURI.contains("Dust")) {
+                attrib = mActivity.getText(R.string.attrib_dust);
             } else if (backgroundURI.contains("FoggySky")) {
                 attrib = mActivity.getText(R.string.attrib_foggysky);
+            } else if (backgroundURI.contains("MostlyCloudy-Night")) {
+                attrib = mActivity.getText(R.string.attrib_mcloudynt);
             } else if (backgroundURI.contains("NightSky")) {
                 attrib = mActivity.getText(R.string.attrib_nightsky);
             } else if (backgroundURI.contains("PartlyCloudy-Day")) {
                 attrib = mActivity.getText(R.string.attrib_ptcloudyday);
+            } else if (backgroundURI.contains("PartlyCloudy-Night")) {
+                attrib = mActivity.getText(R.string.attrib_ptcloudynt);
             } else if (backgroundURI.contains("RainyDay")) {
                 attrib = mActivity.getText(R.string.attrib_rainyday);
             } else if (backgroundURI.contains("RainyNight")) {

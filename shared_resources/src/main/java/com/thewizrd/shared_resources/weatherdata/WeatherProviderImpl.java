@@ -1,6 +1,5 @@
 package com.thewizrd.shared_resources.weatherdata;
 
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -170,7 +169,7 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
     @Override
     @ColorInt
     public int getWeatherBackgroundColor(Weather weather) {
-        String rgbHex = null;
+        int rgb = -1;
         String icon = weather.getCondition().getIcon();
 
         // Apply background based on weather condition
@@ -182,7 +181,7 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             case WeatherIcons.DAY_SHOWERS:
             case WeatherIcons.DAY_SLEET:
             case WeatherIcons.DAY_SPRINKLE:
-                rgbHex = "#ff78b0c8";
+                rgb = 0xFF102838;
                 break;
             case WeatherIcons.NIGHT_ALT_HAIL:
             case WeatherIcons.NIGHT_ALT_RAIN:
@@ -197,18 +196,18 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             case WeatherIcons.SHOWERS:
             case WeatherIcons.SLEET:
             case WeatherIcons.SPRINKLE:
-                rgbHex = "#ff181810";
+                rgb = 0xFF181010;
                 break;
             // Tornado / Hurricane / Thunderstorm / Tropical Storm
             case WeatherIcons.DAY_LIGHTNING:
             case WeatherIcons.DAY_THUNDERSTORM:
-                rgbHex = "#ff687080";
+                rgb = 0xFF283040;
                 break;
             case WeatherIcons.NIGHT_ALT_LIGHTNING:
             case WeatherIcons.NIGHT_ALT_THUNDERSTORM:
             case WeatherIcons.LIGHTNING:
             case WeatherIcons.THUNDERSTORM:
-                rgbHex = "#ff303868";
+                rgb = 0xFF101020;
                 break;
             case WeatherIcons.DAY_STORM_SHOWERS:
             case WeatherIcons.DAY_SLEET_STORM:
@@ -218,12 +217,12 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             case WeatherIcons.HAIL:
             case WeatherIcons.HURRICANE:
             case WeatherIcons.TORNADO:
-                rgbHex = "#ff283840";
+                rgb = 0xFF081820;
                 break;
             // Dust
             case WeatherIcons.DUST:
             case WeatherIcons.SANDSTORM:
-                rgbHex = "#ffaf9f6d";
+                rgb = 0xFFA86010;
                 break;
             // Foggy / Haze
             case WeatherIcons.DAY_FOG:
@@ -232,7 +231,8 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             case WeatherIcons.NIGHT_FOG:
             case WeatherIcons.SMOG:
             case WeatherIcons.SMOKE:
-                rgbHex = "#ff888888";
+                //rgb = 0xFF202018;
+                rgb = 0xFFB8B8B8;
                 break;
             // Snow / Snow Showers/Storm
             case WeatherIcons.DAY_SNOW:
@@ -240,12 +240,14 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             case WeatherIcons.NIGHT_ALT_SNOW:
             case WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM:
             case WeatherIcons.SNOW:
-                rgbHex = "#ff5088b0";
+                //rgb = 0xFF283038;
+                rgb = 0xFFC8D8F0;
                 break;
             case WeatherIcons.SNOW_WIND:
             case WeatherIcons.DAY_SNOW_WIND:
             case WeatherIcons.NIGHT_ALT_SNOW_WIND:
-                rgbHex = "#ff888888";
+                //rgb = 0xFF888890;
+                rgb = 0xFFC0B8C0;
                 break;
             /* Ambigious weather conditions */
             // (Mostly) Cloudy
@@ -262,17 +264,17 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             case WeatherIcons.NIGHT_ALT_CLOUDY_HIGH:
             case WeatherIcons.NIGHT_ALT_CLOUDY_WINDY:
                 if (isNight(weather))
-                    rgbHex = "#ff182030";
+                    rgb = 0xFF181818;
                 else
-                    rgbHex = "#ff4880a8";
+                    rgb = 0xFF5080A8;
                 break;
             // Partly Cloudy
             case WeatherIcons.DAY_SUNNY_OVERCAST:
             case WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY:
                 if (isNight(weather))
-                    rgbHex = "#ff384050";
+                    rgb = 0xFF181820;
                 else
-                    rgbHex = "#ff3868a8";
+                    rgb = 0xFF88B0C8;
                 break;
             case WeatherIcons.DAY_SUNNY:
             case WeatherIcons.NA:
@@ -284,25 +286,13 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             default:
                 // Set background based using sunset/rise times
                 if (isNight(weather))
-                    rgbHex = "#ff202020";
+                    rgb = 0xFF101010;
                 else
-                    rgbHex = "#ff6890b8";
+                    rgb = 0xFF20A8D0;
                 break;
         }
 
-        // Just in case
-        if (StringUtils.isNullOrWhitespace(rgbHex)) {
-            // Set background based using sunset/rise times
-            if (isNight(weather)) {
-                // Night background
-                rgbHex = "#ff202020";
-            } else {
-                // set day bg
-                rgbHex = "#ff6890b8";
-            }
-        }
-
-        return Color.parseColor(rgbHex);
+        return rgb;
     }
 
     @Override
