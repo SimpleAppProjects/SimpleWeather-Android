@@ -3,7 +3,6 @@ package com.thewizrd.simpleweather.helpers;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -36,16 +35,11 @@ public class ActivityUtils {
                 & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
     }
 
-    public static void setTransparentWindow(@NonNull Window window, @ColorInt int statusBarColor, @ColorInt int navBarColor) {
-        int windowBGColor = Colors.WHITE;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && window.getDecorView().getBackground() instanceof ColorDrawable) {
-            windowBGColor = ((ColorDrawable) window.getDecorView().getBackground()).getColor();
-        }
-
-        setTransparentWindow(window, windowBGColor, statusBarColor, navBarColor);
+    public static void setTransparentWindow(@NonNull Window window, @ColorInt int backgroundColor, @ColorInt int statusBarColor, @ColorInt int navBarColor) {
+        setTransparentWindow(window, backgroundColor, statusBarColor, navBarColor, true);
     }
 
-    public static void setTransparentWindow(@NonNull Window window, @ColorInt int backgroundColor, @ColorInt int statusBarColor, @ColorInt int navBarColor) {
+    public static void setTransparentWindow(@NonNull Window window, @ColorInt int backgroundColor, @ColorInt int statusBarColor, @ColorInt int navBarColor, boolean setColors) {
         // Make full transparent statusBar
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             WindowManager.LayoutParams winParams = window.getAttributes();
@@ -74,6 +68,22 @@ public class ActivityUtils {
                     ColorsUtils.isSuperLight(navBarColor) || (navBarColor == Colors.TRANSPARENT && ColorsUtils.isSuperLight(backgroundColor));
             boolean navBarProtection = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && targetSDK > Build.VERSION_CODES.P) || !isLightNavBar;
 
+            boolean isLightStatusBar =
+                    ColorsUtils.isSuperLight(statusBarColor) || (statusBarColor == Colors.TRANSPARENT && ColorsUtils.isSuperLight(backgroundColor));
+            boolean statBarProtection = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && targetSDK > Build.VERSION_CODES.P) || !isLightStatusBar;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (isLightStatusBar) {
+                    window.getDecorView().setSystemUiVisibility(
+                            window.getDecorView().getSystemUiVisibility()
+                                    | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                } else {
+                    window.getDecorView().setSystemUiVisibility(
+                            window.getDecorView().getSystemUiVisibility()
+                                    & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                }
+            }
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (isLightNavBar) {
                     window.getDecorView().setSystemUiVisibility(
@@ -86,8 +96,10 @@ public class ActivityUtils {
                 }
             }
 
-            window.setStatusBarColor(statusBarColor);
-            window.setNavigationBarColor(navBarProtection ? navBarColor : ColorUtils.setAlphaComponent(backgroundColor, 0xF0));
+            window.setStatusBarColor(statBarProtection ? (setColors ? statusBarColor : Colors.TRANSPARENT) :
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? backgroundColor : ColorUtils.setAlphaComponent(Colors.BLACK, 0x66));
+            window.setNavigationBarColor(navBarProtection ? (setColors ? navBarColor : Colors.TRANSPARENT) :
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? backgroundColor : ColorUtils.setAlphaComponent(Colors.BLACK, 0x66));
         }
     }
 

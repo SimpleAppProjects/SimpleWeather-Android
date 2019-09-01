@@ -9,6 +9,7 @@ import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Outline;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.SensorManager;
 import android.location.Criteria;
@@ -37,6 +38,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -151,6 +153,7 @@ public class WeatherNowFragment extends WindowColorFragment
     private CancellationTokenSource cts;
 
     // Views
+    private View mRootView;
     private AppBarLayout mAppBarLayout;
     private TextView mTitleView;
     private ImageView mImageView;
@@ -456,6 +459,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.setLifecycleOwner(this);
 
         View view = binding.getRoot();
+        mRootView = view;
         // Request focus away from RecyclerView
         view.setFocusableInTouchMode(true);
         view.requestFocus();
@@ -542,6 +546,16 @@ public class WeatherNowFragment extends WindowColorFragment
                             float gradAlpha = 1.0f - (1.0f * adj * scrollY / (conditionPanel.getHeight()));
                             backgroundAlpha.set(Math.max(backAlpha, 0x25));
                             gradientAlpha.set(Math.max(gradAlpha, 0));
+                        }
+
+                        if (mSysBarColorsIface != null && mRootView.getBackground() instanceof ColorDrawable) {
+                            int color = ((ColorDrawable) mRootView.getBackground()).getColor();
+
+                            if (gradientAlpha.get() == 1.0f) {
+                                mSysBarColorsIface.setSystemBarColors(Colors.TRANSPARENT, color);
+                            } else if (gradientAlpha.get() == 0.0f) {
+                                mSysBarColorsIface.setSystemBarColors(color);
+                            }
                         }
                     }
                 });
@@ -776,23 +790,20 @@ public class WeatherNowFragment extends WindowColorFragment
         super.onConfigurationChanged(newConfig);
 
         // Resize necessary views
-        final View mRootView = getView();
-        if (mRootView != null) {
-            ViewTreeObserver observer = getView().getViewTreeObserver();
-            observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    mRootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+        ViewTreeObserver observer = mRootView.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                mRootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-                    adjustConditionPanelLayout();
-                    adjustDetailsLayout();
-                    if (wm.supportsAlerts() && weatherView != null && weatherView.getExtras().getAlerts().size() > 0) {
-                        resizeAlertPanel();
-                    }
-                    resizeSunPhasePanel();
+                adjustConditionPanelLayout();
+                adjustDetailsLayout();
+                if (wm.supportsAlerts() && weatherView != null && weatherView.getExtras().getAlerts().size() > 0) {
+                    resizeAlertPanel();
                 }
-            });
-        }
+                resizeSunPhasePanel();
+            }
+        });
 
         runOnUiThread(new Runnable() {
             @Override
@@ -1177,25 +1188,22 @@ public class WeatherNowFragment extends WindowColorFragment
     @Override
     public void updateWindowColors() {
         // Background
-        View mRootView = WeatherNowFragment.this.getView();
-        if (mRootView != null) {
-            int currentNightMode = AppCompatDelegate.getDefaultNightMode();
-            int color;
-            if (currentNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
-                if (weatherView != null && weatherView.getPendingBackground() != -1)
-                    color = weatherView.getPendingBackground();
-                else
-                    color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-            } else {
-                color = Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ?
-                        Colors.BLACK :
-                        ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
-            }
-            if (mSysBarColorsIface != null) {
-                mSysBarColorsIface.setSystemBarColors(Colors.TRANSPARENT, color, Colors.TRANSPARENT);
-            }
-            mRootView.setBackgroundColor(color);
+        int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+        int color;
+        if (currentNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
+            if (weatherView != null && weatherView.getPendingBackground() != -1)
+                color = weatherView.getPendingBackground();
+            else
+                color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+        } else {
+            color = Settings.getUserThemeMode() == DarkMode.AMOLED_DARK ?
+                    Colors.BLACK :
+                    ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
         }
+        if (mSysBarColorsIface != null) {
+            mSysBarColorsIface.setSystemBarColors(Colors.TRANSPARENT, color, color);
+        }
+        mRootView.setBackgroundColor(color);
     }
 
     private void updateView(final WeatherNowViewModel weatherView) {

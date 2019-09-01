@@ -53,7 +53,7 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
         setContentView(R.layout.activity_setup);
 
         // Make full transparent statusBar
-        ActivityUtils.setTransparentWindow(getWindow(), Colors.SIMPLEBLUE, Colors.TRANSPARENT, Colors.TRANSPARENT);
+        ActivityUtils.setTransparentWindow(getWindow(), Colors.SIMPLEBLUE, Colors.TRANSPARENT, Colors.TRANSPARENT, false);
 
         int startingStepPosition = 0;
         if (savedInstanceState != null) {

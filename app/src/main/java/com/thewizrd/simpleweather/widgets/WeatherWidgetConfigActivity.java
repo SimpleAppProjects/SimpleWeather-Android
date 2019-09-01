@@ -689,17 +689,19 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 bg_color = Colors.BLACK;
                 appBarLayout.setBackgroundColor(Colors.BLACK);
                 collapsingToolbar.setStatusBarScrimColor(Colors.BLACK);
-                ActivityUtils.setTransparentWindow(mActivity.getWindow(),
-                        Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT ? -1 /* Opaque (Default) */ : Colors.TRANSPARENT, /* StatusBar */
-                        Colors.TRANSPARENT /* NavBar */);
+                ActivityUtils.setTransparentWindow(mActivity.getWindow(), bg_color,
+                        Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT ? -1 /* Opaque (Default) */ : Colors.BLACK, /* StatusBar */
+                        Colors.TRANSPARENT /* NavBar */,
+                        false);
             } else {
                 bg_color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
                 int colorPrimary = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
                 appBarLayout.setBackgroundColor(colorPrimary);
                 collapsingToolbar.setStatusBarScrimColor(colorPrimary);
                 ActivityUtils.setTransparentWindow(mActivity.getWindow(), bg_color,
-                        Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT ? -1 /* Opaque (Default) */ : Colors.TRANSPARENT, /* StatusBar */
-                        config.orientation == Configuration.ORIENTATION_PORTRAIT ? Colors.TRANSPARENT : colorPrimary /* NavBar */);
+                        Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT ? -1 /* Opaque (Default) */ : colorPrimary, /* StatusBar */
+                        config.orientation == Configuration.ORIENTATION_PORTRAIT ? Colors.TRANSPARENT : colorPrimary /* NavBar */,
+                        true);
             }
             mRootView.setBackgroundColor(bg_color);
         }

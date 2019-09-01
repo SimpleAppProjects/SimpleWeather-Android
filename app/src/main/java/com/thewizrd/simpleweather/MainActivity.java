@@ -298,17 +298,27 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void setSystemBarColors(@ColorInt final int color) {
+        setSystemBarColors(color, color, color, color);
+    }
+
+    @Override
     public void setSystemBarColors(@ColorInt final int statusBarColor, @ColorInt final int navBarColor) {
         setSystemBarColors(statusBarColor, navBarColor, navBarColor);
     }
 
     @Override
     public void setSystemBarColors(@ColorInt final int statusBarColor, @ColorInt final int toolbarColor, @ColorInt final int navBarColor) {
+        setSystemBarColors(Colors.TRANSPARENT, statusBarColor, toolbarColor, navBarColor);
+    }
+
+    @Override
+    public void setSystemBarColors(@ColorInt final int backgroundColor, @ColorInt final int statusBarColor, @ColorInt final int toolbarColor, @ColorInt final int navBarColor) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // Actionbar, BottomNavBar & StatusBar
-                ActivityUtils.setTransparentWindow(getWindow(), Colors.TRANSPARENT, statusBarColor, navBarColor);
+                ActivityUtils.setTransparentWindow(getWindow(), backgroundColor, statusBarColor, navBarColor, false);
 
                 if (!ColorsUtils.isSuperLight(navBarColor)) {
                     mBottomNavView.setItemRippleColor(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_ripple_color_dark));

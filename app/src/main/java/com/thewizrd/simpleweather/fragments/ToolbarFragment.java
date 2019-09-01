@@ -129,11 +129,10 @@ public abstract class ToolbarFragment extends WindowColorFragment
             }
         }
         int bg_color = color != Colors.BLACK ? ActivityUtils.getColor(mActivity, android.R.attr.colorBackground) : color;
-        ActivityUtils.setTransparentWindow(mActivity.getWindow(), bg_color, Colors.TRANSPARENT, Colors.TRANSPARENT);
         mAppBarLayout.setBackgroundColor(color);
         mRootView.setStatusBarBackgroundColor(color);
         if (mSysBarColorsIface != null) {
-            mSysBarColorsIface.setSystemBarColors(Colors.TRANSPARENT, color);
+            mSysBarColorsIface.setSystemBarColors(bg_color, color, color, color);
         }
     }
 }
