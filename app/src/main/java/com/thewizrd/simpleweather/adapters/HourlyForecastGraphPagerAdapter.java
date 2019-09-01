@@ -11,6 +11,7 @@ import androidx.viewpager.widget.PagerAdapter;
 
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Pair;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -26,6 +27,7 @@ import java.util.List;
 public class HourlyForecastGraphPagerAdapter extends PagerAdapter {
     private Context context;
     private List<HourlyForecastItemViewModel> hrforecasts;
+    private boolean isDarkMode;
 
     // Event listeners
     private RecyclerOnClickListenerInterface onClickListener;
@@ -65,6 +67,10 @@ public class HourlyForecastGraphPagerAdapter extends PagerAdapter {
                     onClickListener.onClick(v, 0);
             }
         });
+
+        view.setLineColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
+        view.setBackgroundLineColor(isDarkMode ? Colors.WHITESMOKE : Colors.DARKGRAY);
+        view.setBottomTextColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
 
         switch (position) {
             case 0:
@@ -194,6 +200,11 @@ public class HourlyForecastGraphPagerAdapter extends PagerAdapter {
     public void updateDataset(Collection<HourlyForecastItemViewModel> dataset) {
         hrforecasts.clear();
         hrforecasts.addAll(dataset);
+        notifyDataSetChanged();
+    }
+
+    public void updateColors(boolean isDark) {
+        isDarkMode = isDark;
         notifyDataSetChanged();
     }
 }

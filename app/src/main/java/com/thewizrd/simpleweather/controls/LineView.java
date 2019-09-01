@@ -2,7 +2,6 @@ package com.thewizrd.simpleweather.controls;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -18,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
@@ -115,6 +115,21 @@ public class LineView extends HorizontalScrollView {
         this.graph.setDataList(dataLists);
     }
 
+    public void setBackgroundLineColor(@ColorInt int color) {
+        this.graph.BACKGROUND_LINE_COLOR = color;
+    }
+
+    public void setBottomTextColor(@ColorInt int color) {
+        this.graph.BOTTOM_TEXT_COLOR = color;
+        if (this.graph.bottomTextPaint != null) {
+            this.graph.bottomTextPaint.setColor(this.graph.BOTTOM_TEXT_COLOR);
+        }
+    }
+
+    public void setLineColor(@ColorInt int color) {
+        this.graph.LINE_COLOR = color;
+    }
+
     /*
      *  Single series line graph
      *  Based on LineView from http://www.androidtrainee.com/draw-android-line-chart-with-animation/
@@ -146,8 +161,9 @@ public class LineView extends HorizontalScrollView {
         private final float MIN_TOP_LINE_LENGTH = ActivityUtils.dpToPx(getContext(), 12);
         private final int MIN_VERTICAL_GRID_NUM = 4;
         private final int MIN_HORIZONTAL_GRID_NUM = 1;
-        private final int BACKGROUND_LINE_COLOR = Colors.WHITESMOKE;
-        private final int BOTTOM_TEXT_COLOR = Colors.WHITE;
+        private int BACKGROUND_LINE_COLOR = Colors.WHITESMOKE;
+        private int BOTTOM_TEXT_COLOR = Colors.WHITE;
+        private int LINE_COLOR = Colors.WHITE;
 
         private float topLineLength = MIN_TOP_LINE_LENGTH;
         private float sideLineLength = ActivityUtils.dpToPx(getContext(), 45) / 3 * 2;
@@ -418,7 +434,7 @@ public class LineView extends HorizontalScrollView {
                 Paint bigCirPaint = new Paint();
                 bigCirPaint.setAntiAlias(true);
                 Paint smallCirPaint = new Paint(bigCirPaint);
-                smallCirPaint.setColor(Color.parseColor("#FFFFFF"));
+                smallCirPaint.setColor(LINE_COLOR);
                 if (drawDotLists != null && !drawDotLists.isEmpty()) {
                     for (int k = 0; k < drawDotLists.size(); k++) {
                         bigCirPaint.setColor(colorArray[k % 3]);
@@ -449,7 +465,7 @@ public class LineView extends HorizontalScrollView {
                 // needed to end the path for background
                 float lastUsedEndY = 0;
 
-                linePaint.setColor(Colors.WHITE);
+                linePaint.setColor(LINE_COLOR);
                 mPaintBackground.setColor(ColorUtils.setAlphaComponent(colorArray[k % 3], 0x50));
                 for (int i = 0; i < drawDotLists.get(k).size() - 1; i++) {
                     Dot dot = drawDotLists.get(k).get(i);

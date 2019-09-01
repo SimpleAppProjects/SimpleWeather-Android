@@ -18,6 +18,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -308,12 +309,22 @@ public class MainActivity extends AppCompatActivity
             public void run() {
                 // Actionbar, BottomNavBar & StatusBar
                 ActivityUtils.setTransparentWindow(getWindow(), Colors.TRANSPARENT, statusBarColor, navBarColor);
-                if (navBarColor == Colors.BLACK) {
-                    mBottomNavView.setItemRippleColor(ContextCompat.getColorStateList(MainActivity.this, com.google.android.material.R.color.ripple_material_dark));
+
+                if (!ColorsUtils.isSuperLight(navBarColor)) {
+                    mBottomNavView.setItemRippleColor(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_ripple_color_dark));
                 } else {
-                    mBottomNavView.setItemRippleColor(ContextCompat.getColorStateList(MainActivity.this, com.google.android.material.R.color.ripple_material_light));
+                    mBottomNavView.setItemRippleColor(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_ripple_color_light));
                 }
+
                 mBottomNavView.setBackgroundColor(toolbarColor);
+
+                if (!ColorsUtils.isSuperLight(toolbarColor)) {
+                    mBottomNavView.setItemIconTintList(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_item_tint_dark));
+                    mBottomNavView.setItemTextColor(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_item_tint_dark));
+                } else {
+                    mBottomNavView.setItemIconTintList(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_item_tint_light));
+                    mBottomNavView.setItemTextColor(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_item_tint_light));
+                }
             }
         });
     }

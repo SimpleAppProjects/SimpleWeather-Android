@@ -7,7 +7,7 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.weatherdata.Beaufort;
 import com.thewizrd.shared_resources.weatherdata.MoonPhase;
 
-public class DetailItemViewModel {
+public class DetailItemViewModel extends ObservableViewModel {
     private WeatherDetailsType detailsType;
     private String label;
     private String icon;
@@ -95,6 +95,8 @@ public class DetailItemViewModel {
 
         this.value = value;
         this.iconRotation = iconRotation;
+
+        notifyChange();
     }
 
     public DetailItemViewModel(MoonPhase.MoonPhaseType moonPhaseType, String description) {
@@ -130,6 +132,8 @@ public class DetailItemViewModel {
                 this.icon = context.getString(R.string.wi_moon_alt_waning_crescent_3);
                 break;
         }
+
+        notifyChange();
     }
 
     public DetailItemViewModel(Beaufort.BeaufortScale beaufortScale, String description) {
@@ -180,6 +184,8 @@ public class DetailItemViewModel {
                 this.icon = context.getString(R.string.wi_wind_beaufort_12);
                 break;
         }
+
+        notifyChange();
     }
 
     public WeatherDetailsType getDetailsType() {

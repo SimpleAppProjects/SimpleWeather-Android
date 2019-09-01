@@ -4,6 +4,22 @@
     <color name="colorPrimaryLight">#599ef3</color>
     <color name="colorPrimaryMedium">#007dd6</color>
 
+    <!--colorBackground appears behind scrollable content and is used for the default window-->
+    <!--background. colorSurface is mapped to the surface of components such as cards, sheets-->
+    <!--and menus. colorError is used to indicate an error state for components such as-->
+    <!--text fields.-->
+    <color name="colorBackground">#ffffff</color>
+    <color name="colorSurface">#ffffff</color>
+    <color name="colorError">#b00020</color>
+
+    <!--"On" colors define how text, icons and strokes are colored in relation to the surface-->
+    <!--on which they appear.-->
+    <color name="colorOnPrimary">#ffffff</color>
+    <color name="colorOnSecondary">#000000</color>
+    <color name="colorOnBackground">#000000</color>
+    <color name="colorOnSurface">#000000</color>
+    <color name="colorOnError">#ffffff</color>
+
     <color name="colorText">#FFFFFF</color>
     <color name="colorTextPrimary">@android:color/black</color>
     <color name="colorTextSecondary">@color/abc_secondary_text_material_light</color>

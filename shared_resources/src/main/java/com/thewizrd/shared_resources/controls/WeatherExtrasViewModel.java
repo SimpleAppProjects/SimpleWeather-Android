@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class WeatherExtrasViewModel {
+public class WeatherExtrasViewModel extends ObservableViewModel {
     private List<HourlyForecastItemViewModel> hourlyForecast;
     private List<TextForecastItemViewModel> textForecast;
 
@@ -83,11 +83,14 @@ public class WeatherExtrasViewModel {
                 alerts.add(alertView);
             }
         }
+
+        notifyChange();
     }
 
     public void clear() {
         hourlyForecast.clear();
         textForecast.clear();
         alerts.clear();
+        notifyChange();
     }
 }

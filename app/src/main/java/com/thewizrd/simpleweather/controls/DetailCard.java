@@ -8,6 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
+import androidx.core.graphics.ColorUtils;
+
 import com.google.android.material.card.MaterialCardView;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.simpleweather.R;
@@ -52,5 +55,16 @@ public class DetailCard extends MaterialCardView {
         detailIcon.setText(viewModel.getIcon());
         detailValue.setText(viewModel.getValue());
         detailIcon.setRotation(viewModel.getIconRotation());
+    }
+
+    @Override
+    public void setBackgroundColor(@ColorInt int color) {
+        setCardBackgroundColor(ColorUtils.setAlphaComponent(color, 0x10));
+    }
+
+    public void setTextColor(@ColorInt int color) {
+        detailLabel.setTextColor(color);
+        detailIcon.setTextColor(color);
+        detailValue.setTextColor(color);
     }
 }

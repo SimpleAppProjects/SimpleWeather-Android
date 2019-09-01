@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class ForecastItemViewModel {
+public class ForecastItemViewModel extends ObservableViewModel {
     private WeatherManager wm;
 
     private String weatherIcon;
@@ -174,6 +174,8 @@ public class ForecastItemViewModel {
                 Logger.writeLine(Log.DEBUG, e);
             }
         }
+
+        notifyChange();
     }
 
     public String getWeatherIcon() {

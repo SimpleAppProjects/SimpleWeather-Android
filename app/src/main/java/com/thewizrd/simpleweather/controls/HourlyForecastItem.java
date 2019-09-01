@@ -7,6 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
+import androidx.core.graphics.ColorUtils;
+
 import com.google.android.material.card.MaterialCardView;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -80,5 +83,21 @@ public class HourlyForecastItem extends MaterialCardView {
         forecastPoP.setText(forecastView.getPop());
         forecastWindDirection.setRotation(forecastView.getWindDirection());
         forecastWindSpeed.setText(String.format(Locale.ROOT, "%s, %s", forecastView.getWindSpeed(), forecastView.getWindDirLabel()));
+    }
+
+    @Override
+    public void setBackgroundColor(@ColorInt int color) {
+        setCardBackgroundColor(ColorUtils.setAlphaComponent(color, 0x10));
+    }
+
+    public void setTextColor(@ColorInt int color) {
+        forecastDate.setTextColor(color);
+        forecastIcon.setTextColor(color);
+        forecastCondition.setTextColor(color);
+        forecastTempHi.setTextColor(color);
+        forecastPoPIcon.setTextColor(color);
+        forecastPoP.setTextColor(color);
+        forecastWindDirection.setTextColor(color);
+        forecastWindSpeed.setTextColor(color);
     }
 }

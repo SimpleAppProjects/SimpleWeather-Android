@@ -26,6 +26,7 @@ import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.ObservableArrayList;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
@@ -38,7 +39,6 @@ import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.LocationPanel;
 import com.thewizrd.simpleweather.controls.LocationPanelViewModel;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
-import com.thewizrd.simpleweather.helpers.ColorsUtils;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperAdapterInterface;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
 
@@ -227,9 +227,13 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
                             super.onResourceReady(resource, transition);
                             Palette p = Palette.from(resource).generate();
                             int textColor = Colors.WHITE;
-                            if (ColorsUtils.isSuperLight(p))
+                            int shadowColor = Colors.BLACK;
+                            if (ColorsUtils.isSuperLight(p)) {
                                 textColor = Colors.BLACK;
+                                shadowColor = Colors.GRAY;
+                            }
                             vHolder.mLocView.setTextColor(textColor);
+                            vHolder.mLocView.setTextShadowColor(shadowColor);
                         }
                     });
         } else {

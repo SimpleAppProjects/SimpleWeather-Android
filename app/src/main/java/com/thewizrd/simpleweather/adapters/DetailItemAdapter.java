@@ -8,12 +8,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.controls.DetailCard;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DetailItemAdapter extends RecyclerView.Adapter {
+public class DetailItemAdapter extends ColorModeRecyclerViewAdapter {
     private List<DetailItemViewModel> mDataset;
 
     // Provide a reference to the views for each data item
@@ -50,6 +51,8 @@ public class DetailItemAdapter extends RecyclerView.Adapter {
         // - replace the contents of the view with that element
         ViewHolder vh = (ViewHolder) holder;
         vh.mDetailCard.setDetails(mDataset.get(position));
+        vh.mDetailCard.setBackgroundColor(isLightBackground() ? Colors.BLACK : Colors.WHITE);
+        vh.mDetailCard.setTextColor(isLightBackground() ? Colors.BLACK : Colors.WHITE);
     }
 
     @Override

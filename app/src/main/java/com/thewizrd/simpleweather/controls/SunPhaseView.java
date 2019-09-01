@@ -14,11 +14,13 @@ import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.ColorInt;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
 
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
+import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
 
 import org.threeten.bp.LocalTime;
@@ -49,6 +51,10 @@ public class SunPhaseView extends View {
     private float sideLineLength = ActivityUtils.dpToPx(getContext(), 45) / 3 * 2;
     private float backgroundGridWidth = ActivityUtils.dpToPx(getContext(), 45);
 
+    private int BOTTOM_TEXT_COLOR = Colors.WHITE;
+    private int PHASE_ARC_COLOR = Colors.WHITE;
+    private int PAINT_COLOR = Colors.YELLOW;
+
     public SunPhaseView(Context context) {
         this(context, null);
     }
@@ -61,7 +67,7 @@ public class SunPhaseView extends View {
         bottomTextPaint.setTextSize(ActivityUtils.dpToPx(getContext(), 12));
         bottomTextPaint.setTextAlign(Paint.Align.CENTER);
         bottomTextPaint.setStyle(Paint.Style.FILL);
-        bottomTextPaint.setColor(Colors.WHITE);
+        bottomTextPaint.setColor(BOTTOM_TEXT_COLOR);
     }
 
     private float getGraphHeight() {
@@ -82,6 +88,24 @@ public class SunPhaseView extends View {
         } else {
             return sunset.format(DateTimeFormatter.ofPattern("h:mm a"));
         }
+    }
+
+    public void setTextColor(@ColorInt int color) {
+        BOTTOM_TEXT_COLOR = color;
+        if (bottomTextPaint != null) {
+            bottomTextPaint.setColor(BOTTOM_TEXT_COLOR);
+            invalidate();
+        }
+    }
+
+    public void setPhaseArcColor(@ColorInt int color) {
+        PHASE_ARC_COLOR = color;
+        invalidate();
+    }
+
+    public void setPaintColor(@ColorInt int color) {
+        PAINT_COLOR = color;
+        invalidate();
     }
 
     public void setSunriseSetTimes(LocalTime sunrise, LocalTime sunset) {
@@ -137,7 +161,7 @@ public class SunPhaseView extends View {
         Paint bigCirPaint = new Paint();
         bigCirPaint.setStyle(Paint.Style.FILL);
         bigCirPaint.setAntiAlias(true);
-        bigCirPaint.setColor(Colors.YELLOW);
+        bigCirPaint.setColor(PAINT_COLOR);
 
         canvas.drawCircle(sunriseX, getGraphHeight(), DOT_RADIUS, bigCirPaint);
         canvas.drawCircle(sunsetX, getGraphHeight(), DOT_RADIUS, bigCirPaint);
@@ -147,12 +171,12 @@ public class SunPhaseView extends View {
         Paint bgPaint = new Paint();
         bgPaint.setStyle(Paint.Style.FILL);
         bgPaint.setAntiAlias(true);
-        bgPaint.setColor(ColorUtils.setAlphaComponent(Colors.YELLOW, 0x50));
+        bgPaint.setColor(ColorUtils.setAlphaComponent(PAINT_COLOR, 0x50));
 
         Paint arcPaint = new Paint();
         arcPaint.setStyle(Paint.Style.STROKE);
         arcPaint.setAntiAlias(true);
-        arcPaint.setColor(Colors.WHITE);
+        arcPaint.setColor(PHASE_ARC_COLOR);
         PathEffect dashEffect = new DashPathEffect(
                 new float[]{10, 5, 10, 5}, 1);
         arcPaint.setPathEffect(dashEffect);
@@ -162,8 +186,8 @@ public class SunPhaseView extends View {
         iconPaint.setTextSize(ActivityUtils.dpToPx(getContext(), 14));
         iconPaint.setTextAlign(Paint.Align.LEFT);
         iconPaint.setStyle(Paint.Style.FILL);
-        iconPaint.setColor(Colors.YELLOW);
-        Typeface weathericons = ResourcesCompat.getFont(getContext(), com.thewizrd.shared_resources.R.font.weathericons);
+        iconPaint.setColor(PAINT_COLOR);
+        Typeface weathericons = ResourcesCompat.getFont(getContext(), R.font.weathericons);
         iconPaint.setSubpixelText(true);
         iconPaint.setTypeface(weathericons);
 

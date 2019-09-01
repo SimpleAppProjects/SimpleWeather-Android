@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.controls;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -16,10 +17,15 @@ import android.widget.TextView;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.palette.graphics.Palette;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.card.MaterialCardView;
+import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.R;
 
@@ -87,13 +93,24 @@ public class LocationPanel extends MaterialCardView {
 
     public void setWeatherBackground(LocationPanelViewModel panelView) {
         // Background
-        Glide.with(getContext())
+        Glide.with(this).asBitmap()
                 .load(panelView.getBackground())
                 .apply(new RequestOptions()
                         .centerCrop()
+                        .format(DecodeFormat.PREFER_RGB_565)
                         .error(colorDrawable)
                         .placeholder(colorDrawable))
-                .into(bgImageView);
+                .into(new BitmapImageViewTarget(bgImageView) {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        super.onResourceReady(resource, transition);
+                        Palette p = Palette.from(resource).generate();
+                        int textColor = Colors.WHITE;
+                        if (ColorsUtils.isSuperLight(p))
+                            textColor = Colors.BLACK;
+                        setTextColor(textColor);
+                    }
+                });
     }
 
     public void setWeather(LocationPanelViewModel panelView) {
@@ -115,5 +132,14 @@ public class LocationPanel extends MaterialCardView {
         locationNameView.setTextColor(color);
         locationTempView.setTextColor(color);
         locationWeatherIcon.setTextColor(color);
+    }
+
+    public void setTextShadowColor(@ColorInt int color) {
+        locationNameView.setShadowLayer(
+                locationNameView.getShadowRadius(), locationNameView.getShadowDx(), locationNameView.getShadowDy(), color);
+        locationTempView.setShadowLayer(
+                locationTempView.getShadowRadius(), locationTempView.getShadowDx(), locationTempView.getShadowDy(), color);
+        locationWeatherIcon.setShadowLayer(
+                locationWeatherIcon.getShadowRadius(), locationWeatherIcon.getShadowDx(), locationWeatherIcon.getShadowDy(), color);
     }
 }

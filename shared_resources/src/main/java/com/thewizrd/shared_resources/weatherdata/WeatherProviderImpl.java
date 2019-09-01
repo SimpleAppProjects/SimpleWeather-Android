@@ -181,7 +181,7 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             case WeatherIcons.DAY_SHOWERS:
             case WeatherIcons.DAY_SLEET:
             case WeatherIcons.DAY_SPRINKLE:
-                rgb = 0xFF102838;
+                rgb = 0xFF102030;
                 break;
             case WeatherIcons.NIGHT_ALT_HAIL:
             case WeatherIcons.NIGHT_ALT_RAIN:
@@ -201,13 +201,13 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             // Tornado / Hurricane / Thunderstorm / Tropical Storm
             case WeatherIcons.DAY_LIGHTNING:
             case WeatherIcons.DAY_THUNDERSTORM:
-                rgb = 0xFF283040;
+                rgb = 0xFF283848;
                 break;
             case WeatherIcons.NIGHT_ALT_LIGHTNING:
             case WeatherIcons.NIGHT_ALT_THUNDERSTORM:
             case WeatherIcons.LIGHTNING:
             case WeatherIcons.THUNDERSTORM:
-                rgb = 0xFF101020;
+                rgb = 0xFF181830;
                 break;
             case WeatherIcons.DAY_STORM_SHOWERS:
             case WeatherIcons.DAY_SLEET_STORM:
@@ -217,12 +217,12 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             case WeatherIcons.HAIL:
             case WeatherIcons.HURRICANE:
             case WeatherIcons.TORNADO:
-                rgb = 0xFF081820;
+                rgb = 0xFF182830;
                 break;
             // Dust
             case WeatherIcons.DUST:
             case WeatherIcons.SANDSTORM:
-                rgb = 0xFFA86010;
+                rgb = 0xFFB06810;
                 break;
             // Foggy / Haze
             case WeatherIcons.DAY_FOG:
@@ -231,8 +231,7 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             case WeatherIcons.NIGHT_FOG:
             case WeatherIcons.SMOG:
             case WeatherIcons.SMOKE:
-                //rgb = 0xFF202018;
-                rgb = 0xFFB8B8B8;
+                rgb = 0xFF202020;
                 break;
             // Snow / Snow Showers/Storm
             case WeatherIcons.DAY_SNOW:
@@ -240,14 +239,12 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             case WeatherIcons.NIGHT_ALT_SNOW:
             case WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM:
             case WeatherIcons.SNOW:
-                //rgb = 0xFF283038;
-                rgb = 0xFFC8D8F0;
+                rgb = 0xFFB8D0F0;
                 break;
             case WeatherIcons.SNOW_WIND:
             case WeatherIcons.DAY_SNOW_WIND:
             case WeatherIcons.NIGHT_ALT_SNOW_WIND:
-                //rgb = 0xFF888890;
-                rgb = 0xFFC0B8C0;
+                rgb = 0xFFE0E0E0;
                 break;
             /* Ambigious weather conditions */
             // (Mostly) Cloudy
@@ -264,7 +261,7 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             case WeatherIcons.NIGHT_ALT_CLOUDY_HIGH:
             case WeatherIcons.NIGHT_ALT_CLOUDY_WINDY:
                 if (isNight(weather))
-                    rgb = 0xFF181818;
+                    rgb = 0xFF182020;
                 else
                     rgb = 0xFF5080A8;
                 break;
@@ -286,9 +283,9 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             default:
                 // Set background based using sunset/rise times
                 if (isNight(weather))
-                    rgb = 0xFF101010;
+                    rgb = 0xFF181018;
                 else
-                    rgb = 0xFF20A8D0;
+                    rgb = 0xFF20A8D8;
                 break;
         }
 

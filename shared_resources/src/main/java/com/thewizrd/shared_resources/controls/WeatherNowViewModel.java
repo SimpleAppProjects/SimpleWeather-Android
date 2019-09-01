@@ -4,8 +4,11 @@ import android.content.Context;
 import android.text.format.DateFormat;
 import android.util.Log;
 
+import androidx.databinding.Bindable;
+
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -22,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class WeatherNowViewModel {
+public class WeatherNowViewModel extends ObservableViewModel {
     private String location;
     private String updateDate;
 
@@ -45,68 +48,89 @@ public class WeatherNowViewModel {
     // Background
     private String background;
     private int pendingBackground = -1;
+    private boolean isDark = true;
 
     private String weatherCredit;
     private String weatherSource;
 
     private String weatherLocale;
 
+    @Bindable
     public String getLocation() {
         return location;
     }
 
+    @Bindable
     public String getUpdateDate() {
         return updateDate;
     }
 
+    @Bindable
     public String getCurTemp() {
         return curTemp;
     }
 
+    @Bindable
     public String getCurCondition() {
         return curCondition;
     }
 
+    @Bindable
     public String getWeatherIcon() {
         return weatherIcon;
     }
 
+    @Bindable
     public List<ForecastItemViewModel> getForecasts() {
         return forecasts;
     }
 
+    @Bindable
     public List<DetailItemViewModel> getWeatherDetails() {
         return weatherDetails;
     }
 
+    @Bindable
     public String getSunrise() {
         return sunrise;
     }
 
+    @Bindable
     public String getSunset() {
         return sunset;
     }
 
+    @Bindable
     public WeatherExtrasViewModel getExtras() {
         return extras;
     }
 
+    @Bindable
     public String getBackground() {
         return background;
     }
 
+    @Bindable
     public int getPendingBackground() {
         return pendingBackground;
     }
 
+    @Bindable
+    public boolean isLightBackground() {
+        return !isDark;
+    }
+
+    @Bindable
     public String getWeatherCredit() {
         return weatherCredit;
     }
 
+    @Bindable
     public String getWeatherSource() {
         return weatherSource;
     }
 
+    @Bindable
     public String getWeatherLocale() {
         return weatherLocale;
     }
@@ -140,6 +164,7 @@ public class WeatherNowViewModel {
             // Update backgrounds
             background = wm.getWeatherBackgroundURI(weather);
             pendingBackground = wm.getWeatherBackgroundColor(weather);
+            isDark = pendingBackground != -1 && !ColorsUtils.isSuperLight(pendingBackground);
 
             // Location
             location = weather.getLocation().getName();
@@ -312,6 +337,8 @@ public class WeatherNowViewModel {
 
             // Language
             weatherLocale = weather.getLocale();
+
+            notifyChange();
         }
     }
 

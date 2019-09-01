@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.HourlyForecastItem;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class HourlyForecastItemAdapter extends RecyclerView.Adapter {
+public class HourlyForecastItemAdapter extends ColorModeRecyclerViewAdapter {
     private List<HourlyForecastItemViewModel> mDataset;
 
     // Event listeners
@@ -93,6 +94,8 @@ public class HourlyForecastItemAdapter extends RecyclerView.Adapter {
         // - replace the contents of the view with that element
         ViewHolder vh = (ViewHolder) holder;
         vh.mForecastItem.setForecast(mDataset.get(position));
+        vh.mForecastItem.setBackgroundColor(isLightBackground() ? Colors.BLACK : Colors.WHITE);
+        vh.mForecastItem.setTextColor(isLightBackground() ? Colors.BLACK : Colors.WHITE);
     }
 
     @Override
