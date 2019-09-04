@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathEffect;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.text.Layout;
@@ -24,6 +25,7 @@ import androidx.core.graphics.ColorUtils;
 
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Pair;
+import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
 
 import java.util.ArrayList;
@@ -31,6 +33,8 @@ import java.util.Collections;
 
 public class LineView extends HorizontalScrollView {
 
+    private HorizontalScrollView mScrollViewer;
+    private RectF visibleRect;
     private LineViewGraph graph;
     private OnClickListener onClickListener;
 
@@ -71,12 +75,13 @@ public class LineView extends HorizontalScrollView {
         });
 
         this.setFillViewport(true);
-        this.setLayerType(LAYER_TYPE_SOFTWARE, null);
         this.setVerticalScrollBarEnabled(false);
         this.setHorizontalScrollBarEnabled(false);
 
         this.removeAllViews();
         this.addView(graph, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        mScrollViewer = this;
     }
 
     public void setDrawGridLines(boolean drawGridLines) {
@@ -130,6 +135,14 @@ public class LineView extends HorizontalScrollView {
         this.graph.LINE_COLOR = color;
     }
 
+    @Override
+    protected void onScrollChanged(int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+        super.onScrollChanged(scrollX, scrollY, oldScrollX, oldScrollY);
+        if (visibleRect == null) visibleRect = new RectF();
+        visibleRect.set(scrollX, scrollY, scrollX + this.getWidth(), scrollY + this.getHeight());
+        this.graph.invalidate();
+    }
+
     /*
      *  Single series line graph
      *  Based on LineView from http://www.androidtrainee.com/draw-android-line-chart-with-animation/
@@ -137,6 +150,9 @@ public class LineView extends HorizontalScrollView {
      */
     class LineViewGraph extends View {
         private int mViewHeight;
+        // Containers to check if we're drawing w/in bounds
+        private RectF drawingRect;
+        private float drwTextWidth;
         //drawBackground
         private int dataOfAGird = 10;
         private float bottomTextHeight = 0;
@@ -424,6 +440,15 @@ public class LineView extends HorizontalScrollView {
 
         @Override
         protected void onDraw(Canvas canvas) {
+            if (drawingRect == null) drawingRect = new RectF();
+
+            if (visibleRect == null) {
+                visibleRect = new RectF(mScrollViewer.getScrollX(),
+                        mScrollViewer.getScrollY(),
+                        mScrollViewer.getScrollX() + mScrollViewer.getWidth(),
+                        mScrollViewer.getScrollY() + mScrollViewer.getHeight());
+            }
+
             drawBackgroundLines(canvas);
             drawLines(canvas);
             drawDots(canvas);
@@ -439,8 +464,10 @@ public class LineView extends HorizontalScrollView {
                     for (int k = 0; k < drawDotLists.size(); k++) {
                         bigCirPaint.setColor(colorArray[k % 3]);
                         for (Dot dot : drawDotLists.get(k)) {
-                            canvas.drawCircle(dot.x, dot.y, DOT_OUTER_CIR_RADIUS, bigCirPaint);
-                            canvas.drawCircle(dot.x, dot.y, DOT_INNER_CIR_RADIUS, smallCirPaint);
+                            if (visibleRect.contains(dot.x, dot.y)) {
+                                canvas.drawCircle(dot.x, dot.y, DOT_OUTER_CIR_RADIUS, bigCirPaint);
+                                canvas.drawCircle(dot.x, dot.y, DOT_INNER_CIR_RADIUS, smallCirPaint);
+                            }
                         }
                     }
                 }
@@ -455,8 +482,6 @@ public class LineView extends HorizontalScrollView {
             Path mPathBackground = new Path();
             Paint mPaintBackground = new Paint();
             float graphHeight = getGraphHeight();
-            float graphWidth = this.getWidth();
-            float graphLeft = this.getLeft();
             float graphTop = this.getTop() + topLineLength;
 
             for (int k = 0; k < drawDotLists.size(); k++) {
@@ -476,37 +501,58 @@ public class LineView extends HorizontalScrollView {
                     float endX = nextDot.x;
                     float endY = nextDot.y;
 
-                    if (firstX == -1) {
+                    drawingRect.set(0, dot.y, dot.x, dot.y);
+                    if (firstX == -1 && RectF.intersects(drawingRect, visibleRect)) {
                         canvas.drawLine(0, dot.y, dot.x, dot.y, linePaint);
                     }
 
-                    canvas.drawLine(dot.x, dot.y, nextDot.x, nextDot.y, linePaint);
+                    drawingRect.set(dot.x, dot.y, nextDot.x, nextDot.y);
+                    if (RectF.intersects(drawingRect, visibleRect))
+                        canvas.drawLine(dot.x, dot.y, nextDot.x, nextDot.y, linePaint);
 
                     // Draw top label
-                    if (k == 0 && drawDataLabels)
+                    drwTextWidth = bottomTextPaint.measureText(dataLabels.get(i).getValue());
+                    drawingRect.set(sideLineLength + backgroundGridWidth * i,
+                            dot.y,
+                            sideLineLength + backgroundGridWidth * i + drwTextWidth,
+                            dot.y + bottomTextHeight);
+                    if (k == 0 && drawDataLabels && RectF.intersects(drawingRect, visibleRect))
                         canvas.drawText(dataLabels.get(i).getValue(), sideLineLength + backgroundGridWidth * i, dot.y - bottomTextHeight, bottomTextPaint);
 
                     if (firstX == -1) {
-                        firstX = 0;
+                        firstX = visibleRect.left;
                         firstY = startY;
                         if (k == 0 && drawGraphBackground)
-                            mPathBackground.moveTo(0, startY);
+                            mPathBackground.moveTo(firstX, startY);
                     }
 
-                    if (k == 0 && drawGraphBackground) {
+                    drawingRect.set(startX, startY, endX, endY);
+                    if (k == 0 && drawGraphBackground && RectF.intersects(drawingRect, visibleRect)) {
                         mPathBackground.lineTo(startX, startY);
                         mPathBackground.lineTo(endX, endY);
                     }
 
                     // Draw last items
                     if (i + 1 == drawDotLists.get(k).size() - 1) {
-                        if (k == 0 && drawDataLabels)
-                            canvas.drawText(dataLabels.get(i + 1).getValue(), sideLineLength + backgroundGridWidth * (i + 1), nextDot.y - bottomTextHeight, bottomTextPaint);
-                        canvas.drawLine(nextDot.x, nextDot.y, graphWidth, nextDot.y, linePaint);
+                        // Draw top label
+                        drwTextWidth = bottomTextPaint.measureText(dataLabels.get(i + 1).getValue());
+                        drawingRect.set(sideLineLength + backgroundGridWidth * (i + 1),
+                                nextDot.y,
+                                sideLineLength + backgroundGridWidth * (i + 1) + drwTextWidth,
+                                nextDot.y + bottomTextHeight);
 
-                        if (k == 0 && drawGraphBackground) {
+                        if (k == 0 && drawDataLabels && RectF.intersects(drawingRect, visibleRect))
+                            canvas.drawText(dataLabels.get(i + 1).getValue(), sideLineLength + backgroundGridWidth * (i + 1), nextDot.y - bottomTextHeight, bottomTextPaint);
+
+                        drawingRect.set(nextDot.x, nextDot.y, visibleRect.right, nextDot.y);
+
+                        if (RectF.intersects(drawingRect, visibleRect))
+                            canvas.drawLine(nextDot.x, nextDot.y, visibleRect.right, nextDot.y, linePaint);
+
+                        drawingRect.set(endX, endY, visibleRect.right, endY);
+                        if (k == 0 && drawGraphBackground && RectF.intersects(drawingRect, visibleRect)) {
                             mPathBackground.lineTo(endX, endY);
-                            mPathBackground.lineTo(graphWidth, endY);
+                            mPathBackground.lineTo(visibleRect.right, endY);
                         }
                     }
 
@@ -517,7 +563,7 @@ public class LineView extends HorizontalScrollView {
                     // end / close path
                     if (lastUsedEndY != graphHeight + graphTop) {
                         // dont draw line to same point, otherwise the path is completely broken
-                        mPathBackground.lineTo(graphWidth, graphHeight + graphTop);
+                        mPathBackground.lineTo(visibleRect.right, graphHeight + graphTop);
                     }
                     mPathBackground.lineTo(firstX, graphHeight + graphTop);
                     if (firstY != graphHeight + graphTop) {
@@ -541,30 +587,28 @@ public class LineView extends HorizontalScrollView {
 
                 // draw vertical lines
                 for (int i = 0; i < xCoordinateList.size(); i++) {
-                    canvas.drawLine(xCoordinateList.get(i),
-                            0,
-                            xCoordinateList.get(i),
-                            getGraphHeight() + topLineLength,
-                            paint);
+                    drawingRect.set(xCoordinateList.get(i), 0, xCoordinateList.get(i), getGraphHeight() + topLineLength);
+
+                    if (RectF.intersects(drawingRect, visibleRect)) {
+                        canvas.drawLine(xCoordinateList.get(i),
+                                0,
+                                xCoordinateList.get(i),
+                                getGraphHeight() + topLineLength,
+                                paint);
+                    }
                 }
 
-                if (!drawDotLine) {
-                    // draw solid lines
-                    for (int i = 0; i < yCoordinateList.size(); i++) {
-                        if ((yCoordinateList.size() - 1 - i) % dataOfAGird == 0) {
-                            canvas.drawLine(0, yCoordinateList.get(i), getWidth(), yCoordinateList.get(i), paint);
-                        }
-                    }
-                } else {
+                if (drawDotLine) {
                     // draw dotted lines
                     paint.setPathEffect(effects);
-                    Path dottedPath = new Path();
-                    for (int i = 0; i < yCoordinateList.size(); i++) {
-                        if ((yCoordinateList.size() - 1 - i) % dataOfAGird == 0) {
-                            dottedPath.moveTo(0, yCoordinateList.get(i));
-                            dottedPath.lineTo(getWidth(), yCoordinateList.get(i));
-                            canvas.drawPath(dottedPath, paint);
-                        }
+                }
+
+                // draw solid lines
+                for (int i = 0; i < yCoordinateList.size(); i++) {
+                    drawingRect.set(0, yCoordinateList.get(i), visibleRect.right, yCoordinateList.get(i));
+
+                    if ((yCoordinateList.size() - 1 - i) % dataOfAGird == 0 && RectF.intersects(drawingRect, visibleRect)) {
+                        canvas.drawLine(0, yCoordinateList.get(i), visibleRect.right, yCoordinateList.get(i), paint);
                     }
                 }
             }
@@ -580,7 +624,7 @@ public class LineView extends HorizontalScrollView {
                     iconPaint.setTextAlign(Paint.Align.CENTER);
                     iconPaint.setStyle(Paint.Style.FILL);
                     iconPaint.setColor(BOTTOM_TEXT_COLOR);
-                    Typeface weathericons = ResourcesCompat.getFont(getContext(), com.thewizrd.shared_resources.R.font.weathericons);
+                    Typeface weathericons = ResourcesCompat.getFont(getContext(), R.font.weathericons);
                     iconPaint.setSubpixelText(true);
                     iconPaint.setTypeface(weathericons);
                     drawIcons = true;
@@ -590,21 +634,30 @@ public class LineView extends HorizontalScrollView {
                     float x = sideLineLength + backgroundGridWidth * i;
                     float y = mViewHeight - bottomTextDescent;
 
-                    canvas.drawText(dataLabels.get(i).getKey(), x, y, bottomTextPaint);
+                    drwTextWidth = bottomTextPaint.measureText(dataLabels.get(i).getKey());
+                    drawingRect.set(x, y, x + drwTextWidth, y + bottomTextHeight);
+
+                    if (RectF.intersects(drawingRect, visibleRect))
+                        canvas.drawText(dataLabels.get(i).getKey(), x, y, bottomTextPaint);
+
                     if (drawIcons) {
                         int rotation = iconLabels.get(iconLabels.size() == 1 ? 0 : i).getValue();
                         String icon = iconLabels.get(iconLabels.size() == 1 ? 0 : i).getKey();
                         Rect r = new Rect();
                         iconPaint.getTextBounds(icon, 0, icon.length(), r);
 
-                        StaticLayout mTextLayout = new StaticLayout(
-                                icon, iconPaint, r.width(), Layout.Alignment.ALIGN_NORMAL, 0.0f, 0.0f, false);
+                        drawingRect.set(x, y, x + r.width(), y + r.height());
 
-                        canvas.save();
-                        canvas.translate(x, y - mTextLayout.getHeight() - bottomTextHeight - iconBottomMargin * 2f);
-                        canvas.rotate(rotation, 0, mTextLayout.getHeight() / 2f);
-                        mTextLayout.draw(canvas);
-                        canvas.restore();
+                        if (RectF.intersects(drawingRect, visibleRect)) {
+                            StaticLayout mTextLayout = new StaticLayout(
+                                    icon, iconPaint, r.width(), Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+
+                            canvas.save();
+                            canvas.translate(x, y - mTextLayout.getHeight() - bottomTextHeight - iconBottomMargin * 2f);
+                            canvas.rotate(rotation, 0, mTextLayout.getHeight() / 2f);
+                            mTextLayout.draw(canvas);
+                            canvas.restore();
+                        }
                     }
                 }
             }
