@@ -434,6 +434,12 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             AppBarLayout.LayoutParams toolbarParams = (AppBarLayout.LayoutParams) collapsingToolbar.getLayoutParams();
             toolbarParams.setScrollFlags(toolbarParams.getScrollFlags() & ~AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL);
 
+            /*
+             * NOTE
+             * Compat issue: bring container to the front
+             * This is handled on API 21+ with the translationZ attribute
+             */
+            mSearchFragmentContainer.bringToFront();
             enterSearchUi();
             enterSearchUiTransition(null);
         }
@@ -690,7 +696,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 appBarLayout.setBackgroundColor(Colors.BLACK);
                 collapsingToolbar.setStatusBarScrimColor(Colors.BLACK);
                 ActivityUtils.setTransparentWindow(mActivity.getWindow(), bg_color,
-                        Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT ? -1 /* Opaque (Default) */ : Colors.BLACK, /* StatusBar */
+                        Colors.BLACK, /* StatusBar */
                         Colors.TRANSPARENT /* NavBar */,
                         false);
             } else {
@@ -699,9 +705,9 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 appBarLayout.setBackgroundColor(colorPrimary);
                 collapsingToolbar.setStatusBarScrimColor(colorPrimary);
                 ActivityUtils.setTransparentWindow(mActivity.getWindow(), bg_color,
-                        Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT ? -1 /* Opaque (Default) */ : colorPrimary, /* StatusBar */
-                        config.orientation == Configuration.ORIENTATION_PORTRAIT ? Colors.TRANSPARENT : colorPrimary /* NavBar */,
-                        true);
+                        colorPrimary, /* StatusBar */
+                        config.orientation == Configuration.ORIENTATION_PORTRAIT || ActivityUtils.isLargeTablet(mActivity) ? Colors.TRANSPARENT : colorPrimary /* NavBar */,
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
             }
             mRootView.setBackgroundColor(bg_color);
         }

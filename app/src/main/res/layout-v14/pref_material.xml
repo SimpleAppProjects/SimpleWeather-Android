@@ -63,6 +63,7 @@
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:textAppearance="@style/Preference_TextAppearanceMaterialSubhead"
+            android:textColor="@color/colorTextPrimary"
             android:ellipsize="marquee" />
 
         <TextView
@@ -73,7 +74,7 @@
             android:layout_alignLeft="@android:id/title"
             android:layout_alignStart="@android:id/title"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorSecondary"
+            android:textColor="@color/colorTextSecondary"
             android:maxLines="10" />
 
     </RelativeLayout>

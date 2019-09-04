@@ -146,4 +146,5 @@ public class Colors {
     public static final int SIMPLEBLUE = 0xFF0070C0;
     public static final int SIMPLEBLUEDARK = 0xFF00468F;
     public static final int SIMPLEBLUELIGHT = 0xFF599EF3;
+    public static final int SIMPLEBLUEMEDIUM = 0xFF007DD6;
 }

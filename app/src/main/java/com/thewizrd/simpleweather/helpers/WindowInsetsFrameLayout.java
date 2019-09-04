@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.helpers;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Rect;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
@@ -12,6 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class WindowInsetsFrameLayout extends FrameLayout {
+    private Rect windowInsets;
+    private Rect tempInsets;
+
     public WindowInsetsFrameLayout(@NonNull Context context) {
         super(context);
         initialize();
@@ -46,6 +50,22 @@ public class WindowInsetsFrameLayout extends FrameLayout {
 
                 }
             });
+        } else {
+            windowInsets = new Rect();
+            tempInsets = new Rect();
+
+            setOnHierarchyChangeListener(new OnHierarchyChangeListener() {
+                @Override
+                public void onChildViewAdded(View parent, View child) {
+                    tempInsets.set(windowInsets);
+                    WindowInsetsFrameLayout.super.fitSystemWindows(tempInsets);
+                }
+
+                @Override
+                public void onChildViewRemoved(View parent, View child) {
+
+                }
+            });
         }
     }
 
@@ -62,5 +82,16 @@ public class WindowInsetsFrameLayout extends FrameLayout {
             }
         }
         return insets;
+    }
+
+    @Override
+    protected boolean fitSystemWindows(Rect insets) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            windowInsets.set(insets);
+            super.fitSystemWindows(insets);
+            return true;
+        } else {
+            return super.fitSystemWindows(insets);
+        }
     }
 }

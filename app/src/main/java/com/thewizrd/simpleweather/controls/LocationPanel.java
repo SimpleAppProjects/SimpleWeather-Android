@@ -75,7 +75,7 @@ public class LocationPanel extends MaterialCardView {
         locationTempView = viewLayout.findViewById(R.id.weather_temp);
         locationWeatherIcon = viewLayout.findViewById(R.id.weather_icon);
         progressBar = viewLayout.findViewById(R.id.progressBar);
-        colorDrawable = new ColorDrawable(Colors.SIMPLEBLUE);
+        colorDrawable = new ColorDrawable(Colors.SIMPLEBLUEMEDIUM);
 
         // NOTE: Bug: Explicitly set tintmode on Lollipop devices
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP)

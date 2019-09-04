@@ -8,7 +8,10 @@ android {
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
+
+        multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
+
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
@@ -50,6 +53,8 @@ dependencies {
     implementation 'androidx.palette:palette:1.0.0'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
+
+    implementation 'androidx.multidex:multidex:2.0.1'
 
     implementation 'com.google.android.gms:play-services-base:17.1.0'
     implementation 'com.google.android.gms:play-services-wearable:17.0.0'

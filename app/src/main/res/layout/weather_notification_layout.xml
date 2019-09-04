@@ -1,27 +1,30 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/widgetBackground"
+    android:id="@+id/weather_notif_layout"
     android:layout_width="match_parent"
     android:layout_height="72dp"
     android:background="@null"
-    android:paddingBottom="@dimen/not_vert_padding"
-    android:paddingEnd="@dimen/not_horiz_padding"
-    android:paddingLeft="@dimen/not_horiz_padding"
-    android:paddingRight="@dimen/not_horiz_padding"
     android:paddingStart="@dimen/not_horiz_padding"
-    android:paddingTop="@dimen/not_vert_padding">
+    android:paddingLeft="@dimen/not_horiz_padding"
+    android:paddingTop="@dimen/not_vert_padding"
+    android:paddingEnd="@dimen/not_horiz_padding"
+    android:paddingRight="@dimen/not_horiz_padding"
+    android:paddingBottom="@dimen/not_vert_padding">
 
     <ImageView
         android:id="@+id/weather_icon"
         android:layout_width="@dimen/not_weather_icon_size"
         android:layout_height="@dimen/not_weather_icon_size"
-        android:layout_alignParentLeft="true"
+        android:layout_alignTop="@id/condition_layout"
+        android:layout_alignBottom="@id/condition_layout"
         android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
         android:layout_gravity="center"
-        android:layout_marginEnd="12dp"
-        android:layout_marginLeft="@dimen/not_weather_icon_marginStart"
-        android:layout_marginRight="12dp"
         android:layout_marginStart="@dimen/not_weather_icon_marginStart"
+        android:layout_marginLeft="@dimen/not_weather_icon_marginStart"
+        android:layout_marginEnd="12dp"
+        android:layout_marginRight="12dp"
         android:adjustViewBounds="true"
         android:gravity="center"
         android:scaleType="fitCenter"
@@ -29,12 +32,13 @@
         android:tint="@color/not_icon_tint" />
 
     <LinearLayout
+        android:id="@+id/condition_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/weather_icon"
-        android:layout_toLeftOf="@+id/update_layout"
-        android:layout_toRightOf="@+id/weather_icon"
         android:layout_toStartOf="@+id/update_layout"
+        android:layout_toLeftOf="@+id/update_layout"
+        android:layout_toEndOf="@+id/weather_icon"
+        android:layout_toRightOf="@+id/weather_icon"
         android:orientation="vertical">
 
         <TextView
@@ -77,16 +81,6 @@
         android:layout_alignParentRight="true"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/update_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|end"
-            android:padding="4dp"
-            android:text="--"
-            android:textAppearance="@style/TextAppearance.Compat.Notification.Time"
-            tools:text="1:00 AM" />
-
         <ImageView
             android:id="@+id/refresh_button"
             android:layout_width="24dp"
@@ -107,6 +101,16 @@
             android:indeterminateTint="@color/not_icon_tint"
             android:padding="4dp"
             android:visibility="visible" />
+
+        <TextView
+            android:id="@+id/update_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|end"
+            android:padding="4dp"
+            android:text="--"
+            android:textAppearance="@style/TextAppearance.Compat.Notification.Time"
+            tools:text="1:00 AM" />
 
     </LinearLayout>
 </RelativeLayout>

@@ -9,16 +9,16 @@ import com.thewizrd.shared_resources.weatherdata.MoonPhase;
 
 public class DetailItemViewModel extends ObservableViewModel {
     private WeatherDetailsType detailsType;
-    private String label;
-    private String icon;
-    private String value;
+    private CharSequence label;
+    private CharSequence icon;
+    private CharSequence value;
     private int iconRotation;
 
-    public DetailItemViewModel(WeatherDetailsType detailsType, String value) {
+    public DetailItemViewModel(WeatherDetailsType detailsType, CharSequence value) {
         this(detailsType, value, 0);
     }
 
-    public DetailItemViewModel(WeatherDetailsType detailsType, String value, int iconRotation) {
+    public DetailItemViewModel(WeatherDetailsType detailsType, CharSequence value, int iconRotation) {
         Context context = SimpleLibrary.getInstance().getAppContext();
         this.detailsType = detailsType;
 
@@ -99,7 +99,7 @@ public class DetailItemViewModel extends ObservableViewModel {
         notifyChange();
     }
 
-    public DetailItemViewModel(MoonPhase.MoonPhaseType moonPhaseType, String description) {
+    public DetailItemViewModel(MoonPhase.MoonPhaseType moonPhaseType, CharSequence description) {
         Context context = SimpleLibrary.getInstance().getAppContext();
 
         this.label = context.getString(R.string.label_moonphase);
@@ -136,7 +136,7 @@ public class DetailItemViewModel extends ObservableViewModel {
         notifyChange();
     }
 
-    public DetailItemViewModel(Beaufort.BeaufortScale beaufortScale, String description) {
+    public DetailItemViewModel(Beaufort.BeaufortScale beaufortScale, CharSequence description) {
         Context context = SimpleLibrary.getInstance().getAppContext();
 
         this.label = context.getString(R.string.label_beaufort);
@@ -196,27 +196,27 @@ public class DetailItemViewModel extends ObservableViewModel {
         this.detailsType = detailsType;
     }
 
-    public String getLabel() {
+    public CharSequence getLabel() {
         return label;
     }
 
-    public void setLabel(String label) {
+    public void setLabel(CharSequence label) {
         this.label = label;
     }
 
-    public String getIcon() {
+    public CharSequence getIcon() {
         return icon;
     }
 
-    public void setIcon(String icon) {
+    public void setIcon(CharSequence icon) {
         this.icon = icon;
     }
 
-    public String getValue() {
+    public CharSequence getValue() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(CharSequence value) {
         this.value = value;
     }
 

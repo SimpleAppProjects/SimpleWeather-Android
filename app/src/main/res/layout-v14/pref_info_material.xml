@@ -63,7 +63,7 @@
             android:layout_alignLeft="@android:id/title"
             android:layout_alignStart="@android:id/title"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorSecondary"
+            android:textColor="@color/colorTextSecondary"
             android:maxLines="10" />
 
     </RelativeLayout>

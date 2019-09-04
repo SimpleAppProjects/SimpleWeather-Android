@@ -1,7 +1,10 @@
 package com.thewizrd.shared_resources.controls;
 
 import android.content.Context;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.format.DateFormat;
+import android.text.style.TypefaceSpan;
 import android.util.Log;
 
 import androidx.databinding.Bindable;
@@ -9,6 +12,7 @@ import androidx.databinding.Bindable;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
+import com.thewizrd.shared_resources.helpers.WeatherIconTextSpan;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -210,9 +214,21 @@ public class WeatherNowViewModel extends ObservableViewModel {
             String pressureUnit = Settings.isFahrenheit() ? "in" : "mb";
 
             try {
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.PRESSURE,
-                        String.format(Locale.getDefault(), "%s %s %s",
-                                getPressureStateIcon(weather.getAtmosphere().getPressureTrend()), pressureVal, pressureUnit)));
+                CharSequence pressureStateIcon = getPressureStateIcon("+");
+
+                SpannableStringBuilder ssBuilder = new SpannableStringBuilder();
+                ssBuilder.append(pressureStateIcon)
+                        .append(" ")
+                        .append(pressureVal)
+                        .append(" ")
+                        .append(pressureUnit);
+
+                if (pressureStateIcon.length() > 0) {
+                    TypefaceSpan span = new WeatherIconTextSpan(context);
+                    ssBuilder.setSpan(span, 0, pressureStateIcon.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.PRESSURE, ssBuilder));
             } catch (Exception e) {
                 Logger.writeLine(Log.DEBUG, e);
             }

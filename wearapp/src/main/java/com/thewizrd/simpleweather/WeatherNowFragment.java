@@ -900,6 +900,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                          */
                         if (location == null && !mRequestingLocationUpdates) {
                             final LocationRequest mLocationRequest = new LocationRequest();
+                            mLocationRequest.setNumUpdates(1);
                             mLocationRequest.setInterval(10000);
                             mLocationRequest.setFastestInterval(1000);
                             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);

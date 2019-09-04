@@ -20,12 +20,18 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
+import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
+import com.thewizrd.shared_resources.weatherdata.WeatherAlertType;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationBuilder;
+import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationService;
 import com.thewizrd.simpleweather.widgets.WidgetUtils;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -181,7 +187,6 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void notificationTest() {
-        /*
         LocationQueryViewModel vm = new LocationQueryViewModel();
         vm.setLocationCountry("US");
         vm.setLocationName("New York, NY");
@@ -219,11 +224,13 @@ public class ExampleInstrumentedTest {
             la2.add(alert);
         }
         WeatherAlertNotificationBuilder.createNotifications(new LocationData(vm2), la2);
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            //e.printStackTrace();
+
+        while (WeatherAlertNotificationService.getNotificationsCount() > 0) {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                //e.printStackTrace();
+            }
         }
-        */
     }
 }

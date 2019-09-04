@@ -11,7 +11,7 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
 
     <!-- Notification -->
     <dimen name="not_weather_icon_size">36dp</dimen>
-    <dimen name="not_weather_icon_marginStart">0dp</dimen>
+    <dimen name="not_weather_icon_marginStart">4dp</dimen>
     <dimen name="not_primary_textSize">13sp</dimen>
 
 </resources>

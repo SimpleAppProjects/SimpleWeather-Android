@@ -45,7 +45,7 @@ public class WeatherExtrasViewModel extends ObservableViewModel {
 
     public void updateView(Weather weather) {
         // Clear all data
-        clear();
+        clearAll();
 
         if (weather.getHrForecast() != null && weather.getHrForecast().length > 0) {
             for (final HourlyForecast hr_forecast : weather.getHrForecast()) {
@@ -87,7 +87,7 @@ public class WeatherExtrasViewModel extends ObservableViewModel {
         notifyChange();
     }
 
-    public void clear() {
+    public void clearAll() {
         hourlyForecast.clear();
         textForecast.clear();
         alerts.clear();

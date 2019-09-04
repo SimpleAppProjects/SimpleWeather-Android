@@ -12,6 +12,8 @@ import com.google.gson.reflect.TypeToken;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.App;
+import com.thewizrd.simpleweather.MainActivity;
+import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -95,10 +97,22 @@ public class WeatherAlertNotificationService extends JobIntentService {
     protected void onHandleWork(@NonNull Intent intent) {
         if (ACTION_CANCELNOTIFICATION.equals(intent.getAction())) {
             int id = intent.getIntExtra(EXTRA_NOTIFICATIONID, -2);
-            if (id >= 0 && mNotifications.size() > 0) {
+            if (id >= 0 && mNotifications.size() > 0)
                 mNotifications.remove(id);
-            } else if (ACTION_CANCELALLNOTIFICATIONS.equals(intent.getAction())) {
-                mNotifications.clear();
+        } else if (ACTION_CANCELALLNOTIFICATIONS.equals(intent.getAction())) {
+            mNotifications.clear();
+
+            /*
+             * NOTE
+             * Compat issue: Part of workaround for setAutoCancel not working for JellyBean
+             */
+            if (intent.getBooleanExtra(WeatherWidgetService.ACTION_SHOWALERTS, false)) {
+                Intent appIntent = new Intent(this, MainActivity.class)
+                        .setAction(WeatherWidgetService.ACTION_SHOWALERTS)
+                        .putExtra(WeatherWidgetService.ACTION_SHOWALERTS, true)
+                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                this.startActivity(appIntent);
             }
         }
     }

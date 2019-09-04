@@ -29,8 +29,10 @@ import com.thewizrd.simpleweather.MainActivity;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 public class WeatherAlertNotificationBuilder {
@@ -64,8 +66,6 @@ public class WeatherAlertNotificationBuilder {
             String title = String.format("%s - %s", alertVM.getTitle(), location.getName());
 
             RemoteViews view = new RemoteViews(context.getPackageName(), R.layout.alert_notification_layout);
-            // Alert icon
-            view.setImageViewResource(R.id.alert_icon, WeatherUtils.getDrawableFromAlertType(alertVM.getAlertType()));
 
             // Alert Title
             view.setTextViewText(R.id.alert_title, title);
@@ -73,18 +73,31 @@ public class WeatherAlertNotificationBuilder {
             // Alert text
             view.setTextViewText(R.id.alert_text, alertVM.getExpireDate());
 
+            // Alert icon
+            view.setImageViewResource(R.id.alert_icon, WeatherUtils.getDrawableFromAlertType(alertVM.getAlertType()));
+
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(context, NOT_CHANNEL_ID)
                             .setSmallIcon(R.drawable.ic_error_white)
-                            .setContentTitle(title)
-                            .setContentText(alertVM.getExpireDate())
-                            .setCustomContentView(view)
-                            .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                             .setContentIntent(clickPendingIntent)
                             .setOnlyAlertOnce(true)
                             .setAutoCancel(true)
                             .setColor(WeatherUtils.getColorFromAlertSeverity(alert.getSeverity()))
                             .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                mBuilder.setContent(view);
+            } else {
+                mBuilder.setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                        .setContentTitle(title)
+                        .setContentText(alertVM.getExpireDate());
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                    mBuilder.setCustomBigContentView(view);
+                } else {
+                    mBuilder.setCustomContentView(view);
+                }
+            }
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                 // Tell service to remove stored notification
@@ -133,7 +146,11 @@ public class WeatherAlertNotificationBuilder {
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                 // Add active notification titles to summary notification
-                for (Map.Entry<Integer, String> notif : WeatherAlertNotificationService.getNotifications()) {
+                Set<Map.Entry<Integer, String>> notifsSet = WeatherAlertNotificationService.getNotifications();
+                Iterator<Map.Entry<Integer, String>> iterator = notifsSet.iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry<Integer, String> notif = iterator.next();
+
                     mNotifyMgr.cancel(TAG, notif.getKey());
                     inboxStyle.addLine(notif.getValue());
                 }
@@ -168,13 +185,25 @@ public class WeatherAlertNotificationBuilder {
                             .setStyle(inboxStyle)
                             .setGroup(TAG)
                             .setGroupSummary(true)
-                            .setContentIntent(clickPendingIntent)
                             .setOnlyAlertOnce(true)
                             .setAutoCancel(true)
                             .setColor(Colors.SIMPLEBLUE);
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+            /*
+             * NOTE
+             * Compat issue: setAutoCancel does not work
+             * If user clicks notification, delete intent is not called
+             * (swipe to cancel works fine)
+             *
+             * Workaround: add content intent to do delete action and also start activity
+             * by sending an extra to do so to the BroadcastReceiver
+             */
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                mSummaryBuilder.setContentIntent(GetDeleteAllNotificationsIntentJB());
                 mSummaryBuilder.setDeleteIntent(GetDeleteAllNotificationsIntent());
+            } else {
+                mSummaryBuilder.setContentIntent(clickPendingIntent);
+            }
 
             // Builds the summary notification and issues it.
             mNotifyMgr.notify(TAG, SUMMARY_ID, mSummaryBuilder.build());
@@ -196,7 +225,16 @@ public class WeatherAlertNotificationBuilder {
         Intent intent = new Intent(context, WeatherNotificationBroadcastReceiver.class)
                 .setAction(WeatherAlertNotificationService.ACTION_CANCELALLNOTIFICATIONS);
 
-        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        return PendingIntent.getBroadcast(context, 19, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    private static PendingIntent GetDeleteAllNotificationsIntentJB() {
+        Context context = App.getInstance().getAppContext();
+        Intent intent = new Intent(context, WeatherNotificationBroadcastReceiver.class)
+                .setAction(WeatherAlertNotificationService.ACTION_CANCELALLNOTIFICATIONS)
+                .putExtra(WeatherWidgetService.ACTION_SHOWALERTS, true);
+
+        return PendingIntent.getBroadcast(context, 16, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private static void initChannel() {

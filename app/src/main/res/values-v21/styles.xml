@@ -6,6 +6,10 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
+    <style name="AppTheme.Launcher">
+        <item name="android:windowBackground">@drawable/ic_splash_screen</item>
+    </style>
+
     <style name="PreferenceThemeOverlayMaterial" parent="@style/PreferenceThemeOverlay">
         <item name="switchPreferenceCompatStyle">@style/PreferenceSwitchCompatMaterialStyle</item>
     </style>

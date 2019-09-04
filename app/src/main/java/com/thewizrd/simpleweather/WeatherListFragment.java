@@ -73,7 +73,6 @@ public abstract class WeatherListFragment extends ToolbarFragment {
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) recyclerView.getLayoutParams();
                 layoutParams.topMargin = locationHeader.getHeight();
                 recyclerView.setLayoutParams(layoutParams);
-                recyclerView.scrollToPosition(0);
             }
         });
 

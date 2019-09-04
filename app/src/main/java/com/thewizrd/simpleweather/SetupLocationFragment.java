@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
@@ -135,7 +136,11 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
             for (Drawable drawable : gpsFollowButton.getCompoundDrawables()) {
                 if (drawable != null) {
-                    drawable.setColorFilter(new PorterDuffColorFilter(Colors.SIMPLEBLUE, PorterDuff.Mode.SRC_IN));
+                    Configuration config = mActivity.getResources().getConfiguration();
+                    final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+
+                    drawable.setColorFilter(new PorterDuffColorFilter(
+                            currentNightMode == Configuration.UI_MODE_NIGHT_YES ? Colors.WHITE : Colors.SIMPLEBLUE, PorterDuff.Mode.SRC_IN));
                     TextViewCompat.setCompoundDrawablesRelative(gpsFollowButton, drawable, null, null, null);
                 }
             }
@@ -203,6 +208,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                stopLocationUpdates();
                                 enableControls(true);
                                 Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
                             }
@@ -288,6 +294,11 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                 });
     }
 
+    private void ctsCancel() {
+        if (cts != null) cts.cancel();
+        cts = new CancellationTokenSource();
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -306,7 +317,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
 
     @Override
     public void onPause() {
-        if (cts != null) cts.cancel();
+        ctsCancel();
         super.onPause();
         // Remove location updates to save battery.
         stopLocationUpdates();
@@ -315,7 +326,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     @Override
     public void onDestroy() {
         // Cancel pending actions
-        if (cts != null) cts.cancel();
+        ctsCancel();
 
         super.onDestroy();
         mActivity = null;
@@ -518,8 +529,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                         LocationQueryViewModel view = null;
 
                         // Cancel other tasks
-                        if (cts != null) cts.cancel();
-                        cts = new CancellationTokenSource();
+                        ctsCancel();
                         CancellationToken ctsToken = cts.getToken();
 
                         if (ctsToken.isCancellationRequested()) throw new InterruptedException();
@@ -675,6 +685,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
              */
             if (location == null && !mRequestingLocationUpdates) {
                 final LocationRequest mLocationRequest = new LocationRequest();
+                mLocationRequest.setNumUpdates(1);
                 mLocationRequest.setInterval(10000);
                 mLocationRequest.setFastestInterval(1000);
                 mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -759,6 +770,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     private void prepareSearchUI() {
         // Hide stepper nav bar
         mStepperLayout.setShowBottomNavigation(false);
+        ctsCancel();
 
         enterSearchUi();
         enterSearchUiTransition(null);

@@ -7,7 +7,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:layout_height="100dp">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/detail_label"
@@ -16,8 +17,10 @@
             android:layout_height="0dp"
             android:gravity="center"
             android:textColor="@android:color/white"
-            app:autoSizeMaxTextSize="18sp"
-            app:autoSizeMinTextSize="12sp"
+            android:textSize="@dimen/forecast_condition_size"
+            app:autoSizeMaxTextSize="@dimen/forecast_condition_size"
+            app:autoSizeMinTextSize="11.5sp"
+            app:autoSizeStepGranularity=".5sp"
             app:autoSizeTextType="uniform"
             app:layout_constrainedHeight="true"
             app:layout_constraintBottom_toTopOf="@id/detail_icon"
@@ -38,8 +41,9 @@
             android:paddingEnd="8dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
             android:textColor="@android:color/white"
-            app:autoSizeMaxTextSize="18sp"
-            app:autoSizeMinTextSize="12sp"
+            android:textSize="32sp"
+            app:autoSizeMaxTextSize="32sp"
+            app:autoSizeMinTextSize="6sp"
             app:autoSizeTextType="uniform"
             app:fontFamily="@font/weathericons"
             app:layout_constrainedHeight="true"
@@ -58,8 +62,10 @@
             android:layout_height="0dp"
             android:gravity="center"
             android:textColor="@android:color/white"
-            app:autoSizeMaxTextSize="18sp"
-            app:autoSizeMinTextSize="12sp"
+            android:textSize="@dimen/forecast_condition_size"
+            app:autoSizeMaxTextSize="@dimen/forecast_condition_size"
+            app:autoSizeMinTextSize="11.5sp"
+            app:autoSizeStepGranularity=".5sp"
             app:autoSizeTextType="uniform"
             app:layout_constrainedHeight="true"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -68,7 +74,6 @@
             app:layout_constraintTop_toBottomOf="@+id/detail_icon"
             app:layout_constraintVertical_bias="0"
             app:layout_constraintVertical_weight="1"
-            app:fontFamily="@font/weathericons"
             tools:fontFamily="@font/weathericons"
             tools:text=" 50.00 in" />
 

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
@@ -18,20 +18,20 @@
 
     <!-- Material dimens -->
     <dimen name="appbar_elevation">4dp</dimen>
-    <dimen name="toolbar_horizontal_inset_padding">16dp</dimen>
     <dimen name="fab_size">56dp</dimen>
-    <dimen name="fab_expanded_height">68dp</dimen>
+    <dimen name="fab_radius_size">32dp</dimen>
     <dimen name="floating_window_z">16dp</dimen>
+    <!-- Bottom Nav Bar -->
+    <dimen name="design_bottom_navigation_height" tools:override="true">60dp</dimen>
 
     <!-- WeatherNow -->
     <dimen name="label_location_size">18sp</dimen>
     <dimen name="label_updatetime_size">12sp</dimen>
-    <dimen name="detail_label_size">12sp</dimen>
-    <dimen name="detail_value_size">12sp</dimen>
     <dimen name="forecast_panel_height">200dp</dimen>
     <dimen name="forecast_panel_width">120dp</dimen>
     <dimen name="hrforecast_panel_height">200dp</dimen>
     <dimen name="hrforecast_panel_width">120dp</dimen>
+    <dimen name="detail_card_height">100dp</dimen>
     <!-- Locations -->
     <dimen name="location_panel_height">72dp</dimen>
     <dimen name="location_panel_text_size">16sp</dimen>
@@ -52,7 +52,7 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <dimen name="location_text_size_small">12sp</dimen>
     <dimen name="location_text_size_large">14sp</dimen>
     <!-- Notification -->
-    <dimen name="not_horiz_padding">8dp</dimen>
-    <dimen name="not_vert_padding">8dp</dimen>
+    <dimen name="not_horiz_padding">4dp</dimen>
+    <dimen name="not_vert_padding">4dp</dimen>
 
 </resources>

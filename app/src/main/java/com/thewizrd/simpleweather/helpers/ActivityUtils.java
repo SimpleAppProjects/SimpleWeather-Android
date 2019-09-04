@@ -35,6 +35,10 @@ public class ActivityUtils {
                 & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
     }
 
+    public static void setTransparentWindow(@NonNull Window window, @ColorInt int color) {
+        setTransparentWindow(window, color, color, color, true);
+    }
+
     public static void setTransparentWindow(@NonNull Window window, @ColorInt int backgroundColor, @ColorInt int statusBarColor, @ColorInt int navBarColor) {
         setTransparentWindow(window, backgroundColor, statusBarColor, navBarColor, true);
     }
@@ -43,11 +47,11 @@ public class ActivityUtils {
         // Make full transparent statusBar
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             WindowManager.LayoutParams winParams = window.getAttributes();
-            if (statusBarColor >= 0)
+            if (setColors)
                 winParams.flags |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
             else
                 winParams.flags &= ~WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
-            if (navBarColor >= 0)
+            if (setColors)
                 winParams.flags |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
             else
                 winParams.flags &= ~WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;

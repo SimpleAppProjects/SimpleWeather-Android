@@ -16,7 +16,6 @@ import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
 
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -33,7 +32,7 @@ public class WeatherNotificationBuilder {
     private static final String TAG = "WeatherNotificationBuilder";
 
     // Sets an ID for the notification
-    static final int PERSISTENT_NOT_ID = 1;
+    private static final int PERSISTENT_NOT_ID = 1;
     private static final String NOT_CHANNEL_ID = "SimpleWeather.ongoingweather";
 
     private static Notification mNotification;

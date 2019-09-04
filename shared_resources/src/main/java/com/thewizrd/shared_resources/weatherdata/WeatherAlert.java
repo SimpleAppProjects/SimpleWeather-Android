@@ -2,6 +2,8 @@ package com.thewizrd.shared_resources.weatherdata;
 
 import android.util.Log;
 
+import androidx.annotation.RestrictTo;
+
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -46,7 +48,8 @@ public class WeatherAlert {
     @SerializedName("Notified")
     private boolean notified;
 
-    private WeatherAlert() {
+    @RestrictTo({RestrictTo.Scope.TESTS, RestrictTo.Scope.SUBCLASSES})
+    public WeatherAlert() {
 
     }
 

@@ -70,7 +70,7 @@ public class WeatherDetailsFragment extends WeatherListFragment {
 
                     if (getArguments() != null) {
                         int scrollToPosition = getArguments().getInt("position", 0);
-                        layoutManager.scrollToPosition(scrollToPosition);
+                        layoutManager.scrollToPositionWithOffset(scrollToPosition, 0);
                     }
                 }
             });

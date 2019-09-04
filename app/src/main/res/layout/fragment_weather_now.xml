@@ -64,7 +64,6 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:theme="@style/AppTheme.AppBarOverlay"
-            android:fitsSystemWindows="true"
             app:elevation="0dp"
             tools:stateListAnimator="@null">
 
@@ -207,9 +206,9 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/weather_icon"
                             style="@style/ShadowTextHeavy"
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="0dp"
-                            android:gravity="bottom"
+                            android:gravity="bottom|center_horizontal"
                             android:text="@{weatherView.weatherIcon}"
                             android:textAlignment="center"
                             android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
@@ -219,6 +218,7 @@
                             app:autoSizeMinTextSize="12sp"
                             app:autoSizeTextType="uniform"
                             app:fontFamily="@font/weathericons"
+                            app:layout_constrainedWidth="true"
                             app:layout_constraintBottom_toTopOf="@+id/weather_condition"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -272,7 +272,7 @@
                             android:linksClickable="true"
                             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                             android:textColor="@android:color/white"
-                            android:textSize="10sp"
+                            android:textSize="12sp"
                             app:darkModeEnabled="@{!weatherView.lightBackground}"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"

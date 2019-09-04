@@ -11,6 +11,7 @@ import android.graphics.Outline;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.location.Location;
@@ -126,7 +127,6 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Locale;
@@ -157,6 +157,7 @@ public class WeatherNowFragment extends WindowColorFragment
     private AppBarLayout mAppBarLayout;
     private TextView mTitleView;
     private ImageView mImageView;
+    private View mGradView;
     private float mAppBarElevation;
     private SwipeRefreshLayout refreshLayout;
     private ObservableNestedScrollView scrollView;
@@ -362,11 +363,11 @@ public class WeatherNowFragment extends WindowColorFragment
 
         // Create your fragment here
         if (getArguments() != null) {
-            JsonReader jsonReader = new JsonReader(new StringReader(getArguments().getString("data", null)));
-            location = LocationData.fromJson(jsonReader);
             try {
+                JsonReader jsonReader = new JsonReader(new StringReader(getArguments().getString("data", null)));
+                location = LocationData.fromJson(jsonReader);
                 jsonReader.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 Logger.writeLine(Log.ERROR, e);
             }
 
@@ -488,7 +489,8 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(view.findViewById(R.id.gradient_view), new OnApplyWindowInsetsListener() {
+        mGradView = view.findViewById(R.id.gradient_view);
+        ViewCompat.setOnApplyWindowInsetsListener(mGradView, new OnApplyWindowInsetsListener() {
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
@@ -664,7 +666,13 @@ public class WeatherNowFragment extends WindowColorFragment
         // Details
         detailsContainer = view.findViewById(R.id.details_container);
         detailsContainer.setHasFixedSize(false);
-        mLayoutManager = new GridLayoutManager(mActivity, 4, RecyclerView.VERTICAL, false);
+        mLayoutManager = new GridLayoutManager(mActivity, 4, RecyclerView.VERTICAL, false) {
+            @Override
+            // View should not scroll
+            public boolean canScrollVertically() {
+                return false;
+            }
+        };
         detailsContainer.setLayoutManager(mLayoutManager);
 
         int horizMargin = 16;
@@ -798,18 +806,8 @@ public class WeatherNowFragment extends WindowColorFragment
 
                 adjustConditionPanelLayout();
                 adjustDetailsLayout();
-                if (wm.supportsAlerts() && weatherView != null && weatherView.getExtras().getAlerts().size() > 0) {
-                    resizeAlertPanel();
-                }
+                resizeAlertPanel();
                 resizeSunPhasePanel();
-            }
-        });
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // Scroll back to the top
-                if (scrollView != null) scrollView.scrollTo(0, 0);
             }
         });
 
@@ -886,7 +884,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 public void run() {
                     View view = WeatherNowFragment.this.getView();
 
-                    if (view == null || view.getWidth() <= 0 || alertButton.getVisibility() != View.VISIBLE)
+                    if (view == null || view.getWidth() <= 0)
                         return;
 
                     int viewWidth = view.getWidth();
@@ -903,18 +901,12 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(Menu menu, @NonNull MenuInflater inflater) {
         menu.clear();
     }
 
     private void resume() {
         cts = new CancellationTokenSource();
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (scrollView != null) scrollView.scrollTo(0, 0);
-            }
-        });
 
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
@@ -1135,8 +1127,7 @@ public class WeatherNowFragment extends WindowColorFragment
             @Override
             public void run() {
                 if (mActivity != null) {
-                    View bottomAppBar = mActivity.findViewById(R.id.bottom_nav_bar);
-                    int height = Math.abs(mAppBarLayout.getBottom() - bottomAppBar.getTop());
+                    int height = mRootView.getHeight() - mAppBarLayout.getHeight();
                     ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) conditionPanel.getLayoutParams();
                     lp.height = height;
                     conditionPanel.setLayoutParams(lp);
@@ -1150,6 +1141,15 @@ public class WeatherNowFragment extends WindowColorFragment
                 weatherIcon.setLayoutParams(weatherIcon.getLayoutParams());
             }
         });
+
+        scrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                scrollView.scrollTo(0, 0);
+            }
+        });
+
+        adjustGradientView();
     }
 
     private void adjustDetailsLayout() {
@@ -1177,9 +1177,34 @@ public class WeatherNowFragment extends WindowColorFragment
                     // Minimum width for ea. card
                     int minWidth = (int) ActivityUtils.dpToPx(mActivity, 125f); // Default: 125f
                     // Available columns based on min card width
-                    int availColumns = ((int) (dpWidth / minWidth)) <= 1 ? 3 : (int) (dpWidth / minWidth);
+                    int availColumns = ((int) (dpWidth / minWidth)) <= 1 ? 2 : (int) (dpWidth / minWidth);
 
                     mLayoutManager.setSpanCount(availColumns);
+                }
+            });
+        }
+    }
+
+    private void adjustGradientView() {
+        /*
+         * NOTE
+         *
+         * BUG: Re-set the radius for the background_overlay drawable
+         * For some reason the %p suffix does not work on pre-Lollipop devices
+         */
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            mGradView.post(new Runnable() {
+                @Override
+                public void run() {
+                    int height = mRootView.getHeight();
+                    int width = mRootView.getWidth();
+
+                    if (mGradView.getBackground() instanceof GradientDrawable && height > 0 && width > 0) {
+                        GradientDrawable drawable = ((GradientDrawable) mGradView.getBackground().mutate());
+                        float radius = 1.5f;
+                        radius *= Math.min(width, height);
+                        drawable.setGradientRadius(radius);
+                    }
                 }
             });
         }
@@ -1282,6 +1307,9 @@ public class WeatherNowFragment extends WindowColorFragment
                     hrforecastPanel.setVisibility(View.GONE);
                 }
 
+                // Condition Panel & Scroll view
+                adjustConditionPanelLayout();
+
                 // Alerts
                 resizeAlertPanel();
 
@@ -1325,7 +1353,7 @@ public class WeatherNowFragment extends WindowColorFragment
                             }
                         });
 
-                        /**
+                        /*
                          * Request start of location updates. Does nothing if
                          * updates have already been requested.
                          */

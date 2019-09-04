@@ -2,7 +2,6 @@ package com.thewizrd.simpleweather.controls;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +38,7 @@ public class DetailCard extends MaterialCardView {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.card_weather_detail, this);
 
-        int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, context.getResources().getDisplayMetrics());
+        int height = context.getResources().getDimensionPixelSize(R.dimen.detail_card_height);
         setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
         setCardBackgroundColor(0x10FFFFFF);
         setCardElevation(0);

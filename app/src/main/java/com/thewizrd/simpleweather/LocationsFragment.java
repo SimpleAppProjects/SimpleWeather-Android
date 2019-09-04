@@ -903,6 +903,7 @@ public class LocationsFragment extends ToolbarFragment
                          */
                         if (location == null && !mRequestingLocationUpdates) {
                             final LocationRequest mLocationRequest = new LocationRequest();
+                            mLocationRequest.setNumUpdates(1);
                             mLocationRequest.setInterval(10000);
                             mLocationRequest.setFastestInterval(1000);
                             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -1435,22 +1436,22 @@ public class LocationsFragment extends ToolbarFragment
     }
 
     private final Transition.TransitionListener fabTransitionListener = new Transition.TransitionListener() {
-        public void onTransitionStart(Transition transition) {
+        public void onTransitionStart(@NonNull Transition transition) {
             isAnimating = true;
         }
 
-        public void onTransitionEnd(Transition transition) {
+        public void onTransitionEnd(@NonNull Transition transition) {
             isAnimating = false;
         }
 
-        public void onTransitionCancel(Transition transition) {
+        public void onTransitionCancel(@NonNull Transition transition) {
             isAnimating = false;
         }
 
-        public void onTransitionPause(Transition transition) {
+        public void onTransitionPause(@NonNull Transition transition) {
         }
 
-        public void onTransitionResume(Transition transition) {
+        public void onTransitionResume(@NonNull Transition transition) {
         }
     };
 

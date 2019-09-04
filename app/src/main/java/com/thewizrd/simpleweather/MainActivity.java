@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather;
 
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,12 +47,15 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
         // Make full transparent statusBar
-        ActivityUtils.setTransparentWindow(getWindow(), Colors.SIMPLEBLUE, Colors.TRANSPARENT, Colors.TRANSPARENT);
+        ActivityUtils.setTransparentWindow(getWindow(), Colors.SIMPLEBLUE, Colors.TRANSPARENT, Colors.TRANSPARENT,
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
 
         setContentView(R.layout.activity_main);
 
         mFragmentContainer = findViewById(R.id.fragment_container);
         mRootView = (View) mFragmentContainer.getParent();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            mRootView.setFitsSystemWindows(true);
         updateWindowColors();
 
         mBottomNavView = findViewById(R.id.bottom_nav_bar);

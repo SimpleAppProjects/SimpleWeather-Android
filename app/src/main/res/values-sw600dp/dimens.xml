@@ -5,6 +5,7 @@
     <dimen name="label_updatetime_size">16sp</dimen>
     <dimen name="weather_icon_size">118sp</dimen>
     <dimen name="weather_condition_size">38sp</dimen>
+    <dimen name="detail_card_height">150dp</dimen>
     <!-- Forecast -->
     <dimen name="forecast_panel_width">175dp</dimen>
     <dimen name="forecast_panel_height">210dp</dimen>

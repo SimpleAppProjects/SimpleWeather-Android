@@ -64,7 +64,7 @@ public class SunPhaseView extends View {
         bottomTextPaint = new Paint();
 
         bottomTextPaint.setAntiAlias(true);
-        bottomTextPaint.setTextSize(ActivityUtils.dpToPx(getContext(), 12));
+        bottomTextPaint.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.forecast_condition_size));
         bottomTextPaint.setTextAlign(Paint.Align.CENTER);
         bottomTextPaint.setStyle(Paint.Style.FILL);
         bottomTextPaint.setColor(BOTTOM_TEXT_COLOR);
