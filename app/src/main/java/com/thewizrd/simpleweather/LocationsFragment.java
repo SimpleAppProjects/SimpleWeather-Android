@@ -563,7 +563,7 @@ public class LocationsFragment extends ToolbarFragment
         menu.clear();
         getToolbar().inflateMenu(R.menu.locations);
 
-        boolean onlyHomeIsLeft = (mAdapter.getDataCount() == 1);
+        boolean onlyHomeIsLeft = (mAdapter.getFavoritesCount() == 1);
         MenuItem editMenuBtn = optionsMenu.findItem(R.id.action_editmode);
         if (editMenuBtn != null) {
             editMenuBtn.setVisible(!onlyHomeIsLeft);
@@ -779,16 +779,14 @@ public class LocationsFragment extends ToolbarFragment
                 List<LocationData> locations = new ArrayList<>(Settings.getLocationData());
                 LocationData homeData = Settings.getLastGPSLocData();
                 locations.add(0, homeData);
-                LocationPanelViewModel gpsPanelViewModel = null;
-                if (mAdapter.getDataCount() > 0 && mAdapter.getPanelData(0).getLocationType() == LocationType.GPS)
-                    gpsPanelViewModel = mAdapter.getPanelViewModel(0);
+                LocationPanelViewModel gpsPanelViewModel = mAdapter.getGPSPanel();
 
                 boolean reload = (locations.size() != mAdapter.getDataCount() ||
                         Settings.useFollowGPS() && gpsPanelViewModel == null || !Settings.useFollowGPS() && gpsPanelViewModel != null);
 
                 // Reload if weather source differs
                 if ((gpsPanelViewModel != null && !Settings.getAPI().equals(gpsPanelViewModel.getWeatherSource())) ||
-                        (mAdapter.getDataCount() >= 1 && !Settings.getAPI().equals(mAdapter.getPanelViewModel(0).getWeatherSource())))
+                        (mAdapter.getFavoritesCount() > 0 && !Settings.getAPI().equals(mAdapter.getFirstFavPanel().getWeatherSource())))
                     reload = true;
 
                 if (!reload && (gpsPanelViewModel != null && !homeData.getQuery().equals(gpsPanelViewModel.getLocationData().getQuery())))
@@ -857,9 +855,8 @@ public class LocationsFragment extends ToolbarFragment
     }
 
     private void removeGPSPanel() {
-        if (mAdapter != null && mAdapter.getDataCount() > 0
-                && mAdapter.getPanelData(0).getLocationType() == LocationType.GPS) {
-            mAdapter.remove(0);
+        if (mAdapter != null && mAdapter.hasGPSHeader()) {
+            mAdapter.removeGPSPanel();
         }
     }
 
@@ -897,7 +894,7 @@ public class LocationsFragment extends ToolbarFragment
                             }
                         });
 
-                        /**
+                        /*
                          * Request start of location updates. Does nothing if
                          * updates have already been requested.
                          */
@@ -1326,7 +1323,7 @@ public class LocationsFragment extends ToolbarFragment
         @Override
         public void onChanged(ArrayList<LocationPanelViewModel> sender, ListChangedArgs e) {
             final boolean dataMoved = (e.action == ListChangedAction.REMOVE || e.action == ListChangedAction.MOVE);
-            final boolean onlyHomeIsLeft = (mAdapter.getDataCount() == 1);
+            final boolean onlyHomeIsLeft = (mAdapter.getFavoritesCount() == 1);
 
             // Flag that data has changed
             if (mEditMode && dataMoved)
@@ -1360,7 +1357,7 @@ public class LocationsFragment extends ToolbarFragment
         @Override
         public void onClick(View view, int position) {
             if (mAdapter.getItemViewType(position) == LocationPanelAdapter.LocationPanelItemType.SEARCH_PANEL) {
-                if (!mEditMode && mAdapter.getDataCount() > 1) toggleEditMode();
+                if (!mEditMode && mAdapter.getFavoritesCount() > 1) toggleEditMode();
             }
         }
     };

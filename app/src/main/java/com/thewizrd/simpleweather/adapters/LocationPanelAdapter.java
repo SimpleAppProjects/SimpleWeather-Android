@@ -255,6 +255,8 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     public int getItemViewType(int position) {
         if (hasGPSPanel && hasSearchPanel && position == 0)
             return LocationPanelItemType.HEADER_GPS;
+        else if (hasGPSPanel && position == 0)
+            return LocationPanelItemType.HEADER_GPS;
         else if (hasSearchPanel && position == 0)
             return LocationPanelItemType.HEADER_FAV;
         else if (hasGPSPanel && hasSearchPanel && position == 2)
@@ -270,7 +272,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
             position++;
         else if (hasSearchPanel && hasGPSPanel && position > 0)
             position += 2;
-        else if (hasSearchPanel && position > 0)
+        else if ((hasSearchPanel || hasGPSPanel) && position > 0)
             position++;
 
         return position;
@@ -281,7 +283,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
             position--;
         else if (hasSearchPanel && hasGPSPanel && position > 1)
             position -= 2;
-        else if (hasSearchPanel && position > 1)
+        else if ((hasSearchPanel || hasGPSPanel) && position > 1)
             position--;
 
         return position;
@@ -302,6 +304,30 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public int getDataCount() {
         return mDataset.size();
+    }
+
+    public int getFavoritesCount() {
+        int size = mDataset.size();
+
+        if (hasGPSPanel)
+            size--;
+
+        return size;
+    }
+
+    public LocationPanelViewModel getGPSPanel() {
+        if (hasGPSPanel && getPanelData(0).getLocationType() == LocationType.GPS)
+            return getPanelViewModel(0);
+        return null;
+    }
+
+    public LocationPanelViewModel getFirstFavPanel() {
+        if (hasGPSPanel && hasSearchPanel)
+            return getPanelViewModel(1);
+        else if (hasSearchPanel) {
+            return getPanelViewModel(0);
+        }
+        return null;
     }
 
     public void add(LocationPanelViewModel item) {
@@ -336,6 +362,14 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
             hasGPSPanel = false;
 
         notifyItemRemoved(viewPosition);
+    }
+
+    public void removeGPSPanel() {
+        LocationPanelViewModel gpsPanel = getGPSPanel();
+        if (gpsPanel != null) {
+            int idx = mDataset.indexOf(gpsPanel);
+            remove(idx);
+        }
     }
 
     public void removeAll() {
