@@ -172,9 +172,7 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.setCustomAnimations(R.animator.scale_fade_in, R.animator.scale_fade_out,
-                R.animator.scale_fade_in, R.animator.scale_fade_out);
+        FragmentTransaction transaction = addCustomAnimations(getSupportFragmentManager().beginTransaction());
         Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         Fragment fragment = null;
 
@@ -243,9 +241,13 @@ public class MainActivity extends AppCompatActivity
             } else if (fragment instanceof SettingsFragment) {
                 // Commit the transaction if current frag is not a SettingsFragment sub-fragment
                 if (!current.getClass().getName().contains("SettingsFragment")) {
+                    transaction.hide(current);
+                    if (!(current instanceof WeatherNowFragment)) {
+                        transaction.commit();
+                        transaction = addCustomAnimations(getSupportFragmentManager().beginTransaction());
+                    }
                     transaction
                             .add(R.id.fragment_container, fragment, "settings")
-                            .hide(current)
                             .addToBackStack("settings")
                             .commit();
                 }
@@ -253,6 +255,12 @@ public class MainActivity extends AppCompatActivity
         }
 
         return true;
+    }
+
+    private FragmentTransaction addCustomAnimations(@NonNull FragmentTransaction transaction) {
+        transaction.setCustomAnimations(R.animator.scale_fade_in, R.animator.scale_fade_out,
+                R.animator.scale_fade_in, R.animator.scale_fade_out);
+        return transaction;
     }
 
     protected void onResumeFragments() {
