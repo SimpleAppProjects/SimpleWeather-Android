@@ -19,24 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class HourlyForecastItemViewModel {
-    private WeatherManager wm;
-
-    private String weatherIcon;
-    private String date;
-    private String condition;
-    private String hiTemp;
-    private String pop;
-    private int windDirection;
-    private String windSpeed;
-    private String windDir;
-
-    private List<DetailItemViewModel> detailExtras;
-
-    public HourlyForecastItemViewModel() {
-        wm = WeatherManager.getInstance();
-        detailExtras = new ArrayList<>();
-    }
+public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
 
     public HourlyForecastItemViewModel(HourlyForecast hrForecast) {
         wm = WeatherManager.getInstance();

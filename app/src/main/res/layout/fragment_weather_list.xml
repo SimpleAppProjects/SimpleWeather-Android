@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:parentTag="androidx.coordinatorlayout.widget.CoordinatorLayout"
     tools:showIn="@layout/fragment_toolbar_layout"
-    tools:context=".WeatherListFragment">
+    tools:context=".main.WeatherListFragment">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/location_header"
@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Menu"
+            android:textAppearance="@style/TextAppearance.OpenSans.Menu"
             android:textSize="16sp"
             app:autoSizeMaxTextSize="16sp"
             app:autoSizeMinTextSize="6sp"

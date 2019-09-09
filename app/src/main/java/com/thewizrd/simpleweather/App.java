@@ -21,6 +21,7 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver;
 
 import static com.thewizrd.shared_resources.utils.Settings.loadIfNeeded;
 

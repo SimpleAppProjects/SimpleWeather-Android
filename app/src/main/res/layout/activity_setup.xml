@@ -9,7 +9,7 @@
     android:fitsSystemWindows="true"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    tools:context=".SetupActivity">
+    tools:context=".setup.SetupActivity">
 
     <com.stepstone.stepper.StepperLayout
         android:id="@+id/stepperLayout"

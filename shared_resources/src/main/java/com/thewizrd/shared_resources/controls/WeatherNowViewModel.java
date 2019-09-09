@@ -1,18 +1,22 @@
 package com.thewizrd.shared_resources.controls;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.format.DateFormat;
 import android.text.style.TypefaceSpan;
 import android.util.Log;
 
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.graphics.ColorUtils;
 import androidx.databinding.Bindable;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.WeatherIconTextSpan;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -34,7 +38,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private String updateDate;
 
     // Current Condition
-    private String curTemp;
+    private CharSequence curTemp;
     private String curCondition;
     private String weatherIcon;
 
@@ -52,6 +56,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
     // Background
     private String background;
     private int pendingBackground = -1;
+    private int origPendingBackground = -1;
     private boolean isDark = true;
 
     private String weatherCredit;
@@ -70,7 +75,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
     }
 
     @Bindable
-    public String getCurTemp() {
+    public CharSequence getCurTemp() {
         return curTemp;
     }
 
@@ -158,17 +163,32 @@ public class WeatherNowViewModel extends ObservableViewModel {
         updateView(weather);
     }
 
+    public void updatePendingBackground(Context context, boolean isPhone) {
+        pendingBackground = origPendingBackground;
+
+        if (isPhone && (!ColorsUtils.isSuperDark(pendingBackground) || ColorsUtils.isSuperLight(pendingBackground))) {
+            final int systemNightMode = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            boolean isDarkMode = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES || systemNightMode == Configuration.UI_MODE_NIGHT_YES;
+            if (isDarkMode) {
+                pendingBackground = ColorUtils.blendARGB(pendingBackground, Colors.BLACK, 0.75f);
+            }
+        }
+
+        isDark = pendingBackground != -1 && !ColorsUtils.isSuperLight(pendingBackground);
+    }
+
     public void updateView(Weather weather) {
         if (weather.isValid()) {
             Context context = SimpleLibrary.getInstance().getApp().getAppContext();
+            boolean isPhone = SimpleLibrary.getInstance().getApp().isPhone();
 
             // Update extras
             extras.updateView(weather);
 
             // Update backgrounds
             background = wm.getWeatherBackgroundURI(weather);
-            pendingBackground = wm.getWeatherBackgroundColor(weather);
-            isDark = pendingBackground != -1 && !ColorsUtils.isSuperLight(pendingBackground);
+            origPendingBackground = wm.getWeatherBackgroundColor(weather);
+            updatePendingBackground(context, isPhone);
 
             // Location
             location = weather.getLocation().getName();
@@ -177,9 +197,14 @@ public class WeatherNowViewModel extends ObservableViewModel {
             updateDate = WeatherUtils.getLastBuildDate(weather);
 
             // Update current condition
-            curTemp = Settings.isFahrenheit() ?
-                    String.format(Locale.getDefault(), "%d\uf045", Math.round(weather.getCondition().getTempF())) :
-                    String.format(Locale.getDefault(), "%d\uf03c", Math.round(weather.getCondition().getTempC()));
+            SpannableStringBuilder curTempSSBuilder = new SpannableStringBuilder();
+            int temp = (int) (Settings.isFahrenheit() ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC()));
+            String unitTemp = Settings.isFahrenheit() ? "\uf045" : "\uf03c";
+            curTempSSBuilder.append(Integer.toString(temp))
+                    .append(unitTemp)
+                    .setSpan(new WeatherIconTextSpan(context), curTempSSBuilder.length() - unitTemp.length(), curTempSSBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            curTemp = curTempSSBuilder;
             curCondition = (StringUtils.isNullOrWhitespace(weather.getCondition().getWeather()) ? "---" : weather.getCondition().getWeather());
             weatherIcon = weather.getCondition().getIcon();
 

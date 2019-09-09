@@ -14,7 +14,9 @@
         android:background="?attr/colorPrimary"
         android:fitsSystemWindows="true"
         android:minHeight="?attr/actionBarSize"
+        android:stateListAnimator="@animator/design_appbar_state_list_animator"
         android:theme="@style/AppTheme.AppBarOverlay"
+        app:liftOnScroll="true"
         tools:stateListAnimator="@null">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -23,7 +25,8 @@
             android:layout_height="@dimen/collapsingtoolbar_maxHeight"
             android:minHeight="?attr/actionBarSize"
             app:statusBarScrim="?attr/colorPrimary"
-            app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Title"
+            app:expandedTitleTextAppearance="@style/TextAppearance.OpenSans.Headline6"
+            app:collapsedTitleTextAppearance="@style/TextAppearance.OpenSans.Headline6"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <androidx.appcompat.widget.Toolbar

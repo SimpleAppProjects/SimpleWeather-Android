@@ -22,8 +22,8 @@ import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
-import com.thewizrd.simpleweather.MainActivity;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.main.MainActivity;
 
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;

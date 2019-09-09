@@ -830,16 +830,16 @@ public class Settings {
         editor.commit();
     }
 
-    public static DarkMode getUserThemeMode() {
+    public static UserThemeMode getUserThemeMode() {
         if (!preferences.contains(KEY_USERTHEME)) {
-            setUserThemeMode(DarkMode.FOLLOW_SYSTEM);
-            return DarkMode.FOLLOW_SYSTEM;
+            setUserThemeMode(UserThemeMode.FOLLOW_SYSTEM);
+            return UserThemeMode.FOLLOW_SYSTEM;
         } else {
-            return DarkMode.valueOf(Integer.parseInt(preferences.getString(KEY_USERTHEME, "0")));
+            return UserThemeMode.valueOf(Integer.parseInt(preferences.getString(KEY_USERTHEME, "0")));
         }
     }
 
-    public static void setUserThemeMode(DarkMode value) {
+    public static void setUserThemeMode(UserThemeMode value) {
         editor.putString(KEY_USERTHEME, Integer.toString(value.getValue()));
         editor.commit();
     }

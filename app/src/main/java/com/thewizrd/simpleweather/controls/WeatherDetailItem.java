@@ -95,7 +95,7 @@ public class WeatherDetailItem extends ConstraintLayout {
         forecastExtra.setVisibility(GONE);
 
         bodyCard.setVisibility(GONE);
-        if (forecastView.getExtras() != null) {
+        if (forecastView.getExtras() != null && forecastView.getExtras().size() > 0) {
             Context context = getContext();
             headerCard.setOnClickListener(onClickListener);
 
@@ -111,7 +111,7 @@ public class WeatherDetailItem extends ConstraintLayout {
                 Layout layout = forecastCondition.getLayout();
                 float textWidth = paint.measureText(forecastView.getCondition());
 
-                if (textWidth > layout.getWidth()) {
+                if (layout != null && textWidth > layout.getWidth()) {
                     sb.append(forecastView.getCondition())
                             .append(StringUtils.lineSeparator())
                             .append(StringUtils.lineSeparator());
@@ -168,7 +168,7 @@ public class WeatherDetailItem extends ConstraintLayout {
         forecastExtra.setVisibility(GONE);
 
         bodyCard.setVisibility(GONE);
-        if (forecastView.getExtras() != null) {
+        if (forecastView.getExtras() != null && forecastView.getExtras().size() > 0) {
             Context context = getContext();
             headerCard.setOnClickListener(onClickListener);
 

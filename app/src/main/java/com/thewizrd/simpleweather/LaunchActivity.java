@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.simpleweather.main.MainActivity;
+import com.thewizrd.simpleweather.setup.SetupActivity;
 
 public class LaunchActivity extends AppCompatActivity {
 

@@ -14,31 +14,11 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
-public class ForecastItemViewModel extends ObservableViewModel {
-    private WeatherManager wm;
-
-    private String weatherIcon;
-    private String date;
-    private String condition;
-    private String hiTemp;
+public class ForecastItemViewModel extends BaseForecastItemViewModel {
     private String loTemp;
-
-    private String pop;
-    private int windDirection;
-    private String windSpeed;
-    private String windDir;
-
     private String conditionLongDesc;
-
-    private List<DetailItemViewModel> detailExtras;
-
-    public ForecastItemViewModel() {
-        wm = WeatherManager.getInstance();
-        detailExtras = new ArrayList<>();
-    }
 
     public ForecastItemViewModel(Forecast forecast, TextForecastItemViewModel... txtForecasts) {
         wm = WeatherManager.getInstance();
@@ -178,38 +158,6 @@ public class ForecastItemViewModel extends ObservableViewModel {
         notifyChange();
     }
 
-    public String getWeatherIcon() {
-        return weatherIcon;
-    }
-
-    public void setWeatherIcon(String weatherIcon) {
-        this.weatherIcon = weatherIcon;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getCondition() {
-        return condition;
-    }
-
-    public void setCondition(String condition) {
-        this.condition = condition;
-    }
-
-    public String getHiTemp() {
-        return hiTemp;
-    }
-
-    public void setHiTemp(String hiTemp) {
-        this.hiTemp = hiTemp;
-    }
-
     public String getLoTemp() {
         return loTemp;
     }
@@ -218,51 +166,11 @@ public class ForecastItemViewModel extends ObservableViewModel {
         this.loTemp = loTemp;
     }
 
-    public String getPop() {
-        return pop;
-    }
-
-    public void setPop(String pop) {
-        this.pop = pop;
-    }
-
-    public int getWindDirection() {
-        return windDirection;
-    }
-
-    public void setWindDirection(int windDirection) {
-        this.windDirection = windDirection;
-    }
-
-    public String getWindDirLabel() {
-        return windDir;
-    }
-
-    public void setWindDirLabel(String windDirection) {
-        this.windDir = windDirection;
-    }
-
-    public String getWindSpeed() {
-        return windSpeed;
-    }
-
-    public void setWindSpeed(String windSpeed) {
-        this.windSpeed = windSpeed;
-    }
-
     public String getConditionLongDesc() {
         return conditionLongDesc;
     }
 
     public void setConditionLongDesc(String conditionLongDesc) {
         this.conditionLongDesc = conditionLongDesc;
-    }
-
-    public List<DetailItemViewModel> getExtras() {
-        return detailExtras;
-    }
-
-    public void setExtras(List<DetailItemViewModel> extras) {
-        this.detailExtras = extras;
     }
 }

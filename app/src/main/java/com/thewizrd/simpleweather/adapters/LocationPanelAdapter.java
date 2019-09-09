@@ -1,37 +1,26 @@
 package com.thewizrd.simpleweather.adapters;
 
 import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.RequestManager;
-import com.bumptech.glide.load.DecodeFormat;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.BitmapImageViewTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
-import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.ObservableArrayList;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
@@ -67,7 +56,6 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     private ObservableArrayList<LocationPanelViewModel> mDataset;
-    private RequestManager mGlide;
     private Handler mMainHandler;
 
     private GPSHeaderViewHolder gpsVH;
@@ -112,14 +100,12 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
     public class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView mBgImageView;
         LocationPanel mLocView;
         ProgressBar mProgressBar;
 
         ViewHolder(LocationPanel v) {
             super(v);
             mLocView = v;
-            mBgImageView = v.findViewById(R.id.image_view);
             mProgressBar = v.findViewById(R.id.progressBar);
             mProgressBar.setVisibility(View.VISIBLE);
             mLocView.setOnClickListener(new View.OnClickListener() {
@@ -141,8 +127,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public LocationPanelAdapter(RequestManager glide) {
-        this.mGlide = glide;
+    public LocationPanelAdapter() {
         mMainHandler = new Handler(Looper.getMainLooper());
         mDataset = new ObservableArrayList<>();
     }
@@ -198,7 +183,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
             final LocationPanelViewModel panelView = getPanelViewModel(position);
 
             // Background
-            vHolder.mBgImageView.post(new Runnable() {
+            vHolder.mLocView.post(new Runnable() {
                 @Override
                 public void run() {
                     updatePanelBackground(vHolder, panelView, imageUpdateOnly);
@@ -213,33 +198,9 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     private void updatePanelBackground(final ViewHolder vHolder, final LocationPanelViewModel panelView, boolean skipCache) {
         if (panelView != null && !StringUtils.isNullOrWhitespace(panelView.getBackground())) {
-            mGlide.asBitmap()
-                    .load(panelView.getBackground())
-                    .apply(new RequestOptions()
-                            .centerCrop()
-                            .format(DecodeFormat.PREFER_RGB_565)
-                            .error(vHolder.mLocView.getColorDrawable())
-                            .placeholder(vHolder.mLocView.getColorDrawable())
-                            .skipMemoryCache(skipCache))
-                    .into(new BitmapImageViewTarget(vHolder.mBgImageView) {
-                        @Override
-                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                            super.onResourceReady(resource, transition);
-                            Palette p = Palette.from(resource).generate();
-                            int textColor = Colors.WHITE;
-                            int shadowColor = Colors.BLACK;
-                            if (ColorsUtils.isSuperLight(p)) {
-                                textColor = Colors.BLACK;
-                                shadowColor = Colors.GRAY;
-                            }
-                            vHolder.mLocView.setTextColor(textColor);
-                            vHolder.mLocView.setTextShadowColor(shadowColor);
-                        }
-                    });
+            vHolder.mLocView.setWeatherBackground(panelView, skipCache);
         } else {
-            mGlide.clear(vHolder.mBgImageView);
-            vHolder.mBgImageView.setImageDrawable(vHolder.mLocView.getColorDrawable());
-            vHolder.mLocView.setTextColor(Colors.WHITE);
+            vHolder.mLocView.clearBackground();
         }
     }
 

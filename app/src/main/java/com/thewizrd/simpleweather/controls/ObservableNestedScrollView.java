@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.controls;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
@@ -138,7 +139,7 @@ public class ObservableNestedScrollView extends NestedScrollView {
     public boolean dispatchTouchEvent(MotionEvent ev) {
         boolean result = super.dispatchTouchEvent(ev);
 
-        switch (ev.getAction()) {
+        switch (ev.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 mOnFlingCalled = false;
                 mStartingScroll = true;
@@ -162,9 +163,15 @@ public class ObservableNestedScrollView extends NestedScrollView {
                     mTouchMode = TOUCH_MODE_INITIAL_STATE;
                 }
                 break;
+            case MotionEvent.ACTION_MOVE:
+                if (mTouchMode == TOUCH_MODE_DOWN && !mOnFlingCalled) {
+                    mTouchMode = TOUCH_MODE_SCROLL;
+                }
+                break;
+            default:
+                Log.i("ObservableScrollView", "Unknown action: " + ev.getActionMasked());
+                break;
         }
-
-        mGestureDetector.onTouchEvent(ev);
 
         return result;
     }

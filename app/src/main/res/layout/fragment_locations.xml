@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:parentTag="androidx.coordinatorlayout.widget.CoordinatorLayout"
     tools:showIn="@layout/fragment_toolbar_layout"
-    tools:context=".LocationsFragment">
+    tools:context=".main.LocationsFragment">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"
@@ -28,18 +28,17 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <com.google.android.material.button.MaterialButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fab"
-        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
         android:layout_width="wrap_content"
-        android:layout_height="68dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="8dp"
+        android:minHeight="@dimen/fab_size"
         android:text="@string/label_fab_add_location"
         android:textColor="@android:color/white"
-        app:cornerRadius="@dimen/fab_radius_size"
         app:icon="@drawable/ic_add_location_white_24dp"
         app:iconTint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"

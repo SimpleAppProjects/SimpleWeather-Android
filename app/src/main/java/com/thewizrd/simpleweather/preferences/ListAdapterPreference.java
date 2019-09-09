@@ -12,6 +12,7 @@ import androidx.core.content.res.TypedArrayUtils;
 import androidx.preference.DialogPreference;
 
 import com.thewizrd.shared_resources.controls.ComboBoxItem;
+import com.thewizrd.simpleweather.R;
 
 public class ListAdapterPreference extends DialogPreference {
     private ComboBoxItem mValue;
@@ -62,7 +63,7 @@ public class ListAdapterPreference extends DialogPreference {
      * @return The custom {@link android.widget.ArrayAdapter} that needs to be used with this class.
      */
     protected ArrayAdapter<ComboBoxItem> createAdapter() {
-        return new ArrayAdapter<>(mContext, androidx.preference.R.layout.select_dialog_singlechoice_material);
+        return new ArrayAdapter<>(mContext, R.layout.alertdialog_singlechoice_material);
     }
 
     public final ArrayAdapter<ComboBoxItem> getAdapter() {

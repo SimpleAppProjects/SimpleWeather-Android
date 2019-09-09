@@ -4,17 +4,20 @@ import android.annotation.SuppressLint;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.controls.DetailCard;
+import com.thewizrd.simpleweather.helpers.ActivityUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DetailItemAdapter extends ColorModeRecyclerViewAdapter {
+public class DetailItemAdapter extends ColorModeRecyclerViewAdapter<DetailItemAdapter.ViewHolder> {
     private List<DetailItemViewModel> mDataset;
 
     // Provide a reference to the views for each data item
@@ -38,21 +41,58 @@ public class DetailItemAdapter extends ColorModeRecyclerViewAdapter {
     @NonNull
     @Override
     // Create new views (invoked by the layout manager)
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // create a new view
         DetailCard v = new DetailCard(parent.getContext());
+        v.setStrokeWidth((int) ActivityUtils.dpToPx(parent.getContext(), 1));
         return new ViewHolder(v);
     }
 
     @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        //
+    }
+
+    @Override
     // Replace the contents of a view (invoked by the layout manager)
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder vh, int position, @NonNull List<Object> payloads) {
+        super.onBindViewHolder(vh, position, payloads);
+
+        final boolean colorUpdateOnly;
+        if (!payloads.isEmpty()) {
+            colorUpdateOnly = payloads.get(0).equals(Payload.COLOR_UPDATE);
+        } else {
+            colorUpdateOnly = false;
+        }
+
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        ViewHolder vh = (ViewHolder) holder;
-        vh.mDetailCard.setDetails(mDataset.get(position));
-        vh.mDetailCard.setBackgroundColor(isLightBackground() ? Colors.BLACK : Colors.WHITE);
-        vh.mDetailCard.setTextColor(isLightBackground() ? Colors.BLACK : Colors.WHITE);
+        if (!colorUpdateOnly) {
+            vh.mDetailCard.setDetails(mDataset.get(position));
+        }
+
+        boolean isLightBackground = ColorsUtils.isSuperLight(this.getItemColor());
+
+        switch (getDarkThemeMode()) {
+            case OFF:
+                vh.mDetailCard.setBackgroundColor(isLightBackground ? getItemColor() : ColorUtils.blendARGB(getItemColor(), Colors.WHITE, 0.25f));
+                vh.mDetailCard.setTextColor(isLightBackground ? Colors.BLACK : Colors.WHITE);
+                vh.mDetailCard.setStrokeColor(ColorUtils.setAlphaComponent(isLightBackground ? Colors.BLACK : Colors.LIGHTGRAY, 0x40));
+                vh.mDetailCard.setShadowColor(isLightBackground ? Colors.GRAY : Colors.BLACK);
+                break;
+            case ON:
+                vh.mDetailCard.setBackgroundColor(ColorUtils.blendARGB(getItemColor(), Colors.BLACK, 0.75f));
+                vh.mDetailCard.setTextColor(isLightBackground ? Colors.BLACK : Colors.WHITE);
+                vh.mDetailCard.setStrokeColor(ColorUtils.setAlphaComponent(isLightBackground ? Colors.BLACK : Colors.LIGHTGRAY, 0x40));
+                vh.mDetailCard.setShadowColor(isLightBackground ? Colors.GRAY : Colors.BLACK);
+                break;
+            case AMOLED_DARK:
+                vh.mDetailCard.setBackgroundColor(0x90909); // 0x121212 (colorSurface) / 2
+                vh.mDetailCard.setTextColor(Colors.WHITE);
+                vh.mDetailCard.setStrokeColor(ColorUtils.setAlphaComponent(Colors.DARKGRAY, 0x40));
+                vh.mDetailCard.setShadowColor(Colors.BLACK);
+                break;
+        }
     }
 
     @Override

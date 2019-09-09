@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.palette.graphics.Palette;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
@@ -28,6 +29,7 @@ import com.google.android.material.card.MaterialCardView;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.helpers.ActivityUtils;
 
 public class LocationPanel extends MaterialCardView {
     private View viewLayout;
@@ -37,6 +39,7 @@ public class LocationPanel extends MaterialCardView {
     private TextView locationWeatherIcon;
     private ProgressBar progressBar;
     private Drawable colorDrawable;
+    private RequestManager mGlide;
 
     public LocationPanel(@NonNull Context context) {
         super(context);
@@ -88,29 +91,46 @@ public class LocationPanel extends MaterialCardView {
             setMaxCardElevation(0f);
         }
 
+        mGlide = Glide.with(this);
         showLoading(true);
     }
 
     public void setWeatherBackground(LocationPanelViewModel panelView) {
+        setWeatherBackground(panelView, false);
+    }
+
+    public void setWeatherBackground(LocationPanelViewModel panelView, boolean skipCache) {
         // Background
-        Glide.with(this).asBitmap()
+        mGlide.asBitmap()
                 .load(panelView.getBackground())
                 .apply(new RequestOptions()
                         .centerCrop()
                         .format(DecodeFormat.PREFER_RGB_565)
                         .error(colorDrawable)
-                        .placeholder(colorDrawable))
+                        .placeholder(colorDrawable)
+                        .skipMemoryCache(skipCache))
                 .into(new BitmapImageViewTarget(bgImageView) {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                         super.onResourceReady(resource, transition);
                         Palette p = Palette.from(resource).generate();
                         int textColor = Colors.WHITE;
-                        if (ColorsUtils.isSuperLight(p))
+                        int shadowColor = Colors.BLACK;
+                        if (ColorsUtils.isSuperLight(p)) {
                             textColor = Colors.BLACK;
+                            shadowColor = Colors.GRAY;
+                        }
+
                         setTextColor(textColor);
+                        setTextShadowColor(shadowColor);
                     }
                 });
+    }
+
+    public void clearBackground() {
+        mGlide.clear(bgImageView);
+        bgImageView.setImageDrawable(colorDrawable);
+        setTextColor(Colors.WHITE);
     }
 
     public void setWeather(LocationPanelViewModel panelView) {
@@ -141,5 +161,12 @@ public class LocationPanel extends MaterialCardView {
                 locationTempView.getShadowRadius(), locationTempView.getShadowDx(), locationTempView.getShadowDy(), color);
         locationWeatherIcon.setShadowLayer(
                 locationWeatherIcon.getShadowRadius(), locationWeatherIcon.getShadowDx(), locationWeatherIcon.getShadowDy(), color);
+    }
+
+    @Override
+    public void setDragged(boolean dragged) {
+        super.setDragged(dragged);
+        setStrokeColor(ActivityUtils.getColor(getContext(), R.attr.colorOnSurface));
+        setStrokeWidth(dragged ? (int) ActivityUtils.dpToPx(getContext(), 2) : 0);
     }
 }

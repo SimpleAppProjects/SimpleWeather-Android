@@ -51,7 +51,7 @@
             android:layout_marginTop="16dp"
             android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
             android:textAlignment="viewStart"
-            android:textAppearance="@android:style/TextAppearance.Material.Body2"
+            android:textAppearance="?textAppearanceBody2"
             android:textColor="?android:attr/colorAccent" />
 
         <TextView

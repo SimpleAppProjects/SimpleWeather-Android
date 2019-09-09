@@ -4,7 +4,7 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_weathernow"
-            android:icon="@drawable/ic_weather_icon"
+            android:icon="@drawable/day_cloudy"
             android:title="@string/label_nav_weathernow" />
         <item
             android:id="@+id/nav_locations"

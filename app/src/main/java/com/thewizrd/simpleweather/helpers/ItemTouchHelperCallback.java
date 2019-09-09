@@ -2,7 +2,6 @@ package com.thewizrd.simpleweather.helpers;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +11,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.card.MaterialCardView;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
@@ -26,6 +26,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     private Drawable deleteIcon;
     private Drawable deleteBackground;
     private int iconMargin;
+    private int cornerRadius;
 
     @Override
     public boolean isLongPressDragEnabled() {
@@ -42,8 +43,9 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
         mAdapter = adapter;
         deleteIcon = ContextCompat.getDrawable(context, R.drawable.ic_delete_white_24dp);
-        deleteBackground = new ColorDrawable(ContextCompat.getColor(context, R.color.bg_swipe_delete));
-        iconMargin = (int) context.getResources().getDimension(R.dimen.delete_icon_margin);
+        deleteBackground = ContextCompat.getDrawable(context, R.drawable.swipe_delete);
+        iconMargin = context.getResources().getDimensionPixelSize(R.dimen.delete_icon_margin);
+        cornerRadius = context.getResources().getDimensionPixelSize(R.dimen.shape_corner_radius);
     }
 
     @Override
@@ -100,13 +102,17 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
                 int iconBottom = iconTop + deleteIcon.getIntrinsicHeight();
 
                 if (dX > 0) {
-                    deleteBackground.setBounds(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + (int) dX, itemView.getBottom());
+                    deleteBackground.setBounds(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + (int) dX + cornerRadius * 2, itemView.getBottom());
 
                     iconLeft = itemView.getLeft() + iconMargin;
                     iconRight = itemView.getLeft() + iconMargin + deleteIcon.getIntrinsicWidth();
-                } else {
-                    deleteBackground.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
+                } else if (dX < 0) {
+                    deleteBackground.setBounds(itemView.getRight() + (int) dX - cornerRadius * 2, itemView.getTop(), itemView.getRight(), itemView.getBottom());
 
+                    iconLeft = itemView.getRight() - iconMargin - deleteIcon.getIntrinsicHeight();
+                    iconRight = itemView.getRight() - iconMargin;
+                } else {
+                    deleteBackground.setBounds(itemView.getRight(), itemView.getTop(), itemView.getRight(), itemView.getBottom());
                     iconLeft = itemView.getRight() - iconMargin - deleteIcon.getIntrinsicHeight();
                     iconRight = itemView.getRight() - iconMargin;
                 }
@@ -132,6 +138,14 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
                 } else if (bottomY > recyclerView.getHeight()) {
                     dY = recyclerView.getHeight() - viewHolder.itemView.getHeight() - viewHolder.itemView.getTop();
                 }
+
+                if (isCurrentlyActive && viewHolder.itemView instanceof MaterialCardView) {
+                    ((MaterialCardView) viewHolder.itemView).setDragged(true);
+                }
+            } else if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
+                if (isCurrentlyActive && viewHolder.itemView instanceof MaterialCardView) {
+                    ((MaterialCardView) viewHolder.itemView).setDragged(false);
+                }
             }
         } catch (Exception ex) {
             Logger.writeLine(Log.INFO, ex, "SimpleWeather: ItemTouchHelperCallback: object disposed error");
@@ -146,6 +160,14 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
             return 350; // Default is 250
         else
             return super.getAnimationDuration(recyclerView, animationType, animateDx, animateDy);
+    }
+
+    @Override
+    public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+        super.clearView(recyclerView, viewHolder);
+        if (viewHolder.itemView instanceof MaterialCardView) {
+            ((MaterialCardView) viewHolder.itemView).setDragged(false);
+        }
     }
 
     public void setLongPressDragEnabled(boolean value) {

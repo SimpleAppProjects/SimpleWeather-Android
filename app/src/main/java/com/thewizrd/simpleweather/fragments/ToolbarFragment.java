@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.fragments;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +11,6 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.OnApplyWindowInsetsListener;
@@ -20,8 +20,8 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.appbar.AppBarLayout;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.utils.Colors;
-import com.thewizrd.shared_resources.utils.DarkMode;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
@@ -119,16 +119,19 @@ public abstract class ToolbarFragment extends WindowColorFragment
 
     @CallSuper
     public void updateWindowColors() {
-        int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+        Configuration config = mActivity.getResources().getConfiguration();
+        final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+
         int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-        if (currentNightMode == AppCompatDelegate.MODE_NIGHT_YES) {
-            if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
-                color = Colors.BLACK;
+        int bg_color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+        if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
+            if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+                bg_color = Colors.BLACK;
             } else {
-                color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+                bg_color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
             }
+            color = bg_color;
         }
-        int bg_color = color != Colors.BLACK ? ActivityUtils.getColor(mActivity, android.R.attr.colorBackground) : color;
         mAppBarLayout.setBackgroundColor(color);
         mRootView.setStatusBarBackgroundColor(color);
         if (mSysBarColorsIface != null) {

@@ -32,12 +32,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SetupActivity"
+            android:name=".setup.SetupActivity"
             android:theme="@style/SetupTheme"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:windowSoftInputMode="stateAlwaysHidden|adjustNothing" />
         <activity
-            android:name=".MainActivity"
+            android:name=".main.MainActivity"
             android:label="@string/title_activity_weather_now"
             android:theme="@style/AppTheme"
             android:configChanges="orientation|keyboardHidden|screenSize|uiMode"
@@ -161,5 +161,8 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 </manifest>

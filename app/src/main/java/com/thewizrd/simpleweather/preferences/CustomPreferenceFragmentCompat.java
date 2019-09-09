@@ -13,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.OnApplyWindowInsetsListener;
@@ -24,8 +23,8 @@ import androidx.preference.PreferenceFragmentCompat;
 import com.google.android.material.appbar.AppBarLayout;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.utils.Colors;
-import com.thewizrd.shared_resources.utils.DarkMode;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
@@ -40,7 +39,7 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
     protected AppCompatActivity mActivity;
     protected SystemBarColorManager mSysBarColorsIface;
 
-    private Configuration prevConfig;
+    private Configuration currentConfig;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -68,7 +67,7 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
     public void onResume() {
         super.onResume();
 
-        prevConfig = new Configuration(getResources().getConfiguration());
+        currentConfig = new Configuration(getResources().getConfiguration());
 
         // Toolbar
         mToolbar.setTitle(getTitle());
@@ -118,6 +117,9 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if (currentConfig == null) {
+            currentConfig = new Configuration(getResources().getConfiguration());
+        }
         updateWindowColors();
     }
 
@@ -135,30 +137,31 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        int diff = newConfig.diff(prevConfig);
+        int diff = newConfig.diff(currentConfig);
+        currentConfig = new Configuration(newConfig);
         if ((diff & ActivityInfo.CONFIG_UI_MODE) != 0) {
             updateWindowColors();
             getListView().setAdapter(getListView().getAdapter());
         }
-
-        prevConfig = new Configuration(newConfig);
     }
 
     public final void updateWindowColors() {
         updateWindowColors(Settings.getUserThemeMode());
     }
 
-    protected final void updateWindowColors(DarkMode mode) {
-        int currentNightMode = AppCompatDelegate.getDefaultNightMode();
+    protected final void updateWindowColors(UserThemeMode mode) {
+        final int currentNightMode = currentConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+
         int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-        if (currentNightMode == AppCompatDelegate.MODE_NIGHT_YES) {
-            if (mode == DarkMode.AMOLED_DARK) {
-                color = Colors.BLACK;
+        int bg_color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+        if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
+            if (mode == UserThemeMode.AMOLED_DARK) {
+                bg_color = Colors.BLACK;
             } else {
-                color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+                bg_color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
             }
+            color = bg_color;
         }
-        int bg_color = color != Colors.BLACK ? ActivityUtils.getColor(mActivity, android.R.attr.colorBackground) : color;
         mRootView.setBackgroundColor(bg_color);
         mAppBarLayout.setBackgroundColor(color);
         mRootView.setStatusBarBackgroundColor(color);

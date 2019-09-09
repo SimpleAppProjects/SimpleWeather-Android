@@ -15,8 +15,8 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
-import com.thewizrd.simpleweather.MainActivity;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.main.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;

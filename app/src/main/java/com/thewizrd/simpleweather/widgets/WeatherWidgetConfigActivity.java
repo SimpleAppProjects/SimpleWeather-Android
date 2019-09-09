@@ -65,20 +65,20 @@ import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.Colors;
-import com.thewizrd.shared_resources.utils.DarkMode;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
-import com.thewizrd.simpleweather.LocationSearchFragment;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.SetupActivity;
+import com.thewizrd.simpleweather.fragments.LocationSearchFragment;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.preferences.ListAdapterPreference;
 import com.thewizrd.simpleweather.preferences.ListAdapterPreferenceDialogFragment;
+import com.thewizrd.simpleweather.setup.SetupActivity;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -691,7 +691,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
             // Set user theme
             int bg_color;
-            if (Settings.getUserThemeMode() == DarkMode.AMOLED_DARK) {
+            if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
                 bg_color = Colors.BLACK;
                 appBarLayout.setBackgroundColor(Colors.BLACK);
                 collapsingToolbar.setStatusBarScrimColor(Colors.BLACK);
@@ -700,13 +700,17 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         Colors.TRANSPARENT /* NavBar */,
                         false);
             } else {
+                final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+                boolean isDarkMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
+
                 bg_color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
                 int colorPrimary = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-                appBarLayout.setBackgroundColor(colorPrimary);
-                collapsingToolbar.setStatusBarScrimColor(colorPrimary);
+                int color = isDarkMode ? bg_color : colorPrimary;
+                appBarLayout.setBackgroundColor(color);
+                collapsingToolbar.setStatusBarScrimColor(color);
                 ActivityUtils.setTransparentWindow(mActivity.getWindow(), bg_color,
-                        colorPrimary, /* StatusBar */
-                        config.orientation == Configuration.ORIENTATION_PORTRAIT || ActivityUtils.isLargeTablet(mActivity) ? Colors.TRANSPARENT : colorPrimary /* NavBar */,
+                        color, /* StatusBar */
+                        config.orientation == Configuration.ORIENTATION_PORTRAIT || ActivityUtils.isLargeTablet(mActivity) ? Colors.TRANSPARENT : color /* NavBar */,
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
             }
             mRootView.setBackgroundColor(bg_color);

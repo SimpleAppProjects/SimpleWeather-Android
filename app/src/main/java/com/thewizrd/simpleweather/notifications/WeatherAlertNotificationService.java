@@ -12,7 +12,7 @@ import com.google.gson.reflect.TypeToken;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.App;
-import com.thewizrd.simpleweather.MainActivity;
+import com.thewizrd.simpleweather.main.MainActivity;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import java.lang.reflect.Type;

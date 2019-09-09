@@ -19,18 +19,17 @@
     <!-- Material dimens -->
     <dimen name="appbar_elevation">4dp</dimen>
     <dimen name="fab_size">56dp</dimen>
-    <dimen name="fab_radius_size">32dp</dimen>
     <dimen name="floating_window_z">16dp</dimen>
+    <dimen name="shape_corner_radius">8dp</dimen>
+    <dimen name="dialog_corner_radius">@dimen/shape_corner_radius</dimen>
     <!-- Bottom Nav Bar -->
     <dimen name="design_bottom_navigation_height" tools:override="true">60dp</dimen>
 
     <!-- WeatherNow -->
     <dimen name="label_location_size">18sp</dimen>
     <dimen name="label_updatetime_size">12sp</dimen>
-    <dimen name="forecast_panel_height">200dp</dimen>
-    <dimen name="forecast_panel_width">120dp</dimen>
-    <dimen name="hrforecast_panel_height">200dp</dimen>
-    <dimen name="hrforecast_panel_width">120dp</dimen>
+    <dimen name="forecast_panel_height">225dp</dimen>
+    <dimen name="hrforecast_panel_height">225dp</dimen>
     <dimen name="detail_card_height">100dp</dimen>
     <!-- Locations -->
     <dimen name="location_panel_height">72dp</dimen>

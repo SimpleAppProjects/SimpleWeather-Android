@@ -42,9 +42,9 @@ import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
-import com.thewizrd.shared_resources.utils.DarkMode;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
@@ -70,7 +70,7 @@ import static com.thewizrd.shared_resources.utils.Settings.KEY_USEPERSONALKEY;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_USERTHEME;
 
 public class SettingsFragment extends CustomPreferenceFragmentCompat
-        implements SharedPreferences.OnSharedPreferenceChangeListener, DarkMode.OnThemeChangeListener {
+        implements SharedPreferences.OnSharedPreferenceChangeListener, UserThemeMode.OnThemeChangeListener {
 
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
 
@@ -98,7 +98,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
     // Intent queue
     private HashSet<Intent.FilterComparison> intentQueue;
 
-    private List<DarkMode.OnThemeChangeListener> mThemeChangeListeners;
+    private List<UserThemeMode.OnThemeChangeListener> mThemeChangeListeners;
 
     @Override
     protected int getTitle() {
@@ -108,7 +108,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
     /**
      * Registers a listener.
      */
-    private void registerOnThemeChangeListener(DarkMode.OnThemeChangeListener listener) {
+    private void registerOnThemeChangeListener(UserThemeMode.OnThemeChangeListener listener) {
         synchronized (this) {
             if (mThemeChangeListeners == null) {
                 mThemeChangeListeners = new ArrayList<>();
@@ -123,7 +123,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
     /**
      * Unregisters a listener.
      */
-    private void unregisterOnThemeChangeListener(DarkMode.OnThemeChangeListener listener) {
+    private void unregisterOnThemeChangeListener(UserThemeMode.OnThemeChangeListener listener) {
         synchronized (this) {
             if (mThemeChangeListeners != null) {
                 mThemeChangeListeners.remove(listener);
@@ -131,8 +131,8 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         }
     }
 
-    private void dispatchThemeChanged(DarkMode mode) {
-        List<DarkMode.OnThemeChangeListener> list;
+    private void dispatchThemeChanged(UserThemeMode mode) {
+        List<UserThemeMode.OnThemeChangeListener> list;
 
         synchronized (this) {
             if (mThemeChangeListeners == null) return;
@@ -146,7 +146,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
     }
 
     @Override
-    public void onThemeChanged(DarkMode mode) {
+    public void onThemeChanged(UserThemeMode mode) {
         updateWindowColors(mode);
     }
 
@@ -159,7 +159,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         app.getPreferences().unregisterOnSharedPreferenceChangeListener(app.getSharedPreferenceListener());
         app.getPreferences().registerOnSharedPreferenceChangeListener(this);
         registerOnThemeChangeListener(this);
-        registerOnThemeChangeListener((DarkMode.OnThemeChangeListener) mActivity);
+        registerOnThemeChangeListener((UserThemeMode.OnThemeChangeListener) mActivity);
 
         // Initialize queue
         intentQueue = new HashSet<>();
@@ -194,7 +194,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         ApplicationLib app = App.getInstance();
         app.getPreferences().unregisterOnSharedPreferenceChangeListener(this);
         app.getPreferences().registerOnSharedPreferenceChangeListener(app.getSharedPreferenceListener());
-        unregisterOnThemeChangeListener((DarkMode.OnThemeChangeListener) mActivity);
+        unregisterOnThemeChangeListener((UserThemeMode.OnThemeChangeListener) mActivity);
         unregisterOnThemeChangeListener(this);
 
         for (Intent.FilterComparison filter : intentQueue) {
@@ -289,22 +289,22 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         themePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                DarkMode mode;
+                UserThemeMode mode;
                 switch (newValue.toString()) {
                     case "0": // System
                     default:
-                        mode = DarkMode.FOLLOW_SYSTEM;
+                        mode = UserThemeMode.FOLLOW_SYSTEM;
                         if (Build.VERSION.SDK_INT >= 29)
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                         else
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);
                         break;
                     case "1": // Dark
-                        mode = DarkMode.DARK;
+                        mode = UserThemeMode.DARK;
                         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                         break;
                     case "2": // Dark (AMOLED / Black)
-                        mode = DarkMode.AMOLED_DARK;
+                        mode = UserThemeMode.AMOLED_DARK;
                         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                         break;
                 }

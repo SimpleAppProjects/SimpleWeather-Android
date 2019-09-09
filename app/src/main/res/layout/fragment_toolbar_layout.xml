@@ -12,14 +12,15 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:fitsSystemWindows="true"
+        android:stateListAnimator="@animator/design_appbar_state_list_animator"
         android:theme="@style/AppTheme.AppBarOverlay"
+        app:liftOnScroll="true"
         tools:stateListAnimator="@null">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:elevation="@dimen/appbar_elevation"
             app:layout_collapseMode="pin"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
