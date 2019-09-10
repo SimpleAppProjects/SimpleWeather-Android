@@ -147,6 +147,13 @@ public class LineView extends HorizontalScrollView {
     }
 
     @Override
+    public void invalidate() {
+        super.invalidate();
+        this.graph.invalidate();
+        visibleRect = null;
+    }
+
+    @Override
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
@@ -205,6 +212,7 @@ public class LineView extends HorizontalScrollView {
         private float topLineLength = MIN_TOP_LINE_LENGTH;
         private float sideLineLength = ActivityUtils.dpToPx(getContext(), 45) / 3 * 2;
         private float backgroundGridWidth = ActivityUtils.dpToPx(getContext(), 45);
+        private float longestTextWidth;
 
         private int[] colorArray = {Colors.SIMPLEBLUE, Colors.LIGHTSEAGREEN, Colors.YELLOWGREEN};
 
@@ -278,6 +286,7 @@ public class LineView extends HorizontalScrollView {
             int longestWidth = 0;
             String longestStr = "";
             bottomTextDescent = 0;
+            longestTextWidth = 0;
             for (XLabelData labelData : this.dataLabels) {
                 String s = labelData.getLabel().toString();
                 bottomTextPaint.getTextBounds(s, 0, s.length(), r);
@@ -293,13 +302,14 @@ public class LineView extends HorizontalScrollView {
                 }
             }
 
-            if (backgroundGridWidth < longestWidth) {
-                backgroundGridWidth = longestWidth + (int) bottomTextPaint.measureText(longestStr, 0, 1);
+            if (longestTextWidth < longestWidth) {
+                longestTextWidth = longestWidth + (int) bottomTextPaint.measureText(longestStr, 0, 1);
             }
             if (sideLineLength < longestWidth / 2f) {
                 sideLineLength = longestWidth / 2f;
             }
-            backgroundGridWidth += ActivityUtils.dpToPx(getContext(), 15);
+
+            backgroundGridWidth = longestTextWidth;
 
             refreshXCoordinateList(getHorizontalGridNum());
         }
@@ -337,6 +347,9 @@ public class LineView extends HorizontalScrollView {
         }
 
         private void refreshGridWidth() {
+            // Reset the grid width
+            backgroundGridWidth = longestTextWidth;
+
             if (getPreferredWidth() < mScrollViewer.getMeasuredWidth()) {
                 int freeSpace = mScrollViewer.getMeasuredWidth() - getPreferredWidth();
                 int additionalSpace = freeSpace / getHorizontalGridNum();
@@ -391,7 +404,8 @@ public class LineView extends HorizontalScrollView {
 
         private void refreshDrawDotList() {
             if (dataLists != null && !dataLists.isEmpty()) {
-                if (drawDotLists.size() == 0) {
+                if (drawDotLists.size() == 0 || drawDotLists.size() != dataLists.size()) {
+                    drawDotLists.clear();
                     for (int k = 0; k < dataLists.size(); k++) {
                         drawDotLists.add(new ArrayList<LineViewGraph.Dot>());
                     }
@@ -452,6 +466,12 @@ public class LineView extends HorizontalScrollView {
             } else {
                 topLineLength = MIN_TOP_LINE_LENGTH;
             }
+        }
+
+        @Override
+        public void invalidate() {
+            super.invalidate();
+            visibleRect = null;
         }
 
         @Override
