@@ -3,7 +3,6 @@ package com.thewizrd.simpleweather.adapters;
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +15,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Tasks;
+import com.google.android.material.snackbar.Snackbar;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.helpers.ObservableArrayList;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.Pair;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
@@ -62,6 +63,9 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     private FavHeaderViewHolder favVH;
     private boolean hasGPSPanel;
     private boolean hasSearchPanel;
+
+    private RecyclerView mParentRecyclerView;
+    private Pair<Integer, LocationPanelViewModel> pendingVMForRemoval = null;
 
     // Event listeners
     private RecyclerOnClickListenerInterface onClickListener;
@@ -130,6 +134,19 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     public LocationPanelAdapter() {
         mMainHandler = new Handler(Looper.getMainLooper());
         mDataset = new ObservableArrayList<>();
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        mParentRecyclerView = recyclerView;
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        mParentRecyclerView = null;
+        removePendingPanel();
     }
 
     @SuppressLint("NewApi")
@@ -311,7 +328,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
             hasSearchPanel = true;
     }
 
-    public void remove(int position) {
+    public LocationPanelViewModel remove(int position) {
         LocationPanelViewModel panel = getPanelViewModel(position);
 
         int dataPosition = getDataPosition(position);
@@ -323,6 +340,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
             hasGPSPanel = false;
 
         notifyItemRemoved(viewPosition);
+        return panel;
     }
 
     public void removeGPSPanel() {
@@ -379,7 +397,44 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         Tasks.call(Executors.newSingleThreadExecutor(), new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                removeLocation(position);
+                removePendingPanel();
+
+                if (mParentRecyclerView != null) {
+                    mMainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            int dataPosition = getDataPosition(position);
+                            LocationPanelViewModel panel = remove(position);
+
+                            pendingVMForRemoval = new Pair<>(dataPosition, panel);
+
+                            // Make SnackBar
+                            Snackbar snackbar = Snackbar.make(mParentRecyclerView, R.string.message_locationremoved, Snackbar.LENGTH_SHORT);
+                            snackbar.setAction(R.string.undo, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    if (pendingVMForRemoval != null && !mDataset.contains(pendingVMForRemoval.getValue())) {
+                                        add(pendingVMForRemoval.getKey(), pendingVMForRemoval.getValue());
+                                        pendingVMForRemoval = null;
+                                    }
+                                }
+                            });
+                            snackbar.addCallback(new Snackbar.Callback() {
+                                @Override
+                                public void onDismissed(Snackbar transientBottomBar, int event) {
+                                    super.onDismissed(transientBottomBar, event);
+
+                                    if (event != DISMISS_EVENT_ACTION) {
+                                        removePendingPanel();
+                                    }
+                                }
+                            });
+                            snackbar.show();
+                        }
+                    });
+                } else {
+                    removeLocation(position);
+                }
                 return null;
             }
         }).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -393,6 +448,19 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
                 });
             }
         });
+    }
+
+    private void removePendingPanel() {
+        if (pendingVMForRemoval != null) {
+            final String key = pendingVMForRemoval.getValue().getLocationData().getQuery();
+            AsyncTask.run(new Runnable() {
+                @Override
+                public void run() {
+                    Settings.deleteLocation(key);
+                }
+            });
+            pendingVMForRemoval = null;
+        }
     }
 
     public class GPSHeaderViewHolder extends RecyclerView.ViewHolder implements HeaderSetterInterface {

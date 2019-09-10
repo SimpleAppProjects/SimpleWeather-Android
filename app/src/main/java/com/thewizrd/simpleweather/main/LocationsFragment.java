@@ -1130,6 +1130,20 @@ public class LocationsFragment extends ToolbarFragment
                             return;
                         }
 
+                        // Need to get FULL location data for HERE API
+                        // Data provided is incomplete
+                        if (WeatherAPI.HERE.equals(query_vm.getLocationSource())
+                                && query_vm.getLocationLat() == -1 && query_vm.getLocationLong() == -1
+                                && query_vm.getLocationTZLong() == null) {
+                            final LocationQueryViewModel loc = query_vm;
+                            query_vm = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
+                                @Override
+                                public LocationQueryViewModel call() throws Exception {
+                                    return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
+                                }
+                            });
+                        }
+
                         // Check if location already exists
                         List<LocationData> locData = Settings.getLocationData();
                         boolean exists = false;
@@ -1153,20 +1167,6 @@ public class LocationsFragment extends ToolbarFragment
                         if (ctsToken.isCancellationRequested()) {
                             mSearchFragment.showLoading(false);
                             return;
-                        }
-
-                        // Need to get FULL location data for HERE API
-                        // Data provided is incomplete
-                        if (WeatherAPI.HERE.equals(query_vm.getLocationSource())
-                                && query_vm.getLocationLat() == -1 && query_vm.getLocationLong() == -1
-                                && query_vm.getLocationTZLong() == null) {
-                            final LocationQueryViewModel loc = query_vm;
-                            query_vm = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
-                                @Override
-                                public LocationQueryViewModel call() throws Exception {
-                                    return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
-                                }
-                            });
                         }
 
                         LocationData location = new LocationData(query_vm);
@@ -1417,9 +1417,10 @@ public class LocationsFragment extends ToolbarFragment
             view.setEditMode(mEditMode);
             mAdapter.notifyItemChanged(mAdapter.getViewPosition(view));
 
-            if (!mEditMode && mDataChanged) {
+            if (view.getLocationType() != LocationType.GPS.getValue() && !mEditMode && mDataChanged) {
                 final String query = view.getLocationData().getQuery();
-                final int pos = mAdapter.getViewPosition(view);
+                int dataPosition = mAdapter.getDataset().indexOf(view);
+                final int pos = mAdapter.hasGPSHeader() ? --dataPosition : dataPosition;
                 AsyncTask.run(new Runnable() {
                     @Override
                     public void run() {
