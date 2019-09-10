@@ -173,4 +173,25 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
     public void setConditionLongDesc(String conditionLongDesc) {
         this.conditionLongDesc = conditionLongDesc;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        ForecastItemViewModel that = (ForecastItemViewModel) o;
+
+        if (getLoTemp() != null ? !getLoTemp().equals(that.getLoTemp()) : that.getLoTemp() != null)
+            return false;
+        return getConditionLongDesc() != null ? getConditionLongDesc().equals(that.getConditionLongDesc()) : that.getConditionLongDesc() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (getLoTemp() != null ? getLoTemp().hashCode() : 0);
+        result = 31 * result + (getConditionLongDesc() != null ? getConditionLongDesc().hashCode() : 0);
+        return result;
+    }
 }

@@ -65,11 +65,13 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DecodeFormat;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -242,16 +244,21 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     public void onWeatherLoaded(final LocationData location, final Weather weather) {
-        runOnUiThread(new Runnable() {
+        AsyncTask.run(new Runnable() {
             @Override
             public void run() {
                 if (isCtsCancelRequested())
                     return;
 
                 if (weather != null && weather.isValid()) {
-                    weatherView.updateView(weather);
-
-                    if (mCallback != null) mCallback.onWeatherViewUpdated(weatherView);
+                    AsyncTask.run(new Runnable() {
+                        @Override
+                        public void run() {
+                            weatherView.updateView(weather);
+                            if (mCallback != null)
+                                mCallback.onWeatherViewUpdated(weatherView);
+                        }
+                    });
 
                     if (Settings.getHomeData().equals(location)) {
                         // Update widgets if they haven't been already
@@ -278,8 +285,6 @@ public class WeatherNowFragment extends WindowColorFragment
                         });
                     }
                 }
-
-                refreshLayout.setRefreshing(false);
             }
         });
     }
@@ -300,11 +305,10 @@ public class WeatherNowFragment extends WindowColorFragment
                         snackBar.setAction(R.string.action_retry, new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                new AsyncTask<Void>().await(new Callable<Void>() {
+                                AsyncTask.run(new Runnable() {
                                     @Override
-                                    public Void call() throws Exception {
+                                    public void run() {
                                         refreshWeather(false);
-                                        return null;
                                     }
                                 });
                             }
@@ -543,7 +547,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
                         if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible() && mSysBarColorsIface != null) {
                             if (gradientAlpha.get() >= 0.5f) {
-                                mSysBarColorsIface.setSystemBarColors(Colors.TRANSPARENT, mSystemBarColor);
+                                mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, mSystemBarColor);
                             } else if (gradientAlpha.get() == 0.0f) {
                                 mSysBarColorsIface.setSystemBarColors(mSystemBarColor);
                             }
@@ -683,8 +687,9 @@ public class WeatherNowFragment extends WindowColorFragment
 
         // Forecast
         forecastGraphView = view.findViewById(R.id.forecast_viewpgr);
-        forecastGraphAdapter = new ForecastGraphPagerAdapter(mActivity);
+        forecastGraphAdapter = new ForecastGraphPagerAdapter();
         forecastGraphView.setAdapter(forecastGraphAdapter);
+        forecastGraphView.setOffscreenPageLimit(1);
         // Additional Details
         hrforecastPanel = view.findViewById(R.id.hourly_forecast_panel);
         hrforecastPanel.setVisibility(View.GONE);
@@ -720,8 +725,9 @@ public class WeatherNowFragment extends WindowColorFragment
         });
 
         hrForecastGraphView = view.findViewById(R.id.hourly_forecast_viewpgr);
-        hrGraphAdapter = new ForecastGraphPagerAdapter(mActivity);
+        hrGraphAdapter = new ForecastGraphPagerAdapter();
         hrForecastGraphView.setAdapter(hrGraphAdapter);
+        hrForecastGraphView.setOffscreenPageLimit(1);
 
         sunView = view.findViewById(R.id.sun_phase_view);
 
@@ -891,9 +897,11 @@ public class WeatherNowFragment extends WindowColorFragment
     private void resume() {
         cts = new CancellationTokenSource();
 
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.run(new Runnable() {
             @Override
-            public Void call() {
+            public void run() {
+                CancellationToken ctsToken = cts.getToken();
+
                 /* Update view on resume
                  * ex. If temperature unit changed
                  */
@@ -944,17 +952,22 @@ public class WeatherNowFragment extends WindowColorFragment
                             if (span.toMinutes() > ttl) {
                                 refreshWeather(false);
                             } else {
+                                if (ctsToken.isCancellationRequested())
+                                    return;
+
                                 weatherView.updateView(wLoader.getWeather());
+
+                                if (ctsToken.isCancellationRequested())
+                                    return;
+
                                 if (mCallback != null) mCallback.onWeatherViewUpdated(weatherView);
                                 loaded = true;
                             }
                         }
                     }
                 }
-
-                return null;
             }
-        });
+        }, 500, cts.getToken()); // Add a minor delay for a smoother transition
     }
 
     @Override
@@ -1034,9 +1047,9 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     private void restore() {
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.run(new Runnable() {
             @Override
-            public Void call() {
+            public void run() {
                 boolean forceRefresh = false;
 
                 // GPS Follow location
@@ -1070,12 +1083,10 @@ public class WeatherNowFragment extends WindowColorFragment
                 }
 
                 if (isCtsCancelRequested())
-                    return null;
+                    return;
 
                 // Load up weather data
                 refreshWeather(forceRefresh);
-
-                return null;
             }
         });
     }
@@ -1088,12 +1099,11 @@ public class WeatherNowFragment extends WindowColorFragment
                     refreshLayout.setRefreshing(true);
                 }
             });
-            new AsyncTask<Void>().await(new Callable<Void>() {
+            AsyncTask.run(new Runnable() {
                 @Override
-                public Void call() {
+                public void run() {
                     if (wLoader != null && !isCtsCancelRequested())
                         wLoader.loadWeatherData(forceRefresh);
-                    return null;
                 }
             });
         }
@@ -1225,7 +1235,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 }
 
                 if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible() && mSysBarColorsIface != null) {
-                    mSysBarColorsIface.setSystemBarColors(Colors.TRANSPARENT, mSystemBarColor, mSystemBarColor);
+                    mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, mSystemBarColor);
                 }
                 mRootView.setBackgroundColor(mBackgroundColor);
             }
@@ -1233,25 +1243,49 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     private void updateView(final WeatherNowViewModel weatherView) {
+        if (isCtsCancelRequested())
+            return;
+
+        // Background
+        updateWindowColors();
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (isCtsCancelRequested())
-                    return;
-
-                // Background
-                updateWindowColors();
-
                 Glide.with(mActivity)
                         .load(weatherView.getBackground())
                         .apply(new RequestOptions().centerCrop()
                                 .format(DecodeFormat.PREFER_RGB_565))
+                        .transition(DrawableTransitionOptions.withCrossFade())
                         .into(mImageView);
+            }
+        });
 
-                forecastGraphAdapter.setOnClickListener(new RecyclerOnClickListenerInterface() {
+        forecastGraphAdapter.setOnClickListener(new RecyclerOnClickListenerInterface() {
+            @Override
+            public void onClick(View view, int position) {
+                Fragment fragment = WeatherDetailsFragment.newInstance(location, weatherView, false);
+                Bundle args = new Bundle();
+                args.putInt("position", position);
+                fragment.setArguments(args);
+
+                mActivity.getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(R.animator.fragment_fade_in, R.animator.fragment_fade_out,
+                                R.animator.fragment_fade_in, R.animator.fragment_fade_out)
+                        .add(R.id.fragment_container, fragment)
+                        .hide(WeatherNowFragment.this)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
+        // Additional Details
+        if (weatherView.getExtras().getHourlyForecast().size() >= 1) {
+            if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
+                RecyclerOnClickListenerInterface onClickListener = new RecyclerOnClickListenerInterface() {
                     @Override
                     public void onClick(View view, int position) {
-                        Fragment fragment = WeatherDetailsFragment.newInstance(location, weatherView, false);
+                        Fragment fragment = WeatherDetailsFragment.newInstance(location, weatherView, true);
                         Bundle args = new Bundle();
                         args.putInt("position", position);
                         fragment.setArguments(args);
@@ -1264,44 +1298,33 @@ public class WeatherNowFragment extends WindowColorFragment
                                 .addToBackStack(null)
                                 .commit();
                     }
-                });
+                };
 
-                // Additional Details
-                if (weatherView.getExtras().getHourlyForecast().size() >= 1) {
-                    if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
-                        RecyclerOnClickListenerInterface onClickListener = new RecyclerOnClickListenerInterface() {
-                            @Override
-                            public void onClick(View view, int position) {
-                                Fragment fragment = WeatherDetailsFragment.newInstance(location, weatherView, true);
-                                Bundle args = new Bundle();
-                                args.putInt("position", position);
-                                fragment.setArguments(args);
-
-                                mActivity.getSupportFragmentManager().beginTransaction()
-                                        .setCustomAnimations(R.animator.fragment_fade_in, R.animator.fragment_fade_out,
-                                                R.animator.fragment_fade_in, R.animator.fragment_fade_out)
-                                        .add(R.id.fragment_container, fragment)
-                                        .hide(WeatherNowFragment.this)
-                                        .addToBackStack(null)
-                                        .commit();
-                            }
-                        };
-
-                        hrGraphAdapter.setOnClickListener(onClickListener);
-                    }
-                } else {
-                    hrGraphAdapter.setOnClickListener(null);
+                hrGraphAdapter.setOnClickListener(onClickListener);
+            }
+        } else {
+            hrGraphAdapter.setOnClickListener(null);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
                     hrforecastPanel.setVisibility(View.GONE);
                 }
+            });
+        }
 
-                // Condition Panel & Scroll view
-                adjustConditionPanelLayout();
+        // Condition Panel & Scroll view
+        adjustConditionPanelLayout();
 
-                // Alerts
-                resizeAlertPanel();
+        // Alerts
+        resizeAlertPanel();
 
-                // Sun View
-                resizeSunPhasePanel();
+        // Sun View
+        resizeSunPhasePanel();
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                refreshLayout.setRefreshing(false);
             }
         });
     }

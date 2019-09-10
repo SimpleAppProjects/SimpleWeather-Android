@@ -16,7 +16,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
@@ -136,77 +135,5 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                 }
             }
         }
-    }
-
-    public String getWeatherIcon() {
-        return weatherIcon;
-    }
-
-    public void setWeatherIcon(String weatherIcon) {
-        this.weatherIcon = weatherIcon;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getCondition() {
-        return condition;
-    }
-
-    public void setCondition(String condition) {
-        this.condition = condition;
-    }
-
-    public String getHiTemp() {
-        return hiTemp;
-    }
-
-    public void setHiTemp(String hiTemp) {
-        this.hiTemp = hiTemp;
-    }
-
-    public String getPop() {
-        return pop;
-    }
-
-    public void setPop(String pop) {
-        this.pop = pop;
-    }
-
-    public int getWindDirection() {
-        return windDirection;
-    }
-
-    public void setWindDirection(int windDirection) {
-        this.windDirection = windDirection;
-    }
-
-    public String getWindDirLabel() {
-        return windDir;
-    }
-
-    public void setWindDirLabel(String windDirection) {
-        this.windDir = windDirection;
-    }
-
-    public String getWindSpeed() {
-        return windSpeed;
-    }
-
-    public void setWindSpeed(String windSpeed) {
-        this.windSpeed = windSpeed;
-    }
-
-    public List<DetailItemViewModel> getExtras() {
-        return detailExtras;
-    }
-
-    public void setExtras(List<DetailItemViewModel> extras) {
-        this.detailExtras = extras;
     }
 }

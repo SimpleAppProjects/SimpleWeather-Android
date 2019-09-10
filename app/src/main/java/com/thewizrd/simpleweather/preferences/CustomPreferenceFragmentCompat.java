@@ -166,7 +166,7 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
         mAppBarLayout.setBackgroundColor(color);
         mRootView.setStatusBarBackgroundColor(color);
         if (mSysBarColorsIface != null) {
-            mSysBarColorsIface.setSystemBarColors(Colors.TRANSPARENT, color);
+            mSysBarColorsIface.setSystemBarColors(bg_color, color, color, color);
         }
     }
 }

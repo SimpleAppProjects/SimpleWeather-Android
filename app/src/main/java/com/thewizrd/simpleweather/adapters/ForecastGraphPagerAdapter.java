@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListUpdateCallback;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
@@ -21,6 +23,7 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
+import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.lineview.LineDataSeries;
 import com.thewizrd.simpleweather.controls.lineview.LineView;
@@ -28,13 +31,15 @@ import com.thewizrd.simpleweather.controls.lineview.XLabelData;
 import com.thewizrd.simpleweather.controls.lineview.YEntryData;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Stack;
 
 public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> extends PagerAdapter {
-    private Context context;
     private List<T> forecasts;
     private boolean isDarkMode;
+
+    // Cache collection for views
+    private Stack<LineView> mLineViewCache;
 
     // Event listeners
     private RecyclerOnClickListenerInterface onClickListener;
@@ -43,9 +48,9 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
         this.onClickListener = onClickListener;
     }
 
-    public ForecastGraphPagerAdapter(Context context) {
-        this.context = context;
+    public ForecastGraphPagerAdapter() {
         this.forecasts = new ArrayList<>();
+        this.mLineViewCache = new Stack<>();
     }
 
     @Override
@@ -72,32 +77,45 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
         return 1;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+    private LineView createOrRecycleView(Context context) {
+        final LineView view;
+
+        if (mLineViewCache.isEmpty()) {
+            view = new LineView(context);
+            view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            view.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                        if (onClickListener != null)
+                            onClickListener.onClick(v, view.getItemPositionFromPoint(event.getX()));
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
+            view.setLineColor(ColorUtils.setAlphaComponent(isDarkMode ? Colors.WHITE : Colors.GRAY, 0x80));
+            view.setBackgroundLineColor(ColorUtils.setAlphaComponent(isDarkMode ? Colors.WHITE : Colors.GRAY, 0x80));
+            view.setBottomTextColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
+        } else {
+            view = mLineViewCache.pop();
+        }
+
+        return view;
+    }
+
     @Override
     public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
         return view == object;
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, final int position) {
-        final LineView view = new LineView(container.getContext());
-        view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        view.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    if (onClickListener != null)
-                        onClickListener.onClick(v, view.getItemPositionFromPoint(event.getX()));
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        view.setLineColor(ColorUtils.setAlphaComponent(isDarkMode ? Colors.WHITE : Colors.GRAY, 0x80));
-        view.setBackgroundLineColor(ColorUtils.setAlphaComponent(isDarkMode ? Colors.WHITE : Colors.GRAY, 0x80));
-        view.setBottomTextColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
+        Context context = container.getContext();
+        LineView view = createOrRecycleView(container.getContext());
 
         switch (position) {
             case 0:
@@ -118,6 +136,8 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
                     if (forecasts.get(0) instanceof ForecastItemViewModel) {
                         loTempSeries = new ArrayList<>();
                         view.setDrawSeriesLabels(true);
+                    } else {
+                        view.setDrawSeriesLabels(false);
                     }
 
                     for (T forecastItemViewModel : forecasts) {
@@ -155,6 +175,7 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
                 view.setDrawIconLabels(false);
                 view.setDrawGraphBackground(true);
                 view.setDrawDotPoints(false);
+                view.setDrawSeriesLabels(false);
 
                 if (forecasts.size() > 0) {
                     List<XLabelData> labelData = new ArrayList<>();
@@ -185,6 +206,7 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
                 view.setDrawIconLabels(false);
                 view.setDrawGraphBackground(true);
                 view.setDrawDotPoints(false);
+                view.setDrawSeriesLabels(false);
 
                 if (forecasts.size() > 0) {
                     List<XLabelData> labelData = new ArrayList<>();
@@ -216,7 +238,9 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
 
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-        container.removeView((View) object);
+        LineView view = (LineView) object;
+        container.removeView(view);
+        mLineViewCache.push(view);
     }
 
     @Nullable
@@ -225,11 +249,11 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
         switch (position) {
             default:
             case 0:
-                return context.getString(R.string.notificationicon_temperature);
+                return App.getInstance().getAppContext().getString(R.string.notificationicon_temperature);
             case 1:
-                return context.getString(R.string.label_wind);
+                return App.getInstance().getAppContext().getString(R.string.label_wind);
             case 2:
-                return context.getString(R.string.label_precipitation);
+                return App.getInstance().getAppContext().getString(R.string.label_precipitation);
         }
     }
 
@@ -238,14 +262,78 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
         return PagerAdapter.POSITION_NONE;
     }
 
-    public void updateDataset(Collection<T> dataset) {
-        forecasts.clear();
-        forecasts.addAll(dataset);
-        notifyDataSetChanged();
+    public void updateDataset(@NonNull final List<T> dataset) {
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ForecastItemDiffCallBack(forecasts, dataset));
+        diffResult.dispatchUpdatesTo(new ListUpdateCallback() {
+            @Override
+            public void onInserted(int position, int count) {
+                forecasts.clear();
+                forecasts.addAll(dataset);
+                notifyDataSetChanged();
+            }
+
+            @Override
+            public void onRemoved(int position, int count) {
+                forecasts.clear();
+                forecasts.addAll(dataset);
+                notifyDataSetChanged();
+            }
+
+            @Override
+            public void onMoved(int fromPosition, int toPosition) {
+                forecasts.clear();
+                forecasts.addAll(dataset);
+                notifyDataSetChanged();
+            }
+
+            @Override
+            public void onChanged(int position, int count, @Nullable Object payload) {
+                forecasts.clear();
+                forecasts.addAll(dataset);
+                notifyDataSetChanged();
+            }
+        });
     }
 
     public void updateColors(boolean isDark) {
         isDarkMode = isDark;
         notifyDataSetChanged();
+    }
+
+    private class ForecastItemDiffCallBack extends DiffUtil.Callback {
+
+        private List<T> oldList;
+        private List<T> newList;
+
+        public ForecastItemDiffCallBack(@NonNull List<T> oldList, @NonNull List<T> newList) {
+            this.oldList = oldList;
+            this.newList = newList;
+        }
+
+        @Override
+        public int getOldListSize() {
+            return oldList.size();
+        }
+
+        @Override
+        public int getNewListSize() {
+            return newList.size();
+        }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+            return oldList.get(oldItemPosition).getDate().equals(newList.get(newItemPosition).getDate());
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+            return oldList.get(oldItemPosition).equals(newList.get(newItemPosition));
+        }
+
+        @Nullable
+        @Override
+        public Object getChangePayload(int oldItemPosition, int newItemPosition) {
+            return super.getChangePayload(oldItemPosition, newItemPosition);
+        }
     }
 }

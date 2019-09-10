@@ -95,4 +95,41 @@ public abstract class BaseForecastItemViewModel extends ObservableViewModel {
     public void setExtras(List<DetailItemViewModel> extras) {
         this.detailExtras = extras;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BaseForecastItemViewModel that = (BaseForecastItemViewModel) o;
+
+        if (getWindDirection() != that.getWindDirection()) return false;
+        if (getWeatherIcon() != null ? !getWeatherIcon().equals(that.getWeatherIcon()) : that.getWeatherIcon() != null)
+            return false;
+        if (getDate() != null ? !getDate().equals(that.getDate()) : that.getDate() != null)
+            return false;
+        if (getCondition() != null ? !getCondition().equals(that.getCondition()) : that.getCondition() != null)
+            return false;
+        if (getHiTemp() != null ? !getHiTemp().equals(that.getHiTemp()) : that.getHiTemp() != null)
+            return false;
+        if (getPop() != null ? !getPop().equals(that.getPop()) : that.getPop() != null)
+            return false;
+        if (getWindSpeed() != null ? !getWindSpeed().equals(that.getWindSpeed()) : that.getWindSpeed() != null)
+            return false;
+        if (windDir != null ? !windDir.equals(that.windDir) : that.windDir != null) return false;
+        return detailExtras != null ? detailExtras.equals(that.detailExtras) : that.detailExtras == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getDate() != null ? getDate().hashCode() : 0;
+        result = 31 * result + (getCondition() != null ? getCondition().hashCode() : 0);
+        result = 31 * result + (getHiTemp() != null ? getHiTemp().hashCode() : 0);
+        result = 31 * result + (getPop() != null ? getPop().hashCode() : 0);
+        result = 31 * result + getWindDirection();
+        result = 31 * result + (getWindSpeed() != null ? getWindSpeed().hashCode() : 0);
+        result = 31 * result + (windDir != null ? windDir.hashCode() : 0);
+        result = 31 * result + (detailExtras != null ? detailExtras.hashCode() : 0);
+        return result;
+    }
 }

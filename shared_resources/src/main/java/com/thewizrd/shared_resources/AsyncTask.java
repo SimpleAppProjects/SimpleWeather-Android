@@ -2,6 +2,9 @@ package com.thewizrd.shared_resources;
 
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
+import com.google.android.gms.tasks.CancellationToken;
 import com.thewizrd.shared_resources.utils.Logger;
 
 import java.util.concurrent.Callable;
@@ -24,6 +27,32 @@ public class AsyncTask<T> {
     public static void run(Runnable runnable) {
         try {
             new Thread(runnable).start();
+        } catch (NullPointerException e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
+    }
+
+    public static void run(final Runnable runnable, final long millisDelay) {
+        run(runnable, millisDelay, null);
+    }
+
+    public static void run(final Runnable runnable, final long millisDelay, @Nullable final CancellationToken token) {
+        try {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(millisDelay);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (token != null && token.isCancellationRequested())
+                        return;
+
+                    runnable.run();
+                }
+            }).start();
         } catch (NullPointerException e) {
             Logger.writeLine(Log.ERROR, e);
         }

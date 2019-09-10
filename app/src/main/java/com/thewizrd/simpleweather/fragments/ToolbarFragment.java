@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
@@ -122,8 +123,8 @@ public abstract class ToolbarFragment extends WindowColorFragment
         Configuration config = mActivity.getResources().getConfiguration();
         final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
-        int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-        int bg_color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+        @ColorInt int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+        @ColorInt int bg_color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
         if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
             if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
                 bg_color = Colors.BLACK;

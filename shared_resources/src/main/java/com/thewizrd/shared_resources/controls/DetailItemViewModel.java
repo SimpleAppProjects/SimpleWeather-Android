@@ -227,4 +227,30 @@ public class DetailItemViewModel extends ObservableViewModel {
     public void setIconRotation(int iconRotation) {
         this.iconRotation = iconRotation;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DetailItemViewModel that = (DetailItemViewModel) o;
+
+        if (getIconRotation() != that.getIconRotation()) return false;
+        if (getDetailsType() != that.getDetailsType()) return false;
+        if (getLabel() != null ? !getLabel().equals(that.getLabel()) : that.getLabel() != null)
+            return false;
+        if (getIcon() != null ? !getIcon().equals(that.getIcon()) : that.getIcon() != null)
+            return false;
+        return getValue() != null ? getValue().equals(that.getValue()) : that.getValue() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getDetailsType() != null ? getDetailsType().hashCode() : 0;
+        result = 31 * result + (getLabel() != null ? getLabel().hashCode() : 0);
+        result = 31 * result + (getIcon() != null ? getIcon().hashCode() : 0);
+        result = 31 * result + (getValue() != null ? getValue().hashCode() : 0);
+        result = 31 * result + getIconRotation();
+        return result;
+    }
 }

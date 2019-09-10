@@ -175,7 +175,7 @@ public class LocationsFragment extends ToolbarFragment
     }
 
     public void onWeatherLoaded(final LocationData location, final Weather weather) {
-        runOnUiThread(new Runnable() {
+        AsyncTask.run(new Runnable() {
             @Override
             public void run() {
                 if (isCtsCancelRequested())
@@ -214,9 +214,24 @@ public class LocationsFragment extends ToolbarFragment
                             }
                         }
                     }
+
                     if (panel != null) {
                         panel.setWeather(weather);
-                        mAdapter.notifyItemChanged(mAdapter.getViewPosition(panel));
+                        final LocationPanelViewModel finalPanel = panel;
+                        mRecyclerView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mAdapter.notifyItemChanged(mAdapter.getViewPosition(finalPanel));
+                            }
+                        });
+                    } else {
+                        Logger.writeLine(Log.WARN, "LocationsFragment: Location panel not found");
+                        Logger.writeLine(Log.WARN, "LocationsFragment: LocationData: %s", location.toString());
+                        Logger.writeLine(Log.WARN, "LocationsFragment: Dumping adapter data...");
+                        for (int i = 0; i < mAdapter.getDataset().size(); i++) {
+                            LocationPanelViewModel vm = mAdapter.getDataset().get(i);
+                            Logger.writeLine(Log.WARN, "LocationsFragment: Panel: %d; data: %s", i, vm.getLocationData().toString());
+                        }
                     }
                 }
             }
@@ -225,37 +240,42 @@ public class LocationsFragment extends ToolbarFragment
 
     @Override
     public void onWeatherError(final WeatherException wEx) {
-        if (isCtsCancelRequested())
-            return;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (isCtsCancelRequested())
+                    return;
 
-        switch (wEx.getErrorStatus()) {
-            case NETWORKERROR:
-            case NOWEATHER:
-                // Show error message and prompt to refresh
-                // Only warn once
-                if (!mErrorCounter[wEx.getErrorStatus().getValue()]) {
-                    Snackbar snackbar = Snackbar.make(getRootView(), wEx.getMessage(), Snackbar.LENGTH_LONG);
-                    snackbar.setAction(R.string.action_retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            // Reset counter to allow retry
-                            mErrorCounter[wEx.getErrorStatus().getValue()] = false;
-                            refreshLocations();
+                switch (wEx.getErrorStatus()) {
+                    case NETWORKERROR:
+                    case NOWEATHER:
+                        // Show error message and prompt to refresh
+                        // Only warn once
+                        if (!mErrorCounter[wEx.getErrorStatus().getValue()]) {
+                            Snackbar snackbar = Snackbar.make(getRootView(), wEx.getMessage(), Snackbar.LENGTH_LONG);
+                            snackbar.setAction(R.string.action_retry, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    // Reset counter to allow retry
+                                    mErrorCounter[wEx.getErrorStatus().getValue()] = false;
+                                    refreshLocations();
+                                }
+                            });
+                            snackbar.show();
+                            mErrorCounter[wEx.getErrorStatus().getValue()] = true;
                         }
-                    });
-                    snackbar.show();
-                    mErrorCounter[wEx.getErrorStatus().getValue()] = true;
+                        break;
+                    default:
+                        // Show error message
+                        // Only warn once
+                        if (!mErrorCounter[wEx.getErrorStatus().getValue()]) {
+                            Snackbar.make(getRootView(), wEx.getMessage(), Snackbar.LENGTH_LONG).show();
+                            mErrorCounter[wEx.getErrorStatus().getValue()] = true;
+                        }
+                        break;
                 }
-                break;
-            default:
-                // Show error message
-                // Only warn once
-                if (!mErrorCounter[wEx.getErrorStatus().getValue()]) {
-                    Snackbar.make(getRootView(), wEx.getMessage(), Snackbar.LENGTH_LONG).show();
-                    mErrorCounter[wEx.getErrorStatus().getValue()] = true;
-                }
-                break;
-        }
+            }
+        });
     }
 
     // For LocationPanels
@@ -270,11 +290,20 @@ public class LocationsFragment extends ToolbarFragment
                     getAppCompatActivity().getSupportFragmentManager()
                             .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 } else {
+                    /*
+                     * NOTE
+                     * Hide current fragment and commit transaction
+                     * This is to avoid showing the fragment again from the backstack
+                     */
+                    getAppCompatActivity().getSupportFragmentManager().beginTransaction()
+                            .remove(LocationsFragment.this)
+                            .commit();
+
                     // Navigate to WeatherNowFragment
                     Fragment fragment = WeatherNowFragment.newInstance(locData);
+
                     getAppCompatActivity().getSupportFragmentManager().beginTransaction()
                             .add(R.id.fragment_container, fragment, "favorites")
-                            .hide(LocationsFragment.this)
                             .addToBackStack(null)
                             .commit();
                 }
@@ -586,9 +615,9 @@ public class LocationsFragment extends ToolbarFragment
     private void resume() {
         cts = new CancellationTokenSource();
 
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.run(new Runnable() {
             @Override
-            public Void call() throws Exception {
+            public void run() {
                 // Update view on resume
                 // ex. If temperature unit changed
                 if (mAdapter.getDataCount() == 0) {
@@ -599,9 +628,8 @@ public class LocationsFragment extends ToolbarFragment
                     refreshLocations();
                     mLoaded = true;
                 }
-                return null;
             }
-        });
+        }, 500, cts.getToken()); // Add a minor delay for a smoother transition
     }
 
     @Override
@@ -609,15 +637,14 @@ public class LocationsFragment extends ToolbarFragment
         super.onResume();
 
         // Don't resume if fragment is hidden
-        if (this.isHidden())
-            return;
-        else
+        if (!this.isHidden()) {
             AsyncTask.run(new Runnable() {
                 @Override
                 public void run() {
                     resume();
                 }
             });
+        }
     }
 
     @Override
@@ -649,7 +676,12 @@ public class LocationsFragment extends ToolbarFragment
         }
 
         if (!hidden && this.isVisible()) {
-            resume();
+            AsyncTask.run(new Runnable() {
+                @Override
+                public void run() {
+                    resume();
+                }
+            });
         } else if (hidden) {
             if (inSearchUI) exitSearchUi(true);
             if (mEditMode) toggleEditMode();
@@ -669,9 +701,9 @@ public class LocationsFragment extends ToolbarFragment
     }
 
     private void loadLocations() {
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.run(new Runnable() {
             @Override
-            public Void call() throws Exception {
+            public void run() {
                 if (getAppCompatActivity() != null) {
                     // Load up saved locations
                     List<LocationData> locations = new ArrayList<>(Settings.getFavorites());
@@ -683,7 +715,7 @@ public class LocationsFragment extends ToolbarFragment
                     });
 
                     if (isCtsCancelRequested())
-                        return null;
+                        return;
 
                     // Setup saved favorite locations
                     LocationData gpsData = null;
@@ -715,7 +747,7 @@ public class LocationsFragment extends ToolbarFragment
                     }
 
                     if (isCtsCancelRequested())
-                        return null;
+                        return;
 
                     if (gpsData != null)
                         locations.add(0, gpsData);
@@ -730,7 +762,6 @@ public class LocationsFragment extends ToolbarFragment
                         });
                     }
                 }
-                return null;
             }
         });
     }
@@ -763,9 +794,9 @@ public class LocationsFragment extends ToolbarFragment
     }
 
     private void refreshLocations() {
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.run(new Runnable() {
             @Override
-            public Void call() throws Exception {
+            public void run() {
                 // Reload all panels if needed
                 List<LocationData> locations = new ArrayList<>(Settings.getLocationData());
                 LocationData homeData = Settings.getLastGPSLocData();
@@ -784,7 +815,7 @@ public class LocationsFragment extends ToolbarFragment
                     reload = true;
 
                 if (isCtsCancelRequested())
-                    return null;
+                    return;
 
                 if (reload) {
                     runOnUiThread(new Runnable() {
@@ -807,7 +838,6 @@ public class LocationsFragment extends ToolbarFragment
                         });
                     }
                 }
-                return null;
             }
         });
     }

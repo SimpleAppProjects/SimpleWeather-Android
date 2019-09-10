@@ -194,11 +194,16 @@ public class MainActivity extends AppCompatActivity
                 /* NOTE: KEEP THIS IT WORKS FINE */
                 if (current instanceof WeatherNowFragment) {
                     // Hide home frag
-                    if ("home".equals(current.getTag()))
+                    if ("home".equals(current.getTag())) {
                         transaction.hide(current);
-                    else {
-                        // Destroy lingering WNow frag
-                        transaction.remove(current);
+                    } else {
+                        /*
+                         * NOTE
+                         * Destroy lingering WNow frag and commit transaction
+                         * This is to avoid adding the fragment again from the backstack
+                         */
+                        transaction.remove(current).commit();
+                        transaction = addCustomAnimations(getSupportFragmentManager().beginTransaction());
                         getSupportFragmentManager().popBackStack();
                     }
                     /* NOTE: KEEP ABOVE */
@@ -225,10 +230,16 @@ public class MainActivity extends AppCompatActivity
 
                 if (getSupportFragmentManager().findFragmentByTag("locations") != null) {
                     fragment = getSupportFragmentManager().findFragmentByTag("locations");
-                    // Show LocationsFragment if it exists
-                    transaction
-                            .show(fragment)
-                            .addToBackStack(null);
+                    if (fragment.isAdded()) {
+                        // Show LocationsFragment if it exists
+                        transaction
+                                .show(fragment)
+                                .addToBackStack(null);
+                    } else {
+                        transaction
+                                .add(R.id.fragment_container, fragment, "locations")
+                                .addToBackStack(null);
+                    }
                 } else {
                     // Add LocFrag if not in backstack/DNE
                     transaction
@@ -242,6 +253,11 @@ public class MainActivity extends AppCompatActivity
                 // Commit the transaction if current frag is not a SettingsFragment sub-fragment
                 if (!current.getClass().getName().contains("SettingsFragment")) {
                     transaction.hide(current);
+                    /*
+                     * NOTE
+                     * If current fragment is not WNow Fragment commit and recreate transaction
+                     * This is to avoid showing the fragment again from the backstack
+                     */
                     if (!(current instanceof WeatherNowFragment)) {
                         transaction.commit();
                         transaction = addCustomAnimations(getSupportFragmentManager().beginTransaction());
@@ -305,9 +321,10 @@ public class MainActivity extends AppCompatActivity
             public void run() {
                 // Actionbar, BottonNavBar & StatusBar
                 int currentNightMode = AppCompatDelegate.getDefaultNightMode();
-                if (currentNightMode != AppCompatDelegate.MODE_NIGHT_YES)
+                if (currentNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
                     setSystemBarColors(Colors.TRANSPARENT, weatherNowView.getPendingBackground(), Colors.TRANSPARENT);
-                else {
+                    mRootView.setBackgroundColor(weatherNowView.getPendingBackground());
+                } else {
                     int color = Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK ?
                             Colors.BLACK :
                             ActivityUtils.getColor(MainActivity.this, android.R.attr.colorBackground);
@@ -339,6 +356,7 @@ public class MainActivity extends AppCompatActivity
             public void run() {
                 // Actionbar, BottomNavBar & StatusBar
                 ActivityUtils.setTransparentWindow(getWindow(), backgroundColor, statusBarColor, navBarColor, false);
+                mRootView.setBackgroundColor(backgroundColor);
 
                 if (!ColorsUtils.isSuperLight(navBarColor)) {
                     mBottomNavView.setItemRippleColor(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_ripple_color_dark));
