@@ -23,7 +23,6 @@ import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -103,7 +102,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherErrorListenerInterface;
 import com.thewizrd.shared_resources.weatherdata.WeatherLoadedListenerInterface;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
-import com.thewizrd.simpleweather.BuildConfig;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.ColorModeRecyclerViewAdapter;
 import com.thewizrd.simpleweather.adapters.DetailItemAdapter;
@@ -668,9 +666,7 @@ public class WeatherNowFragment extends WindowColorFragment
         int horizMargin = 16;
         if (ActivityUtils.isLargeTablet(mActivity)) horizMargin = 24;
 
-        int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, horizMargin, mActivity.getResources().getDisplayMetrics());
-
-        detailsContainer.addItemDecoration(new LocationPanelOffsetDecoration(margin));
+        detailsContainer.addItemDecoration(new LocationPanelOffsetDecoration(mActivity, horizMargin / 2f));
         detailsAdapter = new DetailItemAdapter();
         detailsContainer.setAdapter(detailsAdapter);
 

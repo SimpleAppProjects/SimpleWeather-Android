@@ -85,6 +85,8 @@ import com.thewizrd.simpleweather.fragments.LocationSearchFragment;
 import com.thewizrd.simpleweather.fragments.ToolbarFragment;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperCallback;
+import com.thewizrd.simpleweather.helpers.OffsetMargin;
+import com.thewizrd.simpleweather.helpers.SwipeToDeleteOffSetItemDecoration;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
@@ -529,7 +531,13 @@ public class LocationsFragment extends ToolbarFragment
         mRecyclerView.setHasFixedSize(false);
 
         // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(getAppCompatActivity());
+        mLayoutManager = new LinearLayoutManager(getAppCompatActivity()) {
+            @Override
+            public RecyclerView.LayoutParams generateDefaultLayoutParams() {
+                return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+            }
+        };
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
@@ -541,6 +549,11 @@ public class LocationsFragment extends ToolbarFragment
         mITHCallback = new ItemTouchHelperCallback(mAdapter);
         mItemTouchHelper = new ItemTouchHelper(mITHCallback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
+        SwipeToDeleteOffSetItemDecoration swipeDecor =
+                new SwipeToDeleteOffSetItemDecoration(mRecyclerView.getContext(), 2f,
+                        OffsetMargin.TOP | OffsetMargin.BOTTOM);
+        mITHCallback.setItemTouchHelperCallbackListener(swipeDecor);
+        mRecyclerView.addItemDecoration(swipeDecor);
 
         // Turn off by default
         mITHCallback.setLongPressDragEnabled(false);

@@ -27,6 +27,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     private Drawable deleteBackground;
     private int iconMargin;
     private int cornerRadius;
+    private ItemTouchCallbackListener mListener;
 
     @Override
     public boolean isLongPressDragEnabled() {
@@ -46,6 +47,10 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
         deleteBackground = ContextCompat.getDrawable(context, R.drawable.swipe_delete);
         iconMargin = context.getResources().getDimensionPixelSize(R.dimen.delete_icon_margin);
         cornerRadius = context.getResources().getDimensionPixelSize(R.dimen.shape_corner_radius);
+    }
+
+    public void setItemTouchHelperCallbackListener(ItemTouchCallbackListener listener) {
+        mListener = listener;
     }
 
     @Override
@@ -75,6 +80,9 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+        if (mListener != null) {
+            mListener.onSwiped(viewHolder, direction);
+        }
         mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
     }
 
