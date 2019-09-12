@@ -263,7 +263,7 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
     }
 
     public void updateDataset(@NonNull final List<T> dataset) {
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ForecastItemDiffCallBack(forecasts, dataset));
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ForecastItemDiffCallBack(forecasts, dataset), false);
         diffResult.dispatchUpdatesTo(new ListUpdateCallback() {
             @Override
             public void onInserted(int position, int count) {
