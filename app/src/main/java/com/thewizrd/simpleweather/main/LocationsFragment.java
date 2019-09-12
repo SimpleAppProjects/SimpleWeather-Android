@@ -305,6 +305,7 @@ public class LocationsFragment extends ToolbarFragment
                     Fragment fragment = WeatherNowFragment.newInstance(locData);
 
                     getAppCompatActivity().getSupportFragmentManager().beginTransaction()
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                             .add(R.id.fragment_container, fragment, "favorites")
                             .addToBackStack(null)
                             .commit();

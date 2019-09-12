@@ -150,6 +150,9 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
     }
 
     protected final void updateWindowColors(UserThemeMode mode) {
+        if (currentConfig == null) {
+            currentConfig = new Configuration(getResources().getConfiguration());
+        }
         final int currentNightMode = currentConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
         int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);

@@ -15,6 +15,7 @@ import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Lifecycle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.stream.JsonReader;
@@ -147,10 +148,16 @@ public class MainActivity extends AppCompatActivity
         // If fragment doesn't handle onBackPressed event fallback to this impl
         if (fragBackPressedListener == null || !fragBackPressedListener.onBackPressed()) {
             // Destroy untagged fragments onbackpressed
-            if (current != null && current.getTag() == null) {
-                getSupportFragmentManager().beginTransaction()
-                        .remove(current)
-                        .commit();
+            if (current != null) {
+                if (current.getTag() == null) {
+                    getSupportFragmentManager().beginTransaction()
+                            .remove(current)
+                            .commit();
+                } else {
+                    getSupportFragmentManager().beginTransaction()
+                            .detach(current)
+                            .commit();
+                }
             }
 
             // If sub-fragment exist: pop those one by one
@@ -170,27 +177,29 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
-        int id = item.getItemId();
+        final int id = item.getItemId();
+        final int currentId;
 
         FragmentTransaction transaction = addCustomAnimations(getSupportFragmentManager().beginTransaction());
         Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         Fragment fragment = null;
 
-        if (id == R.id.nav_weathernow) {
-            fragment = new WeatherNowFragment();
-        } else if (id == R.id.nav_locations) {
-            fragment = new LocationsFragment();
-        } else if (id == R.id.nav_settings) {
-            fragment = new SettingsFragment();
+        if (current instanceof WeatherNowFragment) {
+            currentId = R.id.nav_weathernow;
+        } else if (current instanceof LocationsFragment) {
+            currentId = R.id.nav_locations;
+        } else if (current instanceof SettingsFragment) {
+            currentId = R.id.nav_settings;
+        } else {
+            currentId = -1;
         }
 
         // Make sure we're not navigating to the same type of fragment
-        if (fragment != null && current != null && fragment.getClass() != current.getClass()) {
-            if (fragment instanceof WeatherNowFragment) {
+        if (current != null && currentId != id) {
+            if (id == R.id.nav_weathernow) {
                 // Pop all since we're going home
-                fragment = null;
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            } else if (fragment instanceof LocationsFragment) {
+            } else if (id == R.id.nav_locations) {
                 /* NOTE: KEEP THIS IT WORKS FINE */
                 if (current instanceof WeatherNowFragment) {
                     // Hide home frag
@@ -202,12 +211,14 @@ public class MainActivity extends AppCompatActivity
                          * Destroy lingering WNow frag and commit transaction
                          * This is to avoid adding the fragment again from the backstack
                          */
-                        transaction.remove(current).commit();
-                        transaction = addCustomAnimations(getSupportFragmentManager().beginTransaction());
+                        getSupportFragmentManager().beginTransaction()
+                                .remove(current)
+                                .commitAllowingStateLoss();
                         getSupportFragmentManager().popBackStack();
                     }
-                    /* NOTE: KEEP ABOVE */
-                } else {
+                }
+                /* NOTE: KEEP ABOVE */
+                else {
                     // If current frag is Settings sub-fragment pop all off
                     if (current.getClass().getName().contains("SettingsFragment$"))
                         getSupportFragmentManager().popBackStack("settings", 0);
@@ -215,21 +226,42 @@ public class MainActivity extends AppCompatActivity
                     // If a Settings fragment exists remove it
                     if (getSupportFragmentManager().findFragmentByTag("settings") != null) {
                         current = getSupportFragmentManager().findFragmentByTag("settings");
-                        transaction.remove(current);
+                        getSupportFragmentManager().beginTransaction()
+                                .remove(current)
+                                .commitAllowingStateLoss();
                     }
                     // If an extra WeatherNowFragment exists remove it
                     if (getSupportFragmentManager().findFragmentByTag("favorites") != null) {
                         current = getSupportFragmentManager().findFragmentByTag("favorites");
-                        transaction.remove(current);
+                        getSupportFragmentManager().beginTransaction()
+                                .remove(current)
+                                .commitAllowingStateLoss();
                     }
                     // If current frag is Weather(Alerts||Details)Fragment remove it
                     if (current instanceof WeatherAlertsFragment || current instanceof WeatherDetailsFragment) {
-                        transaction.remove(current);
+                        getSupportFragmentManager().beginTransaction()
+                                .remove(current)
+                                .commitAllowingStateLoss();
                     }
                 }
 
-                if (getSupportFragmentManager().findFragmentByTag("locations") != null) {
-                    fragment = getSupportFragmentManager().findFragmentByTag("locations");
+                fragment = getSupportFragmentManager().findFragmentByTag("locations");
+                if (fragment != null) {
+                    /*
+                     * If the fragment exists and has not yet at least started,
+                     * remove and create a new instance
+                     *
+                     * This avoids the following exception:
+                     * java.lang.IllegalStateException: Restarter must be created only during owner's initialization stage
+                     * https://stackoverflow.com/a/56783167
+                     */
+                    if (!fragment.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+                        getSupportFragmentManager().beginTransaction()
+                                .remove(fragment)
+                                .commitAllowingStateLoss();
+                        fragment = new LocationsFragment();
+                    }
+
                     if (fragment.isAdded()) {
                         // Show LocationsFragment if it exists
                         transaction
@@ -242,6 +274,7 @@ public class MainActivity extends AppCompatActivity
                     }
                 } else {
                     // Add LocFrag if not in backstack/DNE
+                    fragment = new LocationsFragment();
                     transaction
                             .add(R.id.fragment_container, fragment, "locations")
                             .addToBackStack(null);
@@ -249,7 +282,9 @@ public class MainActivity extends AppCompatActivity
 
                 // Commit the transaction
                 transaction.commit();
-            } else if (fragment instanceof SettingsFragment) {
+            } else if (id == R.id.nav_settings) {
+                fragment = new SettingsFragment();
+
                 // Commit the transaction if current frag is not a SettingsFragment sub-fragment
                 if (!current.getClass().getName().contains("SettingsFragment")) {
                     transaction.hide(current);
@@ -274,9 +309,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private FragmentTransaction addCustomAnimations(@NonNull FragmentTransaction transaction) {
-        transaction.setCustomAnimations(R.animator.scale_fade_in, R.animator.scale_fade_out,
-                R.animator.scale_fade_in, R.animator.scale_fade_out);
-        return transaction;
+        return transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
     }
 
     protected void onResumeFragments() {

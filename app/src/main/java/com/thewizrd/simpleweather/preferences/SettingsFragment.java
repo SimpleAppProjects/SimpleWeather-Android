@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
@@ -223,6 +224,21 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         }
 
         return false;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull final View view, @Nullable final Bundle savedInstanceState) {
+        updateWindowColors();
+        /*
+         * Delay binding preferences by 500ms for a smoother transition
+         */
+        view.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (getListView() != null)
+                    SettingsFragment.super.onViewCreated(view, savedInstanceState);
+            }
+        }, 500);
     }
 
     @Override
