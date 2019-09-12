@@ -1,11 +1,13 @@
 package com.thewizrd.shared_resources.controls;
 
+import androidx.lifecycle.ViewModel;
+
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BaseForecastItemViewModel extends ObservableViewModel {
+public abstract class BaseForecastItemViewModel extends ViewModel {
     protected WeatherManager wm;
 
     protected String weatherIcon;

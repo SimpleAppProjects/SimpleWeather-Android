@@ -154,8 +154,6 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
                 Logger.writeLine(Log.DEBUG, e);
             }
         }
-
-        notifyChange();
     }
 
     public String getLoTemp() {

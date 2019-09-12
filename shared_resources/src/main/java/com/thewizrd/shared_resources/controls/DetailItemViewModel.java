@@ -2,12 +2,14 @@ package com.thewizrd.shared_resources.controls;
 
 import android.content.Context;
 
+import androidx.lifecycle.ViewModel;
+
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.weatherdata.Beaufort;
 import com.thewizrd.shared_resources.weatherdata.MoonPhase;
 
-public class DetailItemViewModel extends ObservableViewModel {
+public class DetailItemViewModel extends ViewModel {
     private WeatherDetailsType detailsType;
     private CharSequence label;
     private CharSequence icon;
@@ -95,8 +97,6 @@ public class DetailItemViewModel extends ObservableViewModel {
 
         this.value = value;
         this.iconRotation = iconRotation;
-
-        notifyChange();
     }
 
     public DetailItemViewModel(MoonPhase.MoonPhaseType moonPhaseType, CharSequence description) {
@@ -132,8 +132,6 @@ public class DetailItemViewModel extends ObservableViewModel {
                 this.icon = context.getString(R.string.wi_moon_alt_waning_crescent_3);
                 break;
         }
-
-        notifyChange();
     }
 
     public DetailItemViewModel(Beaufort.BeaufortScale beaufortScale, CharSequence description) {
@@ -184,8 +182,6 @@ public class DetailItemViewModel extends ObservableViewModel {
                 this.icon = context.getString(R.string.wi_wind_beaufort_12);
                 break;
         }
-
-        notifyChange();
     }
 
     public WeatherDetailsType getDetailsType() {

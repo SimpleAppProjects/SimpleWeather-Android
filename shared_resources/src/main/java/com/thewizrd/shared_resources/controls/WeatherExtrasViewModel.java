@@ -1,5 +1,7 @@
 package com.thewizrd.shared_resources.controls;
 
+import androidx.lifecycle.ViewModel;
+
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.TextForecast;
@@ -12,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class WeatherExtrasViewModel extends ObservableViewModel {
+public class WeatherExtrasViewModel extends ViewModel {
     private List<HourlyForecastItemViewModel> hourlyForecast;
     private List<TextForecastItemViewModel> textForecast;
 
@@ -83,14 +85,11 @@ public class WeatherExtrasViewModel extends ObservableViewModel {
                 alerts.add(alertView);
             }
         }
-
-        notifyChange();
     }
 
     public void clearAll() {
         hourlyForecast.clear();
         textForecast.clear();
         alerts.clear();
-        notifyChange();
     }
 }
