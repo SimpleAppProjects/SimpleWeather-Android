@@ -813,6 +813,7 @@ public class WeatherNowFragment extends WindowColorFragment
                             .apply(new RequestOptions().centerCrop()
                                     .format(DecodeFormat.PREFER_RGB_565)
                                     .skipMemoryCache(true))
+                            .transition(DrawableTransitionOptions.withCrossFade())
                             .into(mImageView);
                 }
             }
