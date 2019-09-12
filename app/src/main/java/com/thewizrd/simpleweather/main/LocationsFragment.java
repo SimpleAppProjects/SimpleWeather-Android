@@ -177,6 +177,8 @@ public class LocationsFragment extends ToolbarFragment
     }
 
     public void onWeatherLoaded(final LocationData location, final Weather weather) {
+        final List<LocationPanelViewModel> dataSet = mAdapter.getDataset();
+
         AsyncTask.run(new Runnable() {
             @Override
             public void run() {
@@ -188,14 +190,14 @@ public class LocationsFragment extends ToolbarFragment
                     LocationPanelViewModel panel = null;
 
                     if (location.getLocationType() == LocationType.GPS) {
-                        for (LocationPanelViewModel panelVM : mAdapter.getDataset()) {
+                        for (LocationPanelViewModel panelVM : dataSet) {
                             if (panelVM.getLocationData().getLocationType().equals(LocationType.GPS)) {
                                 panel = panelVM;
                                 break;
                             }
                         }
                     } else {
-                        for (LocationPanelViewModel panelVM : mAdapter.getDataset()) {
+                        for (LocationPanelViewModel panelVM : dataSet) {
                             if (!panelVM.getLocationData().getLocationType().equals(LocationType.GPS)
                                     && panelVM.getLocationData().getQuery().equals(location.getQuery())) {
                                 panel = panelVM;
@@ -206,7 +208,7 @@ public class LocationsFragment extends ToolbarFragment
 
                     // Just in case
                     if (panel == null) {
-                        for (LocationPanelViewModel panelVM : mAdapter.getDataset()) {
+                        for (LocationPanelViewModel panelVM : dataSet) {
                             if (panelVM.getLocationData().getName().equals(location.getName()) &&
                                     panelVM.getLocationData().getLatitude() == location.getLatitude() &&
                                     panelVM.getLocationData().getLongitude() == location.getLongitude() &&
@@ -230,8 +232,8 @@ public class LocationsFragment extends ToolbarFragment
                         Logger.writeLine(Log.WARN, "LocationsFragment: Location panel not found");
                         Logger.writeLine(Log.WARN, "LocationsFragment: LocationData: %s", location.toString());
                         Logger.writeLine(Log.WARN, "LocationsFragment: Dumping adapter data...");
-                        for (int i = 0; i < mAdapter.getDataset().size(); i++) {
-                            LocationPanelViewModel vm = mAdapter.getDataset().get(i);
+                        for (int i = 0; i < dataSet.size(); i++) {
+                            LocationPanelViewModel vm = dataSet.get(i);
                             Logger.writeLine(Log.WARN, "LocationsFragment: Panel: %d; data: %s", i, vm.getLocationData().toString());
                         }
                     }
