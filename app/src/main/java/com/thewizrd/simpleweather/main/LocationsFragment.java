@@ -38,9 +38,11 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
@@ -557,6 +559,9 @@ public class LocationsFragment extends ToolbarFragment
                         OffsetMargin.TOP | OffsetMargin.BOTTOM);
         mITHCallback.setItemTouchHelperCallbackListener(swipeDecor);
         mRecyclerView.addItemDecoration(swipeDecor);
+        SimpleItemAnimator animator = new DefaultItemAnimator();
+        animator.setSupportsChangeAnimations(false);
+        mRecyclerView.setItemAnimator(animator);
 
         // Turn off by default
         mITHCallback.setLongPressDragEnabled(false);
