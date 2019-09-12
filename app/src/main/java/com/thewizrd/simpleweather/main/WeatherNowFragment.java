@@ -1112,10 +1112,12 @@ public class WeatherNowFragment extends WindowColorFragment
             @Override
             public void run() {
                 if (mActivity != null) {
-                    int height = mRootView.getHeight() - mAppBarLayout.getHeight();
-                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) conditionPanel.getLayoutParams();
-                    lp.height = height;
-                    conditionPanel.setLayoutParams(lp);
+                    int height = mRootView.getMeasuredHeight() - mAppBarLayout.getMeasuredHeight();
+                    if (height > 0) {
+                        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) conditionPanel.getLayoutParams();
+                        lp.height = height;
+                        conditionPanel.setLayoutParams(lp);
+                    }
                 }
             }
         });
