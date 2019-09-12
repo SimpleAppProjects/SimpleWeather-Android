@@ -236,6 +236,9 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     private boolean isCtsCancelRequested() {
+        if (loaded && cts == null)
+            cts = new CancellationTokenSource();
+
         if (cts != null)
             return cts.getToken().isCancellationRequested();
         else
@@ -1195,6 +1198,9 @@ public class WeatherNowFragment extends WindowColorFragment
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (isCtsCancelRequested())
+                    return;
+
                 Configuration config = mActivity.getResources().getConfiguration();
                 final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
                 final UserThemeMode userNightMode = Settings.getUserThemeMode();
@@ -1247,8 +1253,6 @@ public class WeatherNowFragment extends WindowColorFragment
             return;
 
         // Background
-        updateWindowColors();
-
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -1309,6 +1313,11 @@ public class WeatherNowFragment extends WindowColorFragment
                 }
             });
         }
+
+        if (isCtsCancelRequested())
+            return;
+
+        updateWindowColors();
 
         // Condition Panel & Scroll view
         adjustConditionPanelLayout();
