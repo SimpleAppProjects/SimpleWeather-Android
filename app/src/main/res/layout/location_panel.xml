@@ -12,6 +12,12 @@
         android:layout_height="match_parent"
         app:srcCompat="@color/colorPrimary" />
 
+    <View
+        android:id="@+id/image_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:background="@drawable/background_overlay" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">

@@ -17,6 +17,7 @@ import android.widget.TextView;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.palette.graphics.Palette;
 
 import com.bumptech.glide.Glide;
@@ -34,12 +35,14 @@ import com.thewizrd.simpleweather.helpers.ActivityUtils;
 
 public class LocationPanel extends MaterialCardView {
     private View viewLayout;
+    private View bgImageOverlay;
     private ImageView bgImageView;
     private TextView locationNameView;
     private TextView locationTempView;
     private TextView locationWeatherIcon;
     private ProgressBar progressBar;
     private Drawable colorDrawable;
+    private Drawable overlayDrawable;
     private RequestManager mGlide;
 
     public LocationPanel(@NonNull Context context) {
@@ -74,12 +77,14 @@ public class LocationPanel extends MaterialCardView {
         int height = context.getResources().getDimensionPixelSize(R.dimen.location_panel_height);
         viewLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
 
+        bgImageOverlay = viewLayout.findViewById(R.id.image_overlay);
         bgImageView = viewLayout.findViewById(R.id.image_view);
         locationNameView = viewLayout.findViewById(R.id.location_name);
         locationTempView = viewLayout.findViewById(R.id.weather_temp);
         locationWeatherIcon = viewLayout.findViewById(R.id.weather_icon);
         progressBar = viewLayout.findViewById(R.id.progressBar);
         colorDrawable = new ColorDrawable(Colors.SIMPLEBLUEMEDIUM);
+        overlayDrawable = ContextCompat.getDrawable(context, R.drawable.background_overlay);
 
         // NOTE: Bug: Explicitly set tintmode on Lollipop devices
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP)
@@ -123,8 +128,28 @@ public class LocationPanel extends MaterialCardView {
                             shadowColor = Colors.GRAY;
                         }
 
+                        bgImageOverlay.setBackground(overlayDrawable);
+
                         setTextColor(textColor);
                         setTextShadowColor(shadowColor);
+                    }
+
+                    @Override
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                        super.onLoadFailed(errorDrawable);
+                        bgImageOverlay.setBackground(null);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+                        super.onLoadCleared(placeholder);
+                        bgImageOverlay.setBackground(null);
+                    }
+
+                    @Override
+                    public void onLoadStarted(@Nullable Drawable placeholder) {
+                        super.onLoadStarted(placeholder);
+                        bgImageOverlay.setBackground(null);
                     }
                 });
     }
