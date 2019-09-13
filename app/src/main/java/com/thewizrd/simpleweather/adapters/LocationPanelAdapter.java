@@ -1,12 +1,13 @@
 package com.thewizrd.simpleweather.adapters;
 
-import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Space;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -43,11 +44,12 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         public static final int IMAGE_UPDATE = 0;
     }
 
-    public static class LocationPanelItemType {
+    public static class ItemType {
         public static final int GPS_PANEL = LocationType.GPS.getValue();
         public static final int SEARCH_PANEL = LocationType.SEARCH.getValue();
         public static final int HEADER_GPS = -2;
         public static final int HEADER_FAV = -3;
+        public static final int FOOTER_SPACER = -4;
     }
 
     public interface HeaderSetterInterface {
@@ -103,11 +105,11 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class LocationPanelViewHolder extends RecyclerView.ViewHolder {
         LocationPanel mLocView;
         ProgressBar mProgressBar;
 
-        ViewHolder(LocationPanel v) {
+        LocationPanelViewHolder(LocationPanel v) {
             super(v);
             mLocView = v;
             mProgressBar = v.findViewById(R.id.progressBar);
@@ -149,22 +151,28 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         removePendingPanel();
     }
 
-    @SuppressLint("NewApi")
     @NonNull
     @Override
     // Create new views (invoked by the layout manager)
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        Context context = parent.getContext();
+
         switch (viewType) {
-            case LocationPanelItemType.HEADER_GPS:
-                gpsVH = new GPSHeaderViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.locations_header, parent, false));
+            case ItemType.HEADER_GPS:
+                gpsVH = new GPSHeaderViewHolder(LayoutInflater.from(context).inflate(R.layout.locations_header, parent, false));
                 return gpsVH;
-            case LocationPanelItemType.HEADER_FAV:
-                favVH = new FavHeaderViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.locations_header, parent, false));
+            case ItemType.HEADER_FAV:
+                favVH = new FavHeaderViewHolder(LayoutInflater.from(context).inflate(R.layout.locations_header, parent, false));
                 return favVH;
+            case ItemType.FOOTER_SPACER:
+                Space spacer = new Space(parent.getContext());
+                int height = context.getResources().getDimensionPixelSize(R.dimen.location_panel_height);
+                spacer.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
+                return new ViewHolder(spacer);
             default:
                 // create a new view
-                LocationPanel v = new LocationPanel(parent.getContext());
-                return new LocationPanelAdapter.ViewHolder(v);
+                LocationPanel v = new LocationPanel(context);
+                return new LocationPanelViewHolder(v);
         }
     }
 
@@ -188,8 +196,10 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (holder instanceof HeaderSetterInterface) {
             ((HeaderSetterInterface) holder).setHeader();
             ((HeaderSetterInterface) holder).setHeaderTextColor();
+        } else if (holder instanceof ViewHolder) {
+            // No-op
         } else {
-            final ViewHolder vHolder = (ViewHolder) holder;
+            final LocationPanelViewHolder vHolder = (LocationPanelViewHolder) holder;
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
             final LocationPanelViewModel panelView = getPanelViewModel(position);
@@ -208,7 +218,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
-    private void updatePanelBackground(final ViewHolder vHolder, final LocationPanelViewModel panelView, boolean skipCache) {
+    private void updatePanelBackground(final LocationPanelViewHolder vHolder, final LocationPanelViewModel panelView, boolean skipCache) {
         if (panelView != null && !StringUtils.isNullOrWhitespace(panelView.getBackground())) {
             vHolder.mLocView.setWeatherBackground(panelView, skipCache);
         } else {
@@ -227,13 +237,15 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     @Override
     public int getItemViewType(int position) {
         if (hasGPSPanel && hasSearchPanel && position == 0)
-            return LocationPanelItemType.HEADER_GPS;
+            return ItemType.HEADER_GPS;
         else if (hasGPSPanel && position == 0)
-            return LocationPanelItemType.HEADER_GPS;
+            return ItemType.HEADER_GPS;
         else if (hasSearchPanel && position == 0)
-            return LocationPanelItemType.HEADER_FAV;
+            return ItemType.HEADER_FAV;
         else if (hasGPSPanel && hasSearchPanel && position == 2)
-            return LocationPanelItemType.HEADER_FAV;
+            return ItemType.HEADER_FAV;
+        else if (position == getItemCount() - 1)
+            return ItemType.FOOTER_SPACER;
 
         return getPanelViewModel(position).getLocationType();
     }
@@ -271,6 +283,8 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
             size++;
         if (hasSearchPanel)
             size++;
+
+        size++; // For Footer
 
         return size;
     }
@@ -410,6 +424,15 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
                                 public void onClick(View v) {
                                     if (pendingVMForRemoval != null && !mDataset.contains(pendingVMForRemoval.getValue())) {
                                         add(pendingVMForRemoval.getKey(), pendingVMForRemoval.getValue());
+                                        // End active removal animations if we're undoing the action
+                                        RecyclerView.ViewHolder holder = mParentRecyclerView.findViewHolderForAdapterPosition(getViewPosition(pendingVMForRemoval.getValue()));
+                                        if (mParentRecyclerView.getItemAnimator() != null) {
+                                            if (holder != null) {
+                                                mParentRecyclerView.getItemAnimator().endAnimation(holder);
+                                            } else {
+                                                mParentRecyclerView.getItemAnimator().endAnimations();
+                                            }
+                                        }
                                         pendingVMForRemoval = null;
                                     }
                                 }
@@ -493,6 +516,12 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         @Override
         public void setHeaderTextColor() {
             header.setTextColor(ActivityUtils.getColor(header.getContext(), android.R.attr.textColorPrimary));
+        }
+    }
+
+    private class ViewHolder extends RecyclerView.ViewHolder {
+        ViewHolder(View itemView) {
+            super(itemView);
         }
     }
 }

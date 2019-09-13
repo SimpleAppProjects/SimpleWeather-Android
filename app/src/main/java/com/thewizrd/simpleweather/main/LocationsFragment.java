@@ -1402,7 +1402,7 @@ public class LocationsFragment extends ToolbarFragment
     private RecyclerOnClickListenerInterface onRecyclerLongClickListener = new RecyclerOnClickListenerInterface() {
         @Override
         public void onClick(View view, int position) {
-            if (mAdapter.getItemViewType(position) == LocationPanelAdapter.LocationPanelItemType.SEARCH_PANEL) {
+            if (mAdapter.getItemViewType(position) == LocationPanelAdapter.ItemType.SEARCH_PANEL) {
                 if (!mEditMode && mAdapter.getFavoritesCount() > 1) toggleEditMode();
             }
         }

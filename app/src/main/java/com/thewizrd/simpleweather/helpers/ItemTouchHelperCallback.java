@@ -58,7 +58,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
         int dragFlags = 0;
         int swipeFlags = 0;
 
-        if (viewHolder.getItemViewType() != LocationPanelAdapter.LocationPanelItemType.SEARCH_PANEL) {
+        if (viewHolder.getItemViewType() != LocationPanelAdapter.ItemType.SEARCH_PANEL) {
             dragFlags = 0;
             swipeFlags = 0;
         } else if (dragEnabled && swipeEnabled) {
@@ -79,7 +79,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     }
 
     @Override
-    public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+    public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, final int direction) {
         if (mListener != null) {
             mListener.onSwiped(viewHolder, direction);
         }
@@ -88,7 +88,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     @Override
     public boolean canDropOver(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder current, @NonNull RecyclerView.ViewHolder target) {
-        if (!(target instanceof LocationPanelAdapter.ViewHolder))
+        if (!(target instanceof LocationPanelAdapter.LocationPanelViewHolder))
             return false;
 
         LocationPanelAdapter adapter = (LocationPanelAdapter) recyclerView.getAdapter();

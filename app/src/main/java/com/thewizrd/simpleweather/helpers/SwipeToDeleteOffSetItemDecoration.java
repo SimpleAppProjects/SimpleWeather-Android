@@ -19,12 +19,10 @@ import com.thewizrd.simpleweather.R;
  */
 public class SwipeToDeleteOffSetItemDecoration extends LocationPanelOffsetDecoration
         implements ItemTouchCallbackListener {
-    // we want to cache this and not allocate anything repeatedly in the onDraw method
     private Drawable mSwipeBackground;
     private Drawable deleteIcon;
     private int iconMargin;
     private float lastTranslationX;
-    private int drawCounter;
 
     public SwipeToDeleteOffSetItemDecoration(@NonNull Context context) {
         this(context, 0);
@@ -58,7 +56,7 @@ public class SwipeToDeleteOffSetItemDecoration extends LocationPanelOffsetDecora
     }
 
     /* ItemTouchHelper.Callback Listener */
-    /* Used to keep track of last swipe direction to keep icon position state */
+    /* Used to keep track of last swipe direction to position the delete icon */
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
         switch (direction) {
@@ -78,23 +76,16 @@ public class SwipeToDeleteOffSetItemDecoration extends LocationPanelOffsetDecora
 
     @Override
     public void onDraw(@NonNull final Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-        // only if animation is in progress
+        // Only draw if animation is in progress
         if (parent.getItemAnimator() == null || !parent.getItemAnimator().isRunning()) {
             super.onDraw(c, parent, state);
             lastTranslationX = 0;
-            drawCounter = 1;
             return;
         }
 
-        // some items might be animating down and some items might be animating up to close the gap left by the removed item
-        // this is not exclusive, both movement can be happening at the same time
-        // to reproduce this leave just enough items so the first one and the last one would be just a little off screen
-        // then remove one from the middle
-
-        // find first child with translationY > 0
-        // and last one with translationY < 0
+        // Some items might be animating up to close the gap left by the removed item
+        // Find first child with translationY > 0
         // we're after a rect that is not covered in recycler-view views at this point in time
-        View lastViewComingDown = null;
         View firstViewComingUp = null;
 
         // this is fixed
@@ -106,63 +97,37 @@ public class SwipeToDeleteOffSetItemDecoration extends LocationPanelOffsetDecora
         int bottom = 0;
 
         // find relevant translating views
-        View lastChild = null;
         int childCount = parent.getLayoutManager() != null ? parent.getLayoutManager().getChildCount() : 0;
         for (int i = 0; i < childCount; i++) {
             View child = parent.getLayoutManager().getChildAt(i);
             if (child != null) {
-                if (child.getTranslationY() < 0) {
-                    // view is coming down
-                    lastViewComingDown = child;
-                } else if (child.getTranslationY() > 0 && firstViewComingUp == null) {
+                if (child.getTranslationY() > 0) {
                     // view is coming up
                     firstViewComingUp = child;
-                }
-
-                if (i == childCount - 1) {
-                    lastChild = child;
+                    break;
                 }
             }
         }
 
-        if (lastViewComingDown != null && firstViewComingUp != null) {
-            // views are coming down AND going up to fill the void
-            top = lastViewComingDown.getBottom() + (int) lastViewComingDown.getTranslationY();
-            bottom = firstViewComingUp.getTop() + (int) firstViewComingUp.getTranslationY();
-        } else if (lastViewComingDown != null) {
-            // views are going down to fill the void
-            top = lastViewComingDown.getBottom() + (int) lastViewComingDown.getTranslationY();
-            bottom = lastViewComingDown.getBottom();
-        } else if (firstViewComingUp != null) {
+        if (firstViewComingUp != null) {
             // views are coming up to fill the void
             top = firstViewComingUp.getTop();
             bottom = firstViewComingUp.getTop() + (int) firstViewComingUp.getTranslationY();
-        } else if (lastTranslationX != 0 && lastChild != null) {
-            // If nothing is coming up or down and something was swiped,
-            // We likely swiped the last item in the list
-            // Try to create an "animation" for the last item
-            drawCounter++;
-            top = lastChild.getBottom();
-            bottom = top + lastChild.getHeight() / (drawCounter + 1);
-        }
 
-        if (lastChild != null && bottom != lastChild.getBottom()) {
+            // Add ItemDecorator offsets
             int offsetLeft = offsetFlags == 0 || (offsetFlags & OffsetMargin.LEFT) != 0 ? mItemOffset : 0;
             int offsetTop = offsetFlags == 0 || (offsetFlags & OffsetMargin.TOP) != 0 ? mItemOffset : 0;
             int offsetRight = offsetFlags == 0 || (offsetFlags & OffsetMargin.RIGHT) != 0 ? mItemOffset : 0;
             int offsetBottom = offsetFlags == 0 || (offsetFlags & OffsetMargin.BOTTOM) != 0 ? mItemOffset : 0;
 
             left += offsetLeft;
-            if (top == lastChild.getBottom()) {
-                top += offsetTop + offsetBottom;
-            }
-            right -= offsetRight;
             bottom -= offsetTop + offsetBottom;
+            right -= offsetRight;
 
             mSwipeBackground.setBounds(left, top, right, bottom);
             mSwipeBackground.draw(c);
 
-            if (lastTranslationX != 0) {
+            if (lastTranslationX != 0 && bottom > top) {
                 int iconLeft;
                 int iconRight;
                 int iconTop = top + (bottom - top - deleteIcon.getIntrinsicHeight()) / 2;
@@ -176,8 +141,17 @@ public class SwipeToDeleteOffSetItemDecoration extends LocationPanelOffsetDecora
                     iconRight = right - iconMargin;
                 }
 
+                c.save();
+
+                // Set clip region for icon drawable,
+                // So it doesn't appear outside the bounds
+                // of the swipe background
+                c.clipRect(left, top, right, bottom);
+
                 deleteIcon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
                 deleteIcon.draw(c);
+
+                c.restore();
             }
         }
     }
