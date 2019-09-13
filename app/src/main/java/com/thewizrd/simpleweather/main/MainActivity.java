@@ -427,9 +427,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
+        // Update before we send the configuration to all other fragments
         final int currentNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
         isSystemNightMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
+
+        super.onConfigurationChanged(newConfig);
+
         updateWindowColors();
     }
 

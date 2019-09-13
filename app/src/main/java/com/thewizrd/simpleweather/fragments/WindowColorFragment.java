@@ -44,7 +44,9 @@ public abstract class WindowColorFragment extends Fragment implements WindowColo
 
         int diff = newConfig.diff(prevConfig);
         if ((diff & ActivityInfo.CONFIG_UI_MODE) != 0) {
-            updateWindowColors();
+            if (!this.isHidden() && this.isVisible()) {
+                updateWindowColors();
+            }
         }
 
         prevConfig = new Configuration(newConfig);

@@ -133,6 +133,7 @@ public abstract class ToolbarFragment extends WindowColorFragment
             }
             color = bg_color;
         }
+        mRootView.setBackgroundColor(bg_color);
         mAppBarLayout.setBackgroundColor(color);
         mRootView.setStatusBarBackgroundColor(color);
         if (mSysBarColorsIface != null) {

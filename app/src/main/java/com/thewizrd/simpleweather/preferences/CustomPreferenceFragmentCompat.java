@@ -140,8 +140,10 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
         int diff = newConfig.diff(currentConfig);
         currentConfig = new Configuration(newConfig);
         if ((diff & ActivityInfo.CONFIG_UI_MODE) != 0) {
-            updateWindowColors();
-            getListView().setAdapter(getListView().getAdapter());
+            if (!this.isHidden() && this.isVisible()) {
+                updateWindowColors();
+                getListView().setAdapter(getListView().getAdapter());
+            }
         }
     }
 
