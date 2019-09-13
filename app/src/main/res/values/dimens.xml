@@ -22,6 +22,10 @@
     <dimen name="floating_window_z">16dp</dimen>
     <dimen name="shape_corner_radius">8dp</dimen>
     <dimen name="dialog_corner_radius">@dimen/shape_corner_radius</dimen>
+    <dimen name="design_snackbar_padding_horizontal" tools:override="true">12dp</dimen>
+    <dimen name="design_snackbar_background_corner_radius" tools:override="true">
+        @dimen/shape_corner_radius
+    </dimen>
     <!-- Bottom Nav Bar -->
     <dimen name="design_bottom_navigation_height" tools:override="true">60dp</dimen>
 
