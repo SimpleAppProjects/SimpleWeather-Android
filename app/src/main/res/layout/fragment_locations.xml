@@ -12,9 +12,7 @@
         android:layout_height="match_parent"
         android:fillViewport="true"
         android:paddingLeft="8dp"
-        android:paddingTop="4dp"
         android:paddingRight="8dp"
-        android:paddingBottom="4dp"
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
