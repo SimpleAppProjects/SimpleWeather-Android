@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources.helpers;
 
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
@@ -11,6 +12,18 @@ import java.util.function.Predicate;
 
 public class ObservableArrayList<T> extends ArrayList<T> {
     private transient CallbackList<T> mListeners = new CallbackList<>();
+
+    public ObservableArrayList() {
+        super();
+    }
+
+    public ObservableArrayList(int initialCapacity) {
+        super(initialCapacity);
+    }
+
+    public ObservableArrayList(Collection<? extends T> c) {
+        super(c);
+    }
 
     public void addOnListChangedCallback(OnListChangedListener<T> listChangedListener) {
         if (mListeners == null)
@@ -84,7 +97,7 @@ public class ObservableArrayList<T> extends ArrayList<T> {
     }
 
     @Override
-    public boolean addAll(Collection<? extends T> c) {
+    public boolean addAll(@NonNull Collection<? extends T> c) {
         int oldSize = size();
         boolean added = super.addAll(c);
         if (added) {
@@ -95,7 +108,7 @@ public class ObservableArrayList<T> extends ArrayList<T> {
     }
 
     @Override
-    public boolean addAll(int index, Collection<? extends T> c) {
+    public boolean addAll(int index, @NonNull Collection<? extends T> c) {
         boolean added = super.addAll(index, c);
         if (added) {
             if (mListeners != null)
@@ -112,7 +125,7 @@ public class ObservableArrayList<T> extends ArrayList<T> {
     }
 
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(@NonNull Collection<?> c) {
         boolean value = super.removeAll(c);
         if (mListeners != null)
             mListeners.notifyChange(this, new ListChangedArgs(ListChangedAction.REMOVE, -1, -1));
@@ -121,7 +134,7 @@ public class ObservableArrayList<T> extends ArrayList<T> {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
-    public boolean removeIf(Predicate<? super T> filter) {
+    public boolean removeIf(@NonNull Predicate<? super T> filter) {
         boolean value = super.removeIf(filter);
         if (mListeners != null)
             mListeners.notifyChange(this, new ListChangedArgs(ListChangedAction.REMOVE, -1, -1));
