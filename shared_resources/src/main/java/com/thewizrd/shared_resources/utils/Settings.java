@@ -910,4 +910,12 @@ public class Settings {
         editor.putBoolean(KEY_ONBOARDINGCOMPLETE, value);
         editor.commit();
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
+    public static float getAnimatorScale() {
+        return android.provider.Settings.Global.getFloat(
+                SimpleLibrary.getInstance().getAppContext().getContentResolver(),
+                android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,
+                1.0f);
+    }
 }

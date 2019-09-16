@@ -580,7 +580,16 @@ public class LocationsFragment extends ToolbarFragment
         // Create options menu
         createOptionsMenu();
 
+        // Add Adapter as Lifecycle observer
+        this.getLifecycle().addObserver(mAdapter);
+
         return root;
+    }
+
+    @Override
+    public void onDestroyView() {
+        this.getLifecycle().removeObserver(mAdapter);
+        super.onDestroyView();
     }
 
     @Override
