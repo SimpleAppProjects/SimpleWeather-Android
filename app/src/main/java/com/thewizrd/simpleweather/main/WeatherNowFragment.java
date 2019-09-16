@@ -86,7 +86,6 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
-import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
@@ -154,7 +153,6 @@ public class WeatherNowFragment extends WindowColorFragment
 
     private AppCompatActivity mActivity;
     private SystemBarColorManager mSysBarColorsIface;
-    private WeatherViewLoadedListener mCallback;
     private CancellationTokenSource cts;
 
     // Views
@@ -253,14 +251,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     return;
 
                 if (weather != null && weather.isValid()) {
-                    AsyncTask.run(new Runnable() {
-                        @Override
-                        public void run() {
-                            weatherView.updateView(weather);
-                            if (mCallback != null)
-                                mCallback.onWeatherViewUpdated(weatherView);
-                        }
-                    });
+                    weatherView.updateView(weather);
 
                     if (Settings.getHomeData().equals(location)) {
                         // Update widgets if they haven't been already
@@ -330,7 +321,6 @@ public class WeatherNowFragment extends WindowColorFragment
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mActivity = (AppCompatActivity) context;
-        mCallback = (WeatherViewLoadedListener) context;
         mSysBarColorsIface = (SystemBarColorManager) context;
     }
 
@@ -343,7 +333,6 @@ public class WeatherNowFragment extends WindowColorFragment
         wLoader = null;
         weatherView = null;
         mActivity = null;
-        mCallback = null;
         mSysBarColorsIface = null;
         cts = null;
     }
@@ -354,7 +343,6 @@ public class WeatherNowFragment extends WindowColorFragment
         wLoader = null;
         weatherView = null;
         mActivity = null;
-        mCallback = null;
         mSysBarColorsIface = null;
         cts = null;
     }
@@ -958,10 +946,6 @@ public class WeatherNowFragment extends WindowColorFragment
 
                                 weatherView.updateView(wLoader.getWeather());
 
-                                if (ctsToken.isCancellationRequested())
-                                    return;
-
-                                if (mCallback != null) mCallback.onWeatherViewUpdated(weatherView);
                                 loaded = true;
                             }
                         }

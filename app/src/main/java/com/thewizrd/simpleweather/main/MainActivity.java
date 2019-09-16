@@ -20,10 +20,8 @@ import androidx.lifecycle.Lifecycle;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
-import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
-import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -39,7 +37,7 @@ import java.io.StringReader;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener,
-        WeatherViewLoadedListener, SystemBarColorManager, UserThemeMode.OnThemeChangeListener {
+        SystemBarColorManager, UserThemeMode.OnThemeChangeListener {
 
     private BottomNavigationView mBottomNavView;
     private View mFragmentContainer;
@@ -345,26 +343,6 @@ public class MainActivity extends AppCompatActivity
         if (item != null) {
             item.setChecked(true);
         }
-    }
-
-    @Override
-    public void onWeatherViewUpdated(final WeatherNowViewModel weatherNowView) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // Actionbar, BottonNavBar & StatusBar
-                int currentNightMode = AppCompatDelegate.getDefaultNightMode();
-                if (currentNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
-                    setSystemBarColors(Colors.TRANSPARENT, weatherNowView.getPendingBackground(), Colors.TRANSPARENT);
-                    mRootView.setBackgroundColor(weatherNowView.getPendingBackground());
-                } else {
-                    int color = Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK ?
-                            Colors.BLACK :
-                            ActivityUtils.getColor(MainActivity.this, android.R.attr.colorBackground);
-                    setSystemBarColors(Colors.TRANSPARENT, color, Colors.TRANSPARENT);
-                }
-            }
-        });
     }
 
     @Override
