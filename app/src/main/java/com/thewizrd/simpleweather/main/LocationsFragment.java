@@ -1443,9 +1443,9 @@ public class LocationsFragment extends ToolbarFragment
                 public void run() {
                     // Hide FAB; Don't allow adding more locations
                     if (mAdapter.getDataCount() >= MAX_LOCATIONS) {
-                        addLocationsButton.hide(true);
+                        addLocationsButton.hide();
                     } else {
-                        addLocationsButton.show(true);
+                        addLocationsButton.show();
                     }
 
                     // Cancel edit Mode

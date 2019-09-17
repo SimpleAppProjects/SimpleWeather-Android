@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <dimen name="preference_category_padding_start" tools:override="true">56dp</dimen>
+</resources>
