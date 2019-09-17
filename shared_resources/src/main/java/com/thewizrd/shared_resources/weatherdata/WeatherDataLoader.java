@@ -269,6 +269,8 @@ public class WeatherDataLoader {
             ttl = Integer.parseInt(weather.getTtl());
         } catch (NumberFormatException ex) {
             Logger.writeLine(Log.ERROR, ex);
+        } finally {
+            ttl = Math.max(ttl, Settings.getRefreshInterval());
         }
 
         // Check file age

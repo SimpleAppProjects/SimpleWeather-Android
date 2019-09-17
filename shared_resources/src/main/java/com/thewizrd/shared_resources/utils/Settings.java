@@ -786,7 +786,6 @@ public class Settings {
         editor.commit();
     }
 
-    // !ANDROID_WEAR
     public static int getRefreshInterval() {
         return Integer.parseInt(preferences.getString(KEY_REFRESHINTERVAL, DEFAULT_UPDATE_INTERVAL));
     }

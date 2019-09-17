@@ -958,6 +958,8 @@ public class WeatherNowFragment extends WindowColorFragment
                                 ttl = Integer.parseInt(weather.getTtl());
                             } catch (NumberFormatException ex) {
                                 ttl = Settings.DEFAULTINTERVAL;
+                            } finally {
+                                ttl = Math.max(ttl, Settings.getRefreshInterval());
                             }
                             Duration span = Duration.between(ZonedDateTime.now(), weather.getUpdateTime()).abs();
                             if (span.toMinutes() > ttl) {
