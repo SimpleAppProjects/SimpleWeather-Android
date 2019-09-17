@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_setup"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorPrimary"
-    android:fitsSystemWindows="true"
+    android:background="?android:attr/windowBackground"
     android:focusable="true"
     android:focusableInTouchMode="true"
     tools:context=".setup.SetupActivity">
 
-    <com.stepstone.stepper.StepperLayout
-        android:id="@+id/stepperLayout"
+    <com.thewizrd.simpleweather.helpers.WindowInsetsFrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
-        app:ms_stepperType="dots"
-        app:ms_bottomNavigationBackground="?attr/colorPrimary"
-        app:ms_activeStepColor="#fff"
-        app:ms_inactiveStepColor="#aaa"
-        app:ms_backButtonBackground="@android:color/transparent"
-        app:ms_backButtonColor="@android:color/white"
-        app:ms_nextButtonColor="@android:color/white" />
+        android:layout_height="match_parent">
 
-</FrameLayout>
+        <com.stepstone.stepper.StepperLayout
+            android:id="@+id/stepperLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:ms_stepperType="dots"
+            app:ms_bottomNavigationBackground="?android:attr/windowBackground"
+            app:ms_activeStepColor="#fff"
+            app:ms_inactiveStepColor="#aaa"
+            app:ms_backButtonBackground="@android:color/transparent"
+            app:ms_backButtonColor="@android:color/white"
+            app:ms_nextButtonColor="@android:color/white" />
+
+    </com.thewizrd.simpleweather.helpers.WindowInsetsFrameLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

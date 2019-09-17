@@ -1,8 +1,5 @@
 package com.thewizrd.shared_resources.weatherdata;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import androidx.annotation.ColorInt;
 
 import com.skedgo.converter.TimezoneMapper;
@@ -21,12 +18,7 @@ import java.util.Collection;
 import java.util.List;
 
 public abstract class WeatherProviderImpl implements WeatherProviderImplInterface {
-    protected final Handler mMainHandler;
     protected LocationProviderImpl locationProvider;
-
-    public WeatherProviderImpl() {
-        mMainHandler = new Handler(Looper.getMainLooper());
-    }
 
     // Variables
     public abstract String getWeatherAPI();
@@ -41,12 +33,12 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
 
     // Methods
     // AutoCompleteQuery
-    public final Collection<LocationQueryViewModel> getLocations(String ac_query) {
+    public final Collection<LocationQueryViewModel> getLocations(String ac_query) throws WeatherException {
         return locationProvider.getLocations(ac_query, getWeatherAPI());
     }
 
     // GeopositionQuery
-    public final LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate) {
+    public final LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate) throws WeatherException {
         return locationProvider.getLocation(coordinate, getWeatherAPI());
     }
 
@@ -104,7 +96,7 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
     }
 
     // KeyCheck
-    public abstract boolean isKeyValid(String key);
+    public abstract boolean isKeyValid(String key) throws WeatherException;
 
     public abstract String getAPIKey();
 

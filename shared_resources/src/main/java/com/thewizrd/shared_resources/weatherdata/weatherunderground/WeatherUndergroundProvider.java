@@ -1,10 +1,8 @@
 package com.thewizrd.shared_resources.weatherdata.weatherunderground;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import com.ibm.icu.util.ULocale;
-import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -65,7 +63,7 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
     }
 
     @Override
-    public boolean isKeyValid(String key) {
+    public boolean isKeyValid(String key) throws WeatherException {
         String queryAPI = "https://api.wunderground.com/api/";
         String query = "/q/NY/New_York.json";
         HttpURLConnection client = null;
@@ -111,13 +109,7 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
         }
 
         if (wEx != null) {
-            final WeatherException finalWEx = wEx;
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(SimpleLibrary.getInstance().getApp().getAppContext(), finalWEx.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
+            throw wEx;
         }
 
         return isValid;
@@ -194,13 +186,6 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
             weather = null;
             if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
-                final WeatherException finalWEx = wEx;
-                mMainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(SimpleLibrary.getInstance().getApp().getAppContext(), finalWEx.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
             }
             Logger.writeLine(Log.ERROR, ex, "WeatherUndergroundProvider: error getting weather data");
         } finally {
@@ -208,7 +193,7 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
                 client.disconnect();
         }
 
-        if (weather == null || !weather.isValid()) {
+        if (wEx == null && (weather == null || !weather.isValid())) {
             wEx = new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
         } else if (weather != null) {
             if (supportsWeatherLocale())
@@ -311,7 +296,13 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
     public String updateLocationQuery(Weather weather) {
         String query = "";
         String coord = String.format(Locale.ROOT, "%s,%s", weather.getLocation().getLatitude(), weather.getLocation().getLongitude());
-        LocationQueryViewModel qview = getLocation(new WeatherUtils.Coordinate(coord));
+        LocationQueryViewModel qview = null;
+        try {
+            qview = getLocation(new WeatherUtils.Coordinate(coord));
+        } catch (WeatherException e) {
+            Logger.writeLine(Log.ERROR, e);
+            qview = new LocationQueryViewModel();
+        }
 
         if (StringUtils.isNullOrEmpty(qview.getLocationQuery()))
             query = String.format("/q/%s", coord);
@@ -325,7 +316,13 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
     public String updateLocationQuery(LocationData location) {
         String query = "";
         String coord = String.format(Locale.ROOT, "%s,%s", location.getLatitude(), location.getLongitude());
-        LocationQueryViewModel qview = getLocation(new WeatherUtils.Coordinate(coord));
+        LocationQueryViewModel qview = null;
+        try {
+            qview = getLocation(new WeatherUtils.Coordinate(coord));
+        } catch (WeatherException e) {
+            Logger.writeLine(Log.ERROR, e);
+            qview = new LocationQueryViewModel();
+        }
 
         if (StringUtils.isNullOrEmpty(qview.getLocationQuery()))
             query = String.format(Locale.ROOT, "/q/%s", coord);

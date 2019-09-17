@@ -25,7 +25,6 @@ import android.view.animation.AnimationSet;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -54,9 +53,12 @@ import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.AsyncTaskEx;
+import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQuery;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -90,6 +92,9 @@ import com.thewizrd.simpleweather.helpers.ItemTouchHelperCallback;
 import com.thewizrd.simpleweather.helpers.OffsetMargin;
 import com.thewizrd.simpleweather.helpers.SwipeToDeleteOffSetItemDecoration;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
+import com.thewizrd.simpleweather.snackbar.Snackbar;
+import com.thewizrd.simpleweather.snackbar.SnackbarManager;
+import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
@@ -108,6 +113,8 @@ public class LocationsFragment extends ToolbarFragment
     private boolean mHomeChanged = false;
     private boolean[] mErrorCounter;
 
+    private SnackbarManager mSnackMgr;
+
     // Views
     private NestedScrollView mScrollView;
     private RecyclerView mRecyclerView;
@@ -116,6 +123,7 @@ public class LocationsFragment extends ToolbarFragment
     private ItemTouchHelper mItemTouchHelper;
     private ItemTouchHelperCallback mITHCallback;
     private ExtendedFloatingActionButton addLocationsButton;
+    private BottomNavigationView mBottomNavView;
 
     // Search
     private View mSearchFragmentContainer;
@@ -258,7 +266,7 @@ public class LocationsFragment extends ToolbarFragment
                         // Show error message and prompt to refresh
                         // Only warn once
                         if (!mErrorCounter[wEx.getErrorStatus().getValue()]) {
-                            Snackbar snackbar = Snackbar.make(getRootView(), wEx.getMessage(), Snackbar.LENGTH_LONG);
+                            Snackbar snackbar = Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG);
                             snackbar.setAction(R.string.action_retry, new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
@@ -267,7 +275,7 @@ public class LocationsFragment extends ToolbarFragment
                                     refreshLocations();
                                 }
                             });
-                            snackbar.show();
+                            showSnackbar(snackbar, null);
                             mErrorCounter[wEx.getErrorStatus().getValue()] = true;
                         }
                         break;
@@ -275,13 +283,29 @@ public class LocationsFragment extends ToolbarFragment
                         // Show error message
                         // Only warn once
                         if (!mErrorCounter[wEx.getErrorStatus().getValue()]) {
-                            Snackbar.make(getRootView(), wEx.getMessage(), Snackbar.LENGTH_LONG).show();
+                            showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG), null);
                             mErrorCounter[wEx.getErrorStatus().getValue()] = true;
                         }
                         break;
                 }
             }
         });
+    }
+
+    private void initSnackManager() {
+        if (mSnackMgr == null) {
+            mSnackMgr = new SnackbarManager(getRootView());
+            mSnackMgr.setSwipeDismissEnabled(true);
+            mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
+        }
+    }
+
+    private void showSnackbar(com.thewizrd.simpleweather.snackbar.Snackbar snackbar, com.google.android.material.snackbar.Snackbar.Callback callback) {
+        if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
+    }
+
+    private void dismissAllSnackbars() {
+        if (mSnackMgr != null) mSnackMgr.dismissAll();
     }
 
     // For LocationPanels
@@ -337,7 +361,7 @@ public class LocationsFragment extends ToolbarFragment
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(getAppCompatActivity(), R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                                showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
                             }
                         });
                     }
@@ -363,7 +387,7 @@ public class LocationsFragment extends ToolbarFragment
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(getAppCompatActivity(), R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                                showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
                             }
                         });
                     }
@@ -440,6 +464,8 @@ public class LocationsFragment extends ToolbarFragment
         view.setFocusableInTouchMode(true);
         view.requestFocus();
 
+        mBottomNavView = getAppCompatActivity().findViewById(R.id.bottom_nav_bar);
+
         mScrollView = view.findViewById(R.id.scrollView);
         /*
            Capture touch events on ScrollView
@@ -452,9 +478,9 @@ public class LocationsFragment extends ToolbarFragment
             public void onScrollChange(NestedScrollView nestedScrollView, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
                 int dY = scrollY - oldScrollY;
                 if (dY < 0) {
-                    addLocationsButton.extend(true);
+                    addLocationsButton.extend();
                 } else {
-                    addLocationsButton.shrink(true);
+                    addLocationsButton.shrink();
                 }
             }
         });
@@ -497,7 +523,7 @@ public class LocationsFragment extends ToolbarFragment
                         paddingStart + insets.getSystemWindowInsetLeft(),
                         paddingTop + insets.getSystemWindowInsetTop(),
                         paddingEnd + insets.getSystemWindowInsetRight(),
-                        paddingBottom + insets.getSystemWindowInsetBottom());
+                        paddingBottom);
                 return insets;
             }
         });
@@ -668,6 +694,7 @@ public class LocationsFragment extends ToolbarFragment
 
         // Don't resume if fragment is hidden
         if (!this.isHidden()) {
+            initSnackManager();
             AsyncTask.run(new Runnable() {
                 @Override
                 public void run() {
@@ -683,6 +710,9 @@ public class LocationsFragment extends ToolbarFragment
         // Cancel pending actions
         if (cts != null) cts.cancel();
         if (mSearchFragment != null) mSearchFragment.ctsCancel();
+
+        dismissAllSnackbars();
+        mSnackMgr = null;
 
         super.onPause();
 
@@ -706,6 +736,7 @@ public class LocationsFragment extends ToolbarFragment
         }
 
         if (!hidden && this.isVisible()) {
+            initSnackManager();
             AsyncTask.run(new Runnable() {
                 @Override
                 public void run() {
@@ -715,6 +746,9 @@ public class LocationsFragment extends ToolbarFragment
         } else if (hidden) {
             if (inSearchUI) exitSearchUi(true);
             if (mEditMode) toggleEditMode();
+
+            dismissAllSnackbars();
+            mSnackMgr = null;
 
             mLoaded = false;
             // Reset error counter
@@ -984,7 +1018,7 @@ public class LocationsFragment extends ToolbarFragment
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(getAppCompatActivity(), R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                                    showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
                                     removeGPSPanel();
                                 }
                             });
@@ -1062,7 +1096,7 @@ public class LocationsFragment extends ToolbarFragment
                     // functionality that depends on this permission.
                     Settings.setFollowGPS(false);
                     removeGPSPanel();
-                    Toast.makeText(getAppCompatActivity(), R.string.error_location_denied, Toast.LENGTH_SHORT).show();
+                    showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null);
                 }
                 return;
             }
@@ -1079,6 +1113,7 @@ public class LocationsFragment extends ToolbarFragment
     }
 
     private void prepareSearchUI() {
+        mBottomNavView.setVisibility(View.GONE);
         enterSearchUi();
         enterSearchUiTransition(null);
     }
@@ -1166,12 +1201,24 @@ public class LocationsFragment extends ToolbarFragment
                                 && query_vm.getLocationLat() == -1 && query_vm.getLocationLong() == -1
                                 && query_vm.getLocationTZLong() == null) {
                             final LocationQueryViewModel loc = query_vm;
-                            query_vm = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
-                                @Override
-                                public LocationQueryViewModel call() throws Exception {
-                                    return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
-                                }
-                            });
+                            try {
+                                query_vm = new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
+                                    @Override
+                                    public LocationQueryViewModel call() throws WeatherException {
+                                        return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
+                                    }
+                                });
+                            } catch (final WeatherException wEx) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
+                                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                                        mSearchFragment.showLoading(false);
+                                    }
+                                });
+                                return;
+                            }
                         }
 
                         // Check if location already exists
@@ -1204,7 +1251,8 @@ public class LocationsFragment extends ToolbarFragment
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(App.getInstance().getAppContext(), R.string.werror_noweather, Toast.LENGTH_SHORT).show();
+                                    showSnackbar(Snackbar.make(R.string.werror_noweather, Snackbar.Duration.SHORT),
+                                            new SnackbarWindowAdjustCallback(getAppCompatActivity()));
                                     mSearchFragment.showLoading(false);
                                 }
                             });
@@ -1219,7 +1267,8 @@ public class LocationsFragment extends ToolbarFragment
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast.makeText(App.getInstance().getAppContext(), wEx.getMessage(), Toast.LENGTH_SHORT).show();
+                                        showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
+                                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
                                     }
                                 });
                             }
@@ -1326,6 +1375,8 @@ public class LocationsFragment extends ToolbarFragment
 
         if (mAdapter.getDataCount() < MAX_LOCATIONS)
             addLocationsButton.show();
+
+        mBottomNavView.setVisibility(View.VISIBLE);
 
         hideInputMethod(getAppCompatActivity() == null ? null : getAppCompatActivity().getCurrentFocus());
         if (getRootView() != null) getRootView().requestFocus();

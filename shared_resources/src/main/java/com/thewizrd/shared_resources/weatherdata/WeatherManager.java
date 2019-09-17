@@ -81,11 +81,11 @@ public class WeatherManager implements WeatherProviderImplInterface {
         return needsKey;
     }
 
-    public static boolean isKeyValid(final String key, final String API) {
+    public static boolean isKeyValid(final String key, final String API) throws WeatherException {
         final WeatherProviderImpl provider = getProvider(API);
-        return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
+        return new AsyncTaskEx<Boolean, WeatherException>().await(new CallableEx<Boolean, WeatherException>() {
             @Override
-            public Boolean call() throws Exception {
+            public Boolean call() throws WeatherException {
                 return provider.isKeyValid(key);
             }
         });
@@ -149,29 +149,29 @@ public class WeatherManager implements WeatherProviderImplInterface {
     }
 
     @Override
-    public Collection<LocationQueryViewModel> getLocations(final String ac_query) {
-        return new AsyncTask<Collection<LocationQueryViewModel>>().await(new Callable<Collection<LocationQueryViewModel>>() {
+    public Collection<LocationQueryViewModel> getLocations(final String ac_query) throws WeatherException {
+        return new AsyncTaskEx<Collection<LocationQueryViewModel>, WeatherException>().await(new CallableEx<Collection<LocationQueryViewModel>, WeatherException>() {
             @Override
-            public Collection<LocationQueryViewModel> call() throws Exception {
+            public Collection<LocationQueryViewModel> call() throws WeatherException {
                 return weatherProvider.getLocations(ac_query);
             }
         });
     }
 
-    public LocationQueryViewModel getLocation(final Location location) {
-        return new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
+    public LocationQueryViewModel getLocation(final Location location) throws WeatherException {
+        return new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
             @Override
-            public LocationQueryViewModel call() throws Exception {
+            public LocationQueryViewModel call() throws WeatherException {
                 return weatherProvider.getLocation(new WeatherUtils.Coordinate(location));
             }
         });
     }
 
     @Override
-    public LocationQueryViewModel getLocation(final WeatherUtils.Coordinate coordinate) {
-        return new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
+    public LocationQueryViewModel getLocation(final WeatherUtils.Coordinate coordinate) throws WeatherException {
+        return new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
             @Override
-            public LocationQueryViewModel call() throws Exception {
+            public LocationQueryViewModel call() throws WeatherException {
                 return weatherProvider.getLocation(coordinate);
             }
         });
@@ -223,10 +223,10 @@ public class WeatherManager implements WeatherProviderImplInterface {
     }
 
     @Override
-    public boolean isKeyValid(final String key) {
-        return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
+    public boolean isKeyValid(final String key) throws WeatherException {
+        return new AsyncTaskEx<Boolean, WeatherException>().await(new CallableEx<Boolean, WeatherException>() {
             @Override
-            public Boolean call() {
+            public Boolean call() throws WeatherException {
                 return weatherProvider.isKeyValid(key);
             }
         });

@@ -2,7 +2,6 @@ package com.thewizrd.simpleweather.widgets;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
@@ -53,8 +52,11 @@ import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.AsyncTaskEx;
+import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.ComboBoxItem;
 import com.thewizrd.shared_resources.controls.LocationQuery;
@@ -69,6 +71,7 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
+import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
@@ -111,7 +114,13 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             finish();
         }
 
-        Fragment fragment = getSupportFragmentManager().findFragmentById(android.R.id.content);
+        setContentView(R.layout.activity_widget_setup);
+
+        View mRootView = (View) findViewById(R.id.fragment_container).getParent();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            mRootView.setFitsSystemWindows(true);
+
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
 
         if (fragment == null) {
             Bundle args = new Bundle();
@@ -127,14 +136,14 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             fragment = WeatherWidgetPreferenceFragment.newInstance(args);
 
             getSupportFragmentManager().beginTransaction()
-                    .replace(android.R.id.content, fragment)
+                    .replace(R.id.fragment_container, fragment)
                     .commit();
         }
     }
 
     @Override
     public void onBackPressed() {
-        Fragment current = getSupportFragmentManager().findFragmentById(android.R.id.content);
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         OnBackPressedFragmentListener fragBackPressedListener = null;
         if (current instanceof OnBackPressedFragmentListener)
             fragBackPressedListener = (OnBackPressedFragmentListener) current;
@@ -233,7 +242,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container, Bundle savedInstanceState) {
-            ViewGroup root = (ViewGroup) inflater.inflate(R.layout.activity_widget_setup, container, false);
+            ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_widget_setup, container, false);
 
             View inflatedView = super.onCreateView(inflater, container, savedInstanceState);
 
@@ -253,16 +262,14 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             collapsingToolbar = root.findViewById(R.id.collapsing_toolbar);
             mSearchFragmentContainer = root.findViewById(R.id.search_fragment_container);
 
-            mRootView = (View) appBarLayout.getParent();
+            mRootView = (View) mActivity.findViewById(R.id.fragment_container).getParent();
             // Make full transparent statusBar
             updateWindowColors();
 
             ViewCompat.setOnApplyWindowInsetsListener(appBarLayout, new OnApplyWindowInsetsListener() {
-                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
                 @Override
                 public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                    appBarLayout.setPaddingRelative(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(),
-                            insets.getSystemWindowInsetRight(), 0);
+                    ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
                     return insets.consumeSystemWindowInsets();
                 }
             });
@@ -307,7 +314,6 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
             return root;
         }
-
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -601,12 +607,24 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                                 && query_vm.getLocationLat() == -1 && query_vm.getLocationLong() == -1
                                 && query_vm.getLocationTZLong() == null) {
                             final LocationQueryViewModel loc = query_vm;
-                            query_vm = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
-                                @Override
-                                public LocationQueryViewModel call() throws Exception {
-                                    return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
-                                }
-                            });
+                            try {
+                                query_vm = new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
+                                    @Override
+                                    public LocationQueryViewModel call() throws WeatherException {
+                                        return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
+                                    }
+                                });
+                            } catch (final WeatherException wEx) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Snackbar.make(mRootView, wEx.getMessage(), Snackbar.LENGTH_SHORT).show();
+                                    }
+                                });
+                                mSearchFragment.showLoading(false);
+                                query_vm = null;
+                                return;
+                            }
                         }
 
                         // Check if location already exists
@@ -840,7 +858,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         // Changing location to GPS
                         if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                                 ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                                     PERMISSION_LOCATION_REQUEST_CODE);
                             return;
                         }
@@ -849,7 +867,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
                         // Check if last location exists
                         if (lastGPSLocData == null && !updateLocation()) {
-                            Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                            Snackbar.make(mRootView, R.string.error_retrieve_location, Snackbar.LENGTH_SHORT).show();
                             return;
                         }
 
@@ -913,7 +931,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
                             // Check if last location exists
                             if (lastGPSLocData == null && !updateLocation()) {
-                                Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                                Snackbar.make(mRootView, R.string.error_retrieve_location, Snackbar.LENGTH_SHORT).show();
                                 return;
                             }
 
@@ -1077,7 +1095,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     } else {
                         // permission denied, boo! Disable the
                         // functionality that depends on this permission.
-                        Toast.makeText(mActivity, R.string.error_location_denied, Toast.LENGTH_SHORT).show();
+                        Snackbar.make(mRootView, R.string.error_location_denied, Snackbar.LENGTH_SHORT).show();
                     }
                     return;
                 }

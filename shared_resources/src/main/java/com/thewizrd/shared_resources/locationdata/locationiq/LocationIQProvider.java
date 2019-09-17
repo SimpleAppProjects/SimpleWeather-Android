@@ -1,11 +1,9 @@
 package com.thewizrd.shared_resources.locationdata.locationiq;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 import com.ibm.icu.util.ULocale;
-import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
@@ -48,7 +46,7 @@ public final class LocationIQProvider extends LocationProviderImpl {
     }
 
     @Override
-    public Collection<LocationQueryViewModel> getLocations(String ac_query, String weatherAPI) {
+    public Collection<LocationQueryViewModel> getLocations(String ac_query, String weatherAPI) throws WeatherException {
         Collection<LocationQueryViewModel> locations = null;
 
         String queryAPI = "https://api.locationiq.com/v1/autocomplete.php";
@@ -100,19 +98,15 @@ public final class LocationIQProvider extends LocationProviderImpl {
         } catch (Exception ex) {
             if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
-                final WeatherException finalWEx = wEx;
-                mMainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(SimpleLibrary.getInstance().getApp().getAppContext(), finalWEx.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
             }
             Logger.writeLine(Log.ERROR, ex, "LocationIQProvider: error getting locations");
         } finally {
             if (client != null)
                 client.disconnect();
         }
+
+        if (wEx != null)
+            throw wEx;
 
         if (locations == null || locations.size() == 0) {
             locations = Collections.singletonList(new LocationQueryViewModel());
@@ -122,7 +116,7 @@ public final class LocationIQProvider extends LocationProviderImpl {
     }
 
     @Override
-    public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coord, String weatherAPI) {
+    public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coord, String weatherAPI) throws WeatherException {
         LocationQueryViewModel location = null;
 
         String queryAPI = "https://api.locationiq.com/v1/reverse.php";
@@ -155,19 +149,15 @@ public final class LocationIQProvider extends LocationProviderImpl {
             result = null;
             if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
-                final WeatherException finalWEx = wEx;
-                mMainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(SimpleLibrary.getInstance().getApp().getAppContext(), finalWEx.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
             }
             Logger.writeLine(Log.ERROR, ex, "LocationIQProvider: error getting location");
         } finally {
             if (client != null)
                 client.disconnect();
         }
+
+        if (wEx != null)
+            throw wEx;
 
         if (result != null && !StringUtils.isNullOrWhitespace(result.getOsmId()))
             location = new LocationQueryViewModel(result, weatherAPI);
@@ -178,7 +168,7 @@ public final class LocationIQProvider extends LocationProviderImpl {
     }
 
     @Override
-    public boolean isKeyValid(String key) {
+    public boolean isKeyValid(String key) throws WeatherException {
         String queryAPI = "https://us1.unwiredlabs.com/v2/timezone.php";
 
         HttpURLConnection client = null;
@@ -221,13 +211,7 @@ public final class LocationIQProvider extends LocationProviderImpl {
         }
 
         if (wEx != null) {
-            final WeatherException finalWEx = wEx;
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(SimpleLibrary.getInstance().getApp().getAppContext(), finalWEx.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
+            throw wEx;
         }
 
         return isValid;

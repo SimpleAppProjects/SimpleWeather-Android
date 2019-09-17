@@ -20,9 +20,9 @@ public interface WeatherProviderImplInterface {
 
     boolean needsExternalAlertData();
 
-    Collection<LocationQueryViewModel> getLocations(String ac_query);
+    Collection<LocationQueryViewModel> getLocations(String ac_query) throws WeatherException;
 
-    LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate);
+    LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate) throws WeatherException;
 
     Weather getWeather(String location_query) throws WeatherException;
 
@@ -34,7 +34,7 @@ public interface WeatherProviderImplInterface {
 
     String getWeatherIcon(boolean isNight, String icon);
 
-    boolean isKeyValid(String key);
+    boolean isKeyValid(String key) throws WeatherException;
 
     String getAPIKey();
 

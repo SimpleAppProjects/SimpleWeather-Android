@@ -35,6 +35,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
+import com.google.android.material.snackbar.Snackbar;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -43,12 +44,15 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
+import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
+import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -101,7 +105,7 @@ public class LocationSearchFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mActivity = (FragmentActivity) context;
     }
@@ -117,6 +121,7 @@ public class LocationSearchFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         ctsCancel();
+        mActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
         mActivity = null;
     }
 
@@ -151,12 +156,6 @@ public class LocationSearchFragment extends Fragment {
                     mClearButton.setVisibility(View.VISIBLE);
             }
         });
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -346,7 +345,21 @@ public class LocationSearchFragment extends Fragment {
 
                     if (ctsToken.isCancellationRequested()) return;
 
-                    final Collection<LocationQueryViewModel> results = wm.getLocations(queryString);
+                    final Collection<LocationQueryViewModel> results;
+                    try {
+                        results = wm.getLocations(queryString);
+                    } catch (final WeatherException e) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Snackbar.make(mActivity.findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_SHORT)
+                                        .addCallback(new SnackbarWindowAdjustCallback(mActivity))
+                                        .show();
+                                mAdapter.setLocations(Collections.singletonList(new LocationQueryViewModel()));
+                            }
+                        });
+                        return;
+                    }
 
                     if (ctsToken.isCancellationRequested()) return;
 

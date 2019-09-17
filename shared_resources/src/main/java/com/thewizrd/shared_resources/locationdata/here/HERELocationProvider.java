@@ -1,11 +1,9 @@
 package com.thewizrd.shared_resources.locationdata.here;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.BuildConfig;
-import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
@@ -45,7 +43,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
     }
 
     @Override
-    public Collection<LocationQueryViewModel> getLocations(String ac_query, String weatherAPI) {
+    public Collection<LocationQueryViewModel> getLocations(String ac_query, String weatherAPI) throws WeatherException {
         Collection<LocationQueryViewModel> locations = null;
 
         String queryAPI = "https://autocomplete.geocoder.api.here.com/6.2/suggest.json";
@@ -100,19 +98,15 @@ public final class HERELocationProvider extends LocationProviderImpl {
         } catch (Exception ex) {
             if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
-                final WeatherException finalWEx = wEx;
-                mMainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(SimpleLibrary.getInstance().getApp().getAppContext(), finalWEx.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
             }
             Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting locations");
         } finally {
             if (client != null)
                 client.disconnect();
         }
+
+        if (wEx != null)
+            throw wEx;
 
         if (locations == null || locations.size() == 0) {
             locations = Collections.singletonList(new LocationQueryViewModel());
@@ -122,7 +116,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
     }
 
     @Override
-    public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coord, String weatherAPI) {
+    public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coord, String weatherAPI) throws WeatherException {
         LocationQueryViewModel location = null;
 
         String queryAPI = "https://reverse.geocoder.cit.api.here.com/6.2/reversegeocode.json";
@@ -163,19 +157,15 @@ public final class HERELocationProvider extends LocationProviderImpl {
             result = null;
             if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
-                final WeatherException finalWEx = wEx;
-                mMainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(SimpleLibrary.getInstance().getApp().getAppContext(), finalWEx.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
             }
             Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting location");
         } finally {
             if (client != null)
                 client.disconnect();
         }
+
+        if (wEx != null)
+            throw wEx;
 
         if (result != null && !StringUtils.isNullOrWhitespace(result.getLocation().getLocationId()))
             location = new LocationQueryViewModel(result, weatherAPI);
@@ -185,7 +175,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
         return location;
     }
 
-    public LocationQueryViewModel getLocationfromLocID(String locationID, String weatherAPI) {
+    public LocationQueryViewModel getLocationfromLocID(String locationID, String weatherAPI) throws WeatherException {
         LocationQueryViewModel location = null;
 
         String queryAPI = "https://geocoder.api.here.com/6.2/geocode.json";
@@ -225,19 +215,15 @@ public final class HERELocationProvider extends LocationProviderImpl {
             result = null;
             if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
-                final WeatherException finalWEx = wEx;
-                mMainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(SimpleLibrary.getInstance().getApp().getAppContext(), finalWEx.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
             }
             Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting location");
         } finally {
             if (client != null)
                 client.disconnect();
         }
+
+        if (wEx != null)
+            throw wEx;
 
         if (result != null && !StringUtils.isNullOrWhitespace(result.getLocation().getLocationId()))
             location = new LocationQueryViewModel(result, weatherAPI);
@@ -248,7 +234,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
     }
 
     @Override
-    public boolean isKeyValid(String key) {
+    public boolean isKeyValid(String key) throws WeatherException {
         String queryAPI = "https://weather.cit.api.here.com/weather/1.0/report.json";
 
         String app_id = "";
@@ -302,13 +288,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
         }
 
         if (wEx != null) {
-            final WeatherException finalWEx = wEx;
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(SimpleLibrary.getInstance().getApp().getAppContext(), finalWEx.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
+            throw wEx;
         }
 
         return isValid;

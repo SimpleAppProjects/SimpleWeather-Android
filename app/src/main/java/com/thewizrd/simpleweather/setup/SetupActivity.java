@@ -6,9 +6,13 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.stepstone.stepper.StepperLayout;
@@ -55,6 +59,10 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
 
         setContentView(R.layout.activity_setup);
 
+        View mRootView = findViewById(R.id.activity_setup);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            mRootView.setFitsSystemWindows(true);
+
         // Make full transparent statusBar
         ActivityUtils.setTransparentWindow(getWindow(), Colors.SIMPLEBLUE, Colors.TRANSPARENT, Colors.TRANSPARENT,
                 Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP);
@@ -73,6 +81,15 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
         mStepperLayout.setCompleteButtonColor(Colors.WHITE);
         mStepperLayout.setAdapter(new SetupStepperAdapter(getSupportFragmentManager(), this), startingStepPosition);
         mStepperLayout.setListener(this);
+
+        ViewCompat.setOnApplyWindowInsetsListener(mStepperLayout, new OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                layoutParams.setMargins(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
+                return insets;
+            }
+        });
     }
 
     @Override

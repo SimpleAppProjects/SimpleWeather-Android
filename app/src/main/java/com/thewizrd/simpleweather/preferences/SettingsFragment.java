@@ -20,6 +20,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -39,13 +40,16 @@ import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.SwitchPreferenceCompat;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
+import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
+import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
@@ -218,7 +222,8 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
             ListPreference keyPref = (ListPreference) fragment.findPreference(KEY_API);
             if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && WeatherManager.isKeyRequired(keyPref.getValue())) {
                 // Set keyentrypref color to red
-                Toast.makeText(mActivity, R.string.message_enter_apikey, Toast.LENGTH_LONG).show();
+                if (getView() != null)
+                    Snackbar.make(getView(), R.string.message_enter_apikey, Snackbar.LENGTH_LONG).show();
                 return true;
             }
         }
@@ -598,15 +603,20 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                     String key = fragment.getKey();
 
                     String API = providerPref.getValue();
-                    if (WeatherManager.isKeyValid(key, API)) {
-                        Settings.setAPIKEY(key);
-                        Settings.setAPI(API);
+                    try {
+                        if (WeatherManager.isKeyValid(key, API)) {
+                            Settings.setAPIKEY(key);
+                            Settings.setAPI(API);
 
-                        Settings.setKeyVerified(true);
-                        updateKeySummary();
-                        updateAlertPreference(WeatherManager.getInstance().supportsAlerts());
+                            Settings.setKeyVerified(true);
+                            updateKeySummary();
+                            updateAlertPreference(WeatherManager.getInstance().supportsAlerts());
 
-                        fragment.getDialog().dismiss();
+                            fragment.getDialog().dismiss();
+                        }
+                    } catch (WeatherException e) {
+                        Logger.writeLine(Log.ERROR, e);
+                        Toast.makeText(mActivity, e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -678,7 +688,8 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                     // functionality that depends on this permission.
                     followGps.setChecked(false);
                     Settings.setFollowGPS(false);
-                    Toast.makeText(mActivity, R.string.error_location_denied, Toast.LENGTH_SHORT).show();
+                    if (getView() != null)
+                        Snackbar.make(getView(), R.string.error_location_denied, Snackbar.LENGTH_SHORT).show();
                 }
                 return;
             default:

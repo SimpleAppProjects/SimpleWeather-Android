@@ -114,11 +114,11 @@
     <string name="undo">Undo</string>
 
     <!-- Weather Exceptions -->
-    <string name="werror_noweather">Unable to load weather data!!</string>
-    <string name="werror_networkerror">Network Connection Error!!</string>
+    <string name="werror_noweather">Unable to load weather data</string>
+    <string name="werror_networkerror">Network Connection Error</string>
     <string name="werror_invalidkey">Invalid Provider Key</string>
     <string name="werror_querynotfound">No cities match your search query</string>
-    <string name="werror_unknown">Unknown error occurred!!</string>
+    <string name="werror_unknown">Unknown error occurred</string>
 
     <!-- Refresh Intervals -->
     <string name="pref_title_refreshinterval">Update Interval</string>

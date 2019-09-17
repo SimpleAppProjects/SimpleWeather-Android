@@ -1,9 +1,7 @@
 package com.thewizrd.shared_resources.locationdata.weatherunderground;
 
 import android.util.Log;
-import android.widget.Toast;
 
-import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -99,7 +97,7 @@ public class WULocationProvider extends LocationProviderImpl {
     }
 
     @Override
-    public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coord, String weatherAPI) {
+    public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coord, String weatherAPI) throws WeatherException {
         LocationQueryViewModel location = null;
 
         String queryAPI = "https://api.wunderground.com/auto/wui/geo/GeoLookupXML/index.xml?query=";
@@ -128,19 +126,15 @@ public class WULocationProvider extends LocationProviderImpl {
             result = null;
             if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
-                final WeatherException finalWEx = wEx;
-                mMainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(SimpleLibrary.getInstance().getApp().getAppContext(), finalWEx.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
             }
             Logger.writeLine(Log.ERROR, ex, "WeatherUndergroundProvider: error getting location");
         } finally {
             if (client != null)
                 client.disconnect();
         }
+
+        if (wEx != null)
+            throw wEx;
 
         if (result != null && !StringUtils.isNullOrWhitespace(result.getQuery()))
             location = new LocationQueryViewModel(result, weatherAPI);

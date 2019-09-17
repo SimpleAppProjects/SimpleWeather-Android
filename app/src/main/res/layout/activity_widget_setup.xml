@@ -1,59 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".widgets.WeatherWidgetConfigActivity">
+    android:layout_height="match_parent">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:fitsSystemWindows="true"
-        android:minHeight="?attr/actionBarSize"
-        android:stateListAnimator="@animator/design_appbar_state_list_animator"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        app:liftOnScroll="true"
-        tools:stateListAnimator="@null">
-
-        <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:id="@+id/collapsing_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/collapsingtoolbar_maxHeight"
-            android:minHeight="?attr/actionBarSize"
-            app:statusBarScrim="?attr/colorPrimary"
-            app:expandedTitleTextAppearance="@style/TextAppearance.OpenSans.Headline6"
-            app:collapsedTitleTextAppearance="@style/TextAppearance.OpenSans.Headline6"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:theme="@style/ThemeOverlay.AppCompat.DayNight.ActionBar"
-                app:titleMarginStart="0dp"
-                app:layout_collapseMode="pin"
-                tools:title="@string/widget_configure_prompt" />
-
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <FrameLayout
+    <com.thewizrd.simpleweather.helpers.WindowInsetsFrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-    <RelativeLayout
-        android:id="@+id/search_fragment_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:focusable="true"
-        android:translationZ="@dimen/floating_window_z" />
+        android:layout_height="match_parent" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

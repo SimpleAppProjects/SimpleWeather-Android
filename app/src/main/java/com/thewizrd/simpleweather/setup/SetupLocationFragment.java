@@ -27,7 +27,6 @@ import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,6 +34,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MarginLayoutParamsCompat;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -54,10 +56,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
+import com.google.android.material.snackbar.Snackbar;
 import com.stepstone.stepper.Step;
 import com.stepstone.stepper.StepperLayout;
 import com.stepstone.stepper.VerificationError;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.AsyncTaskEx;
+import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQuery;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -74,9 +79,9 @@ import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
-import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.fragments.LocationSearchFragment;
+import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
 import java.util.concurrent.Callable;
@@ -110,6 +115,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
 
     private AppCompatActivity mActivity;
     private StepperDataManager mDataManager;
+    private View mStepperNavBar;
     private StepperLayout mStepperLayout;
 
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
@@ -119,14 +125,25 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_setup_location, container, false);
+        final View view = inflater.inflate(R.layout.fragment_setup_location, container, false);
         mMainView = view;
         wm = WeatherManager.getInstance();
 
         mStepperLayout = mActivity.findViewById(R.id.stepperLayout);
+        mStepperNavBar = mActivity.findViewById(R.id.ms_bottomNavigation);
 
         searchViewContainer = view.findViewById(R.id.search_bar);
+
         mSearchFragmentContainer = view.findViewById(R.id.search_fragment_container);
+        ViewCompat.setOnApplyWindowInsetsListener(mSearchFragmentContainer, new OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                layoutParams.setMargins(insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), 0);
+                return insets;
+            }
+        });
+
         gpsFollowButton = view.findViewById(R.id.gps_follow);
         progressBar = view.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
@@ -188,7 +205,9 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             @Override
                             public void run() {
                                 enableControls(true);
-                                Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                                Snackbar.make(mMainView, R.string.error_retrieve_location, Snackbar.LENGTH_SHORT)
+                                        .setAnchorView(mStepperNavBar)
+                                        .show();
                             }
                         });
                     } else {
@@ -213,7 +232,9 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             public void run() {
                                 stopLocationUpdates();
                                 enableControls(true);
-                                Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                                Snackbar.make(mMainView, R.string.error_retrieve_location, Snackbar.LENGTH_SHORT)
+                                        .setAnchorView(mStepperNavBar)
+                                        .show();
                             }
                         });
                     }
@@ -397,7 +418,9 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(App.getInstance().getAppContext(), R.string.werror_invalidkey, Toast.LENGTH_SHORT).show();
+                                    Snackbar.make(mMainView, R.string.werror_invalidkey, Snackbar.LENGTH_SHORT)
+                                            .addCallback(new SnackbarWindowAdjustCallback(mActivity))
+                                            .show();
                                 }
                             });
                             return;
@@ -420,12 +443,25 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                                 && query_vm.getLocationLat() == -1 && query_vm.getLocationLong() == -1
                                 && query_vm.getLocationTZLong() == null) {
                             final LocationQueryViewModel loc = query_vm;
-                            query_vm = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
-                                @Override
-                                public LocationQueryViewModel call() throws Exception {
-                                    return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
-                                }
-                            });
+                            try {
+                                query_vm = new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
+                                    @Override
+                                    public LocationQueryViewModel call() throws WeatherException {
+                                        return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
+                                    }
+                                });
+                            } catch (final WeatherException wEx) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mSearchFragment.showLoading(false);
+                                        Snackbar.make(mMainView, wEx.getMessage(), Snackbar.LENGTH_SHORT)
+                                                .addCallback(new SnackbarWindowAdjustCallback(mActivity))
+                                                .show();
+                                    }
+                                });
+                                return;
+                            }
                         }
 
                         // Get weather data
@@ -434,8 +470,10 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(App.getInstance().getAppContext(), R.string.werror_noweather, Toast.LENGTH_SHORT).show();
                                     mSearchFragment.showLoading(false);
+                                    Snackbar.make(mMainView, R.string.werror_noweather, Snackbar.LENGTH_SHORT)
+                                            .addCallback(new SnackbarWindowAdjustCallback(mActivity))
+                                            .show();
                                 }
                             });
                             return;
@@ -449,7 +487,10 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast.makeText(App.getInstance().getAppContext(), wEx.getMessage(), Toast.LENGTH_SHORT).show();
+                                        mSearchFragment.showLoading(false);
+                                        Snackbar.make(mMainView, wEx.getMessage(), Snackbar.LENGTH_SHORT)
+                                                .addCallback(new SnackbarWindowAdjustCallback(mActivity))
+                                                .show();
                                     }
                                 });
                             }
@@ -561,7 +602,10 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(mActivity, R.string.werror_invalidkey, Toast.LENGTH_SHORT).show();
+                                    Snackbar.make(mMainView, R.string.werror_invalidkey, Snackbar.LENGTH_SHORT)
+                                            .addCallback(new SnackbarWindowAdjustCallback(mActivity))
+                                            .setAnchorView(mStepperNavBar)
+                                            .show();
                                 }
                             });
                             enableControls(true);
@@ -576,7 +620,10 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(mActivity, getString(R.string.werror_noweather), Toast.LENGTH_SHORT).show();
+                                    Snackbar.make(mMainView, R.string.werror_noweather, Snackbar.LENGTH_SHORT)
+                                            .addCallback(new SnackbarWindowAdjustCallback(mActivity))
+                                            .setAnchorView(mStepperNavBar)
+                                            .show();
                                 }
                             });
                             enableControls(true);
@@ -599,7 +646,10 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast.makeText(mActivity, wEx.getMessage(), Toast.LENGTH_SHORT).show();
+                                        Snackbar.make(mMainView, wEx.getMessage(), Snackbar.LENGTH_SHORT)
+                                                .addCallback(new SnackbarWindowAdjustCallback(mActivity))
+                                                .setAnchorView(mStepperNavBar)
+                                                .show();
                                     }
                                 });
                             }
@@ -652,6 +702,15 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                     enableControls(true);
                     Settings.setFollowGPS(false);
                     Settings.setWeatherLoaded(false);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Snackbar.make(mMainView, R.string.error_retrieve_location, Snackbar.LENGTH_SHORT)
+                                    .addCallback(new SnackbarWindowAdjustCallback(mActivity))
+                                    .setAnchorView(mStepperNavBar)
+                                    .show();
+                        }
+                    });
                 }
             }
         });
@@ -722,7 +781,10 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                        Snackbar.make(mMainView, R.string.error_retrieve_location, Snackbar.LENGTH_SHORT)
+                                .addCallback(new SnackbarWindowAdjustCallback(mActivity))
+                                .setAnchorView(mStepperNavBar)
+                                .show();
                     }
                 });
             }
@@ -748,7 +810,10 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     enableControls(true);
-                    Toast.makeText(mActivity, R.string.error_location_denied, Toast.LENGTH_SHORT).show();
+                    Snackbar.make(mMainView, R.string.error_location_denied, Snackbar.LENGTH_SHORT)
+                            .addCallback(new SnackbarWindowAdjustCallback(mActivity))
+                            .setAnchorView(mStepperNavBar)
+                            .show();
                 }
                 return;
             }

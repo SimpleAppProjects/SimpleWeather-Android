@@ -34,7 +34,6 @@ import android.view.ViewOutlineProvider;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -77,7 +76,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.gson.stream.JsonReader;
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.AsyncTask;
@@ -116,6 +115,8 @@ import com.thewizrd.simpleweather.helpers.LocationPanelOffsetDecoration;
 import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationBuilder;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
+import com.thewizrd.simpleweather.snackbar.Snackbar;
+import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
@@ -154,6 +155,7 @@ public class WeatherNowFragment extends WindowColorFragment
     private AppCompatActivity mActivity;
     private SystemBarColorManager mSysBarColorsIface;
     private CancellationTokenSource cts;
+    private SnackbarManager mSnackMgr;
 
     // Views
     private View mRootView;
@@ -294,7 +296,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     case NETWORKERROR:
                     case NOWEATHER:
                         // Show error message and prompt to refresh
-                        Snackbar snackBar = Snackbar.make(scrollView, wEx.getMessage(), Snackbar.LENGTH_LONG);
+                        Snackbar snackBar = Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG);
                         snackBar.setAction(R.string.action_retry, new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -306,15 +308,31 @@ public class WeatherNowFragment extends WindowColorFragment
                                 });
                             }
                         });
-                        snackBar.show();
+                        showSnackbar(snackBar, null);
                         break;
                     default:
                         // Show error message
-                        Snackbar.make(scrollView, wEx.getMessage(), Snackbar.LENGTH_LONG).show();
+                        showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG), null);
                         break;
                 }
             }
         });
+    }
+
+    private void initSnackManager() {
+        if (mSnackMgr == null) {
+            mSnackMgr = new SnackbarManager(mRootView);
+            mSnackMgr.setSwipeDismissEnabled(true);
+            mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
+        }
+    }
+
+    private void showSnackbar(Snackbar snackbar, com.google.android.material.snackbar.Snackbar.Callback callback) {
+        if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
+    }
+
+    private void dismissAllSnackbars() {
+        if (mSnackMgr != null) mSnackMgr.dismissAll();
     }
 
     @Override
@@ -979,6 +997,8 @@ public class WeatherNowFragment extends WindowColorFragment
                 return;
             }
 
+            initSnackManager();
+
             if (weatherView != null) {
                 AsyncTask.run(new Runnable() {
                     @Override
@@ -1006,6 +1026,8 @@ public class WeatherNowFragment extends WindowColorFragment
             adjustConditionPanelLayout();
             adjustDetailsLayout();
 
+            initSnackManager();
+
             AsyncTask.run(new Runnable() {
                 @Override
                 public void run() {
@@ -1013,6 +1035,8 @@ public class WeatherNowFragment extends WindowColorFragment
                 }
             });
         } else if (hidden) {
+            dismissAllSnackbars();
+            mSnackMgr = null;
             loaded = false;
         }
     }
@@ -1024,6 +1048,9 @@ public class WeatherNowFragment extends WindowColorFragment
             cts.cancel();
             refreshLayout.setRefreshing(false);
         }
+
+        dismissAllSnackbars();
+        mSnackMgr = null;
 
         super.onPause();
         // Remove location updates to save battery.
@@ -1392,7 +1419,7 @@ public class WeatherNowFragment extends WindowColorFragment
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(mActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                                    showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.LONG), null);
                                 }
                             });
                         }
@@ -1418,9 +1445,17 @@ public class WeatherNowFragment extends WindowColorFragment
                         if (isCtsCancelRequested())
                             return null;
 
-                        view = wm.getLocation(location);
-                        if (StringUtils.isNullOrEmpty(view.getLocationQuery()))
-                            view = new LocationQueryViewModel();
+                        try {
+                            view = wm.getLocation(location);
+                        } catch (final WeatherException e) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT), null);
+                                }
+                            });
+                            return false;
+                        }
 
                         if (StringUtils.isNullOrWhitespace(view.getLocationQuery())) {
                             // Stop since there is no valid query
@@ -1473,7 +1508,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     Settings.setFollowGPS(false);
-                    Toast.makeText(mActivity, R.string.error_location_denied, Toast.LENGTH_SHORT).show();
+                    showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null);
                 }
                 return;
             }

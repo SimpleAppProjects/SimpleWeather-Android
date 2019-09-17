@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -27,6 +28,29 @@ public final class SnackbarManager {
     private Stack<SnackbarPair> mSnacks;
     private Handler mMainHandler;
     private View mParentView;
+    private @BaseTransientBottomBar.AnimationMode
+    int mAnimationMode = BaseTransientBottomBar.ANIMATION_MODE_SLIDE;
+    private boolean isSwipeDismissEnabled = false;
+    private View mAnchorView;
+
+    public void setSwipeDismissEnabled(boolean swipeDismissEnabled) {
+        isSwipeDismissEnabled = swipeDismissEnabled;
+    }
+
+    public void setAnchorView(@Nullable View anchorView) {
+        mAnchorView = anchorView;
+    }
+
+    public void setAnchorView(@IdRes int viewId) {
+        mAnchorView = mParentView.findViewById(viewId);
+        if (this.mAnchorView == null) {
+            throw new IllegalArgumentException("Unable to find anchor view with id: " + viewId);
+        }
+    }
+
+    public void setAnimationMode(@BaseTransientBottomBar.AnimationMode int animationMode) {
+        mAnimationMode = animationMode;
+    }
 
     private final Runnable mHideRunnable = new Runnable() {
         @Override
@@ -75,7 +99,8 @@ public final class SnackbarManager {
             // Pop out SnackPair
             SnackbarPair snackbarPair = mSnacks.pop();
             // Perform dismiss action
-            snackbarPair.callback.onDismissed(mSnackbarView, DISMISS_EVENT_MANUAL);
+            if (snackbarPair.callback != null)
+                snackbarPair.callback.onDismissed(mSnackbarView, DISMISS_EVENT_MANUAL);
         }
 
         mSnacks.clear();
@@ -90,7 +115,8 @@ public final class SnackbarManager {
         // Pop out SnackPair
         SnackbarPair snackbarPair = mSnacks.pop();
         // Perform dismiss action
-        snackbarPair.callback.onDismissed(mSnackbarView, event);
+        if (snackbarPair.callback != null)
+            snackbarPair.callback.onDismissed(mSnackbarView, event);
         // Return and let mgr updateview
     }
 
@@ -117,9 +143,11 @@ public final class SnackbarManager {
                 snackView.setBehavior(new com.google.android.material.snackbar.Snackbar.Behavior() {
                     @Override
                     public boolean canSwipeDismissView(View child) {
-                        return false;
+                        return isSwipeDismissEnabled;
                     }
                 });
+                snackView.setAnimationMode(mAnimationMode);
+                snackView.setAnchorView(mAnchorView);
                 mSnackbarView = snackView;
             }
 
@@ -134,7 +162,8 @@ public final class SnackbarManager {
                         snackPair.snackbar.getAction().onClick(v);
                     }
                     // Now dismiss the Snackbar
-                    snackPair.callback.onDismissed(mSnackbarView, BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION);
+                    if (snackPair.callback != null)
+                        snackPair.callback.onDismissed(mSnackbarView, BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION);
                     if (!mSnacks.isEmpty()) mSnacks.pop();
                     updateView();
                 }

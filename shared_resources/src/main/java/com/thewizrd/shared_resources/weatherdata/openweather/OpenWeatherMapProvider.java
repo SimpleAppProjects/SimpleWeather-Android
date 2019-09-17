@@ -1,10 +1,8 @@
 package com.thewizrd.shared_resources.weatherdata.openweather;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import com.ibm.icu.util.ULocale;
-import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
@@ -62,7 +60,7 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
     }
 
     @Override
-    public boolean isKeyValid(String key) {
+    public boolean isKeyValid(String key) throws WeatherException {
         String queryAPI = "https://api.openweathermap.org/data/2.5/";
         String query = "forecast?appid=";
         HttpURLConnection client = null;
@@ -101,13 +99,7 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
         }
 
         if (wEx != null) {
-            final WeatherException finalWEx = wEx;
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(SimpleLibrary.getInstance().getApp().getAppContext(), finalWEx.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
+            throw wEx;
         }
 
         return isValid;
@@ -182,13 +174,6 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
             weather = null;
             if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
-                final WeatherException finalWEx = wEx;
-                mMainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(SimpleLibrary.getInstance().getApp().getAppContext(), finalWEx.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
             }
             Logger.writeLine(Log.ERROR, ex, "OpenWeatherMapProvider: error getting weather data");
         } finally {
@@ -196,7 +181,7 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
                 client.disconnect();
         }
 
-        if (weather == null || !weather.isValid()) {
+        if (wEx == null && (weather == null || !weather.isValid())) {
             wEx = new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
         } else if (weather != null) {
             if (supportsWeatherLocale())
