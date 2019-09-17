@@ -738,7 +738,8 @@ public class WeatherNowFragment extends WindowColorFragment
         sunView = view.findViewById(R.id.sun_phase_view);
 
         // SwipeRefresh
-        refreshLayout.setColorSchemeColors(Colors.SIMPLEBLUE);
+        refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(mActivity, R.color.invButtonColor));
+        refreshLayout.setColorSchemeColors(ActivityUtils.getColor(mActivity, R.attr.colorPrimary));
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -797,6 +798,9 @@ public class WeatherNowFragment extends WindowColorFragment
 
         weatherView.updatePendingBackground(mActivity.getApplicationContext(), true);
         weatherView.notifyChange();
+
+        refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(mActivity, R.color.invButtonColor));
+        refreshLayout.setColorSchemeColors(ActivityUtils.getColor(mActivity, R.attr.colorPrimary));
 
         // Resize necessary views
         ViewTreeObserver observer = mRootView.getViewTreeObserver();
