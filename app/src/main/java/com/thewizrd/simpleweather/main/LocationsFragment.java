@@ -863,8 +863,10 @@ public class LocationsFragment extends ToolbarFragment
             public void run() {
                 // Reload all panels if needed
                 List<LocationData> locations = new ArrayList<>(Settings.getLocationData());
-                LocationData homeData = Settings.getLastGPSLocData();
-                locations.add(0, homeData);
+                if (Settings.useFollowGPS()) {
+                    LocationData homeData = Settings.getLastGPSLocData();
+                    locations.add(0, homeData);
+                }
                 LocationPanelViewModel gpsPanelViewModel = mAdapter.getGPSPanel();
 
                 boolean reload = (locations.size() != mAdapter.getDataCount() ||
@@ -875,8 +877,10 @@ public class LocationsFragment extends ToolbarFragment
                         (mAdapter.getFavoritesCount() > 0 && !Settings.getAPI().equals(mAdapter.getFirstFavPanel().getWeatherSource())))
                     reload = true;
 
-                if (!reload && (gpsPanelViewModel != null && !homeData.getQuery().equals(gpsPanelViewModel.getLocationData().getQuery())))
-                    reload = true;
+                if (Settings.useFollowGPS()) {
+                    if (!reload && (gpsPanelViewModel != null && !locations.get(0).getQuery().equals(gpsPanelViewModel.getLocationData().getQuery())))
+                        reload = true;
+                }
 
                 if (isCtsCancelRequested())
                     return;
