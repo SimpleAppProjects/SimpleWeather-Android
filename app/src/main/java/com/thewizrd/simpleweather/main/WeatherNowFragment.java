@@ -621,7 +621,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     mScrollHandled = true;
                 }
 
-                if (!mScrollHandled && scrollOffset < condPnlHeight) {
+                if (dY != 0 && !mScrollHandled && scrollOffset < condPnlHeight) {
                     int animDY = (int) getSplineFlingDistance(startvelocityY);
                     int animScrollY = oldScrollY + animDY;
 
