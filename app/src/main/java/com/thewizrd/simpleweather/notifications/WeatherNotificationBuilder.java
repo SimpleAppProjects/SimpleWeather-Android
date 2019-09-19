@@ -16,10 +16,13 @@ import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
 
+import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
-import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
@@ -38,7 +41,7 @@ public class WeatherNotificationBuilder {
     private static Notification mNotification;
     private static boolean isShowing = false;
 
-    public static void updateNotification(Weather weather) {
+    public static void updateNotification(final WeatherNowViewModel viewModel) {
         Context context = App.getInstance().getAppContext();
 
         // Gets an instance of the NotificationManager service
@@ -50,35 +53,21 @@ public class WeatherNotificationBuilder {
         // Build update
         RemoteViews updateViews = new RemoteViews(context.getPackageName(), R.layout.weather_notification_layout);
 
-        String temp = (Settings.isFahrenheit() ?
-                Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC())) + "º";
-        String condition = weather.getCondition().getWeather();
-        String hiTemp;
-        String loTemp;
-        try {
-            hiTemp = (Settings.isFahrenheit() ?
-                    Math.round(Double.valueOf(weather.getForecast()[0].getHighF())) : Math.round(Double.valueOf(weather.getForecast()[0].getHighC()))) + "º";
-        } catch (NumberFormatException nFe) {
-            hiTemp = "--º";
-            Logger.writeLine(Log.ERROR, nFe);
-        }
-        try {
-            loTemp = (Settings.isFahrenheit() ?
-                    Math.round(Double.valueOf(weather.getForecast()[0].getLowF())) : Math.round(Double.valueOf(weather.getForecast()[0].getLowC()))) + "º";
-        } catch (NumberFormatException nFe) {
-            loTemp = "--º";
-            Logger.writeLine(Log.ERROR, nFe);
-        }
+        String condition = viewModel.getCurCondition();
+        String hiTemp = viewModel.getForecasts().get(0).getHiTemp();
+        String loTemp = viewModel.getForecasts().get(0).getLoTemp();
+        String temp = StringUtils.removeNonDigitChars(viewModel.getCurTemp().toString());
 
         // Weather icon
         updateViews.setImageViewResource(R.id.weather_icon,
-                wm.getWeatherIconResource(weather.getCondition().getIcon()));
+                wm.getWeatherIconResource(viewModel.getWeatherIcon()));
 
         // Location Name
-        updateViews.setTextViewText(R.id.location_name, weather.getLocation().getName());
+        updateViews.setTextViewText(R.id.location_name, viewModel.getLocation());
 
         // Condition text
-        updateViews.setTextViewText(R.id.condition_weather, String.format("%s - %s", temp, condition));
+        updateViews.setTextViewText(R.id.condition_weather,
+                String.format("%sº - %s", temp, condition));
 
         // Details
         updateViews.setTextViewText(R.id.condition_details,
@@ -119,7 +108,7 @@ public class WeatherNotificationBuilder {
         if (Settings.getNotificationIcon().equals(Settings.TEMPERATURE_ICON))
             mBuilder.setSmallIcon(resId, Math.abs(level));
         else if (Settings.getNotificationIcon().equals(Settings.CONDITION_ICON))
-            mBuilder.setSmallIcon(wm.getWeatherIconResource(weather.getCondition().getIcon()));
+            mBuilder.setSmallIcon(wm.getWeatherIconResource(viewModel.getWeatherIcon()));
 
         Intent onClickIntent = new Intent(context, MainActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -127,7 +116,9 @@ public class WeatherNotificationBuilder {
         mBuilder.setContentIntent(clickPendingIntent);
 
         // Builds the notification and issues it.
-        mNotification = mBuilder.setColor(WeatherUtils.getColorFromTempF((float) weather.getCondition().getTempF())).build();
+        float temp_f = temp.endsWith(WeatherIcons.FAHRENHEIT) ?
+                Float.parseFloat(temp) : Float.parseFloat(ConversionMethods.CtoF(temp));
+        mNotification = mBuilder.setColor(WeatherUtils.getColorFromTempF(temp_f)).build();
         mNotifyMgr.notify(PERSISTENT_NOT_ID, mNotification);
         isShowing = true;
     }

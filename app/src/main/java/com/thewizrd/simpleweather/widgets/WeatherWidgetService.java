@@ -345,7 +345,7 @@ public class WeatherWidgetService extends JobIntentService {
                     });
 
                     if (Settings.showOngoingNotification() && weather != null)
-                        WeatherNotificationBuilder.updateNotification(weather);
+                        WeatherNotificationBuilder.updateNotification(new WeatherNowViewModel(weather));
                 }
             } else if (ACTION_UPDATEWEATHER.equals(intent.getAction())) {
                 if (Settings.isWeatherLoaded()) {
@@ -376,7 +376,7 @@ public class WeatherWidgetService extends JobIntentService {
                     });
                     if (weather != null) {
                         if (Settings.showOngoingNotification())
-                            WeatherNotificationBuilder.updateNotification(weather);
+                            WeatherNotificationBuilder.updateNotification(new WeatherNowViewModel(weather));
                         if (Settings.useAlerts() && wm.supportsAlerts() && weather != null) {
                             AsyncTask.run(new Runnable() {
                                 @Override

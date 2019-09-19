@@ -85,6 +85,9 @@ public class WeatherIcons {
     public static final String FLOOD = "\uf07c";
     public static final String VOLCANO = "\uf0c8";
 
+    public static final String FAHRENHEIT = "\uf045";
+    public static final String CELSIUS = "\uf03c";
+
     // N/A
     public static final String NA = "\uf07b";
 }

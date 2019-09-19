@@ -25,6 +25,7 @@ import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
+import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 import org.threeten.bp.format.DateTimeFormatter;
@@ -199,7 +200,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
             // Update current condition
             SpannableStringBuilder curTempSSBuilder = new SpannableStringBuilder();
             int temp = (int) (Settings.isFahrenheit() ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC()));
-            String unitTemp = Settings.isFahrenheit() ? "\uf045" : "\uf03c";
+            String unitTemp = Settings.isFahrenheit() ? WeatherIcons.FAHRENHEIT : WeatherIcons.CELSIUS;
             curTempSSBuilder.append(Integer.toString(temp))
                     .append(unitTemp)
                     .setSpan(new WeatherIconTextSpan(context), curTempSSBuilder.length() - unitTemp.length(), curTempSSBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
