@@ -10,12 +10,22 @@
         android:id="@+id/widgetBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/widget_background"
-        android:tint="@color/color_background_day" />
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        tools:src="@drawable/widget_background" />
+
+    <ImageView
+        android:id="@+id/image_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/background_overlay" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_margin="4dp"
         android:orientation="vertical">
 
         <RelativeLayout
@@ -29,21 +39,25 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentTop="true"
+                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/forecast_date"
+                    style="@style/ShadowText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dp"
+                    android:layout_gravity="center_horizontal"
                     android:layout_marginStart="4dp"
+                    android:layout_marginLeft="4dp"
                     android:maxLines="1"
                     android:padding="2dp"
+                    android:visibility="invisible"
                     android:text="@string/label_datenow"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="@android:color/white"
-                    android:textSize="12sp"
-                    style="@style/ShadowText" />
+                    android:textSize="12sp" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -54,14 +68,13 @@
 
                     <ImageView
                         android:id="@+id/weather_icon"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         android:layout_gravity="center_vertical"
                         android:layout_margin="4dp"
                         android:adjustViewBounds="true"
                         android:gravity="center_vertical"
                         android:scaleType="fitCenter"
-                        android:tint="@android:color/white"
                         style="@style/ShadowText"
                         tools:src="@drawable/ic_weather_icon" />
 
@@ -72,7 +85,7 @@
                         android:layout_gravity="center_vertical|start"
                         android:layout_margin="2dp"
                         android:adjustViewBounds="true"
-                        android:maxWidth="30dp"
+                        android:maxWidth="40dp"
                         android:scaleType="fitCenter"
                         style="@style/ShadowText"
                         tools:src="@drawable/notification_temp_pos70" />
@@ -129,7 +142,6 @@
                 android:fontFamily="sans-serif-condensed"
                 android:maxLines="1"
                 android:padding="4dp"
-                android:text="--"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="10sp"
@@ -141,6 +153,7 @@
                 android:layout_height="20dp"
                 android:layout_gravity="center"
                 android:padding="2dp"
+                android:alpha="0.7"
                 android:src="@drawable/ic_refresh_white_24dp"
                 android:visibility="gone" />
 
@@ -150,8 +163,9 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_gravity="center_vertical"
+                android:alpha="0.7"
                 android:indeterminate="true"
-                android:indeterminateTint="@android:color/white"
+                android:indeterminateTint="@android:color/black"
                 android:padding="4dp"
                 android:visibility="visible" />
 
@@ -162,6 +176,7 @@
                 android:layout_height="20dp"
                 android:layout_gravity="center_vertical"
                 android:padding="4dp"
+                android:alpha="0.7"
                 android:src="@drawable/ic_settings_black_24dp"
                 android:tint="@android:color/white" />
 

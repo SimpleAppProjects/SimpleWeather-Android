@@ -36,12 +36,14 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <TextView
+            <TextClock
                 android:id="@+id/clock_panel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:baselineAligned="true"
                 android:fontFamily="sans-serif-light"
+                android:format12Hour="@string/main_widget_12_hours_format"
+                android:format24Hour="@string/clock_24_hours_format"
                 android:gravity="center_horizontal"
                 android:maxLines="1"
                 android:shadowColor="#DD000000"
@@ -55,10 +57,12 @@
                 android:id="@+id/date_panel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-thin"
                 android:gravity="center_horizontal"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/date_text_size"
+                android:textStyle="bold"
                 style="@style/ShadowText"
                 tools:text="Sun, Oct 08" />
 
@@ -177,8 +181,9 @@
                 style="@style/ShadowProgressBar"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
+                android:alpha="0.7"
                 android:indeterminate="true"
-                android:indeterminateTint="@android:color/white"
+                android:indeterminateTint="@android:color/black"
                 android:padding="4dp"
                 android:visibility="visible" />
 

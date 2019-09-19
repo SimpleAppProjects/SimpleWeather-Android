@@ -3,13 +3,9 @@ package com.thewizrd.simpleweather.widgets;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.os.Build;
 import android.util.Log;
 import android.util.SparseArray;
-import android.widget.RemoteViews;
-
-import androidx.annotation.IdRes;
 
 import com.google.android.gms.common.util.ArrayUtils;
 import com.google.gson.reflect.TypeToken;
@@ -25,8 +21,6 @@ import com.thewizrd.simpleweather.App;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.StringReader;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -446,27 +440,6 @@ public class WidgetUtils {
 
         editor.putString(KEY_WIDGETBACKGROUND, Integer.toString(value));
         editor.commit();
-    }
-
-    // https://stackoverflow.com/a/53930384
-    public static void setProgessBarTint(RemoteViews view, @IdRes int viewId, int color) {
-        Method setTintMethod = null;
-        try {
-            setTintMethod = RemoteViews.class.getMethod("setProgressTintList", int.class, ColorStateList.class);
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-        if (setTintMethod != null) {
-            try {
-                setTintMethod.invoke(view, viewId, ColorStateList.valueOf(color));
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public static void deleteWidget(int id) {

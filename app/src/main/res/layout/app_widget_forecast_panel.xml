@@ -15,7 +15,6 @@
         android:layout_gravity="center"
         android:maxLines="1"
         android:padding="2dp"
-        android:text="--"
         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
         android:textColor="@android:color/white"
         android:textSize="12sp"
@@ -38,8 +37,7 @@
             android:layout_margin="4dp"
             android:adjustViewBounds="true"
             android:scaleType="fitEnd"
-            android:src="@drawable/ic_weather_icon"
-            android:tint="@android:color/white" />
+            android:src="@drawable/ic_weather_icon" />
 
         <TextView
             android:id="@+id/spacer_middle"
@@ -66,7 +64,6 @@
                 android:gravity="start"
                 android:maxLines="1"
                 android:padding="2dp"
-                android:text="--"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
@@ -83,7 +80,6 @@
                 android:gravity="start"
                 android:maxLines="1"
                 android:padding="2dp"
-                android:text="--"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"

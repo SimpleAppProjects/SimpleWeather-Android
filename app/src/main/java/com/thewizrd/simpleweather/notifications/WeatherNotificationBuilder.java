@@ -82,7 +82,7 @@ public class WeatherNotificationBuilder {
 
         // Details
         updateViews.setTextViewText(R.id.condition_details,
-                String.format("%s / %s", hiTemp, loTemp));
+                String.format("%s | %s", hiTemp, loTemp));
 
         // Update Time
         String timeformat = LocalDateTime.now().format(DateTimeFormatter.ofPattern("h:mm a"));

@@ -57,7 +57,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:text="--"
             android:textAppearance="@style/TextAppearance.Compat.Notification"
             android:textSize="@dimen/not_primary_textSize"
             tools:text="68º - Sunny" />
@@ -67,7 +66,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:text="--"
             android:textAppearance="@style/TextAppearance.Compat.Notification.Line2"
             tools:text="74º / 65º" />
 
@@ -108,7 +106,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|end"
             android:padding="4dp"
-            android:text="--"
             android:textAppearance="@style/TextAppearance.Compat.Notification.Time"
             tools:text="1:00 AM" />
 

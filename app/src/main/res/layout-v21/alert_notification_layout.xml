@@ -39,7 +39,6 @@
         android:layout_below="@id/alert_title"
         android:layout_toStartOf="@id/alert_icon"
         android:ellipsize="end"
-        android:text="--"
         android:textAppearance="@style/TextAppearance.Compat.Notification"
         android:textSize="@dimen/not_primary_textSize"
         tools:text="Valid until Thursday, August 8, 2019 8:00 PM -04:00" />

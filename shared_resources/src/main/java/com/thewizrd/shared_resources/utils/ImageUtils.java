@@ -14,7 +14,12 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
@@ -42,38 +47,43 @@ public class ImageUtils {
         return bmp;
     }
 
-    public static Bitmap weatherIconToBitmap(Context context, String text, int textSize) {
+    public static Bitmap weatherIconToBitmap(Context context, CharSequence text, int textSize) {
         return weatherIconToBitmap(context, text, textSize, Color.WHITE);
     }
 
-    public static Bitmap weatherIconToBitmap(Context context, String text, int textSize, boolean addShadow) {
+    public static Bitmap weatherIconToBitmap(Context context, CharSequence text, int textSize, boolean addShadow) {
         return weatherIconToBitmap(context, text, textSize, Color.WHITE, addShadow);
     }
 
-    public static Bitmap weatherIconToBitmap(Context context, String text, int textSize, int textColor) {
+    public static Bitmap weatherIconToBitmap(Context context, CharSequence text, int textSize, int textColor) {
         return weatherIconToBitmap(context, text, textSize, textColor, false);
     }
 
-    public static Bitmap weatherIconToBitmap(Context context, String text, int textSize, int textColor, boolean addShadow) {
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    public static Bitmap weatherIconToBitmap(Context context, CharSequence text, int textSize, int textColor, boolean addShadow) {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        float textSizePx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, textSize, metrics);
+
+        TextPaint paint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         Typeface weathericons = ResourcesCompat.getFont(context, R.font.weathericons);
         paint.setSubpixelText(true);
         paint.setTypeface(weathericons);
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(textColor);
-        paint.setTextSize(textSize);
+        paint.setTextSize(textSizePx);
         paint.setTextAlign(Paint.Align.LEFT);
         if (addShadow) {
-            paint.setShadowLayer(1, 1, 1, Color.parseColor("#000000"));
+            paint.setShadowLayer(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2.75f, metrics),
+                    1, 1, Colors.BLACK);
         }
 
-        float baseline = -paint.ascent();
-        int width = (int) (paint.measureText(text) + 0.5f);
-        int height = (int) (baseline + paint.descent() + 0.5f);
+        int width = (int) paint.measureText(text, 0, text.length());
 
-        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        StaticLayout mTextLayout = new StaticLayout(
+                text, paint, width + width / 4, Layout.Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
+
+        Bitmap bmp = Bitmap.createBitmap(mTextLayout.getWidth(), mTextLayout.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas myCanvas = new Canvas(bmp);
-        myCanvas.drawText(text, 0, baseline, paint);
+        mTextLayout.draw(myCanvas);
 
         return bmp;
     }
