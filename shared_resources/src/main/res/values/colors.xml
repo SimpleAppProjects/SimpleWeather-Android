@@ -36,4 +36,7 @@
 
     <color name="color_background_night">#FF1A244A</color>
     <color name="color_background_day">#FF4874BF</color>
+
+    <color name="card_background_dark">#323232</color>
+    <color name="card_background_light">#FFFFFF</color>
 </resources>

@@ -157,6 +157,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
     public static class WeatherWidgetPreferenceFragment extends PreferenceFragmentCompat implements OnBackPressedFragmentListener {
         // Widget id for ConfigurationActivity
         private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+        private WidgetType mWidgetType = WidgetType.Unknown;
         private Intent resultValue;
 
         // Location Search
@@ -232,6 +233,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             if (getArguments() != null) {
                 // Find the widget id from the intent.
                 mAppWidgetId = getArguments().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+
+                mWidgetType = WeatherWidgetService.getWidgetTypeFromID(mAppWidgetId);
 
                 // Set the result value for WidgetConfigActivity
                 resultValue = new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
@@ -319,7 +322,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.pref_widgetconfig, null);
 
-            locationPref = (ListAdapterPreference) findPreference(KEY_LOCATION);
+            locationPref = findPreference(KEY_LOCATION);
             List<ComboBoxItem> comboList = new ArrayList<>();
             comboList.add(new ComboBoxItem(getString(R.string.pref_item_gpslocation), KEY_GPS));
             comboList.add(new ComboBoxItem(getString(R.string.label_btn_add_location), KEY_SEARCH));
@@ -371,12 +374,18 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             }
 
             // Setup interval spinner
-            refreshPref = (ListPreference) findPreference(KEY_REFRESHINTERVAL);
+            refreshPref = findPreference(KEY_REFRESHINTERVAL);
             refreshPref.setValue(Integer.toString(Settings.getRefreshInterval()));
 
             // Setup widget background spinner
-            bgColorPref = (ListPreference) findPreference(KEY_BGCOLOR);
-            bgColorPref.setValueIndex(WidgetUtils.getWidgetBackground(mAppWidgetId).getValue());
+            bgColorPref = findPreference(KEY_BGCOLOR);
+
+            if (mWidgetType != WidgetType.Widget4x1Google) {
+                bgColorPref.setValueIndex(WidgetUtils.getWidgetBackground(mAppWidgetId).getValue());
+            } else {
+                bgColorPref.setValueIndex(WidgetUtils.WidgetBackground.TRANSPARENT.getValue());
+                getPreferenceScreen().removePreference(bgColorPref);
+            }
 
             // Get SearchUI state
             if (savedInstanceState != null && savedInstanceState.getBoolean(KEY_SEARCHUI, false)) {
@@ -989,7 +998,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 WeatherWidgetService.enqueueWork(mActivity,
                         new Intent(mActivity, WeatherWidgetService.class)
                                 .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET)
-                                .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, new int[]{mAppWidgetId}));
+                                .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, new int[]{mAppWidgetId})
+                                .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, mWidgetType.getValue()));
 
                 // Create return intent
                 mActivity.setResult(RESULT_OK, resultValue);

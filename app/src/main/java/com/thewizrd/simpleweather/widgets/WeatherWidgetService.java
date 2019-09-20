@@ -45,6 +45,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.CancellationTokenSource;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
@@ -63,6 +64,7 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
+import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
@@ -76,6 +78,8 @@ import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -124,6 +128,8 @@ public class WeatherWidgetService extends JobIntentService {
             WeatherWidgetProvider4x1.getInstance();
     private WeatherWidgetProvider4x2 mAppWidget4x2 =
             WeatherWidgetProvider4x2.getInstance();
+    private WeatherWidgetProvider4x1Google mAppWidget4x1Google =
+            WeatherWidgetProvider4x1Google.getInstance();
 
     private static final int FORECAST_LENGTH = 3; // 3-day
     private static final int MEDIUM_FORECAST_LENGTH = 4; // 4-day
@@ -204,52 +210,25 @@ public class WeatherWidgetService extends JobIntentService {
 
                 switch (widgetType) {
                     case Widget1x1:
-                        new AsyncTask<Void>().await(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                refreshWidget(mAppWidget1x1, appWidgetIds);
-                                return null;
-                            }
-                        });
+                        refreshWidget(mAppWidget1x1, appWidgetIds);
                         break;
                     case Widget2x2:
-                        new AsyncTask<Void>().await(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                refreshWidget(mAppWidget2x2, appWidgetIds);
-                                return null;
-                            }
-                        });
+                        refreshWidget(mAppWidget2x2, appWidgetIds);
                         break;
                     case Widget4x1:
-                        new AsyncTask<Void>().await(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                refreshWidget(mAppWidget4x1, appWidgetIds);
-                                return null;
-                            }
-                        });
+                        refreshWidget(mAppWidget4x1, appWidgetIds);
                         break;
                     case Widget4x2:
-                        new AsyncTask<Void>().await(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                refreshWidget(mAppWidget4x2, appWidgetIds);
-                                return null;
-                            }
-                        });
+                        refreshWidget(mAppWidget4x2, appWidgetIds);
+                        break;
+                    case Widget4x1Google:
+                        refreshWidget(mAppWidget4x1Google, appWidgetIds);
                         break;
                     // We don't know the widget type to update,
                     // so just update all
                     case Unknown:
                     default:
-                        new AsyncTask<Void>().await(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                refreshWidgets();
-                                return null;
-                            }
-                        });
+                        refreshWidgets();
                         break;
                 }
             } else if (ACTION_RESIZEWIDGET.equals(intent.getAction())) {
@@ -259,54 +238,31 @@ public class WeatherWidgetService extends JobIntentService {
 
                 switch (widgetType) {
                     case Widget1x1:
-                    default:
-                        new AsyncTask<Void>().await(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
-                                int cellWidth = getCellsForSize(minWidth);
-                                int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
-                                int cellHeight = getCellsForSize(minHeight);
+                        int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
+                        int cellWidth = getCellsForSize(minWidth);
+                        int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
+                        int cellHeight = getCellsForSize(minHeight);
 
-                                RemoteViews updateViews = new RemoteViews(mContext.getPackageName(), mAppWidget1x1.getWidgetLayoutId());
+                        RemoteViews updateViews = new RemoteViews(mContext.getPackageName(), mAppWidget1x1.getWidgetLayoutId());
 
-                                if (cellWidth > 1 && cellHeight > 1)
-                                    updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, 18);
-                                else
-                                    updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, 12);
+                        if (cellWidth > 1 && cellHeight > 1)
+                            updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, 18);
+                        else
+                            updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, 12);
 
-                                mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews);
-
-                                return null;
-                            }
-                        });
+                        mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews);
                         break;
                     case Widget2x2:
-                        new AsyncTask<Void>().await(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                resizeWidget(mAppWidget2x2, appWidgetId, newOptions);
-                                return null;
-                            }
-                        });
+                        resizeWidget(mAppWidget2x2, appWidgetId, newOptions);
                         break;
                     case Widget4x1:
-                        new AsyncTask<Void>().await(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                resizeWidget(mAppWidget4x1, appWidgetId, newOptions);
-                                return null;
-                            }
-                        });
+                        resizeWidget(mAppWidget4x1, appWidgetId, newOptions);
                         break;
                     case Widget4x2:
-                        new AsyncTask<Void>().await(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                resizeWidget(mAppWidget4x2, appWidgetId, newOptions);
-                                return null;
-                            }
-                        });
+                        resizeWidget(mAppWidget4x2, appWidgetId, newOptions);
+                        break;
+                    case Widget4x1Google:
+                        resizeWidget(mAppWidget4x1Google, appWidgetId, newOptions);
                         break;
                 }
             } else if (ACTION_STARTALARM.equals(intent.getAction())) {
@@ -359,13 +315,7 @@ public class WeatherWidgetService extends JobIntentService {
                         WeatherNotificationBuilder.showRefresh(true);
 
                     if (widgetsExist(App.getInstance().getAppContext()))
-                        new AsyncTask<Void>().await(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                refreshWidgets();
-                                return null;
-                            }
-                        });
+                        refreshWidgets();
 
                     // Update for home
                     final Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
@@ -374,6 +324,7 @@ public class WeatherWidgetService extends JobIntentService {
                             return getWeather();
                         }
                     });
+
                     if (weather != null) {
                         if (Settings.showOngoingNotification())
                             WeatherNotificationBuilder.updateNotification(new WeatherNowViewModel(weather));
@@ -496,325 +447,190 @@ public class WeatherWidgetService extends JobIntentService {
     }
 
     private boolean widgetsExist(Context context) {
-        return mAppWidget1x1.hasInstances(context) || mAppWidget2x2.hasInstances(context) || mAppWidget4x1.hasInstances(context) || mAppWidget4x2.hasInstances(context);
+        return mAppWidget1x1.hasInstances(context)
+                || mAppWidget2x2.hasInstances(context)
+                || mAppWidget4x1.hasInstances(context)
+                || mAppWidget4x2.hasInstances(context)
+                || mAppWidget4x1Google.hasInstances(context);
     }
 
     private void resizeWidget(WeatherWidgetProvider provider, int appWidgetId, Bundle newOptions) throws InterruptedException {
-        if (Settings.isWeatherLoaded() /*&& (Settings.useFollowGPS() || !WidgetUtils.isGPS(appWidgetId))*/)
-            rebuildForecast(provider, appWidgetId, newOptions);
+        if (Settings.isWeatherLoaded()) rebuildWidget(provider, appWidgetId, newOptions);
     }
 
     private void refreshWidget(final WeatherWidgetProvider provider, int[] appWidgetIds) throws InterruptedException {
         if (appWidgetIds == null || appWidgetIds.length == 0)
             appWidgetIds = mAppWidgetManager.getAppWidgetIds(provider.getComponentName());
 
-        final int[] finalAppWidgetIds = appWidgetIds;
-        new AsyncTaskEx<Void, InterruptedException>().await(new CallableEx<Void, InterruptedException>() {
-            @Override
-            public Void call() throws InterruptedException {
-                if (Settings.isWeatherLoaded()) {
-                    for (int id : finalAppWidgetIds) {
-                        LocationData locData = null;
-
-                        if (WidgetUtils.isGPS(id)) {
-                            if (!Settings.useFollowGPS())
-                                continue;
-                            else
-                                locData = Settings.getLastGPSLocData();
-                        } else {
-                            locData = WidgetUtils.getLocationData(id);
-                        }
-
-                        if (isCtsCancelRequested()) throw new InterruptedException();
-
-                        Weather weather = null;
-
-                        if (locData != null) {
-                            if (isCtsCancelRequested()) throw new InterruptedException();
-
-                            if (locData.equals(Settings.getHomeData())) {
-                                weather = getWeather();
-                            } else {
-                                WeatherDataLoader wloader = new WeatherDataLoader(locData);
-                                try {
-                                    wloader.loadWeatherData(false);
-                                    weather = wloader.getWeather();
-                                } catch (Exception e) {
-                                    weather = null;
-                                }
-                            }
-
-                            if (weather != null) {
-                                // Save weather data
-                                WidgetUtils.saveWeatherData(id, weather);
-
-                                WeatherNowViewModel viewModel = new WeatherNowViewModel(weather);
-
-                                // Build the widget update for provider
-                                RemoteViews views = buildUpdate(mContext, provider, id, locData, viewModel);
-                                // Push update for this widget to the home screen
-                                mAppWidgetManager.updateAppWidget(id, views);
-                                buildForecast(provider, viewModel, id);
-                            }
-                        }
+        if (Settings.isWeatherLoaded()) {
+            List<Task<Void>> tasks = new ArrayList<>(appWidgetIds.length);
+            int count = 0;
+            for (final int id : appWidgetIds) {
+                Logger.writeLine(Log.DEBUG, "%s: refreshWidget: provider: %s; index: %d", TAG, provider.getWidgetType().name(), count);
+                Task<Void> task = AsyncTask.create(new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        refreshWidget(provider, id);
+                        return null;
                     }
-                }
+                });
 
-                if (provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x2) {
-                    refreshClock(finalAppWidgetIds);
-                    refreshDate(finalAppWidgetIds);
-                }
-                return null;
+                count++;
+                tasks.add(task);
             }
-        });
-    }
 
-    private void refreshWidgets() throws InterruptedException {
-        new AsyncTaskEx<Void, InterruptedException>().await(new CallableEx<Void, InterruptedException>() {
-            @Override
-            public Void call() throws InterruptedException {
-                if (Settings.isWeatherLoaded()) {
-                    // Build the widget update for available providers
-                    // Add widget providers here
-                    if (mAppWidget1x1.hasInstances(WeatherWidgetService.this)) {
-                        int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.getComponentName());
-
-                        for (int id : appWidgetIds) {
-                            LocationData locData = null;
-
-                            if (WidgetUtils.isGPS(id)) {
-                                if (!Settings.useFollowGPS())
-                                    continue;
-                                else
-                                    locData = Settings.getLastGPSLocData();
-                            } else {
-                                locData = WidgetUtils.getLocationData(id);
-                            }
-
-                            if (isCtsCancelRequested()) throw new InterruptedException();
-
-                            Weather weather = null;
-
-                            if (locData != null) {
-                                if (isCtsCancelRequested()) throw new InterruptedException();
-
-                                if (locData.equals(Settings.getHomeData())) {
-                                    weather = getWeather();
-                                } else {
-                                    WeatherDataLoader wloader = new WeatherDataLoader(locData);
-                                    try {
-                                        wloader.loadWeatherData(false);
-                                        weather = wloader.getWeather();
-                                    } catch (Exception e) {
-                                        weather = null;
-                                    }
-                                }
-
-                                if (weather != null) {
-                                    // Save weather data
-                                    WidgetUtils.saveWeatherData(id, weather);
-
-                                    WeatherNowViewModel viewModel = new WeatherNowViewModel(weather);
-
-                                    // Build the widget update for provider
-                                    RemoteViews views = buildUpdate(mContext, mAppWidget1x1, id, locData, viewModel);
-                                    // Push update for this widget to the home screen
-                                    mAppWidgetManager.updateAppWidget(id, views);
-                                    buildForecast(mAppWidget1x1, viewModel, id);
-                                }
-                            }
-                        }
-                    }
-
-                    if (mAppWidget2x2.hasInstances(WeatherWidgetService.this)) {
-                        int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName());
-
-                        for (int id : appWidgetIds) {
-                            LocationData locData = null;
-
-                            if (WidgetUtils.isGPS(id)) {
-                                if (!Settings.useFollowGPS())
-                                    continue;
-                                else
-                                    locData = Settings.getLastGPSLocData();
-                            } else {
-                                locData = WidgetUtils.getLocationData(id);
-                            }
-
-                            if (isCtsCancelRequested()) throw new InterruptedException();
-
-                            Weather weather = null;
-
-                            if (locData != null) {
-                                if (isCtsCancelRequested()) throw new InterruptedException();
-
-                                if (locData.equals(Settings.getHomeData())) {
-                                    weather = getWeather();
-                                } else {
-                                    WeatherDataLoader wloader = new WeatherDataLoader(locData);
-                                    try {
-                                        wloader.loadWeatherData(false);
-                                        weather = wloader.getWeather();
-                                    } catch (Exception e) {
-                                        weather = null;
-                                    }
-                                }
-
-                                if (weather != null) {
-                                    // Save weather data
-                                    WidgetUtils.saveWeatherData(id, weather);
-
-                                    WeatherNowViewModel viewModel = new WeatherNowViewModel(weather);
-
-                                    // Build the widget update for provider
-                                    RemoteViews views = buildUpdate(mContext, mAppWidget2x2, id, locData, viewModel);
-                                    // Push update for this widget to the home screen
-                                    mAppWidgetManager.updateAppWidget(id, views);
-                                    buildForecast(mAppWidget2x2, viewModel, id);
-                                }
-                            }
-                        }
-
-                        refreshClock(appWidgetIds);
-                        refreshDate(appWidgetIds);
-                    }
-
-                    if (mAppWidget4x1.hasInstances(WeatherWidgetService.this)) {
-                        int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1.getComponentName());
-
-                        for (int id : appWidgetIds) {
-                            LocationData locData = null;
-
-                            if (WidgetUtils.isGPS(id)) {
-                                if (!Settings.useFollowGPS())
-                                    continue;
-                                else
-                                    locData = Settings.getLastGPSLocData();
-                            } else {
-                                locData = WidgetUtils.getLocationData(id);
-                            }
-
-                            if (isCtsCancelRequested()) throw new InterruptedException();
-
-                            Weather weather = null;
-
-                            if (locData != null) {
-                                if (isCtsCancelRequested()) throw new InterruptedException();
-
-                                if (locData.equals(Settings.getHomeData())) {
-                                    weather = getWeather();
-                                } else {
-                                    WeatherDataLoader wloader = new WeatherDataLoader(locData);
-                                    try {
-                                        wloader.loadWeatherData(false);
-                                        weather = wloader.getWeather();
-                                    } catch (Exception e) {
-                                        weather = null;
-                                    }
-                                }
-
-                                if (weather != null) {
-                                    // Save weather data
-                                    WidgetUtils.saveWeatherData(id, weather);
-
-                                    WeatherNowViewModel viewModel = new WeatherNowViewModel(weather);
-
-                                    // Build the widget update for provider
-                                    RemoteViews views = buildUpdate(mContext, mAppWidget4x1, id, locData, viewModel);
-                                    // Push update for this widget to the home screen
-                                    mAppWidgetManager.updateAppWidget(id, views);
-                                    buildForecast(mAppWidget4x1, viewModel, id);
-                                }
-                            }
-                        }
-                    }
-
-                    if (mAppWidget4x2.hasInstances(WeatherWidgetService.this)) {
-                        int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName());
-
-                        for (int id : appWidgetIds) {
-                            LocationData locData = null;
-
-                            if (WidgetUtils.isGPS(id)) {
-                                if (!Settings.useFollowGPS())
-                                    continue;
-                                else
-                                    locData = Settings.getLastGPSLocData();
-                            } else {
-                                locData = WidgetUtils.getLocationData(id);
-                            }
-
-                            if (isCtsCancelRequested()) throw new InterruptedException();
-
-                            Weather weather = null;
-
-                            if (locData != null) {
-                                if (isCtsCancelRequested()) throw new InterruptedException();
-
-                                if (locData.equals(Settings.getHomeData())) {
-                                    weather = getWeather();
-                                } else {
-                                    WeatherDataLoader wloader = new WeatherDataLoader(locData);
-                                    try {
-                                        wloader.loadWeatherData(false);
-                                        weather = wloader.getWeather();
-                                    } catch (Exception e) {
-                                        weather = null;
-                                    }
-                                }
-
-                                if (weather != null) {
-                                    // Save weather data
-                                    WidgetUtils.saveWeatherData(id, weather);
-
-                                    WeatherNowViewModel viewModel = new WeatherNowViewModel(weather);
-
-                                    // Build the widget update for provider
-                                    RemoteViews views = buildUpdate(mContext, mAppWidget4x2, id, locData, viewModel);
-                                    // Push update for this widget to the home screen
-                                    mAppWidgetManager.updateAppWidget(id, views);
-                                    buildForecast(mAppWidget4x2, viewModel, id);
-                                }
-                            }
-                        }
-
-                        refreshClock(appWidgetIds);
-                        refreshDate(appWidgetIds);
-                    }
-                }
-                return null;
+            try {
+                Tasks.await(Tasks.whenAll(tasks));
+            } catch (ExecutionException | InterruptedException e) {
+                Logger.writeLine(Log.ERROR, e);
             }
-        });
-    }
+        }
 
-    private void resetGPSWidgets() {
-        int[] appWidgetIds = WidgetUtils.getWidgetIds("GPS");
-
-        for (int appWidgetId : appWidgetIds) {
-            RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_configure_layout);
-
-            Intent configureIntent = new Intent(this, WeatherWidgetConfigActivity.class);
-            configureIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-
-            PendingIntent clickPendingIntent =
-                    PendingIntent.getActivity(this, 0, configureIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            views.setOnClickPendingIntent(R.id.widget, clickPendingIntent);
-
-            mAppWidgetManager.updateAppWidget(appWidgetIds, views);
+        if (isClockWidget(provider.getWidgetType())) {
+            refreshClock(appWidgetIds);
+        }
+        if (isDateWidget(provider.getWidgetType())) {
+            refreshDate(appWidgetIds);
         }
     }
 
-    private void refreshGPSWidgets() {
-        int[] appWidgetIds = WidgetUtils.getWidgetIds("GPS");
+    private void refreshWidgets() throws InterruptedException {
+        if (Settings.isWeatherLoaded()) {
+            // Build the widget update for available providers
+            // Add widget providers here
+            List<Task<Void>> tasks = new ArrayList<>();
 
-        int[] ids1x1 = mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.getComponentName());
-        int[] ids2x2 = mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName());
-        int[] ids4x1 = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1.getComponentName());
-        int[] ids4x2 = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName());
-        Weather weather = getWeather();
-        LocationData locationData = Settings.getLastGPSLocData();
+            if (mAppWidget1x1.hasInstances(WeatherWidgetService.this)) {
+                Task<Void> task = AsyncTask.create(new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        Logger.writeLine(Log.DEBUG, "%s: refreshWidgets: started 1x1", TAG);
+                        int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.getComponentName());
 
-        for (int appWidgetId : appWidgetIds) {
+                        for (int id : appWidgetIds) {
+                            refreshWidget(mAppWidget1x1, id);
+                        }
+                        return null;
+                    }
+                });
+
+                tasks.add(task);
+            }
+
+            if (mAppWidget2x2.hasInstances(WeatherWidgetService.this)) {
+                Task<Void> task = AsyncTask.create(new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        Logger.writeLine(Log.DEBUG, "%s: refreshWidgets: started 2x2", TAG);
+                        int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName());
+
+                        for (int id : appWidgetIds) {
+                            refreshWidget(mAppWidget2x2, id);
+                        }
+
+                        refreshClock(appWidgetIds);
+                        refreshDate(appWidgetIds);
+                        return null;
+                    }
+                });
+
+                tasks.add(task);
+            }
+
+            if (mAppWidget4x1.hasInstances(WeatherWidgetService.this)) {
+                Task<Void> task = AsyncTask.create(new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        Logger.writeLine(Log.DEBUG, "%s: refreshWidgets: started 4x1", TAG);
+                        int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1.getComponentName());
+
+                        for (int id : appWidgetIds) {
+                            refreshWidget(mAppWidget4x1, id);
+                        }
+                        return null;
+                    }
+                });
+
+                tasks.add(task);
+            }
+
+            if (mAppWidget4x2.hasInstances(WeatherWidgetService.this)) {
+                Task<Void> task = AsyncTask.create(new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        Logger.writeLine(Log.DEBUG, "%s: refreshWidgets: started 4x2", TAG);
+                        int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName());
+
+                        for (int id : appWidgetIds) {
+                            refreshWidget(mAppWidget4x2, id);
+                        }
+
+                        refreshClock(appWidgetIds);
+                        refreshDate(appWidgetIds);
+                        return null;
+                    }
+                });
+
+                tasks.add(task);
+            }
+
+            if (mAppWidget4x1Google.hasInstances(WeatherWidgetService.this)) {
+                Task<Void> task = AsyncTask.create(new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        Logger.writeLine(Log.DEBUG, "%s: refreshWidgets: started 4x1Google", TAG);
+                        int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1Google.getComponentName());
+
+                        for (int id : appWidgetIds) {
+                            refreshWidget(mAppWidget4x1Google, id);
+                        }
+
+                        refreshDate(appWidgetIds);
+                        return null;
+                    }
+                });
+
+                tasks.add(task);
+            }
+
+            try {
+                Tasks.await(Tasks.whenAll(tasks));
+            } catch (ExecutionException | InterruptedException e) {
+                Logger.writeLine(Log.ERROR, e);
+            }
+        }
+    }
+
+    private void refreshWidget(final WeatherWidgetProvider provider, int appWidgetId) throws InterruptedException {
+        LocationData locData = null;
+
+        if (WidgetUtils.isGPS(appWidgetId)) {
+            if (!Settings.useFollowGPS())
+                return;
+            else
+                locData = Settings.getLastGPSLocData();
+        } else {
+            locData = WidgetUtils.getLocationData(appWidgetId);
+        }
+
+        if (isCtsCancelRequested()) throw new InterruptedException();
+
+        Weather weather = null;
+
+        if (locData != null) {
+            if (isCtsCancelRequested()) throw new InterruptedException();
+
+            if (locData.equals(Settings.getHomeData())) {
+                weather = getWeather();
+            } else {
+                WeatherDataLoader wloader = new WeatherDataLoader(locData);
+                try {
+                    wloader.loadWeatherData(false);
+                    weather = wloader.getWeather();
+                } catch (Exception e) {
+                    weather = null;
+                }
+            }
 
             if (weather != null) {
                 // Save weather data
@@ -822,34 +638,116 @@ public class WeatherWidgetService extends JobIntentService {
 
                 WeatherNowViewModel viewModel = new WeatherNowViewModel(weather);
 
-                if (ArrayUtils.contains(ids1x1, appWidgetId)) {
-                    // Build the widget update for provider
-                    RemoteViews views = buildUpdate(mContext, mAppWidget1x1, appWidgetId, locationData, viewModel);
-                    // Push update for this widget to the home screen
-                    mAppWidgetManager.updateAppWidget(appWidgetId, views);
-                    buildForecast(mAppWidget1x1, viewModel, appWidgetId);
-                } else if (ArrayUtils.contains(ids2x2, appWidgetId)) {
-                    // Build the widget update for provider
-                    RemoteViews views = buildUpdate(mContext, mAppWidget2x2, appWidgetId, locationData, viewModel);
-                    // Push update for this widget to the home screen
-                    mAppWidgetManager.updateAppWidget(appWidgetId, views);
-                    buildForecast(mAppWidget2x2, viewModel, appWidgetId);
-                } else if (ArrayUtils.contains(ids4x1, appWidgetId)) {
-                    // Build the widget update for provider
-                    RemoteViews views = buildUpdate(mContext, mAppWidget4x1, appWidgetId, locationData, viewModel);
-                    // Push update for this widget to the home screen
-                    mAppWidgetManager.updateAppWidget(appWidgetId, views);
-                    buildForecast(mAppWidget4x1, viewModel, appWidgetId);
-                } else if (ArrayUtils.contains(ids4x2, appWidgetId)) {
-                    // Build the widget update for provider
-                    RemoteViews views = buildUpdate(mContext, mAppWidget4x2, appWidgetId, locationData, viewModel);
-                    // Push update for this widget to the home screen
-                    mAppWidgetManager.updateAppWidget(appWidgetId, views);
-                    buildForecast(mAppWidget4x2, viewModel, appWidgetId);
-                } else {
-                    Logger.writeLine(Log.DEBUG, "%s: refreshGPSWidgets: unable to find widget provider", TAG);
-                }
+                // Build the widget update for provider
+                RemoteViews views = buildUpdate(mContext, provider, appWidgetId, locData, viewModel);
+                // Push update for this widget to the home screen
+                mAppWidgetManager.updateAppWidget(appWidgetId, views);
+                buildForecast(provider, viewModel, appWidgetId);
             }
+        }
+    }
+
+    private void resetGPSWidgets() {
+        final int[] appWidgetIds = WidgetUtils.getWidgetIds("GPS");
+
+        List<Task<Void>> tasks = new ArrayList<>();
+
+        for (final int appWidgetId : appWidgetIds) {
+            Task<Void> task = AsyncTask.create(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_configure_layout);
+
+                    Intent configureIntent = new Intent(mContext, WeatherWidgetConfigActivity.class);
+                    configureIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+
+                    PendingIntent clickPendingIntent =
+                            PendingIntent.getActivity(mContext, 0, configureIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    views.setOnClickPendingIntent(R.id.widget, clickPendingIntent);
+
+                    mAppWidgetManager.updateAppWidget(appWidgetIds, views);
+                    return null;
+                }
+            });
+
+            tasks.add(task);
+        }
+
+        try {
+            Tasks.await(Tasks.whenAll(tasks));
+        } catch (ExecutionException | InterruptedException e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
+    }
+
+    private void refreshGPSWidgets() {
+        final int[] appWidgetIds = WidgetUtils.getWidgetIds("GPS");
+
+        final int[] ids1x1 = mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.getComponentName());
+        final int[] ids2x2 = mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName());
+        final int[] ids4x1 = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1.getComponentName());
+        final int[] ids4x2 = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName());
+        final int[] ids4x1G = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1Google.getComponentName());
+        final Weather weather = getWeather();
+        final LocationData locationData = Settings.getLastGPSLocData();
+
+        List<Task<Void>> tasks = new ArrayList<>();
+
+        for (final int appWidgetId : appWidgetIds) {
+            Task<Void> task = AsyncTask.create(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    if (weather != null) {
+                        // Save weather data
+                        WidgetUtils.saveWeatherData(appWidgetId, weather);
+
+                        WeatherNowViewModel viewModel = new WeatherNowViewModel(weather);
+
+                        if (ArrayUtils.contains(ids1x1, appWidgetId)) {
+                            // Build the widget update for provider
+                            RemoteViews views = buildUpdate(mContext, mAppWidget1x1, appWidgetId, locationData, viewModel);
+                            // Push update for this widget to the home screen
+                            mAppWidgetManager.updateAppWidget(appWidgetId, views);
+                            buildForecast(mAppWidget1x1, viewModel, appWidgetId);
+                        } else if (ArrayUtils.contains(ids2x2, appWidgetId)) {
+                            // Build the widget update for provider
+                            RemoteViews views = buildUpdate(mContext, mAppWidget2x2, appWidgetId, locationData, viewModel);
+                            // Push update for this widget to the home screen
+                            mAppWidgetManager.updateAppWidget(appWidgetId, views);
+                            buildForecast(mAppWidget2x2, viewModel, appWidgetId);
+                        } else if (ArrayUtils.contains(ids4x1, appWidgetId)) {
+                            // Build the widget update for provider
+                            RemoteViews views = buildUpdate(mContext, mAppWidget4x1, appWidgetId, locationData, viewModel);
+                            // Push update for this widget to the home screen
+                            mAppWidgetManager.updateAppWidget(appWidgetId, views);
+                            buildForecast(mAppWidget4x1, viewModel, appWidgetId);
+                        } else if (ArrayUtils.contains(ids4x2, appWidgetId)) {
+                            // Build the widget update for provider
+                            RemoteViews views = buildUpdate(mContext, mAppWidget4x2, appWidgetId, locationData, viewModel);
+                            // Push update for this widget to the home screen
+                            mAppWidgetManager.updateAppWidget(appWidgetId, views);
+                            buildForecast(mAppWidget4x2, viewModel, appWidgetId);
+                        } else if (ArrayUtils.contains(ids4x1G, appWidgetId)) {
+                            // Build the widget update for provider
+                            RemoteViews views = buildUpdate(mContext, mAppWidget4x1Google, appWidgetId, locationData, viewModel);
+                            // Push update for this widget to the home screen
+                            mAppWidgetManager.updateAppWidget(appWidgetId, views);
+                            buildForecast(mAppWidget4x1Google, viewModel, appWidgetId);
+                        } else {
+                            Logger.writeLine(Log.DEBUG, "%s: refreshGPSWidgets: unable to find widget provider", TAG);
+                        }
+                    }
+                    return null;
+                }
+            });
+
+            tasks.add(task);
+        }
+
+        try {
+            Tasks.await(Tasks.whenAll(tasks));
+        } catch (ExecutionException | InterruptedException e) {
+            Logger.writeLine(Log.ERROR, e);
         }
     }
 
@@ -862,53 +760,69 @@ public class WeatherWidgetService extends JobIntentService {
             System.arraycopy(appWidget4x2Ids, 0, appWidgetIds, appWidget2x2Ids.length, appWidget4x2Ids.length);
         }
 
-        for (int appWidgetId : appWidgetIds) {
-            WidgetType widgetType = getWidgetTypeFromID(appWidgetId);
+        List<Task<Void>> tasks = new ArrayList<>();
 
-            RemoteViews views;
+        for (final int appWidgetId : appWidgetIds) {
+            Task<Void> task = AsyncTask.create(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    WidgetType widgetType = getWidgetTypeFromID(appWidgetId);
 
-            if (widgetType == WidgetType.Widget2x2)
-                views = new RemoteViews(mContext.getPackageName(), mAppWidget2x2.getWidgetLayoutId());
-            else if (widgetType == WidgetType.Widget4x2)
-                views = new RemoteViews(mContext.getPackageName(), mAppWidget4x2.getWidgetLayoutId());
-            else
-                continue;
+                    RemoteViews views;
 
-            // Update clock widgets
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                // TextClock
-                views.setCharSequence(R.id.clock_panel, "setFormat12Hour",
-                        mContext.getText(R.string.main_widget_12_hours_format));
-                views.setCharSequence(R.id.clock_panel, "setFormat24Hour",
-                        mContext.getText(R.string.clock_24_hours_format));
-            } else {
-                // TextView
-                LocalDateTime now = LocalDateTime.now();
+                    if (widgetType == WidgetType.Widget2x2)
+                        views = new RemoteViews(mContext.getPackageName(), mAppWidget2x2.getWidgetLayoutId());
+                    else if (widgetType == WidgetType.Widget4x2)
+                        views = new RemoteViews(mContext.getPackageName(), mAppWidget4x2.getWidgetLayoutId());
+                    else
+                        return null;
 
-                SpannableString timeStr;
-                String timeformat = now.format(DateTimeFormatter.ofPattern("h:mma"));
-                int end = timeformat.length() - 2;
+                    // Update clock widgets
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                        // TextClock
+                        views.setCharSequence(R.id.clock_panel, "setFormat12Hour",
+                                mContext.getText(R.string.main_widget_12_hours_format));
+                        views.setCharSequence(R.id.clock_panel, "setFormat24Hour",
+                                mContext.getText(R.string.clock_24_hours_format));
+                    } else {
+                        // TextView
+                        LocalDateTime now = LocalDateTime.now();
 
-                if (DateFormat.is24HourFormat(App.getInstance().getAppContext())) {
-                    timeformat = now.format(DateTimeFormatter.ofPattern("HH:mm"));
-                    end = timeformat.length() - 1;
-                    timeStr = new SpannableString(timeformat);
-                } else {
-                    timeStr = new SpannableString(timeformat);
-                    timeStr.setSpan(new TextAppearanceSpan("sans-serif", Typeface.BOLD, 16,
-                                    ContextCompat.getColorStateList(mContext, android.R.color.white),
-                                    ContextCompat.getColorStateList(mContext, android.R.color.white)),
-                            end, timeformat.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        SpannableString timeStr;
+                        String timeformat = now.format(DateTimeFormatter.ofPattern("h:mma"));
+                        int end = timeformat.length() - 2;
+
+                        if (DateFormat.is24HourFormat(App.getInstance().getAppContext())) {
+                            timeformat = now.format(DateTimeFormatter.ofPattern("HH:mm"));
+                            end = timeformat.length() - 1;
+                            timeStr = new SpannableString(timeformat);
+                        } else {
+                            timeStr = new SpannableString(timeformat);
+                            timeStr.setSpan(new TextAppearanceSpan("sans-serif", Typeface.BOLD, 16,
+                                            ContextCompat.getColorStateList(mContext, android.R.color.white),
+                                            ContextCompat.getColorStateList(mContext, android.R.color.white)),
+                                    end, timeformat.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+
+                        views.setTextViewText(R.id.clock_panel, timeStr);
+                    }
+
+                    if (!(!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId))) {
+                        WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
+                        views.setTextColor(R.id.clock_panel, getTextColor(background));
+                        mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, views);
+                    }
+                    return null;
                 }
+            });
 
-                views.setTextViewText(R.id.clock_panel, timeStr);
-            }
+            tasks.add(task);
+        }
 
-            if (!(!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId))) {
-                WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
-                views.setTextColor(R.id.clock_panel, getTextColor(background));
-                mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, views);
-            }
+        try {
+            Tasks.await(Tasks.whenAll(tasks));
+        } catch (ExecutionException | InterruptedException e) {
+            Logger.writeLine(Log.ERROR, e);
         }
 
         Logger.writeLine(Log.INFO, "%s: Refreshed clock", TAG);
@@ -918,40 +832,62 @@ public class WeatherWidgetService extends JobIntentService {
         if (appWidgetIds == null || appWidgetIds.length == 0) {
             int[] appWidget2x2Ids = mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName());
             int[] appWidget4x2Ids = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName());
-            appWidgetIds = new int[appWidget2x2Ids.length + appWidget4x2Ids.length];
+            int[] appWidget4x1GIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1Google.getComponentName());
+            appWidgetIds = new int[appWidget2x2Ids.length + appWidget4x2Ids.length + appWidget4x1GIds.length];
             System.arraycopy(appWidget2x2Ids, 0, appWidgetIds, 0, appWidget2x2Ids.length);
             System.arraycopy(appWidget4x2Ids, 0, appWidgetIds, appWidget2x2Ids.length, appWidget4x2Ids.length);
+            System.arraycopy(appWidget4x1GIds, 0, appWidgetIds, appWidget4x2Ids.length, appWidget4x1GIds.length);
         }
 
-        for (int appWidgetId : appWidgetIds) {
-            // Update clock widgets
-            WidgetType widgetType = getWidgetTypeFromID(appWidgetId);
+        List<Task<Void>> tasks = new ArrayList<>();
 
-            RemoteViews views;
+        for (final int appWidgetId : appWidgetIds) {
+            Task<Void> task = AsyncTask.create(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    // Update clock widgets
+                    WidgetType widgetType = getWidgetTypeFromID(appWidgetId);
 
-            if (widgetType == WidgetType.Widget2x2)
-                views = new RemoteViews(mContext.getPackageName(), mAppWidget2x2.getWidgetLayoutId());
-            else if (widgetType == WidgetType.Widget4x2)
-                views = new RemoteViews(mContext.getPackageName(), mAppWidget4x2.getWidgetLayoutId());
-            else
-                continue;
+                    RemoteViews views;
 
-            // Widget dimensions
-            Bundle newOptions = mAppWidgetManager.getAppWidgetOptions(appWidgetId);
-            int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
-            int cellWidth = getCellsForSize(minWidth);
+                    if (widgetType == WidgetType.Widget2x2)
+                        views = new RemoteViews(mContext.getPackageName(), mAppWidget2x2.getWidgetLayoutId());
+                    else if (widgetType == WidgetType.Widget4x2)
+                        views = new RemoteViews(mContext.getPackageName(), mAppWidget4x2.getWidgetLayoutId());
+                    else if (widgetType == WidgetType.Widget4x1Google)
+                        views = new RemoteViews(mContext.getPackageName(), mAppWidget4x1Google.getWidgetLayoutId());
+                    else
+                        return null;
 
-            DateTimeFormatter dtfm;
-            if (widgetType == WidgetType.Widget2x2 && cellWidth >= 3) {
-                dtfm = DateTimeFormatter.ofPattern("eeee, MMMM dd");
-            } else {
-                dtfm = DateTimeFormatter.ofPattern("eee, MMM dd");
-            }
+                    // Widget dimensions
+                    Bundle newOptions = mAppWidgetManager.getAppWidgetOptions(appWidgetId);
+                    int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
+                    int cellWidth = getCellsForSize(minWidth);
 
-            views.setTextViewText(R.id.date_panel, LocalDateTime.now().format(dtfm));
+                    DateTimeFormatter dtfm;
+                    if (widgetType == WidgetType.Widget2x2 && cellWidth >= 3) {
+                        dtfm = DateTimeFormatter.ofPattern("eeee, MMMM dd");
+                    } else if (widgetType == WidgetType.Widget4x1Google) {
+                        dtfm = DateTimeFormatter.ofPattern("eeee, MMM dd");
+                    } else {
+                        dtfm = DateTimeFormatter.ofPattern("eee, MMM dd");
+                    }
 
-            if (!(!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)))
-                mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, views);
+                    views.setTextViewText(R.id.date_panel, LocalDateTime.now().format(dtfm));
+
+                    if (!(!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)))
+                        mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, views);
+                    return null;
+                }
+            });
+
+            tasks.add(task);
+        }
+
+        try {
+            Tasks.await(Tasks.whenAll(tasks));
+        } catch (ExecutionException | InterruptedException e) {
+            Logger.writeLine(Log.ERROR, e);
         }
 
         Logger.writeLine(Log.INFO, "%s: Refreshed date", TAG);
@@ -973,53 +909,138 @@ public class WeatherWidgetService extends JobIntentService {
         // Build an update that holds the updated widget contents
         final RemoteViews updateViews = new RemoteViews(context.getPackageName(), provider.getWidgetLayoutId());
 
+        Bundle newOptions = mAppWidgetManager.getAppWidgetOptions(appWidgetId);
+        // Widget dimensions
+        final int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
+        final int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
+        final int cellHeight = getCellsForSize(minHeight);
+        final int cellWidth = getCellsForSize(minWidth);
+
         // Background & Text Color
-        WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
-        int textColor = getTextColor(background);
+        int textColor = Colors.WHITE;
 
-        if (background == WidgetUtils.WidgetBackground.BLACK) {
-            updateViews.setImageViewResource(R.id.widgetBackground, R.drawable.widget_background);
-            updateViews.setImageViewBitmap(R.id.image_overlay, null);
-            updateViews.setInt(R.id.widgetBackground, "setColorFilter", ContextCompat.getColor(this, androidx.appcompat.R.color.background_material_dark));
-            updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
-        } else if (background == WidgetUtils.WidgetBackground.WHITE) {
-            updateViews.setImageViewResource(R.id.widgetBackground, R.drawable.widget_background);
-            updateViews.setImageViewBitmap(R.id.image_overlay, null);
-            updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.WHITE);
-            updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
-        } else if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
-            Bundle newOptions = mAppWidgetManager.getAppWidgetOptions(appWidgetId);
-            // Widget dimensions
-            final int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
-            final int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
-            final int cellHeight = getCellsForSize(minHeight);
-            final int cellWidth = getCellsForSize(minWidth);
+        if (isBackgroundOptionalWidget(provider.getWidgetType())) {
+            WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
+            textColor = getTextColor(background);
 
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    Glide.with(mContext)
-                            .asBitmap()
-                            .load(weather.getBackground())
-                            .apply(RequestOptions.formatOf(DecodeFormat.PREFER_RGB_565).centerCrop()
-                            )
-                            .into(new SimpleTarget<Bitmap>(200 * cellWidth, 200 * cellHeight) {
-                                @Override
-                                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                    updateViews.setImageViewResource(R.id.image_overlay, R.drawable.background_overlay);
-                                    updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.TRANSPARENT);
-                                    updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
-                                    updateViews.setImageViewBitmap(R.id.widgetBackground, resource);
-                                    mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews);
-                                }
-                            });
-                }
-            });
-        } else { // Transparent
-            updateViews.setImageViewResource(R.id.widgetBackground, R.drawable.widget_background);
-            updateViews.setImageViewBitmap(R.id.image_overlay, null);
-            updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.BLACK);
-            updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0x00);
+            if (background == WidgetUtils.WidgetBackground.BLACK) {
+                updateViews.setImageViewResource(R.id.widgetBackground, R.drawable.widget_background);
+                updateViews.setImageViewBitmap(R.id.image_overlay, null);
+                updateViews.setInt(R.id.widgetBackground, "setColorFilter", ContextCompat.getColor(this, R.color.card_background_dark));
+                updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
+            } else if (background == WidgetUtils.WidgetBackground.WHITE) {
+                updateViews.setImageViewResource(R.id.widgetBackground, R.drawable.widget_background);
+                updateViews.setImageViewBitmap(R.id.image_overlay, null);
+                updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.WHITE);
+                updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
+            } else if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Glide.with(mContext)
+                                .asBitmap()
+                                .load(weather.getBackground())
+                                .apply(RequestOptions.formatOf(DecodeFormat.PREFER_RGB_565).centerCrop()
+                                )
+                                .into(new SimpleTarget<Bitmap>(200 * cellWidth, 200 * cellHeight) {
+                                    @Override
+                                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                        updateViews.setImageViewResource(R.id.image_overlay, R.drawable.background_overlay);
+                                        updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.TRANSPARENT);
+                                        updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
+                                        updateViews.setImageViewBitmap(R.id.widgetBackground, resource);
+                                        mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews);
+                                    }
+                                });
+                    }
+                });
+            } else { // Transparent
+                updateViews.setImageViewResource(R.id.widgetBackground, R.drawable.widget_background);
+                updateViews.setImageViewBitmap(R.id.image_overlay, null);
+                updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.BLACK);
+                updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0x00);
+            }
+        }
+
+        int tempTextSize = 72;
+        if (provider.getWidgetType() == WidgetType.Widget4x1Google)
+            tempTextSize = 60;
+
+        float shadowRadius = 2.75f;
+        if (provider.getWidgetType() == WidgetType.Widget4x1Google)
+            shadowRadius = 7.5f;
+
+        // Temperature
+        CharSequence temp = weather.getCurTemp();
+
+        if (provider.getWidgetType() == WidgetType.Widget4x1Google) {
+            updateViews.setTextViewText(R.id.condition_temp,
+                    temp.toString().replace(WeatherIcons.FAHRENHEIT, "ºF").replace(WeatherIcons.CELSIUS, "ºC"));
+
+            int textSize = 24;
+            if (cellWidth <= 3) {
+                textSize = 16;
+            } else if (cellWidth == 4) {
+                textSize = 18;
+            }
+
+            updateViews.setTextViewTextSize(R.id.date_panel, TypedValue.COMPLEX_UNIT_SP, textSize);
+            updateViews.setTextViewTextSize(R.id.divider, TypedValue.COMPLEX_UNIT_SP, textSize);
+            updateViews.setTextViewTextSize(R.id.condition_temp, TypedValue.COMPLEX_UNIT_SP, textSize);
+            updateViews.setViewVisibility(R.id.divider, View.VISIBLE);
+        } else if (provider.getWidgetType() != WidgetType.Widget2x2) {
+            updateViews.setImageViewBitmap(R.id.condition_temp,
+                    ImageUtils.weatherIconToBitmap(context, temp, tempTextSize, textColor, shadowRadius));
+        }
+
+        // WeatherIcon
+        updateViews.setImageViewBitmap(R.id.weather_icon,
+                ImageUtils.weatherIconToBitmap(this, weather.getWeatherIcon(), tempTextSize, textColor, shadowRadius));
+
+        // Location Name
+        updateViews.setTextViewText(R.id.location_name, weather.getLocation());
+        updateViews.setTextColor(R.id.location_name, textColor);
+
+        if (provider.getWidgetType() != WidgetType.Widget4x1Google) {
+            // Update Time
+            String updatetext = getUpdateTimeText(Settings.getUpdateTime(), false);
+            updateViews.setTextViewText(R.id.update_time, updatetext);
+            updateViews.setTextColor(R.id.update_time, textColor);
+        }
+
+        // Set data for larger widgets
+        if (provider.getWidgetType() == WidgetType.Widget2x2) {
+            // Condition text
+            updateViews.setTextViewText(R.id.condition_weather,
+                    String.format(Locale.ROOT, "%sº - %s", StringUtils.removeNonDigitChars(temp.toString()), weather.getCurCondition()));
+            updateViews.setTextColor(R.id.condition_weather, textColor);
+
+            ForecastItemViewModel todaysForecast = weather.getForecasts().get(0);
+
+            updateViews.setTextViewText(R.id.condition_details,
+                    String.format(Locale.ROOT, "%s | %s", todaysForecast.getHiTemp(), todaysForecast.getLoTemp()));
+            updateViews.setTextColor(R.id.condition_details, textColor);
+        } else if (provider.getWidgetType() == WidgetType.Widget4x2) {
+            // Condition text
+            updateViews.setTextViewText(R.id.condition_weather, weather.getCurCondition());
+            updateViews.setTextColor(R.id.condition_weather, textColor);
+        } else if (provider.getWidgetType() == WidgetType.Widget4x1) {
+            // Condition text
+            updateViews.setTextViewText(R.id.condition_weather, weather.getCurCondition());
+            updateViews.setTextColor(R.id.condition_weather, textColor);
+
+            updateViews.setViewVisibility(R.id.forecast_date, View.VISIBLE);
+            updateViews.setTextColor(R.id.forecast_date, textColor);
+        }
+
+        if (isDateWidget(provider.getWidgetType())) {
+            // Open default clock/calendar app
+            updateViews.setOnClickPendingIntent(R.id.date_panel, getDefaultCalendarIntent(context));
+        }
+
+        if (isClockWidget(provider.getWidgetType())) {
+            // Open default clock/calendar app
+            updateViews.setOnClickPendingIntent(R.id.clock_panel, getDefaultClockIntent(context));
         }
 
         // Progress bar
@@ -1032,59 +1053,6 @@ public class WeatherWidgetService extends JobIntentService {
 
         // Set on click refresh intent
         setOnRefreshIntent(context, provider, appWidgetId, updateViews);
-
-        // Temperature
-        CharSequence temp = weather.getCurTemp();
-        int tempTextSize = 72;
-        if (provider.getWidgetType() == WidgetType.Widget4x2)
-            tempTextSize = 120;
-        if (provider.getWidgetType() != WidgetType.Widget2x2) {
-            updateViews.setImageViewBitmap(R.id.condition_temp,
-                    ImageUtils.weatherIconToBitmap(context, temp, tempTextSize, textColor, true));
-        }
-
-        // Location Name
-        updateViews.setTextViewText(R.id.location_name, weather.getLocation());
-        updateViews.setTextColor(R.id.location_name, textColor);
-        // Update Time
-        String updatetext = getUpdateTimeText(Settings.getUpdateTime(), false);
-        updateViews.setTextViewText(R.id.update_time, updatetext);
-        updateViews.setTextColor(R.id.update_time, textColor);
-
-        // WeatherIcon
-        updateViews.setImageViewBitmap(R.id.weather_icon,
-                ImageUtils.weatherIconToBitmap(this, weather.getWeatherIcon(), tempTextSize, textColor, true));
-
-        // Set data for larger widgets
-        if (provider.getWidgetType() == WidgetType.Widget4x2 || provider.getWidgetType() == WidgetType.Widget2x2) {
-            if (provider.getWidgetType() == WidgetType.Widget2x2) {
-                // Condition text
-                updateViews.setTextViewText(R.id.condition_weather,
-                        String.format(Locale.ROOT, "%sº - %s", StringUtils.removeNonDigitChars(temp.toString()), weather.getCurCondition()));
-                updateViews.setTextColor(R.id.condition_weather, textColor);
-
-                ForecastItemViewModel todaysForecast = weather.getForecasts().get(0);
-
-                updateViews.setTextViewText(R.id.condition_details,
-                        String.format(Locale.ROOT, "%s | %s", todaysForecast.getHiTemp(), todaysForecast.getLoTemp()));
-                updateViews.setTextColor(R.id.condition_details, textColor);
-            } else {
-                // Condition text
-                updateViews.setTextViewText(R.id.condition_weather, weather.getCurCondition());
-                updateViews.setTextColor(R.id.condition_weather, textColor);
-            }
-
-            // Open default clock/calendar app
-            updateViews.setOnClickPendingIntent(R.id.date_panel, getDefaultCalendarIntent(context));
-            updateViews.setOnClickPendingIntent(R.id.clock_panel, getDefaultClockIntent(context));
-        } else if (provider.getWidgetType() == WidgetType.Widget4x1) {
-            // Condition text
-            updateViews.setTextViewText(R.id.condition_weather, weather.getCurCondition());
-            updateViews.setTextColor(R.id.condition_weather, textColor);
-
-            updateViews.setViewVisibility(R.id.forecast_date, View.VISIBLE);
-            updateViews.setTextColor(R.id.forecast_date, textColor);
-        }
 
         setOnClickIntent(context, location, updateViews);
         setOnSettingsClickIntent(context, updateViews, location, appWidgetId);
@@ -1137,8 +1105,7 @@ public class WeatherWidgetService extends JobIntentService {
             updateViews.setOnClickPendingIntent(R.id.settings_button, clickPendingIntent);
     }
 
-    // TODO: Merge into function below
-    private void rebuildForecast(final WeatherWidgetProvider provider, final int appWidgetId, final Bundle newOptions) throws InterruptedException {
+    private void rebuildWidget(final WeatherWidgetProvider provider, final int appWidgetId, final Bundle newOptions) throws InterruptedException {
         new AsyncTaskEx<Void, InterruptedException>().await(new CallableEx<Void, InterruptedException>() {
             @Override
             public Void call() throws InterruptedException {
@@ -1189,29 +1156,41 @@ public class WeatherWidgetService extends JobIntentService {
                 int cellHeight = getCellsForSize(minHeight);
                 int cellWidth = getCellsForSize(minWidth);
 
-                // Determine forecast size
-                int forecastLength = getForecastLength(provider.getWidgetType(), cellWidth);
-                if (weather.getForecast().length < forecastLength)
-                    forecastLength = weather.getForecast().length;
-
-                if (provider.getWidgetType() == WidgetType.Widget4x2 || provider.getWidgetType() == WidgetType.Widget2x2) {
+                if (isClockWidget(provider.getWidgetType())) {
                     refreshClock(new int[]{appWidgetId});
+                }
+                if (isDateWidget(provider.getWidgetType())) {
                     refreshDate(new int[]{appWidgetId});
                 }
 
-                WeatherNowViewModel viewModel = new WeatherNowViewModel(weather);
+                if (provider.getWidgetType() == WidgetType.Widget4x1Google) {
+                    int textSize = 24;
+                    if (cellWidth <= 3) {
+                        textSize = 16;
+                    } else if (cellWidth == 4) {
+                        textSize = 18;
+                    }
 
-                updateViews.removeAllViews(R.id.forecast_layout);
-                buildForecastPanel(updateViews, provider, viewModel, appWidgetId, forecastLength, cellWidth == maxCellWidth);
+                    updateViews.setTextViewTextSize(R.id.date_panel, TypedValue.COMPLEX_UNIT_SP, textSize);
+                    updateViews.setTextViewTextSize(R.id.divider, TypedValue.COMPLEX_UNIT_SP, textSize);
+                    updateViews.setTextViewTextSize(R.id.condition_temp, TypedValue.COMPLEX_UNIT_SP, textSize);
+                }
+
+                if (isForecastWidget(provider.getWidgetType())) {
+                    // Determine forecast size
+                    int forecastLength = getForecastLength(provider.getWidgetType(), cellWidth);
+                    if (weather.getForecast().length < forecastLength)
+                        forecastLength = weather.getForecast().length;
+
+                    WeatherNowViewModel viewModel = new WeatherNowViewModel(weather);
+                    updateViews.removeAllViews(R.id.forecast_layout);
+                    buildForecastPanel(updateViews, provider, viewModel, appWidgetId, forecastLength, cellWidth == maxCellWidth);
+                }
+
                 mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews);
                 return null;
             }
         });
-    }
-
-    private void buildForecast(WeatherWidgetProvider provider, WeatherNowViewModel weather) {
-        int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(provider.getComponentName());
-        buildForecast(provider, weather, appWidgetIds);
     }
 
     private void buildForecast(WeatherWidgetProvider provider, WeatherNowViewModel weather, int appWidgetId) {
@@ -1248,7 +1227,7 @@ public class WeatherWidgetService extends JobIntentService {
                     updateViews.setViewVisibility(R.id.condition_weather, View.VISIBLE);
                 else
                     updateViews.setViewVisibility(R.id.condition_weather, View.GONE);
-            } else if (provider.getWidgetType() == WidgetType.Widget4x2 || provider.getWidgetType() == WidgetType.Widget2x2) {
+            } else if (provider.getWidgetType() == WidgetType.Widget4x2 || provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x1Google) {
                 WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetIds[i]);
                 int textColor = getTextColor(background);
 
@@ -1306,17 +1285,20 @@ public class WeatherWidgetService extends JobIntentService {
         }
     }
 
-    private WidgetType getWidgetTypeFromID(int appWidgetId) {
-        AppWidgetProviderInfo providerInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
+    public static WidgetType getWidgetTypeFromID(int appWidgetId) {
+        AppWidgetProviderInfo providerInfo = AppWidgetManager.getInstance(App.getInstance().getAppContext())
+                .getAppWidgetInfo(appWidgetId);
 
-        if (providerInfo.provider.compareTo(mAppWidget1x1.getComponentName()) == 0) {
+        if (providerInfo.initialLayout == WeatherWidgetProvider1x1.getInstance().getWidgetLayoutId()) {
             return WidgetType.Widget1x1;
-        } else if (providerInfo.provider.compareTo(mAppWidget2x2.getComponentName()) == 0) {
+        } else if (providerInfo.initialLayout == WeatherWidgetProvider2x2.getInstance().getWidgetLayoutId()) {
             return WidgetType.Widget2x2;
-        } else if (providerInfo.provider.compareTo(mAppWidget4x1.getComponentName()) == 0) {
+        } else if (providerInfo.initialLayout == WeatherWidgetProvider4x1.getInstance().getWidgetLayoutId()) {
             return WidgetType.Widget4x1;
-        } else if (providerInfo.provider.compareTo(mAppWidget4x2.getComponentName()) == 0) {
+        } else if (providerInfo.initialLayout == WeatherWidgetProvider4x2.getInstance().getWidgetLayoutId()) {
             return WidgetType.Widget4x2;
+        } else if (providerInfo.initialLayout == WeatherWidgetProvider4x1Google.getInstance().getWidgetLayoutId()) {
+            return WidgetType.Widget4x1Google;
         } else {
             return WidgetType.Unknown;
         }
@@ -1336,7 +1318,7 @@ public class WeatherWidgetService extends JobIntentService {
     }
 
     private static int getForecastLength(WidgetType widgetType, int cellWidth) {
-        if (widgetType == WidgetType.Widget1x1 || widgetType == WidgetType.Widget2x2)
+        if (widgetType != WidgetType.Widget4x1 && widgetType != WidgetType.Widget4x2)
             return 0;
 
         int forecastLength = (widgetType == WidgetType.Widget4x2) ? WIDE_FORECAST_LENGTH : FORECAST_LENGTH;
@@ -1344,17 +1326,17 @@ public class WeatherWidgetService extends JobIntentService {
         if (cellWidth < 2) {
             if (widgetType == WidgetType.Widget4x1)
                 forecastLength = 0;
-            else if (widgetType == WidgetType.Widget4x2)
+            else // 4x2
                 forecastLength = 1;
         } else if (cellWidth == 2) {
             if (widgetType == WidgetType.Widget4x1)
                 forecastLength = 1;
-            else if (widgetType == WidgetType.Widget4x2)
+            else // 4x2
                 forecastLength = FORECAST_LENGTH;
         } else if (cellWidth == 3) {
             if (widgetType == WidgetType.Widget4x1)
                 forecastLength = 2;
-            else if (widgetType == WidgetType.Widget4x2)
+            else // 4x2
                 forecastLength = MEDIUM_FORECAST_LENGTH;
         }
 
@@ -1415,6 +1397,39 @@ public class WeatherWidgetService extends JobIntentService {
                 return weather;
             }
         });
+    }
+
+    private @ColorInt
+    int getTextColor(WidgetUtils.WidgetBackground background) {
+        if (background == WidgetUtils.WidgetBackground.BLACK) {
+            return Colors.WHITE;
+        } else if (background == WidgetUtils.WidgetBackground.WHITE) {
+            return Colors.BLACK;
+        } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
+            return Colors.WHITE;
+        } else {
+            return Colors.WHITE;
+        }
+    }
+
+    private boolean isClockWidget(WidgetType widgetType) {
+        return (widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2);
+    }
+
+    private boolean isDateWidget(WidgetType widgetType) {
+        return (widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x1Google);
+    }
+
+    private boolean isForecastWidget(WidgetType widgetType) {
+        return (widgetType == WidgetType.Widget4x1 || widgetType == WidgetType.Widget4x2);
+    }
+
+    private boolean isCurrentConditionWidget(WidgetType widgetType) {
+        return widgetType != WidgetType.Unknown;
+    }
+
+    private boolean isBackgroundOptionalWidget(WidgetType widgetType) {
+        return widgetType != WidgetType.Unknown && widgetType != WidgetType.Widget4x1Google;
     }
 
     private boolean updateLocation() {
@@ -1517,18 +1532,5 @@ public class WeatherWidgetService extends JobIntentService {
                 return locationChanged;
             }
         });
-    }
-
-    private @ColorInt
-    int getTextColor(WidgetUtils.WidgetBackground background) {
-        if (background == WidgetUtils.WidgetBackground.BLACK) {
-            return Colors.WHITE;
-        } else if (background == WidgetUtils.WidgetBackground.WHITE) {
-            return Colors.BLACK;
-        } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
-            return Colors.WHITE;
-        } else {
-            return Colors.WHITE;
-        }
     }
 }

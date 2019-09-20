@@ -60,6 +60,10 @@ public class ImageUtils {
     }
 
     public static Bitmap weatherIconToBitmap(Context context, CharSequence text, int textSize, int textColor, boolean addShadow) {
+        return weatherIconToBitmap(context, text, textSize, textColor, addShadow ? 2.75f : 0);
+    }
+
+    public static Bitmap weatherIconToBitmap(Context context, CharSequence text, int textSize, int textColor, float shadowRadius) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         float textSizePx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, textSize, metrics);
 
@@ -71,15 +75,15 @@ public class ImageUtils {
         paint.setColor(textColor);
         paint.setTextSize(textSizePx);
         paint.setTextAlign(Paint.Align.LEFT);
-        if (addShadow) {
-            paint.setShadowLayer(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2.75f, metrics),
+        if (shadowRadius > 0) {
+            paint.setShadowLayer(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, shadowRadius, metrics),
                     1, 1, Colors.BLACK);
         }
 
         int width = (int) paint.measureText(text, 0, text.length());
 
         StaticLayout mTextLayout = new StaticLayout(
-                text, paint, width + width / 4, Layout.Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
+                text, paint, (int) (width + paint.getShadowLayerRadius() * 2f), Layout.Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
 
         Bitmap bmp = Bitmap.createBitmap(mTextLayout.getWidth(), mTextLayout.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas myCanvas = new Canvas(bmp);

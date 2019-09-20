@@ -71,11 +71,13 @@
 
         <receiver
             android:name=".widgets.WeatherWidgetProvider2x2"
-            android:label="Weather (2x2)">
+            android:label="Weather + Clock (2x2)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.TIME_SET" />
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
                 <action android:name="SimpleWeather.Droid.action.UPDATEWIDGETS" />
             </intent-filter>
             <meta-data
@@ -112,6 +114,23 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/app_widget_4x2_info" />
         </receiver>
+
+        <receiver
+            android:name=".widgets.WeatherWidgetProvider4x1Google"
+            android:label="Weather + Date (4x1)">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="SimpleWeather.Droid.action.UPDATEWIDGETS" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/app_widget_4x1_google_info" />
+        </receiver>
+
         <receiver
             android:name=".widgets.WeatherWidgetBroadcastReceiver"
             android:enabled="true"

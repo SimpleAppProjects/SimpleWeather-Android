@@ -92,18 +92,23 @@
 
                 <ImageView
                     android:id="@+id/condition_temp"
+                    style="@style/ShadowText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_alignTop="@id/weather_icon"
+                    android:layout_alignParentBottom="true"
                     android:layout_gravity="center_vertical|start"
-                    android:layout_margin="2dp"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:layout_marginRight="2dp"
+                    android:layout_marginBottom="2dp"
                     android:layout_toEndOf="@id/weather_icon"
                     android:layout_toRightOf="@id/weather_icon"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentBottom="true"
                     android:adjustViewBounds="true"
                     android:maxWidth="60dp"
                     android:scaleType="fitCenter"
-                    style="@style/ShadowText"
                     tools:src="@drawable/notification_temp_pos70" />
 
             </RelativeLayout>

@@ -5,6 +5,8 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.CancellationToken;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.utils.Logger;
 
 import java.util.concurrent.Callable;
@@ -56,6 +58,10 @@ public class AsyncTask<T> {
         } catch (NullPointerException e) {
             Logger.writeLine(Log.ERROR, e);
         }
+    }
+
+    public static Task<Void> create(Callable<Void> callable) {
+        return Tasks.call(Executors.newSingleThreadExecutor(), callable);
     }
 
     protected <T extends Throwable> T maskException(Throwable t) throws T {
