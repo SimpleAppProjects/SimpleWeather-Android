@@ -141,6 +141,10 @@
     <string name="label_color_white">White</string>
     <string name="label_color_black">Black</string>
     <string name="label_color_transparent">Transparent</string>
+    <string name="pref_title_bgstyle">Background Style</string>
+    <string name="label_style_fullbg">Full Background</string>
+    <string name="label_style_panda">Split Mode (Light / Dark)</string>
+    <string name="label_style_pendingcolor">Split Mode (Weather Color)</string>
     <!-- format strings for clocks -->
     <string name="clock_24_hours_format" translatable="false">kk&#58;mm</string>
     <string name="main_widget_12_hours_format" translatable="false">h&#58;mm<font size="24">a</font></string>

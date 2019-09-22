@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.location.Criteria;
@@ -39,6 +40,8 @@ import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DecodeFormat;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -62,6 +65,7 @@ import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.TransparentOverlay;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
@@ -131,6 +135,8 @@ public class WeatherWidgetService extends JobIntentService {
     private WeatherWidgetProvider4x1Google mAppWidget4x1Google =
             WeatherWidgetProvider4x1Google.getInstance();
 
+    private static boolean isNightMode = false;
+
     private static final int FORECAST_LENGTH = 3; // 3-day
     private static final int MEDIUM_FORECAST_LENGTH = 4; // 4-day
     private static final int WIDE_FORECAST_LENGTH = 5; // 5-day
@@ -163,6 +169,9 @@ public class WeatherWidgetService extends JobIntentService {
                 new Intent(mContext, WeatherWidgetBroadcastReceiver.class)
                         .setAction(ACTION_UPDATEWEATHER),
                 PendingIntent.FLAG_NO_CREATE) != null);
+
+        final int currentNightMode = mContext.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        isNightMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
 
         final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -238,19 +247,7 @@ public class WeatherWidgetService extends JobIntentService {
 
                 switch (widgetType) {
                     case Widget1x1:
-                        int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
-                        int cellWidth = getCellsForSize(minWidth);
-                        int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
-                        int cellHeight = getCellsForSize(minHeight);
-
-                        RemoteViews updateViews = new RemoteViews(mContext.getPackageName(), mAppWidget1x1.getWidgetLayoutId());
-
-                        if (cellWidth > 1 && cellHeight > 1)
-                            updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, 18);
-                        else
-                            updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, 12);
-
-                        mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews);
+                        resizeWidget(mAppWidget1x1, appWidgetId, newOptions);
                         break;
                     case Widget2x2:
                         resizeWidget(mAppWidget2x2, appWidgetId, newOptions);
@@ -916,59 +913,44 @@ public class WeatherWidgetService extends JobIntentService {
         final int cellHeight = getCellsForSize(minHeight);
         final int cellWidth = getCellsForSize(minWidth);
 
-        // Background & Text Color
-        int textColor = Colors.WHITE;
-
+        final WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
+        WidgetUtils.WidgetBackgroundStyle style = null;
         if (isBackgroundOptionalWidget(provider.getWidgetType())) {
-            WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
-            textColor = getTextColor(background);
+            int backgroundColor = getBackgroundColor(background);
 
-            if (background == WidgetUtils.WidgetBackground.BLACK) {
-                updateViews.setImageViewResource(R.id.widgetBackground, R.drawable.widget_background);
-                updateViews.setImageViewBitmap(R.id.image_overlay, null);
-                updateViews.setInt(R.id.widgetBackground, "setColorFilter", ContextCompat.getColor(this, R.color.card_background_dark));
+            if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
+                style = WidgetUtils.getBackgroundStyle(appWidgetId);
+
+                if (style == WidgetUtils.WidgetBackgroundStyle.PANDA) {
+                    updateViews.setInt(R.id.panda_background, "setColorFilter", isNightMode ? Colors.BLACK : Colors.WHITE);
+                    updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background_bottom_corners);
+                } else if (style == WidgetUtils.WidgetBackgroundStyle.PENDINGCOLOR) {
+                    updateViews.setInt(R.id.panda_background, "setColorFilter", weather.getPendingBackground());
+                    updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background_bottom_corners);
+                } else {
+                    updateViews.setImageViewBitmap(R.id.panda_background, null);
+                }
+
+                updateViews.setInt(R.id.widgetBackground, "setColorFilter", backgroundColor);
                 updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
-            } else if (background == WidgetUtils.WidgetBackground.WHITE) {
+                loadBackgroundImage(updateViews, appWidgetId, weather.getBackground(), cellWidth, cellHeight);
+            } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
                 updateViews.setImageViewResource(R.id.widgetBackground, R.drawable.widget_background);
-                updateViews.setImageViewBitmap(R.id.image_overlay, null);
-                updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.WHITE);
-                updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
-            } else if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Glide.with(mContext)
-                                .asBitmap()
-                                .load(weather.getBackground())
-                                .apply(RequestOptions.formatOf(DecodeFormat.PREFER_RGB_565).centerCrop()
-                                )
-                                .into(new SimpleTarget<Bitmap>(200 * cellWidth, 200 * cellHeight) {
-                                    @Override
-                                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                        updateViews.setImageViewResource(R.id.image_overlay, R.drawable.background_overlay);
-                                        updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.TRANSPARENT);
-                                        updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
-                                        updateViews.setImageViewBitmap(R.id.widgetBackground, resource);
-                                        mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews);
-                                    }
-                                });
-                    }
-                });
-            } else { // Transparent
-                updateViews.setImageViewResource(R.id.widgetBackground, R.drawable.widget_background);
-                updateViews.setImageViewBitmap(R.id.image_overlay, null);
                 updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.BLACK);
                 updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0x00);
+                updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.TRANSPARENT);
+                updateViews.setImageViewBitmap(R.id.panda_background, null);
+            } else {
+                updateViews.setImageViewResource(R.id.widgetBackground, R.drawable.widget_background);
+                updateViews.setInt(R.id.widgetBackground, "setColorFilter", backgroundColor);
+                updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
+                updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.TRANSPARENT);
+                updateViews.setImageViewBitmap(R.id.panda_background, null);
             }
         }
 
-        int tempTextSize = 72;
-        if (provider.getWidgetType() == WidgetType.Widget4x1Google)
-            tempTextSize = 60;
-
-        float shadowRadius = 2.75f;
-        if (provider.getWidgetType() == WidgetType.Widget4x1Google)
-            shadowRadius = 7.5f;
+        // Colors
+        setTextColorDependents(updateViews, provider, weather, background, style);
 
         // Temperature
         CharSequence temp = weather.getCurTemp();
@@ -988,24 +970,15 @@ public class WeatherWidgetService extends JobIntentService {
             updateViews.setTextViewTextSize(R.id.divider, TypedValue.COMPLEX_UNIT_SP, textSize);
             updateViews.setTextViewTextSize(R.id.condition_temp, TypedValue.COMPLEX_UNIT_SP, textSize);
             updateViews.setViewVisibility(R.id.divider, View.VISIBLE);
-        } else if (provider.getWidgetType() != WidgetType.Widget2x2) {
-            updateViews.setImageViewBitmap(R.id.condition_temp,
-                    ImageUtils.weatherIconToBitmap(context, temp, tempTextSize, textColor, shadowRadius));
         }
-
-        // WeatherIcon
-        updateViews.setImageViewBitmap(R.id.weather_icon,
-                ImageUtils.weatherIconToBitmap(this, weather.getWeatherIcon(), tempTextSize, textColor, shadowRadius));
 
         // Location Name
         updateViews.setTextViewText(R.id.location_name, weather.getLocation());
-        updateViews.setTextColor(R.id.location_name, textColor);
 
         if (provider.getWidgetType() != WidgetType.Widget4x1Google) {
             // Update Time
             String updatetext = getUpdateTimeText(Settings.getUpdateTime(), false);
             updateViews.setTextViewText(R.id.update_time, updatetext);
-            updateViews.setTextColor(R.id.update_time, textColor);
         }
 
         // Set data for larger widgets
@@ -1013,24 +986,19 @@ public class WeatherWidgetService extends JobIntentService {
             // Condition text
             updateViews.setTextViewText(R.id.condition_weather,
                     String.format(Locale.ROOT, "%sº - %s", StringUtils.removeNonDigitChars(temp.toString()), weather.getCurCondition()));
-            updateViews.setTextColor(R.id.condition_weather, textColor);
 
             ForecastItemViewModel todaysForecast = weather.getForecasts().get(0);
 
             updateViews.setTextViewText(R.id.condition_details,
                     String.format(Locale.ROOT, "%s | %s", todaysForecast.getHiTemp(), todaysForecast.getLoTemp()));
-            updateViews.setTextColor(R.id.condition_details, textColor);
         } else if (provider.getWidgetType() == WidgetType.Widget4x2) {
             // Condition text
             updateViews.setTextViewText(R.id.condition_weather, weather.getCurCondition());
-            updateViews.setTextColor(R.id.condition_weather, textColor);
         } else if (provider.getWidgetType() == WidgetType.Widget4x1) {
             // Condition text
             updateViews.setTextViewText(R.id.condition_weather, weather.getCurCondition());
-            updateViews.setTextColor(R.id.condition_weather, textColor);
 
-            updateViews.setViewVisibility(R.id.forecast_date, View.VISIBLE);
-            updateViews.setTextColor(R.id.forecast_date, textColor);
+            updateViews.setViewVisibility(R.id.now_date, View.VISIBLE);
         }
 
         if (isDateWidget(provider.getWidgetType())) {
@@ -1045,11 +1013,7 @@ public class WeatherWidgetService extends JobIntentService {
 
         // Progress bar
         updateViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
-        updateViews.setInt(R.id.refresh_button, "setColorFilter", textColor);
         updateViews.setViewVisibility(R.id.refresh_progress, View.GONE);
-
-        // Settings button
-        updateViews.setInt(R.id.settings_button, "setColorFilter", textColor);
 
         // Set on click refresh intent
         setOnRefreshIntent(context, provider, appWidgetId, updateViews);
@@ -1058,6 +1022,76 @@ public class WeatherWidgetService extends JobIntentService {
         setOnSettingsClickIntent(context, updateViews, location, appWidgetId);
 
         return updateViews;
+    }
+
+    private void setTextColorDependents(final RemoteViews updateViews, WeatherWidgetProvider provider,
+                                        WeatherNowViewModel weather, WidgetUtils.WidgetBackground background, @Nullable WidgetUtils.WidgetBackgroundStyle style) {
+        int textColor = getTextColor(background);
+        int panelTextColor = getPanelTextColor(background, style);
+
+        int tempTextSize = 72;
+        if (provider.getWidgetType() == WidgetType.Widget4x1Google)
+            tempTextSize = 60;
+
+        float shadowRadius = 2.75f;
+        if (provider.getWidgetType() == WidgetType.Widget4x1Google)
+            shadowRadius = 7.5f;
+
+        if (provider.getWidgetType() != WidgetType.Widget2x2 && provider.getWidgetType() != WidgetType.Widget4x1Google) {
+            updateViews.setImageViewBitmap(R.id.condition_temp,
+                    ImageUtils.weatherIconToBitmap(mContext, weather.getCurTemp(), tempTextSize, textColor, shadowRadius));
+        }
+
+        if (provider.getWidgetType() == WidgetType.Widget4x1) {
+            updateViews.setTextColor(R.id.now_date, textColor);
+        }
+
+        if (provider.getWidgetType() != WidgetType.Widget4x1Google && provider.getWidgetType() != WidgetType.Widget1x1) {
+            updateViews.setTextColor(R.id.update_time, textColor);
+        }
+
+        boolean is4x2 = provider.getWidgetType() == WidgetType.Widget4x2;
+
+        // WeatherIcon
+        updateViews.setImageViewBitmap(R.id.weather_icon,
+                ImageUtils.weatherIconToBitmap(mContext, weather.getWeatherIcon(), tempTextSize, is4x2 ? textColor : panelTextColor, shadowRadius));
+
+        updateViews.setTextColor(R.id.location_name, is4x2 ? textColor : panelTextColor);
+
+        if (provider.getWidgetType() != WidgetType.Widget4x1Google) {
+            updateViews.setTextColor(R.id.condition_weather, is4x2 ? textColor : panelTextColor);
+            updateViews.setTextColor(R.id.condition_details, is4x2 ? textColor : panelTextColor);
+        }
+
+        updateViews.setInt(R.id.refresh_button, "setColorFilter", textColor);
+        updateViews.setInt(R.id.settings_button, "setColorFilter", textColor);
+    }
+
+    private void loadBackgroundImage(final RemoteViews updateViews, final int appWidgetId, final String backgroundURI, final int cellWidth, final int cellHeight) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                int imgWidth = 200 * cellWidth;
+                int imgHeight = 200 * cellHeight;
+                float radius = mContext.getResources().getDimensionPixelSize(R.dimen.widget_corner_radius);
+
+                Glide.with(mContext)
+                        .asBitmap()
+                        .load(backgroundURI)
+                        .apply(RequestOptions.formatOf(DecodeFormat.PREFER_RGB_565)
+                                .transforms(new CenterCrop(), new TransparentOverlay(0x33), new RoundedCorners((int) radius))
+                        )
+                        .into(new SimpleTarget<Bitmap>(imgWidth, imgHeight) {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.TRANSPARENT);
+                                updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
+                                updateViews.setImageViewBitmap(R.id.widgetBackground, resource);
+                                mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews);
+                            }
+                        });
+            }
+        });
     }
 
     private static void setOnRefreshIntent(Context context, WeatherWidgetProvider provider, int appWidgetId, RemoteViews updateViews) {
@@ -1114,6 +1148,7 @@ public class WeatherWidgetService extends JobIntentService {
                 if (!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId))
                     return null;
 
+                // Get weather data from cache
                 Weather weather = WidgetUtils.getWeatherData(appWidgetId);
 
                 if (isCtsCancelRequested()) throw new InterruptedException();
@@ -1144,26 +1179,32 @@ public class WeatherWidgetService extends JobIntentService {
                     }
                 }
 
-                RemoteViews updateViews = new RemoteViews(mContext.getPackageName(), provider.getWidgetLayoutId());
+                final RemoteViews updateViews = new RemoteViews(mContext.getPackageName(), provider.getWidgetLayoutId());
 
                 // Widget dimensions
-                int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
-                int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
-                int maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT);
-                int maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
-                int maxCellHeight = getCellsForSize(maxHeight);
-                int maxCellWidth = getCellsForSize(maxWidth);
-                int cellHeight = getCellsForSize(minHeight);
-                int cellWidth = getCellsForSize(minWidth);
+                final int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
+                final int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
+                final int maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT);
+                final int maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
+                final int maxCellHeight = getCellsForSize(maxHeight);
+                final int maxCellWidth = getCellsForSize(maxWidth);
+                final int cellHeight = getCellsForSize(minHeight);
+                final int cellWidth = getCellsForSize(minWidth);
 
-                if (isClockWidget(provider.getWidgetType())) {
-                    refreshClock(new int[]{appWidgetId});
-                }
-                if (isDateWidget(provider.getWidgetType())) {
-                    refreshDate(new int[]{appWidgetId});
+                if (isBackgroundOptionalWidget(provider.getWidgetType())) {
+                    final WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
+                    if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
+                        final String backgroundURI = wm.getWeatherBackgroundURI(weather);
+                        loadBackgroundImage(updateViews, appWidgetId, backgroundURI, cellWidth, cellHeight);
+                    }
                 }
 
-                if (provider.getWidgetType() == WidgetType.Widget4x1Google) {
+                if (provider.getWidgetType() == WidgetType.Widget1x1) {
+                    if (cellWidth > 1 && cellHeight > 1)
+                        updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, 14);
+                    else
+                        updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, 12);
+                } else if (provider.getWidgetType() == WidgetType.Widget4x1Google) {
                     int textSize = 24;
                     if (cellWidth <= 3) {
                         textSize = 16;
@@ -1185,6 +1226,13 @@ public class WeatherWidgetService extends JobIntentService {
                     WeatherNowViewModel viewModel = new WeatherNowViewModel(weather);
                     updateViews.removeAllViews(R.id.forecast_layout);
                     buildForecastPanel(updateViews, provider, viewModel, appWidgetId, forecastLength, cellWidth == maxCellWidth);
+                }
+
+                if (isClockWidget(provider.getWidgetType())) {
+                    refreshClock(new int[]{appWidgetId});
+                }
+                if (isDateWidget(provider.getWidgetType())) {
+                    refreshDate(new int[]{appWidgetId});
                 }
 
                 mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews);
@@ -1233,13 +1281,6 @@ public class WeatherWidgetService extends JobIntentService {
 
                 updateViews.setTextColor(R.id.clock_panel, textColor);
                 updateViews.setTextColor(R.id.date_panel, textColor);
-
-                if (provider.getWidgetType() == WidgetType.Widget2x2) {
-                    if (cellWidth > 1 && cellHeight > 1)
-                        updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, 18);
-                    else
-                        updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, 12);
-                }
             }
 
             buildForecastPanel(updateViews, provider, weather, appWidgetIds[i], forecastLength, cellWidth == maxCellWidth);
@@ -1256,7 +1297,8 @@ public class WeatherWidgetService extends JobIntentService {
         if (provider.getWidgetType() == WidgetType.Widget4x1 || provider.getWidgetType() == WidgetType.Widget4x2) {
             // Background & Text Color
             WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
-            int textColor = getTextColor(background);
+            WidgetUtils.WidgetBackgroundStyle style = WidgetUtils.getBackgroundStyle(appWidgetId);
+            int textColor = getPanelTextColor(background, style);
             int textSize = 72;
 
             for (int i = 0; i < forecastLength; i++) {
@@ -1271,14 +1313,15 @@ public class WeatherWidgetService extends JobIntentService {
                     forecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_panel_medium);
 
                 forecastPanel.setTextViewText(R.id.forecast_date, forecast.getDate());
+                forecastPanel.setTextViewText(R.id.forecast_hi, forecast.getHiTemp());
+                forecastPanel.setTextViewText(R.id.forecast_lo, forecast.getLoTemp());
+
                 forecastPanel.setTextColor(R.id.forecast_date, textColor);
+                forecastPanel.setTextColor(R.id.forecast_hi, textColor);
+                forecastPanel.setTextColor(R.id.divider, textColor);
+                forecastPanel.setTextColor(R.id.forecast_lo, textColor);
                 forecastPanel.setImageViewBitmap(R.id.forecast_icon,
                         ImageUtils.weatherIconToBitmap(this, forecast.getWeatherIcon(), textSize, textColor, true));
-
-                forecastPanel.setTextViewText(R.id.forecast_hi, forecast.getHiTemp());
-                forecastPanel.setTextColor(R.id.forecast_hi, textColor);
-                forecastPanel.setTextViewText(R.id.forecast_lo, forecast.getLoTemp());
-                forecastPanel.setTextColor(R.id.forecast_lo, textColor);
 
                 updateViews.addView(R.id.forecast_layout, forecastPanel);
             }
@@ -1412,6 +1455,37 @@ public class WeatherWidgetService extends JobIntentService {
         }
     }
 
+    private @ColorInt
+    int getPanelTextColor(WidgetUtils.WidgetBackground background, @Nullable WidgetUtils.WidgetBackgroundStyle style) {
+        if (background == WidgetUtils.WidgetBackground.BLACK) {
+            return Colors.WHITE;
+        } else if (background == WidgetUtils.WidgetBackground.WHITE) {
+            return Colors.BLACK;
+        } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
+            return Colors.WHITE;
+        } else if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
+            if (style == WidgetUtils.WidgetBackgroundStyle.PANDA)
+                return isNightMode ? Colors.WHITE : Colors.BLACK;
+            else
+                return Colors.WHITE;
+        } else {
+            return Colors.WHITE;
+        }
+    }
+
+    private @ColorInt
+    int getBackgroundColor(WidgetUtils.WidgetBackground background) {
+        if (background == WidgetUtils.WidgetBackground.BLACK) {
+            return ContextCompat.getColor(this, R.color.card_background_dark);
+        } else if (background == WidgetUtils.WidgetBackground.WHITE) {
+            return Colors.WHITE;
+        } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
+            return Colors.TRANSPARENT;
+        } else {
+            return Colors.TRANSPARENT;
+        }
+    }
+
     private boolean isClockWidget(WidgetType widgetType) {
         return (widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2);
     }
@@ -1424,12 +1498,15 @@ public class WeatherWidgetService extends JobIntentService {
         return (widgetType == WidgetType.Widget4x1 || widgetType == WidgetType.Widget4x2);
     }
 
-    private boolean isCurrentConditionWidget(WidgetType widgetType) {
-        return widgetType != WidgetType.Unknown;
-    }
-
     private boolean isBackgroundOptionalWidget(WidgetType widgetType) {
         return widgetType != WidgetType.Unknown && widgetType != WidgetType.Widget4x1Google;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        final int currentNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        isNightMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
     }
 
     private boolean updateLocation() {

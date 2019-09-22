@@ -27,4 +27,14 @@
         android:summary="%s"
         android:title="@string/pref_title_bgcolor" />
 
+    <ListPreference
+        android:defaultValue="0"
+        android:entries="@array/bgstyle_entries"
+        android:entryValues="@array/bgstyle_values"
+        android:key="key_bgstyle"
+        android:persistent="false"
+        android:summary="%s"
+        android:title="@string/pref_title_bgstyle"
+        app:isPreferenceVisible="false" />
+
 </PreferenceScreen>

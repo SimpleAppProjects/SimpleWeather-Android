@@ -30,4 +30,14 @@
         <item>2</item>
         <item>3</item>
     </string-array>
+    <string-array name="bgstyle_entries">
+        <item>@string/label_style_fullbg</item>
+        <item>@string/label_style_panda</item>
+        <item>@string/label_style_pendingcolor</item>
+    </string-array>
+    <string-array name="bgstyle_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
 </resources>

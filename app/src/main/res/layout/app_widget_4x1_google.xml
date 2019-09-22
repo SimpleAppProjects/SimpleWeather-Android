@@ -30,7 +30,7 @@
             android:layout_gravity="center"
             android:alpha="0.7"
             android:indeterminate="true"
-            android:indeterminateTint="@android:color/black"
+            android:indeterminateTint="@android:color/white"
             android:padding="4dp"
             android:visibility="visible" />
 

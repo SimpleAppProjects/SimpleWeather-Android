@@ -42,6 +42,7 @@ public class WidgetUtils {
     private static final String KEY_LOCATIONDATA = "key_locationdata";
     private static final String KEY_LOCATIONQUERY = "key_locationquery";
     private static final String KEY_WIDGETBACKGROUND = "key_widgetbackground";
+    private static final String KEY_WIDGETBACKGROUNDSTYLE = "key_widgetbackgroundstyle";
 
     static {
         init();
@@ -66,12 +67,40 @@ public class WidgetUtils {
         private static SparseArray<WidgetBackground> map = new SparseArray<>();
 
         static {
-            for (WidgetBackground errorStatus : values()) {
-                map.put(errorStatus.value, errorStatus);
+            for (WidgetBackground background : values()) {
+                map.put(background.value, background);
             }
         }
 
         public static WidgetBackground valueOf(int value) {
+            return map.get(value);
+        }
+    }
+
+    enum WidgetBackgroundStyle {
+        FULLBACKGROUND(0),
+        PANDA(1),
+        PENDINGCOLOR(2);
+
+        private final int value;
+
+        public int getValue() {
+            return value;
+        }
+
+        private WidgetBackgroundStyle(int value) {
+            this.value = value;
+        }
+
+        private static SparseArray<WidgetBackgroundStyle> map = new SparseArray<>();
+
+        static {
+            for (WidgetBackgroundStyle style : values()) {
+                map.put(style.value, style);
+            }
+        }
+
+        public static WidgetBackgroundStyle valueOf(int value) {
             return map.get(value);
         }
     }
@@ -418,19 +447,19 @@ public class WidgetUtils {
     public static WidgetBackground getWidgetBackground(int widgetId) {
         SharedPreferences prefs = getPreferences(widgetId);
 
-        String value = prefs.getString(KEY_WIDGETBACKGROUND, "0");
+        String value = prefs.getString(KEY_WIDGETBACKGROUND, "3");
         if (StringUtils.isNullOrWhitespace(value))
-            value = "0";
+            value = "3";
 
         switch (Integer.valueOf(value)) {
             case 0:
-            default:
                 return WidgetBackground.CURRENT_CONDITIONS;
             case 1:
                 return WidgetBackground.WHITE;
             case 2:
                 return WidgetBackground.BLACK;
             case 3:
+            default:
                 return WidgetBackground.TRANSPARENT;
         }
     }
@@ -439,6 +468,31 @@ public class WidgetUtils {
         SharedPreferences.Editor editor = getEditor(widgetId);
 
         editor.putString(KEY_WIDGETBACKGROUND, Integer.toString(value));
+        editor.commit();
+    }
+
+    public static WidgetBackgroundStyle getBackgroundStyle(int widgetId) {
+        SharedPreferences prefs = getPreferences(widgetId);
+
+        String value = prefs.getString(KEY_WIDGETBACKGROUNDSTYLE, "0");
+        if (StringUtils.isNullOrWhitespace(value))
+            value = "0";
+
+        switch (Integer.valueOf(value)) {
+            case 0:
+            default:
+                return WidgetBackgroundStyle.FULLBACKGROUND;
+            case 1:
+                return WidgetBackgroundStyle.PANDA;
+            case 2:
+                return WidgetBackgroundStyle.PENDINGCOLOR;
+        }
+    }
+
+    public static void setBackgroundStyle(int widgetId, int value) {
+        SharedPreferences.Editor editor = getEditor(widgetId);
+
+        editor.putString(KEY_WIDGETBACKGROUNDSTYLE, Integer.toString(value));
         editor.commit();
     }
 

@@ -184,6 +184,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         private ListAdapterPreference locationPref;
         private ListPreference refreshPref;
         private ListPreference bgColorPref;
+        private ListPreference bgStylePref;
 
         private static final int ANIMATION_DURATION = 240;
 
@@ -200,6 +201,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         private static final String KEY_LOCATION = "key_location";
         private static final String KEY_REFRESHINTERVAL = "key_refreshinterval";
         private static final String KEY_BGCOLOR = "key_bgcolor";
+        private static final String KEY_BGSTYLE = "key_bgstyle";
 
         public static WeatherWidgetPreferenceFragment newInstance(Bundle args) {
             WeatherWidgetPreferenceFragment fragment = new WeatherWidgetPreferenceFragment();
@@ -379,12 +381,30 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
             // Setup widget background spinner
             bgColorPref = findPreference(KEY_BGCOLOR);
+            bgStylePref = findPreference(KEY_BGSTYLE);
+
+            bgColorPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if (Integer.parseInt(newValue.toString()) == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS.getValue()) {
+                        if (mWidgetType == WidgetType.Widget4x2 || mWidgetType == WidgetType.Widget2x2) {
+                            bgStylePref.setVisible(true);
+                            return true;
+                        }
+                    }
+
+                    bgStylePref.setVisible(false);
+                    return true;
+                }
+            });
 
             if (mWidgetType != WidgetType.Widget4x1Google) {
                 bgColorPref.setValueIndex(WidgetUtils.getWidgetBackground(mAppWidgetId).getValue());
+                bgColorPref.callChangeListener(bgColorPref.getValue());
+                bgStylePref.setValueIndex(WidgetUtils.getBackgroundStyle(mAppWidgetId).getValue());
             } else {
                 bgColorPref.setValueIndex(WidgetUtils.WidgetBackground.TRANSPARENT.getValue());
-                getPreferenceScreen().removePreference(bgColorPref);
+                bgColorPref.setVisible(false);
             }
 
             // Get SearchUI state
@@ -993,6 +1013,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
                 // Save widget preferences
                 WidgetUtils.setWidgetBackground(mAppWidgetId, Integer.parseInt(bgColorPref.getValue()));
+                WidgetUtils.setBackgroundStyle(mAppWidgetId, Integer.parseInt(bgStylePref.getValue()));
 
                 // Trigger widget service to update widget
                 WeatherWidgetService.enqueueWork(mActivity,
