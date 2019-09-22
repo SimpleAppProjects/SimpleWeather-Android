@@ -7,18 +7,25 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Typeface;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.format.DateFormat;
+import android.text.style.TextAppearanceSpan;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
@@ -26,18 +33,22 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -45,13 +56,18 @@ import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.AutoTransition;
+import androidx.transition.TransitionManager;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DecodeFormat;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
@@ -70,6 +86,7 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.TransparentOverlay;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
@@ -83,6 +100,9 @@ import com.thewizrd.simpleweather.preferences.ListAdapterPreference;
 import com.thewizrd.simpleweather.preferences.ListAdapterPreferenceDialogFragment;
 import com.thewizrd.simpleweather.setup.SetupActivity;
 
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -91,6 +111,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import static com.thewizrd.simpleweather.widgets.WidgetUtils.isForecastWidget;
 
 public class WeatherWidgetConfigActivity extends AppCompatActivity {
     @Override
@@ -176,10 +198,15 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         private AppBarLayout appBarLayout;
         private Toolbar mToolbar;
         private View mSearchFragmentContainer;
+        private NestedScrollView mScrollView;
         private LocationSearchFragment mSearchFragment;
-        private CollapsingToolbarLayout collapsingToolbar;
         private ComboBoxItem selectedItem;
         private boolean inSearchUI;
+
+        private ViewGroup widgetContainer;
+        private boolean isWidgetInit;
+        private WidgetUtils.WidgetBackground mWidgetBackground;
+        private WidgetUtils.WidgetBackgroundStyle mWidgetBGStyle;
 
         private ListAdapterPreference locationPref;
         private ListPreference refreshPref;
@@ -251,11 +278,12 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
             View inflatedView = super.onCreateView(inflater, container, savedInstanceState);
 
-            CoordinatorLayout.LayoutParams lp = new CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.setBehavior(new AppBarLayout.ScrollingViewBehavior());
-            inflatedView.setLayoutParams(lp);
+            mScrollView = root.findViewById(R.id.scrollView);
+            ViewGroup layoutContainer = root.findViewById(R.id.layout_container);
+            layoutContainer.addView(inflatedView);
 
-            root.addView(inflatedView);
+            if (getListView() != null)
+                ViewCompat.setNestedScrollingEnabled(getListView(), false);
 
             // Set fragment view
             wm = WeatherManager.getInstance();
@@ -264,7 +292,6 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
             appBarLayout = root.findViewById(R.id.app_bar);
             mToolbar = root.findViewById(R.id.toolbar);
-            collapsingToolbar = root.findViewById(R.id.collapsing_toolbar);
             mSearchFragmentContainer = root.findViewById(R.id.search_fragment_container);
 
             mRootView = (View) mActivity.findViewById(R.id.fragment_container).getParent();
@@ -275,20 +302,17 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 @Override
                 public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
                     ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
-                    return insets.consumeSystemWindowInsets();
+                    return insets;
                 }
             });
 
-            // Disable drag on AppBarLayout
-            CoordinatorLayout.LayoutParams appBarLayoutParams = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
-            AppBarLayout.Behavior appBarBehavior = new AppBarLayout.Behavior();
-            appBarBehavior.setDragCallback(new AppBarLayout.Behavior.DragCallback() {
+            ViewCompat.setOnApplyWindowInsetsListener(mScrollView, new OnApplyWindowInsetsListener() {
                 @Override
-                public boolean canDrag(@NonNull final AppBarLayout appBarLayout) {
-                    return false;
+                public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                    ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetTop());
+                    return insets;
                 }
             });
-            appBarLayoutParams.setBehavior(appBarBehavior);
 
             mActivity.setSupportActionBar(mToolbar);
             mActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -357,6 +381,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     }
 
                     query_vm = null;
+                    updateLocationView();
                     return true;
                 }
             });
@@ -367,7 +392,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 String locQuery = getArguments().getString(WeatherWidgetService.EXTRA_LOCATIONQUERY);
 
                 if (locName != null) {
-                    locationPref.setValue(new ComboBoxItem(locName, locQuery));
+                    locationPref.setValue(selectedItem = new ComboBoxItem(locName, locQuery));
                 } else {
                     locationPref.setValueIndex(0);
                 }
@@ -386,7 +411,10 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             bgColorPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    if (Integer.parseInt(newValue.toString()) == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS.getValue()) {
+                    mWidgetBackground = WidgetUtils.WidgetBackground.valueOf(Integer.parseInt(newValue.toString()));
+                    updateWidgetView();
+
+                    if (mWidgetBackground == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
                         if (mWidgetType == WidgetType.Widget4x2 || mWidgetType == WidgetType.Widget2x2) {
                             bgStylePref.setVisible(true);
                             return true;
@@ -398,10 +426,21 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 }
             });
 
+            bgStylePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    mWidgetBGStyle = WidgetUtils.WidgetBackgroundStyle.valueOf(Integer.parseInt(newValue.toString()));
+                    updateWidgetView();
+                    return true;
+                }
+            });
+
             if (mWidgetType != WidgetType.Widget4x1Google) {
                 bgColorPref.setValueIndex(WidgetUtils.getWidgetBackground(mAppWidgetId).getValue());
                 bgColorPref.callChangeListener(bgColorPref.getValue());
+
                 bgStylePref.setValueIndex(WidgetUtils.getBackgroundStyle(mAppWidgetId).getValue());
+                bgStylePref.callChangeListener(bgStylePref.getValue());
             } else {
                 bgColorPref.setValueIndex(WidgetUtils.WidgetBackground.TRANSPARENT.getValue());
                 bgColorPref.setVisible(false);
@@ -413,6 +452,319 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
                 // Restart SearchUI
                 prepareSearchUI();
+            }
+        }
+
+        @Override
+        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
+
+            widgetContainer = view.findViewById(R.id.widget_container);
+            initializeWidget();
+            resizeWidgetContainer();
+        }
+
+        private void initializeWidget() {
+            widgetContainer.removeAllViews();
+
+            int widgetLayoutRes = 0;
+            float viewWidth = 0;
+            float viewHeight = 0;
+            float widgetBlockSize = ActivityUtils.dpToPx(mActivity, 90);
+
+            switch (mWidgetType) {
+                case Widget1x1:
+                    widgetLayoutRes = R.layout.app_widget_1x1;
+                    viewHeight = viewWidth = widgetBlockSize * 1.5f;
+                    break;
+                case Widget2x2:
+                    widgetLayoutRes = R.layout.app_widget_2x2;
+                    viewHeight = viewWidth = widgetBlockSize * 2.25f;
+                    break;
+                case Widget4x1:
+                    widgetLayoutRes = R.layout.app_widget_4x1;
+                    viewWidth = widgetBlockSize * 4;
+                    viewHeight = widgetBlockSize;
+                    break;
+                case Widget4x2:
+                    widgetLayoutRes = R.layout.app_widget_4x2;
+                    viewWidth = widgetBlockSize * 4;
+                    viewHeight = widgetBlockSize * 2.25f;
+                    break;
+                case Widget4x1Google:
+                    widgetLayoutRes = R.layout.app_widget_4x1_google;
+                    viewWidth = widgetBlockSize * 4;
+                    viewHeight = widgetBlockSize * 1.5f;
+                    break;
+            }
+
+            if (widgetLayoutRes == 0) {
+                widgetContainer.setVisibility(View.GONE);
+                return;
+            }
+
+            LocalDateTime now = LocalDateTime.now();
+
+            View widgetView = View.inflate(mActivity, widgetLayoutRes, widgetContainer);
+            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) widgetView.getLayoutParams();
+
+            layoutParams.height = (int) viewHeight;
+            layoutParams.width = (int) viewWidth;
+            layoutParams.gravity = Gravity.CENTER;
+
+            widgetView.setLayoutParams(layoutParams);
+
+            if (mWidgetType == WidgetType.Widget4x1Google) {
+                View divider = widgetView.findViewById(R.id.divider);
+                divider.setVisibility(View.VISIBLE);
+            }
+
+            if (mWidgetType != WidgetType.Widget4x1Google && mWidgetType != WidgetType.Widget1x1) {
+                TextView updateTime = widgetView.findViewById(R.id.update_time);
+
+                String timeformat = now.format(DateTimeFormatter.ofPattern("h:mm a")).toLowerCase();
+
+                if (DateFormat.is24HourFormat(App.getInstance().getAppContext()))
+                    timeformat = now.format(DateTimeFormatter.ofPattern("HH:mm")).toLowerCase();
+
+                String updatetime = String.format("%s %s", now.format(DateTimeFormatter.ofPattern("eee")), timeformat);
+
+                updateTime.setText(String.format("%s %s", mActivity.getString(R.string.widget_updateprefix), updatetime));
+            }
+
+            TextView conditionText = widgetView.findViewById(R.id.condition_weather);
+            if (mWidgetType == WidgetType.Widget2x2) {
+                TextView conditionDetails = widgetView.findViewById(R.id.condition_details);
+
+                conditionText.setText("70º - Sunny");
+                conditionDetails.setText("79º | 65º");
+            } else if (mWidgetType == WidgetType.Widget4x2) {
+                conditionText.setText("Sunny");
+            } else if (mWidgetType == WidgetType.Widget4x1) {
+                widgetView.findViewById(R.id.now_date).setVisibility(View.VISIBLE);
+            }
+
+            if (mWidgetType != WidgetType.Widget2x2 && mWidgetType != WidgetType.Widget4x1Google) {
+                ImageView tempView = widgetView.findViewById(R.id.condition_temp);
+                tempView.setImageResource(R.drawable.notification_temp_pos70);
+            } else if (mWidgetType == WidgetType.Widget4x1Google) {
+                TextView tempView = widgetView.findViewById(R.id.condition_temp);
+                tempView.setText("70ºF");
+            }
+
+            ImageView iconView = widgetView.findViewById(R.id.weather_icon);
+            iconView.setImageResource(R.drawable.day_sunny);
+
+            if (WidgetUtils.isDateWidget(mWidgetType)) {
+                DateTimeFormatter dtfm;
+                if (mWidgetType == WidgetType.Widget2x2) {
+                    dtfm = DateTimeFormatter.ofPattern("eeee, MMMM dd");
+                } else if (mWidgetType == WidgetType.Widget4x1Google) {
+                    dtfm = DateTimeFormatter.ofPattern("eeee, MMM dd");
+                } else {
+                    dtfm = DateTimeFormatter.ofPattern("eee, MMM dd");
+                }
+
+                TextView dateText = widgetView.findViewById(R.id.date_panel);
+                dateText.setText(now.format(dtfm));
+            }
+
+            if (WidgetUtils.isClockWidget(mWidgetType) && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                SpannableString timeStr;
+                String timeformat = now.format(DateTimeFormatter.ofPattern("h:mma"));
+                int end = timeformat.length() - 2;
+
+                if (DateFormat.is24HourFormat(App.getInstance().getAppContext())) {
+                    timeformat = now.format(DateTimeFormatter.ofPattern("HH:mm"));
+                    end = timeformat.length() - 1;
+                    timeStr = new SpannableString(timeformat);
+                } else {
+                    timeStr = new SpannableString(timeformat);
+                    timeStr.setSpan(new TextAppearanceSpan("sans-serif", Typeface.BOLD, 16,
+                                    ContextCompat.getColorStateList(mActivity, android.R.color.white),
+                                    ContextCompat.getColorStateList(mActivity, android.R.color.white)),
+                            end, timeformat.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+
+                TextView clockView = widgetView.findViewById(R.id.clock_panel);
+                clockView.setText(timeStr);
+            }
+
+            if (isForecastWidget(mWidgetType)) {
+                ViewGroup forecastLayout = widgetContainer.findViewById(R.id.forecast_layout);
+                forecastLayout.removeAllViews();
+
+                int forecastLength = 3;
+                if (mWidgetType == WidgetType.Widget4x2) {
+                    forecastLength = 5;
+                }
+
+                for (int i = 0; i < forecastLength; i++) {
+                    View forecastPanel = null;
+
+                    if (mWidgetType == WidgetType.Widget4x1)
+                        forecastPanel = View.inflate(mActivity, R.layout.app_widget_forecast_panel, null);
+                    else
+                        forecastPanel = View.inflate(mActivity, R.layout.app_widget_forecast_panel_medium, null);
+
+                    forecastPanel.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
+
+                    TextView forecastDate = forecastPanel.findViewById(R.id.forecast_date);
+                    forecastDate.setText(LocalDateTime.now().plusDays(i).format(DateTimeFormatter.ofPattern("eee")));
+
+                    TextView forecastHi = forecastPanel.findViewById(R.id.forecast_hi);
+                    forecastHi.setText(75 + i + "º");
+
+                    TextView forecastLo = forecastPanel.findViewById(R.id.forecast_lo);
+                    forecastLo.setText(65 - i + "º");
+
+                    ImageView forecastIcon = forecastPanel.findViewById(R.id.forecast_icon);
+                    forecastIcon.setImageResource(R.drawable.day_sunny);
+
+                    forecastLayout.addView(forecastPanel);
+                }
+            }
+
+            View refreshButton = widgetView.findViewById(R.id.refresh_button);
+            View refreshProg = widgetView.findViewById(R.id.refresh_progress);
+            refreshButton.setVisibility(View.VISIBLE);
+            refreshProg.setVisibility(View.GONE);
+
+            isWidgetInit = true;
+            updateWidgetView();
+        }
+
+        private void updateLocationView() {
+            TextView locationView = widgetContainer.findViewById(R.id.location_name);
+            locationView.setText(selectedItem != null ? selectedItem.getDisplay() : mActivity.getString(R.string.pref_location));
+        }
+
+        private void updateWidgetView() {
+            if (!isWidgetInit) return;
+
+            updateLocationView();
+
+            final int currentNightMode = mActivity.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            boolean isNightMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
+
+            if (WidgetUtils.isBackgroundOptionalWidget(mWidgetType)) {
+                int backgroundColor = WidgetUtils.getBackgroundColor(mActivity, mWidgetBackground);
+                ImageView pandaBG = widgetContainer.findViewById(R.id.panda_background);
+                ImageView widgetBG = widgetContainer.findViewById(R.id.widgetBackground);
+
+                if (mWidgetBackground == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
+                    if (pandaBG != null) {
+                        if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.PANDA) {
+                            pandaBG.setColorFilter(isNightMode ? Colors.BLACK : Colors.WHITE);
+                            pandaBG.setImageResource(R.drawable.widget_background_bottom_corners);
+                        } else if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.PENDINGCOLOR) {
+                            pandaBG.setColorFilter(0xFF20A8D8);
+                            pandaBG.setImageResource(R.drawable.widget_background_bottom_corners);
+                        } else {
+                            pandaBG.setImageBitmap(null);
+                        }
+                    }
+
+                    widgetBG.setColorFilter(backgroundColor);
+                    widgetBG.setImageAlpha(0xFF);
+
+                    Glide.with(mActivity)
+                            .load("file:///android_asset/backgrounds/DaySky.jpg")
+                            .apply(RequestOptions.formatOf(DecodeFormat.PREFER_RGB_565)
+                                    .transforms(new CenterCrop(), new TransparentOverlay(0x33)))
+                            .into(widgetBG);
+                } else if (mWidgetBackground == WidgetUtils.WidgetBackground.TRANSPARENT) {
+                    widgetBG.setImageResource(R.drawable.widget_background);
+                    widgetBG.setColorFilter(Colors.BLACK);
+                    widgetBG.setImageAlpha(0x00);
+                    if (pandaBG != null) {
+                        pandaBG.setColorFilter(Colors.TRANSPARENT);
+                        pandaBG.setImageBitmap(null);
+                    }
+                } else {
+                    widgetBG.setImageResource(R.drawable.widget_background);
+                    widgetBG.setColorFilter(backgroundColor);
+                    widgetBG.setImageAlpha(0xFF);
+                    if (pandaBG != null) {
+                        pandaBG.setColorFilter(Colors.TRANSPARENT);
+                        pandaBG.setImageBitmap(null);
+                    }
+                }
+            }
+
+            // Set text color
+            int textColor = WidgetUtils.getTextColor(mWidgetBackground);
+            int panelTextColor = WidgetUtils.getPanelTextColor(mWidgetBackground, mWidgetBGStyle, isNightMode);
+
+            if (mWidgetType != WidgetType.Widget2x2 && mWidgetType != WidgetType.Widget4x1Google) {
+                ImageView tempView = widgetContainer.findViewById(R.id.condition_temp);
+                tempView.setColorFilter(textColor);
+            }
+
+            if (mWidgetType == WidgetType.Widget4x1) {
+                TextView nowDate = widgetContainer.findViewById(R.id.now_date);
+                nowDate.setTextColor(textColor);
+            }
+
+            if (mWidgetType != WidgetType.Widget4x1Google && mWidgetType != WidgetType.Widget1x1) {
+                TextView update_time = widgetContainer.findViewById(R.id.update_time);
+                update_time.setTextColor(textColor);
+            }
+
+            boolean is4x2 = mWidgetType == WidgetType.Widget4x2;
+
+            ImageView iconView = widgetContainer.findViewById(R.id.weather_icon);
+            iconView.setColorFilter(is4x2 ? textColor : panelTextColor);
+
+            TextView locationView = widgetContainer.findViewById(R.id.location_name);
+            locationView.setTextColor(is4x2 ? textColor : panelTextColor);
+
+            if (mWidgetType != WidgetType.Widget4x1Google && mWidgetType != WidgetType.Widget4x1 && mWidgetType != WidgetType.Widget1x1) {
+                TextView conditionText = widgetContainer.findViewById(R.id.condition_weather);
+                TextView conditionDetails = widgetContainer.findViewById(R.id.condition_details);
+
+                conditionText.setTextColor(is4x2 ? textColor : panelTextColor);
+                if (conditionDetails != null)
+                    conditionDetails.setTextColor(is4x2 ? textColor : panelTextColor);
+            }
+
+            if (WidgetUtils.isDateWidget(mWidgetType)) {
+                TextView dateText = widgetContainer.findViewById(R.id.date_panel);
+                dateText.setTextColor(textColor);
+            }
+
+            if (WidgetUtils.isClockWidget(mWidgetType)) {
+                TextView clockView = widgetContainer.findViewById(R.id.clock_panel);
+                clockView.setTextColor(textColor);
+            }
+
+            if (WidgetUtils.isForecastWidget(mWidgetType)) {
+                ViewGroup forecastLayout = widgetContainer.findViewById(R.id.forecast_layout);
+                if (forecastLayout != null) {
+                    updateTextViewColor(forecastLayout, panelTextColor);
+                }
+            }
+
+            ImageView refreshButton = widgetContainer.findViewById(R.id.refresh_button);
+            ImageView settButton = widgetContainer.findViewById(R.id.settings_button);
+            refreshButton.setColorFilter(textColor);
+            settButton.setColorFilter(textColor);
+        }
+
+        private void updateTextViewColor(View view, int textColor) {
+            if (view instanceof ViewGroup) {
+                ViewGroup viewGroup = (ViewGroup) view;
+                int childCount = viewGroup.getChildCount();
+
+                for (int i = 0; i < childCount; i++) {
+                    updateTextViewColor(viewGroup.getChildAt(i), textColor);
+                }
+            } else if (view instanceof TextView) {
+                TextView textView = (TextView) view;
+                textView.setTextColor(textColor);
+            } else if (view instanceof ImageView) {
+                ImageView imageView = (ImageView) view;
+                imageView.setColorFilter(textColor);
             }
         }
 
@@ -465,10 +817,6 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         }
 
         private void prepareSearchUI() {
-            // Unset scroll flag
-            AppBarLayout.LayoutParams toolbarParams = (AppBarLayout.LayoutParams) collapsingToolbar.getLayoutParams();
-            toolbarParams.setScrollFlags(toolbarParams.getScrollFlags() & ~AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL);
-
             /*
              * NOTE
              * Compat issue: bring container to the front
@@ -557,12 +905,6 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     });
                 }
             }
-
-            // Set scroll flag
-            AppBarLayout.LayoutParams toolbarParams = (AppBarLayout.LayoutParams) collapsingToolbar.getLayoutParams();
-            toolbarParams.setScrollFlags(toolbarParams.getScrollFlags() | AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL);
-            Configuration config = mActivity.getResources().getConfiguration();
-            appBarLayout.setExpanded(config.orientation == Configuration.ORIENTATION_PORTRAIT || ActivityUtils.isLargeTablet(mActivity), false);
 
             hideInputMethod(mActivity == null ? null : mActivity.getCurrentFocus());
             inSearchUI = false;
@@ -741,7 +1083,6 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
                 bg_color = Colors.BLACK;
                 appBarLayout.setBackgroundColor(Colors.BLACK);
-                collapsingToolbar.setStatusBarScrimColor(Colors.BLACK);
                 ActivityUtils.setTransparentWindow(mActivity.getWindow(), bg_color,
                         Colors.BLACK, /* StatusBar */
                         Colors.TRANSPARENT /* NavBar */,
@@ -754,7 +1095,6 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 int colorPrimary = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
                 int color = isDarkMode ? bg_color : colorPrimary;
                 appBarLayout.setBackgroundColor(color);
-                collapsingToolbar.setStatusBarScrimColor(color);
                 ActivityUtils.setTransparentWindow(mActivity.getWindow(), bg_color,
                         color, /* StatusBar */
                         config.orientation == Configuration.ORIENTATION_PORTRAIT || ActivityUtils.isLargeTablet(mActivity) ? Colors.TRANSPARENT : color /* NavBar */,
@@ -767,8 +1107,65 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         public void onConfigurationChanged(@NonNull Configuration newConfig) {
             super.onConfigurationChanged(newConfig);
 
-            appBarLayout.setExpanded(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT || ActivityUtils.isLargeTablet(mActivity), true);
+            // Resize necessary views
+            ViewTreeObserver observer = mRootView.getViewTreeObserver();
+            observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    mRootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                    resizeWidgetContainer();
+                }
+            });
+
             updateWindowColors();
+        }
+
+        private void resizeWidgetContainer() {
+            final View widgetFrameContainer = mScrollView.findViewById(R.id.widget_frame_container);
+            final View widgetView = widgetContainer.findViewById(R.id.widget);
+
+            widgetFrameContainer.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mActivity != null) {
+                        int height = mScrollView.getMeasuredHeight();
+                        int width = mScrollView.getMeasuredWidth();
+
+                        int preferredHeight = (int) ActivityUtils.dpToPx(mActivity, 225);
+                        int minHeight = (int) (ActivityUtils.dpToPx(mActivity, 90));
+
+                        if (mWidgetType == WidgetType.Widget2x2 || mWidgetType == WidgetType.Widget4x2) {
+                            minHeight *= 2.5f;
+                        }
+
+                        TransitionManager.beginDelayedTransition(mScrollView, new AutoTransition());
+
+                        ViewGroup.LayoutParams layoutParams = widgetFrameContainer.getLayoutParams();
+
+                        if (mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                            layoutParams.height = preferredHeight;
+                        } else {
+                            if (mWidgetType == WidgetType.Widget1x1 || mWidgetType == WidgetType.Widget4x1Google) {
+                                minHeight *= 1.5f;
+                            }
+
+                            layoutParams.height = minHeight;
+                        }
+
+                        if (widgetView != null) {
+                            FrameLayout.LayoutParams widgetParams = (FrameLayout.LayoutParams) widgetView.getLayoutParams();
+                            if (widgetView.getMeasuredWidth() > width) {
+                                widgetParams.width = width;
+                            }
+                            widgetParams.gravity = Gravity.CENTER;
+                            widgetView.setLayoutParams(widgetParams);
+                        }
+
+                        widgetFrameContainer.setLayoutParams(layoutParams);
+                    }
+                }
+            });
         }
 
         @Override

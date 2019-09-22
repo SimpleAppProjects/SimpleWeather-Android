@@ -32,7 +32,6 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.JobIntentService;
@@ -89,6 +88,14 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import static com.thewizrd.simpleweather.widgets.WidgetUtils.getBackgroundColor;
+import static com.thewizrd.simpleweather.widgets.WidgetUtils.getPanelTextColor;
+import static com.thewizrd.simpleweather.widgets.WidgetUtils.getTextColor;
+import static com.thewizrd.simpleweather.widgets.WidgetUtils.isBackgroundOptionalWidget;
+import static com.thewizrd.simpleweather.widgets.WidgetUtils.isClockWidget;
+import static com.thewizrd.simpleweather.widgets.WidgetUtils.isDateWidget;
+import static com.thewizrd.simpleweather.widgets.WidgetUtils.isForecastWidget;
 
 public class WeatherWidgetService extends JobIntentService {
     private static String TAG = "WeatherWidgetService";
@@ -910,13 +917,17 @@ public class WeatherWidgetService extends JobIntentService {
         // Widget dimensions
         final int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
         final int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
+        final int maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT);
+        final int maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
+        final int maxCellHeight = getCellsForSize(maxHeight);
+        final int maxCellWidth = getCellsForSize(maxWidth);
         final int cellHeight = getCellsForSize(minHeight);
         final int cellWidth = getCellsForSize(minWidth);
 
         final WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
         WidgetUtils.WidgetBackgroundStyle style = null;
         if (isBackgroundOptionalWidget(provider.getWidgetType())) {
-            int backgroundColor = getBackgroundColor(background);
+            int backgroundColor = getBackgroundColor(mContext, background);
 
             if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
                 style = WidgetUtils.getBackgroundStyle(appWidgetId);
@@ -975,7 +986,7 @@ public class WeatherWidgetService extends JobIntentService {
         // Location Name
         updateViews.setTextViewText(R.id.location_name, weather.getLocation());
 
-        if (provider.getWidgetType() != WidgetType.Widget4x1Google) {
+        if (provider.getWidgetType() != WidgetType.Widget4x1Google && provider.getWidgetType() != WidgetType.Widget1x1) {
             // Update Time
             String updatetext = getUpdateTimeText(Settings.getUpdateTime(), false);
             updateViews.setTextViewText(R.id.update_time, updatetext);
@@ -995,9 +1006,6 @@ public class WeatherWidgetService extends JobIntentService {
             // Condition text
             updateViews.setTextViewText(R.id.condition_weather, weather.getCurCondition());
         } else if (provider.getWidgetType() == WidgetType.Widget4x1) {
-            // Condition text
-            updateViews.setTextViewText(R.id.condition_weather, weather.getCurCondition());
-
             updateViews.setViewVisibility(R.id.now_date, View.VISIBLE);
         }
 
@@ -1027,7 +1035,7 @@ public class WeatherWidgetService extends JobIntentService {
     private void setTextColorDependents(final RemoteViews updateViews, WeatherWidgetProvider provider,
                                         WeatherNowViewModel weather, WidgetUtils.WidgetBackground background, @Nullable WidgetUtils.WidgetBackgroundStyle style) {
         int textColor = getTextColor(background);
-        int panelTextColor = getPanelTextColor(background, style);
+        int panelTextColor = getPanelTextColor(background, style, isNightMode);
 
         int tempTextSize = 72;
         if (provider.getWidgetType() == WidgetType.Widget4x1Google)
@@ -1058,7 +1066,7 @@ public class WeatherWidgetService extends JobIntentService {
 
         updateViews.setTextColor(R.id.location_name, is4x2 ? textColor : panelTextColor);
 
-        if (provider.getWidgetType() != WidgetType.Widget4x1Google) {
+        if (provider.getWidgetType() != WidgetType.Widget4x1Google && provider.getWidgetType() != WidgetType.Widget4x1) {
             updateViews.setTextColor(R.id.condition_weather, is4x2 ? textColor : panelTextColor);
             updateViews.setTextColor(R.id.condition_details, is4x2 ? textColor : panelTextColor);
         }
@@ -1270,12 +1278,7 @@ public class WeatherWidgetService extends JobIntentService {
             if (weather.getForecasts().size() < forecastLength)
                 forecastLength = weather.getForecasts().size();
 
-            if (provider.getWidgetType() == WidgetType.Widget4x1) {
-                if (cellWidth > 3)
-                    updateViews.setViewVisibility(R.id.condition_weather, View.VISIBLE);
-                else
-                    updateViews.setViewVisibility(R.id.condition_weather, View.GONE);
-            } else if (provider.getWidgetType() == WidgetType.Widget4x2 || provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x1Google) {
+            if (provider.getWidgetType() == WidgetType.Widget4x2 || provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x1Google) {
                 WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetIds[i]);
                 int textColor = getTextColor(background);
 
@@ -1298,7 +1301,7 @@ public class WeatherWidgetService extends JobIntentService {
             // Background & Text Color
             WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
             WidgetUtils.WidgetBackgroundStyle style = WidgetUtils.getBackgroundStyle(appWidgetId);
-            int textColor = getPanelTextColor(background, style);
+            int textColor = getPanelTextColor(background, style, isNightMode);
             int textSize = 72;
 
             for (int i = 0; i < forecastLength; i++) {
@@ -1440,66 +1443,6 @@ public class WeatherWidgetService extends JobIntentService {
                 return weather;
             }
         });
-    }
-
-    private @ColorInt
-    int getTextColor(WidgetUtils.WidgetBackground background) {
-        if (background == WidgetUtils.WidgetBackground.BLACK) {
-            return Colors.WHITE;
-        } else if (background == WidgetUtils.WidgetBackground.WHITE) {
-            return Colors.BLACK;
-        } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
-            return Colors.WHITE;
-        } else {
-            return Colors.WHITE;
-        }
-    }
-
-    private @ColorInt
-    int getPanelTextColor(WidgetUtils.WidgetBackground background, @Nullable WidgetUtils.WidgetBackgroundStyle style) {
-        if (background == WidgetUtils.WidgetBackground.BLACK) {
-            return Colors.WHITE;
-        } else if (background == WidgetUtils.WidgetBackground.WHITE) {
-            return Colors.BLACK;
-        } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
-            return Colors.WHITE;
-        } else if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
-            if (style == WidgetUtils.WidgetBackgroundStyle.PANDA)
-                return isNightMode ? Colors.WHITE : Colors.BLACK;
-            else
-                return Colors.WHITE;
-        } else {
-            return Colors.WHITE;
-        }
-    }
-
-    private @ColorInt
-    int getBackgroundColor(WidgetUtils.WidgetBackground background) {
-        if (background == WidgetUtils.WidgetBackground.BLACK) {
-            return ContextCompat.getColor(this, R.color.card_background_dark);
-        } else if (background == WidgetUtils.WidgetBackground.WHITE) {
-            return Colors.WHITE;
-        } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
-            return Colors.TRANSPARENT;
-        } else {
-            return Colors.TRANSPARENT;
-        }
-    }
-
-    private boolean isClockWidget(WidgetType widgetType) {
-        return (widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2);
-    }
-
-    private boolean isDateWidget(WidgetType widgetType) {
-        return (widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x1Google);
-    }
-
-    private boolean isForecastWidget(WidgetType widgetType) {
-        return (widgetType == WidgetType.Widget4x1 || widgetType == WidgetType.Widget4x2);
-    }
-
-    private boolean isBackgroundOptionalWidget(WidgetType widgetType) {
-        return widgetType != WidgetType.Unknown && widgetType != WidgetType.Widget4x1Google;
     }
 
     @Override

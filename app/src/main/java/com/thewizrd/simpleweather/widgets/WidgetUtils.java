@@ -7,16 +7,23 @@ import android.os.Build;
 import android.util.Log;
 import android.util.SparseArray;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.gms.common.util.ArrayUtils;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.simpleweather.App;
+import com.thewizrd.simpleweather.R;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -504,6 +511,66 @@ public class WidgetUtils {
             if (locData != null) {
                 removeWidgetId(locData.getQuery(), id);
             }
+        }
+    }
+
+    public static boolean isClockWidget(WidgetType widgetType) {
+        return (widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2);
+    }
+
+    public static boolean isDateWidget(WidgetType widgetType) {
+        return (widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x1Google);
+    }
+
+    public static boolean isForecastWidget(WidgetType widgetType) {
+        return (widgetType == WidgetType.Widget4x1 || widgetType == WidgetType.Widget4x2);
+    }
+
+    public static boolean isBackgroundOptionalWidget(WidgetType widgetType) {
+        return widgetType != WidgetType.Unknown && widgetType != WidgetType.Widget4x1Google;
+    }
+
+    public static @ColorInt
+    int getTextColor(WidgetUtils.WidgetBackground background) {
+        if (background == WidgetUtils.WidgetBackground.BLACK) {
+            return Colors.WHITE;
+        } else if (background == WidgetUtils.WidgetBackground.WHITE) {
+            return Colors.BLACK;
+        } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
+            return Colors.WHITE;
+        } else {
+            return Colors.WHITE;
+        }
+    }
+
+    public static @ColorInt
+    int getPanelTextColor(WidgetUtils.WidgetBackground background, @Nullable WidgetUtils.WidgetBackgroundStyle style, boolean isNightMode) {
+        if (background == WidgetUtils.WidgetBackground.BLACK) {
+            return Colors.WHITE;
+        } else if (background == WidgetUtils.WidgetBackground.WHITE) {
+            return Colors.BLACK;
+        } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
+            return Colors.WHITE;
+        } else if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
+            if (style == WidgetUtils.WidgetBackgroundStyle.PANDA)
+                return isNightMode ? Colors.WHITE : Colors.BLACK;
+            else
+                return Colors.WHITE;
+        } else {
+            return Colors.WHITE;
+        }
+    }
+
+    public static @ColorInt
+    int getBackgroundColor(@NonNull Context context, WidgetUtils.WidgetBackground background) {
+        if (background == WidgetUtils.WidgetBackground.BLACK) {
+            return ContextCompat.getColor(context, R.color.card_background_dark);
+        } else if (background == WidgetUtils.WidgetBackground.WHITE) {
+            return Colors.WHITE;
+        } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
+            return Colors.TRANSPARENT;
+        } else {
+            return Colors.TRANSPARENT;
         }
     }
 }
