@@ -5,11 +5,12 @@
     android:layout_weight="1"
     android:background="@null"
     android:orientation="vertical"
-    tools:layout_height="72dp"
-    tools:layout_width="72dp">
+    tools:layout_height="144dp"
+    tools:layout_width="144dp">
 
     <TextView
         android:id="@+id/forecast_date"
+        style="@style/ShadowText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -18,17 +19,16 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
         android:textColor="@android:color/white"
         android:textSize="12sp"
-        style="@style/ShadowText"
         tools:text="Mon" />
 
     <ImageView
         android:id="@+id/forecast_icon"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_weight="1"
         android:adjustViewBounds="true"
-        android:maxWidth="50dp"
+        android:maxHeight="35dp"
+        android:maxWidth="35dp"
         android:padding="4dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_weather_icon" />
@@ -42,43 +42,44 @@
 
         <TextView
             android:id="@+id/forecast_hi"
+            style="@style/ShadowText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
-            android:textSize="10sp"
+            android:textSize="12sp"
             android:textStyle="bold"
-            style="@style/ShadowText"
             tools:text="70º" />
 
         <TextView
             android:id="@+id/divider"
+            style="@style/ShadowText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:paddingEnd="1dp"
-            android:paddingLeft="1dp"
-            android:paddingRight="1dp"
-            android:paddingStart="1dp"
+            android:paddingStart="2dp"
+            android:paddingLeft="2dp"
+            android:paddingEnd="2dp"
+            android:paddingRight="2dp"
             android:text="|"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
-            android:textSize="10sp"
-            style="@style/ShadowText" />
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/forecast_lo"
+            style="@style/ShadowText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
-            android:textSize="10sp"
-            style="@style/ShadowText"
+            android:textSize="12sp"
             tools:text="52º" />
 
     </LinearLayout>
+
 </LinearLayout>

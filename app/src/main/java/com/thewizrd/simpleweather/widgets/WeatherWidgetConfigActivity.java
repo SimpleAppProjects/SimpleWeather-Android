@@ -112,6 +112,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static com.thewizrd.simpleweather.widgets.WidgetUtils.getWidgetTypeFromID;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.isForecastWidget;
 
 public class WeatherWidgetConfigActivity extends AppCompatActivity {
@@ -263,7 +264,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 // Find the widget id from the intent.
                 mAppWidgetId = getArguments().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
 
-                mWidgetType = WeatherWidgetService.getWidgetTypeFromID(mAppWidgetId);
+                mWidgetType = getWidgetTypeFromID(mAppWidgetId);
 
                 // Set the result value for WidgetConfigActivity
                 resultValue = new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
@@ -603,9 +604,9 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     View forecastPanel = null;
 
                     if (mWidgetType == WidgetType.Widget4x1)
-                        forecastPanel = View.inflate(mActivity, R.layout.app_widget_forecast_panel, null);
+                        forecastPanel = View.inflate(mActivity, R.layout.app_widget_forecast_panel_4x1, null);
                     else
-                        forecastPanel = View.inflate(mActivity, R.layout.app_widget_forecast_panel_medium, null);
+                        forecastPanel = View.inflate(mActivity, R.layout.app_widget_forecast_panel_4x2, null);
 
                     forecastPanel.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
 

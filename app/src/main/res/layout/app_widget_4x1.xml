@@ -60,18 +60,21 @@
 
                     <ImageView
                         android:id="@+id/weather_icon"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        style="@style/ShadowText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:layout_margin="4dp"
                         android:adjustViewBounds="true"
                         android:gravity="center_vertical"
+                        android:maxWidth="40dp"
+                        android:maxHeight="40dp"
                         android:scaleType="fitCenter"
-                        style="@style/ShadowText"
                         tools:src="@drawable/ic_weather_icon" />
 
                     <ImageView
                         android:id="@+id/condition_temp"
+                        style="@style/ShadowText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical|start"
@@ -79,7 +82,6 @@
                         android:adjustViewBounds="true"
                         android:maxWidth="40dp"
                         android:scaleType="fitCenter"
-                        style="@style/ShadowText"
                         tools:src="@drawable/notification_temp_pos70" />
 
                 </LinearLayout>
@@ -118,7 +120,12 @@
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:padding="4dp"
+                android:paddingLeft="4dp"
+                android:paddingStart="4dp"
+                android:paddingTop="2dp"
+                android:paddingRight="4dp"
+                android:paddingEnd="4dp"
+                android:paddingBottom="2dp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"

@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.widgets;
 
 import android.appwidget.AppWidgetManager;
+import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -187,6 +188,7 @@ public class WidgetUtils {
         WeatherWidgetProvider2x2 mAppWidget2x2 = WeatherWidgetProvider2x2.getInstance();
         WeatherWidgetProvider4x1 mAppWidget4x1 = WeatherWidgetProvider4x1.getInstance();
         WeatherWidgetProvider4x2 mAppWidget4x2 = WeatherWidgetProvider4x2.getInstance();
+        WeatherWidgetProvider4x1Google mAppWidget4x1G = WeatherWidgetProvider4x1Google.getInstance();
 
         List<Integer> currentIds = new ArrayList<>();
         currentIds.addAll(ArrayUtils.toArrayList(
@@ -197,6 +199,8 @@ public class WidgetUtils {
                 ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x1.getComponentName()))));
         currentIds.addAll(ArrayUtils.toArrayList(
                 ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName()))));
+        currentIds.addAll(ArrayUtils.toArrayList(
+                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x1G.getComponentName()))));
 
         return currentIds;
     }
@@ -449,6 +453,25 @@ public class WidgetUtils {
         }
 
         return false;
+    }
+
+    public static WidgetType getWidgetTypeFromID(int appWidgetId) {
+        AppWidgetProviderInfo providerInfo = AppWidgetManager.getInstance(App.getInstance().getAppContext())
+                .getAppWidgetInfo(appWidgetId);
+
+        if (providerInfo.initialLayout == WeatherWidgetProvider1x1.getInstance().getWidgetLayoutId()) {
+            return WidgetType.Widget1x1;
+        } else if (providerInfo.initialLayout == WeatherWidgetProvider2x2.getInstance().getWidgetLayoutId()) {
+            return WidgetType.Widget2x2;
+        } else if (providerInfo.initialLayout == WeatherWidgetProvider4x1.getInstance().getWidgetLayoutId()) {
+            return WidgetType.Widget4x1;
+        } else if (providerInfo.initialLayout == WeatherWidgetProvider4x2.getInstance().getWidgetLayoutId()) {
+            return WidgetType.Widget4x2;
+        } else if (providerInfo.initialLayout == WeatherWidgetProvider4x1Google.getInstance().getWidgetLayoutId()) {
+            return WidgetType.Widget4x1Google;
+        } else {
+            return WidgetType.Unknown;
+        }
     }
 
     public static WidgetBackground getWidgetBackground(int widgetId) {

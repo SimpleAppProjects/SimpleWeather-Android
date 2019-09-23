@@ -48,6 +48,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/layout_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -76,13 +77,13 @@
             style="@style/ShadowTextHeavy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-light"
-            android:gravity="center_horizontal"
-            android:maxLines="1"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginEnd="4dp"
             android:layout_marginRight="4dp"
+            android:fontFamily="sans-serif-light"
+            android:includeFontPadding="false"
+            android:maxLines="1"
             android:text="|"
             android:textColor="@android:color/white"
             android:textSize="24sp"
@@ -91,8 +92,8 @@
 
         <ImageView
             android:id="@+id/weather_icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="30dp"
+            android:layout_height="32dp"
             tools:src="@drawable/ic_weather_icon" />
 
         <TextView
@@ -118,15 +119,15 @@
         style="@style/ShadowText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-light"
         android:ellipsize="end"
+        android:fontFamily="sans-serif-light"
         android:gravity="center"
         android:maxLines="1"
-        android:paddingLeft="4dp"
         android:paddingStart="4dp"
-        android:paddingRight="4dp"
-        android:paddingEnd="4dp"
+        android:paddingLeft="4dp"
         android:paddingTop="2dp"
+        android:paddingEnd="4dp"
+        android:paddingRight="4dp"
         android:paddingBottom="2dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
         android:textColor="@android:color/white"

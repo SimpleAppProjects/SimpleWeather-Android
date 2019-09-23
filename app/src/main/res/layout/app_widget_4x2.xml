@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:layout_height="216dp"
-    tools:layout_width="360dp">
+    tools:layout_height="180dp"
+    tools:layout_width="match_parent">
 
     <ImageView
         android:id="@+id/widgetBackground"
@@ -135,18 +135,24 @@
 
                 <ImageView
                     android:id="@+id/weather_icon"
-                    android:layout_width="45dp"
-                    android:layout_height="60dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_margin="4dp"
+                    style="@style/ShadowText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentBottom="true"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_marginBottom="4dp"
                     android:adjustViewBounds="true"
                     android:gravity="center_vertical"
+                    android:maxWidth="60dp"
+                    android:maxHeight="45dp"
                     android:scaleType="fitCenter"
-                    style="@style/ShadowText"
                     tools:src="@drawable/ic_weather_icon" />
 
                 <ImageView
@@ -155,16 +161,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignTop="@id/weather_icon"
+                    android:layout_alignParentBottom="true"
                     android:layout_gravity="center_vertical|start"
                     android:layout_marginStart="2dp"
                     android:layout_marginLeft="2dp"
-                    android:layout_marginTop="2dp"
                     android:layout_marginEnd="2dp"
                     android:layout_marginRight="2dp"
                     android:layout_marginBottom="2dp"
                     android:layout_toEndOf="@id/weather_icon"
                     android:layout_toRightOf="@id/weather_icon"
-                    android:layout_alignParentBottom="true"
                     android:adjustViewBounds="true"
                     android:maxWidth="60dp"
                     android:scaleType="fitCenter"
@@ -214,7 +219,7 @@
     <LinearLayout
         android:id="@+id/forecast_layout"
         android:layout_width="match_parent"
-        android:layout_height="72dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
         android:paddingStart="4dp"

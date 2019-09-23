@@ -60,7 +60,9 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
                 int[] appWidgetIds = intent.getIntArrayExtra(EXTRA_WIDGET_IDS);
                 updateWidgets(context, appWidgetIds);
             } else if (AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction())) {
-                updateWidgets(context, null);
+                // Update widgets
+                int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+                updateWidgets(context, appWidgetIds);
             } else {
                 Logger.writeLine(Log.INFO, "%s: Unhandled action: %s", TAG, intent.getAction());
                 super.onReceive(context, intent);
