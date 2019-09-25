@@ -99,9 +99,7 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
 
         CoordinatorLayout.LayoutParams lp = new CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         lp.setBehavior(new AppBarLayout.ScrollingViewBehavior());
-        inflatedView.setLayoutParams(lp);
-
-        root.addView(inflatedView);
+        root.addView(inflatedView, lp);
 
         ViewCompat.setOnApplyWindowInsetsListener(inflatedView, new OnApplyWindowInsetsListener() {
             @Override

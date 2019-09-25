@@ -143,7 +143,7 @@ public class WeatherWidgetService extends JobIntentService {
     private WeatherWidgetProvider4x1Google mAppWidget4x1Google =
             WeatherWidgetProvider4x1Google.getInstance();
 
-    private static boolean isNightMode = false;
+    private boolean isNightMode = false;
 
     private static final int FORECAST_LENGTH = 3; // 3-day
     private static final int MEDIUM_FORECAST_LENGTH = 4; // 4-day
@@ -177,9 +177,6 @@ public class WeatherWidgetService extends JobIntentService {
                 new Intent(mContext, WeatherWidgetBroadcastReceiver.class)
                         .setAction(ACTION_UPDATEWEATHER),
                 PendingIntent.FLAG_NO_CREATE) != null);
-
-        final int currentNightMode = mContext.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        isNightMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
 
         final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -220,6 +217,9 @@ public class WeatherWidgetService extends JobIntentService {
 
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
+        final int currentNightMode = mContext.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        isNightMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
+
         try {
             if (ACTION_REFRESHWIDGET.equals(intent.getAction())) {
                 final int[] appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS);
@@ -983,6 +983,12 @@ public class WeatherWidgetService extends JobIntentService {
                     updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background_bottom_corners);
                 } else if (style == WidgetUtils.WidgetBackgroundStyle.PENDINGCOLOR) {
                     updateViews.setInt(R.id.panda_background, "setColorFilter", weather.getPendingBackground());
+                    updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background_bottom_corners);
+                } else if (style == WidgetUtils.WidgetBackgroundStyle.LIGHT) {
+                    updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.WHITE);
+                    updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background_bottom_corners);
+                } else if (style == WidgetUtils.WidgetBackgroundStyle.DARK) {
+                    updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.BLACK);
                     updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background_bottom_corners);
                 } else {
                     updateViews.setImageViewBitmap(R.id.panda_background, null);

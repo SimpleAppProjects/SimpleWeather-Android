@@ -88,7 +88,9 @@ public class WidgetUtils {
     enum WidgetBackgroundStyle {
         FULLBACKGROUND(0),
         PANDA(1),
-        PENDINGCOLOR(2);
+        PENDINGCOLOR(2),
+        DARK(3),
+        LIGHT(4);
 
         private final int value;
 
@@ -481,17 +483,7 @@ public class WidgetUtils {
         if (StringUtils.isNullOrWhitespace(value))
             value = "3";
 
-        switch (Integer.valueOf(value)) {
-            case 0:
-                return WidgetBackground.CURRENT_CONDITIONS;
-            case 1:
-                return WidgetBackground.WHITE;
-            case 2:
-                return WidgetBackground.BLACK;
-            case 3:
-            default:
-                return WidgetBackground.TRANSPARENT;
-        }
+        return WidgetBackground.valueOf(Integer.valueOf(value));
     }
 
     public static void setWidgetBackground(int widgetId, int value) {
@@ -508,15 +500,7 @@ public class WidgetUtils {
         if (StringUtils.isNullOrWhitespace(value))
             value = "0";
 
-        switch (Integer.valueOf(value)) {
-            case 0:
-            default:
-                return WidgetBackgroundStyle.FULLBACKGROUND;
-            case 1:
-                return WidgetBackgroundStyle.PANDA;
-            case 2:
-                return WidgetBackgroundStyle.PENDINGCOLOR;
-        }
+        return WidgetBackgroundStyle.valueOf(Integer.valueOf(value));
     }
 
     public static void setBackgroundStyle(int widgetId, int value) {
@@ -568,9 +552,11 @@ public class WidgetUtils {
 
     public static @ColorInt
     int getPanelTextColor(WidgetUtils.WidgetBackground background, @Nullable WidgetUtils.WidgetBackgroundStyle style, boolean isNightMode) {
-        if (background == WidgetUtils.WidgetBackground.BLACK) {
+        if (background == WidgetUtils.WidgetBackground.BLACK ||
+                style == WidgetBackgroundStyle.DARK) {
             return Colors.WHITE;
-        } else if (background == WidgetUtils.WidgetBackground.WHITE) {
+        } else if (background == WidgetUtils.WidgetBackground.WHITE ||
+                style == WidgetBackgroundStyle.LIGHT) {
             return Colors.BLACK;
         } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
             return Colors.WHITE;

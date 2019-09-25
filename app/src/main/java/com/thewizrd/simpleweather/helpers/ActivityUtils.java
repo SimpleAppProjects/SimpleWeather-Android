@@ -20,19 +20,27 @@ import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 
 public class ActivityUtils {
-    public static float dpToPx(Context context, float valueInDp) {
+    public static float dpToPx(@NonNull Context context, float valueInDp) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, valueInDp, metrics);
     }
 
-    public static boolean isLargeTablet(Context context) {
+    public static boolean isLargeTablet(@NonNull Context context) {
         return (context.getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
 
-    public static boolean isXLargeTablet(Context context) {
+    public static boolean isXLargeTablet(@NonNull Context context) {
         return (context.getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
+    }
+
+    public static boolean isSmallestWidth(@NonNull Context context, int swdp) {
+        return (context.getResources().getConfiguration().smallestScreenWidthDp) >= swdp;
+    }
+
+    public static int getOrientation(@NonNull Context context) {
+        return (context.getResources().getConfiguration().orientation);
     }
 
     public static void setTransparentWindow(@NonNull Window window, @ColorInt int color) {

@@ -32,7 +32,6 @@ import android.view.animation.AnimationSet;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -49,7 +48,6 @@ import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.ListPreference;
@@ -96,8 +94,8 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.fragments.LocationSearchFragment;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
-import com.thewizrd.simpleweather.preferences.ListAdapterPreference;
-import com.thewizrd.simpleweather.preferences.ListAdapterPreferenceDialogFragment;
+import com.thewizrd.simpleweather.preferences.ArrayListPreference;
+import com.thewizrd.simpleweather.preferences.CustomListPreferenceDialogFragment;
 import com.thewizrd.simpleweather.setup.SetupActivity;
 
 import org.threeten.bp.LocalDateTime;
@@ -201,7 +199,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         private View mSearchFragmentContainer;
         private NestedScrollView mScrollView;
         private LocationSearchFragment mSearchFragment;
-        private ComboBoxItem selectedItem;
+        private CharSequence mLastSelectedValue;
         private boolean inSearchUI;
 
         private ViewGroup widgetContainer;
@@ -209,7 +207,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         private WidgetUtils.WidgetBackground mWidgetBackground;
         private WidgetUtils.WidgetBackgroundStyle mWidgetBGStyle;
 
-        private ListAdapterPreference locationPref;
+        private ArrayListPreference locationPref;
         private ListPreference refreshPref;
         private ListPreference bgColorPref;
         private ListPreference bgStylePref;
@@ -310,7 +308,15 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             ViewCompat.setOnApplyWindowInsetsListener(mScrollView, new OnApplyWindowInsetsListener() {
                 @Override
                 public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                    ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetTop());
+                    ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
+                    return insets;
+                }
+            });
+
+            ViewCompat.setOnApplyWindowInsetsListener(mSearchFragmentContainer, new OnApplyWindowInsetsListener() {
+                @Override
+                public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                    ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
                     return insets;
                 }
             });
@@ -350,35 +356,31 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             setPreferencesFromResource(R.xml.pref_widgetconfig, null);
 
             locationPref = findPreference(KEY_LOCATION);
-            List<ComboBoxItem> comboList = new ArrayList<>();
-            comboList.add(new ComboBoxItem(getString(R.string.pref_item_gpslocation), KEY_GPS));
-            comboList.add(new ComboBoxItem(getString(R.string.label_btn_add_location), KEY_SEARCH));
+            locationPref.addEntry(R.string.pref_item_gpslocation, KEY_GPS);
+            locationPref.addEntry(R.string.label_btn_add_location, KEY_SEARCH);
+
             List<LocationData> favs = Settings.getFavorites();
             favorites = new ArrayList<>(favs);
             for (LocationData location : favorites) {
-                comboList.add(comboList.size() - 1, new ComboBoxItem(location.getName(), location.getQuery()));
+                locationPref.insertEntry(locationPref.getEntryCount() - 1,
+                        location.getName(), location.getQuery());
             }
-            if (comboList.size() > MAX_LOCATIONS)
-                comboList.remove(comboList.size() - 1);
+            if (locationPref.getEntryCount() > MAX_LOCATIONS)
+                locationPref.removeEntry(locationPref.getEntryCount() - 1);
 
-            locationPref.getAdapter().addAll(comboList);
             locationPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     ctsCancel();
 
-                    if (newValue instanceof ComboBoxItem) {
-                        ComboBoxItem item = (ComboBoxItem) newValue;
-                        if (KEY_SEARCH.equals(item.getValue())) {
-                            // Setup search UI
-                            prepareSearchUI();
-                            query_vm = null;
-                            return false;
-                        } else {
-                            selectedItem = item;
-                        }
+                    CharSequence selectedValue = (CharSequence) newValue;
+                    if (KEY_SEARCH.equals(selectedValue)) {
+                        // Setup search UI
+                        prepareSearchUI();
+                        query_vm = null;
+                        return false;
                     } else {
-                        selectedItem = null;
+                        mLastSelectedValue = selectedValue;
                     }
 
                     query_vm = null;
@@ -393,7 +395,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 String locQuery = getArguments().getString(WeatherWidgetService.EXTRA_LOCATIONQUERY);
 
                 if (locName != null) {
-                    locationPref.setValue(selectedItem = new ComboBoxItem(locName, locQuery));
+                    mLastSelectedValue = locQuery;
+                    locationPref.setValue(mLastSelectedValue.toString());
                 } else {
                     locationPref.setValueIndex(0);
                 }
@@ -636,8 +639,9 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         }
 
         private void updateLocationView() {
+            if (widgetContainer == null) return;
             TextView locationView = widgetContainer.findViewById(R.id.location_name);
-            locationView.setText(selectedItem != null ? selectedItem.getDisplay() : mActivity.getString(R.string.pref_location));
+            locationView.setText(mLastSelectedValue != null ? locationPref.findEntryFromValue(mLastSelectedValue) : mActivity.getString(R.string.pref_location));
         }
 
         private void updateWidgetView() {
@@ -660,6 +664,12 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                             pandaBG.setImageResource(R.drawable.widget_background_bottom_corners);
                         } else if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.PENDINGCOLOR) {
                             pandaBG.setColorFilter(0xFF20A8D8);
+                            pandaBG.setImageResource(R.drawable.widget_background_bottom_corners);
+                        } else if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.LIGHT) {
+                            pandaBG.setColorFilter(Colors.WHITE);
+                            pandaBG.setImageResource(R.drawable.widget_background_bottom_corners);
+                        } else if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.DARK) {
+                            pandaBG.setColorFilter(Colors.BLACK);
                             pandaBG.setImageResource(R.drawable.widget_background_bottom_corners);
                         } else {
                             pandaBG.setImageBitmap(null);
@@ -771,16 +781,21 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
         @Override
         public void onDisplayPreferenceDialog(Preference preference) {
-            final String TAG = "ListAdapterPreferenceDialogFragment";
+            final String TAG = "CustomListPreferenceDialogFragment";
 
             // check if dialog is already showing
             if (getFragmentManager().findFragmentByTag(TAG) != null)
                 return;
 
-            if (preference instanceof ListAdapterPreference && KEY_LOCATION.equals(preference.getKey())) {
-                final DialogFragment f = ListAdapterPreferenceDialogFragment.newInstance(preference.getKey());
+            if ((preference instanceof ListPreference)) {
+                final CustomListPreferenceDialogFragment f = CustomListPreferenceDialogFragment.newInstance(preference.getKey());
                 f.setTargetFragment(this, 0);
-                f.show(getFragmentManager(), TAG);
+                if (ActivityUtils.isSmallestWidth(mActivity, 400) &&
+                        (ActivityUtils.getOrientation(mActivity) != Configuration.ORIENTATION_LANDSCAPE || ActivityUtils.isLargeTablet(mActivity))) {
+                    f.show(getFragmentManager(), TAG);
+                } else {
+                    f.showFullScreen(getFragmentManager(), android.R.id.content, null);
+                }
             } else {
                 super.onDisplayPreferenceDialog(preference);
             }
@@ -811,8 +826,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             outState.putBoolean(KEY_SEARCHUI, inSearchUI);
 
             // Reset to last selected item
-            if (inSearchUI && query_vm == null && selectedItem != null)
-                locationPref.setValue(selectedItem);
+            if (inSearchUI && query_vm == null && mLastSelectedValue != null)
+                locationPref.setValue(mLastSelectedValue.toString());
 
             super.onSaveInstanceState(outState);
         }
@@ -911,8 +926,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             inSearchUI = false;
 
             // Reset to last selected item
-            if (query_vm == null && selectedItem != null)
-                locationPref.setValue(selectedItem);
+            if (query_vm == null && mLastSelectedValue != null)
+                locationPref.setValue(mLastSelectedValue.toString());
         }
 
         private void exitSearchUiTransition(Animation.AnimationListener exitAnimationListener) {
@@ -1020,7 +1035,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
                             // Set selection
                             query_vm = null;
-                            locationPref.setValue(new ComboBoxItem(loc.getName(), loc.getQuery()));
+                            locationPref.setValue(loc.getQuery());
                             return;
                         }
 
@@ -1048,18 +1063,16 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         // Save data
                         WeatherWidgetPreferenceFragment.this.query_vm = query_vm;
                         final ComboBoxItem item = new ComboBoxItem(query_vm.getLocationName(), query_vm.getLocationQuery());
-                        final int idx = locationPref.getAdapter().getCount() - 1;
+                        final int idx = locationPref.getEntryCount() - 1;
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                ArrayAdapter<ComboBoxItem> locAdapter = locationPref.getAdapter();
-
-                                locAdapter.insert(item, idx);
+                                locationPref.insertEntry(idx, item.getDisplay(), item.getValue());
                                 locationPref.setValueIndex(idx);
-
-                                if (locAdapter.getCount() > MAX_LOCATIONS) {
-                                    locAdapter.remove(locAdapter.getItem(locAdapter.getCount() - 1));
+                                if (locationPref.getEntryCount() > MAX_LOCATIONS) {
+                                    locationPref.removeEntry(locationPref.getEntryCount() - 1);
                                 }
+                                locationPref.callChangeListener(item.getValue());
                             }
                         });
 
@@ -1209,10 +1222,10 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         if (locData.getLocationType() == LocationType.SEARCH) {
                             // Add location to adapter and select it
                             favorites.add(locData);
-                            ComboBoxItem item = new ComboBoxItem(locData.getName(), locData.getQuery());
-                            int idx = locationPref.getAdapter().getCount() - 1;
-                            locationPref.getAdapter().insert(item, idx);
+                            int idx = locationPref.getEntryCount() - 1;
+                            locationPref.insertEntry(idx, locData.getName(), locData.getQuery());
                             locationPref.setValueIndex(idx);
+                            locationPref.callChangeListener(locData.getQuery());
                         } else {
                             // GPS; set to first selection
                             locationPref.setValueIndex(0);
@@ -1273,7 +1286,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
             // Get location data
             if (locationPref.getValue() != null) {
-                ComboBoxItem locationItem = locationPref.getValue();
+                String locationItemValue = locationPref.getValue();
                 LocationData locData = null;
 
                 // Widget ID exists in prefs
@@ -1281,7 +1294,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     locData = WidgetUtils.getLocationData(mAppWidgetId);
 
                     // Handle location changes
-                    if (KEY_GPS.equals(locationItem.getValue())) {
+                    if (KEY_GPS.equals(locationItemValue)) {
                         // Changing location to GPS
                         if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                                 ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -1306,12 +1319,12 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         WidgetUtils.addWidgetId(KEY_GPS, mAppWidgetId);
                     } else {
                         // Changing location to whatever
-                        if (locData == null || !locationItem.getValue().equals(locData.getQuery())) {
+                        if (locData == null || !locationItemValue.equals(locData.getQuery())) {
                             // Get location data
-                            ComboBoxItem item = locationPref.getValue();
+                            String itemValue = locationPref.getValue();
                             boolean exists = false;
                             for (LocationData loc : favorites) {
-                                if (loc.getQuery().equals(item.getValue())) {
+                                if (loc.getQuery().equals(itemValue)) {
                                     locData = loc;
                                     exists = true;
                                     break;
@@ -1345,67 +1358,64 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         }
                     }
                 } else {
-                    switch (locationItem.getValue()) {
-                        case KEY_GPS:
-                            if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                                    ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                                ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                                        PERMISSION_LOCATION_REQUEST_CODE);
-                                return;
+                    if (KEY_GPS.equals(locationItemValue)) {
+                        if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                                ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                                    PERMISSION_LOCATION_REQUEST_CODE);
+                            return;
+                        }
+
+                        LocationData lastGPSLocData = Settings.getLastGPSLocData();
+
+                        // Check if last location exists
+                        if (lastGPSLocData == null && !updateLocation()) {
+                            Snackbar.make(mRootView, R.string.error_retrieve_location, Snackbar.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        Settings.setFollowGPS(true);
+
+                        // Save locdata for widget
+                        WidgetUtils.deleteWidget(mAppWidgetId);
+                        WidgetUtils.saveLocationData(mAppWidgetId, null);
+                        WidgetUtils.addWidgetId(KEY_GPS, mAppWidgetId);
+                    } else {
+                        // Get location data
+                        String itemValue = locationPref.getValue();
+                        boolean exists = false;
+                        for (LocationData loc : favorites) {
+                            if (loc.getQuery().equals(itemValue)) {
+                                locData = loc;
+                                exists = true;
+                                break;
                             }
+                        }
+                        if (!exists) {
+                            locData = null;
+                        }
 
-                            LocationData lastGPSLocData = Settings.getLastGPSLocData();
+                        if (locData == null && query_vm != null) {
+                            locData = new LocationData(query_vm);
 
-                            // Check if last location exists
-                            if (lastGPSLocData == null && !updateLocation()) {
-                                Snackbar.make(mRootView, R.string.error_retrieve_location, Snackbar.LENGTH_SHORT).show();
-                                return;
-                            }
-
-                            Settings.setFollowGPS(true);
-
-                            // Save locdata for widget
-                            WidgetUtils.deleteWidget(mAppWidgetId);
-                            WidgetUtils.saveLocationData(mAppWidgetId, null);
-                            WidgetUtils.addWidgetId(KEY_GPS, mAppWidgetId);
-                            break;
-                        default:
-                            // Get location data
-                            ComboBoxItem item = locationPref.getValue();
-                            boolean exists = false;
-                            for (LocationData loc : favorites) {
-                                if (loc.getQuery().equals(item.getValue())) {
-                                    locData = loc;
-                                    exists = true;
-                                    break;
-                                }
-                            }
-                            if (!exists) {
-                                locData = null;
-                            }
-
-                            if (locData == null && query_vm != null) {
-                                locData = new LocationData(query_vm);
-
-                                if (!locData.isValid()) {
-                                    mActivity.setResult(RESULT_CANCELED, resultValue);
-                                    mActivity.finish();
-                                    return;
-                                }
-
-                                // Add location to favs
-                                Settings.addLocation(locData);
-                            } else if (locData == null) {
+                            if (!locData.isValid()) {
                                 mActivity.setResult(RESULT_CANCELED, resultValue);
                                 mActivity.finish();
                                 return;
                             }
 
-                            // Save locdata for widget
-                            WidgetUtils.deleteWidget(mAppWidgetId);
-                            WidgetUtils.saveLocationData(mAppWidgetId, locData);
-                            WidgetUtils.addWidgetId(locData.getQuery(), mAppWidgetId);
-                            break;
+                            // Add location to favs
+                            Settings.addLocation(locData);
+                        } else if (locData == null) {
+                            mActivity.setResult(RESULT_CANCELED, resultValue);
+                            mActivity.finish();
+                            return;
+                        }
+
+                        // Save locdata for widget
+                        WidgetUtils.deleteWidget(mAppWidgetId);
+                        WidgetUtils.saveLocationData(mAppWidgetId, locData);
+                        WidgetUtils.addWidgetId(locData.getQuery(), mAppWidgetId);
                     }
                 }
 

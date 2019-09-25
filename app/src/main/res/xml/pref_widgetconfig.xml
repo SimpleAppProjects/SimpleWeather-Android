@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:iconSpaceReserved="false">
 
-    <com.thewizrd.simpleweather.preferences.ListAdapterPreference
+    <com.thewizrd.simpleweather.preferences.ArrayListPreference
         android:key="key_location"
         android:title="@string/pref_location"
         android:summary="%s"
