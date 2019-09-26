@@ -1,7 +1,5 @@
 package com.thewizrd.simpleweather.widgets;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -9,18 +7,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.provider.AlarmClock;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -45,10 +38,8 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.common.util.ArrayUtils;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
@@ -56,12 +47,9 @@ import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
-import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
-import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
-import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -75,12 +63,7 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.main.MainActivity;
-import com.thewizrd.simpleweather.notifications.WeatherNotificationBuilder;
-import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
-import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
-import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler;
 
-import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
@@ -89,8 +72,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.getBackgroundColor;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.getCellsForSize;
@@ -110,11 +91,6 @@ public class WeatherWidgetService extends JobIntentService {
     public static final String ACTION_RESIZEWIDGET = "SimpleWeather.Droid.action.RESIZE_WIDGET";
     public static final String ACTION_UPDATECLOCK = "SimpleWeather.Droid.action.UPDATE_CLOCK";
     public static final String ACTION_UPDATEDATE = "SimpleWeather.Droid.action.UPDATE_DATE";
-    public static final String ACTION_UPDATEWEATHER = "SimpleWeather.Droid.action.UPDATE_WEATHER";
-
-    public static final String ACTION_STARTALARM = "SimpleWeather.Droid.action.START_ALARM";
-    public static final String ACTION_CANCELALARM = "SimpleWeather.Droid.action.CANCEL_ALARM";
-    public static final String ACTION_UPDATEALARM = "SimpleWeather.Droid.action.UPDATE_ALARM";
 
     public static final String ACTION_STARTCLOCK = "SimpleWeather.Droid.action.START_CLOCKALARM";
     public static final String ACTION_CANCELCLOCK = "SimpleWeather.Droid.action.CANCEL_CLOCKALARM";
@@ -131,7 +107,6 @@ public class WeatherWidgetService extends JobIntentService {
 
     private Context mContext;
     private AppWidgetManager mAppWidgetManager;
-    private static boolean mAlarmStarted = false;
     private static BroadcastReceiver mTickReceiver;
 
     private WeatherManager wm;
@@ -151,7 +126,6 @@ public class WeatherWidgetService extends JobIntentService {
     private boolean isNightMode = false;
     private float maxBitmapSize;
 
-    private FusedLocationProviderClient mFusedLocationClient;
     private CancellationTokenSource cts;
 
     public static void enqueueWork(Context context, Intent work) {
@@ -174,12 +148,6 @@ public class WeatherWidgetService extends JobIntentService {
         mAppWidgetManager = AppWidgetManager.getInstance(mContext);
         wm = WeatherManager.getInstance();
 
-        // Check if alarm is already set
-        mAlarmStarted = (PendingIntent.getBroadcast(mContext, 0,
-                new Intent(mContext, WeatherWidgetBroadcastReceiver.class)
-                        .setAction(ACTION_UPDATEWEATHER),
-                PendingIntent.FLAG_NO_CREATE) != null);
-
         final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
@@ -196,10 +164,6 @@ public class WeatherWidgetService extends JobIntentService {
 
         cts = new CancellationTokenSource();
 
-        if (WearableHelper.isGooglePlayServicesInstalled()) {
-            mFusedLocationClient = new FusedLocationProviderClient(this);
-        }
-
         /*
          * The total Bitmap memory used by the RemoteViews object cannot exceed
          * that required to fill the screen 1.5 times,
@@ -211,9 +175,6 @@ public class WeatherWidgetService extends JobIntentService {
 
     @Override
     public void onDestroy() {
-        if (Settings.showOngoingNotification() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            WeatherNotificationBuilder.showRefresh(false);
-
         Logger.writeLine(Log.INFO, "%s: destroying service and cancelling tasks...", TAG);
 
         try {
@@ -280,16 +241,6 @@ public class WeatherWidgetService extends JobIntentService {
                         resizeWidget(mAppWidget4x1Google, appWidgetId, newOptions);
                         break;
                 }
-            } else if (ACTION_STARTALARM.equals(intent.getAction())) {
-                // Start alarm if it hasn't started already
-                startAlarm(mContext);
-            } else if (ACTION_CANCELALARM.equals(intent.getAction())) {
-                // Cancel all alarms if no widgets exist
-                cancelAlarms(mContext);
-            } else if (ACTION_UPDATEALARM.equals(intent.getAction())) {
-                // Refresh interval was changed
-                // Update alarm
-                updateAlarm(mContext);
             } else if (ACTION_STARTCLOCK.equals(intent.getAction())) {
                 // Schedule clock updates
                 startTickReceiver(mContext);
@@ -304,55 +255,6 @@ public class WeatherWidgetService extends JobIntentService {
                 // Update clock widget instances
                 int[] appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS);
                 refreshDate(appWidgetIds);
-            } else if (WeatherNotificationService.ACTION_REFRESHNOTIFICATION.equals(intent.getAction())) {
-                final boolean forceRefresh = intent.getBooleanExtra(WeatherNotificationService.EXTRA_FORCEREFRESH, false);
-
-                if (Settings.isWeatherLoaded()) {
-                    Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
-                        @Override
-                        public Weather call() throws Exception {
-                            return getWeather(forceRefresh);
-                        }
-                    });
-
-                    if (Settings.showOngoingNotification() && weather != null)
-                        WeatherNotificationBuilder.updateNotification(new WeatherNowViewModel(weather));
-                }
-            } else if (ACTION_UPDATEWEATHER.equals(intent.getAction())) {
-                if (Settings.isWeatherLoaded()) {
-                    // Send broadcast to signal update
-                    if (widgetsExist(App.getInstance().getAppContext()))
-                        sendBroadcast(new Intent(WeatherWidgetProvider.ACTION_SHOWREFRESH));
-                    // NOTE: Don't try to show refresh for pre-M devices
-                    // If app gets killed, instance of notif is lost & view is reset
-                    // and might get stuck
-                    if (Settings.showOngoingNotification() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                        WeatherNotificationBuilder.showRefresh(true);
-
-                    if (widgetsExist(App.getInstance().getAppContext()))
-                        refreshWidgets();
-
-                    // Update for home
-                    final Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
-                        @Override
-                        public Weather call() throws Exception {
-                            return getWeather();
-                        }
-                    });
-
-                    if (weather != null) {
-                        if (Settings.showOngoingNotification())
-                            WeatherNotificationBuilder.updateNotification(new WeatherNowViewModel(weather));
-                        if (Settings.useAlerts() && wm.supportsAlerts() && weather != null) {
-                            AsyncTask.run(new Runnable() {
-                                @Override
-                                public void run() {
-                                    WeatherAlertHandler.postAlerts(Settings.getHomeData(), weather.getWeatherAlerts());
-                                }
-                            });
-                        }
-                    }
-                }
             } else if (ACTION_RESETGPSWIDGETS.equals(intent.getAction())) {
                 // GPS feature disabled; reset widget
                 resetGPSWidgets();
@@ -363,53 +265,6 @@ public class WeatherWidgetService extends JobIntentService {
             Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent.getAction());
         } catch (Exception ex) {
             Logger.writeLine(Log.ERROR, ex, "%s: exception occurred...", TAG);
-        }
-    }
-
-    private static PendingIntent getAlarmIntent(Context context) {
-        Intent intent = new Intent(context, WeatherWidgetBroadcastReceiver.class)
-                .setAction(ACTION_UPDATEWEATHER);
-
-        return PendingIntent.getBroadcast(context, 0, intent, 0);
-    }
-
-    private static void updateAlarm(Context context) {
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        int interval = Settings.getRefreshInterval();
-
-        boolean startNow = !mAlarmStarted;
-        long intervalMillis = Duration.ofMinutes(interval).toMillis();
-        long triggerAtTime = SystemClock.elapsedRealtime() + intervalMillis;
-
-        if (startNow) {
-            enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                    .setAction(ACTION_UPDATEWEATHER));
-        }
-
-        PendingIntent pendingIntent = getAlarmIntent(context);
-        am.cancel(pendingIntent);
-        am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, triggerAtTime, intervalMillis, pendingIntent);
-        mAlarmStarted = true;
-
-        Logger.writeLine(Log.INFO, "%s: Updated alarm", TAG);
-    }
-
-    private void cancelAlarms(Context context) {
-        // Cancel alarm if dependent features are turned off
-        if (!widgetsExist(context) && !Settings.showOngoingNotification() && !Settings.useAlerts()) {
-            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            am.cancel(getAlarmIntent(context));
-            mAlarmStarted = false;
-
-            Logger.writeLine(Log.INFO, "%s: Canceled alarm", TAG);
-        }
-    }
-
-    private void startAlarm(Context context) {
-        // Start alarm if dependent features are enabled
-        if (!mAlarmStarted && (widgetsExist(context) || Settings.showOngoingNotification() || Settings.useAlerts())) {
-            updateAlarm(context);
-            mAlarmStarted = true;
         }
     }
 
@@ -461,12 +316,12 @@ public class WeatherWidgetService extends JobIntentService {
         }
     }
 
-    private boolean widgetsExist(Context context) {
-        return mAppWidget1x1.hasInstances(context)
-                || mAppWidget2x2.hasInstances(context)
-                || mAppWidget4x1.hasInstances(context)
-                || mAppWidget4x2.hasInstances(context)
-                || mAppWidget4x1Google.hasInstances(context);
+    public static boolean widgetsExist(Context context) {
+        return WeatherWidgetProvider1x1.getInstance().hasInstances(context)
+                || WeatherWidgetProvider2x2.getInstance().hasInstances(context)
+                || WeatherWidgetProvider4x1.getInstance().hasInstances(context)
+                || WeatherWidgetProvider4x2.getInstance().hasInstances(context)
+                || WeatherWidgetProvider4x1Google.getInstance().hasInstances(context);
     }
 
     private void resizeWidget(WeatherWidgetProvider provider, int appWidgetId, Bundle newOptions) throws InterruptedException {
@@ -635,16 +490,12 @@ public class WeatherWidgetService extends JobIntentService {
         if (locData != null) {
             if (isCtsCancelRequested()) throw new InterruptedException();
 
-            if (locData.equals(Settings.getHomeData())) {
-                weather = getWeather();
-            } else {
-                WeatherDataLoader wloader = new WeatherDataLoader(locData);
-                try {
-                    wloader.loadWeatherData(false);
-                    weather = wloader.getWeather();
-                } catch (Exception e) {
-                    weather = null;
-                }
+            WeatherDataLoader wloader = new WeatherDataLoader(locData);
+            try {
+                wloader.loadWeatherData(false);
+                weather = wloader.getWeather();
+            } catch (Exception e) {
+                weather = null;
             }
 
             if (weather != null) {
@@ -707,8 +558,15 @@ public class WeatherWidgetService extends JobIntentService {
         final int[] ids4x1 = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1.getComponentName());
         final int[] ids4x2 = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName());
         final int[] ids4x1G = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1Google.getComponentName());
-        final Weather weather = getWeather();
         final LocationData locationData = Settings.getLastGPSLocData();
+        final WeatherDataLoader wLoader = new WeatherDataLoader(locationData);
+        final Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
+            @Override
+            public Weather call() throws Exception {
+                wLoader.loadWeatherData(false);
+                return wLoader.getWeather();
+            }
+        });
 
         List<Task<Void>> tasks = new ArrayList<>();
 
@@ -1605,154 +1463,10 @@ public class WeatherWidgetService extends JobIntentService {
             return String.format("%s %s", mContext.getString(R.string.widget_updateprefix), updatetime);
     }
 
-    private Weather getWeather() {
-        return getWeather(true);
-    }
-
-    private Weather getWeather(final boolean refreshWeather) {
-        return new AsyncTask<Weather>().await(new Callable<Weather>() {
-            @Override
-            public Weather call() throws Exception {
-                Weather weather = null;
-
-                try {
-                    if (Settings.useFollowGPS())
-                        updateLocation();
-
-                    if (isCtsCancelRequested()) throw new InterruptedException();
-
-                    WeatherDataLoader wloader = new WeatherDataLoader(Settings.getHomeData());
-                    if (refreshWeather)
-                        wloader.loadWeatherData(false);
-                    else
-                        wloader.forceLoadSavedWeatherData();
-
-                    weather = wloader.getWeather();
-
-                    if (refreshWeather && weather != null) {
-                        // Re-schedule alarm at selected interval from now
-                        updateAlarm(App.getInstance().getAppContext());
-                        Settings.setUpdateTime(LocalDateTime.now());
-                    }
-                } catch (InterruptedException cancelEx) {
-                    Logger.writeLine(Log.ERROR, cancelEx, "%s: GetWeather cancelled", TAG);
-                    return null;
-                } catch (Exception ex) {
-                    Logger.writeLine(Log.ERROR, ex, "%s: GetWeather error", TAG);
-                    return null;
-                }
-
-                return weather;
-            }
-        });
-    }
-
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         final int currentNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
         isNightMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
-    }
-
-    private boolean updateLocation() {
-        return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                boolean locationChanged = false;
-
-                if (Settings.useFollowGPS()) {
-                    if (ContextCompat.checkSelfPermission(App.getInstance().getAppContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                            ContextCompat.checkSelfPermission(App.getInstance().getAppContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        return false;
-                    }
-
-                    Location location = null;
-
-                    if (WearableHelper.isGooglePlayServicesInstalled()) {
-                        location = new AsyncTask<Location>().await(new Callable<Location>() {
-                            @SuppressLint("MissingPermission")
-                            @Override
-                            public Location call() throws Exception {
-                                Location result = null;
-                                try {
-                                    result = Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
-                                } catch (TimeoutException e) {
-                                    Logger.writeLine(Log.ERROR, e);
-                                }
-                                return result;
-                            }
-                        });
-                    } else {
-                        LocationManager locMan = (LocationManager) App.getInstance().getAppContext().getSystemService(Context.LOCATION_SERVICE);
-                        boolean isGPSEnabled = false;
-                        boolean isNetEnabled = false;
-                        if (locMan != null) {
-                            isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                            isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-                        }
-
-                        if (isGPSEnabled || isNetEnabled && !isCtsCancelRequested()) {
-                            Criteria locCriteria = new Criteria();
-                            locCriteria.setAccuracy(Criteria.ACCURACY_COARSE);
-                            locCriteria.setCostAllowed(false);
-                            locCriteria.setPowerRequirement(Criteria.POWER_LOW);
-                            String provider = locMan.getBestProvider(locCriteria, true);
-                            location = locMan.getLastKnownLocation(provider);
-                        }
-                    }
-
-                    if (location != null && !isCtsCancelRequested()) {
-                        LocationData lastGPSLocData = Settings.getLastGPSLocData();
-
-                        if (isCtsCancelRequested()) return locationChanged;
-
-                        // Check previous location difference
-                        if (lastGPSLocData.getQuery() != null &&
-                                Math.abs(ConversionMethods.calculateHaversine(lastGPSLocData.getLatitude(), lastGPSLocData.getLongitude(),
-                                        location.getLatitude(), location.getLongitude())) < 1600) {
-                            return false;
-                        }
-
-                        LocationQueryViewModel query_vm = null;
-
-                        TaskCompletionSource<LocationQueryViewModel> tcs = new TaskCompletionSource<>(cts.getToken());
-                        tcs.setResult(wm.getLocation(location));
-                        try {
-                            query_vm = Tasks.await(tcs.getTask());
-                        } catch (ExecutionException e) {
-                            query_vm = new LocationQueryViewModel();
-                            Logger.writeLine(Log.ERROR, e.getCause());
-                        } catch (InterruptedException e) {
-                            return locationChanged;
-                        }
-
-                        if (StringUtils.isNullOrEmpty(query_vm.getLocationQuery()))
-                            query_vm = new LocationQueryViewModel();
-
-                        if (StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
-                            // Stop since there is no valid query
-                            return false;
-                        }
-
-                        if (isCtsCancelRequested()) return locationChanged;
-
-                        // Save oldkey
-                        String oldkey = lastGPSLocData.getQuery();
-
-                        // Save location as last known
-                        lastGPSLocData.setData(query_vm, location);
-                        Settings.saveLastGPSLocData(lastGPSLocData);
-
-                        WearableDataListenerService.enqueueWork(App.getInstance().getAppContext(),
-                                new Intent(App.getInstance().getAppContext(), WearableDataListenerService.class)
-                                        .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
-
-                        locationChanged = true;
-                    }
-                }
-
-                return locationChanged;
-            }
-        });
     }
 }

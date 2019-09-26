@@ -37,7 +37,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.LaunchActivity;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
+import com.thewizrd.simpleweather.services.WeatherUpdaterService;
 
 import org.threeten.bp.Instant;
 
@@ -194,8 +194,8 @@ public class WearableDataListenerService extends WearableListenerService {
                 });
             } else {
                 // Refresh weather data
-                WeatherWidgetService.enqueueWork(this, new Intent(this, WeatherWidgetService.class)
-                        .setAction(WeatherWidgetService.ACTION_UPDATEWEATHER));
+                WeatherUpdaterService.enqueueWork(this, new Intent(this, WeatherUpdaterService.class)
+                        .setAction(WeatherUpdaterService.ACTION_UPDATEWEATHER));
             }
         } else if (messageEvent.getPath().equals(WearableHelper.IsSetupPath)) {
             sendSetupStatus(messageEvent.getSourceNodeId());

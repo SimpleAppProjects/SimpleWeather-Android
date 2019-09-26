@@ -113,8 +113,8 @@ import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.DarkMode;
 import com.thewizrd.simpleweather.helpers.LocationPanelOffsetDecoration;
 import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
-import com.thewizrd.simpleweather.notifications.WeatherNotificationBuilder;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
+import com.thewizrd.simpleweather.services.WeatherUpdaterService;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
@@ -258,12 +258,12 @@ public class WeatherNowFragment extends WindowColorFragment
                     if (Settings.getHomeData().equals(location)) {
                         // Update widgets if they haven't been already
                         if (Duration.between(LocalDateTime.now(), Settings.getUpdateTime()).toMinutes() > Settings.getRefreshInterval()) {
-                            WeatherWidgetService.enqueueWork(App.getInstance().getAppContext(), new Intent(App.getInstance().getAppContext(), WeatherWidgetService.class)
-                                    .setAction(WeatherWidgetService.ACTION_UPDATEWEATHER));
+                            WeatherUpdaterService.enqueueWork(App.getInstance().getAppContext(), new Intent(App.getInstance().getAppContext(), WeatherUpdaterService.class)
+                                    .setAction(WeatherUpdaterService.ACTION_UPDATEWEATHER));
                         }
 
                         // Update ongoing notification if its not showing
-                        if (Settings.showOngoingNotification() && !WeatherNotificationBuilder.isShowing()) {
+                        if (Settings.showOngoingNotification() && !WeatherNotificationService.isNotificationShowing()) {
                             WeatherNotificationService.enqueueWork(App.getInstance().getAppContext(), new Intent(App.getInstance().getAppContext(), WeatherNotificationService.class)
                                     .setAction(WeatherNotificationService.ACTION_REFRESHNOTIFICATION));
                         }

@@ -91,12 +91,12 @@ import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperCallback;
 import com.thewizrd.simpleweather.helpers.OffsetMargin;
 import com.thewizrd.simpleweather.helpers.SwipeToDeleteOffSetItemDecoration;
+import com.thewizrd.simpleweather.services.WeatherUpdaterService;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
-import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1523,8 +1523,8 @@ public class LocationsFragment extends ToolbarFragment
         }
 
         if (!mEditMode && mHomeChanged) {
-            WeatherWidgetService.enqueueWork(getAppCompatActivity(), new Intent(getAppCompatActivity(), WeatherWidgetService.class)
-                    .setAction(WeatherWidgetService.ACTION_UPDATEWEATHER));
+            WeatherUpdaterService.enqueueWork(getAppCompatActivity(), new Intent(getAppCompatActivity(), WeatherUpdaterService.class)
+                    .setAction(WeatherUpdaterService.ACTION_UPDATEWEATHER));
 
             WearableDataListenerService.enqueueWork(App.getInstance().getAppContext(),
                     new Intent(App.getInstance().getAppContext(), WearableDataListenerService.class)

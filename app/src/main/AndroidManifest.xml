@@ -131,15 +131,16 @@
                 android:resource="@xml/app_widget_4x1_google_info" />
         </receiver>
 
+        <receiver android:name=".widgets.WeatherWidgetBroadcastReceiver" />
+        <receiver android:name=".notifications.WeatherNotificationBroadcastReceiver" />
         <receiver
-            android:name=".widgets.WeatherWidgetBroadcastReceiver"
+            android:name=".receivers.WeatherUpdateBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".notifications.WeatherNotificationBroadcastReceiver" />
 
         <service
             android:name=".wearable.WearableDataListenerService"
@@ -167,6 +168,10 @@
             android:permission="android.permission.BIND_JOB_SERVICE" />
         <service
             android:name=".notifications.WeatherNotificationService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service
+            android:name=".services.WeatherUpdaterService"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 

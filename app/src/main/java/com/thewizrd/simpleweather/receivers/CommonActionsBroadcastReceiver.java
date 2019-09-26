@@ -11,8 +11,8 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.simpleweather.services.WeatherUpdaterService;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
-import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 import com.thewizrd.simpleweather.widgets.WidgetUtils;
 
 import java.io.StringReader;
@@ -27,19 +27,19 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
             if (CommonActions.ACTION_SETTINGS_UPDATEAPI.equals(intent.getAction())) {
                 WearableDataListenerService.enqueueWork(context, new Intent(context, WearableDataListenerService.class)
                         .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
-                WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                        .setAction(WeatherWidgetService.ACTION_UPDATEWEATHER));
+                WeatherUpdaterService.enqueueWork(context, new Intent(context, WeatherUpdaterService.class)
+                        .setAction(WeatherUpdaterService.ACTION_UPDATEWEATHER));
             } else if (CommonActions.ACTION_SETTINGS_UPDATEGPS.equals(intent.getAction())) {
                 WearableDataListenerService.enqueueWork(context, new Intent(context, WearableDataListenerService.class)
                         .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
                 WearableDataListenerService.enqueueWork(context, new Intent(context, WearableDataListenerService.class)
                         .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
             } else if (CommonActions.ACTION_SETTINGS_UPDATEUNIT.equals(intent.getAction())) {
-                WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                        .setAction(WeatherWidgetService.ACTION_UPDATEWEATHER));
+                WeatherUpdaterService.enqueueWork(context, new Intent(context, WeatherUpdaterService.class)
+                        .setAction(WeatherUpdaterService.ACTION_UPDATEWEATHER));
             } else if (CommonActions.ACTION_SETTINGS_UPDATEREFRESH.equals(intent.getAction())) {
-                WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                        .setAction(WeatherWidgetService.ACTION_UPDATEALARM));
+                WeatherUpdaterService.enqueueWork(context, new Intent(context, WeatherUpdaterService.class)
+                        .setAction(WeatherUpdaterService.ACTION_UPDATEALARM));
             } else if (CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE.equals(intent.getAction())) {
                 WearableDataListenerService.enqueueWork(context,
                         new Intent(context, WearableDataListenerService.class)

@@ -14,6 +14,7 @@ import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.services.WeatherUpdaterService;
 
 public abstract class WeatherWidgetProvider extends AppWidgetProvider {
     private static final String TAG = "WeatherWidgetProvider";
@@ -50,8 +51,8 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
                 // Reset weather update time
                 Settings.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN());
                 // Restart update alarm
-                WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                        .setAction(WeatherWidgetService.ACTION_STARTALARM));
+                WeatherUpdaterService.enqueueWork(context, new Intent(context, WeatherUpdaterService.class)
+                        .setAction(WeatherUpdaterService.ACTION_STARTALARM));
             } else if (Intent.ACTION_LOCALE_CHANGED.equals(intent.getAction())) {
                 updateWidgets(context, null);
             } else if (ACTION_SHOWREFRESH.equals(intent.getAction())) {
@@ -103,15 +104,15 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
     @Override
     public void onEnabled(Context context) {
         // Schedule alarms/updates
-        WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                .setAction(WeatherWidgetService.ACTION_STARTALARM));
+        WeatherUpdaterService.enqueueWork(context, new Intent(context, WeatherUpdaterService.class)
+                .setAction(WeatherUpdaterService.ACTION_STARTALARM));
     }
 
     @Override
     public void onDisabled(Context context) {
         // Remove alarms/updates
-        WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                .setAction(WeatherWidgetService.ACTION_CANCELALARM));
+        WeatherUpdaterService.enqueueWork(context, new Intent(context, WeatherUpdaterService.class)
+                .setAction(WeatherUpdaterService.ACTION_CANCELALARM));
     }
 
     @Override

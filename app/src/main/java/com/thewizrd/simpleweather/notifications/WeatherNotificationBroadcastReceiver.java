@@ -9,12 +9,13 @@ public class WeatherNotificationBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         // Relay intent to Weather(Alert)NotificationService
-        if (WeatherNotificationService.ACTION_REFRESHNOTIFICATION.equals(intent.getAction())) {
-            intent.setClass(context, WeatherNotificationService.class);
-            WeatherNotificationService.enqueueWork(context, intent);
-        } else {
+        if (WeatherAlertNotificationService.ACTION_CANCELNOTIFICATION.equals(intent.getAction()) ||
+                WeatherAlertNotificationService.ACTION_CANCELALLNOTIFICATIONS.equals(intent.getAction())) {
             intent.setClass(context, WeatherAlertNotificationService.class);
             WeatherAlertNotificationService.enqueueWork(context, intent);
+        } else {
+            intent.setClass(context, WeatherNotificationService.class);
+            WeatherNotificationService.enqueueWork(context, intent);
         }
     }
 }
