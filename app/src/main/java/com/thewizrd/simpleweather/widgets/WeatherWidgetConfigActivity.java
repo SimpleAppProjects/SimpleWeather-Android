@@ -453,9 +453,9 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 bgColorPref.setVisible(false);
             }
 
+            // Forecast Preferences
+            tap2SwitchPref = findPreference(KEY_HRFLIPBUTTON);
             if (!WeatherAPI.YAHOO.equals(wm.getWeatherAPI()) && isForecastWidget(mWidgetType)) {
-                // Forecast Preferences
-                tap2SwitchPref = findPreference(KEY_HRFLIPBUTTON);
                 tap2SwitchPref.setVisible(true);
                 tap2SwitchPref.setChecked(WidgetUtils.isTapToSwitchEnabled(mAppWidgetId));
             }
