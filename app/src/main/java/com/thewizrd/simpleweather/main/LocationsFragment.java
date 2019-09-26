@@ -316,9 +316,16 @@ public class LocationsFragment extends ToolbarFragment
                 LocationData locData = (LocationData) view.getTag();
 
                 if (locData.equals(Settings.getHomeData())) {
+                    FragmentManager fragMgr = getAppCompatActivity().getSupportFragmentManager();
+                    Fragment home = fragMgr.findFragmentByTag("home");
+
                     // Pop all since we're going home
-                    getAppCompatActivity().getSupportFragmentManager()
-                            .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    fragMgr.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    if (home == null) {
+                        fragMgr.beginTransaction()
+                                .replace(R.id.fragment_container, new WeatherNowFragment(), "home")
+                                .commit();
+                    }
                 } else {
                     /*
                      * NOTE

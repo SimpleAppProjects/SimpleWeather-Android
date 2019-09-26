@@ -200,8 +200,10 @@ public class MainActivity extends AppCompatActivity
             } else if (id == R.id.nav_locations) {
                 /* NOTE: KEEP THIS IT WORKS FINE */
                 if (current instanceof WeatherNowFragment) {
+                    int backstackCount = getSupportFragmentManager().getBackStackEntryCount();
+
                     // Hide home frag
-                    if ("home".equals(current.getTag())) {
+                    if ("home".equals(current.getTag()) || backstackCount == 0) {
                         transaction.hide(current);
                     } else {
                         /*
