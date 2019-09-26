@@ -114,7 +114,7 @@ public class YahooWeatherProvider extends WeatherProviderImpl {
 
             // Add headers to request
             client.addRequestProperty("Authorization", authorization);
-            client.addRequestProperty("Yahoo-App-Id", getAppID());
+            client.addRequestProperty("X-Yahoo-App-Id", getAppID());
             client.addRequestProperty("Content-Type", "application/json");
 
             InputStream stream = client.getInputStream();
