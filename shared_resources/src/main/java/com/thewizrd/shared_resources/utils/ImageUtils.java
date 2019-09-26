@@ -75,15 +75,17 @@ public class ImageUtils {
         paint.setColor(textColor);
         paint.setTextSize(textSizePx);
         paint.setTextAlign(Paint.Align.LEFT);
+
+        float shadowLayerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, shadowRadius, metrics);
+
         if (shadowRadius > 0) {
-            paint.setShadowLayer(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, shadowRadius, metrics),
-                    1, 1, Colors.BLACK);
+            paint.setShadowLayer(shadowLayerRadius, 1, 1, Colors.BLACK);
         }
 
         int width = (int) paint.measureText(text, 0, text.length());
 
         StaticLayout mTextLayout = new StaticLayout(
-                text, paint, (int) (width + paint.getShadowLayerRadius() * 2f), Layout.Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
+                text, paint, (int) (width + shadowLayerRadius * 2f), Layout.Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
 
         Bitmap bmp = Bitmap.createBitmap(mTextLayout.getWidth(), mTextLayout.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas myCanvas = new Canvas(bmp);
