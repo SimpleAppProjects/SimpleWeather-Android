@@ -53,6 +53,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreference;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.AutoTransition;
 import androidx.transition.TransitionManager;
@@ -211,6 +212,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         private ListPreference refreshPref;
         private ListPreference bgColorPref;
         private ListPreference bgStylePref;
+        private SwitchPreference tap2SwitchPref;
 
         private static final int ANIMATION_DURATION = 240;
 
@@ -228,6 +230,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         private static final String KEY_REFRESHINTERVAL = "key_refreshinterval";
         private static final String KEY_BGCOLOR = "key_bgcolor";
         private static final String KEY_BGSTYLE = "key_bgstyle";
+        private static final String KEY_HRFLIPBUTTON = "key_hrflipbutton";
 
         public static WeatherWidgetPreferenceFragment newInstance(Bundle args) {
             WeatherWidgetPreferenceFragment fragment = new WeatherWidgetPreferenceFragment();
@@ -268,6 +271,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 resultValue = new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
             }
 
+            wm = WeatherManager.getInstance();
+
             super.onCreate(savedInstanceState);
         }
 
@@ -285,8 +290,6 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 ViewCompat.setNestedScrollingEnabled(getListView(), false);
 
             // Set fragment view
-            wm = WeatherManager.getInstance();
-
             setHasOptionsMenu(true);
 
             appBarLayout = root.findViewById(R.id.app_bar);
@@ -448,6 +451,13 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             } else {
                 bgColorPref.setValueIndex(WidgetUtils.WidgetBackground.TRANSPARENT.getValue());
                 bgColorPref.setVisible(false);
+            }
+
+            if (!WeatherAPI.YAHOO.equals(wm.getWeatherAPI()) && isForecastWidget(mWidgetType)) {
+                // Forecast Preferences
+                tap2SwitchPref = findPreference(KEY_HRFLIPBUTTON);
+                tap2SwitchPref.setVisible(true);
+                tap2SwitchPref.setChecked(WidgetUtils.isTapToSwitchEnabled(mAppWidgetId));
             }
 
             // Get SearchUI state
@@ -1426,6 +1436,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 // Save widget preferences
                 WidgetUtils.setWidgetBackground(mAppWidgetId, Integer.parseInt(bgColorPref.getValue()));
                 WidgetUtils.setBackgroundStyle(mAppWidgetId, Integer.parseInt(bgStylePref.getValue()));
+                WidgetUtils.setTapToSwitchEnabled(mAppWidgetId, tap2SwitchPref.isChecked());
 
                 // Trigger widget service to update widget
                 WeatherWidgetService.enqueueWork(mActivity,

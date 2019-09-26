@@ -1407,13 +1407,14 @@ public class WeatherWidgetService extends JobIntentService {
             WidgetUtils.WidgetBackgroundStyle style = WidgetUtils.getBackgroundStyle(appWidgetId);
             int textColor = getPanelTextColor(background, style, isNightMode);
             int tempTextSize = 72;
+            boolean tap2SwitchEnabled = WidgetUtils.isTapToSwitchEnabled(appWidgetId);
 
             RemoteViews forecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_layout_container);
             RemoteViews hrForecastPanel = null;
 
             if (weather.getExtras().getHourlyForecast().size() > 0) {
-                updateViews.setViewVisibility(R.id.showPrevious, View.VISIBLE);
-                updateViews.setViewVisibility(R.id.showNext, View.VISIBLE);
+                updateViews.setViewVisibility(R.id.showPrevious, tap2SwitchEnabled ? View.GONE : View.VISIBLE);
+                updateViews.setViewVisibility(R.id.showNext, tap2SwitchEnabled ? View.GONE : View.VISIBLE);
                 hrForecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_layout_container);
             } else {
                 updateViews.setViewVisibility(R.id.showPrevious, View.GONE);
@@ -1434,29 +1435,31 @@ public class WeatherWidgetService extends JobIntentService {
                 updateViews.addView(R.id.forecast_layout, hrForecastPanel);
             }
 
-            setShowPreviousIntent(mContext, provider, appWidgetId, updateViews);
-            setShowNextIntent(mContext, provider, appWidgetId, updateViews);
+            if (tap2SwitchEnabled) {
+                updateViews.setOnClickPendingIntent(R.id.forecast_layout,
+                        getShowNextIntent(mContext, provider, appWidgetId));
+            } else {
+                updateViews.setOnClickPendingIntent(R.id.showPrevious,
+                        getShowPreviousIntent(mContext, provider, appWidgetId));
+                updateViews.setOnClickPendingIntent(R.id.showNext,
+                        getShowNextIntent(mContext, provider, appWidgetId));
+                updateViews.setOnClickPendingIntent(R.id.forecast_layout, null);
+            }
         }
     }
 
-    private static void setShowPreviousIntent(Context context, WeatherWidgetProvider provider, int appWidgetId, RemoteViews updateViews) {
+    private static PendingIntent getShowPreviousIntent(Context context, WeatherWidgetProvider provider, int appWidgetId) {
         Intent showPrevious = new Intent(context, provider.getClass())
                 .setAction(WeatherWidgetProvider.ACTION_SHOWPREVIOUSFORECAST)
                 .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_ID, appWidgetId);
-        PendingIntent showPreviousIntent =
-                PendingIntent.getBroadcast(context, appWidgetId, showPrevious, PendingIntent.FLAG_UPDATE_CURRENT);
-        if (updateViews != null)
-            updateViews.setOnClickPendingIntent(R.id.showPrevious, showPreviousIntent);
+        return PendingIntent.getBroadcast(context, appWidgetId, showPrevious, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    private static void setShowNextIntent(Context context, WeatherWidgetProvider provider, int appWidgetId, RemoteViews updateViews) {
+    private static PendingIntent getShowNextIntent(Context context, WeatherWidgetProvider provider, int appWidgetId) {
         Intent showNext = new Intent(context, provider.getClass())
                 .setAction(WeatherWidgetProvider.ACTION_SHOWNEXTFORECAST)
                 .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_ID, appWidgetId);
-        PendingIntent showNextIntent =
-                PendingIntent.getBroadcast(context, appWidgetId, showNext, PendingIntent.FLAG_UPDATE_CURRENT);
-        if (updateViews != null)
-            updateViews.setOnClickPendingIntent(R.id.showNext, showNextIntent);
+        return PendingIntent.getBroadcast(context, appWidgetId, showNext, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private void addForecastItem(RemoteViews forecastPanel, WeatherWidgetProvider provider, BaseForecastItemViewModel forecast, Bundle newOptions, int textColor, int tempTextSize) {

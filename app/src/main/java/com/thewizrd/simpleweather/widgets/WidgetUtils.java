@@ -51,6 +51,7 @@ public class WidgetUtils {
     private static final String KEY_LOCATIONQUERY = "key_locationquery";
     private static final String KEY_WIDGETBACKGROUND = "key_widgetbackground";
     private static final String KEY_WIDGETBACKGROUNDSTYLE = "key_widgetbackgroundstyle";
+    private static final String KEY_FORECASTTAPTOSWITCH = "key_forecasttaptoswitch";
 
     private static final int FORECAST_LENGTH = 3; // 3-day
     private static final int MEDIUM_FORECAST_LENGTH = 4; // 4-day
@@ -561,6 +562,18 @@ public class WidgetUtils {
         SharedPreferences.Editor editor = getEditor(widgetId);
 
         editor.putString(KEY_WIDGETBACKGROUNDSTYLE, Integer.toString(value));
+        editor.commit();
+    }
+
+    public static boolean isTapToSwitchEnabled(int widgetId) {
+        SharedPreferences prefs = getPreferences(widgetId);
+        return prefs.getBoolean(KEY_FORECASTTAPTOSWITCH, true);
+    }
+
+    public static void setTapToSwitchEnabled(int widgetId, boolean value) {
+        SharedPreferences.Editor editor = getEditor(widgetId);
+
+        editor.putBoolean(KEY_FORECASTTAPTOSWITCH, value);
         editor.commit();
     }
 

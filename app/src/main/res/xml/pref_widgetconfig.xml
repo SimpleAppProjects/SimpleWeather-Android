@@ -37,4 +37,13 @@
         android:title="@string/pref_title_bgstyle"
         app:isPreferenceVisible="false" />
 
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="key_hrflipbutton"
+        android:persistent="false"
+        android:summaryOn="@string/hrflipbtn_pref_summary_on"
+        android:summaryOff="@string/hrflipbtn_pref_summary_off"
+        android:title="@string/hrflipbtn_pref_title"
+        app:isPreferenceVisible="false" />
+
 </PreferenceScreen>
