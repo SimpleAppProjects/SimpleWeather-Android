@@ -29,7 +29,7 @@
     <!-- Bottom Nav Bar -->
     <dimen name="design_bottom_navigation_height" tools:override="true">60dp</dimen>
     <!-- Preferences -->
-    <dimen name="preference_category_padding_start" tools:override="true">0dp</dimen>
+    <dimen name="preference_category_padding_start" tools:override="true">56dp</dimen>
     <dimen name="preference_seekbar_padding_end" tools:override="true">22dp</dimen>
     <dimen name="preference_seekbar_padding_start" tools:override="true">0dp</dimen>
     <dimen name="preference_seekbar_value_width" tools:override="true">36dp</dimen>

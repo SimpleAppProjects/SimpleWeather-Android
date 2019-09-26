@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <bool name="enable_alertnotifservice">true</bool>
+    <bool name="config_materialPreferenceIconSpaceReserved" tools:override="true">true</bool>
 </resources>
