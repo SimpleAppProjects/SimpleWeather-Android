@@ -603,6 +603,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     forecastLength = 5;
                 }
 
+                ViewGroup container = (ViewGroup) View.inflate(mActivity, R.layout.app_widget_forecast_layout_container, null);
+
                 for (int i = 0; i < forecastLength; i++) {
                     View forecastPanel = null;
 
@@ -625,8 +627,10 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     ImageView forecastIcon = forecastPanel.findViewById(R.id.forecast_icon);
                     forecastIcon.setImageResource(R.drawable.day_sunny);
 
-                    forecastLayout.addView(forecastPanel);
+                    container.addView(forecastPanel);
                 }
+
+                forecastLayout.addView(container);
             }
 
             View refreshButton = widgetView.findViewById(R.id.refresh_button);

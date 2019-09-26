@@ -26,10 +26,13 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
 
         weatherIcon = hrForecast.getIcon();
 
-        if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext()))
+        if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
             date = hrForecast.getDate().format(DateTimeFormatter.ofPattern("EEE HH:00"));
-        else
+            shortDate = hrForecast.getDate().format(DateTimeFormatter.ofPattern("HH:00"));
+        } else {
             date = hrForecast.getDate().format(DateTimeFormatter.ofPattern("EEE h a"));
+            shortDate = hrForecast.getDate().format(DateTimeFormatter.ofPattern("h a"));
+        }
 
         condition = hrForecast.getCondition();
         try {

@@ -52,6 +52,10 @@ public class WidgetUtils {
     private static final String KEY_WIDGETBACKGROUND = "key_widgetbackground";
     private static final String KEY_WIDGETBACKGROUNDSTYLE = "key_widgetbackgroundstyle";
 
+    private static final int FORECAST_LENGTH = 3; // 3-day
+    private static final int MEDIUM_FORECAST_LENGTH = 4; // 4-day
+    private static final int WIDE_FORECAST_LENGTH = 5; // 5-day
+
     static {
         init();
     }
@@ -457,6 +461,56 @@ public class WidgetUtils {
         return false;
     }
 
+    public static void deleteWidget(int id) {
+        if (isGPS(id)) {
+            removeWidgetId("GPS", id);
+        } else {
+            LocationData locData = getLocationData(id);
+            if (locData != null) {
+                removeWidgetId(locData.getQuery(), id);
+            }
+        }
+    }
+
+    /**
+     * Returns number of cells needed for given size of the widget.
+     *
+     * @param size Widget size in dp.
+     * @return Size in number of cells.
+     */
+    public static int getCellsForSize(int size) {
+        // The hardwired sizes in this function come from the hardwired formula found in
+        // Android's UI guidelines for widget design:
+        // http://developer.android.com/guide/practices/ui_guidelines/widget_design.html
+        return (size + 30) / 70;
+    }
+
+    public static int getForecastLength(WidgetType widgetType, int cellWidth) {
+        if (widgetType != WidgetType.Widget4x1 && widgetType != WidgetType.Widget4x2)
+            return 0;
+
+        int forecastLength = (widgetType == WidgetType.Widget4x2) ? WIDE_FORECAST_LENGTH : FORECAST_LENGTH;
+
+        if (cellWidth < 2) {
+            if (widgetType == WidgetType.Widget4x1)
+                forecastLength = 0;
+            else // 4x2
+                forecastLength = 1;
+        } else if (cellWidth == 2) {
+            if (widgetType == WidgetType.Widget4x1)
+                forecastLength = 1;
+            else // 4x2
+                forecastLength = FORECAST_LENGTH;
+        } else if (cellWidth == 3) {
+            if (widgetType == WidgetType.Widget4x1)
+                forecastLength = 2;
+            else // 4x2
+                forecastLength = MEDIUM_FORECAST_LENGTH;
+        }
+
+        return forecastLength;
+    }
+
     public static WidgetType getWidgetTypeFromID(int appWidgetId) {
         AppWidgetProviderInfo providerInfo = AppWidgetManager.getInstance(App.getInstance().getAppContext())
                 .getAppWidgetInfo(appWidgetId);
@@ -508,17 +562,6 @@ public class WidgetUtils {
 
         editor.putString(KEY_WIDGETBACKGROUNDSTYLE, Integer.toString(value));
         editor.commit();
-    }
-
-    public static void deleteWidget(int id) {
-        if (isGPS(id)) {
-            removeWidgetId("GPS", id);
-        } else {
-            LocationData locData = getLocationData(id);
-            if (locData != null) {
-                removeWidgetId(locData.getQuery(), id);
-            }
-        }
     }
 
     public static boolean isClockWidget(WidgetType widgetType) {

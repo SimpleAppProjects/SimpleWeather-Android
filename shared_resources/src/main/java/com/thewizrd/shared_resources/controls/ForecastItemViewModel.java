@@ -26,6 +26,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
 
         weatherIcon = forecast.getIcon();
         date = forecast.getDate().format(DateTimeFormatter.ofPattern("EEE dd", Locale.getDefault()));
+        shortDate = date;
         condition = forecast.getCondition();
         try {
             hiTemp = (Settings.isFahrenheit() ?

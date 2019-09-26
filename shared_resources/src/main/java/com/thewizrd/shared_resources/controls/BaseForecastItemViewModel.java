@@ -12,6 +12,7 @@ public abstract class BaseForecastItemViewModel extends ViewModel {
 
     protected String weatherIcon;
     protected String date;
+    protected String shortDate;
     protected String condition;
     protected String hiTemp;
     protected String pop;
@@ -40,6 +41,14 @@ public abstract class BaseForecastItemViewModel extends ViewModel {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getShortDate() {
+        return shortDate;
+    }
+
+    public void setShortDate(String date) {
+        this.shortDate = date;
     }
 
     public String getCondition() {

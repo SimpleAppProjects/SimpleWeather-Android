@@ -69,6 +69,36 @@
                 tools:text="Updated at 1:00 AM" />
 
             <ImageView
+                android:id="@+id/showPrevious"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center_vertical"
+                android:adjustViewBounds="true"
+                android:alpha="0.7"
+                android:paddingLeft="8dp"
+                android:paddingStart="8dp"
+                android:scaleType="center"
+                android:src="@drawable/ms_ic_chevron_left"
+                android:tint="@android:color/white"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/showNext"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center_vertical"
+                android:adjustViewBounds="true"
+                android:alpha="0.7"
+                android:paddingEnd="8dp"
+                android:paddingRight="8dp"
+                android:scaleType="center"
+                android:src="@drawable/ms_ic_chevron_right"
+                android:tint="@android:color/white"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <ImageView
                 android:id="@+id/refresh_button"
                 style="@style/ShadowText"
                 android:layout_width="20dp"
@@ -218,12 +248,14 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <ViewFlipper
         android:id="@+id/forecast_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
+        android:autoStart="true"
+        android:flipInterval="10000"
+        android:loopViews="true"
         android:paddingStart="4dp"
         android:paddingLeft="4dp"
         android:paddingTop="2dp"

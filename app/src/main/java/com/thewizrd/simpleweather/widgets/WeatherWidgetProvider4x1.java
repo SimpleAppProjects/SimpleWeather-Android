@@ -3,6 +3,8 @@ package com.thewizrd.simpleweather.widgets;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.widget.RemoteViews;
 
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
@@ -46,5 +48,28 @@ public class WeatherWidgetProvider4x1 extends WeatherWidgetProvider {
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
                 new ComponentName(context, getClassName()));
         return (appWidgetIds.length > 0);
+    }
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        String action = intent == null ? null : intent.getAction();
+
+        if (intent != null) {
+            if (ACTION_SHOWPREVIOUSFORECAST.equals(action)) {
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+                RemoteViews views = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
+                views.showPrevious(R.id.forecast_layout);
+                int appWidgetId = intent.getIntExtra(WeatherWidgetProvider.EXTRA_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+                appWidgetManager.updateAppWidget(appWidgetId, views);
+            } else if (ACTION_SHOWNEXTFORECAST.equals(action)) {
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+                RemoteViews views = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
+                views.showNext(R.id.forecast_layout);
+                int appWidgetId = intent.getIntExtra(WeatherWidgetProvider.EXTRA_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+                appWidgetManager.updateAppWidget(appWidgetId, views);
+            } else {
+                super.onReceive(context, intent);
+            }
+        }
     }
 }

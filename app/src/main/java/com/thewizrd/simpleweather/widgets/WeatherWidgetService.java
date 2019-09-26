@@ -52,7 +52,9 @@ import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
+import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
+import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
@@ -90,6 +92,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.getBackgroundColor;
+import static com.thewizrd.simpleweather.widgets.WidgetUtils.getCellsForSize;
+import static com.thewizrd.simpleweather.widgets.WidgetUtils.getForecastLength;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.getPanelTextColor;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.getTextColor;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.getWidgetTypeFromID;
@@ -144,10 +148,6 @@ public class WeatherWidgetService extends JobIntentService {
             WeatherWidgetProvider4x1Google.getInstance();
 
     private boolean isNightMode = false;
-
-    private static final int FORECAST_LENGTH = 3; // 3-day
-    private static final int MEDIUM_FORECAST_LENGTH = 4; // 4-day
-    private static final int WIDE_FORECAST_LENGTH = 5; // 5-day
 
     private FusedLocationProviderClient mFusedLocationClient;
     private CancellationTokenSource cts;
@@ -996,7 +996,7 @@ public class WeatherWidgetService extends JobIntentService {
 
                 updateViews.setInt(R.id.widgetBackground, "setColorFilter", backgroundColor);
                 updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
-                loadBackgroundImage(updateViews, appWidgetId, weather.getBackground(), cellWidth, cellHeight);
+                loadBackgroundImage(provider, appWidgetId, weather.getBackground(), cellWidth, cellHeight);
             } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
                 updateViews.setImageViewResource(R.id.widgetBackground, R.drawable.widget_background);
                 updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.BLACK);
@@ -1187,11 +1187,14 @@ public class WeatherWidgetService extends JobIntentService {
             updateViews.setTextColor(R.id.condition_details, is4x2 ? textColor : panelTextColor);
         }
 
+        updateViews.setInt(R.id.showPrevious, "setColorFilter", textColor);
+        updateViews.setInt(R.id.showNext, "setColorFilter", textColor);
+
         updateViews.setInt(R.id.refresh_button, "setColorFilter", textColor);
         updateViews.setInt(R.id.settings_button, "setColorFilter", textColor);
     }
 
-    private void loadBackgroundImage(final RemoteViews updateViews, final int appWidgetId, final String backgroundURI, final int cellWidth, final int cellHeight) {
+    private void loadBackgroundImage(final WeatherWidgetProvider provider, final int appWidgetId, final String backgroundURI, final int cellWidth, final int cellHeight) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -1208,6 +1211,7 @@ public class WeatherWidgetService extends JobIntentService {
                         .into(new SimpleTarget<Bitmap>(imgWidth, imgHeight) {
                             @Override
                             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                RemoteViews updateViews = new RemoteViews(mContext.getPackageName(), provider.getWidgetLayoutId());
                                 updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.TRANSPARENT);
                                 updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
                                 updateViews.setImageViewBitmap(R.id.widgetBackground, resource);
@@ -1324,7 +1328,7 @@ public class WeatherWidgetService extends JobIntentService {
                     final WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
                     if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
                         final String backgroundURI = wm.getWeatherBackgroundURI(weather);
-                        loadBackgroundImage(updateViews, appWidgetId, backgroundURI, cellWidth, cellHeight);
+                        loadBackgroundImage(provider, appWidgetId, backgroundURI, cellWidth, cellHeight);
                     }
                 }
 
@@ -1404,125 +1408,146 @@ public class WeatherWidgetService extends JobIntentService {
             int textColor = getPanelTextColor(background, style, isNightMode);
             int tempTextSize = 72;
 
-            // Widget dimensions
-            int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
-            int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
-            int maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT);
-            int maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
-            int maxCellHeight = getCellsForSize(maxHeight);
-            int maxCellWidth = getCellsForSize(maxWidth);
-            int cellHeight = getCellsForSize(minHeight);
-            int cellWidth = getCellsForSize(minWidth);
-            boolean forceSmallWidth = cellWidth == maxCellWidth;
-            boolean forceSmallHeight = cellHeight == maxCellHeight;
-            boolean isSmallHeight = ((float) maxCellHeight / cellHeight) <= 1.5f;
-            boolean isSmallWidth = ((float) maxCellWidth / cellWidth) <= 1.5f;
+            RemoteViews forecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_layout_container);
+            RemoteViews hrForecastPanel = null;
+
+            if (weather.getExtras().getHourlyForecast().size() > 0) {
+                updateViews.setViewVisibility(R.id.showPrevious, View.VISIBLE);
+                updateViews.setViewVisibility(R.id.showNext, View.VISIBLE);
+                hrForecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_layout_container);
+            } else {
+                updateViews.setViewVisibility(R.id.showPrevious, View.GONE);
+                updateViews.setViewVisibility(R.id.showNext, View.GONE);
+            }
 
             for (int i = 0; i < forecastLength; i++) {
                 ForecastItemViewModel forecast = weather.getForecasts().get(i);
+                addForecastItem(forecastPanel, provider, forecast, newOptions, textColor, tempTextSize);
 
-                RemoteViews forecastPanel;
-                if (provider.getWidgetType() == WidgetType.Widget4x1) {
-                    forecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_panel_4x1);
-
-                    int size = (int) ActivityUtils.dpToPx(mContext, 40);
-                    if (!(!isSmallWidth || cellWidth > 4)) {
-                        size *= 0.875f; // 35dp
-                    }
-                    forecastPanel.setInt(R.id.forecast_icon, "setMaxWidth", size);
-                    forecastPanel.setInt(R.id.forecast_icon, "setMaxHeight", size);
-                } else {
-                    forecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_panel_4x2);
-
-                    int size = (int) ActivityUtils.dpToPx(mContext, 30);
-                    if (cellHeight > 2 && (!isSmallWidth || cellWidth > 4)) {
-                        size *= (5f / 3); // 50dp
-                    }
-                    forecastPanel.setInt(R.id.forecast_icon, "setMaxWidth", size);
-                    forecastPanel.setInt(R.id.forecast_icon, "setMaxHeight", size);
+                if (hrForecastPanel != null) {
+                    addForecastItem(hrForecastPanel, provider, weather.getExtras().getHourlyForecast().get(i), newOptions, textColor, tempTextSize);
                 }
+            }
 
-                forecastPanel.setTextViewText(R.id.forecast_date, forecast.getDate());
-                forecastPanel.setTextViewText(R.id.forecast_hi, forecast.getHiTemp());
-                forecastPanel.setTextViewText(R.id.forecast_lo, forecast.getLoTemp());
+            updateViews.addView(R.id.forecast_layout, forecastPanel);
+            if (hrForecastPanel != null) {
+                updateViews.addView(R.id.forecast_layout, hrForecastPanel);
+            }
 
-                forecastPanel.setTextColor(R.id.forecast_date, textColor);
-                forecastPanel.setTextColor(R.id.forecast_hi, textColor);
-                forecastPanel.setTextColor(R.id.divider, textColor);
-                forecastPanel.setTextColor(R.id.forecast_lo, textColor);
-                forecastPanel.setImageViewBitmap(R.id.forecast_icon,
-                        ImageUtils.weatherIconToBitmap(this, forecast.getWeatherIcon(), tempTextSize, textColor, true));
+            setShowPreviousIntent(mContext, provider, appWidgetId, updateViews);
+            setShowNextIntent(mContext, provider, appWidgetId, updateViews);
+        }
+    }
 
-                if (provider.getWidgetType() == WidgetType.Widget4x1) {
-                    if (forceSmallHeight) {
-                        forecastPanel.setViewPadding(R.id.forecast_date, 0, 0, 0, 0);
-                    } else {
-                        int padding = (int) ActivityUtils.dpToPx(mContext, 2);
-                        forecastPanel.setViewPadding(R.id.forecast_date, padding, padding, padding, padding);
-                    }
+    private static void setShowPreviousIntent(Context context, WeatherWidgetProvider provider, int appWidgetId, RemoteViews updateViews) {
+        Intent showPrevious = new Intent(context, provider.getClass())
+                .setAction(WeatherWidgetProvider.ACTION_SHOWPREVIOUSFORECAST)
+                .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_ID, appWidgetId);
+        PendingIntent showPreviousIntent =
+                PendingIntent.getBroadcast(context, appWidgetId, showPrevious, PendingIntent.FLAG_UPDATE_CURRENT);
+        if (updateViews != null)
+            updateViews.setOnClickPendingIntent(R.id.showPrevious, showPreviousIntent);
+    }
 
-                    int textSize = 12;
-                    if (cellHeight > 1 && (!isSmallWidth || cellWidth > 4))
-                        textSize = 14;
+    private static void setShowNextIntent(Context context, WeatherWidgetProvider provider, int appWidgetId, RemoteViews updateViews) {
+        Intent showNext = new Intent(context, provider.getClass())
+                .setAction(WeatherWidgetProvider.ACTION_SHOWNEXTFORECAST)
+                .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_ID, appWidgetId);
+        PendingIntent showNextIntent =
+                PendingIntent.getBroadcast(context, appWidgetId, showNext, PendingIntent.FLAG_UPDATE_CURRENT);
+        if (updateViews != null)
+            updateViews.setOnClickPendingIntent(R.id.showNext, showNextIntent);
+    }
 
-                    forecastPanel.setTextViewTextSize(R.id.forecast_date, TypedValue.COMPLEX_UNIT_SP, textSize);
-                    forecastPanel.setTextViewTextSize(R.id.forecast_hi, TypedValue.COMPLEX_UNIT_SP, textSize);
-                    forecastPanel.setTextViewTextSize(R.id.forecast_lo, TypedValue.COMPLEX_UNIT_SP, textSize);
-                } else {
-                    int textSize = 12;
-                    if ((!isSmallHeight && cellHeight > 2) && (!isSmallWidth || (cellWidth > 4)))
-                        textSize = 14;
-                    else if (forceSmallHeight || isSmallHeight && cellHeight <= 2)
-                        textSize = 10;
+    private void addForecastItem(RemoteViews forecastPanel, WeatherWidgetProvider provider, BaseForecastItemViewModel forecast, Bundle newOptions, int textColor, int tempTextSize) {
+        // Widget dimensions
+        int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
+        int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
+        int maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT);
+        int maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
+        int maxCellHeight = getCellsForSize(maxHeight);
+        int maxCellWidth = getCellsForSize(maxWidth);
+        int cellHeight = getCellsForSize(minHeight);
+        int cellWidth = getCellsForSize(minWidth);
+        boolean forceSmallWidth = cellWidth == maxCellWidth;
+        boolean forceSmallHeight = cellHeight == maxCellHeight;
+        boolean isSmallHeight = ((float) maxCellHeight / cellHeight) <= 1.5f;
+        boolean isSmallWidth = ((float) maxCellWidth / cellWidth) <= 1.5f;
 
-                    forecastPanel.setTextViewTextSize(R.id.forecast_date, TypedValue.COMPLEX_UNIT_SP, textSize);
-                    forecastPanel.setTextViewTextSize(R.id.forecast_hi, TypedValue.COMPLEX_UNIT_SP, textSize);
-                    forecastPanel.setTextViewTextSize(R.id.divider, TypedValue.COMPLEX_UNIT_SP, textSize);
-                    forecastPanel.setTextViewTextSize(R.id.forecast_lo, TypedValue.COMPLEX_UNIT_SP, textSize);
-                }
+        RemoteViews forecastItem;
+        if (provider.getWidgetType() == WidgetType.Widget4x1) {
+            forecastItem = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_panel_4x1);
 
-                updateViews.addView(R.id.forecast_layout, forecastPanel);
+            int size = (int) ActivityUtils.dpToPx(mContext, 40);
+            if (!(!isSmallWidth || cellWidth > 4)) {
+                size *= 0.875f; // 35dp
+            }
+            forecastItem.setInt(R.id.forecast_icon, "setMaxWidth", size);
+            forecastItem.setInt(R.id.forecast_icon, "setMaxHeight", size);
+        } else {
+            forecastItem = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_panel_4x2);
+
+            int size = (int) ActivityUtils.dpToPx(mContext, 30);
+            if (cellHeight > 2 && (!isSmallWidth || cellWidth > 4)) {
+                size *= (5f / 3); // 50dp
+            }
+            forecastItem.setInt(R.id.forecast_icon, "setMaxWidth", size);
+            forecastItem.setInt(R.id.forecast_icon, "setMaxHeight", size);
+        }
+
+        forecastItem.setTextViewText(R.id.forecast_date, forecast.getShortDate());
+        forecastItem.setTextViewText(R.id.forecast_hi, forecast.getHiTemp());
+        if (forecast instanceof ForecastItemViewModel) {
+            forecastItem.setTextViewText(R.id.forecast_lo, ((ForecastItemViewModel) forecast).getLoTemp());
+        }
+
+        forecastItem.setTextColor(R.id.forecast_date, textColor);
+        forecastItem.setTextColor(R.id.forecast_hi, textColor);
+        if (forecast instanceof ForecastItemViewModel) {
+            forecastItem.setTextColor(R.id.divider, textColor);
+            forecastItem.setTextColor(R.id.forecast_lo, textColor);
+        }
+        forecastItem.setImageViewBitmap(R.id.forecast_icon,
+                ImageUtils.weatherIconToBitmap(this, forecast.getWeatherIcon(), tempTextSize, textColor, true));
+
+        if (provider.getWidgetType() == WidgetType.Widget4x1) {
+            if (forceSmallHeight) {
+                forecastItem.setViewPadding(R.id.forecast_date, 0, 0, 0, 0);
+            } else {
+                int padding = (int) ActivityUtils.dpToPx(mContext, 2);
+                forecastItem.setViewPadding(R.id.forecast_date, padding, padding, padding, padding);
+            }
+
+            int textSize = 12;
+            if (cellHeight > 1 && (!isSmallWidth || cellWidth > 4))
+                textSize = 14;
+
+            forecastItem.setTextViewTextSize(R.id.forecast_date, TypedValue.COMPLEX_UNIT_SP, textSize);
+            forecastItem.setTextViewTextSize(R.id.forecast_hi, TypedValue.COMPLEX_UNIT_SP, textSize);
+            if (forecast instanceof ForecastItemViewModel) {
+                forecastItem.setTextViewTextSize(R.id.forecast_lo, TypedValue.COMPLEX_UNIT_SP, textSize);
+            }
+        } else {
+            int textSize = 12;
+            if ((!isSmallHeight && cellHeight > 2) && (!isSmallWidth || (cellWidth > 4)))
+                textSize = 14;
+            else if (forceSmallHeight || isSmallHeight && cellHeight <= 2)
+                textSize = 10;
+
+            forecastItem.setTextViewTextSize(R.id.forecast_date, TypedValue.COMPLEX_UNIT_SP, textSize);
+            forecastItem.setTextViewTextSize(R.id.forecast_hi, TypedValue.COMPLEX_UNIT_SP, textSize);
+            if (forecast instanceof ForecastItemViewModel) {
+                forecastItem.setTextViewTextSize(R.id.divider, TypedValue.COMPLEX_UNIT_SP, textSize);
+                forecastItem.setTextViewTextSize(R.id.forecast_lo, TypedValue.COMPLEX_UNIT_SP, textSize);
             }
         }
-    }
 
-    /**
-     * Returns number of cells needed for given size of the widget.
-     *
-     * @param size Widget size in dp.
-     * @return Size in number of cells.
-     */
-    private static int getCellsForSize(int size) {
-        // The hardwired sizes in this function come from the hardwired formula found in
-        // Android's UI guidelines for widget design:
-        // http://developer.android.com/guide/practices/ui_guidelines/widget_design.html
-        return (size + 30) / 70;
-    }
-
-    private static int getForecastLength(WidgetType widgetType, int cellWidth) {
-        if (widgetType != WidgetType.Widget4x1 && widgetType != WidgetType.Widget4x2)
-            return 0;
-
-        int forecastLength = (widgetType == WidgetType.Widget4x2) ? WIDE_FORECAST_LENGTH : FORECAST_LENGTH;
-
-        if (cellWidth < 2) {
-            if (widgetType == WidgetType.Widget4x1)
-                forecastLength = 0;
-            else // 4x2
-                forecastLength = 1;
-        } else if (cellWidth == 2) {
-            if (widgetType == WidgetType.Widget4x1)
-                forecastLength = 1;
-            else // 4x2
-                forecastLength = FORECAST_LENGTH;
-        } else if (cellWidth == 3) {
-            if (widgetType == WidgetType.Widget4x1)
-                forecastLength = 2;
-            else // 4x2
-                forecastLength = MEDIUM_FORECAST_LENGTH;
+        if (forecast instanceof HourlyForecastItemViewModel) {
+            forecastItem.setViewVisibility(R.id.divider, View.GONE);
+            forecastItem.setViewVisibility(R.id.forecast_lo, View.GONE);
         }
 
-        return forecastLength;
+        forecastPanel.addView(R.id.forecast_container, forecastItem);
     }
 
     private String getUpdateTimeText(LocalDateTime now, boolean shortFormat) {

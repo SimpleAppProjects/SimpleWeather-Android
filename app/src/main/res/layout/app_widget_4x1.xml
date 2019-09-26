@@ -45,11 +45,12 @@
                     android:layout_marginLeft="4dp"
                     android:maxLines="1"
                     android:padding="2dp"
-                    android:visibility="invisible"
                     android:text="@string/label_datenow"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="@android:color/white"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    android:visibility="invisible"
+                    tools:visibility="visible" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -88,7 +89,7 @@
 
             </LinearLayout>
 
-            <LinearLayout
+            <ViewFlipper
                 android:id="@+id/forecast_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -101,9 +102,10 @@
                 android:layout_toRightOf="@+id/condition_layout"
                 android:minHeight="30dp"
                 android:minWidth="75dp"
-                android:orientation="horizontal">
+                android:autoStart="true"
+                android:flipInterval="10000"
+                android:loopViews="true" />
 
-            </LinearLayout>
         </RelativeLayout>
 
         <LinearLayout
@@ -145,6 +147,30 @@
                 android:textColor="@android:color/white"
                 android:textSize="10sp"
                 tools:text="Updated at 1:00 AM" />
+
+            <ImageView
+                android:id="@+id/showPrevious"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center_vertical"
+                android:adjustViewBounds="true"
+                android:alpha="0.7"
+                android:paddingStart="8dp"
+                android:scaleType="center"
+                android:src="@drawable/ms_ic_chevron_left"
+                android:tint="@android:color/white" />
+
+            <ImageView
+                android:id="@+id/showNext"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center_vertical"
+                android:adjustViewBounds="true"
+                android:alpha="0.7"
+                android:paddingEnd="8dp"
+                android:scaleType="center"
+                android:src="@drawable/ms_ic_chevron_right"
+                android:tint="@android:color/white" />
 
             <ImageView
                 android:id="@+id/refresh_button"
