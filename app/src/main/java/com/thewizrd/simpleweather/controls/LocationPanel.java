@@ -109,8 +109,8 @@ public class LocationPanel extends MaterialCardView {
         // Background
         mGlide.asBitmap()
                 .load(panelView.getBackground())
-                .apply(new RequestOptions()
-                        .centerCrop()
+                .apply(RequestOptions
+                        .centerCropTransform()
                         .format(DecodeFormat.PREFER_RGB_565)
                         .error(colorDrawable)
                         .placeholder(colorDrawable)

@@ -823,7 +823,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 if (weatherView != null) {
                     Glide.with(mActivity)
                             .load(weatherView.getBackground())
-                            .apply(new RequestOptions().centerCrop()
+                            .apply(RequestOptions.centerCropTransform()
                                     .format(DecodeFormat.PREFER_RGB_565)
                                     .skipMemoryCache(true))
                             .transition(DrawableTransitionOptions.withCrossFade())
@@ -1275,7 +1275,7 @@ public class WeatherNowFragment extends WindowColorFragment
             public void run() {
                 Glide.with(mActivity)
                         .load(weatherView.getBackground())
-                        .apply(new RequestOptions().centerCrop()
+                        .apply(RequestOptions.centerCropTransform()
                                 .format(DecodeFormat.PREFER_RGB_565))
                         .transition(DrawableTransitionOptions.withCrossFade())
                         .into(mImageView);
