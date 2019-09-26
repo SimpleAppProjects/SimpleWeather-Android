@@ -1172,10 +1172,14 @@ public class WeatherNowFragment extends WindowColorFragment
                     DisplayMetrics displayMetrics = mActivity.getResources().getDisplayMetrics();
                     float pxWidth = displayMetrics.widthPixels;
 
-                    int minColumns = ActivityUtils.isLargeTablet(mActivity) ? 3 : 2;
+                    boolean isLargeTablet = ActivityUtils.isLargeTablet(mActivity);
+
+                    int minColumns = isLargeTablet ? 3 : 2;
+                    int minWidthDp = 125; // Default: 125f
+                    if (isLargeTablet) minWidthDp *= 1.5f;
 
                     // Minimum width for ea. card
-                    int minWidth = (int) ActivityUtils.dpToPx(mActivity, 125f); // Default: 125f
+                    int minWidth = (int) ActivityUtils.dpToPx(mActivity, minWidthDp);
                     // Available columns based on min card width
                     int availColumns = ((int) (pxWidth / minWidth)) <= 1 ? minColumns : (int) (pxWidth / minWidth);
 

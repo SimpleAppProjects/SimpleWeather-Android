@@ -360,7 +360,7 @@
                                 android:paddingTop="20dp"
                                 android:paddingBottom="10dp"
                                 android:textColor="@android:color/white"
-                                android:textAppearance="@style/ShadowText"
+                                android:textAppearance="@style/PagerTabTitleStyle"
                                 app:darkModeEnabled="@{!weatherView.lightBackground}" />
 
                         </androidx.viewpager.widget.ViewPager>
@@ -424,7 +424,7 @@
                                 android:paddingTop="20dp"
                                 android:paddingBottom="10dp"
                                 android:textColor="@android:color/white"
-                                android:textAppearance="@style/ShadowText"
+                                android:textAppearance="@style/PagerTabTitleStyle"
                                 app:darkModeEnabled="@{!weatherView.lightBackground}" />
 
                         </androidx.viewpager.widget.ViewPager>

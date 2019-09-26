@@ -60,7 +60,7 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <dimen name="widget4x1G_text_size">24sp</dimen>
     <dimen name="location_text_size_small">12sp</dimen>
     <dimen name="location_text_size_large">14sp</dimen>
-    <dimen name="widget_corner_radius">12px</dimen>
+    <dimen name="widget_corner_radius">3dp</dimen>
     <!-- Notification -->
     <dimen name="not_horiz_padding">4dp</dimen>
     <dimen name="not_vert_padding">4dp</dimen>

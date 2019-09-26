@@ -162,6 +162,12 @@
         <item name="android:padding">8dp</item>
     </style>
 
+    <style name="PagerTabTitleStyle" parent="ShadowText">
+        <item name="android:fontFamily">@font/open_sans</item>
+        <item name="fontFamily">@font/open_sans</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
     <style name="BottomNavTextAppearance" parent="@style/TextAppearance.OpenSans.Caption" />
 
     <style name="BottomNavTextAppearance.Inactive">
