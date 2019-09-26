@@ -26,6 +26,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.format.DateFormat;
 import android.text.style.TextAppearanceSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -148,6 +149,7 @@ public class WeatherWidgetService extends JobIntentService {
             WeatherWidgetProvider4x1Google.getInstance();
 
     private boolean isNightMode = false;
+    private float maxBitmapSize;
 
     private FusedLocationProviderClient mFusedLocationClient;
     private CancellationTokenSource cts;
@@ -197,6 +199,14 @@ public class WeatherWidgetService extends JobIntentService {
         if (WearableHelper.isGooglePlayServicesInstalled()) {
             mFusedLocationClient = new FusedLocationProviderClient(this);
         }
+
+        /*
+         * The total Bitmap memory used by the RemoteViews object cannot exceed
+         * that required to fill the screen 1.5 times,
+         * ie. (screen width x screen height x 4 x 1.5) bytes.
+         */
+        DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
+        maxBitmapSize = metrics.heightPixels * metrics.widthPixels * 4 * 1.5f;
     }
 
     @Override
@@ -1201,6 +1211,34 @@ public class WeatherWidgetService extends JobIntentService {
                 int imgWidth = 200 * cellWidth;
                 int imgHeight = 200 * cellHeight;
                 float radius = mContext.getResources().getDimensionPixelSize(R.dimen.widget_corner_radius);
+
+                /*
+                 * The total Bitmap memory used by the RemoteViews object cannot exceed
+                 * that required to fill the screen 1.5 times,
+                 * ie. (screen width x screen height x 4 x 1.5) bytes.
+                 */
+                if (maxBitmapSize < 3840000) { // (200 * 4) * (200 * 4) * 4 * 1.5f
+                    imgWidth = imgHeight = 200;
+                } else if (imgHeight * imgWidth * 4 * 1.5f > maxBitmapSize) {
+                    switch (provider.getWidgetType()) {
+                        default:
+                        case Widget1x1:
+                            imgWidth = imgHeight = 200;
+                            break;
+                        case Widget2x2:
+                            imgWidth = imgHeight = 200 * 2;
+                            break;
+                        case Widget4x1:
+                        case Widget4x1Google:
+                            imgWidth = 200 * 4;
+                            imgHeight = 200;
+                            break;
+                        case Widget4x2:
+                            imgWidth = 200 * 4;
+                            imgHeight = 200 * 2;
+                            break;
+                    }
+                }
 
                 Glide.with(mContext)
                         .asBitmap()
