@@ -78,7 +78,9 @@
                 android:paddingStart="8dp"
                 android:scaleType="center"
                 android:src="@drawable/ms_ic_chevron_left"
-                android:tint="@android:color/white" />
+                android:tint="@android:color/white"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
             <ImageView
                 android:id="@+id/showNext"
@@ -90,7 +92,9 @@
                 android:paddingEnd="8dp"
                 android:scaleType="center"
                 android:src="@drawable/ms_ic_chevron_right"
-                android:tint="@android:color/white" />
+                android:tint="@android:color/white"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
             <ImageView
                 android:id="@+id/refresh_button"
