@@ -2,18 +2,18 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 29
+    buildToolsVersion '29.0.2'
     defaultConfig {
         applicationId "com.thewizrd.simpleweather"
         testApplicationId "com.thewizrd.simpleweather.test"
         // Specifies the fully-qualified class name of the test instrumentation runner.
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         minSdkVersion 24
-        targetSdkVersion 28
+        targetSdkVersion 29
         // NOTE: Version Code Format (TargetSDK, Version Name, Build Number, Variant Code (Android: 00, WearOS: 01)
-        versionCode 282100001
-        versionName "2.1.0"
+        versionCode 293000101
+        versionName "3.0.0"
 
         vectorDrawables.useSupportLibrary = true
     }
