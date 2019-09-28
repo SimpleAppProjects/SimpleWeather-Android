@@ -15,7 +15,7 @@
     <color name="colorOnSurface">#ffffff</color>
     <color name="colorOnError">#000000</color>
 
-    <color name="colorTextPrimary">@android:color/white</color>
+    <color name="colorTextPrimary">@color/abc_primary_text_material_dark</color>
     <color name="colorTextSecondary">@color/abc_secondary_text_material_dark</color>
     <color name="invColorText">@android:color/white</color>
     <color name="invButtonColor">@color/cardview_dark_background</color>

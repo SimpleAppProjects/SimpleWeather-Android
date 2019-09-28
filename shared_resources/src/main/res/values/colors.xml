@@ -21,7 +21,7 @@
     <color name="colorOnError">#ffffff</color>
 
     <color name="colorText">#FFFFFF</color>
-    <color name="colorTextPrimary">@android:color/black</color>
+    <color name="colorTextPrimary">@color/abc_primary_text_material_light</color>
     <color name="colorTextSecondary">@color/abc_secondary_text_material_light</color>
     <color name="colorTextHint">@color/color_text_hint</color>
     <color name="invColorText">@color/colorPrimaryDark</color>
