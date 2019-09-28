@@ -87,6 +87,22 @@ class VersionMigrations {
                     }
                 }
             }
+
+            // v3.0.0+
+            if (Settings.getVersionCode() < 293000000) {
+                // Update Met.no and OWM to use LocationIQ
+                final String API = Settings.getAPI();
+                if (WeatherAPI.METNO.equals(API) || WeatherAPI.OPENWEATHERMAP.equals(API)) {
+                    if (Settings.IS_PHONE) {
+                        DBUtils.setLocationData(locationDB, API);
+                        Settings.saveLastGPSLocData(new LocationData());
+                    } else if (Settings.getLastGPSLocData() != null) {
+                        WeatherManager.getProvider(API)
+                                .updateLocationData(Settings.getLastGPSLocData());
+                    }
+                }
+            }
+
             Bundle bundle = new Bundle();
             bundle.putString("API", Settings.getAPI());
             bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));

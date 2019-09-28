@@ -6,7 +6,7 @@ import android.util.Log;
 
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
+import com.thewizrd.shared_resources.locationdata.locationiq.LocationIQProvider;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -42,7 +42,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
 
     public MetnoWeatherProvider() {
         super();
-        locationProvider = new HERELocationProvider();
+        locationProvider = new LocationIQProvider();
     }
 
     @Override
