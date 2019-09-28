@@ -110,4 +110,36 @@ public class WeatherAlertViewModel {
     public void setAttribution(String attribution) {
         this.attribution = attribution;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        WeatherAlertViewModel that = (WeatherAlertViewModel) o;
+
+        if (getAlertType() != that.getAlertType()) return false;
+        if (getAlertSeverity() != that.getAlertSeverity()) return false;
+        if (getTitle() != null ? !getTitle().equals(that.getTitle()) : that.getTitle() != null)
+            return false;
+        if (getMessage() != null ? !getMessage().equals(that.getMessage()) : that.getMessage() != null)
+            return false;
+        if (getPostDate() != null ? !getPostDate().equals(that.getPostDate()) : that.getPostDate() != null)
+            return false;
+        if (getExpireDate() != null ? !getExpireDate().equals(that.getExpireDate()) : that.getExpireDate() != null)
+            return false;
+        return getAttribution() != null ? getAttribution().equals(that.getAttribution()) : that.getAttribution() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getAlertType() != null ? getAlertType().hashCode() : 0;
+        result = 31 * result + (getAlertSeverity() != null ? getAlertSeverity().hashCode() : 0);
+        result = 31 * result + (getTitle() != null ? getTitle().hashCode() : 0);
+        result = 31 * result + (getMessage() != null ? getMessage().hashCode() : 0);
+        result = 31 * result + (getPostDate() != null ? getPostDate().hashCode() : 0);
+        result = 31 * result + (getExpireDate() != null ? getExpireDate().hashCode() : 0);
+        result = 31 * result + (getAttribution() != null ? getAttribution().hashCode() : 0);
+        return result;
+    }
 }

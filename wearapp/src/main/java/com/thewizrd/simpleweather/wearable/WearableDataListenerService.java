@@ -7,13 +7,11 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.wearable.phone.PhoneDeviceType;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.WorkerThread;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -84,7 +82,6 @@ public class WearableDataListenerService extends WearableListenerService {
     private WearConnectionStatus mConnectionStatus = WearConnectionStatus.DISCONNECTED;
     private boolean mLoaded = false;
     private static boolean acceptDataUpdates = false;
-    private Handler mMainHandler;
 
     public static void setAcceptDataUpdates(boolean value) {
         acceptDataUpdates = value;
@@ -145,8 +142,6 @@ public class WearableDataListenerService extends WearableListenerService {
             startForeground(JOB_ID, getForegroundNotification());
         }
 
-        mMainHandler = new Handler(Looper.getMainLooper());
-
         AsyncTask.run(new Runnable() {
             @Override
             public void run() {
@@ -203,11 +198,21 @@ public class WearableDataListenerService extends WearableListenerService {
                 if (event.getType() == DataEvent.TYPE_CHANGED) {
                     DataItem item = event.getDataItem();
                     if (item.getUri().getPath().compareTo(WearableHelper.SettingsPath) == 0) {
-                        DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-                        updateSettings(dataMap);
+                        final DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+                        AsyncTask.run(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateSettings(dataMap);
+                            }
+                        });
                     } else if (item.getUri().getPath().compareTo(WearableHelper.LocationPath) == 0) {
-                        DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-                        updateLocation(dataMap);
+                        final DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+                        AsyncTask.run(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateLocation(dataMap);
+                            }
+                        });
                     }
                 }
             }
@@ -229,8 +234,13 @@ public class WearableDataListenerService extends WearableListenerService {
                             .putExtra(EXTRA_DEVICESETUPSTATUS, isDeviceSetup)
                             .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.getValue()));
         } else if (messageEvent.getPath().equals(WearableHelper.WeatherPath)) {
-            byte[] data = messageEvent.getData();
-            updateWeather(data);
+            final byte[] data = messageEvent.getData();
+            AsyncTask.run(new Runnable() {
+                @Override
+                public void run() {
+                    updateWeather(data);
+                }
+            });
         }
     }
 
@@ -337,279 +347,275 @@ public class WearableDataListenerService extends WearableListenerService {
         });
     }
 
+    @WorkerThread
     private void openAppOnPhone() {
-        new AsyncTask<Void>().await(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                connect();
+        connect();
 
-                if (mPhoneNodeWithApp == null) {
-                    mMainHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(WearableDataListenerService.this, "Device is not connected or app is not installed on device...", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-                    int deviceType = PhoneDeviceType.getPhoneDeviceType(WearableDataListenerService.this);
-                    switch (deviceType) {
-                        case PhoneDeviceType.DEVICE_TYPE_ANDROID:
-                            LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
-                                    new Intent(ACTION_SHOWSTORELISTING));
-                            break;
-                        case PhoneDeviceType.DEVICE_TYPE_IOS:
-                        default:
-                            mMainHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(WearableDataListenerService.this, "Connected device is not supported", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                            break;
-                    }
-                } else {
-                    // Send message to device to start activity
-                    int result = Tasks.await(Wearable.getMessageClient(WearableDataListenerService.this)
-                            .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.StartActivityPath, new byte[0]));
-
-                    LocalBroadcastManager.getInstance(WearableDataListenerService.this)
-                            .sendBroadcast(new Intent(ACTION_OPENONPHONE)
-                                    .putExtra(EXTRA_SUCCESS, result != -1));
-                }
-                return null;
+        if (mPhoneNodeWithApp == null) {
+            // Device is not connected or app is not installed on device...
+            int deviceType = PhoneDeviceType.getPhoneDeviceType(WearableDataListenerService.this);
+            switch (deviceType) {
+                case PhoneDeviceType.DEVICE_TYPE_ANDROID:
+                    LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
+                            new Intent(ACTION_SHOWSTORELISTING));
+                    break;
+                case PhoneDeviceType.DEVICE_TYPE_IOS:
+                default:
+                    // Connected device is not supported
+                    break;
             }
-        });
+        } else {
+            // Send message to device to start activity
+            int result = -1;
+            try {
+                result = Tasks.await(Wearable.getMessageClient(WearableDataListenerService.this)
+                        .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.StartActivityPath, new byte[0]));
+            } catch (ExecutionException | InterruptedException e) {
+                Logger.writeLine(Log.ERROR, e);
+            }
+
+            LocalBroadcastManager.getInstance(WearableDataListenerService.this)
+                    .sendBroadcast(new Intent(ACTION_OPENONPHONE)
+                            .putExtra(EXTRA_SUCCESS, result != -1));
+        }
     }
 
+    @WorkerThread
     private void sendSettingsRequest() {
-        new AsyncTask<Void>().await(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                if (!connect()) {
-                    LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
-                            new Intent(WearableHelper.ErrorPath));
-                    return null;
-                }
+        if (!connect()) {
+            LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
+                    new Intent(WearableHelper.ErrorPath));
+            return;
+        }
 
-                DataItem dataItem = Tasks.await(Wearable.getDataClient(WearableDataListenerService.this)
-                        .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp.getId(), WearableHelper.SettingsPath)));
+        DataItem dataItem = null;
+        try {
+            dataItem = Tasks.await(Wearable.getDataClient(WearableDataListenerService.this)
+                    .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp.getId(), WearableHelper.SettingsPath)));
+        } catch (ExecutionException | InterruptedException e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
 
-                if (dataItem == null) {
-                    // Send message to device to get settings
-                    int result = Tasks.await(Wearable.getMessageClient(WearableDataListenerService.this)
-                            .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.SettingsPath, new byte[0]));
-                } else {
-                    // Update with data
-                    updateSettings(DataMapItem.fromDataItem(dataItem).getDataMap());
-                }
-                return null;
+        if (dataItem == null) {
+            // Send message to device to get settings
+            try {
+                Tasks.await(Wearable.getMessageClient(WearableDataListenerService.this)
+                        .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.SettingsPath, new byte[0]));
+            } catch (ExecutionException | InterruptedException e) {
+                Logger.writeLine(Log.ERROR, e);
             }
-        });
+        } else {
+            // Update with data
+            updateSettings(DataMapItem.fromDataItem(dataItem).getDataMap());
+        }
     }
 
+    @WorkerThread
     private void sendLocationRequest() {
-        new AsyncTask<Void>().await(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                if (!connect()) {
-                    LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
-                            new Intent(WearableHelper.ErrorPath));
-                    return null;
-                }
+        if (!connect()) {
+            LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
+                    new Intent(WearableHelper.ErrorPath));
+            return;
+        }
 
-                DataItem dataItem = Tasks.await(Wearable.getDataClient(WearableDataListenerService.this)
-                        .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp.getId(), WearableHelper.LocationPath)));
+        DataItem dataItem = null;
+        try {
+            dataItem = Tasks.await(Wearable.getDataClient(WearableDataListenerService.this)
+                    .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp.getId(), WearableHelper.LocationPath)));
+        } catch (ExecutionException | InterruptedException e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
 
-                if (dataItem == null) {
-                    // Send message to device to get settings
-                    int result = Tasks.await(Wearable.getMessageClient(WearableDataListenerService.this)
-                            .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.LocationPath, new byte[0]));
-                } else {
-                    // Update with data
-                    updateLocation(DataMapItem.fromDataItem(dataItem).getDataMap());
-                }
-                return null;
+        if (dataItem == null) {
+            // Send message to device to get settings
+            try {
+                Tasks.await(Wearable.getMessageClient(WearableDataListenerService.this)
+                        .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.LocationPath, new byte[0]));
+            } catch (ExecutionException | InterruptedException e) {
+                Logger.writeLine(Log.ERROR, e);
             }
-        });
+        } else {
+            // Update with data
+            updateLocation(DataMapItem.fromDataItem(dataItem).getDataMap());
+        }
     }
 
+    @WorkerThread
     private void sendWeatherRequest() {
-        new AsyncTask<Void>().await(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                if (!connect()) {
-                    LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
-                            new Intent(WearableHelper.ErrorPath));
-                    return null;
-                }
+        if (!connect()) {
+            LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
+                    new Intent(WearableHelper.ErrorPath));
+            return;
+        }
 
-                // Send message to device to get weather
-                Tasks.await(Wearable.getMessageClient(WearableDataListenerService.this)
-                        .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.WeatherPath, new byte[0]));
-                return null;
-            }
-        });
+        // Send message to device to get weather
+        try {
+            Tasks.await(Wearable.getMessageClient(WearableDataListenerService.this)
+                    .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.WeatherPath, new byte[0]));
+        } catch (ExecutionException | InterruptedException e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
     }
 
+    @WorkerThread
     private void sendWeatherUpdateRequest() {
-        new AsyncTask<Void>().await(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                if (!connect()) {
-                    LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
-                            new Intent(WearableHelper.ErrorPath));
-                    return null;
-                }
+        if (!connect()) {
+            LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
+                    new Intent(WearableHelper.ErrorPath));
+            return;
+        }
 
-                // Send message to device to get settings
-                Tasks.await(Wearable.getMessageClient(WearableDataListenerService.this)
-                        .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.WeatherPath, new byte[]{1}));
-                return null;
-            }
-        });
+        // Send message to device to get settings
+        try {
+            Tasks.await(Wearable.getMessageClient(WearableDataListenerService.this)
+                    .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.WeatherPath, new byte[]{1}));
+        } catch (ExecutionException | InterruptedException e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
     }
 
+    @WorkerThread
     private void sendSetupStatusRequest() {
-        new AsyncTask<Void>().await(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                if (!connect()) {
-                    LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
-                            new Intent(WearableHelper.ErrorPath));
-                    return null;
-                }
+        if (!connect()) {
+            LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
+                    new Intent(WearableHelper.ErrorPath));
+            return;
+        }
 
-                Tasks.await(Wearable.getMessageClient(WearableDataListenerService.this)
-                        .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.IsSetupPath, new byte[0]));
-                return null;
-            }
-        });
+        try {
+            Tasks.await(Wearable.getMessageClient(WearableDataListenerService.this)
+                    .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.IsSetupPath, new byte[0]));
+        } catch (ExecutionException | InterruptedException e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
     }
 
     private void updateSettings(final DataMap dataMap) {
-        AsyncTask.run(new Runnable() {
-            @Override
-            public void run() {
-                if (dataMap != null && !dataMap.isEmpty()) {
-                    String API = dataMap.getString("API", "");
-                    String API_KEY = dataMap.getString("API_KEY", "");
-                    boolean keyVerified = dataMap.getBoolean("KeyVerified", false);
-                    if (!StringUtils.isNullOrWhitespace(API)) {
-                        Settings.setAPI(API);
-                        if (WeatherManager.isKeyRequired(API)) {
-                            Settings.setAPIKEY(API_KEY);
-                            Settings.setKeyVerified(false);
-                        } else {
-                            Settings.setAPIKEY("");
-                            Settings.setKeyVerified(false);
-                        }
-                    }
-
-                    Settings.setFollowGPS(dataMap.getBoolean("FollowGPS", false));
-
-                    // Send callback to receiver
-                    LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
-                            new Intent(WearableHelper.SettingsPath));
+        if (dataMap != null && !dataMap.isEmpty()) {
+            String API = dataMap.getString("API", "");
+            String API_KEY = dataMap.getString("API_KEY", "");
+            boolean keyVerified = dataMap.getBoolean("KeyVerified", false);
+            if (!StringUtils.isNullOrWhitespace(API)) {
+                Settings.setAPI(API);
+                if (WeatherManager.isKeyRequired(API)) {
+                    Settings.setAPIKEY(API_KEY);
+                    Settings.setKeyVerified(false);
+                } else {
+                    Settings.setAPIKEY("");
+                    Settings.setKeyVerified(false);
                 }
             }
-        });
+
+            Settings.setFollowGPS(dataMap.getBoolean("FollowGPS", false));
+
+            // Send callback to receiver
+            LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
+                    new Intent(WearableHelper.SettingsPath));
+        }
     }
 
+    @WorkerThread
     private void updateLocation(final DataMap dataMap) {
-        AsyncTask.run(new Runnable() {
-            @Override
-            public void run() {
-                if (dataMap != null && !dataMap.isEmpty()) {
-                    String locationJSON = dataMap.getString("locationData", "");
-                    if (!StringUtils.isNullOrWhitespace(locationJSON)) {
-                        try (JsonReader reader = new JsonReader(new StringReader(locationJSON))) {
-                            LocationData locationData = LocationData.fromJson(reader);
+        if (dataMap != null && !dataMap.isEmpty()) {
+            String locationJSON = dataMap.getString("locationData", "");
+            if (!StringUtils.isNullOrWhitespace(locationJSON)) {
+                try (JsonReader reader = new JsonReader(new StringReader(locationJSON))) {
+                    LocationData locationData = LocationData.fromJson(reader);
 
-                            if (locationData != null) {
-                                if (!locationData.equals(Settings.getHomeData())) {
-                                    Settings.saveHomeData(locationData);
-                                }
-
-                                // Send callback to receiver
-                                LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
-                                        new Intent(WearableHelper.LocationPath));
-                            }
-                        } catch (IOException e) {
-                            //e.printStackTrace();
+                    if (locationData != null) {
+                        if (!locationData.equals(Settings.getHomeData())) {
+                            Settings.saveHomeData(locationData);
                         }
+
+                        // Send callback to receiver
+                        LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
+                                new Intent(WearableHelper.LocationPath));
                     }
+                } catch (IOException e) {
+                    Logger.writeLine(Log.ERROR, e);
                 }
             }
-        });
+        }
     }
 
+    @WorkerThread
     private void updateWeather(final byte[] data) {
-        AsyncTask.run(new Runnable() {
+        final String dataJson = new String(data, Charset.forName("UTF-8"));
+        WearWeatherJSON weatherDataJSON = new AsyncTask<WearWeatherJSON>().await(new Callable<WearWeatherJSON>() {
             @Override
-            public void run() {
-                String dataJson = new String(data, Charset.forName("UTF-8"));
-                WearWeatherJSON weatherDataJSON = WearWeatherJSON.fromJson(new JsonReader(new StringReader(dataJson)));
+            public WearWeatherJSON call() throws Exception {
+                return WearWeatherJSON.fromJson(new JsonReader(new StringReader(dataJson)));
+            }
+        });
 
-                if (weatherDataJSON != null && weatherDataJSON.isValid()) {
-                    long update_time = weatherDataJSON.getUpdateTime();
-                    if (update_time != 0) {
-                        if (Settings.getHomeData() != null) {
-                            LocalDateTime upDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(update_time), ZoneOffset.UTC);
+        if (weatherDataJSON != null && weatherDataJSON.isValid()) {
+            long update_time = weatherDataJSON.getUpdateTime();
+            if (update_time != 0) {
+                if (Settings.getHomeData() != null) {
+                    LocalDateTime upDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(update_time), ZoneOffset.UTC);
                             /*
                                 DateTime < 0 - This instance is earlier than value.
                                 DateTime == 0 - This instance is the same as value.
                                 DateTime > 0 - This instance is later than value.
                             */
-                            LocalDateTime settingsUpdateTime = Settings.getUpdateTime();
-                            if (settingsUpdateTime.compareTo(upDateTime) >= 0) {
-                                // Send callback to receiver
-                                LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
-                                        new Intent(WearableHelper.WeatherPath));
-                                return;
-                            }
-                        }
-                    }
-
-                    String weatherJSON = weatherDataJSON.getWeatherData();
-                    if (!StringUtils.isNullOrWhitespace(weatherJSON)) {
-                        try (JsonReader weatherTextReader = new JsonReader(new StringReader(weatherJSON))) {
-                            Weather weatherData = Weather.fromJson(weatherTextReader);
-                            List<String> alerts = weatherDataJSON.getWeatherAlerts();
-
-                            if (weatherData != null && weatherData.isValid()) {
-                                if (alerts.size() > 0) {
-                                    weatherData.setWeatherAlerts(new ArrayList<WeatherAlert>());
-                                    for (String alertJSON : alerts) {
-                                        try (JsonReader alertTextReader = new JsonReader(new StringReader(alertJSON))) {
-                                            WeatherAlert alert = WeatherAlert.fromJson(alertTextReader);
-
-                                            if (alert != null)
-                                                weatherData.getWeatherAlerts().add(alert);
-                                        }
-                                    }
-                                }
-
-                                Settings.saveWeatherAlerts(Settings.getHomeData(), weatherData.getWeatherAlerts());
-                                Settings.saveWeatherData(weatherData);
-                                Settings.setUpdateTime(weatherData.getUpdateTime()
-                                        .withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
-
-                                // Send callback to receiver
-                                LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
-                                        new Intent(WearableHelper.WeatherPath));
-
-                                // Update complications
-                                WeatherComplicationIntentService.enqueueWork(WearableDataListenerService.this,
-                                        new Intent(WearableDataListenerService.this, WeatherComplicationIntentService.class)
-                                                .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS)
-                                                .putExtra(WeatherComplicationIntentService.EXTRA_FORCEUPDATE, true));
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    LocalDateTime settingsUpdateTime = Settings.getUpdateTime();
+                    if (settingsUpdateTime.compareTo(upDateTime) >= 0) {
+                        // Send callback to receiver
+                        LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
+                                new Intent(WearableHelper.WeatherPath));
+                        return;
                     }
                 }
             }
-        });
+
+            final String weatherJSON = weatherDataJSON.getWeatherData();
+            if (!StringUtils.isNullOrWhitespace(weatherJSON)) {
+                try (JsonReader weatherTextReader = new JsonReader(new StringReader(weatherJSON))) {
+                    Weather weatherData = new AsyncTask<Weather>().await(new Callable<Weather>() {
+                        @Override
+                        public Weather call() throws Exception {
+                            return Weather.fromJson(weatherTextReader);
+                        }
+                    });
+                    List<String> alerts = weatherDataJSON.getWeatherAlerts();
+
+                    if (weatherData != null && weatherData.isValid()) {
+                        if (alerts.size() > 0) {
+                            weatherData.setWeatherAlerts(new ArrayList<WeatherAlert>());
+                            for (String alertJSON : alerts) {
+                                try (JsonReader alertTextReader = new JsonReader(new StringReader(alertJSON))) {
+                                    WeatherAlert alert = new AsyncTask<WeatherAlert>().await(new Callable<WeatherAlert>() {
+                                        @Override
+                                        public WeatherAlert call() throws Exception {
+                                            return WeatherAlert.fromJson(alertTextReader);
+                                        }
+                                    });
+
+                                    if (alert != null)
+                                        weatherData.getWeatherAlerts().add(alert);
+                                }
+                            }
+                        }
+
+                        Settings.saveWeatherAlerts(Settings.getHomeData(), weatherData.getWeatherAlerts());
+                        Settings.saveWeatherData(weatherData);
+                        Settings.setUpdateTime(weatherData.getUpdateTime()
+                                .withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
+
+                        // Send callback to receiver
+                        LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
+                                new Intent(WearableHelper.WeatherPath));
+
+                        // Update complications
+                        WeatherComplicationIntentService.enqueueWork(WearableDataListenerService.this,
+                                new Intent(WearableDataListenerService.this, WeatherComplicationIntentService.class)
+                                        .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS)
+                                        .putExtra(WeatherComplicationIntentService.EXTRA_FORCEUPDATE, true));
+                    }
+                } catch (IOException e) {
+                    Logger.writeLine(Log.ERROR, e);
+                }
+            }
+        }
     }
 }

@@ -20,7 +20,6 @@
     <dimen name="appbar_elevation">4dp</dimen>
     <dimen name="fab_size">56dp</dimen>
     <dimen name="floating_window_z">16dp</dimen>
-    <dimen name="shape_corner_radius">8dp</dimen>
     <dimen name="dialog_corner_radius">@dimen/shape_corner_radius</dimen>
     <dimen name="design_snackbar_padding_horizontal" tools:override="true">12dp</dimen>
     <dimen name="design_snackbar_background_corner_radius" tools:override="true">

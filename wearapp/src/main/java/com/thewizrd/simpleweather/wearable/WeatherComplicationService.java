@@ -9,28 +9,16 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Icon;
 import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationManager;
 import android.support.wearable.complications.ComplicationProviderService;
 import android.support.wearable.complications.ComplicationText;
 import android.util.Log;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationAvailability;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -46,7 +34,6 @@ import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.LaunchActivity;
-import com.thewizrd.simpleweather.R;
 
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
@@ -60,19 +47,10 @@ public class WeatherComplicationService extends ComplicationProviderService {
     private static final String TAG = "WeatherComplicationService";
 
     private Context mContext;
-    private Handler mMainHandler;
 
     private WeatherManager wm;
 
     private FusedLocationProviderClient mFusedLocationClient;
-    private Location mLocation;
-    private LocationCallback mLocCallback;
-    private LocationListener mLocListnr;
-
-    /**
-     * Tracks the status of the location updates request.
-     */
-    private boolean mRequestingLocationUpdates;
 
     private static LocalDateTime updateTime = DateTimeUtils.getLocalDateTimeMIN();
 
@@ -83,8 +61,6 @@ public class WeatherComplicationService extends ComplicationProviderService {
     @Override
     public void onCreate() {
         super.onCreate();
-
-        mMainHandler = new Handler(Looper.getMainLooper());
 
         mContext = getApplicationContext();
         wm = WeatherManager.getInstance();
@@ -105,118 +81,23 @@ public class WeatherComplicationService extends ComplicationProviderService {
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {
             mFusedLocationClient = new FusedLocationProviderClient(this);
-            mLocCallback = new LocationCallback() {
-                @Override
-                public void onLocationResult(LocationResult locationResult) {
-                    if (locationResult == null)
-                        mLocation = null;
-                    else
-                        mLocation = locationResult.getLastLocation();
-
-                    if (mLocation != null) {
-                        WeatherComplicationIntentService.enqueueWork(WeatherComplicationService.this,
-                                new Intent(WeatherComplicationService.this, WeatherComplicationIntentService.class)
-                                        .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS)
-                                        .putExtra(WeatherComplicationIntentService.EXTRA_FORCEUPDATE, true));
-                    }
-
-                    stopLocationUpdates();
-                }
-
-                @Override
-                public void onLocationAvailability(LocationAvailability locationAvailability) {
-                    new AsyncTask<Void>().await(new Callable<Void>() {
-                        @Override
-                        public Void call() throws Exception {
-                            return Tasks.await(mFusedLocationClient.flushLocations());
-                        }
-                    });
-                }
-            };
-        } else {
-            mLocListnr = new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    mLocation = location;
-                    WeatherComplicationIntentService.enqueueWork(WeatherComplicationService.this,
-                            new Intent(WeatherComplicationService.this, WeatherComplicationIntentService.class)
-                                    .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS)
-                                    .putExtra(WeatherComplicationIntentService.EXTRA_FORCEUPDATE, true));
-                }
-
-                @Override
-                public void onStatusChanged(String provider, int status, Bundle extras) {
-
-                }
-
-                @Override
-                public void onProviderEnabled(String provider) {
-
-                }
-
-                @Override
-                public void onProviderDisabled(String provider) {
-
-                }
-            };
         }
-
-        mRequestingLocationUpdates = false;
-    }
-
-    /**
-     * Removes location updates from the FusedLocationApi.
-     */
-    private void stopLocationUpdates() {
-        if (!mRequestingLocationUpdates) {
-            Logger.writeLine(Log.DEBUG, "WeatherComplicationService: stopLocationUpdates: updates never requested, no-op.");
-            return;
-        }
-
-        // It is a good practice to remove location requests when the activity is in a paused or
-        // stopped state. Doing so helps battery performance and is especially
-        // recommended in applications that request frequent location updates.
-        mFusedLocationClient.removeLocationUpdates(mLocCallback)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        mRequestingLocationUpdates = false;
-                    }
-                });
-    }
-
-    private void startAlarm(Context context) {
-        // Tell service to start alarm
-        WeatherComplicationIntentService.enqueueWork(context,
-                new Intent(context, WeatherComplicationIntentService.class)
-                        .setAction(WeatherComplicationIntentService.ACTION_STARTALARM));
-    }
-
-    private void cancelAlarm(Context context) {
-        // Tell service to stop alarms
-        WeatherComplicationIntentService.enqueueWork(context,
-                new Intent(context, WeatherComplicationIntentService.class)
-                        .setAction(WeatherComplicationIntentService.ACTION_CANCELALARM));
     }
 
     @Override
     public void onComplicationActivated(int complicationId, int type, ComplicationManager manager) {
         super.onComplicationActivated(complicationId, type, manager);
-        ComplicationUtils.addComplicationId(complicationId);
 
-        Logger.writeLine(Log.INFO, "%s: Complication activated", TAG);
-
-        startAlarm(mContext);
+        // Request complication update
+        WeatherComplicationIntentService.enqueueWork(mContext,
+                new Intent(mContext, WeatherComplicationIntentService.class)
+                        .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATION)
+                        .putExtra(WeatherComplicationIntentService.EXTRA_COMPLICATIONID, complicationId));
     }
 
     @Override
     public void onComplicationDeactivated(int complicationId) {
         super.onComplicationDeactivated(complicationId);
-        ComplicationUtils.removeComplicationId(complicationId);
-
-        Logger.writeLine(Log.INFO, "%s: Complication deactivated", TAG);
-
-        cancelAlarm(mContext);
     }
 
     @Override
@@ -233,20 +114,22 @@ public class WeatherComplicationService extends ComplicationProviderService {
                 if (complicationData != null) {
                     manager.updateComplicationData(complicationId, complicationData);
                     updateTime = LocalDateTime.now();
+                    Logger.writeLine(Log.DEBUG, "%s: Complication %d updated", TAG, complicationId);
                 } else {
                     // If no data is sent, we still need to inform the ComplicationManager, so
                     // the update job can finish and the wake lock isn't held any longer.
                     manager.noUpdateRequired(complicationId);
-                }
-
-                // Add id to list in case it wasn't before
-                if (!ComplicationUtils.complicationsExist()) {
-                    Logger.writeLine(Log.INFO, "%s: No complications exist. Adding..", TAG);
-                    ComplicationUtils.addComplicationId(complicationId);
-                    startAlarm(mContext);
+                    Logger.writeLine(Log.DEBUG, "%s: Complication %d no update required", TAG, complicationId);
                 }
             }
         });
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        boolean result = super.onUnbind(intent);
+        Logger.writeLine(Log.DEBUG, "%s: Service unbound", TAG);
+        return result;
     }
 
     private PendingIntent getTapIntent(Context context) {
@@ -356,20 +239,6 @@ public class WeatherComplicationService extends ComplicationProviderService {
                                 return result;
                             }
                         });
-
-                        /**
-                         * Request start of location updates. Does nothing if
-                         * updates have already been requested.
-                         */
-                        if (location == null && !mRequestingLocationUpdates) {
-                            final LocationRequest mLocationRequest = new LocationRequest();
-                            mLocationRequest.setNumUpdates(1);
-                            mLocationRequest.setInterval(10000);
-                            mLocationRequest.setFastestInterval(1000);
-                            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                            mRequestingLocationUpdates = true;
-                            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper());
-                        }
                     } else {
                         LocationManager locMan = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
                         boolean isGPSEnabled = false;
@@ -386,20 +255,10 @@ public class WeatherComplicationService extends ComplicationProviderService {
                             locCriteria.setPowerRequirement(Criteria.POWER_LOW);
                             String provider = locMan.getBestProvider(locCriteria, true);
                             location = locMan.getLastKnownLocation(provider);
-
-                            if (location == null)
-                                locMan.requestSingleUpdate(provider, mLocListnr, Looper.getMainLooper());
-                        } else {
-                            mMainHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(WeatherComplicationService.this, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
-                                }
-                            });
                         }
                     }
 
-                    if (location != null && !mRequestingLocationUpdates) {
+                    if (location != null) {
                         LocationData lastGPSLocData = Settings.getLastGPSLocData();
 
                         // Check previous location difference

@@ -8,11 +8,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.helpers.ListDiffUtilCallback;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
@@ -97,9 +99,17 @@ public class DetailItemAdapter extends RecyclerView.Adapter {
     }
 
     public void updateItems(WeatherNowViewModel weatherNowViewModel) {
+        List<DetailItemViewModel> oldItems = new ArrayList<>(mDataset);
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ListDiffUtilCallback<DetailItemViewModel>(oldItems, weatherNowViewModel.getWeatherDetails()) {
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                return getOldList().get(oldItemPosition).getDetailsType() == getNewList().get(newItemPosition).getDetailsType();
+            }
+        });
         mDataset.clear();
         mDataset.addAll(weatherNowViewModel.getWeatherDetails());
-        notifyDataSetChanged();
+        diffResult.dispatchUpdatesTo(this);
+        oldItems.clear();
     }
 
     public interface HeaderSetterInterface {

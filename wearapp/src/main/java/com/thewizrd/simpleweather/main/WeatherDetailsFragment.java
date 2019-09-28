@@ -1,25 +1,25 @@
-package com.thewizrd.simpleweather;
+package com.thewizrd.simpleweather.main;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.databinding.Observable;
 import androidx.wear.widget.WearableLinearLayoutManager;
 import androidx.wear.widget.WearableRecyclerView;
 
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.DetailItemAdapter;
+import com.thewizrd.simpleweather.fragments.SwipeDismissFragment;
 
 public class WeatherDetailsFragment extends SwipeDismissFragment {
     private WeatherNowViewModel weatherView = null;
 
     private WearableRecyclerView recyclerView;
-    // Weather Credit
-    private TextView weatherCredit;
+    private DetailItemAdapter mAdapter;
 
     public static WeatherDetailsFragment newInstance(WeatherNowViewModel weatherViewModel) {
         WeatherDetailsFragment fragment = new WeatherDetailsFragment();
@@ -38,12 +38,12 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
         View view = inflater.inflate(R.layout.fragment_weather_details, (ViewGroup) outerView, true);
 
         recyclerView = view.findViewById(R.id.recycler_view);
-        weatherCredit = view.findViewById(R.id.weather_credit);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         recyclerView.setHasFixedSize(true);
         recyclerView.setEdgeItemsCenteringEnabled(true);
+        recyclerView.setLayoutManager(new WearableLinearLayoutManager(mActivity));
 
         recyclerView.requestFocus();
 
@@ -55,10 +55,10 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
         super.onResume();
 
         // Don't resume if fragment is hidden
-        if (this.isHidden())
-            return;
-        else
+        if (!this.isHidden()) {
             initialize();
+            weatherView.addOnPropertyChangedCallback(propertyChangedCallback);
+        }
     }
 
     @Override
@@ -70,17 +70,38 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
         }
     }
 
+    @Override
+    public void onPause() {
+        weatherView.removeOnPropertyChangedCallback(propertyChangedCallback);
+        super.onPause();
+    }
+
+    private Observable.OnPropertyChangedCallback propertyChangedCallback = new Observable.OnPropertyChangedCallback() {
+        @Override
+        public void onPropertyChanged(Observable sender, int propertyId) {
+            if (mActivity != null) {
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        initialize();
+                    }
+                });
+            }
+        }
+    };
+
     public void initialize() {
         if (weatherView != null && mActivity != null) {
             if (getView() != null)
                 getView().setBackgroundColor(weatherView.getPendingBackground());
 
-            //weatherCredit.setText(weatherView.getWeatherCredit());
-
-            recyclerView.setLayoutManager(new WearableLinearLayoutManager(mActivity));
             // specify an adapter (see also next example)
-            RecyclerView.Adapter adapter = new DetailItemAdapter(weatherView);
-            recyclerView.setAdapter(adapter);
+            if (mAdapter == null) {
+                mAdapter = new DetailItemAdapter(weatherView);
+                recyclerView.setAdapter(mAdapter);
+            } else {
+                mAdapter.updateItems(weatherView);
+            }
         }
     }
 }

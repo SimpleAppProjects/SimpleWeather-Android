@@ -1,19 +1,36 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="WearAppTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="WearAppTheme" parent="Theme.MaterialComponents.NoActionBar.Bridge">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorPrimaryLight</item>
+        <item name="colorSecondary">@color/colorPrimaryLight</item>
+
+        <item name="android:colorBackground">@color/design_dark_default_color_background</item>
+        <item name="colorSurface">@color/design_dark_default_color_surface</item>
+        <item name="colorError">@color/design_dark_default_color_error</item>
+
+        <item name="colorOnPrimary">@color/design_dark_default_color_on_primary</item>
+        <item name="colorOnSecondary">@color/design_dark_default_color_on_secondary</item>
+        <item name="colorOnBackground">@color/design_dark_default_color_on_background</item>
+        <item name="colorOnSurface">@color/design_dark_default_color_on_surface</item>
+        <item name="colorOnError">@color/design_dark_default_color_on_error</item>
+
+        <item name="android:windowBackground">@color/design_dark_default_color_background</item>
+
     </style>
 
     <style name="WearAppTheme.Launcher">
         <item name="android:background">@drawable/ic_splash_screen</item>
     </style>
 
-    <style name="WearSettingsTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="WearSettingsTheme" parent="WearAppTheme">
+        <item name="colorPrimary">@color/primary_material_dark</item>
+        <item name="colorPrimaryDark">@color/primary_dark_material_dark</item>
         <item name="colorAccent">@color/colorPrimaryLight</item>
+        <item name="colorSecondary">@color/colorPrimaryLight</item>
     </style>
 
     <style name="DetailsLabel" parent="TextAppearance.AppCompat.Medium.Inverse">

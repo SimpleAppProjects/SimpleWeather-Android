@@ -28,10 +28,10 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.card.MaterialCardView;
+import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.helpers.ActivityUtils;
 
 public class LocationPanel extends MaterialCardView {
     private View viewLayout;

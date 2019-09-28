@@ -33,17 +33,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SetupActivity"
+            android:name=".setup.SetupActivity"
             android:theme="@style/WearAppTheme" />
         <activity
-            android:name=".SetupSyncActivity"
+            android:name=".setup.SetupSyncActivity"
             android:theme="@style/WearAppTheme" />
         <activity
-            android:name=".MainActivity"
+            android:name=".main.MainActivity"
             android:label="MainActivity"
             android:theme="@style/WearAppTheme" />
         <activity
-            android:name=".SettingsActivity"
+            android:name=".preferences.SettingsActivity"
             android:theme="@style/WearSettingsTheme" />
 
         <service
@@ -75,7 +75,7 @@
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:name=".wearable.WeatherComplicationIntentService" />
         <service
-            android:icon="@drawable/day_sunny"
+            android:icon="@drawable/day_cloudy"
             android:label="Weather"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
             android:name=".wearable.WeatherComplicationService">
@@ -84,7 +84,7 @@
                 android:value="SHORT_TEXT,LONG_TEXT" />
             <meta-data
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
-                android:value="0" />
+                android:value="7200" /> <!--Every 2 hours -->
 
             <intent-filter>
                 <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />

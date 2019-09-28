@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather;
+package com.thewizrd.simpleweather.preferences;
 
 import android.Manifest;
 import android.app.Fragment;
@@ -21,6 +21,7 @@ import android.support.wearable.view.ConfirmationOverlay;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -33,13 +34,16 @@ import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.helpers.WearConnectionStatus;
 import com.thewizrd.shared_resources.helpers.WearableDataSync;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
+import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
+import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.fragments.SwipeDismissPreferenceFragment;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
-import com.thewizrd.simpleweather.preferences.KeyEntryPreference;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
 import java.util.List;
@@ -159,14 +163,19 @@ public class SettingsActivity extends WearableActivity {
                     String key = keyEntry.getAPIKey();
 
                     String API = providerPref.getValue();
-                    if (WeatherManager.isKeyValid(key, API)) {
-                        Settings.setAPIKEY(key);
-                        Settings.setAPI(API);
+                    try {
+                        if (WeatherManager.isKeyValid(key, API)) {
+                            Settings.setAPIKEY(key);
+                            Settings.setAPI(API);
 
-                        Settings.setKeyVerified(true);
-                        updateKeySummary();
+                            Settings.setKeyVerified(true);
+                            updateKeySummary();
 
-                        keyEntry.getDialog().dismiss();
+                            keyEntry.getDialog().dismiss();
+                        }
+                    } catch (WeatherException e) {
+                        Logger.writeLine(Log.ERROR, e);
+                        Toast.makeText(mActivity, e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });

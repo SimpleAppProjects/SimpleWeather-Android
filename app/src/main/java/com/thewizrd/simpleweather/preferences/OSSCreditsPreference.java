@@ -10,11 +10,11 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.helpers.ActivityUtils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

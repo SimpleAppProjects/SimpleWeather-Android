@@ -1,9 +1,5 @@
-package com.thewizrd.simpleweather;
+package com.thewizrd.simpleweather.main;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,24 +9,33 @@ import android.os.Bundle;
 import android.support.wearable.view.ConfirmationOverlay;
 import android.view.MenuItem;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.wear.widget.drawer.WearableActionDrawerView;
 import androidx.wear.widget.drawer.WearableNavigationDrawerView;
 
 import com.google.android.wearable.intent.RemoteIntent;
+import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.WearableDataSync;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
+import com.thewizrd.simpleweather.preferences.SettingsActivity;
+import com.thewizrd.simpleweather.setup.SetupActivity;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
 
-public class MainActivity extends Activity implements MenuItem.OnMenuItemClickListener,
+public class MainActivity extends FragmentActivity implements MenuItem.OnMenuItemClickListener,
         WearableNavigationDrawerView.OnItemSelectedListener,
         WeatherViewLoadedListener {
 
@@ -79,14 +84,14 @@ public class MainActivity extends Activity implements MenuItem.OnMenuItemClickLi
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, filter);
 
         // Create your application here
-        Fragment fragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
 
         // Check if fragment exists
         if (fragment == null) {
             fragment = new WeatherNowFragment();
 
             // Navigate to WeatherNowFragment
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fragment, "home")
                     .commit();
         }
@@ -94,10 +99,10 @@ public class MainActivity extends Activity implements MenuItem.OnMenuItemClickLi
 
     @Override
     public void onBackPressed() {
-        Fragment current = getFragmentManager().findFragmentById(R.id.fragment_container);
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         // Destroy untagged fragments onbackpressed
         if (current != null) {
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .remove(current)
                     .commit();
             current.onDestroy();
@@ -128,7 +133,7 @@ public class MainActivity extends Activity implements MenuItem.OnMenuItemClickLi
     }
 
     public void onItemSelected(int position) {
-        Fragment current = getFragmentManager().findFragmentById(R.id.fragment_container);
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         Class targetFragmentType = null;
         WeatherListType weatherListType = WeatherListType.valueOf(0);
 
@@ -159,19 +164,27 @@ public class MainActivity extends Activity implements MenuItem.OnMenuItemClickLi
         if (WeatherNowFragment.class.equals(targetFragmentType)) {
             if (!WeatherNowFragment.class.equals(current.getClass())) {
                 // Pop all since we're going home
-                getFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                getSupportFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             }
         } else if (WeatherListFragment.class.equals(targetFragmentType)) {
             if (!targetFragmentType.equals(current.getClass())) {
                 // Add fragment to backstack
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 ft.add(R.id.fragment_container,
                         WeatherListFragment.newInstance(weatherListType, mNavDrawerAdapter.weatherNowView),
                         null)
                         .addToBackStack(null);
 
-                if (getFragmentManager().getBackStackEntryCount() > 0)
-                    ft.remove(current);
+                /*
+                 * NOTE
+                 * Destroy lingering frag and commit transaction
+                 * This is to avoid adding the fragment again from the backstack
+                 */
+                if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                    getSupportFragmentManager().beginTransaction()
+                            .remove(current)
+                            .commitAllowingStateLoss();
+                }
 
                 ft.commit();
             } else if (current instanceof WeatherListFragment) {
@@ -189,12 +202,20 @@ public class MainActivity extends Activity implements MenuItem.OnMenuItemClickLi
         } else if (WeatherDetailsFragment.class.equals(targetFragmentType)) {
             if (!WeatherDetailsFragment.class.equals(current.getClass())) {
                 // Add fragment to backstack
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 ft.add(R.id.fragment_container, WeatherDetailsFragment.newInstance(mNavDrawerAdapter.weatherNowView), null)
                         .addToBackStack(null);
 
-                if (getFragmentManager().getBackStackEntryCount() > 0)
-                    ft.remove(current);
+                /*
+                 * NOTE
+                 * Destroy lingering frag and commit transaction
+                 * This is to avoid adding the fragment again from the backstack
+                 */
+                if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                    getSupportFragmentManager().beginTransaction()
+                            .remove(current)
+                            .commitAllowingStateLoss();
+                }
 
                 ft.commit();
             }
@@ -213,6 +234,8 @@ public class MainActivity extends Activity implements MenuItem.OnMenuItemClickLi
             @Override
             public void run() {
                 mNavDrawerAdapter.updateNavDrawerItems(weatherNowView);
+                mWearableActionDrawer.setBackgroundColor(weatherNowView.getPendingBackground());
+                mWearableNavigationDrawer.setBackgroundColor(weatherNowView.getPendingBackground());
             }
         });
     }
@@ -242,7 +265,7 @@ public class MainActivity extends Activity implements MenuItem.OnMenuItemClickLi
     private class NavDrawerAdapter extends WearableNavigationDrawerView.WearableNavigationDrawerAdapter {
         private Context mContext;
         private final List<NavDrawerItem> navDrawerItems = Arrays.asList(
-                new NavDrawerItem(R.string.label_condition, R.drawable.day_sunny),
+                new NavDrawerItem(R.string.label_condition, R.drawable.day_cloudy),
                 new NavDrawerItem(R.string.title_fragment_alerts, R.drawable.ic_error_white),
                 new NavDrawerItem(R.string.label_forecast, R.drawable.ic_date_range_black_24dp),
                 new NavDrawerItem(R.string.label_hourlyforecast, R.drawable.ic_access_time_black_24dp),
@@ -281,28 +304,33 @@ public class MainActivity extends Activity implements MenuItem.OnMenuItemClickLi
             return navItems.get(pos).titleString;
         }
 
-        public void updateNavDrawerItems(WeatherNowViewModel weatherNowView) {
+        public void updateNavDrawerItems(final WeatherNowViewModel weatherNowView) {
             this.weatherNowView = weatherNowView;
 
-            List<NavDrawerItem> items = new ArrayList<>(navDrawerItems);
-            if (weatherNowView.getExtras().getAlerts().size() == 0) {
-                List<NavDrawerItem> tmp = new ArrayList<>();
-                for (NavDrawerItem item : items) {
-                    if (item.titleString != R.string.title_fragment_alerts)
-                        tmp.add(item);
-                }
-                items = tmp;
-            }
-            if (weatherNowView.getExtras().getHourlyForecast().size() == 0) {
-                List<NavDrawerItem> tmp = new ArrayList<>();
-                for (NavDrawerItem item : items) {
-                    if (item.titleString != R.string.label_hourlyforecast)
-                        tmp.add(item);
-                }
-                items = tmp;
-            }
+            navItems = new AsyncTask<List<NavDrawerItem>>().await(new Callable<List<NavDrawerItem>>() {
+                @Override
+                public List<NavDrawerItem> call() throws Exception {
+                    List<NavDrawerItem> items = new ArrayList<>(navDrawerItems);
+                    if (weatherNowView.getExtras().getAlerts().size() == 0) {
+                        List<NavDrawerItem> tmp = new ArrayList<>();
+                        for (NavDrawerItem item : items) {
+                            if (item.titleString != R.string.title_fragment_alerts)
+                                tmp.add(item);
+                        }
+                        items = tmp;
+                    }
+                    if (weatherNowView.getExtras().getHourlyForecast().size() == 0) {
+                        List<NavDrawerItem> tmp = new ArrayList<>();
+                        for (NavDrawerItem item : items) {
+                            if (item.titleString != R.string.label_hourlyforecast)
+                                tmp.add(item);
+                        }
+                        items = tmp;
+                    }
 
-            navItems = items;
+                    return items;
+                }
+            });
             notifyDataSetChanged();
         }
     }

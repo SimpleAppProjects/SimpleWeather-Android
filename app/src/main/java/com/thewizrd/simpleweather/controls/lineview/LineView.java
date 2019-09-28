@@ -26,11 +26,11 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
 
+import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.helpers.ActivityUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;

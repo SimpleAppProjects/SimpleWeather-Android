@@ -30,11 +30,11 @@ import androidx.preference.ListPreference;
 import androidx.preference.PreferenceDialogFragmentCompat;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.helpers.WindowColorManager;
 
 public class CustomListPreferenceDialogFragment extends PreferenceDialogFragmentCompat

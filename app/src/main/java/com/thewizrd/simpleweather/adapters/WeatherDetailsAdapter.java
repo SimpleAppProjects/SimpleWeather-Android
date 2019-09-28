@@ -30,10 +30,7 @@ public class WeatherDetailsAdapter<T> extends RecyclerView.Adapter {
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public WeatherDetailsAdapter(List<T> myDataset) {
-        if (myDataset != null) {
-            mDataset = myDataset;
-        } else
-            mDataset = new ArrayList<>(0);
+        mDataset = new ArrayList<>(myDataset);
     }
 
     @SuppressLint("NewApi")

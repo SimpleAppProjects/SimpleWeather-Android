@@ -65,11 +65,11 @@ public class KeyEntryPreference extends EditTextPreference {
         if (dialogCreatedListener != null)
             dialogCreatedListener.beforeDialogCreated();
 
+        LayoutInflater inflater = LayoutInflater.from(getContext());
         if (currentAPI.equals(WeatherAPI.HERE)) {
-            LayoutInflater inflater = LayoutInflater.from(getContext());
             return inflater.inflate(R.layout.layout_keyentry2_dialog, null);
         } else {
-            return super.onCreateDialogView();
+            return inflater.inflate(R.layout.layout_keyentry_dialog, null);
         }
     }
 

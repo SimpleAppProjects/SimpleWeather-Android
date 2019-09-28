@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather;
+package com.thewizrd.simpleweather.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

@@ -804,11 +804,11 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
 
         @Override
         protected View onCreateDialogView(Context context) {
+            LayoutInflater inflater = LayoutInflater.from(context);
             if (WeatherAPI.HERE.equals(currentAPI)) {
-                LayoutInflater inflater = LayoutInflater.from(context);
                 return inflater.inflate(R.layout.layout_keyentry2_dialog, null);
             } else {
-                return super.onCreateDialogView(context);
+                return inflater.inflate(R.layout.layout_keyentry_dialog, null);
             }
         }
 

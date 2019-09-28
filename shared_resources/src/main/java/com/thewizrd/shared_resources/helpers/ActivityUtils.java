@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.helpers;
+package com.thewizrd.shared_resources.helpers;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -16,7 +16,6 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
 
-import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 
 public class ActivityUtils {

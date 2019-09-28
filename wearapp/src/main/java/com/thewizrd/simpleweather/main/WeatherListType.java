@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather;
+package com.thewizrd.simpleweather.main;
 
 import android.util.SparseArray;
 

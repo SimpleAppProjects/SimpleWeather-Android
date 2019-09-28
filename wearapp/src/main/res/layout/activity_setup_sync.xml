@@ -1,10 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
+    android:padding="@dimen/horizontal_padding"
     tools:deviceIds="wear">
 
     <TextView
@@ -28,13 +28,13 @@
         android:id="@+id/circular_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_alignTop="@+id/spacer"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_gravity="center"
         android:padding="4dp"
-        app:backgroundColor="@color/colorPrimaryDark"
-        app:colorSchemeColors="@color/colorPrimaryLight"
+        app:backgroundColor="@color/colorPrimaryLight"
+        app:colorSchemeColors="@android:color/white"
         app:indeterminate="true"
         app:strokeWidth="4dp">
 
@@ -44,7 +44,8 @@
             android:layout_height="40dp"
             android:adjustViewBounds="true"
             android:padding="8dp"
-            app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
+            app:srcCompat="@drawable/ic_close_white_24dp"
+            app:tint="@android:color/white" />
 
     </androidx.wear.widget.CircularProgressLayout>
 

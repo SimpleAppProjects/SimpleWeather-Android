@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather;
+package com.thewizrd.simpleweather.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 import androidx.wear.widget.SwipeDismissFrameLayout;
+
+import com.thewizrd.simpleweather.R;
 
 public class SwipeDismissPreferenceFragment extends PreferenceFragment {
     protected Activity mActivity;

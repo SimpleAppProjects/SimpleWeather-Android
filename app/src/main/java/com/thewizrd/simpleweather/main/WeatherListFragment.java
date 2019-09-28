@@ -20,13 +20,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.card.MaterialCardView;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.fragments.ToolbarFragment;
-import com.thewizrd.simpleweather.helpers.ActivityUtils;
 
 import java.io.StringReader;
 

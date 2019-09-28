@@ -360,9 +360,6 @@ public class WeatherUpdaterService extends JobIntentService {
 
                         if (isCtsCancelRequested()) return locationChanged;
 
-                        // Save oldkey
-                        String oldkey = lastGPSLocData.getQuery();
-
                         // Save location as last known
                         lastGPSLocData.setData(query_vm, location);
                         Settings.saveLastGPSLocData(lastGPSLocData);

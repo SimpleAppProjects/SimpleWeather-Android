@@ -18,11 +18,11 @@ import androidx.fragment.app.Fragment;
 import com.stepstone.stepper.StepperLayout;
 import com.stepstone.stepper.VerificationError;
 import com.stepstone.stepper.adapter.StepAdapter;
+import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.main.MainActivity;
 
 public class SetupActivity extends AppCompatActivity implements StepperLayout.StepperListener, StepperDataManager {

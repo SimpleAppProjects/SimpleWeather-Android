@@ -4,17 +4,17 @@ import android.annotation.SuppressLint;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
+import com.thewizrd.shared_resources.helpers.ListDiffUtilCallback;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.controls.DetailCard;
-import com.thewizrd.simpleweather.helpers.ActivityUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,45 +104,16 @@ public class DetailItemAdapter extends ColorModeRecyclerViewAdapter<DetailItemAd
     }
 
     public void updateItems(WeatherNowViewModel weatherNowViewModel) {
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DetailItemDiffCallback(mDataset, weatherNowViewModel.getWeatherDetails()));
+        List<DetailItemViewModel> oldItems = new ArrayList<>(mDataset);
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ListDiffUtilCallback<DetailItemViewModel>(oldItems, weatherNowViewModel.getWeatherDetails()) {
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                return getOldList().get(oldItemPosition).getDetailsType() == getNewList().get(newItemPosition).getDetailsType();
+            }
+        });
         mDataset.clear();
         mDataset.addAll(weatherNowViewModel.getWeatherDetails());
         diffResult.dispatchUpdatesTo(this);
-    }
-
-    private class DetailItemDiffCallback extends DiffUtil.Callback {
-        private List<DetailItemViewModel> oldList;
-        private List<DetailItemViewModel> newList;
-
-        public DetailItemDiffCallback(@NonNull List<DetailItemViewModel> oldList, @NonNull List<DetailItemViewModel> newList) {
-            this.oldList = oldList;
-            this.newList = newList;
-        }
-
-        @Override
-        public int getOldListSize() {
-            return oldList.size();
-        }
-
-        @Override
-        public int getNewListSize() {
-            return newList.size();
-        }
-
-        @Override
-        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-            return oldList.get(oldItemPosition).getDetailsType() == newList.get(newItemPosition).getDetailsType();
-        }
-
-        @Override
-        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-            return oldList.get(oldItemPosition).equals(newList.get(newItemPosition));
-        }
-
-        @Nullable
-        @Override
-        public Object getChangePayload(int oldItemPosition, int newItemPosition) {
-            return super.getChangePayload(oldItemPosition, newItemPosition);
-        }
+        oldItems.clear();
     }
 }

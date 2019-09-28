@@ -54,7 +54,7 @@ public class LocationQuery extends ConstraintLayout {
         if (pinIcon != null) {
             pinIcon.setVisibility(
                     StringUtils.isNullOrWhitespace(view.getLocationQuery()) && StringUtils.isNullOrWhitespace(view.getLocationCountry()) ?
-                            View.INVISIBLE : View.VISIBLE);
+                            View.GONE : View.VISIBLE);
         }
     }
 }

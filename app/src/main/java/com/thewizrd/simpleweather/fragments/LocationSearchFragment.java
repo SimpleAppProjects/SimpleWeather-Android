@@ -39,6 +39,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -47,7 +48,6 @@ import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 
 import java.util.ArrayList;

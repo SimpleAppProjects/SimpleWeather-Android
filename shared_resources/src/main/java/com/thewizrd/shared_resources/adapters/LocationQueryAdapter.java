@@ -53,10 +53,7 @@ public class LocationQueryAdapter extends RecyclerView.Adapter {
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public LocationQueryAdapter(List<LocationQueryViewModel> myDataset) {
-        if (myDataset != null)
-            mDataset = myDataset;
-        else
-            mDataset = new ArrayList<>(0);
+        mDataset = new ArrayList<>(myDataset);
     }
 
     @SuppressLint("NewApi")

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/wearBackground">
+    android:background="?android:attr/colorBackground">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -16,7 +16,7 @@
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:text="@string/location_search_hint"
-            android:textAppearance="@android:style/TextAppearance.Material.Small.Inverse"
+            android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -26,7 +26,6 @@
             android:layout_centerVertical="true"
             android:layout_toStartOf="@id/spacer"
             android:tint="@android:color/white"
-            app:backgroundTint="@color/colorPrimary"
             app:srcCompat="@drawable/ic_keyboard_voice_black_24dp" />
 
         <Space
@@ -42,7 +41,6 @@
             android:layout_centerVertical="true"
             android:layout_toEndOf="@id/spacer"
             android:tint="@android:color/white"
-            app:backgroundTint="@color/colorPrimary"
             app:srcCompat="@drawable/ic_keyboard_black_24dp" />
 
     </RelativeLayout>
@@ -59,7 +57,7 @@
         android:id="@+id/recycler_view_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#fafafa"
+        android:background="?android:attr/colorBackground"
         android:paddingEnd="8dp"
         android:paddingStart="8dp"
         android:visibility="gone">
@@ -68,10 +66,7 @@
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#fafafa"
-            android:scrollbars="vertical">
-
-        </androidx.wear.widget.WearableRecyclerView>
+            android:background="?android:attr/colorBackground" />
 
     </androidx.wear.widget.SwipeDismissFrameLayout>
 
@@ -79,7 +74,7 @@
         android:id="@+id/progressBar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#fafafa"
+        android:background="?android:attr/colorBackground"
         android:indeterminate="true"
         android:padding="48dp"
         android:visibility="gone" />

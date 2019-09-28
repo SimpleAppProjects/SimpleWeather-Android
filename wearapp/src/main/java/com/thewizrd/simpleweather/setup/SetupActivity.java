@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather;
+package com.thewizrd.simpleweather.setup;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -11,7 +11,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
-import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.AcceptDenyDialog;
 import android.util.Log;
 import android.view.MenuItem;
@@ -23,6 +22,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 import androidx.wear.widget.drawer.WearableActionDrawerView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -49,13 +49,17 @@ import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.fragments.LocationSearchFragment;
 import com.thewizrd.simpleweather.helpers.AcceptDenyDialogBuilder;
+import com.thewizrd.simpleweather.main.MainActivity;
+import com.thewizrd.simpleweather.preferences.SettingsActivity;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class SetupActivity extends WearableActivity implements MenuItem.OnMenuItemClickListener {
+public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuItemClickListener {
 
     private FloatingActionButton searchButton;
     private FloatingActionButton locationButton;
@@ -88,7 +92,7 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
         wm = WeatherManager.getInstance();
 
         // Set default API to HERE
-        if (!Settings.isWeatherLoaded() && !Settings.isOnBoardingComplete()) {
+        if (!Settings.isWeatherLoaded()) {
             Settings.setAPI(WeatherAPI.HERE);
             wm.updateAPI();
 
@@ -110,11 +114,12 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
         searchButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                getFragmentManager().beginTransaction()
+                getSupportFragmentManager().beginTransaction()
                         .replace(R.id.search_fragment_container, new LocationSearchFragment())
                         .commit();
 
                 mWearableActionDrawer.getController().closeDrawer();
+                mWearableActionDrawer.setIsLocked(true);
             }
         });
         locationButton = findViewById(R.id.location_button);
@@ -170,6 +175,7 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                stopLocationUpdates();
                                 enableControls(true);
                                 Toast.makeText(SetupActivity.this, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
                             }
@@ -226,9 +232,14 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                 });
     }
 
+    private void ctsCancel() {
+        if (cts != null) cts.cancel();
+        cts = new CancellationTokenSource();
+    }
+
     @Override
     protected void onPause() {
-        if (cts != null) cts.cancel();
+        ctsCancel();
         super.onPause();
         // Remove location updates to save battery.
         stopLocationUpdates();
@@ -236,21 +247,19 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
 
     @Override
     protected void onDestroy() {
-        if (cts != null) cts.cancel();
+        ctsCancel();
         super.onDestroy();
     }
 
     @Override
     public void onBackPressed() {
-        if (getFragmentManager().findFragmentById(R.id.search_fragment_container) instanceof LocationSearchFragment) {
-            LocationSearchFragment mSearchFragment = (LocationSearchFragment) getFragmentManager().findFragmentById(R.id.search_fragment_container);
+        if (getSupportFragmentManager().findFragmentById(R.id.search_fragment_container) instanceof LocationSearchFragment) {
+            LocationSearchFragment mSearchFragment = (LocationSearchFragment) getSupportFragmentManager().findFragmentById(R.id.search_fragment_container);
             mSearchFragment.setUserVisibleHint(false);
 
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .remove(mSearchFragment)
                     .commitAllowingStateLoss();
-
-            mSearchFragment = null;
 
             enableControls(true);
         } else {
@@ -314,6 +323,7 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                     progressBar.setVisibility(View.GONE);
                 } else {
                     mWearableActionDrawer.getController().closeDrawer();
+                    mWearableActionDrawer.setIsLocked(true);
                     progressBar.setVisibility(View.VISIBLE);
                 }
             }
@@ -339,8 +349,7 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                         LocationQueryViewModel view = null;
 
                         // Cancel other tasks
-                        if (cts != null) cts.cancel();
-                        cts = new CancellationTokenSource();
+                        ctsCancel();
                         CancellationToken ctsToken = cts.getToken();
 
                         if (ctsToken.isCancellationRequested()) throw new InterruptedException();
@@ -355,7 +364,6 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
 
                         if (ctsToken.isCancellationRequested()) throw new InterruptedException();
 
-                        // TODO: put in runnable/new thread if necessary
                         view = wm.getLocation(mLocation);
 
                         if (StringUtils.isNullOrWhitespace(view.getLocationQuery()))
@@ -539,7 +547,6 @@ public class SetupActivity extends WearableActivity implements MenuItem.OnMenuIt
                     // permission was granted, yay!
                     // Do the task you need to do.
                     fetchGeoLocation();
-                    // TODO: logger any errors
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.

@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather;
+package com.thewizrd.simpleweather.setup;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -17,6 +17,7 @@ import androidx.wear.widget.CircularProgressLayout;
 import com.google.android.wearable.intent.RemoteIntent;
 import com.thewizrd.shared_resources.helpers.WearConnectionStatus;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
+import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 

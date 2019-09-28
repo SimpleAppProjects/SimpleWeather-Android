@@ -5,13 +5,16 @@ import android.util.TypedValue;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
+import com.thewizrd.shared_resources.helpers.ListDiffUtilCallback;
 import com.thewizrd.simpleweather.controls.ForecastItem;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ForecastItemAdapter extends RecyclerView.Adapter {
     private List<ForecastItemViewModel> mDataset;
@@ -30,7 +33,7 @@ public class ForecastItemAdapter extends RecyclerView.Adapter {
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public ForecastItemAdapter(List<ForecastItemViewModel> myDataset) {
-        mDataset = myDataset;
+        mDataset = new ArrayList<>(myDataset);
     }
 
     @SuppressLint("NewApi")
@@ -63,9 +66,17 @@ public class ForecastItemAdapter extends RecyclerView.Adapter {
         return mDataset.size();
     }
 
-    public void updateItems(Collection<ForecastItemViewModel> items) {
+    public void updateItems(List<ForecastItemViewModel> items) {
+        List<ForecastItemViewModel> oldItems = new ArrayList<>(mDataset);
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ListDiffUtilCallback<ForecastItemViewModel>(oldItems, items) {
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                return Objects.equals(getOldList().get(oldItemPosition).getDate(), getNewList().get(newItemPosition).getDate());
+            }
+        });
         mDataset.clear();
         mDataset.addAll(items);
-        notifyDataSetChanged();
+        diffResult.dispatchUpdatesTo(this);
+        oldItems.clear();
     }
 }

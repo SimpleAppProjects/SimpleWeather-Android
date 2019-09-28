@@ -5,4 +5,8 @@
     <dimen name="list_secondary_text_size">14sp</dimen>
     <dimen name="list_horizontal_padding">16dp</dimen>
     <dimen name="list_vertical_padding">20dp</dimen>
+
+    <!-- Material dimens -->
+    <dimen name="shape_corner_radius">8dp</dimen>
+
 </resources>

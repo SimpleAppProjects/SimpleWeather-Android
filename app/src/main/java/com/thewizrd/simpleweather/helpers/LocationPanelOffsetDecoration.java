@@ -8,6 +8,8 @@ import androidx.annotation.DimenRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.thewizrd.shared_resources.helpers.ActivityUtils;
+
 public class LocationPanelOffsetDecoration extends RecyclerView.ItemDecoration {
     protected int mItemOffset;
     protected int offsetFlags;

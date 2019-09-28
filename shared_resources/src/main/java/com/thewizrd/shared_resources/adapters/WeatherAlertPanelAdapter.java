@@ -4,10 +4,12 @@ import android.annotation.SuppressLint;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.thewizrd.shared_resources.controls.WeatherAlertPanel;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
+import com.thewizrd.shared_resources.helpers.ListDiffUtilCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,10 +31,7 @@ public class WeatherAlertPanelAdapter extends RecyclerView.Adapter {
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public WeatherAlertPanelAdapter(List<WeatherAlertViewModel> myDataset) {
-        if (myDataset != null) {
-            mDataset = myDataset;
-        } else
-            mDataset = new ArrayList<>(0);
+        mDataset = new ArrayList<>(myDataset);
     }
 
     @SuppressLint("NewApi")
@@ -60,5 +59,22 @@ public class WeatherAlertPanelAdapter extends RecyclerView.Adapter {
     // Return the size of your dataset (invoked by the layout manager)
     public int getItemCount() {
         return mDataset.size();
+    }
+
+    public void updateItems(List<WeatherAlertViewModel> items) {
+        List<WeatherAlertViewModel> oldItems = new ArrayList<>(mDataset);
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ListDiffUtilCallback<WeatherAlertViewModel>(oldItems, items) {
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                WeatherAlertViewModel oldItem = getOldList().get(oldItemPosition);
+                WeatherAlertViewModel newItem = getNewList().get(newItemPosition);
+
+                return oldItem.getAlertType() == newItem.getAlertType() && oldItem.getAlertSeverity() == newItem.getAlertSeverity();
+            }
+        });
+        mDataset.clear();
+        mDataset.addAll(items);
+        diffResult.dispatchUpdatesTo(this);
+        oldItems.clear();
     }
 }

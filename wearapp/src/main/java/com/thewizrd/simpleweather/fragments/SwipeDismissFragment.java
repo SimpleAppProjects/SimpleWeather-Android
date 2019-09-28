@@ -1,26 +1,29 @@
-package com.thewizrd.simpleweather;
+package com.thewizrd.simpleweather.fragments;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.wear.widget.SwipeDismissFrameLayout;
 
+import com.thewizrd.simpleweather.R;
+
 public class SwipeDismissFragment extends Fragment {
-    protected Activity mActivity;
+    protected FragmentActivity mActivity;
     private SwipeDismissFrameLayout.Callback swipeCallback;
     private SwipeDismissFrameLayout swipeLayout;
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        mActivity = (Activity) context;
+        mActivity = (FragmentActivity) context;
     }
 
     @Override

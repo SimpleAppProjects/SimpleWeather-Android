@@ -1,11 +1,8 @@
 package com.thewizrd.simpleweather.wearable;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.SystemClock;
 import android.support.wearable.complications.ProviderUpdateRequester;
 import android.util.Log;
 
@@ -14,7 +11,6 @@ import androidx.core.app.JobIntentService;
 
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
-import com.thewizrd.simpleweather.App;
 
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
@@ -22,15 +18,14 @@ import org.threeten.bp.LocalDateTime;
 public class WeatherComplicationIntentService extends JobIntentService {
     private static String TAG = "WeatherComplicationIntentService";
 
+    public static final String ACTION_UPDATECOMPLICATION = "SimpleWeather.Droid.Wear.action.UPDATE_COMPLICATION";
     public static final String ACTION_UPDATECOMPLICATIONS = "SimpleWeather.Droid.Wear.action.UPDATE_COMPLICATIONS";
-    public static final String ACTION_STARTALARM = "SimpleWeather.Droid.Wear.action.START_ALARM";
-    public static final String ACTION_CANCELALARM = "SimpleWeather.Droid.Wear.action.CANCEL_ALARM";
 
     public static final String EXTRA_FORCEUPDATE = "SimpleWeather.Droid.Wear.extra.FORCE_UPDATE";
+    public static final String EXTRA_COMPLICATIONID = "SimpleWeather.Droid.Wear.extra.COMPLICATION_ID";
 
     private Context mContext;
     private ProviderUpdateRequester updateRequester;
-    private static boolean mAlarmStarted = false;
 
     private static final int JOB_ID = 1000;
 
@@ -46,26 +41,6 @@ public class WeatherComplicationIntentService extends JobIntentService {
         mContext = getApplicationContext();
         updateRequester = new ProviderUpdateRequester(mContext,
                 new ComponentName(mContext, WeatherComplicationService.class));
-
-        // Check if alarm is already set
-        mAlarmStarted = (PendingIntent.getBroadcast(mContext, 0,
-                new Intent(mContext, WeatherComplicationBroadcastReceiver.class)
-                        .setAction(ACTION_UPDATECOMPLICATIONS),
-                PendingIntent.FLAG_NO_CREATE) != null);
-
-        final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                Logger.writeLine(Log.ERROR, e, "%s: Unhandled Exception %s", TAG, e == null ? null : e.getMessage());
-
-                if (oldHandler != null) {
-                    oldHandler.uncaughtException(t, e);
-                } else {
-                    System.exit(2);
-                }
-            }
-        });
     }
 
     @Override
@@ -79,61 +54,11 @@ public class WeatherComplicationIntentService extends JobIntentService {
             if (force) {
                 // Request updates
                 updateRequester.requestUpdateAll();
-                updateAlarm(App.getInstance().getAppContext());
             }
-        } else if (ACTION_STARTALARM.equals(intent.getAction())) {
-            startAlarm(App.getInstance().getAppContext());
-        } else if (ACTION_CANCELALARM.equals(intent.getAction())) {
-            cancelAlarms(App.getInstance().getAppContext());
+        } else if (ACTION_UPDATECOMPLICATION.equals(intent.getAction())) {
+            updateRequester.requestUpdate(intent.getIntExtra(EXTRA_COMPLICATIONID, 0));
         } else {
             Logger.writeLine(Log.INFO, "%s: Unhandled action: %s", TAG, intent.getAction());
-        }
-    }
-
-    private PendingIntent getAlarmIntent(Context context) {
-        Intent intent = new Intent(context, WeatherComplicationBroadcastReceiver.class)
-                .setAction(ACTION_UPDATECOMPLICATIONS);
-
-        return PendingIntent.getBroadcast(context, 0, intent, 0);
-    }
-
-    private void updateAlarm(Context context) {
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        int interval = Settings.DEFAULTINTERVAL;
-
-        boolean startNow = !mAlarmStarted;
-        long intervalMillis = Duration.ofMinutes(interval).toMillis();
-        long triggerAtTime = SystemClock.elapsedRealtime() + intervalMillis;
-
-        if (startNow) {
-            enqueueWork(context, new Intent(context, WeatherComplicationIntentService.class)
-                    .setAction(ACTION_UPDATECOMPLICATIONS));
-        }
-
-        PendingIntent pendingIntent = getAlarmIntent(context);
-        am.cancel(pendingIntent);
-        am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, triggerAtTime, intervalMillis, pendingIntent);
-        mAlarmStarted = true;
-
-        Logger.writeLine(Log.INFO, "%s: Updated alarm", TAG);
-    }
-
-    private void cancelAlarms(Context context) {
-        // Cancel alarm if dependent features are turned off
-        if (!ComplicationUtils.complicationsExist()) {
-            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            am.cancel(getAlarmIntent(context));
-            mAlarmStarted = false;
-
-            Logger.writeLine(Log.INFO, "%s: Canceled alarm", TAG);
-        }
-    }
-
-    private void startAlarm(Context context) {
-        // Start alarm if dependent features are enabled
-        if (!mAlarmStarted && ComplicationUtils.complicationsExist()) {
-            updateAlarm(context);
-            mAlarmStarted = true;
         }
     }
 }
