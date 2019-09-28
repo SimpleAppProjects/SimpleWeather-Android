@@ -530,7 +530,7 @@ public class LocationsFragment extends ToolbarFragment
                         paddingStart + insets.getSystemWindowInsetLeft(),
                         paddingTop + insets.getSystemWindowInsetTop(),
                         paddingEnd + insets.getSystemWindowInsetRight(),
-                        paddingBottom);
+                        paddingBottom + insets.getSystemWindowInsetBottom());
                 return insets;
             }
         });
