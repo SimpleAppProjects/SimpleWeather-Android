@@ -310,6 +310,11 @@ public class WeatherNowFragment extends WindowColorFragment
                         });
                         showSnackbar(snackBar, null);
                         break;
+                    case QUERYNOTFOUND:
+                        if (WeatherAPI.NWS.equals(Settings.getAPI())) {
+                            showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.LONG), null);
+                            break;
+                        }
                     default:
                         // Show error message
                         showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG), null);

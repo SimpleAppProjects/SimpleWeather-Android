@@ -280,6 +280,12 @@ public class LocationsFragment extends ToolbarFragment
                             mErrorCounter[wEx.getErrorStatus().getValue()] = true;
                         }
                         break;
+                    case QUERYNOTFOUND:
+                        if (!mErrorCounter[wEx.getErrorStatus().getValue()] && WeatherAPI.NWS.equals(Settings.getAPI())) {
+                            showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.LONG), null);
+                            mErrorCounter[wEx.getErrorStatus().getValue()] = true;
+                            break;
+                        }
                     default:
                         // Show error message
                         // Only warn once

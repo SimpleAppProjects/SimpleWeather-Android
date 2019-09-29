@@ -80,15 +80,18 @@ public class WeatherDataLoader {
                 boolean loadedSavedData = false;
 
                 try {
-                    if (WeatherAPI.NWS.equals(Settings.getAPI())) {
-                        String ccode = location.getCountryCode();
-                        if (!StringUtils.isNullOrWhitespace(ccode)) ccode = ccode.toLowerCase();
-                        if (StringUtils.isNullOrWhitespace(ccode) || !("us".equals(ccode) || "usa".equals(ccode))) {
+                    if (WeatherAPI.NWS.equals(Settings.getAPI()) && !"US".equals(location.getCountryCode())) {
+                        // If location data hasn't been updated, try loading weather from the previous provider
+                        if (!StringUtils.isNullOrWhitespace(location.getWeatherSource()) &&
+                                !WeatherAPI.NWS.equals(location.getWeatherSource())) {
+                            weather = WeatherManager.getProvider(location.getWeatherSource()).getWeather(location);
+                        } else {
                             throw new WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND);
                         }
+                    } else {
+                        // Load weather from provider
+                        weather = wm.getWeather(location);
                     }
-
-                    weather = wm.getWeather(location);
                 } catch (WeatherException weatherEx) {
                     wEx = weatherEx;
                     weather = null;
@@ -182,30 +185,32 @@ public class WeatherDataLoader {
             try {
                 if ((weather != null && !weather.getSource().equals(Settings.getAPI()))
                         || (weather == null && location != null && !location.getWeatherSource().equals(Settings.getAPI()))) {
-                    // Update location query and source for new API
-                    String oldKey = location.getQuery();
+                    if (WeatherAPI.NWS.equals(location.getWeatherSource()) && !"US".equals(location.getCountryCode())) {
+                        // Update location query and source for new API
+                        String oldKey = location.getQuery();
 
-                    if (weather != null)
-                        location.setQuery(wm.updateLocationQuery(weather));
-                    else
-                        location.setQuery(wm.updateLocationQuery(location));
+                        if (weather != null)
+                            location.setQuery(wm.updateLocationQuery(weather));
+                        else
+                            location.setQuery(wm.updateLocationQuery(location));
 
-                    location.setWeatherSource(Settings.getAPI());
+                        location.setWeatherSource(Settings.getAPI());
 
-                    // Update database as well
-                    if (SimpleLibrary.getInstance().getApp().isPhone()) {
-                        if (location.getLocationType() == LocationType.GPS) {
-                            Settings.saveLastGPSLocData(location);
-                            mLocalBroadcastManager.sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
+                        // Update database as well
+                        if (SimpleLibrary.getInstance().getApp().isPhone()) {
+                            if (location.getLocationType() == LocationType.GPS) {
+                                Settings.saveLastGPSLocData(location);
+                                mLocalBroadcastManager.sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
+                            } else {
+                                Settings.updateLocationWithKey(location, oldKey);
+                                mLocalBroadcastManager.sendBroadcast(
+                                        new Intent(CommonActions.ACTION_WEATHER_UPDATEWIDGETLOCATION)
+                                                .putExtra("oldKey", oldKey)
+                                                .putExtra("location", location.toJson()));
+                            }
                         } else {
-                            Settings.updateLocationWithKey(location, oldKey);
-                            mLocalBroadcastManager.sendBroadcast(
-                                    new Intent(CommonActions.ACTION_WEATHER_UPDATEWIDGETLOCATION)
-                                            .putExtra("oldKey", oldKey)
-                                            .putExtra("location", location.toJson()));
+                            Settings.saveHomeData(location);
                         }
-                    } else {
-                        Settings.saveHomeData(location);
                     }
                 }
 
@@ -242,7 +247,13 @@ public class WeatherDataLoader {
             ULocale currentLocale = ULocale.forLocale(Locale.getDefault());
             String locale = wm.localeToLangCode(currentLocale.getLanguage(), currentLocale.toLanguageTag());
 
-            boolean isInvalid = weather == null || !weather.isValid() || !weather.getSource().equals(Settings.getAPI());
+            String API = Settings.getAPI();
+            boolean isInvalid = weather == null || !weather.isValid();
+            if (!isInvalid && !weather.getSource().equals(API)) {
+                if (!API.equals(WeatherAPI.NWS) || "US".equals(location.getCountryCode())) {
+                    isInvalid = true;
+                }
+            }
             if (wm.supportsWeatherLocale() && !isInvalid)
                 isInvalid = !weather.getLocale().equals(locale);
 
@@ -266,7 +277,14 @@ public class WeatherDataLoader {
         ULocale currentLocale = ULocale.forLocale(Locale.getDefault());
         String locale = wm.localeToLangCode(currentLocale.getLanguage(), currentLocale.toLanguageTag());
 
-        boolean isInvalid = weather == null || !weather.isValid() || !weather.getSource().equals(Settings.getAPI());
+        String API = Settings.getAPI();
+        boolean isInvalid = weather == null || !weather.isValid();
+        if (!isInvalid && !weather.getSource().equals(API)) {
+            if (!API.equals(WeatherAPI.NWS) || "US".equals(location.getCountryCode())) {
+                isInvalid = true;
+            }
+        }
+
         if (wm.supportsWeatherLocale() && !isInvalid)
             isInvalid = !weather.getLocale().equals(locale);
 

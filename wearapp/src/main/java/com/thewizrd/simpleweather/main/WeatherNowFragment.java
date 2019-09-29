@@ -59,8 +59,10 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherErrorListenerInterface;
 import com.thewizrd.shared_resources.weatherdata.WeatherLoadedListenerInterface;
@@ -206,8 +208,13 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (!isCtsCancelRequested())
-                        Toast.makeText(mActivity, wEx.getMessage(), Toast.LENGTH_LONG).show();
+                    if (!isCtsCancelRequested()) {
+                        if (wEx.getErrorStatus() == WeatherUtils.ErrorStatus.QUERYNOTFOUND && WeatherAPI.NWS.equals(Settings.getAPI())) {
+                            Toast.makeText(mActivity, R.string.error_message_weather_us_only, Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(mActivity, wEx.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    }
                 }
             });
         }

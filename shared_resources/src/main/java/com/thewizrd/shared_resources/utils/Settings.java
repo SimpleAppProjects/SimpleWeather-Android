@@ -45,7 +45,7 @@ public class Settings {
 
     // Data
     public static final int CURRENT_DBVERSION = 4;
-    private static final int CACHE_LIMIT = 10;
+    private static final int CACHE_LIMIT = 25;
     private static final int MAX_LOCATIONS = 10;
 
     // Units
