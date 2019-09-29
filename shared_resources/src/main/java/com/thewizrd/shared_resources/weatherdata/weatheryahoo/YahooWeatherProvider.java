@@ -386,8 +386,15 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
                     if (tz == null)
                         tz = weather.getLocation().getTzOffset();
 
-                    LocalTime sunrise = weather.getAstronomy().getSunrise().toLocalTime();
-                    LocalTime sunset = weather.getAstronomy().getSunset().toLocalTime();
+                    LocalTime sunrise;
+                    LocalTime sunset;
+                    if (weather.getAstronomy() != null) {
+                        sunrise = weather.getAstronomy().getSunrise().toLocalTime();
+                        sunset = weather.getAstronomy().getSunset().toLocalTime();
+                    } else {
+                        sunrise = LocalTime.of(6, 0);
+                        sunset = LocalTime.of(18, 0);
+                    }
 
                     LocalTime now = ZonedDateTime.now(tz).toLocalTime();
 
