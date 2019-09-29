@@ -183,6 +183,9 @@ public final class SnackbarManager {
         @Override
         public void onShown(com.google.android.material.snackbar.Snackbar sb) {
             super.onShown(sb);
+            final SnackbarPair snackPair = getCurrentSnackPair();
+            if (snackPair != null && snackPair.callback != null)
+                snackPair.callback.onShown(sb);
         }
 
         @Override

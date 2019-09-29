@@ -35,7 +35,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
-import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -48,6 +48,9 @@ import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.snackbar.Snackbar;
+import com.thewizrd.simpleweather.snackbar.SnackbarManager;
+import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface;
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 
 import java.util.ArrayList;
@@ -56,7 +59,7 @@ import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class LocationSearchFragment extends Fragment {
+public class LocationSearchFragment extends Fragment implements SnackbarManagerInterface {
     private RecyclerView mRecyclerView;
     private LocationQueryAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -65,6 +68,8 @@ public class LocationSearchFragment extends Fragment {
     private View mClearButton;
     private EditText mSearchView;
     private FragmentActivity mActivity;
+
+    private SnackbarManager mSnackMgr;
 
     private CancellationTokenSource cts;
 
@@ -108,6 +113,7 @@ public class LocationSearchFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mActivity = (FragmentActivity) context;
+        initSnackManager();
     }
 
     @Override
@@ -129,7 +135,33 @@ public class LocationSearchFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         ctsCancel();
+        unloadSnackManager();
         mActivity = null;
+    }
+
+    @Override
+    public void initSnackManager() {
+        if (mSnackMgr == null) {
+            mSnackMgr = new SnackbarManager(mActivity.findViewById(android.R.id.content));
+            mSnackMgr.setSwipeDismissEnabled(true);
+            mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
+        }
+    }
+
+    @Override
+    public void showSnackbar(Snackbar snackbar, com.google.android.material.snackbar.Snackbar.Callback callback) {
+        if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
+    }
+
+    @Override
+    public void dismissAllSnackbars() {
+        if (mSnackMgr != null) mSnackMgr.dismissAll();
+    }
+
+    @Override
+    public void unloadSnackManager() {
+        dismissAllSnackbars();
+        mSnackMgr = null;
     }
 
     private void runOnUiThread(Runnable action) {
@@ -352,9 +384,8 @@ public class LocationSearchFragment extends Fragment {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Snackbar.make(mActivity.findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_SHORT)
-                                        .addCallback(new SnackbarWindowAdjustCallback(mActivity))
-                                        .show();
+                                showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
+                                        new SnackbarWindowAdjustCallback(mActivity));
                                 mAdapter.setLocations(Collections.singletonList(new LocationQueryViewModel()));
                             }
                         });

@@ -95,6 +95,7 @@ import com.thewizrd.simpleweather.services.WeatherUpdaterService;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
+import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface;
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
@@ -106,7 +107,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class LocationsFragment extends ToolbarFragment
-        implements WeatherLoadedListenerInterface, WeatherErrorListenerInterface {
+        implements WeatherLoadedListenerInterface, WeatherErrorListenerInterface, SnackbarManagerInterface {
     private boolean mLoaded = false;
     private boolean mEditMode = false;
     private boolean mDataChanged = false;
@@ -292,7 +293,8 @@ public class LocationsFragment extends ToolbarFragment
         });
     }
 
-    private void initSnackManager() {
+    @Override
+    public void initSnackManager() {
         if (mSnackMgr == null) {
             mSnackMgr = new SnackbarManager(getRootView());
             mSnackMgr.setSwipeDismissEnabled(true);
@@ -300,12 +302,20 @@ public class LocationsFragment extends ToolbarFragment
         }
     }
 
-    private void showSnackbar(com.thewizrd.simpleweather.snackbar.Snackbar snackbar, com.google.android.material.snackbar.Snackbar.Callback callback) {
+    @Override
+    public void showSnackbar(com.thewizrd.simpleweather.snackbar.Snackbar snackbar, com.google.android.material.snackbar.Snackbar.Callback callback) {
         if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
     }
 
-    private void dismissAllSnackbars() {
+    @Override
+    public void dismissAllSnackbars() {
         if (mSnackMgr != null) mSnackMgr.dismissAll();
+    }
+
+    @Override
+    public void unloadSnackManager() {
+        dismissAllSnackbars();
+        mSnackMgr = null;
     }
 
     // For LocationPanels
@@ -718,8 +728,7 @@ public class LocationsFragment extends ToolbarFragment
         if (cts != null) cts.cancel();
         if (mSearchFragment != null) mSearchFragment.ctsCancel();
 
-        dismissAllSnackbars();
-        mSnackMgr = null;
+        unloadSnackManager();
 
         super.onPause();
 
@@ -754,8 +763,7 @@ public class LocationsFragment extends ToolbarFragment
             if (inSearchUI) exitSearchUi(true);
             if (mEditMode) toggleEditMode();
 
-            dismissAllSnackbars();
-            mSnackMgr = null;
+            unloadSnackManager();
 
             mLoaded = false;
             // Reset error counter
@@ -1239,7 +1247,7 @@ public class LocationsFragment extends ToolbarFragment
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
+                                        mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
                                                 new SnackbarWindowAdjustCallback(getAppCompatActivity()));
                                         mSearchFragment.showLoading(false);
                                     }
@@ -1278,7 +1286,7 @@ public class LocationsFragment extends ToolbarFragment
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    showSnackbar(Snackbar.make(R.string.werror_noweather, Snackbar.Duration.SHORT),
+                                    mSearchFragment.showSnackbar(Snackbar.make(R.string.werror_noweather, Snackbar.Duration.SHORT),
                                             new SnackbarWindowAdjustCallback(getAppCompatActivity()));
                                     mSearchFragment.showLoading(false);
                                 }
@@ -1294,7 +1302,7 @@ public class LocationsFragment extends ToolbarFragment
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
+                                        mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
                                                 new SnackbarWindowAdjustCallback(getAppCompatActivity()));
                                     }
                                 });

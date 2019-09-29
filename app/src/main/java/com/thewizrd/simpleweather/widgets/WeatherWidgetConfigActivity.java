@@ -67,7 +67,7 @@ import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
@@ -180,7 +180,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         }
     }
 
-    public static class WeatherWidgetPreferenceFragment extends PreferenceFragmentCompat implements OnBackPressedFragmentListener {
+    public static class WeatherWidgetPreferenceFragment extends PreferenceFragmentCompat implements OnBackPressedFragmentListener, SnackbarManagerInterface {
         // Widget id for ConfigurationActivity
         private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
         private WidgetType mWidgetType = WidgetType.Unknown;
@@ -196,6 +196,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
         // Weather
         private WeatherManager wm;
+
+        private SnackbarManager mSnackMgr;
 
         // Views
         private View mRootView;
@@ -257,6 +259,62 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         public void onDetach() {
             super.onDetach();
             mActivity = null;
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            initSnackManager();
+        }
+
+        @Override
+        public void onPause() {
+            ctsCancel();
+            unloadSnackManager();
+            super.onPause();
+        }
+
+        @Override
+        public void onDestroy() {
+            ctsCancel();
+            super.onDestroy();
+        }
+
+        private boolean isCtsCancelRequested() {
+            if (cts != null)
+                return cts.getToken().isCancellationRequested();
+            else
+                return true;
+        }
+
+        private void ctsCancel() {
+            if (cts != null) cts.cancel();
+            cts = new CancellationTokenSource();
+        }
+
+        @Override
+        public void initSnackManager() {
+            if (mSnackMgr == null) {
+                mSnackMgr = new SnackbarManager(mRootView);
+                mSnackMgr.setSwipeDismissEnabled(true);
+                mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
+            }
+        }
+
+        @Override
+        public void showSnackbar(com.thewizrd.simpleweather.snackbar.Snackbar snackbar, com.google.android.material.snackbar.Snackbar.Callback callback) {
+            if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
+        }
+
+        @Override
+        public void dismissAllSnackbars() {
+            if (mSnackMgr != null) mSnackMgr.dismissAll();
+        }
+
+        @Override
+        public void unloadSnackManager() {
+            dismissAllSnackbars();
+            mSnackMgr = null;
         }
 
         @Override
@@ -1039,7 +1097,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Snackbar.make(mRootView, wEx.getMessage(), Snackbar.LENGTH_SHORT).show();
+                                        mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
+                                                new SnackbarWindowAdjustCallback(mActivity));
                                     }
                                 });
                                 mSearchFragment.showLoading(false);
@@ -1217,30 +1276,6 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onPause() {
-            if (cts != null) cts.cancel();
-            super.onPause();
-        }
-
-        @Override
-        public void onDestroy() {
-            if (cts != null) cts.cancel();
-            super.onDestroy();
-        }
-
-        private boolean isCtsCancelRequested() {
-            if (cts != null)
-                return cts.getToken().isCancellationRequested();
-            else
-                return true;
-        }
-
-        private void ctsCancel() {
-            if (cts != null) cts.cancel();
-            cts = new CancellationTokenSource();
-        }
-
-        @Override
         public void onActivityResult(int requestCode, int resultCode, Intent data) {
             super.onActivityResult(requestCode, resultCode, data);
 
@@ -1341,7 +1376,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
                         // Check if last location exists
                         if (lastGPSLocData == null && !updateLocation()) {
-                            Snackbar.make(mRootView, R.string.error_retrieve_location, Snackbar.LENGTH_SHORT).show();
+                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
                             return;
                         }
 
@@ -1404,7 +1439,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
                         // Check if last location exists
                         if (lastGPSLocData == null && !updateLocation()) {
-                            Snackbar.make(mRootView, R.string.error_retrieve_location, Snackbar.LENGTH_SHORT).show();
+                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
                             return;
                         }
 
@@ -1569,7 +1604,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     } else {
                         // permission denied, boo! Disable the
                         // functionality that depends on this permission.
-                        Snackbar.make(mRootView, R.string.error_location_denied, Snackbar.LENGTH_SHORT).show();
+                        showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null);
                     }
                     return;
                 }

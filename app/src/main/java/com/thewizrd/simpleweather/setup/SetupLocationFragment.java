@@ -56,7 +56,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
-import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.stepstone.stepper.Step;
 import com.stepstone.stepper.StepperLayout;
 import com.stepstone.stepper.VerificationError;
@@ -81,6 +81,9 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.fragments.LocationSearchFragment;
+import com.thewizrd.simpleweather.snackbar.Snackbar;
+import com.thewizrd.simpleweather.snackbar.SnackbarManager;
+import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface;
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
@@ -88,7 +91,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class SetupLocationFragment extends Fragment implements Step, OnBackPressedFragmentListener {
+public class SetupLocationFragment extends Fragment implements Step, OnBackPressedFragmentListener, SnackbarManagerInterface {
 
     private View mSearchFragmentContainer;
     private LocationSearchFragment mSearchFragment;
@@ -96,6 +99,8 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     private boolean inSearchUI;
 
     private static final int ANIMATION_DURATION = 240;
+
+    private SnackbarManager mSnackMgr;
 
     // Views
     private View mMainView;
@@ -121,6 +126,32 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
 
     private WeatherManager wm;
+
+    @Override
+    public void initSnackManager() {
+        if (mSnackMgr == null) {
+            mSnackMgr = new SnackbarManager(mMainView);
+            mSnackMgr.setSwipeDismissEnabled(true);
+            mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
+            mSnackMgr.setAnchorView(mStepperNavBar);
+        }
+    }
+
+    @Override
+    public void showSnackbar(com.thewizrd.simpleweather.snackbar.Snackbar snackbar, com.google.android.material.snackbar.Snackbar.Callback callback) {
+        if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
+    }
+
+    @Override
+    public void dismissAllSnackbars() {
+        if (mSnackMgr != null) mSnackMgr.dismissAll();
+    }
+
+    @Override
+    public void unloadSnackManager() {
+        dismissAllSnackbars();
+        mSnackMgr = null;
+    }
 
     @Nullable
     @Override
@@ -205,9 +236,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             @Override
                             public void run() {
                                 enableControls(true);
-                                Snackbar.make(mMainView, R.string.error_retrieve_location, Snackbar.LENGTH_SHORT)
-                                        .setAnchorView(mStepperNavBar)
-                                        .show();
+                                showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
                             }
                         });
                     } else {
@@ -232,9 +261,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             public void run() {
                                 stopLocationUpdates();
                                 enableControls(true);
-                                Snackbar.make(mMainView, R.string.error_retrieve_location, Snackbar.LENGTH_SHORT)
-                                        .setAnchorView(mStepperNavBar)
-                                        .show();
+                                showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
                             }
                         });
                     }
@@ -340,11 +367,18 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        initSnackManager();
+    }
+
+    @Override
     public void onPause() {
         ctsCancel();
         super.onPause();
         // Remove location updates to save battery.
         stopLocationUpdates();
+        unloadSnackManager();
     }
 
     @Override
@@ -418,11 +452,11 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Snackbar.make(mMainView, R.string.werror_invalidkey, Snackbar.LENGTH_SHORT)
-                                            .addCallback(new SnackbarWindowAdjustCallback(mActivity))
-                                            .show();
+                                    mSearchFragment.showSnackbar(Snackbar.make(R.string.werror_invalidkey, Snackbar.Duration.SHORT),
+                                            new SnackbarWindowAdjustCallback(mActivity));
                                 }
                             });
+                            mSearchFragment.showLoading(false);
                             return;
                         }
 
@@ -445,7 +479,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mSearchFragment.showSnackbar(Snackbar.make("This weather provider only supports locations in the US", Snackbar.Duration.SHORT),
+                                    mSearchFragment.showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.SHORT),
                                             new SnackbarWindowAdjustCallback(mActivity));
                                 }
                             });
@@ -470,12 +504,11 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        mSearchFragment.showLoading(false);
-                                        Snackbar.make(mMainView, wEx.getMessage(), Snackbar.LENGTH_SHORT)
-                                                .addCallback(new SnackbarWindowAdjustCallback(mActivity))
-                                                .show();
+                                        mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
+                                                new SnackbarWindowAdjustCallback(mActivity));
                                     }
                                 });
+                                mSearchFragment.showLoading(false);
                                 return;
                             }
                         }
@@ -486,12 +519,11 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mSearchFragment.showLoading(false);
-                                    Snackbar.make(mMainView, R.string.werror_noweather, Snackbar.LENGTH_SHORT)
-                                            .addCallback(new SnackbarWindowAdjustCallback(mActivity))
-                                            .show();
+                                    mSearchFragment.showSnackbar(Snackbar.make(R.string.werror_noweather, Snackbar.Duration.SHORT),
+                                            new SnackbarWindowAdjustCallback(mActivity));
                                 }
                             });
+                            mSearchFragment.showLoading(false);
                             return;
                         }
                         Weather weather = Settings.getWeatherData(location.getQuery());
@@ -503,10 +535,9 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
+                                        mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
+                                                new SnackbarWindowAdjustCallback(mActivity));
                                         mSearchFragment.showLoading(false);
-                                        Snackbar.make(mMainView, wEx.getMessage(), Snackbar.LENGTH_SHORT)
-                                                .addCallback(new SnackbarWindowAdjustCallback(mActivity))
-                                                .show();
                                     }
                                 });
                             }
@@ -618,10 +649,8 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Snackbar.make(mMainView, R.string.werror_invalidkey, Snackbar.LENGTH_SHORT)
-                                            .addCallback(new SnackbarWindowAdjustCallback(mActivity))
-                                            .setAnchorView(mStepperNavBar)
-                                            .show();
+                                    showSnackbar(Snackbar.make(R.string.werror_invalidkey, Snackbar.Duration.SHORT),
+                                            new SnackbarWindowAdjustCallback(mActivity));
                                 }
                             });
                             enableControls(true);
@@ -652,10 +681,8 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Snackbar.make(mMainView, R.string.werror_noweather, Snackbar.LENGTH_SHORT)
-                                            .addCallback(new SnackbarWindowAdjustCallback(mActivity))
-                                            .setAnchorView(mStepperNavBar)
-                                            .show();
+                                    showSnackbar(Snackbar.make(R.string.werror_noweather, Snackbar.Duration.SHORT),
+                                            new SnackbarWindowAdjustCallback(mActivity));
                                 }
                             });
                             enableControls(true);
@@ -678,10 +705,8 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Snackbar.make(mMainView, wEx.getMessage(), Snackbar.LENGTH_SHORT)
-                                                .addCallback(new SnackbarWindowAdjustCallback(mActivity))
-                                                .setAnchorView(mStepperNavBar)
-                                                .show();
+                                        showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
+                                                new SnackbarWindowAdjustCallback(mActivity));
                                     }
                                 });
                             }
@@ -737,10 +762,8 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Snackbar.make(mMainView, R.string.error_retrieve_location, Snackbar.LENGTH_SHORT)
-                                    .addCallback(new SnackbarWindowAdjustCallback(mActivity))
-                                    .setAnchorView(mStepperNavBar)
-                                    .show();
+                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
+                                    new SnackbarWindowAdjustCallback(mActivity));
                         }
                     });
                 }
@@ -813,10 +836,8 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Snackbar.make(mMainView, R.string.error_retrieve_location, Snackbar.LENGTH_SHORT)
-                                .addCallback(new SnackbarWindowAdjustCallback(mActivity))
-                                .setAnchorView(mStepperNavBar)
-                                .show();
+                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
+                                new SnackbarWindowAdjustCallback(mActivity));
                     }
                 });
             }
@@ -842,10 +863,8 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     enableControls(true);
-                    Snackbar.make(mMainView, R.string.error_location_denied, Snackbar.LENGTH_SHORT)
-                            .addCallback(new SnackbarWindowAdjustCallback(mActivity))
-                            .setAnchorView(mStepperNavBar)
-                            .show();
+                    showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT),
+                            new SnackbarWindowAdjustCallback(mActivity));
                 }
                 return;
             }
