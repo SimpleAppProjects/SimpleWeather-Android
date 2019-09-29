@@ -9,6 +9,7 @@ import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -174,6 +175,45 @@ public class Condition {
         } catch (NumberFormatException ex) {
             uv = null;
         }
+    }
+
+    public Condition(com.thewizrd.shared_resources.weatherdata.nws.ObservationCurrentResponse obsCurrentResponse) {
+        weather = obsCurrentResponse.getTextDescription();
+        try {
+            tempC = obsCurrentResponse.getTemperature().getValue();
+            tempF = Double.parseDouble(ConversionMethods.CtoF(Double.toString(tempC)));
+        } catch (NullPointerException | NumberFormatException ex) {
+            tempF = 0.00f;
+            tempC = 0.00f;
+        }
+        try {
+            windDegrees = obsCurrentResponse.getWindDirection().getValue().intValue();
+        } catch (NullPointerException | NumberFormatException ex) {
+            windDegrees = 0;
+        }
+        try {
+            windMph = Double.parseDouble(ConversionMethods.msecToMph(Float.toString(obsCurrentResponse.getWindSpeed().getValue())));
+            windKph = Double.parseDouble(ConversionMethods.msecToKph(Float.toString(obsCurrentResponse.getWindSpeed().getValue())));
+        } catch (NullPointerException | NumberFormatException ex) {
+            windMph = -1.0f;
+            windKph = -1.0f;
+        }
+        float humidity;
+        try {
+            humidity = obsCurrentResponse.getRelativeHumidity().getValue();
+        } catch (NullPointerException | NumberFormatException ex) {
+            humidity = -1.0f;
+        }
+        if (tempF != tempC) {
+            feelslikeF = Double.parseDouble(WeatherUtils.getFeelsLikeTemp(Double.toString(tempF),
+                    Double.toString(windMph), Float.toString(humidity)));
+            feelslikeC = Double.parseDouble(ConversionMethods.FtoC(Double.toString(feelslikeF)));
+        } else {
+            feelslikeF = -1.0f;
+            feelslikeC = -1.0f;
+        }
+        icon = WeatherManager.getProvider(WeatherAPI.NWS)
+                .getWeatherIcon(obsCurrentResponse.getIcon());
     }
 
     public String getWeather() {

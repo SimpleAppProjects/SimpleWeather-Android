@@ -225,6 +225,25 @@ public class HourlyForecast {
         extras.setWindKph(windKph);
     }
 
+    public HourlyForecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem) {
+        setDate(ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME));
+        highF = Integer.toString(forecastItem.getTemperature());
+        highC = ConversionMethods.FtoC(highF);
+        condition = forecastItem.getShortForecast();
+        icon = WeatherManager.getProvider(WeatherAPI.NWS)
+                .getWeatherIcon(forecastItem.getIcon());
+        windMph = Float.parseFloat(StringUtils.removeNonDigitChars(forecastItem.getWindSpeed()));
+        windKph = Float.parseFloat(ConversionMethods.mphTokph(Float.toString(windMph)));
+        pop = null;
+        windDegrees = WeatherUtils.getWindDirection(forecastItem.getWindDirection());
+
+        // Extras
+        extras = new ForecastExtras();
+        extras.setWindDegrees(windDegrees);
+        extras.setWindMph(windMph);
+        extras.setWindKph(windKph);
+    }
+
     public ZonedDateTime getDate() {
         ZonedDateTime dateTime = null;
 

@@ -437,6 +437,22 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             return;
                         }
 
+                        String country_code = query_vm.getLocationCountry();
+                        if (!StringUtils.isNullOrWhitespace(country_code))
+                            country_code = country_code.toLowerCase();
+
+                        if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mSearchFragment.showSnackbar(Snackbar.make("This weather provider only supports locations in the US", Snackbar.Duration.SHORT),
+                                            new SnackbarWindowAdjustCallback(mActivity));
+                                }
+                            });
+                            mSearchFragment.showLoading(false);
+                            return;
+                        }
+
                         // Need to get FULL location data for HERE API
                         // Data provided is incomplete
                         if (WeatherAPI.HERE.equals(query_vm.getLocationSource())
@@ -613,6 +629,22 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                         }
 
                         if (ctsToken.isCancellationRequested()) throw new InterruptedException();
+
+                        String country_code = view.getLocationCountry();
+                        if (!StringUtils.isNullOrWhitespace(country_code))
+                            country_code = country_code.toLowerCase();
+
+                        if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.SHORT),
+                                            new SnackbarWindowAdjustCallback(mActivity));
+                                }
+                            });
+                            enableControls(true);
+                            return;
+                        }
 
                         // Get Weather Data
                         location = new LocationData(view, mLocation);

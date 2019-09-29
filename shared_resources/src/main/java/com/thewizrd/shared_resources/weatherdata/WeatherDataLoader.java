@@ -80,6 +80,14 @@ public class WeatherDataLoader {
                 boolean loadedSavedData = false;
 
                 try {
+                    if (WeatherAPI.NWS.equals(Settings.getAPI())) {
+                        String ccode = location.getCountryCode();
+                        if (!StringUtils.isNullOrWhitespace(ccode)) ccode = ccode.toLowerCase();
+                        if (StringUtils.isNullOrWhitespace(ccode) || !("us".equals(ccode) || "usa".equals(ccode))) {
+                            throw new WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND);
+                        }
+                    }
+
                     weather = wm.getWeather(location);
                 } catch (WeatherException weatherEx) {
                     wEx = weatherEx;

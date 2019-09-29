@@ -41,14 +41,6 @@ public class LocationQueryViewModel {
         locationName = location.getName();
         locationCountry = location.getC();
 
-        if (WeatherAPI.WEATHERUNDERGROUND.equals(weatherAPI)) {
-            locationQuery = location.getL();
-        } else if (WeatherAPI.HERE.equals(weatherAPI)) {
-            locationQuery = String.format("latitude=%s&longitude=%s", location.getLat(), location.getLon());
-        } else {
-            locationQuery = String.format("lat=%s&lon=%s", location.getLat(), location.getLon());
-        }
-
         locationLat = Double.valueOf(location.getLat());
         locationLong = Double.valueOf(location.getLon());
 
@@ -56,6 +48,8 @@ public class LocationQueryViewModel {
 
         locationSource = WeatherAPI.WEATHERUNDERGROUND;
         weatherSource = weatherAPI;
+
+        updateLocationQuery();
     }
 
     public LocationQueryViewModel(Location location, String weatherAPI) {
@@ -65,13 +59,6 @@ public class LocationQueryViewModel {
     public void setLocation(Location location, String weatherAPI) {
         locationName = String.format("%s, %s", location.getCity(), location.getState());
         locationCountry = location.getCountry();
-        if (WeatherAPI.WEATHERUNDERGROUND.equals(weatherAPI)) {
-            locationQuery = location.getQuery();
-        } else if (WeatherAPI.HERE.equals(weatherAPI)) {
-            locationQuery = String.format("latitude=%s&longitude=%s", location.getLat(), location.getLon());
-        } else {
-            locationQuery = String.format("lat=%s&lon=%s", location.getLat(), location.getLon());
-        }
 
         locationLat = Double.valueOf(location.getLat());
         locationLong = Double.valueOf(location.getLon());
@@ -80,6 +67,8 @@ public class LocationQueryViewModel {
 
         locationSource = WeatherAPI.WEATHERUNDERGROUND;
         weatherSource = weatherAPI;
+
+        updateLocationQuery();
     }
 
     public LocationQueryViewModel(SuggestionsItem location, String weatherAPI) {
@@ -288,6 +277,8 @@ public class LocationQueryViewModel {
             locationQuery = String.format(Locale.ROOT, "/q/%s,%s", Double.toString(locationLat), Double.toString(locationLong));
         } else if (WeatherAPI.HERE.equals(weatherSource)) {
             locationQuery = String.format(Locale.ROOT, "latitude=%s&longitude=%s", Double.toString(locationLat), Double.toString(locationLong));
+        } else if (WeatherAPI.NWS.equals(weatherSource)) {
+            locationQuery = String.format(Locale.ROOT, "%s,%s", Double.toString(locationLat), Double.toString(locationLong));
         } else {
             locationQuery = String.format(Locale.ROOT, "lat=%s&lon=%s", Double.toString(locationLat), Double.toString(locationLong));
         }

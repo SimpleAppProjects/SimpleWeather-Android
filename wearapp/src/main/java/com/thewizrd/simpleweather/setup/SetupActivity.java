@@ -387,6 +387,21 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
 
                         if (ctsToken.isCancellationRequested()) throw new InterruptedException();
 
+                        String country_code = view.getLocationCountry();
+                        if (!StringUtils.isNullOrWhitespace(country_code))
+                            country_code = country_code.toLowerCase();
+
+                        if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), R.string.error_message_weather_us_only, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            enableControls(true);
+                            return;
+                        }
+
                         // Get Weather Data
                         LocationData location = new LocationData(view, mLocation);
                         if (!location.isValid()) {

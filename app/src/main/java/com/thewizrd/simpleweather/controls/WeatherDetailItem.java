@@ -95,18 +95,22 @@ public class WeatherDetailItem extends ConstraintLayout {
         forecastExtra.setVisibility(GONE);
 
         bodyCard.setVisibility(GONE);
+
+        SpannableStringBuilder sb = new SpannableStringBuilder();
+
+        if (!StringUtils.isNullOrWhitespace(forecastView.getConditionLongDesc())) {
+            sb.append(forecastView.getConditionLongDesc())
+                    .append(StringUtils.lineSeparator())
+                    .append(StringUtils.lineSeparator());
+        }
+
         if (forecastView.getExtras() != null && forecastView.getExtras().size() > 0) {
             Context context = getContext();
             headerCard.setOnClickListener(onClickListener);
 
             StringBuilder sbExtra = new StringBuilder();
-            SpannableStringBuilder sb = new SpannableStringBuilder();
 
-            if (!StringUtils.isNullOrWhitespace(forecastView.getConditionLongDesc())) {
-                sb.append(forecastView.getConditionLongDesc())
-                        .append(StringUtils.lineSeparator())
-                        .append(StringUtils.lineSeparator());
-            } else {
+            if (StringUtils.isNullOrWhitespace(forecastView.getConditionLongDesc())) {
                 TextPaint paint = forecastCondition.getPaint();
                 Layout layout = forecastCondition.getLayout();
                 float textWidth = paint.measureText(forecastView.getCondition());
@@ -155,6 +159,9 @@ public class WeatherDetailItem extends ConstraintLayout {
             }
 
             bodyTextView.setText(sb, TextView.BufferType.SPANNABLE);
+        } else if (sb.length() > 0) {
+            bodyTextView.setText(sb, TextView.BufferType.SPANNABLE);
+            headerCard.setOnClickListener(onClickListener);
         } else {
             headerCard.setOnClickListener(null);
         }
@@ -221,6 +228,9 @@ public class WeatherDetailItem extends ConstraintLayout {
                         sb.insert(0, forecastView.getCondition())
                                 .append(StringUtils.lineSeparator())
                                 .append(StringUtils.lineSeparator());
+                    } else if (sb.length() == 0) {
+                        headerCard.setOnClickListener(null);
+                        return;
                     }
 
                     bodyTextView.setText(sb, TextView.BufferType.SPANNABLE);

@@ -16,13 +16,17 @@
         <Preference android:layout="@layout/credit_yahoo">
             <intent android:data="https://www.yahoo.com/?ilc=401" />
         </Preference>
-        <Preference android:title="@string/api_owm" />
-        <Preference android:layout="@layout/credit_openweathermap">
-            <intent android:data="http://www.openweathermap.org" />
-        </Preference>
         <Preference android:title="@string/api_metno" />
         <Preference android:layout="@layout/credit_metno">
             <intent android:data="https://www.met.no/en" />
+        </Preference>
+        <Preference android:title="@string/api_nws" />
+        <Preference android:layout="@layout/credit_nws">
+            <intent android:data="http://www.weather.gov" />
+        </Preference>
+        <Preference android:title="@string/api_owm" />
+        <Preference android:layout="@layout/credit_openweathermap">
+            <intent android:data="http://www.openweathermap.org" />
         </Preference>
         <Preference android:title="@string/api_lociq" />
         <Preference android:layout="@layout/credit_lociq">

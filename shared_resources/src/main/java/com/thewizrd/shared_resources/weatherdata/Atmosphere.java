@@ -129,6 +129,42 @@ public class Atmosphere {
         }
     }
 
+    public Atmosphere(com.thewizrd.shared_resources.weatherdata.nws.ObservationCurrentResponse obsCurrentResponse) {
+        try {
+            humidity = Integer.toString(Math.round(obsCurrentResponse.getRelativeHumidity().getValue()));
+        } catch (NullPointerException | NumberFormatException ex) {
+            humidity = null;
+        }
+        try {
+            pressureIn = ConversionMethods.paToInHg(
+                    Float.toString(obsCurrentResponse.getBarometricPressure().getValue()));
+            pressureMb = ConversionMethods.paToMB(
+                    Float.toString(obsCurrentResponse.getBarometricPressure().getValue()));
+        } catch (NullPointerException | NumberFormatException ex) {
+            pressureIn = null;
+            pressureMb = null;
+        }
+        pressureTrend = "";
+
+        try {
+            visibilityKm = Float.toString(obsCurrentResponse.getVisibility().getValue() / 1000);
+            visibilityMi = ConversionMethods.kmToMi(
+                    Float.toString(obsCurrentResponse.getVisibility().getValue() / 1000));
+        } catch (NullPointerException | NumberFormatException ex) {
+            visibilityKm = null;
+            visibilityMi = null;
+        }
+
+        try {
+            dewpointC = Float.toString(obsCurrentResponse.getDewpoint().getValue());
+            dewpointF = ConversionMethods.CtoF(
+                    Float.toString(obsCurrentResponse.getDewpoint().getValue()));
+        } catch (NullPointerException | NumberFormatException ex) {
+            dewpointC = null;
+            dewpointF = null;
+        }
+    }
+
     public String getHumidity() {
         return humidity;
     }

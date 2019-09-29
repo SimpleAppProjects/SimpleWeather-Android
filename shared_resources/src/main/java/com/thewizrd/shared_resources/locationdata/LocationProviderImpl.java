@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources.locationdata;
 
 import android.util.Log;
 
+import com.ibm.icu.util.ULocale;
 import com.skedgo.converter.TimezoneMapper;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -21,19 +22,46 @@ public abstract class LocationProviderImpl implements LocationProviderImplInterf
 
     public abstract boolean supportsLocale();
 
-    // Methods
-    // AutoCompleteQuery
+    /**
+     * Retrieve a list of locations from the location provider
+     *
+     * @param ac_query   The AutoComplete query used to search locations
+     * @param weatherAPI The weather source to be assigned
+     * @return A list of locations matching the query
+     * @throws WeatherException Weather Exception
+     */
     public abstract Collection<LocationQueryViewModel> getLocations(String ac_query, String weatherAPI) throws WeatherException;
 
-    // GeopositionQuery
+    /**
+     * Retrieve a single (geo)location from the location provider
+     *
+     * @param coordinate The coordinate used to search the location data
+     * @param weatherAPI The weather source to be assigned
+     * @return A single location matching the provided coordinate
+     * @throws WeatherException Weather Exception
+     */
     public abstract LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate, String weatherAPI) throws WeatherException;
 
-    // KeyCheck
+    /**
+     * Query the location provider if the provided key is valid
+     *
+     * @param key Provider key to check
+     * @return boolean Is valid or not
+     * @throws WeatherException Weather Exception
+     */
     public abstract boolean isKeyValid(String key) throws WeatherException;
 
     public abstract String getAPIKey();
 
-    // Utils Methods
+    /**
+     * Refresh/update the location data from the supported location provider
+     * and commit update to the database
+     *
+     * Uses coordinate {@link LocationData#getLatitude()}, {@link LocationData#getLongitude()}
+     * to query location provider for updated location data
+     *
+     * @param location Location data to update
+     */
     @Override
     public void updateLocationData(LocationData location, String weatherAPI) {
         LocationQueryViewModel qview = null;
@@ -64,9 +92,15 @@ public abstract class LocationProviderImpl implements LocationProviderImplInterf
         }
     }
 
+    /**
+     * Returns the locale code supported by this location provider
+     *
+     * @param iso See {@link ULocale#getLanguage()}
+     * @param name See {@link ULocale#toLanguageTag()}
+     * @return The locale code supported by this provider
+     */
     @Override
     public String localeToLangCode(String iso, String name) {
         return "EN";
     }
-
 }

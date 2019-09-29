@@ -98,6 +98,10 @@ import com.thewizrd.simpleweather.fragments.LocationSearchFragment;
 import com.thewizrd.simpleweather.preferences.ArrayListPreference;
 import com.thewizrd.simpleweather.preferences.CustomListPreferenceDialogFragment;
 import com.thewizrd.simpleweather.setup.SetupActivity;
+import com.thewizrd.simpleweather.snackbar.Snackbar;
+import com.thewizrd.simpleweather.snackbar.SnackbarManager;
+import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface;
+import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -999,6 +1003,22 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         if (mSearchFragment.ctsCancelRequested()) {
                             mSearchFragment.showLoading(false);
                             query_vm = null;
+                            return;
+                        }
+
+                        String country_code = query_vm.getLocationCountry();
+                        if (!StringUtils.isNullOrWhitespace(country_code))
+                            country_code = country_code.toLowerCase();
+
+                        if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mSearchFragment.showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.SHORT),
+                                            new SnackbarWindowAdjustCallback(mActivity));
+                                }
+                            });
+                            mSearchFragment.showLoading(false);
                             return;
                         }
 

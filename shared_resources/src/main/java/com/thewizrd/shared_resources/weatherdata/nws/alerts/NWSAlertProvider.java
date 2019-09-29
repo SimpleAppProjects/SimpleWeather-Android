@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.weatherdata.nws;
+package com.thewizrd.shared_resources.weatherdata.nws.alerts;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;

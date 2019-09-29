@@ -66,7 +66,9 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
             }
 
             if (first instanceof HourlyForecastItemViewModel) {
-                if (Settings.getAPI().equals(WeatherAPI.OPENWEATHERMAP) || Settings.getAPI().equals(WeatherAPI.METNO)) {
+                if (Settings.getAPI().equals(WeatherAPI.OPENWEATHERMAP) ||
+                        Settings.getAPI().equals(WeatherAPI.METNO) ||
+                        Settings.getAPI().equals(WeatherAPI.NWS)) {
                     return 2;
                 } else {
                     return 3;

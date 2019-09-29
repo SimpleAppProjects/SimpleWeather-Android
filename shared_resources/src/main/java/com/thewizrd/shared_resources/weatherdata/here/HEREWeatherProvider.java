@@ -19,7 +19,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
-import com.thewizrd.shared_resources.weatherdata.nws.NWSAlertProvider;
+import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider;
 
 import org.threeten.bp.ZoneOffset;
 

@@ -162,6 +162,21 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                             return;
                         }
 
+                        String country_code = query_vm.getLocationCountry();
+                        if (!StringUtils.isNullOrWhitespace(country_code))
+                            country_code = country_code.toLowerCase();
+
+                        if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(mActivity, R.string.error_message_weather_us_only, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            showLoading(false);
+                            return;
+                        }
+
                         // Need to get FULL location data for HERE API
                         // Data provided is incomplete
                         if (WeatherAPI.HERE.equals(query_vm.getLocationSource())

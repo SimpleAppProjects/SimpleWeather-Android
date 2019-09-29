@@ -58,10 +58,12 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
 
         // Extras
         if (hrForecast.getExtras() != null) {
-            detailExtras.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
-                    Settings.isFahrenheit() ?
-                            String.format(Locale.getDefault(), "%dº", Math.round(hrForecast.getExtras().getFeelslikeF())) :
-                            String.format(Locale.getDefault(), "%dº", Math.round(hrForecast.getExtras().getFeelslikeC()))));
+            if (hrForecast.getExtras().getFeelslikeF() != 0) {
+                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
+                        Settings.isFahrenheit() ?
+                                String.format(Locale.getDefault(), "%dº", Math.round(hrForecast.getExtras().getFeelslikeF())) :
+                                String.format(Locale.getDefault(), "%dº", Math.round(hrForecast.getExtras().getFeelslikeC()))));
+            }
 
             String qpfRain = Settings.isFahrenheit() ?
                     String.format(Locale.getDefault(), "%.2f in", hrForecast.getExtras().getQpfRainIn()) :
@@ -75,19 +77,23 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
                 if (hrForecast.getExtras().getQpfSnowIn() >= 0)
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
-                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, pop));
+                if (!StringUtils.isNullOrWhitespace(hrForecast.getPop()))
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, pop));
             } else {
-                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, pop));
+                if (!StringUtils.isNullOrWhitespace(hrForecast.getPop()))
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, pop));
                 if (hrForecast.getExtras().getQpfRainIn() >= 0)
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
                 if (hrForecast.getExtras().getQpfSnowIn() >= 0)
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
             }
 
-            detailExtras.add(new DetailItemViewModel(WeatherDetailsType.HUMIDITY,
-                    hrForecast.getExtras().getHumidity().endsWith("%") ?
-                            hrForecast.getExtras().getHumidity() :
-                            hrForecast.getExtras().getHumidity() + "%"));
+            if (!StringUtils.isNullOrWhitespace(hrForecast.getExtras().getHumidity())) {
+                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.HUMIDITY,
+                        hrForecast.getExtras().getHumidity().endsWith("%") ?
+                                hrForecast.getExtras().getHumidity() :
+                                hrForecast.getExtras().getHumidity() + "%"));
+            }
 
             if (!StringUtils.isNullOrWhitespace(hrForecast.getExtras().getDewpointF())) {
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.DEWPOINT,
@@ -119,8 +125,10 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                 }
             }
 
-            detailExtras.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
-                    String.format(Locale.ROOT, "%s, %s", windSpeed, windDir), windDirection));
+            if (!StringUtils.isNullOrWhitespace(windSpeed)) {
+                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
+                        String.format(Locale.ROOT, "%s, %s", windSpeed, windDir), windDirection));
+            }
 
             if (!StringUtils.isNullOrWhitespace(hrForecast.getExtras().getVisibilityMi())) {
                 String visibilityVal = Settings.isFahrenheit() ?

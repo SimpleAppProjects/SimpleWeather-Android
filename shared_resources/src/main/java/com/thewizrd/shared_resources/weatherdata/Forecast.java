@@ -177,6 +177,17 @@ public class Forecast {
         }
     }
 
+    public Forecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem, com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem nightForecastItem) {
+        date = ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME).toLocalDateTime();
+        highF = Integer.toString(forecastItem.getTemperature());
+        highC = ConversionMethods.FtoC(highF);
+        lowF = Integer.toString(nightForecastItem.getTemperature());
+        lowC = ConversionMethods.FtoC(lowF);
+        condition = forecastItem.getShortForecast();
+        icon = WeatherManager.getProvider(WeatherAPI.NWS)
+                .getWeatherIcon(forecastItem.getIcon());
+    }
+
     public LocalDateTime getDate() {
         return date;
     }

@@ -13,7 +13,7 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.here.AlertsItem;
 import com.thewizrd.shared_resources.weatherdata.here.TimeSegmentItem;
-import com.thewizrd.shared_resources.weatherdata.nws.GraphItem;
+import com.thewizrd.shared_resources.weatherdata.nws.alerts.GraphItem;
 import com.thewizrd.shared_resources.weatherdata.weatherunderground.Alert;
 
 import org.threeten.bp.DayOfWeek;

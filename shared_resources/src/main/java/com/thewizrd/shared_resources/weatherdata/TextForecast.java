@@ -83,6 +83,15 @@ public class TextForecast {
         pop = forecast.getPrecipitationProbability();
     }
 
+    public TextForecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem) {
+        title = forecastItem.getName();
+        fcttext = forecastItem.getDetailedForecast();
+        fcttextMetric = forecastItem.getDetailedForecast();
+        icon = WeatherManager.getProvider(WeatherAPI.NWS)
+                .getWeatherIcon(forecastItem.getIcon());
+        pop = null;
+    }
+
     public String getTitle() {
         return title;
     }

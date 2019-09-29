@@ -18,6 +18,8 @@ public class ConversionMethods {
     private static final double MSEC_TO_KPH = 3.6;
     private static final double MM_TO_IN = 1 / 25.4;
     private static final double IN_TO_MM = 25.4;
+    private static final double PA_TO_INHG = 0.0002952998751;
+    private static final double PA_TO_MB = 0.01;
 
     private static final DecimalFormat df;
 
@@ -32,6 +34,16 @@ public class ConversionMethods {
 
     public static String inHgToMB(String input) {
         double result = INHG_TO_MB * Double.valueOf(input);
+        return df.format(result);
+    }
+
+    public static String paToInHg(String input) {
+        double result = PA_TO_INHG * Double.valueOf(input);
+        return df.format(result);
+    }
+
+    public static String paToMB(String input) {
+        double result = PA_TO_MB * Double.valueOf(input);
         return df.format(result);
     }
 

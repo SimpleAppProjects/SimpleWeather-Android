@@ -13,6 +13,7 @@ import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.here.HEREWeatherProvider;
 import com.thewizrd.shared_resources.weatherdata.metno.MetnoWeatherProvider;
+import com.thewizrd.shared_resources.weatherdata.nws.NWSWeatherProvider;
 import com.thewizrd.shared_resources.weatherdata.openweather.OpenWeatherMapProvider;
 import com.thewizrd.shared_resources.weatherdata.weatheryahoo.YahooWeatherProvider;
 
@@ -59,6 +60,9 @@ public class WeatherManager implements WeatherProviderImplInterface {
                 break;
             case WeatherAPI.METNO:
                 providerImpl = new MetnoWeatherProvider();
+                break;
+            case WeatherAPI.NWS:
+                providerImpl = new NWSWeatherProvider();
                 break;
             default:
                 break;

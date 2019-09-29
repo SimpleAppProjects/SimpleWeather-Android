@@ -1,7 +1,6 @@
 package com.thewizrd.shared_resources.utils;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.location.Location;
 import android.text.format.DateFormat;
 import android.util.SparseArray;
@@ -146,6 +145,42 @@ public class WeatherUtils {
             return "NW";
         } else/* if (angle >= 326.25 && angle <= 348.75)*/ {
             return "NNW";
+        }
+    }
+
+    public static int getWindDirection(String direction) {
+        if ("N".equals(direction)) {
+            return 0;
+        } else if ("NNE".equals(direction)) {
+            return 22;
+        } else if ("NE".equals(direction)) {
+            return 45;
+        } else if ("ENE".equals(direction)) {
+            return 67;
+        } else if ("E".equals(direction)) {
+            return 90;
+        } else if ("ESE".equals(direction)) {
+            return 112;
+        } else if ("SE".equals(direction)) {
+            return 135;
+        } else if ("SSE".equals(direction)) {
+            return 157;
+        } else if ("S".equals(direction)) {
+            return 180;
+        } else if ("SSW".equals(direction)) {
+            return 202;
+        } else if ("SW".equals(direction)) {
+            return 225;
+        } else if ("WSW".equals(direction)) {
+            return 247;
+        } else if ("W".equals(direction)) {
+            return 270;
+        } else if ("WNW".equals(direction)) {
+            return 292;
+        } else if ("NW".equals(direction)) {
+            return 315;
+        } else {
+            return 337;
         }
     }
 

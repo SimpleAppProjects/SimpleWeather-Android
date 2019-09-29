@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources.weatherdata;
 
 import androidx.annotation.ColorInt;
 
+import com.ibm.icu.util.ULocale;
 import com.skedgo.converter.TimezoneMapper;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
@@ -12,7 +13,7 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
-import com.thewizrd.shared_resources.weatherdata.nws.NWSAlertProvider;
+import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider;
 
 import java.util.Collection;
 import java.util.List;
@@ -31,20 +32,49 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
 
     public abstract boolean needsExternalAlertData();
 
-    // Methods
-    // AutoCompleteQuery
+    /**
+     * Retrieve a list of locations from the location provider
+     *
+     * @param ac_query The AutoComplete query used to search locations
+     * @return A list of locations matching the query
+     * @throws WeatherException Weather Exception
+     */
     public final Collection<LocationQueryViewModel> getLocations(String ac_query) throws WeatherException {
         return locationProvider.getLocations(ac_query, getWeatherAPI());
     }
 
-    // GeopositionQuery
+    /**
+     * Retrieve a single location from the location provider
+     *
+     * @param coordinate The coordinate used to search the location data
+     * @return A single location matching the provided coordinate
+     * @throws WeatherException Weather Exception
+     */
     public final LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate) throws WeatherException {
         return locationProvider.getLocation(coordinate, getWeatherAPI());
     }
 
-    // Weather
+    /**
+     * Retrieve weather data from the weather provider
+     *
+     * @param location_query Location query to retrieve weather data;
+     *                       Query string is defined in {@link LocationQueryViewModel#updateLocationQuery()}
+     * @return Weather data object
+     * @throws WeatherException Weather Exception
+     */
     public abstract Weather getWeather(String location_query) throws WeatherException;
 
+    /**
+     * This method is used to update the weather data retrieved with the query
+     * (see {@link WeatherProviderImpl#getWeather(String)})
+     * <p>
+     * Mostly used to update Weather data with time zone info from {@link LocationData} or
+     * to update {@link LocationData} if itself is missing TZ data
+     *
+     * @param location Location Data object
+     * @return updated Weather data object
+     * @throws WeatherException Weather Exception
+     */
     @Override
     public Weather getWeather(LocationData location) throws WeatherException {
         if (location == null || location.getQuery() == null)
@@ -86,7 +116,12 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
         return weather;
     }
 
-    // Alerts
+    /**
+     * Query the alert provider for current available weather alerts (currently US-only supported)
+     *
+     * @param location The location data used to search for weather alerts
+     * @return A collection of weather alerts currently available
+     */
     @Override
     public List<WeatherAlert> getAlerts(LocationData location) {
         if ("US".equals(location.getCountryCode()))
@@ -95,21 +130,56 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             return null;
     }
 
-    // KeyCheck
+    /**
+     * Query the weather provider if the provided key is valid
+     *
+     * @param key Provider key to check
+     * @return boolean Is valid or not
+     * @throws WeatherException Weather Exception
+     */
     public abstract boolean isKeyValid(String key) throws WeatherException;
 
     public abstract String getAPIKey();
 
     // Utils Methods
+
+    /**
+     * Refresh/update the location data from the supported location provider
+     * and commit update to the database
+     *
+     * Uses coordinate {@link LocationData#getLatitude()}, {@link LocationData#getLongitude()}
+     * to query location provider for updated location data
+     *
+     * @param location Location data to update
+     */
     @Override
     public final void updateLocationData(LocationData location) {
         locationProvider.updateLocationData(location, getWeatherAPI());
     }
 
+    /**
+     * Returns an location query supported by this weather provider
+     *
+     * @param weather Weather data used to retrieve updated query
+     * @return Returns location query supported by this weather provider
+     */
     public abstract String updateLocationQuery(Weather weather);
 
+    /**
+     * Returns an location query supported by this weather provider
+     *
+     * @param location Location data used to retrieve updated query
+     * @return Returns location query supported by this weather provider
+     */
     public abstract String updateLocationQuery(LocationData location);
 
+    /**
+     * Returns the locale code supported by this weather provider
+     *
+     * @param iso See {@link ULocale#getLanguage()}
+     * @param name See {@link ULocale#toLanguageTag()}
+     * @return The locale code supported by this provider
+     */
     @Override
     public String localeToLangCode(String iso, String name) {
         return "EN";
@@ -160,7 +230,7 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
 
     @Override
     @ColorInt
-    public int getWeatherBackgroundColor(Weather weather) {
+    public final int getWeatherBackgroundColor(Weather weather) {
         int rgb = -1;
         String icon = weather.getCondition().getIcon();
 
@@ -419,7 +489,7 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
     }
 
     @Override
-    public int getWeatherIconResource(String icon) {
+    public final int getWeatherIconResource(String icon) {
         int weatherIcon = -1;
 
         switch (icon) {

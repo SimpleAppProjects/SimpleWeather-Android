@@ -16,7 +16,6 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
-import com.thewizrd.shared_resources.weatherdata.metno.Weatherdata;
 
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
@@ -225,7 +224,7 @@ public class Weather {
 
         // Metno data is troublesome to parse thru
         for (int i = 0; i < foreRoot.getProduct().getTime().size(); i++) {
-            Weatherdata.Time time = foreRoot.getProduct().getTime().get(i);
+            com.thewizrd.shared_resources.weatherdata.metno.Weatherdata.Time time = foreRoot.getProduct().getTime().get(i);
             LocalDateTime date = LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getFrom())), ZoneOffset.UTC);
 
             // Create condition for next 2hrs from data
@@ -381,6 +380,7 @@ public class Weather {
 
         location = new Location(root.getObservations().getLocation().get(0));
         updateTime = now;
+        // TODO: NOTE: combine Forecast and TextForecast loops
         forecast = new Forecast[root.getDailyForecasts().getForecastLocation().getForecast().size()];
         for (int i = 0; i < forecast.length; i++) {
             forecast[i] = new Forecast(root.getDailyForecasts().getForecastLocation().getForecast().get(i));
@@ -405,6 +405,44 @@ public class Weather {
         ttl = "180";
 
         source = WeatherAPI.HERE;
+    }
+
+    public Weather(com.thewizrd.shared_resources.weatherdata.nws.PointsResponse pointsResponse, com.thewizrd.shared_resources.weatherdata.nws.ForecastResponse forecastResponse, com.thewizrd.shared_resources.weatherdata.nws.HourlyForecastResponse hourlyForecastResponse, com.thewizrd.shared_resources.weatherdata.nws.ObservationCurrentResponse obsCurrentResponse) {
+        location = new Location(pointsResponse);
+        updateTime = ZonedDateTime.now();
+
+        List<Forecast> forecasts = new ArrayList<>();
+        List<TextForecast> textForecasts = new ArrayList<>();
+
+        for (int i = 0; i < forecastResponse.getPeriods().size(); i++) {
+            com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem = forecastResponse.getPeriods().get(i);
+
+            if (forecasts.isEmpty() && !forecastItem.isIsDaytime())
+                continue;
+
+            if (forecastItem.isIsDaytime() && (i + 1) < forecastResponse.getPeriods().size()) {
+                com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem nightForecastItem = forecastResponse.getPeriods().get(i + 1);
+                forecasts.add(new Forecast(forecastItem, nightForecastItem));
+
+                textForecasts.add(new TextForecast(forecastItem));
+                textForecasts.add(new TextForecast(nightForecastItem));
+
+                i++;
+            }
+        }
+        forecast = forecasts.toArray(new Forecast[0]);
+        txtForecast = textForecasts.toArray(new TextForecast[0]);
+        hrForecast = new HourlyForecast[hourlyForecastResponse.getPeriods().size()];
+        for (int i = 0; i < hrForecast.length; i++) {
+            hrForecast[i] = new HourlyForecast(hourlyForecastResponse.getPeriods().get(i));
+        }
+        condition = new Condition(obsCurrentResponse);
+        atmosphere = new Atmosphere(obsCurrentResponse);
+        //astronomy = new Astronomy(obsCurrentResponse);
+        //precipitation = new Precipitation(obsCurrentResponse);
+        ttl = "180";
+
+        source = WeatherAPI.NWS;
     }
 
     public Location getLocation() {
@@ -755,7 +793,7 @@ public class Weather {
 
     public boolean isValid() {
         if (location == null || (forecast == null || forecast.length == 0)
-                || condition == null || atmosphere == null || astronomy == null)
+                || condition == null || atmosphere == null)
             return false;
         else
             return true;

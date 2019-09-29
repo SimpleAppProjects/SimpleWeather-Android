@@ -45,10 +45,12 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
 
         // Extras
         if (forecast.getExtras() != null) {
-            detailExtras.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
-                    Settings.isFahrenheit() ?
-                            String.format(Locale.getDefault(), "%dº", Math.round(forecast.getExtras().getFeelslikeF())) :
-                            String.format(Locale.getDefault(), "%dº", Math.round(forecast.getExtras().getFeelslikeC()))));
+            if (forecast.getExtras().getFeelslikeF() != 0) {
+                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
+                        Settings.isFahrenheit() ?
+                                String.format(Locale.getDefault(), "%dº", Math.round(forecast.getExtras().getFeelslikeF())) :
+                                String.format(Locale.getDefault(), "%dº", Math.round(forecast.getExtras().getFeelslikeC()))));
+            }
 
             String chance = pop = forecast.getExtras().getPop() + "%";
             String qpfRain = Settings.isFahrenheit() ?
@@ -63,9 +65,11 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
                 if (forecast.getExtras().getQpfSnowIn() >= 0)
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
-                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, chance));
+                if (!StringUtils.isNullOrWhitespace(forecast.getExtras().getPop()))
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, chance));
             } else {
-                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, chance));
+                if (!StringUtils.isNullOrWhitespace(forecast.getExtras().getPop()))
+                    detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, chance));
                 if (forecast.getExtras().getQpfRainIn() >= 0)
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
                 if (forecast.getExtras().getQpfSnowIn() >= 0)

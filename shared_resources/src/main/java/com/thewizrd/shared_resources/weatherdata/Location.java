@@ -92,6 +92,18 @@ public class Location {
         tzShort = "UTC";
     }
 
+    public Location(com.thewizrd.shared_resources.weatherdata.nws.PointsResponse pointsResponse) {
+        // Use location name from location provider
+        name = null;
+
+        ZoneId zId = ZoneId.of(pointsResponse.getTimeZone());
+
+        tzOffset = zId.getRules().getOffset(Instant.now());
+        tzShort = ZonedDateTime.now(zId)
+                .format(DateTimeFormatter.ofPattern("z", Locale.getDefault()));
+        tzLong = pointsResponse.getTimeZone();
+    }
+
     public String getName() {
         return name;
     }
