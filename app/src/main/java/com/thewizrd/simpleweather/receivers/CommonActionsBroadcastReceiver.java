@@ -13,6 +13,7 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.simpleweather.services.WeatherUpdaterService;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
+import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 import com.thewizrd.simpleweather.widgets.WidgetUtils;
 
 import java.io.StringReader;
@@ -35,6 +36,8 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
                 WearableDataListenerService.enqueueWork(context, new Intent(context, WearableDataListenerService.class)
                         .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
             } else if (CommonActions.ACTION_SETTINGS_UPDATEUNIT.equals(intent.getAction())) {
+                WearableDataListenerService.enqueueWork(context, new Intent(context, WearableDataListenerService.class)
+                        .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
                 WeatherUpdaterService.enqueueWork(context, new Intent(context, WeatherUpdaterService.class)
                         .setAction(WeatherUpdaterService.ACTION_UPDATEWEATHER));
             } else if (CommonActions.ACTION_SETTINGS_UPDATEREFRESH.equals(intent.getAction())) {
@@ -83,6 +86,14 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
                 WearableDataListenerService.enqueueWork(context,
                         new Intent(context, WearableDataListenerService.class)
                                 .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
+            } else if (CommonActions.ACTION_WIDGET_RESETWIDGETS.equals(intent.getAction())) {
+                WeatherWidgetService.enqueueWork(context,
+                        new Intent(context, WeatherWidgetService.class)
+                                .setAction(WeatherWidgetService.ACTION_RESETGPSWIDGETS));
+            } else if (CommonActions.ACTION_WIDGET_REFRESHWIDGETS.equals(intent.getAction())) {
+                WeatherWidgetService.enqueueWork(context,
+                        new Intent(context, WeatherWidgetService.class)
+                                .setAction(WeatherWidgetService.ACTION_REFRESHGPSWIDGETS));
             }
 
             Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent.getAction());

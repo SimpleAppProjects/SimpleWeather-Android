@@ -212,6 +212,8 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                 WeatherWidgetService.enqueueWork(getAppCompatActivity(), filter.getIntent());
             } else if (WeatherUpdaterService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
                 WeatherUpdaterService.enqueueWork(getAppCompatActivity(), filter.getIntent());
+            } else if (WearableDataListenerService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
+                WearableDataListenerService.enqueueWork(getAppCompatActivity(), filter.getIntent());
             } else {
                 getAppCompatActivity().startService(filter.getIntent());
             }
@@ -759,6 +761,8 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                 break;
             // Settings unit changed
             case KEY_USECELSIUS:
+                enqueueIntent(new Intent(context, WearableDataListenerService.class)
+                        .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
                 enqueueIntent(new Intent(context, WeatherUpdaterService.class)
                         .setAction(WeatherUpdaterService.ACTION_UPDATEWEATHER));
                 break;
