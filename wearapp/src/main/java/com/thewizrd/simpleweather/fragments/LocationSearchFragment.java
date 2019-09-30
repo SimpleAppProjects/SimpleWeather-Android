@@ -18,6 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.wear.widget.SwipeDismissFrameLayout;
 import androidx.wear.widget.WearableLinearLayoutManager;
@@ -35,6 +36,7 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
+import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -248,6 +250,12 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                         if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
                             Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
                         Settings.saveWeatherData(weather);
+
+                        // If we're changing locations, trigger an update
+                        if (Settings.isWeatherLoaded()) {
+                            LocalBroadcastManager.getInstance(mActivity)
+                                    .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
+                        }
 
                         // If we're using search
                         // make sure gps feature is off

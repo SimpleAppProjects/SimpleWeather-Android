@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.wear.widget.drawer.WearableActionDrawerView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -42,6 +43,7 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.WearableDataSync;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -452,6 +454,12 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
                         if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
                             Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
                         Settings.saveWeatherData(weather);
+
+                        // If we're changing locations, trigger an update
+                        if (Settings.isWeatherLoaded()) {
+                            LocalBroadcastManager.getInstance(getApplicationContext())
+                                    .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
+                        }
 
                         Settings.setFollowGPS(true);
                         Settings.setWeatherLoaded(true);
