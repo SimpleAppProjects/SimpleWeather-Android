@@ -23,14 +23,14 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
-import com.thewizrd.shared_resources.helpers.WearableDataSync;
-import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.wearable.WearableDataSync;
+import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
@@ -191,6 +191,8 @@ public class WeatherComplicationService extends ComplicationProviderService {
                             ttl = Integer.parseInt(weather.getTtl());
                         } catch (NumberFormatException ex) {
                             Logger.writeLine(Log.ERROR, ex);
+                        } finally {
+                            ttl = Math.max(ttl, Settings.getRefreshInterval());
                         }
 
                         // Check file age

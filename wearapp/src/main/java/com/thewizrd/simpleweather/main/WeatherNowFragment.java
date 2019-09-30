@@ -49,9 +49,6 @@ import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
-import com.thewizrd.shared_resources.helpers.WearConnectionStatus;
-import com.thewizrd.shared_resources.helpers.WearableDataSync;
-import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -61,6 +58,9 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.wearable.WearConnectionStatus;
+import com.thewizrd.shared_resources.wearable.WearableDataSync;
+import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
@@ -189,7 +189,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
                     if (!loaded) {
                         Duration span = Duration.between(ZonedDateTime.now(), weather.getUpdateTime()).abs();
-                        if (Settings.getDataSync() != WearableDataSync.OFF && span.toMinutes() > Settings.DEFAULTINTERVAL) {
+                        if (Settings.getDataSync() != WearableDataSync.OFF && span.toMinutes() > Settings.getRefreshInterval()) {
                             // send request to refresh data on connected device
                             mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
                                     .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE)
@@ -351,6 +351,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             // Device is setup and connected; proceed with sync
                             if (mActivity != null) {
                                 mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
+                                        .setAction(WearableDataListenerService.ACTION_REQUESTSETTINGSUPDATE));
+                                mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
                                         .setAction(WearableDataListenerService.ACTION_REQUESTLOCATIONUPDATE));
                                 mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
                                         .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE));
@@ -364,6 +366,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             cancelDataSync();
                         }
                     }
+                } else if (WearableHelper.SettingsPath.equals(intent.getAction()) && loaded && wLoader != null) {
+                    // Refresh weather in case the unit changed
+                    wLoader.forceLoadSavedWeatherData();
                 }
             }
         };
@@ -666,7 +671,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                         } else {
                             // Check weather data expiration
                             Duration span = Duration.between(ZonedDateTime.now(), weather.getUpdateTime()).abs();
-                            if (span.toMinutes() > Settings.DEFAULTINTERVAL) {
+                            if (span.toMinutes() > Settings.getRefreshInterval()) {
                                 refreshWeather(false);
                             } else {
                                 if (ctsToken.isCancellationRequested())
@@ -777,7 +782,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                         } else {
                             // Check weather data expiration
                             Duration span = Duration.between(ZonedDateTime.now(), weather.getUpdateTime()).abs();
-                            if (span.toMinutes() > Settings.DEFAULTINTERVAL && mActivity != null) {
+                            if (span.toMinutes() > Settings.getRefreshInterval() && mActivity != null) {
                                 // send request to refresh data on connected device
                                 mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
                                         .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE)

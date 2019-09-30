@@ -756,6 +756,8 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                         .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
                 enqueueIntent(new Intent(context, WeatherUpdaterService.class)
                         .setAction(WeatherUpdaterService.ACTION_UPDATEWEATHER));
+                enqueueIntent(new Intent(context, WearableDataListenerService.class)
+                        .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
                 enqueueIntent(new Intent(context, WeatherWidgetService.class)
                         .setAction(value ? WeatherWidgetService.ACTION_REFRESHGPSWIDGETS : WeatherWidgetService.ACTION_RESETGPSWIDGETS));
                 break;

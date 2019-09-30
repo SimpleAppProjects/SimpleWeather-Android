@@ -26,12 +26,13 @@ import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 import com.thewizrd.shared_resources.AsyncTask;
-import com.thewizrd.shared_resources.helpers.WearWeatherJSON;
-import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.wearable.WearWeatherJSON;
+import com.thewizrd.shared_resources.wearable.WearableHelper;
+import com.thewizrd.shared_resources.wearable.WearableSettings;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.simpleweather.App;
@@ -287,11 +288,14 @@ public class WearableDataListenerService extends WearableListenerService {
         }
 
         PutDataMapRequest mapRequest = PutDataMapRequest.create(WearableHelper.SettingsPath);
-        mapRequest.getDataMap().putString("API", Settings.getAPI());
-        mapRequest.getDataMap().putString("API_KEY", Settings.getAPIKEY());
-        mapRequest.getDataMap().putBoolean("KeyVerified", Settings.isKeyVerified());
-        mapRequest.getDataMap().putBoolean("FollowGPS", Settings.useFollowGPS());
-        mapRequest.getDataMap().putLong("update_time", Instant.now().toEpochMilli());
+        mapRequest.getDataMap().putString(WearableSettings.KEY_API, Settings.getAPI());
+        mapRequest.getDataMap().putString(WearableSettings.KEY_APIKEY, Settings.getAPIKEY());
+        mapRequest.getDataMap().putBoolean(WearableSettings.KEY_APIKEY_VERIFIED, Settings.isKeyVerified());
+        mapRequest.getDataMap().putBoolean(WearableSettings.KEY_FOLLOWGPS, Settings.useFollowGPS());
+        mapRequest.getDataMap().putLong(WearableSettings.KEY_UPDATETIME, Instant.now().toEpochMilli());
+        mapRequest.getDataMap().putString(WearableSettings.KEY_UNIT, Settings.getTempUnit());
+        int interval = Settings.getRefreshInterval();
+        mapRequest.getDataMap().putInt(WearableSettings.KEY_REFRESHINTERVAL, interval);
         PutDataRequest request = mapRequest.asPutDataRequest();
         if (urgent) request.setUrgent();
         try {

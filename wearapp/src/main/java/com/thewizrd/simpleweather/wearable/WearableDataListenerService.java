@@ -31,21 +31,23 @@ import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
-import com.thewizrd.shared_resources.helpers.WearConnectionStatus;
-import com.thewizrd.shared_resources.helpers.WearWeatherJSON;
-import com.thewizrd.shared_resources.helpers.WearableDataSync;
-import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.wearable.WearConnectionStatus;
+import com.thewizrd.shared_resources.wearable.WearWeatherJSON;
+import com.thewizrd.shared_resources.wearable.WearableDataSync;
+import com.thewizrd.shared_resources.wearable.WearableHelper;
+import com.thewizrd.shared_resources.wearable.WearableSettings;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 
+import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
@@ -392,6 +394,14 @@ public class WearableDataListenerService extends WearableListenerService {
         try {
             dataItem = Tasks.await(Wearable.getDataClient(WearableDataListenerService.this)
                     .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp.getId(), WearableHelper.SettingsPath)));
+
+            long update_time = DataMapItem.fromDataItem(dataItem).getDataMap().getLong("update_time");
+            LocalDateTime upDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(update_time), ZoneOffset.UTC);
+            LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+
+            if (Duration.between(upDateTime, now).abs().toMinutes() >= Settings.getRefreshInterval()) {
+                dataItem = null;
+            }
         } catch (ExecutionException | InterruptedException e) {
             Logger.writeLine(Log.ERROR, e);
         }
@@ -422,6 +432,14 @@ public class WearableDataListenerService extends WearableListenerService {
         try {
             dataItem = Tasks.await(Wearable.getDataClient(WearableDataListenerService.this)
                     .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp.getId(), WearableHelper.LocationPath)));
+
+            long update_time = DataMapItem.fromDataItem(dataItem).getDataMap().getLong("update_time");
+            LocalDateTime upDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(update_time), ZoneOffset.UTC);
+            LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+
+            if (Duration.between(upDateTime, now).abs().toMinutes() >= Settings.getRefreshInterval()) {
+                dataItem = null;
+            }
         } catch (ExecutionException | InterruptedException e) {
             Logger.writeLine(Log.ERROR, e);
         }
@@ -492,9 +510,9 @@ public class WearableDataListenerService extends WearableListenerService {
 
     private void updateSettings(final DataMap dataMap) {
         if (dataMap != null && !dataMap.isEmpty()) {
-            String API = dataMap.getString("API", "");
-            String API_KEY = dataMap.getString("API_KEY", "");
-            boolean keyVerified = dataMap.getBoolean("KeyVerified", false);
+            String API = dataMap.getString(WearableSettings.KEY_API, "");
+            String API_KEY = dataMap.getString(WearableSettings.KEY_APIKEY, "");
+            boolean keyVerified = dataMap.getBoolean(WearableSettings.KEY_APIKEY_VERIFIED, false);
             if (!StringUtils.isNullOrWhitespace(API)) {
                 Settings.setAPI(API);
                 if (WeatherManager.isKeyRequired(API)) {
@@ -506,7 +524,12 @@ public class WearableDataListenerService extends WearableListenerService {
                 }
             }
 
-            Settings.setFollowGPS(dataMap.getBoolean("FollowGPS", false));
+            Settings.setFollowGPS(dataMap.getBoolean(WearableSettings.KEY_FOLLOWGPS, false));
+
+            Settings.setTempUnit(dataMap.getString(WearableSettings.KEY_UNIT, Settings.FAHRENHEIT));
+
+            int newInterval = dataMap.getInt(WearableSettings.KEY_REFRESHINTERVAL, Settings.DEFAULTINTERVAL);
+            Settings.setRefreshInterval(Math.max(Settings.DEFAULTINTERVAL, newInterval));
 
             // Send callback to receiver
             LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(

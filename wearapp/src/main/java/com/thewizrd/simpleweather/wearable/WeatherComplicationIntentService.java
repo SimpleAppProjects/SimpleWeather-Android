@@ -48,7 +48,7 @@ public class WeatherComplicationIntentService extends JobIntentService {
         if (ACTION_UPDATECOMPLICATIONS.equals(intent.getAction())) {
             boolean force = intent.getBooleanExtra(EXTRA_FORCEUPDATE, false);
 
-            if (Duration.between(LocalDateTime.now(), WeatherComplicationService.getUpdateTime()).toMinutes() > Settings.DEFAULTINTERVAL)
+            if (Duration.between(LocalDateTime.now(), WeatherComplicationService.getUpdateTime()).toMinutes() > Settings.getRefreshInterval())
                 force = true;
 
             if (force) {

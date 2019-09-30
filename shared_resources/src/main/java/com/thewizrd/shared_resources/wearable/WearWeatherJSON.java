@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.helpers;
+package com.thewizrd.shared_resources.wearable;
 
 import android.util.Log;
 

@@ -9,6 +9,7 @@ import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.simpleweather.wearable.WeatherComplicationIntentService;
 
 public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
@@ -26,6 +27,9 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
                                 .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS)
                                 .putExtra(WeatherComplicationIntentService.EXTRA_FORCEUPDATE, true));
             } else if (CommonActions.ACTION_SETTINGS_UPDATEDATASYNC.equals(intent.getAction())) {
+                // Reset interval if setting is off
+                if (Settings.getDataSync() == WearableDataSync.OFF)
+                    Settings.setRefreshInterval(Settings.DEFAULTINTERVAL);
                 // Reset UpdateTime value to force a refresh
                 Settings.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN());
             }

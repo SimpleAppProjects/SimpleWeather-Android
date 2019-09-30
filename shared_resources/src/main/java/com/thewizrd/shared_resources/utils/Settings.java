@@ -15,8 +15,8 @@ import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.database.LocationsDatabase;
 import com.thewizrd.shared_resources.database.WeatherDatabase;
-import com.thewizrd.shared_resources.helpers.WearableDataSync;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.weatherdata.Favorites;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
@@ -68,7 +68,7 @@ public class Settings {
     // Settings Keys
     public static final String KEY_API = "API";
     public static final String KEY_APIKEY = "API_KEY";
-    private static final String KEY_APIKEY_VERIFIED = "API_KEY_VERIFIED";
+    public static final String KEY_APIKEY_VERIFIED = "API_KEY_VERIFIED";
     public static final String KEY_USECELSIUS = "key_usecelsius";
     public static final String KEY_UNITS = "Units";
     private static final String KEY_WEATHERLOADED = "weatherLoaded";
@@ -144,7 +144,10 @@ public class Settings {
                 // Data sync setting changed
                 case KEY_DATASYNC:
                     // Reset UpdateTime value to force a refresh
+                    value = sharedPreferences.getBoolean(key, false);
                     setUpdateTime(DateTimeUtils.getLocalDateTimeMIN());
+                    // Reset interval if setting is off
+                    if (!value) setRefreshInterval(DEFAULTINTERVAL);
                     break;
                 default:
                     break;
