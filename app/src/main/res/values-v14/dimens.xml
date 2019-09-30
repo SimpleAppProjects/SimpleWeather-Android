@@ -6,8 +6,6 @@ Refer to App Widget Documentation for margin information
 http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     -->
     <dimen name="widget_margin">0dp</dimen>
-    <dimen name="activity_settings_horizontal_margin">8dp</dimen>
-    <dimen name="activity_settings_vertical_margin">8dp</dimen>
 
     <!-- Notification -->
     <dimen name="not_weather_icon_size">36dp</dimen>

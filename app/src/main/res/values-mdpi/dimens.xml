@@ -3,9 +3,5 @@
     <dimen name="weather_icon_size">84sp</dimen>
     <dimen name="weather_condition_size">24sp</dimen>
     <!-- Forecast -->
-    <dimen name="forecast_icon_size">32sp</dimen>
-    <dimen name="forecast_date_size">12sp</dimen>
     <dimen name="forecast_condition_size">12sp</dimen>
-    <dimen name="forecast_hi_size">16sp</dimen>
-    <dimen name="forecast_lo_size">12sp</dimen>
 </resources>

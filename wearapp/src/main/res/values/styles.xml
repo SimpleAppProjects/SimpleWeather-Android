@@ -33,24 +33,4 @@
         <item name="colorSecondary">@color/colorPrimaryLight</item>
     </style>
 
-    <style name="DetailsLabel" parent="TextAppearance.AppCompat.Medium.Inverse">
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:padding">4dp</item>
-        <item name="android:maxLines">1</item>
-    </style>
-
-    <style name="WeatherDetails" parent="DetailsLabel">
-        <item name="android:textSize">14sp</item>
-        <item name="autoSizeMinTextSize">2sp</item>
-        <item name="autoSizeMaxTextSize">14sp</item>
-        <item name="autoSizeTextType">uniform</item>
-        <item name="android:gravity">center_vertical</item>
-        <!--
-                app:autoSizeMinTextSize="6sp"
-                app:autoSizeMaxTextSize="14sp"
-                app:autoSizeTextType="uniform" />
-        -->
-    </style>
-
 </resources>

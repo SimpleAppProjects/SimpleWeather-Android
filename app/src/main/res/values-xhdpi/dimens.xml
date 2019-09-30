@@ -3,6 +3,4 @@
     <!-- WeatherNow -->
     <dimen name="weather_icon_size">80sp</dimen>
     <dimen name="weather_condition_size">24sp</dimen>
-    <!-- Forecast -->
-    <dimen name="forecast_icon_size">36sp</dimen>
 </resources>

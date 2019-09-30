@@ -5,11 +5,7 @@
     <dimen name="weather_icon_size">84sp</dimen>
     <dimen name="weather_condition_size">24sp</dimen>
     <!-- Forecast -->
-    <dimen name="forecast_icon_size">44sp</dimen>
-    <dimen name="forecast_date_size">14sp</dimen>
     <dimen name="forecast_condition_size">12sp</dimen>
-    <dimen name="forecast_hi_size">18sp</dimen>
-    <dimen name="forecast_lo_size">14sp</dimen>
     <!-- Notification -->
     <dimen name="not_horiz_padding">8dp</dimen>
     <dimen name="not_vert_padding">4dp</dimen>

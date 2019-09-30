@@ -3,18 +3,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
-    <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="searchview_side_margins">4dp</dimen>
-    <dimen name="searchview_padding_horizontal_button_action">16dp</dimen>
     <dimen name="searchview_height_region_search">48dp</dimen>
-    <dimen name="searchview_height_divider">1dp</dimen>
-
-    <dimen name="textlabel_height">25dp</dimen>
-    <dimen name="spinner_height">35dp</dimen>
-    <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="nav_header_vertical_spacing">16dp</dimen>
-    <dimen name="nav_header_height">160dp</dimen>
-    <dimen name="fab_margin">16dp</dimen>
 
     <!-- Material dimens -->
     <dimen name="appbar_elevation">4dp</dimen>
@@ -51,14 +40,11 @@ Refer to App Widget Documentation for margin information
 http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     -->
     <dimen name="widget_margin">8dp</dimen>
-    <dimen name="collapsingtoolbar_maxHeight">250dp</dimen>
 
     <!-- Widget -->
     <dimen name="clock_text_size">36sp</dimen>
     <dimen name="date_text_size">16sp</dimen>
     <dimen name="widget4x1G_text_size">24sp</dimen>
-    <dimen name="location_text_size_small">12sp</dimen>
-    <dimen name="location_text_size_large">14sp</dimen>
     <dimen name="widget_corner_radius">3dp</dimen>
     <!-- Notification -->
     <dimen name="not_horiz_padding">4dp</dimen>
