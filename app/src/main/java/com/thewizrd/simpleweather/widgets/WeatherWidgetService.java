@@ -506,9 +506,9 @@ public class WeatherWidgetService extends JobIntentService {
 
                 // Build the widget update for provider
                 RemoteViews views = buildUpdate(mContext, provider, appWidgetId, locData, viewModel);
+                buildForecast(views, provider, viewModel, appWidgetId);
                 // Push update for this widget to the home screen
                 mAppWidgetManager.updateAppWidget(appWidgetId, views);
-                buildForecast(provider, viewModel, appWidgetId);
             } else {
                 Logger.writeLine(Log.DEBUG, "%s: provider: %s; widgetId: %d; Unable to find weather data", TAG, provider.getClassName(), appWidgetId);
             }
@@ -583,33 +583,33 @@ public class WeatherWidgetService extends JobIntentService {
                         if (ArrayUtils.contains(ids1x1, appWidgetId)) {
                             // Build the widget update for provider
                             RemoteViews views = buildUpdate(mContext, mAppWidget1x1, appWidgetId, locationData, viewModel);
+                            buildForecast(views, mAppWidget1x1, viewModel, appWidgetId);
                             // Push update for this widget to the home screen
                             mAppWidgetManager.updateAppWidget(appWidgetId, views);
-                            buildForecast(mAppWidget1x1, viewModel, appWidgetId);
                         } else if (ArrayUtils.contains(ids2x2, appWidgetId)) {
                             // Build the widget update for provider
                             RemoteViews views = buildUpdate(mContext, mAppWidget2x2, appWidgetId, locationData, viewModel);
+                            buildForecast(views, mAppWidget2x2, viewModel, appWidgetId);
                             // Push update for this widget to the home screen
                             mAppWidgetManager.updateAppWidget(appWidgetId, views);
-                            buildForecast(mAppWidget2x2, viewModel, appWidgetId);
                         } else if (ArrayUtils.contains(ids4x1, appWidgetId)) {
                             // Build the widget update for provider
                             RemoteViews views = buildUpdate(mContext, mAppWidget4x1, appWidgetId, locationData, viewModel);
+                            buildForecast(views, mAppWidget4x1, viewModel, appWidgetId);
                             // Push update for this widget to the home screen
                             mAppWidgetManager.updateAppWidget(appWidgetId, views);
-                            buildForecast(mAppWidget4x1, viewModel, appWidgetId);
                         } else if (ArrayUtils.contains(ids4x2, appWidgetId)) {
                             // Build the widget update for provider
                             RemoteViews views = buildUpdate(mContext, mAppWidget4x2, appWidgetId, locationData, viewModel);
+                            buildForecast(views, mAppWidget4x2, viewModel, appWidgetId);
                             // Push update for this widget to the home screen
                             mAppWidgetManager.updateAppWidget(appWidgetId, views);
-                            buildForecast(mAppWidget4x2, viewModel, appWidgetId);
                         } else if (ArrayUtils.contains(ids4x1G, appWidgetId)) {
                             // Build the widget update for provider
                             RemoteViews views = buildUpdate(mContext, mAppWidget4x1Google, appWidgetId, locationData, viewModel);
+                            buildForecast(views, mAppWidget4x1Google, viewModel, appWidgetId);
                             // Push update for this widget to the home screen
                             mAppWidgetManager.updateAppWidget(appWidgetId, views);
-                            buildForecast(mAppWidget4x1Google, viewModel, appWidgetId);
                         } else {
                             Logger.writeLine(Log.DEBUG, "%s: refreshGPSWidgets: unable to find widget provider", TAG);
                         }
@@ -1125,8 +1125,10 @@ public class WeatherWidgetService extends JobIntentService {
                 .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, provider.getWidgetType().getValue());
         PendingIntent refreshPendingIntent =
                 PendingIntent.getBroadcast(context, appWidgetId, refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        if (updateViews != null)
+        if (updateViews != null) {
             updateViews.setOnClickPendingIntent(R.id.refresh_button, refreshPendingIntent);
+            updateViews.setOnClickPendingIntent(R.id.refresh_progress, refreshPendingIntent);
+        }
     }
 
     private static void setOnClickIntent(Context context, LocationData location, RemoteViews updateViews) {
@@ -1255,40 +1257,32 @@ public class WeatherWidgetService extends JobIntentService {
         });
     }
 
-    private void buildForecast(WeatherWidgetProvider provider, WeatherNowViewModel weather, int appWidgetId) {
-        buildForecast(provider, weather, new int[]{appWidgetId});
-    }
-
-    private void buildForecast(WeatherWidgetProvider provider, WeatherNowViewModel weather, int[] appWidgetIds) {
+    private void buildForecast(RemoteViews updateViews, WeatherWidgetProvider provider, WeatherNowViewModel weather, int appWidgetId) {
         if (weather == null)
             return;
 
-        for (int i = 0; i < appWidgetIds.length; i++) {
-            RemoteViews updateViews = new RemoteViews(mContext.getPackageName(), provider.getWidgetLayoutId());
-            updateViews.removeAllViews(R.id.forecast_layout);
+        updateViews.removeAllViews(R.id.forecast_layout);
 
-            Bundle newOptions = mAppWidgetManager.getAppWidgetOptions(appWidgetIds[i]);
+        Bundle newOptions = mAppWidgetManager.getAppWidgetOptions(appWidgetId);
 
-            // Widget dimensions
-            int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
-            int cellWidth = getCellsForSize(minWidth);
+        // Widget dimensions
+        int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
+        int cellWidth = getCellsForSize(minWidth);
 
-            // Determine forecast size
-            int forecastLength = getForecastLength(provider.getWidgetType(), cellWidth);
-            if (weather.getForecasts().size() < forecastLength)
-                forecastLength = weather.getForecasts().size();
+        // Determine forecast size
+        int forecastLength = getForecastLength(provider.getWidgetType(), cellWidth);
+        if (weather.getForecasts().size() < forecastLength)
+            forecastLength = weather.getForecasts().size();
 
-            if (provider.getWidgetType() == WidgetType.Widget4x2 || provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x1Google) {
-                WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetIds[i]);
-                int textColor = getTextColor(background);
+        if (provider.getWidgetType() == WidgetType.Widget4x2 || provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x1Google) {
+            WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
+            int textColor = getTextColor(background);
 
-                updateViews.setTextColor(R.id.clock_panel, textColor);
-                updateViews.setTextColor(R.id.date_panel, textColor);
-            }
-
-            buildForecastPanel(updateViews, provider, weather, appWidgetIds[i], forecastLength, newOptions);
-            mAppWidgetManager.partiallyUpdateAppWidget(appWidgetIds[i], updateViews);
+            updateViews.setTextColor(R.id.clock_panel, textColor);
+            updateViews.setTextColor(R.id.date_panel, textColor);
         }
+
+        buildForecastPanel(updateViews, provider, weather, appWidgetId, forecastLength, newOptions);
     }
 
     private void buildForecastPanel(
