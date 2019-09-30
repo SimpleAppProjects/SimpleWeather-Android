@@ -43,6 +43,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.location.LocationManagerCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -1082,7 +1083,6 @@ public class WeatherNowFragment extends WindowColorFragment
                     if (locData == null) {
                         // Update location if not setup
                         updateLocation();
-                        wLoader = new WeatherDataLoader(location, WeatherNowFragment.this, WeatherNowFragment.this);
                         forceRefresh = true;
                     } else {
                         // Reset locdata if source is different
@@ -1091,22 +1091,23 @@ public class WeatherNowFragment extends WindowColorFragment
 
                         if (updateLocation()) {
                             // Setup loader from updated location
-                            wLoader = new WeatherDataLoader(location, WeatherNowFragment.this, WeatherNowFragment.this);
                             forceRefresh = true;
                         } else {
                             // Setup loader saved location data
                             location = locData;
-                            wLoader = new WeatherDataLoader(location, WeatherNowFragment.this, WeatherNowFragment.this);
                         }
                     }
+
                 } else if (wLoader == null) {
                     // Weather was loaded before. Lets load it up...
                     location = Settings.getHomeData();
-                    wLoader = new WeatherDataLoader(location, WeatherNowFragment.this, WeatherNowFragment.this);
                 }
 
                 if (isCtsCancelRequested())
                     return;
+
+                if (location != null)
+                    wLoader = new WeatherDataLoader(location, WeatherNowFragment.this, WeatherNowFragment.this);
 
                 // Load up weather data
                 refreshWeather(forceRefresh);
@@ -1381,6 +1382,24 @@ public class WeatherNowFragment extends WindowColorFragment
                     if (isCtsCancelRequested())
                         return false;
 
+                    LocationManager locMan = null;
+                    if (mActivity != null)
+                        locMan = (LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
+
+                    if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
+                            }
+                        });
+
+                        // Disable GPS feature if location is not enabled
+                        Settings.setFollowGPS(false);
+                        WeatherNowFragment.this.location = Settings.getHomeData();
+                        return false;
+                    }
+
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
                         location = new AsyncTask<Location>().await(new Callable<Location>() {
                             @SuppressLint("MissingPermission")
@@ -1409,15 +1428,8 @@ public class WeatherNowFragment extends WindowColorFragment
                             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper());
                         }
                     } else {
-                        LocationManager locMan = null;
-                        if (mActivity != null)
-                            locMan = (LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
-                        boolean isGPSEnabled = false;
-                        boolean isNetEnabled = false;
-                        if (locMan != null) {
-                            isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                            isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-                        }
+                        boolean isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                        boolean isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
                         if (isGPSEnabled || isNetEnabled) {
                             Criteria locCriteria = new Criteria();
@@ -1479,9 +1491,6 @@ public class WeatherNowFragment extends WindowColorFragment
 
                         if (isCtsCancelRequested())
                             return false;
-
-                        // Save oldkey
-                        String oldkey = lastGPSLocData.getQuery();
 
                         // Save location as last known
                         lastGPSLocData.setData(view, location);

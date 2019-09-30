@@ -228,6 +228,13 @@ public class SettingsActivity extends WearableActivity {
                             requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                                     PERMISSION_LOCATION_REQUEST_CODE);
                             return false;
+                        } else {
+                            LocationManager locMan = (LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
+                            if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                                Toast.makeText(mActivity, R.string.error_enable_location_services, Toast.LENGTH_LONG).show();
+                                Settings.setFollowGPS(false);
+                            }
+                            return false;
                         }
                     }
 

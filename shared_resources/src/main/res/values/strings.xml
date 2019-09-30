@@ -110,6 +110,7 @@
     <string name="label_favoritelocations">Favorite Locations</string>
     <string name="error_location_denied">Location access denied</string>
     <string name="error_retrieve_location">Unable to get location</string>
+    <string name="error_enable_location_services">Location Services disabled. Please enable in Settings</string>
     <string name="error_noresults">No results found</string>
     <string name="label_fab_add_location">Add a location</string>
     <string name="message_locationremoved">Location removed</string>

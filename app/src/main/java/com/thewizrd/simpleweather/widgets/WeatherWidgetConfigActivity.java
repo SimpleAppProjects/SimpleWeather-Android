@@ -44,6 +44,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.location.LocationManagerCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -1372,6 +1373,23 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                             return;
                         }
 
+                        LocationManager locMan = null;
+                        if (mActivity != null)
+                            locMan = (LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
+
+                        if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
+                                }
+                            });
+
+                            // Disable GPS feature if location is not enabled
+                            Settings.setFollowGPS(false);
+                            return;
+                        }
+
                         LocationData lastGPSLocData = Settings.getLastGPSLocData();
 
                         // Check if last location exists
@@ -1432,6 +1450,23 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                                 ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                                     PERMISSION_LOCATION_REQUEST_CODE);
+                            return;
+                        }
+
+                        LocationManager locMan = null;
+                        if (mActivity != null)
+                            locMan = (LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
+
+                        if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
+                                }
+                            });
+
+                            // Disable GPS feature if location is not enabled
+                            Settings.setFollowGPS(false);
                             return;
                         }
 
@@ -1523,6 +1558,23 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
                         Location location = null;
 
+                        LocationManager locMan = null;
+                        if (mActivity != null)
+                            locMan = (LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
+
+                        if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
+                                }
+                            });
+
+                            // Disable GPS feature if location is not enabled
+                            Settings.setFollowGPS(false);
+                            return false;
+                        }
+
                         if (WearableHelper.isGooglePlayServicesInstalled()) {
                             location = new AsyncTask<Location>().await(new Callable<Location>() {
                                 @SuppressLint("MissingPermission")
@@ -1538,13 +1590,9 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                                 }
                             });
                         } else {
-                            LocationManager locMan = (LocationManager) App.getInstance().getAppContext().getSystemService(Context.LOCATION_SERVICE);
-                            boolean isGPSEnabled = false;
                             boolean isNetEnabled = false;
-                            if (locMan != null) {
-                                isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                                isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-                            }
+                            boolean isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                            isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
                             if (isGPSEnabled || isNetEnabled && !isCtsCancelRequested()) {
                                 Criteria locCriteria = new Criteria();

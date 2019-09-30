@@ -17,6 +17,7 @@ import android.support.wearable.complications.ComplicationText;
 import android.util.Log;
 
 import androidx.core.content.ContextCompat;
+import androidx.core.location.LocationManagerCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.Tasks;
@@ -225,6 +226,14 @@ public class WeatherComplicationService extends ComplicationProviderService {
 
                     Location location = null;
 
+                    LocationManager locMan = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+
+                    if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                        // Disable GPS feature if location is not enabled
+                        Settings.setFollowGPS(false);
+                        return false;
+                    }
+
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
                         location = new AsyncTask<Location>().await(new Callable<Location>() {
                             @SuppressLint("MissingPermission")
@@ -240,13 +249,8 @@ public class WeatherComplicationService extends ComplicationProviderService {
                             }
                         });
                     } else {
-                        LocationManager locMan = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-                        boolean isGPSEnabled = false;
-                        boolean isNetEnabled = false;
-                        if (locMan != null) {
-                            isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                            isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-                        }
+                        boolean isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                        boolean isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
                         if (isGPSEnabled || isNetEnabled) {
                             Criteria locCriteria = new Criteria();

@@ -29,6 +29,7 @@ import android.view.inputmethod.InputMethodManager;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.core.location.LocationManagerCompat;
 import androidx.core.view.MarginLayoutParamsCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
@@ -989,6 +990,24 @@ public class LocationsFragment extends ToolbarFragment
                     if (isCtsCancelRequested())
                         return null;
 
+                    LocationManager locMan = null;
+                    if (getAppCompatActivity() != null)
+                        locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
+
+                    if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
+                                removeGPSPanel();
+                            }
+                        });
+
+                        // Disable GPS feature if location is not enabled
+                        Settings.setFollowGPS(false);
+                        return null;
+                    }
+
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
                         location = new AsyncTask<Location>().await(new Callable<Location>() {
                             @SuppressLint("MissingPermission")
@@ -1018,15 +1037,8 @@ public class LocationsFragment extends ToolbarFragment
                             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper());
                         }
                     } else {
-                        LocationManager locMan = null;
-                        if (getAppCompatActivity() != null)
-                            locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
-                        boolean isGPSEnabled = false;
-                        boolean isNetEnabled = false;
-                        if (locMan != null) {
-                            isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                            isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-                        }
+                        boolean isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                        boolean isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
                         if (isGPSEnabled || isNetEnabled) {
                             Criteria locCriteria = new Criteria();

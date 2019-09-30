@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,6 +33,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
+import androidx.core.location.LocationManagerCompat;
 import androidx.preference.EditTextPreference;
 import androidx.preference.EditTextPreferenceDialogFragmentCompat;
 import androidx.preference.ListPreference;
@@ -300,8 +302,13 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                                 PERMISSION_LOCATION_REQUEST_CODE);
                         return false;
                     } else {
-                        // Reset home location data
-                        //Settings.saveLastGPSLocData(new LocationData());
+                        LocationManager locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
+                        if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                            Snackbar.make(getRootView(), R.string.error_enable_location_services, Snackbar.LENGTH_SHORT).show();
+
+                            Settings.setFollowGPS(false);
+                            return false;
+                        }
                     }
                 }
 

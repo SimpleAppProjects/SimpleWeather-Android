@@ -22,6 +22,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.location.LocationManagerCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.wear.widget.drawer.WearableActionDrawerView;
@@ -493,6 +494,21 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
 
         Location location = null;
 
+        LocationManager locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(SetupActivity.this, R.string.error_enable_location_services, Toast.LENGTH_LONG).show();
+                }
+            });
+
+            // Disable GPS feature if location is not enabled
+            Settings.setFollowGPS(false);
+            return;
+        }
+
         if (WearableHelper.isGooglePlayServicesInstalled()) {
             location = new AsyncTask<Location>().await(new Callable<Location>() {
                 @SuppressLint("MissingPermission")
@@ -522,13 +538,8 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
                 mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper());
             }
         } else {
-            LocationManager locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            boolean isGPSEnabled = false;
-            boolean isNetEnabled = false;
-            if (locMan != null) {
-                isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-            }
+            boolean isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            boolean isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
             if (isGPSEnabled) {
                 location = locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER);

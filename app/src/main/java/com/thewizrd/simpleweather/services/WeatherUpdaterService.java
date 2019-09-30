@@ -17,6 +17,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.JobIntentService;
 import androidx.core.content.ContextCompat;
+import androidx.core.location.LocationManagerCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.CancellationTokenSource;
@@ -292,6 +293,14 @@ public class WeatherUpdaterService extends JobIntentService {
 
                     Location location = null;
 
+                    LocationManager locMan = (LocationManager) App.getInstance().getAppContext().getSystemService(Context.LOCATION_SERVICE);
+
+                    if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                        // Disable GPS feature if location is not enabled
+                        Settings.setFollowGPS(false);
+                        return false;
+                    }
+
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
                         location = new AsyncTask<Location>().await(new Callable<Location>() {
                             @SuppressLint("MissingPermission")
@@ -307,13 +316,8 @@ public class WeatherUpdaterService extends JobIntentService {
                             }
                         });
                     } else {
-                        LocationManager locMan = (LocationManager) App.getInstance().getAppContext().getSystemService(Context.LOCATION_SERVICE);
-                        boolean isGPSEnabled = false;
-                        boolean isNetEnabled = false;
-                        if (locMan != null) {
-                            isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                            isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-                        }
+                        boolean isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                        boolean isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
                         if (isGPSEnabled || isNetEnabled && !isCtsCancelRequested()) {
                             Criteria locCriteria = new Criteria();
