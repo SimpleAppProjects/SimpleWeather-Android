@@ -33,6 +33,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.wear.widget.SwipeDismissFrameLayout;
 
 import com.google.android.wearable.intent.RemoteIntent;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.utils.CommonActions;
@@ -47,6 +48,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import com.thewizrd.simpleweather.App;
+import com.thewizrd.simpleweather.BuildConfig;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.fragments.SwipeDismissPreferenceFragment;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
@@ -181,6 +183,14 @@ public class SettingsActivity extends WearableActivity {
                     WeatherManager.getInstance().updateAPI();
                     mLocalBroadcastManager.sendBroadcast(
                             new Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI));
+                    if (!BuildConfig.DEBUG) {
+                        // Log event
+                        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(mActivity);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("API", Settings.getAPI());
+                        bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));
+                        mFirebaseAnalytics.logEvent("Update_API", bundle);
+                    }
                 } else if (CommonActions.ACTION_SETTINGS_UPDATEGPS.equals(filter.getIntent().getAction())) {
                     mLocalBroadcastManager.sendBroadcast(
                             new Intent(CommonActions.ACTION_SETTINGS_UPDATEGPS));

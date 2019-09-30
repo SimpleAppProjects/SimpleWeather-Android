@@ -43,6 +43,7 @@ import androidx.preference.PreferenceGroup;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -56,6 +57,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import com.thewizrd.simpleweather.App;
+import com.thewizrd.simpleweather.BuildConfig;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
 import com.thewizrd.simpleweather.services.WeatherUpdaterService;
@@ -208,6 +210,14 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         for (Intent.FilterComparison filter : intentQueue) {
             if (CommonActions.ACTION_SETTINGS_UPDATEAPI.equals(filter.getIntent().getAction())) {
                 WeatherManager.getInstance().updateAPI();
+                // Log event
+                if (!BuildConfig.DEBUG) {
+                    FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(getAppCompatActivity());
+                    Bundle bundle = new Bundle();
+                    bundle.putString("API", Settings.getAPI());
+                    bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));
+                    mFirebaseAnalytics.logEvent("Update_API", bundle);
+                }
             } else if (WeatherWidgetService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
                 WeatherWidgetService.enqueueWork(getAppCompatActivity(), filter.getIntent());
             } else if (WeatherUpdaterService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
