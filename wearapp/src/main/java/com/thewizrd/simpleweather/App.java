@@ -107,6 +107,8 @@ public class App extends Application implements ApplicationLib, Application.Acti
         filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEAPI);
         filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEGPS);
         filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEUNIT);
+        filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEDATASYNC);
+        filter.addAction(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE);
 
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mCommonReceiver, filter);

@@ -19,12 +19,14 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
         if (intent != null) {
             if (CommonActions.ACTION_SETTINGS_UPDATEAPI.equals(intent.getAction()) ||
                     CommonActions.ACTION_SETTINGS_UPDATEGPS.equals(intent.getAction()) ||
-                    CommonActions.ACTION_SETTINGS_UPDATEUNIT.equals(intent.getAction())) {
+                    CommonActions.ACTION_SETTINGS_UPDATEUNIT.equals(intent.getAction()) ||
+                    CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE.equals(intent.getAction())) {
                 WeatherComplicationIntentService.enqueueWork(context,
                         new Intent(context, WeatherComplicationIntentService.class)
                                 .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS)
                                 .putExtra(WeatherComplicationIntentService.EXTRA_FORCEUPDATE, true));
-            } else if (CommonActions.ACTION_SETTINGS_UPDATEUNIT.equals(intent.getAction())) {
+            } else if (CommonActions.ACTION_SETTINGS_UPDATEDATASYNC.equals(intent.getAction())) {
+                // Reset UpdateTime value to force a refresh
                 Settings.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN());
             }
 

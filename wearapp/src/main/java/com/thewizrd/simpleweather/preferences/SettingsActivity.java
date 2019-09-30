@@ -6,9 +6,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -26,14 +28,17 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.location.LocationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.wear.widget.SwipeDismissFrameLayout;
 
 import com.google.android.wearable.intent.RemoteIntent;
+import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.helpers.WearConnectionStatus;
 import com.thewizrd.shared_resources.helpers.WearableDataSync;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
+import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -41,11 +46,13 @@ import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
+import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.fragments.SwipeDismissPreferenceFragment;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
+import java.util.HashSet;
 import java.util.List;
 
 import static com.thewizrd.shared_resources.utils.Settings.KEY_API;
@@ -88,7 +95,8 @@ public class SettingsActivity extends WearableActivity {
         super.onBackPressed();
     }
 
-    public static class SettingsFragment extends SwipeDismissPreferenceFragment {
+    public static class SettingsFragment extends SwipeDismissPreferenceFragment
+            implements SharedPreferences.OnSharedPreferenceChangeListener {
         private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
 
         // Preference Keys
@@ -110,6 +118,85 @@ public class SettingsActivity extends WearableActivity {
         private PreferenceCategory apiCategory;
 
         private BroadcastReceiver connStatusReceiver;
+
+        // Intent queue
+        private HashSet<Intent.FilterComparison> intentQueue;
+
+        @Override
+        public void onResume() {
+            super.onResume();
+
+            LocalBroadcastManager.getInstance(mActivity)
+                    .registerReceiver(connStatusReceiver, new IntentFilter(WearableDataListenerService.ACTION_UPDATECONNECTIONSTATUS));
+            mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
+                    .setAction(WearableDataListenerService.ACTION_UPDATECONNECTIONSTATUS));
+
+            // Register listener
+            ApplicationLib app = App.getInstance();
+            app.getPreferences().unregisterOnSharedPreferenceChangeListener(app.getSharedPreferenceListener());
+            app.getPreferences().registerOnSharedPreferenceChangeListener(this);
+
+            // Initialize queue
+            intentQueue = new HashSet<>();
+        }
+
+        @Override
+        public void onPause() {
+            if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && WeatherManager.isKeyRequired(providerPref.getValue())) {
+                // Fallback to supported weather provider
+                WeatherManager wm = WeatherManager.getInstance();
+                providerPref.setValue(WeatherAPI.HERE);
+                providerPref.getOnPreferenceChangeListener()
+                        .onPreferenceChange(providerPref, WeatherAPI.HERE);
+                Settings.setAPI(WeatherAPI.HERE);
+                wm.updateAPI();
+
+                if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
+                    // If (internal) key doesn't exist, fallback to Yahoo
+                    providerPref.setValue(WeatherAPI.YAHOO);
+                    providerPref.getOnPreferenceChangeListener()
+                            .onPreferenceChange(providerPref, WeatherAPI.YAHOO);
+                    Settings.setAPI(WeatherAPI.YAHOO);
+                    wm.updateAPI();
+                    Settings.setPersonalKey(true);
+                    Settings.setKeyVerified(false);
+                } else {
+                    // If key exists, go ahead
+                    Settings.setPersonalKey(false);
+                    Settings.setKeyVerified(true);
+                }
+            }
+
+            LocalBroadcastManager mLocalBroadcastManager =
+                    LocalBroadcastManager.getInstance(mActivity);
+            mLocalBroadcastManager.unregisterReceiver(connStatusReceiver);
+
+            // Unregister listener
+            ApplicationLib app = App.getInstance();
+            app.getPreferences().unregisterOnSharedPreferenceChangeListener(this);
+            app.getPreferences().registerOnSharedPreferenceChangeListener(app.getSharedPreferenceListener());
+
+            for (Intent.FilterComparison filter : intentQueue) {
+                if (CommonActions.ACTION_SETTINGS_UPDATEAPI.equals(filter.getIntent().getAction())) {
+                    WeatherManager.getInstance().updateAPI();
+                    mLocalBroadcastManager.sendBroadcast(
+                            new Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI));
+                } else if (CommonActions.ACTION_SETTINGS_UPDATEGPS.equals(filter.getIntent().getAction())) {
+                    mLocalBroadcastManager.sendBroadcast(
+                            new Intent(CommonActions.ACTION_SETTINGS_UPDATEGPS));
+                } else if (CommonActions.ACTION_SETTINGS_UPDATEUNIT.equals(filter.getIntent().getAction())) {
+                    mLocalBroadcastManager.sendBroadcast(
+                            new Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT));
+                } else if (CommonActions.ACTION_SETTINGS_UPDATEDATASYNC.equals(filter.getIntent().getAction())) {
+                    mLocalBroadcastManager.sendBroadcast(
+                            new Intent(CommonActions.ACTION_SETTINGS_UPDATEDATASYNC));
+                } else {
+                    mActivity.startService(filter.getIntent());
+                }
+            }
+
+            super.onPause();
+        }
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -494,47 +581,38 @@ public class SettingsActivity extends WearableActivity {
             }
         }
 
-        @Override
-        public void onResume() {
-            super.onResume();
-
-            LocalBroadcastManager.getInstance(mActivity)
-                    .registerReceiver(connStatusReceiver, new IntentFilter(WearableDataListenerService.ACTION_UPDATECONNECTIONSTATUS));
-            mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
-                    .setAction(WearableDataListenerService.ACTION_UPDATECONNECTIONSTATUS));
+        private boolean enqueueIntent(Intent intent) {
+            if (intent == null)
+                return false;
+            else
+                return intentQueue.add(new Intent.FilterComparison(intent));
         }
 
         @Override
-        public void onPause() {
-            if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && WeatherManager.isKeyRequired(providerPref.getValue())) {
-                // Fallback to supported weather provider
-                WeatherManager wm = WeatherManager.getInstance();
-                providerPref.setValue(WeatherAPI.HERE);
-                providerPref.getOnPreferenceChangeListener()
-                        .onPreferenceChange(providerPref, WeatherAPI.HERE);
-                Settings.setAPI(WeatherAPI.HERE);
-                wm.updateAPI();
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            if (StringUtils.isNullOrWhitespace(key))
+                return;
 
-                if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
-                    // If (internal) key doesn't exist, fallback to Yahoo
-                    providerPref.setValue(WeatherAPI.YAHOO);
-                    providerPref.getOnPreferenceChangeListener()
-                            .onPreferenceChange(providerPref, WeatherAPI.YAHOO);
-                    Settings.setAPI(WeatherAPI.YAHOO);
-                    wm.updateAPI();
-                    Settings.setPersonalKey(true);
-                    Settings.setKeyVerified(false);
-                } else {
-                    // If key exists, go ahead
-                    Settings.setPersonalKey(false);
-                    Settings.setKeyVerified(true);
-                }
+            switch (key) {
+                // Weather Provider changed
+                case KEY_API:
+                    enqueueIntent(new Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI));
+                    break;
+                // FollowGPS changed
+                case KEY_FOLLOWGPS:
+                    enqueueIntent(new Intent(CommonActions.ACTION_SETTINGS_UPDATEGPS));
+                    break;
+                // Settings unit changed
+                case KEY_USECELSIUS:
+                    enqueueIntent(new Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT));
+                    break;
+                // Refresh interval changed
+                case KEY_DATASYNC:
+                    enqueueIntent(new Intent(CommonActions.ACTION_SETTINGS_UPDATEDATASYNC));
+                    break;
+                default:
+                    break;
             }
-
-            LocalBroadcastManager.getInstance(mActivity)
-                    .unregisterReceiver(connStatusReceiver);
-
-            super.onPause();
         }
     }
 
