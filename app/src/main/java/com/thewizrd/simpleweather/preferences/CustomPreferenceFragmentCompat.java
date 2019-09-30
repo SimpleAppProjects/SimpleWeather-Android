@@ -35,11 +35,27 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
 
     private AppBarLayout mAppBarLayout;
     private CoordinatorLayout mRootView;
-    protected Toolbar mToolbar;
-    protected AppCompatActivity mActivity;
-    protected SystemBarColorManager mSysBarColorsIface;
+    private Toolbar mToolbar;
+    private AppCompatActivity mActivity;
+    private SystemBarColorManager mSysBarColorsIface;
 
     private Configuration currentConfig;
+
+    public final AppBarLayout getAppBarLayout() {
+        return mAppBarLayout;
+    }
+
+    public final CoordinatorLayout getRootView() {
+        return mRootView;
+    }
+
+    public final Toolbar getToolbar() {
+        return mToolbar;
+    }
+
+    public final AppCompatActivity getAppCompatActivity() {
+        return mActivity;
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -93,7 +109,7 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
                 ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
-                return insets;
+                return insets.replaceSystemWindowInsets(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
             }
         });
 

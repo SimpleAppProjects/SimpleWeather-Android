@@ -167,7 +167,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         app.getPreferences().unregisterOnSharedPreferenceChangeListener(app.getSharedPreferenceListener());
         app.getPreferences().registerOnSharedPreferenceChangeListener(this);
         registerOnThemeChangeListener(this);
-        registerOnThemeChangeListener((UserThemeMode.OnThemeChangeListener) mActivity);
+        registerOnThemeChangeListener((UserThemeMode.OnThemeChangeListener) getAppCompatActivity());
 
         // Initialize queue
         intentQueue = new HashSet<>();
@@ -202,18 +202,18 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         ApplicationLib app = App.getInstance();
         app.getPreferences().unregisterOnSharedPreferenceChangeListener(this);
         app.getPreferences().registerOnSharedPreferenceChangeListener(app.getSharedPreferenceListener());
-        unregisterOnThemeChangeListener((UserThemeMode.OnThemeChangeListener) mActivity);
+        unregisterOnThemeChangeListener((UserThemeMode.OnThemeChangeListener) getAppCompatActivity());
         unregisterOnThemeChangeListener(this);
 
         for (Intent.FilterComparison filter : intentQueue) {
             if (CommonActions.ACTION_SETTINGS_UPDATEAPI.equals(filter.getIntent().getAction())) {
                 WeatherManager.getInstance().updateAPI();
             } else if (WeatherWidgetService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
-                WeatherWidgetService.enqueueWork(mActivity, filter.getIntent());
+                WeatherWidgetService.enqueueWork(getAppCompatActivity(), filter.getIntent());
             } else if (WeatherUpdaterService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
-                WeatherUpdaterService.enqueueWork(mActivity, filter.getIntent());
+                WeatherUpdaterService.enqueueWork(getAppCompatActivity(), filter.getIntent());
             } else {
-                mActivity.startService(filter.getIntent());
+                getAppCompatActivity().startService(filter.getIntent());
             }
         }
 
@@ -222,13 +222,12 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
 
     @Override
     public boolean onBackPressed() {
-        if (mActivity.getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof SettingsFragment) {
-            SettingsFragment fragment = (SettingsFragment) mActivity.getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (getAppCompatActivity().getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof SettingsFragment) {
+            SettingsFragment fragment = (SettingsFragment) getAppCompatActivity().getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             ListPreference keyPref = (ListPreference) fragment.findPreference(KEY_API);
             if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && WeatherManager.isKeyRequired(keyPref.getValue())) {
                 // Set keyentrypref color to red
-                if (getView() != null)
-                    Snackbar.make(getView(), R.string.message_enter_apikey, Snackbar.LENGTH_LONG).show();
+                Snackbar.make(getRootView(), R.string.message_enter_apikey, Snackbar.LENGTH_LONG).show();
                 return true;
             }
         }
@@ -262,7 +261,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 // Display the fragment as the main content.
-                mActivity.getSupportFragmentManager().beginTransaction()
+                getAppCompatActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, new AboutAppFragment())
                         .addToBackStack(null)
                         .commit();
@@ -296,8 +295,8 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 SwitchPreferenceCompat pref = (SwitchPreferenceCompat) preference;
                 if ((boolean) newValue) {
-                    if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                            ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                            ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                                 PERMISSION_LOCATION_REQUEST_CODE);
                         return false;
@@ -601,7 +600,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
     public void onDisplayPreferenceDialog(Preference preference) {
         final String TAG = "KeyEntryPreferenceDialogFragment";
 
-        if (mActivity.getSupportFragmentManager().findFragmentByTag(TAG) != null) {
+        if (getAppCompatActivity().getSupportFragmentManager().findFragmentByTag(TAG) != null) {
             return;
         }
 
@@ -626,13 +625,13 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                         }
                     } catch (WeatherException e) {
                         Logger.writeLine(Log.ERROR, e);
-                        Toast.makeText(mActivity, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getAppCompatActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
 
             fragment.setTargetFragment(this, 0);
-            fragment.show(mActivity.getSupportFragmentManager(), TAG);
+            fragment.show(getAppCompatActivity().getSupportFragmentManager(), TAG);
         } else {
             super.onDisplayPreferenceDialog(preference);
         }
@@ -698,8 +697,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                     // functionality that depends on this permission.
                     followGps.setChecked(false);
                     Settings.setFollowGPS(false);
-                    if (getView() != null)
-                        Snackbar.make(getView(), R.string.error_location_denied, Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(getRootView(), R.string.error_location_denied, Snackbar.LENGTH_SHORT).show();
                 }
                 return;
             default:
@@ -707,7 +705,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         }
     }
 
-    public boolean enqueueIntent(Intent intent) {
+    private boolean enqueueIntent(Intent intent) {
         if (intent == null)
             return false;
         else {
@@ -736,7 +734,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         if (StringUtils.isNullOrWhitespace(key))
             return;
 
-        Context context = mActivity;
+        Context context = getAppCompatActivity();
 
         switch (key) {
             // Weather Provider changed
@@ -929,7 +927,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     // Display the fragment as the main content.
-                    mActivity.getSupportFragmentManager().beginTransaction()
+                    getAppCompatActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragment_container, new CreditsFragment())
                             .addToBackStack(null)
                             .commit();
@@ -942,7 +940,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     // Display the fragment as the main content.
-                    mActivity.getSupportFragmentManager().beginTransaction()
+                    getAppCompatActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragment_container, new OSSCreditsFragment())
                             .addToBackStack(null)
                             .commit();
@@ -952,7 +950,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
             });
 
             try {
-                PackageInfo packageInfo = mActivity.getPackageManager().getPackageInfo(mActivity.getPackageName(), 0);
+                PackageInfo packageInfo = getAppCompatActivity().getPackageManager().getPackageInfo(getAppCompatActivity().getPackageName(), 0);
                 findPreference(KEY_ABOUTVERSION).setSummary(String.format("v%s", packageInfo.versionName));
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
