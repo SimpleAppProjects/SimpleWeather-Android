@@ -475,10 +475,12 @@ public class WeatherWidgetService extends JobIntentService {
         LocationData locData = null;
 
         if (WidgetUtils.isGPS(appWidgetId)) {
-            if (!Settings.useFollowGPS())
+            if (!Settings.useFollowGPS()) {
+                resetGPSWidgets(new int[]{appWidgetId});
                 return;
-            else
+            } else {
                 locData = Settings.getLastGPSLocData();
+            }
         } else {
             locData = WidgetUtils.getLocationData(appWidgetId);
         }
@@ -519,7 +521,10 @@ public class WeatherWidgetService extends JobIntentService {
 
     private void resetGPSWidgets() {
         final int[] appWidgetIds = WidgetUtils.getWidgetIds("GPS");
+        resetGPSWidgets(appWidgetIds);
+    }
 
+    private void resetGPSWidgets(final int[] appWidgetIds) {
         List<Task<Void>> tasks = new ArrayList<>();
 
         for (final int appWidgetId : appWidgetIds) {
@@ -528,14 +533,15 @@ public class WeatherWidgetService extends JobIntentService {
                 public Void call() throws Exception {
                     RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_configure_layout);
 
-                    Intent configureIntent = new Intent(mContext, WeatherWidgetConfigActivity.class);
+                    Intent configureIntent = new Intent(mContext, WeatherWidgetConfigActivity.class)
+                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     configureIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
 
                     PendingIntent clickPendingIntent =
-                            PendingIntent.getActivity(mContext, 0, configureIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                            PendingIntent.getActivity(mContext, appWidgetId, configureIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                     views.setOnClickPendingIntent(R.id.widget, clickPendingIntent);
 
-                    mAppWidgetManager.updateAppWidget(appWidgetIds, views);
+                    mAppWidgetManager.updateAppWidget(appWidgetId, views);
                     return null;
                 }
             });

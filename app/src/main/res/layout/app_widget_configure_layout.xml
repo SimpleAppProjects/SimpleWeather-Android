@@ -1,11 +1,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/widgetBackground"
+    android:id="@+id/widget"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_background"
+    android:backgroundTint="#40121212"
     android:padding="@dimen/widget_margin"
-    android:backgroundTint="@color/color_background_day"
     tools:layout_height="144dp"
     tools:layout_width="144dp">
 
@@ -19,6 +19,6 @@
         android:text="@string/widget_configure_prompt"
         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
         android:textColor="@android:color/white"
-        android:textSize="12sp"
+        android:textSize="14sp"
         tools:text="@string/widget_configure_prompt" />
 </LinearLayout>
