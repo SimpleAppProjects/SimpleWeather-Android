@@ -38,6 +38,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -71,6 +72,7 @@ import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
+import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -92,13 +94,11 @@ import com.thewizrd.simpleweather.fragments.ToolbarFragment;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperCallback;
 import com.thewizrd.simpleweather.helpers.OffsetMargin;
 import com.thewizrd.simpleweather.helpers.SwipeToDeleteOffSetItemDecoration;
-import com.thewizrd.simpleweather.services.WeatherUpdaterService;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface;
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
-import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1115,9 +1115,8 @@ public class LocationsFragment extends ToolbarFragment
                                 Settings.saveLastGPSLocData(locData);
                                 refreshLocations();
 
-                                WearableDataListenerService.enqueueWork(App.getInstance().getAppContext(),
-                                        new Intent(App.getInstance().getAppContext(), WearableDataListenerService.class)
-                                                .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
+                                LocalBroadcastManager.getInstance(getAppCompatActivity())
+                                        .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
                             } else {
                                 runOnUiThread(new Runnable() {
                                     @Override
@@ -1565,15 +1564,10 @@ public class LocationsFragment extends ToolbarFragment
         }
 
         if (!mEditMode && mHomeChanged) {
-            WeatherUpdaterService.enqueueWork(getAppCompatActivity(), new Intent(getAppCompatActivity(), WeatherUpdaterService.class)
-                    .setAction(WeatherUpdaterService.ACTION_UPDATEWEATHER));
-
-            WearableDataListenerService.enqueueWork(App.getInstance().getAppContext(),
-                    new Intent(App.getInstance().getAppContext(), WearableDataListenerService.class)
-                            .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
-            WearableDataListenerService.enqueueWork(App.getInstance().getAppContext(),
-                    new Intent(App.getInstance().getAppContext(), WearableDataListenerService.class)
-                            .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
+            LocalBroadcastManager.getInstance(App.getInstance().getAppContext())
+                    .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
+            LocalBroadcastManager.getInstance(App.getInstance().getAppContext())
+                    .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE));
         }
 
         mDataChanged = false;

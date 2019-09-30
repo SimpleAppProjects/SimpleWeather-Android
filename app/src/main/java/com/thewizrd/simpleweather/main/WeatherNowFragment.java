@@ -57,6 +57,7 @@ import androidx.databinding.ObservableInt;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -89,6 +90,7 @@ import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.helpers.WearableHelper;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -118,7 +120,6 @@ import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
 import com.thewizrd.simpleweather.services.WeatherUpdaterService;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
-import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
@@ -1496,9 +1497,8 @@ public class WeatherNowFragment extends WindowColorFragment
                         lastGPSLocData.setData(view, location);
                         Settings.saveLastGPSLocData(lastGPSLocData);
 
-                        WearableDataListenerService.enqueueWork(App.getInstance().getAppContext(),
-                                new Intent(App.getInstance().getAppContext(), WearableDataListenerService.class)
-                                        .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
+                        LocalBroadcastManager.getInstance(mActivity)
+                                .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
 
                         WeatherNowFragment.this.location = lastGPSLocData;
                         mLocation = location;

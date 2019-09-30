@@ -44,6 +44,8 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
                 WearableDataListenerService.enqueueWork(context,
                         new Intent(context, WearableDataListenerService.class)
                                 .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
+                WeatherUpdaterService.enqueueWork(context, new Intent(context, WeatherUpdaterService.class)
+                        .setAction(WeatherUpdaterService.ACTION_UPDATEWEATHER));
             } else if (CommonActions.ACTION_WEATHER_UPDATEWIDGETLOCATION.equals(intent.getAction())) {
                 final String oldKey = intent.getStringExtra("oldKey");
                 final String locationJson = intent.getStringExtra("location");
