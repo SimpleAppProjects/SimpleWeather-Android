@@ -308,8 +308,8 @@ public class WearableDataListenerService extends WearableListenerService {
 
         PutDataMapRequest mapRequest = PutDataMapRequest.create(WearableHelper.LocationPath);
         LocationData homeData = Settings.getHomeData();
-        mapRequest.getDataMap().putString("locationData", homeData == null ? null : homeData.toJson());
-        mapRequest.getDataMap().putLong("update_time", Instant.now().toEpochMilli());
+        mapRequest.getDataMap().putString(WearableSettings.KEY_LOCATIONDATA, homeData == null ? null : homeData.toJson());
+        mapRequest.getDataMap().putLong(WearableSettings.KEY_UPDATETIME, Instant.now().toEpochMilli());
         PutDataRequest request = mapRequest.asPutDataRequest();
         if (urgent) request.setUrgent();
         try {

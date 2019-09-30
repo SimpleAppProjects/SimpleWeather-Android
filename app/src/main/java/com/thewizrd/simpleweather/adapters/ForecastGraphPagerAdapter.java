@@ -163,9 +163,9 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
                         }
                     }
 
-                    tempDataSeries.add(new LineDataSeries("High", hiTempSeries));
+                    tempDataSeries.add(new LineDataSeries(context.getString(R.string.label_high), hiTempSeries));
                     if (loTempSeries != null) {
-                        tempDataSeries.add(new LineDataSeries("Low", loTempSeries));
+                        tempDataSeries.add(new LineDataSeries(context.getString(R.string.label_low), loTempSeries));
                     }
                     view.setData(labelData, tempDataSeries);
                 }

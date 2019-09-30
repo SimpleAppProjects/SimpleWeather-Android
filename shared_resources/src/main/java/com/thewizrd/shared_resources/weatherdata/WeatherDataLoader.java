@@ -9,6 +9,7 @@ import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.CommonActions;
@@ -206,8 +207,8 @@ public class WeatherDataLoader {
                                 Settings.updateLocationWithKey(location, oldKey);
                                 mLocalBroadcastManager.sendBroadcast(
                                         new Intent(CommonActions.ACTION_WEATHER_UPDATEWIDGETLOCATION)
-                                                .putExtra("oldKey", oldKey)
-                                                .putExtra("location", location.toJson()));
+                                                .putExtra(Constants.WIDGETKEY_OLDKEY, oldKey)
+                                                .putExtra(Constants.WIDGETKEY_LOCATION, location.toJson()));
                             }
                         } else {
                             Settings.saveHomeData(location);
@@ -324,9 +325,9 @@ public class WeatherDataLoader {
             // Update cached weather data for widgets
             mLocalBroadcastManager.sendBroadcast(
                     new Intent(CommonActions.ACTION_WEATHER_UPDATEWIDGETWEATHER)
-                            .putExtra("locationQuery",
-                                    location.getLocationType() == LocationType.GPS ? "GPS" : location.getQuery())
-                            .putExtra("weather", weather.toJson()));
+                            .putExtra(Constants.WIDGETKEY_LOCATIONQUERY,
+                                    location.getLocationType() == LocationType.GPS ? Constants.KEY_GPS : location.getQuery())
+                            .putExtra(Constants.WIDGETKEY_WEATHER, weather.toJson()));
         } else {
             Settings.setUpdateTime(LocalDateTime.ofInstant(weather.getUpdateTime().toInstant(), ZoneOffset.UTC));
         }

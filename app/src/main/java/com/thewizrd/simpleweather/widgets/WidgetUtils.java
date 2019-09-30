@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat;
 import com.google.android.gms.common.util.ArrayUtils;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -164,7 +165,7 @@ public class WidgetUtils {
                         for (String key : widgetMap.keySet()) {
                             if (key.equals(homeLocation.getQuery())) {
                                 String listJson = (String) widgetMap.get(key);
-                                editor.putString("GPS", listJson).commit();
+                                editor.putString(Constants.KEY_GPS, listJson).commit();
                                 editor.remove(key).commit();
                                 break;
                             }
@@ -407,7 +408,7 @@ public class WidgetUtils {
         }
         Map<String, ?> widgetMap = widgetPrefs.getAll();
         for (String key : widgetMap.keySet()) {
-            if (!KEY_VERSION.equals(key) && !"GPS".equals(key) && !currLocQueries.contains(key))
+            if (!KEY_VERSION.equals(key) && !Constants.KEY_GPS.equals(key) && !currLocQueries.contains(key))
                 editor.remove(key);
         }
         editor.commit();
@@ -449,7 +450,7 @@ public class WidgetUtils {
     }
 
     public static boolean isGPS(int widgetId) {
-        String listJson = widgetPrefs.getString("GPS", "");
+        String listJson = widgetPrefs.getString(Constants.KEY_GPS, "");
         if (!StringUtils.isNullOrWhitespace(listJson)) {
             Type intArrListType = new TypeToken<ArrayList<Integer>>() {
             }.getType();
@@ -464,7 +465,7 @@ public class WidgetUtils {
 
     public static void deleteWidget(int id) {
         if (isGPS(id)) {
-            removeWidgetId("GPS", id);
+            removeWidgetId(Constants.KEY_GPS, id);
         } else {
             LocationData locData = getLocationData(id);
             if (locData != null) {

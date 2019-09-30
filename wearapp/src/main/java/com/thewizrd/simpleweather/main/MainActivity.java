@@ -19,6 +19,7 @@ import androidx.wear.widget.drawer.WearableNavigationDrawerView;
 
 import com.google.android.wearable.intent.RemoteIntent;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -92,7 +93,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
 
             // Navigate to WeatherNowFragment
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, fragment, "home")
+                    .replace(R.id.fragment_container, fragment, Constants.FRAGTAG_HOME)
                     .commit();
         }
     }
@@ -191,8 +192,8 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
                 WeatherListFragment forecastFragment = (WeatherListFragment) current;
                 if (forecastFragment.getArguments() != null) {
                     Bundle args = forecastFragment.getArguments();
-                    if (WeatherListType.valueOf(args.getInt("WeatherListType", 0)) != weatherListType) {
-                        args.putInt("WeatherListType", weatherListType.getValue());
+                    if (WeatherListType.valueOf(args.getInt(Constants.ARGS_WEATHERLISTTYPE, 0)) != weatherListType) {
+                        args.putInt(Constants.ARGS_WEATHERLISTTYPE, weatherListType.getValue());
                         // Note: Causes IllegalStateException if args already set (not null)
                         // forecastFragment.setArguments(args);
                         forecastFragment.initialize();

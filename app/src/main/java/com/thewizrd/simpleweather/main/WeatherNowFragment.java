@@ -82,6 +82,7 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.gson.stream.JsonReader;
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
@@ -213,7 +214,7 @@ public class WeatherNowFragment extends WindowColorFragment
         WeatherNowFragment fragment = new WeatherNowFragment();
         if (data != null) {
             Bundle args = new Bundle();
-            args.putString("data", data.toJson());
+            args.putString(Constants.KEY_DATA, data.toJson());
             fragment.setArguments(args);
         }
         return fragment;
@@ -379,7 +380,7 @@ public class WeatherNowFragment extends WindowColorFragment
         // Create your fragment here
         if (getArguments() != null) {
             try {
-                JsonReader jsonReader = new JsonReader(new StringReader(getArguments().getString("data", null)));
+                JsonReader jsonReader = new JsonReader(new StringReader(getArguments().getString(Constants.KEY_DATA, null)));
                 location = LocationData.fromJson(jsonReader);
                 jsonReader.close();
             } catch (Exception e) {
@@ -928,7 +929,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 // Did home change?
                 boolean homeChanged = false;
                 if (location != null && getFragmentManager().getBackStackEntryCount() == 0) {
-                    if (!location.equals(homeData) && "home".equals(getTag())) {
+                    if (!location.equals(homeData) && Constants.FRAGTAG_HOME.equals(getTag())) {
                         location = homeData;
                         wLoader = null;
                         homeChanged = true;
@@ -1298,7 +1299,7 @@ public class WeatherNowFragment extends WindowColorFragment
             public void onClick(View view, int position) {
                 Fragment fragment = WeatherDetailsFragment.newInstance(location, weatherView, false);
                 Bundle args = new Bundle();
-                args.putInt("position", position);
+                args.putInt(Constants.KEY_POSITION, position);
                 fragment.setArguments(args);
 
                 mActivity.getSupportFragmentManager().beginTransaction()
@@ -1318,7 +1319,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     public void onClick(View view, int position) {
                         Fragment fragment = WeatherDetailsFragment.newInstance(location, weatherView, true);
                         Bundle args = new Bundle();
-                        args.putInt("position", position);
+                        args.putInt(Constants.KEY_POSITION, position);
                         fragment.setArguments(args);
 
                         mActivity.getSupportFragmentManager().beginTransaction()

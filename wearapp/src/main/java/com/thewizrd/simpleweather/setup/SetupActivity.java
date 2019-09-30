@@ -40,6 +40,7 @@ import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.CommonActions;
@@ -467,7 +468,7 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
 
                         // Start WeatherNow Activity with weather data
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                        intent.putExtra("data", location.toJson());
+                        intent.putExtra(Constants.KEY_DATA, location.toJson());
 
                         startActivity(intent);
                         finishAffinity();

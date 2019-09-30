@@ -46,6 +46,7 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.gson.stream.JsonReader;
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -139,7 +140,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         WeatherNowFragment fragment = new WeatherNowFragment();
         if (data != null) {
             Bundle args = new Bundle();
-            args.putString("data", data.toJson());
+            args.putString(Constants.KEY_DATA, data.toJson());
             fragment.setArguments(args);
         }
         return fragment;
@@ -227,7 +228,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
         // Create your fragment here
         if (getArguments() != null) {
-            JsonReader jsonReader = new JsonReader(new StringReader(getArguments().getString("data", null)));
+            JsonReader jsonReader = new JsonReader(new StringReader(getArguments().getString(Constants.KEY_DATA, null)));
             location = LocationData.fromJson(jsonReader);
             try {
                 jsonReader.close();

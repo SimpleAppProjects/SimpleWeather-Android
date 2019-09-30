@@ -20,6 +20,7 @@ import androidx.lifecycle.Lifecycle;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
@@ -82,7 +83,7 @@ public class MainActivity extends AppCompatActivity
                 // Navigate to WeatherNowFragment
                 // Make sure we exit if location is not home
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, fragment, "notification")
+                        .replace(R.id.fragment_container, fragment, Constants.FRAGTAG_NOTIFICATION)
                         .commitNow();
             } else {
                 // Navigate to WeatherNowFragment
@@ -95,28 +96,28 @@ public class MainActivity extends AppCompatActivity
         }
         // Check if fragment exists
         if (fragment == null) {
-            if (getIntent() != null && getIntent().hasExtra("data"))
+            if (getIntent() != null && getIntent().hasExtra(Constants.KEY_DATA))
                 fragment = WeatherNowFragment.newInstance(getIntent().getExtras());
             else
                 fragment = new WeatherNowFragment();
 
             // Navigate to WeatherNowFragment
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, fragment, "home")
+                    .replace(R.id.fragment_container, fragment, Constants.FRAGTAG_HOME)
                     .commitNow();
         }
 
         // Shortcut intent: from app shortcuts
-        if (getIntent() != null && getIntent().hasExtra("shortcut-data")) {
+        if (getIntent() != null && getIntent().hasExtra(Constants.KEY_SHORTCUTDATA)) {
             JsonReader reader = new JsonReader(
-                    new StringReader(getIntent().getStringExtra("shortcut-data")));
+                    new StringReader(getIntent().getStringExtra(Constants.KEY_SHORTCUTDATA)));
             LocationData locData = LocationData.fromJson(reader);
 
             // Navigate to WeatherNowFragment
             Fragment newFragment = WeatherNowFragment.newInstance(locData);
 
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, newFragment, "shortcut")
+                    .replace(R.id.fragment_container, newFragment, Constants.FRAGTAG_SHORTCUT)
                     .commitNow();
         }
 
@@ -203,7 +204,7 @@ public class MainActivity extends AppCompatActivity
                     int backstackCount = getSupportFragmentManager().getBackStackEntryCount();
 
                     // Hide home frag
-                    if ("home".equals(current.getTag()) || backstackCount == 0) {
+                    if (Constants.FRAGTAG_HOME.equals(current.getTag()) || backstackCount == 0) {
                         transaction.hide(current);
                     } else {
                         /*
@@ -221,18 +222,18 @@ public class MainActivity extends AppCompatActivity
                 else {
                     // If current frag is Settings sub-fragment pop all off
                     if (current.getClass().getName().contains("SettingsFragment$"))
-                        getSupportFragmentManager().popBackStack("settings", 0);
+                        getSupportFragmentManager().popBackStack(Constants.FRAGTAG_SETTINGS, 0);
                     /* NOTE: Don't pop here so we don't trigger onResume/onHiddenChanged of root fragment */
                     // If a Settings fragment exists remove it
-                    if (getSupportFragmentManager().findFragmentByTag("settings") != null) {
-                        current = getSupportFragmentManager().findFragmentByTag("settings");
+                    if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGTAG_SETTINGS) != null) {
+                        current = getSupportFragmentManager().findFragmentByTag(Constants.FRAGTAG_SETTINGS);
                         getSupportFragmentManager().beginTransaction()
                                 .remove(current)
                                 .commitAllowingStateLoss();
                     }
                     // If an extra WeatherNowFragment exists remove it
-                    if (getSupportFragmentManager().findFragmentByTag("favorites") != null) {
-                        current = getSupportFragmentManager().findFragmentByTag("favorites");
+                    if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGTAG_FAVORITES) != null) {
+                        current = getSupportFragmentManager().findFragmentByTag(Constants.FRAGTAG_FAVORITES);
                         getSupportFragmentManager().beginTransaction()
                                 .remove(current)
                                 .commitAllowingStateLoss();
@@ -245,7 +246,7 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
 
-                fragment = getSupportFragmentManager().findFragmentByTag("locations");
+                fragment = getSupportFragmentManager().findFragmentByTag(Constants.FRAGTAG_LOCATIONS);
                 if (fragment != null) {
                     /*
                      * If the fragment exists and has not yet at least started,
@@ -269,14 +270,14 @@ public class MainActivity extends AppCompatActivity
                                 .addToBackStack(null);
                     } else {
                         transaction
-                                .add(R.id.fragment_container, fragment, "locations")
+                                .add(R.id.fragment_container, fragment, Constants.FRAGTAG_LOCATIONS)
                                 .addToBackStack(null);
                     }
                 } else {
                     // Add LocFrag if not in backstack/DNE
                     fragment = new LocationsFragment();
                     transaction
-                            .add(R.id.fragment_container, fragment, "locations")
+                            .add(R.id.fragment_container, fragment, Constants.FRAGTAG_LOCATIONS)
                             .addToBackStack(null);
                 }
 
@@ -298,8 +299,8 @@ public class MainActivity extends AppCompatActivity
                         transaction = addCustomAnimations(getSupportFragmentManager().beginTransaction());
                     }
                     transaction
-                            .add(R.id.fragment_container, fragment, "settings")
-                            .addToBackStack("settings")
+                            .add(R.id.fragment_container, fragment, Constants.FRAGTAG_SETTINGS)
+                            .addToBackStack(Constants.FRAGTAG_SETTINGS)
                             .commit();
                 }
             }

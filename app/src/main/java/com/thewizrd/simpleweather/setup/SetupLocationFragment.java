@@ -64,6 +64,7 @@ import com.stepstone.stepper.VerificationError;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQuery;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -315,7 +316,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
         }
 
         // Get SearchUI state
-        if (savedInstanceState != null && savedInstanceState.getBoolean("SearchUI", false)) {
+        if (savedInstanceState != null && savedInstanceState.getBoolean(Constants.KEY_SEARCHUI, false)) {
             inSearchUI = true;
 
             // Restart SearchUI
@@ -589,7 +590,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                         }
 
                         // Setup complete
-                        mDataManager.getArguments().putString("data", location.toJson());
+                        mDataManager.getArguments().putString(Constants.KEY_DATA, location.toJson());
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -745,7 +746,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                         }
 
                         // Setup complete
-                        mDataManager.getArguments().putString("data", location.toJson());
+                        mDataManager.getArguments().putString(Constants.KEY_DATA, location.toJson());
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -895,7 +896,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         // Save SearchUI state
-        outState.putBoolean("SearchUI", inSearchUI);
+        outState.putBoolean(Constants.KEY_SEARCHUI, inSearchUI);
 
         super.onSaveInstanceState(outState);
     }
@@ -1088,7 +1089,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
         if (mDataManager != null) {
             if (Settings.isWeatherLoaded()) {
                 if (location != null)
-                    mDataManager.getArguments().putString("data", location.toJson());
+                    mDataManager.getArguments().putString(Constants.KEY_DATA, location.toJson());
 
                 if (inSearchUI) {
                     runOnUiThread(new Runnable() {

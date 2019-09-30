@@ -30,6 +30,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQuery;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -264,7 +265,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
 
                         // Start WeatherNow Activity with weather data
                         Intent intent = new Intent(mActivity, MainActivity.class);
-                        intent.putExtra("data", location.toJson());
+                        intent.putExtra(Constants.KEY_DATA, location.toJson());
 
                         mActivity.startActivity(intent);
                         mActivity.finishAffinity();

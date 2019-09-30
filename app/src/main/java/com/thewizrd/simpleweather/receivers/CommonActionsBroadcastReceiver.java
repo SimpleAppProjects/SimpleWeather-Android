@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -54,8 +55,8 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
                 WeatherUpdaterService.enqueueWork(context, new Intent(context, WeatherUpdaterService.class)
                         .setAction(WeatherUpdaterService.ACTION_UPDATEWEATHER));
             } else if (CommonActions.ACTION_WEATHER_UPDATEWIDGETLOCATION.equals(intent.getAction())) {
-                final String oldKey = intent.getStringExtra("oldKey");
-                final String locationJson = intent.getStringExtra("location");
+                final String oldKey = intent.getStringExtra(Constants.WIDGETKEY_OLDKEY);
+                final String locationJson = intent.getStringExtra(Constants.WIDGETKEY_LOCATION);
 
                 new AsyncTask<Void>().await(new Callable<Void>() {
                     @Override
@@ -69,8 +70,8 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
                     }
                 });
             } else if (CommonActions.ACTION_WEATHER_UPDATEWIDGETWEATHER.equals(intent.getAction())) {
-                final String locationQuery = intent.getStringExtra("locationQuery");
-                final String weatherJson = intent.getStringExtra("weather");
+                final String locationQuery = intent.getStringExtra(Constants.WIDGETKEY_LOCATIONQUERY);
+                final String weatherJson = intent.getStringExtra(Constants.WIDGETKEY_WEATHER);
 
                 new AsyncTask<Void>().await(new Callable<Void>() {
                     @Override

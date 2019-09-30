@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DividerItemDecoration;
 
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -14,6 +15,7 @@ import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.WeatherDetailsAdapter;
 
 public class WeatherDetailsFragment extends WeatherListFragment {
+    private static final String ARGS_ISHOURLY = "isHourly";
     private boolean isHourly = false;
 
     public static WeatherDetailsFragment newInstance(LocationData location, WeatherNowViewModel weatherViewModel, boolean isHourly) {
@@ -36,7 +38,7 @@ public class WeatherDetailsFragment extends WeatherListFragment {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null) {
-            isHourly = savedInstanceState.getBoolean("isHourly", false);
+            isHourly = savedInstanceState.getBoolean(ARGS_ISHOURLY, false);
         }
     }
 
@@ -70,7 +72,7 @@ public class WeatherDetailsFragment extends WeatherListFragment {
                     }
 
                     if (getArguments() != null) {
-                        int scrollToPosition = getArguments().getInt("position", 0);
+                        int scrollToPosition = getArguments().getInt(Constants.KEY_POSITION, 0);
                         layoutManager.scrollToPositionWithOffset(scrollToPosition, 0);
                     }
                 }
@@ -81,7 +83,7 @@ public class WeatherDetailsFragment extends WeatherListFragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         // Save data
-        outState.putBoolean("isHourly", isHourly);
+        outState.putBoolean(ARGS_ISHOURLY, isHourly);
 
         super.onSaveInstanceState(outState);
     }

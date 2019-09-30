@@ -44,6 +44,7 @@ import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
@@ -506,7 +507,7 @@ public class WeatherWidgetService extends JobIntentService {
     }
 
     private void resetGPSWidgets() {
-        final int[] appWidgetIds = WidgetUtils.getWidgetIds("GPS");
+        final int[] appWidgetIds = WidgetUtils.getWidgetIds(Constants.KEY_GPS);
         resetGPSWidgets(appWidgetIds);
     }
 
@@ -543,7 +544,7 @@ public class WeatherWidgetService extends JobIntentService {
     }
 
     private void refreshGPSWidgets() {
-        final int[] appWidgetIds = WidgetUtils.getWidgetIds("GPS");
+        final int[] appWidgetIds = WidgetUtils.getWidgetIds(Constants.KEY_GPS);
 
         final int[] ids1x1 = mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.getComponentName());
         final int[] ids2x2 = mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName());
@@ -1143,7 +1144,7 @@ public class WeatherWidgetService extends JobIntentService {
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         if (Settings.getHomeData().equals(location)) {
-            onClickIntent.putExtra(EXTRA_LOCATIONQUERY, "GPS");
+            onClickIntent.putExtra(EXTRA_LOCATIONQUERY, Constants.KEY_GPS);
         } else {
             onClickIntent.putExtra(EXTRA_LOCATIONNAME, location == null ? null : location.getName());
             onClickIntent.putExtra(EXTRA_LOCATIONQUERY, location == null ? null : location.getQuery());

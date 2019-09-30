@@ -12,6 +12,7 @@ import androidx.wear.widget.CurvingLayoutCallback;
 import androidx.wear.widget.WearableLinearLayoutManager;
 import androidx.wear.widget.WearableRecyclerView;
 
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.simpleweather.R;
@@ -35,7 +36,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
         }
 
         Bundle args = new Bundle();
-        args.putInt("WeatherListType", weatherType.getValue());
+        args.putInt(Constants.ARGS_WEATHERLISTTYPE, weatherType.getValue());
         fragment.setArguments(args);
 
         return fragment;
@@ -110,7 +111,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
             WeatherListType newWeatherListType = WeatherListType.FORECAST;
 
             if (getArguments() != null) {
-                newWeatherListType = WeatherListType.valueOf(getArguments().getInt("WeatherListType", 0));
+                newWeatherListType = WeatherListType.valueOf(getArguments().getInt(Constants.ARGS_WEATHERLISTTYPE, 0));
             }
 
             if (mAdapter == null || weatherType != newWeatherListType) {

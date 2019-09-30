@@ -380,7 +380,7 @@ public class WearableDataListenerService extends WearableListenerService {
             dataItem = Tasks.await(Wearable.getDataClient(WearableDataListenerService.this)
                     .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp.getId(), WearableHelper.SettingsPath)));
 
-            long update_time = DataMapItem.fromDataItem(dataItem).getDataMap().getLong("update_time");
+            long update_time = DataMapItem.fromDataItem(dataItem).getDataMap().getLong(WearableSettings.KEY_UPDATETIME);
             LocalDateTime upDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(update_time), ZoneOffset.UTC);
             LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
@@ -418,7 +418,7 @@ public class WearableDataListenerService extends WearableListenerService {
             dataItem = Tasks.await(Wearable.getDataClient(WearableDataListenerService.this)
                     .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp.getId(), WearableHelper.LocationPath)));
 
-            long update_time = DataMapItem.fromDataItem(dataItem).getDataMap().getLong("update_time");
+            long update_time = DataMapItem.fromDataItem(dataItem).getDataMap().getLong(WearableSettings.KEY_UPDATETIME);
             LocalDateTime upDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(update_time), ZoneOffset.UTC);
             LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
@@ -525,7 +525,7 @@ public class WearableDataListenerService extends WearableListenerService {
     @WorkerThread
     private void updateLocation(final DataMap dataMap) {
         if (dataMap != null && !dataMap.isEmpty()) {
-            String locationJSON = dataMap.getString("locationData", "");
+            String locationJSON = dataMap.getString(WearableSettings.KEY_LOCATIONDATA, "");
             if (!StringUtils.isNullOrWhitespace(locationJSON)) {
                 try (JsonReader reader = new JsonReader(new StringReader(locationJSON))) {
                     LocationData locationData = LocationData.fromJson(reader);

@@ -73,6 +73,7 @@ import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.ComboBoxItem;
 import com.thewizrd.shared_resources.controls.LocationQuery;
@@ -226,11 +227,6 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         private static final int MAX_LOCATIONS = Settings.getMaxLocations();
         private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
         private static final int SETUP_REQUEST_CODE = 10;
-
-        private static final String KEY_SEARCHUI = "SearchUI";
-
-        private static final String KEY_SEARCH = "Search";
-        private static final String KEY_GPS = "GPS";
 
         // Preference Keys
         private static final String KEY_LOCATION = "key_location";
@@ -422,8 +418,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             setPreferencesFromResource(R.xml.pref_widgetconfig, null);
 
             locationPref = findPreference(KEY_LOCATION);
-            locationPref.addEntry(R.string.pref_item_gpslocation, KEY_GPS);
-            locationPref.addEntry(R.string.label_btn_add_location, KEY_SEARCH);
+            locationPref.addEntry(R.string.pref_item_gpslocation, Constants.KEY_GPS);
+            locationPref.addEntry(R.string.label_btn_add_location, Constants.KEY_SEARCH);
 
             List<LocationData> favs = Settings.getFavorites();
             favorites = new ArrayList<>(favs);
@@ -440,7 +436,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     ctsCancel();
 
                     CharSequence selectedValue = (CharSequence) newValue;
-                    if (KEY_SEARCH.equals(selectedValue)) {
+                    if (Constants.KEY_SEARCH.equals(selectedValue)) {
                         // Setup search UI
                         prepareSearchUI();
                         query_vm = null;
@@ -524,7 +520,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             }
 
             // Get SearchUI state
-            if (savedInstanceState != null && savedInstanceState.getBoolean(KEY_SEARCHUI, false)) {
+            if (savedInstanceState != null && savedInstanceState.getBoolean(Constants.KEY_SEARCHUI, false)) {
                 inSearchUI = true;
 
                 // Restart SearchUI
@@ -900,7 +896,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         @Override
         public void onSaveInstanceState(@NonNull Bundle outState) {
             // Save ActionMode state
-            outState.putBoolean(KEY_SEARCHUI, inSearchUI);
+            outState.putBoolean(Constants.KEY_SEARCHUI, inSearchUI);
 
             // Reset to last selected item
             if (inSearchUI && query_vm == null && mLastSelectedValue != null)
@@ -1283,7 +1279,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             if (requestCode == SETUP_REQUEST_CODE) {
                 if (resultCode == RESULT_OK) {
                     // Get result data
-                    String dataJson = (data == null || !data.hasExtra("data")) ? null : data.getStringExtra("data");
+                    String dataJson = (data == null || !data.hasExtra(Constants.KEY_DATA)) ? null : data.getStringExtra(Constants.KEY_DATA);
 
                     if (!StringUtils.isNullOrWhitespace(dataJson)) {
                         JsonReader reader = new JsonReader(new StringReader(dataJson));
@@ -1364,7 +1360,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     locData = WidgetUtils.getLocationData(mAppWidgetId);
 
                     // Handle location changes
-                    if (KEY_GPS.equals(locationItemValue)) {
+                    if (Constants.KEY_GPS.equals(locationItemValue)) {
                         // Changing location to GPS
                         if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                                 ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -1403,7 +1399,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         // Reset data for widget
                         WidgetUtils.deleteWidget(mAppWidgetId);
                         WidgetUtils.saveLocationData(mAppWidgetId, null);
-                        WidgetUtils.addWidgetId(KEY_GPS, mAppWidgetId);
+                        WidgetUtils.addWidgetId(Constants.KEY_GPS, mAppWidgetId);
                     } else {
                         // Changing location to whatever
                         if (locData == null || !locationItemValue.equals(locData.getQuery())) {
@@ -1445,7 +1441,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         }
                     }
                 } else {
-                    if (KEY_GPS.equals(locationItemValue)) {
+                    if (Constants.KEY_GPS.equals(locationItemValue)) {
                         if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                                 ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
@@ -1483,7 +1479,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         // Save locdata for widget
                         WidgetUtils.deleteWidget(mAppWidgetId);
                         WidgetUtils.saveLocationData(mAppWidgetId, null);
-                        WidgetUtils.addWidgetId(KEY_GPS, mAppWidgetId);
+                        WidgetUtils.addWidgetId(Constants.KEY_GPS, mAppWidgetId);
                     } else {
                         // Get location data
                         String itemValue = locationPref.getValue();

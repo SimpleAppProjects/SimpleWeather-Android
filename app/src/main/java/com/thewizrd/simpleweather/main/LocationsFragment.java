@@ -61,6 +61,7 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQuery;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -146,8 +147,6 @@ public class LocationsFragment extends ToolbarFragment
     private static final int ANIMATION_DURATION = 240;
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
     private static final int MAX_LOCATIONS = Settings.getMaxLocations();
-
-    private static final String KEY_SEARCHUI = "SearchUI";
 
     // OptionsMenu
     private Menu optionsMenu;
@@ -334,13 +333,13 @@ public class LocationsFragment extends ToolbarFragment
 
                 if (locData.equals(Settings.getHomeData())) {
                     FragmentManager fragMgr = getAppCompatActivity().getSupportFragmentManager();
-                    Fragment home = fragMgr.findFragmentByTag("home");
+                    Fragment home = fragMgr.findFragmentByTag(Constants.FRAGTAG_HOME);
 
                     // Pop all since we're going home
                     fragMgr.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     if (home == null) {
                         fragMgr.beginTransaction()
-                                .replace(R.id.fragment_container, new WeatherNowFragment(), "home")
+                                .replace(R.id.fragment_container, new WeatherNowFragment(), Constants.FRAGTAG_HOME)
                                 .commit();
                     }
                 } else {
@@ -358,7 +357,7 @@ public class LocationsFragment extends ToolbarFragment
 
                     getAppCompatActivity().getSupportFragmentManager().beginTransaction()
                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                            .add(R.id.fragment_container, fragment, "favorites")
+                            .add(R.id.fragment_container, fragment, Constants.FRAGTAG_FAVORITES)
                             .addToBackStack(null)
                             .commit();
                 }
@@ -620,7 +619,7 @@ public class LocationsFragment extends ToolbarFragment
         mLoaded = true;
 
         // Get SearchUI state
-        if (savedInstanceState != null && savedInstanceState.getBoolean(KEY_SEARCHUI, false)) {
+        if (savedInstanceState != null && savedInstanceState.getBoolean(Constants.KEY_SEARCHUI, false)) {
             inSearchUI = true;
 
             // Restart SearchUI
@@ -781,7 +780,7 @@ public class LocationsFragment extends ToolbarFragment
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         // Save ActionMode state
-        outState.putBoolean(KEY_SEARCHUI, inSearchUI);
+        outState.putBoolean(Constants.KEY_SEARCHUI, inSearchUI);
 
         super.onSaveInstanceState(outState);
     }

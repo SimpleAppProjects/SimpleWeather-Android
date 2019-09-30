@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.card.MaterialCardView;
 import com.google.gson.stream.JsonReader;
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -44,7 +45,7 @@ public abstract class WeatherListFragment extends ToolbarFragment {
         super.onCreate(savedInstanceState);
 
         if (location == null && savedInstanceState != null) {
-            String json = savedInstanceState.getString("data", null);
+            String json = savedInstanceState.getString(Constants.KEY_DATA, null);
             location = LocationData.fromJson(new JsonReader(new StringReader(json)));
         }
     }
@@ -129,7 +130,7 @@ public abstract class WeatherListFragment extends ToolbarFragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         // Save data
-        outState.putString("data", location.toJson());
+        outState.putString(Constants.KEY_DATA, location.toJson());
 
         super.onSaveInstanceState(outState);
     }

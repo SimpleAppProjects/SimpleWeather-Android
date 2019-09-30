@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import com.stepstone.stepper.StepperLayout;
 import com.stepstone.stepper.VerificationError;
 import com.stepstone.stepper.adapter.StepAdapter;
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -29,6 +30,7 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
 
     private StepperLayout mStepperLayout;
     private final String CURRENT_STEP_POSITION_KEY = "position";
+    private final String KEY_ARGS = "args";
     private Bundle args = new Bundle();
     private int currentPosition = 0;
 
@@ -71,7 +73,7 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
         if (savedInstanceState != null) {
             startingStepPosition = savedInstanceState.getInt(CURRENT_STEP_POSITION_KEY, 0);
             if (Settings.isWeatherLoaded() && startingStepPosition > 1) startingStepPosition = 1;
-            args = savedInstanceState.getBundle("args");
+            args = savedInstanceState.getBundle(KEY_ARGS);
         }
 
         if (args == null) args = new Bundle();
@@ -95,7 +97,7 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putInt(CURRENT_STEP_POSITION_KEY, mStepperLayout.getCurrentStepPosition());
-        outState.putBundle("args", args);
+        outState.putBundle(KEY_ARGS, args);
         super.onSaveInstanceState(outState);
     }
 
@@ -132,8 +134,8 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
             // Start WeatherNow Activity with weather data
             Intent intent = new Intent(this, MainActivity.class);
 
-            if (args.containsKey("data"))
-                intent.putExtra("data", args.getString("data"));
+            if (args.containsKey(Constants.KEY_DATA))
+                intent.putExtra(Constants.KEY_DATA, args.getString(Constants.KEY_DATA));
 
             startActivity(intent);
             finishAffinity();
@@ -141,8 +143,8 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
             // Create return intent
             Intent resultValue = new Intent();
             resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-            if (args.containsKey("data"))
-                resultValue.putExtra("data", args.getString("data"));
+            if (args.containsKey(Constants.KEY_DATA))
+                resultValue.putExtra(Constants.KEY_DATA, args.getString(Constants.KEY_DATA));
             setResult(Activity.RESULT_OK, resultValue);
             finish();
         }
