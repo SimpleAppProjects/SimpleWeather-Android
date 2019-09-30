@@ -185,7 +185,8 @@ public class WeatherDataLoader {
             try {
                 if ((weather != null && !weather.getSource().equals(Settings.getAPI()))
                         || (weather == null && location != null && !location.getWeatherSource().equals(Settings.getAPI()))) {
-                    if (WeatherAPI.NWS.equals(location.getWeatherSource()) && !"US".equals(location.getCountryCode())) {
+                    // Only update location data if weather provider is not NWS or if it is NWS and the location is supported
+                    if (!WeatherAPI.NWS.equals(location.getWeatherSource()) || "US".equals(location.getCountryCode())) {
                         // Update location query and source for new API
                         String oldKey = location.getQuery();
 
