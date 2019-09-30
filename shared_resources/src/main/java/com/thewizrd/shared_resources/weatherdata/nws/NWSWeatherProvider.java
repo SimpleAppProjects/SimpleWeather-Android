@@ -104,19 +104,7 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
             client.addRequestProperty("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version));
 
             // Check for errors
-            switch (client.getResponseCode()) {
-                case HttpURLConnection.HTTP_OK:
-                    break;
-                // 400 (OK since this isn't a valid request)
-                default:
-                case HttpURLConnection.HTTP_BAD_REQUEST:
-                    wEx = new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
-                    throw wEx;
-                    // 404 (Not found - Invalid query)
-                case HttpURLConnection.HTTP_NOT_FOUND:
-                    wEx = new WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND);
-                    throw wEx;
-            }
+            checkForErrors(client.getResponseCode());
 
             if ("gzip".equals(client.getContentEncoding())) {
                 stream = new GZIPInputStream(client.getInputStream());
@@ -212,6 +200,10 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
             client.setInstanceFollowRedirects(true);
             client.addRequestProperty("Accept", "application/ld+json");
             client.addRequestProperty("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version));
+
+            // Check for errors
+            checkForErrors(client.getResponseCode());
+
             if ("gzip".equals(client.getContentEncoding())) {
                 stream = new GZIPInputStream(client.getInputStream());
             } else {
@@ -258,6 +250,10 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
             client.setInstanceFollowRedirects(true);
             client.addRequestProperty("Accept", "application/ld+json");
             client.addRequestProperty("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version));
+
+            // Check for errors
+            checkForErrors(client.getResponseCode());
+
             if ("gzip".equals(client.getContentEncoding())) {
                 stream = new GZIPInputStream(client.getInputStream());
             } else {
@@ -270,6 +266,9 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
             // End Stream
             stream.close();
 
+        } catch (WeatherException wEx) {
+            // Allow continuing w/o the data
+            response = null;
         } catch (Exception ex) {
             response = null;
             throw ex;
@@ -304,6 +303,10 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
             client.setInstanceFollowRedirects(true);
             client.addRequestProperty("Accept", "application/ld+json");
             client.addRequestProperty("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version));
+
+            // Check for errors
+            checkForErrors(client.getResponseCode());
+
             if ("gzip".equals(client.getContentEncoding())) {
                 stream = new GZIPInputStream(client.getInputStream());
             } else {
@@ -350,6 +353,10 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
             client.setInstanceFollowRedirects(true);
             client.addRequestProperty("Accept", "application/ld+json");
             client.addRequestProperty("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version));
+
+            // Check for errors
+            checkForErrors(client.getResponseCode());
+
             if ("gzip".equals(client.getContentEncoding())) {
                 stream = new GZIPInputStream(client.getInputStream());
             } else {
@@ -371,6 +378,23 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
         }
 
         return response;
+    }
+
+    private void checkForErrors(int responseCode) throws WeatherException {
+        // Check for errors
+        switch (responseCode) {
+            case HttpURLConnection.HTTP_OK:
+                break;
+            // 400 (OK since this isn't a valid request)
+            default:
+            case HttpURLConnection.HTTP_BAD_REQUEST:
+                throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
+                // 404 (Not found - Invalid query)
+            case HttpURLConnection.HTTP_NOT_FOUND:
+                throw new WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND);
+            case HttpURLConnection.HTTP_INTERNAL_ERROR:
+                throw new WeatherException(WeatherUtils.ErrorStatus.UNKNOWN);
+        }
     }
 
     @Override

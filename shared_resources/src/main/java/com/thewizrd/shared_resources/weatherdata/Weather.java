@@ -432,9 +432,11 @@ public class Weather {
         }
         forecast = forecasts.toArray(new Forecast[0]);
         txtForecast = textForecasts.toArray(new TextForecast[0]);
-        hrForecast = new HourlyForecast[hourlyForecastResponse.getPeriods().size()];
-        for (int i = 0; i < hrForecast.length; i++) {
-            hrForecast[i] = new HourlyForecast(hourlyForecastResponse.getPeriods().get(i));
+        if (hourlyForecastResponse != null) {
+            hrForecast = new HourlyForecast[hourlyForecastResponse.getPeriods().size()];
+            for (int i = 0; i < hrForecast.length; i++) {
+                hrForecast[i] = new HourlyForecast(hourlyForecastResponse.getPeriods().get(i));
+            }
         }
         condition = new Condition(obsCurrentResponse);
         atmosphere = new Atmosphere(obsCurrentResponse);

@@ -199,10 +199,14 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
             // Update current condition
             SpannableStringBuilder curTempSSBuilder = new SpannableStringBuilder();
-            int temp = (int) (Settings.isFahrenheit() ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC()));
+            if (weather.getCondition().getTempF() != weather.getCondition().getTempC()) {
+                int temp = (int) (Settings.isFahrenheit() ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC()));
+                curTempSSBuilder.append(Integer.toString(temp));
+            } else {
+                curTempSSBuilder.append("---");
+            }
             String unitTemp = Settings.isFahrenheit() ? WeatherIcons.FAHRENHEIT : WeatherIcons.CELSIUS;
-            curTempSSBuilder.append(Integer.toString(temp))
-                    .append(unitTemp)
+            curTempSSBuilder.append(unitTemp)
                     .setSpan(new WeatherIconTextSpan(context), curTempSSBuilder.length() - unitTemp.length(), curTempSSBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             curTemp = curTempSSBuilder;
@@ -296,12 +300,15 @@ public class WeatherNowViewModel extends ObservableViewModel {
                                 weather.getCondition().getUV().getIndex(), weather.getCondition().getUV().getDescription())));
             }
 
-            // Wind
             if (weather.getCondition().getFeelslikeF() != weather.getCondition().getFeelslikeC()) {
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
                         Settings.isFahrenheit() ?
                                 String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getFeelslikeF())) :
                                 String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getFeelslikeC()))));
+            }
+
+            // Wind
+            if (weather.getCondition().getWindMph() != weather.getCondition().getWindKph()) {
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
                         Settings.isFahrenheit() ?
                                 String.format(Locale.getDefault(), "%d mph, %s", Math.round(weather.getCondition().getWindMph()), WeatherUtils.getWindDirection(weather.getCondition().getWindDegrees())) :
