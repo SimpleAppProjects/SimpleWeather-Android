@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.jakewharton.threetenabp.AndroidThreeTen;
@@ -85,7 +86,7 @@ public class App extends Application implements ApplicationLib, Application.Acti
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
-            public void uncaughtException(Thread t, Throwable e) {
+            public void uncaughtException(@NonNull Thread t, @NonNull Throwable e) {
                 Logger.writeLine(Log.ERROR, e);
 
                 if (oldHandler != null)

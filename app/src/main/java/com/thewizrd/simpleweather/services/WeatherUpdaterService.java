@@ -96,20 +96,6 @@ public class WeatherUpdaterService extends JobIntentService {
                         .setAction(ACTION_UPDATEWEATHER),
                 PendingIntent.FLAG_NO_CREATE) != null);
 
-        final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(@NonNull Thread t, @NonNull Throwable e) {
-                Logger.writeLine(Log.ERROR, e, "%s: Unhandled Exception %s", TAG, e.getMessage());
-
-                if (oldHandler != null) {
-                    oldHandler.uncaughtException(t, e);
-                } else {
-                    System.exit(2);
-                }
-            }
-        });
-
         cts = new CancellationTokenSource();
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {

@@ -148,20 +148,6 @@ public class WeatherWidgetService extends JobIntentService {
         mAppWidgetManager = AppWidgetManager.getInstance(mContext);
         wm = WeatherManager.getInstance();
 
-        final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(@NonNull Thread t, @NonNull Throwable e) {
-                Logger.writeLine(Log.ERROR, e, "%s: Unhandled Exception %s", TAG, e.getMessage());
-
-                if (oldHandler != null) {
-                    oldHandler.uncaughtException(t, e);
-                } else {
-                    System.exit(2);
-                }
-            }
-        });
-
         cts = new CancellationTokenSource();
 
         /*

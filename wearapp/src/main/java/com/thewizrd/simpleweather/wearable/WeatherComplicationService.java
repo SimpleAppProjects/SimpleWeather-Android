@@ -66,20 +66,6 @@ public class WeatherComplicationService extends ComplicationProviderService {
         mContext = getApplicationContext();
         wm = WeatherManager.getInstance();
 
-        final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                Logger.writeLine(Log.ERROR, e, "%s: Unhandled Exception %s", TAG, e == null ? null : e.getMessage());
-
-                if (oldHandler != null) {
-                    oldHandler.uncaughtException(t, e);
-                } else {
-                    System.exit(2);
-                }
-            }
-        });
-
         if (WearableHelper.isGooglePlayServicesInstalled()) {
             mFusedLocationClient = new FusedLocationProviderClient(this);
         }
