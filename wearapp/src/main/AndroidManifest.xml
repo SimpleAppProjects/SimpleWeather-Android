@@ -90,6 +90,20 @@
                 <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
             </intent-filter>
         </service>
+        <service
+            android:icon="@drawable/ic_logo"
+            android:label="Weather"
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER"
+            android:exported="true"
+            android:name=".wearable.WeatherTileProviderService">
+            <meta-data
+                android:name="com.google.android.clockwork.tiles.UPDATE_PERIOD_SECONDS"
+                android:value="7200" /> <!--Every 2 hours -->
+
+            <intent-filter>
+                <action android:name="com.google.android.clockwork.ACTION_TILE_UPDATE_REQUEST" />
+            </intent-filter>
+        </service>
 
         <uses-library
             android:name="com.google.android.wearable"

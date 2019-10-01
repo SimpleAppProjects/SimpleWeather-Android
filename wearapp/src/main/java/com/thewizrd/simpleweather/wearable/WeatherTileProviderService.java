@@ -1,0 +1,346 @@
+package com.thewizrd.simpleweather.wearable;
+
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
+import android.util.Log;
+import android.view.View;
+import android.widget.RemoteViews;
+
+import androidx.core.content.ContextCompat;
+import androidx.core.location.LocationManagerCompat;
+
+import com.google.android.clockwork.tiles.TileData;
+import com.google.android.clockwork.tiles.TileProviderService;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.tasks.Tasks;
+import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
+import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
+import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
+import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.ConversionMethods;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
+import com.thewizrd.shared_resources.utils.ImageUtils;
+import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.wearable.WearableDataSync;
+import com.thewizrd.shared_resources.wearable.WearableHelper;
+import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
+import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.simpleweather.LaunchActivity;
+import com.thewizrd.simpleweather.R;
+
+import org.threeten.bp.Duration;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZonedDateTime;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+public class WeatherTileProviderService extends TileProviderService {
+    private static final String TAG = "WeatherTileProviderService";
+
+    public static final String ACTION_UPDATETILE = "SimpleWeather.Droid.Wear.action.UPDATE_TILE";
+    public static final String EXTRA_FORCEUPDATE = "SimpleWeather.Droid.Wear.extra.FORCE_UPDATE";
+
+    private Context mContext;
+    private WeatherManager wm;
+    private FusedLocationProviderClient mFusedLocationClient;
+    private int id = -1;
+
+    private static LocalDateTime updateTime = DateTimeUtils.getLocalDateTimeMIN();
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mContext = getApplicationContext();
+        wm = WeatherManager.getInstance();
+
+        if (WearableHelper.isGooglePlayServicesInstalled()) {
+            mFusedLocationClient = new FusedLocationProviderClient(this);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "destroying service...");
+
+        super.onDestroy();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null && ACTION_UPDATETILE.equals(intent.getAction())) {
+            boolean force = intent.getBooleanExtra(EXTRA_FORCEUPDATE, false);
+
+            if (Duration.between(LocalDateTime.now(), updateTime).toMinutes() > Settings.getRefreshInterval())
+                force = true;
+
+            if (force && id != -1 && !isIdForDummyData(id)) {
+                sendRemoteViews();
+            }
+        }
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
+    public void onTileUpdate(int tileId) {
+        Log.d(TAG, "onTileUpdate called with: tileId = " + tileId);
+
+        if (!isIdForDummyData(tileId)) {
+            id = tileId;
+            sendRemoteViews();
+        }
+    }
+
+    @Override
+    public void onTileFocus(int tileId) {
+        super.onTileFocus(tileId);
+
+        Log.d(TAG, "onTileFocus called with: tileId = " + tileId);
+        id = tileId;
+    }
+
+    @Override
+    public void onTileBlur(int tileId) {
+        super.onTileBlur(tileId);
+
+        Log.d(TAG, "onTileBlur called with: tileId = " + tileId);
+    }
+
+    private void sendRemoteViews() {
+        Log.d(TAG, "sendRemoteViews");
+        AsyncTask.run(new Runnable() {
+            @Override
+            public void run() {
+                RemoteViews updateViews = buildUpdate(getWeather());
+
+                if (updateViews != null) {
+                    TileData tileData = new TileData.Builder()
+                            .setRemoteViews(updateViews)
+                            .build();
+
+                    updateTime = LocalDateTime.now();
+                    sendData(id, tileData);
+                }
+            }
+        });
+    }
+
+    private RemoteViews buildUpdate(final Weather weather) {
+        if (weather == null || !weather.isValid())
+            return null;
+
+        RemoteViews updateViews = new RemoteViews(mContext.getPackageName(), R.layout.tile_layout_weather);
+        WeatherNowViewModel viewModel = new WeatherNowViewModel(weather);
+
+        updateViews.setOnClickPendingIntent(R.id.tile, getTapIntent(mContext));
+
+        updateViews.setImageViewBitmap(R.id.condition_temp,
+                ImageUtils.weatherIconToBitmap(mContext, viewModel.getCurTemp(), 72, Colors.WHITE));
+        updateViews.setImageViewBitmap(R.id.weather_icon,
+                ImageUtils.weatherIconToBitmap(mContext, viewModel.getWeatherIcon(), 72, Colors.WHITE));
+        updateViews.setTextViewText(R.id.weather_condition, viewModel.getCurCondition());
+
+        // Build forecast
+        final int FORECAST_LENGTH = 3;
+        updateViews.removeAllViews(R.id.forecast_layout);
+
+        RemoteViews forecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.tile_forecast_layout_container);
+        RemoteViews hrForecastPanel = null;
+
+        if (viewModel.getExtras().getHourlyForecast().size() > 0) {
+            hrForecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.tile_forecast_layout_container);
+        }
+
+        for (int i = 0; i < FORECAST_LENGTH; i++) {
+            ForecastItemViewModel forecast = viewModel.getForecasts().get(i);
+            addForecastItem(forecastPanel, forecast);
+
+            if (hrForecastPanel != null) {
+                addForecastItem(hrForecastPanel, viewModel.getExtras().getHourlyForecast().get(i));
+            }
+        }
+
+        updateViews.addView(R.id.forecast_layout, forecastPanel);
+        if (hrForecastPanel != null) {
+            updateViews.addView(R.id.forecast_layout, hrForecastPanel);
+        }
+
+        return updateViews;
+    }
+
+    private void addForecastItem(RemoteViews forecastPanel, BaseForecastItemViewModel forecast) {
+        RemoteViews forecastItem = new RemoteViews(mContext.getPackageName(), R.layout.tile_forecast_panel);
+
+        forecastItem.setTextViewText(R.id.forecast_date, forecast.getShortDate());
+        forecastItem.setTextViewText(R.id.forecast_hi, forecast.getHiTemp());
+        if (forecast instanceof ForecastItemViewModel) {
+            forecastItem.setTextViewText(R.id.forecast_lo, ((ForecastItemViewModel) forecast).getLoTemp());
+        }
+
+        forecastItem.setImageViewBitmap(R.id.forecast_icon,
+                ImageUtils.weatherIconToBitmap(this, forecast.getWeatherIcon(), 72, Colors.WHITE));
+
+        if (forecast instanceof HourlyForecastItemViewModel) {
+            forecastItem.setViewVisibility(R.id.forecast_lo, View.GONE);
+        }
+
+        forecastPanel.addView(R.id.forecast_container, forecastItem);
+    }
+
+    private PendingIntent getTapIntent(Context context) {
+        Intent onClickIntent = new Intent(context.getApplicationContext(), LaunchActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        return PendingIntent.getActivity(context, 0, onClickIntent, 0);
+    }
+
+    private Weather getWeather() {
+        return new AsyncTask<Weather>().await(new Callable<Weather>() {
+            @Override
+            public Weather call() throws Exception {
+                Weather weather = null;
+
+                try {
+                    if (Settings.getDataSync() == WearableDataSync.OFF && Settings.useFollowGPS())
+                        updateLocation();
+
+                    WeatherDataLoader wloader = new WeatherDataLoader(Settings.getHomeData());
+
+                    if (Settings.getDataSync() == WearableDataSync.OFF) {
+                        wloader.loadWeatherData(false);
+                    } else {
+                        wloader.forceLoadSavedWeatherData();
+                    }
+
+                    weather = wloader.getWeather();
+
+                    if (weather != null && Settings.getDataSync() != WearableDataSync.OFF) {
+                        int ttl = Settings.DEFAULTINTERVAL;
+                        try {
+                            ttl = Integer.parseInt(weather.getTtl());
+                        } catch (NumberFormatException ex) {
+                            Logger.writeLine(Log.ERROR, ex);
+                        } finally {
+                            ttl = Math.max(ttl, Settings.getRefreshInterval());
+                        }
+
+                        // Check file age
+                        ZonedDateTime updateTime = weather.getUpdateTime();
+
+                        Duration span = Duration.between(ZonedDateTime.now(), updateTime).abs();
+                        if (span.toMinutes() > ttl) {
+                            WearableDataListenerService.enqueueWork(mContext, new Intent(mContext, WearableDataListenerService.class)
+                                    .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE));
+                        }
+                    }
+                } catch (Exception ex) {
+                    Logger.writeLine(Log.ERROR, ex, "%s: GetWeather error", TAG);
+                    return null;
+                }
+
+                return weather;
+            }
+        });
+    }
+
+    private boolean updateLocation() {
+        return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                boolean locationChanged = false;
+
+                if (Settings.useFollowGPS()) {
+                    if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                            ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        return false;
+                    }
+
+                    Location location = null;
+
+                    LocationManager locMan = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+
+                    if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                        // Disable GPS feature if location is not enabled
+                        Settings.setFollowGPS(false);
+                        return false;
+                    }
+
+                    if (WearableHelper.isGooglePlayServicesInstalled()) {
+                        location = new AsyncTask<Location>().await(new Callable<Location>() {
+                            @SuppressLint("MissingPermission")
+                            @Override
+                            public Location call() throws Exception {
+                                Location result = null;
+                                try {
+                                    result = Tasks.await(mFusedLocationClient.getLastLocation(), 10, TimeUnit.SECONDS);
+                                } catch (TimeoutException e) {
+                                    Logger.writeLine(Log.ERROR, e);
+                                }
+                                return result;
+                            }
+                        });
+                    } else {
+                        boolean isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                        boolean isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+                        if (isGPSEnabled || isNetEnabled) {
+                            Criteria locCriteria = new Criteria();
+                            locCriteria.setAccuracy(Criteria.ACCURACY_COARSE);
+                            locCriteria.setCostAllowed(false);
+                            locCriteria.setPowerRequirement(Criteria.POWER_LOW);
+                            String provider = locMan.getBestProvider(locCriteria, true);
+                            location = locMan.getLastKnownLocation(provider);
+                        }
+                    }
+
+                    if (location != null) {
+                        LocationData lastGPSLocData = Settings.getLastGPSLocData();
+
+                        // Check previous location difference
+                        if (lastGPSLocData.getQuery() != null &&
+                                Math.abs(ConversionMethods.calculateHaversine(lastGPSLocData.getLatitude(), lastGPSLocData.getLongitude(),
+                                        location.getLatitude(), location.getLongitude())) < 1600) {
+                            return false;
+                        }
+
+                        LocationQueryViewModel query_vm = null;
+
+                        // TODO: task it
+                        query_vm = wm.getLocation(location);
+
+                        if (StringUtils.isNullOrEmpty(query_vm.getLocationQuery()))
+                            query_vm = new LocationQueryViewModel();
+                        // END TASK IT
+
+                        if (StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
+                            // Stop since there is no valid query
+                            return false;
+                        }
+
+                        // Save location as last known
+                        lastGPSLocData.setData(query_vm, location);
+                        Settings.saveLastGPSLocData(lastGPSLocData);
+
+                        locationChanged = true;
+                    }
+                }
+
+                return locationChanged;
+            }
+        });
+    }
+}

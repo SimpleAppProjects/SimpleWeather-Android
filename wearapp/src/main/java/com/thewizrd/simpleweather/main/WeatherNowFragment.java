@@ -74,6 +74,7 @@ import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.wearable.WeatherComplicationIntentService;
+import com.thewizrd.simpleweather.wearable.WeatherTileProviderService;
 
 import org.threeten.bp.Duration;
 import org.threeten.bp.ZoneOffset;
@@ -187,6 +188,10 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     WeatherComplicationIntentService.enqueueWork(mActivity,
                             new Intent(mActivity, WeatherComplicationIntentService.class)
                                     .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS));
+
+                    // Update tile if it hasn't been already
+                    mActivity.startService(new Intent(mActivity, WeatherTileProviderService.class)
+                            .setAction(WeatherTileProviderService.ACTION_UPDATETILE));
 
                     if (!loaded) {
                         Duration span = Duration.between(ZonedDateTime.now(), weather.getUpdateTime()).abs();

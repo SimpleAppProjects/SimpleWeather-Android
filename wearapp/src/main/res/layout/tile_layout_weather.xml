@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tile"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/horizontal_padding">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:layout_marginStart="@dimen/horizontal_padding"
+        android:layout_marginTop="@dimen/horizontal_padding"
+        android:layout_marginEnd="@dimen/horizontal_padding">
+
+        <ImageView
+            android:id="@+id/weather_icon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:maxHeight="72dp"
+            android:paddingEnd="4dp"
+            android:scaleType="fitEnd"
+            android:tint="@android:color/white"
+            tools:srcCompat="@drawable/day_sunny" />
+
+        <ImageView
+            android:id="@+id/condition_temp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:maxHeight="72dp"
+            android:paddingStart="4dp"
+            android:scaleType="fitStart"
+            android:tint="@android:color/white"
+            tools:srcCompat="@drawable/na" />
+
+    </LinearLayout>
+
+    <ViewFlipper
+        android:id="@+id/forecast_layout"
+        android:layout_width="match_parent"
+        android:layout_height="84dp"
+        android:autoStart="true"
+        android:flipInterval="10000"
+        android:loopViews="true"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:layout_marginStart="@dimen/horizontal_padding"
+        android:layout_marginBottom="@dimen/horizontal_padding"
+        android:layout_marginEnd="@dimen/horizontal_padding" />
+
+</LinearLayout>

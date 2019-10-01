@@ -1,1 +1,1 @@
-include ':app', ':wearapp', ':shared_resources'
+include ':app', ':wearapp', ':shared_resources', ':unofficialtileapi'

@@ -561,11 +561,11 @@ public class WearableDataListenerService extends WearableListenerService {
             if (update_time != 0) {
                 if (Settings.getHomeData() != null) {
                     LocalDateTime upDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(update_time), ZoneOffset.UTC);
-                            /*
-                                DateTime < 0 - This instance is earlier than value.
-                                DateTime == 0 - This instance is the same as value.
-                                DateTime > 0 - This instance is later than value.
-                            */
+                    /*
+                        DateTime < 0 - This instance is earlier than value.
+                        DateTime == 0 - This instance is the same as value.
+                        DateTime > 0 - This instance is later than value.
+                    */
                     LocalDateTime settingsUpdateTime = Settings.getUpdateTime();
                     if (settingsUpdateTime.compareTo(upDateTime) >= 0) {
                         // Send callback to receiver
@@ -619,6 +619,11 @@ public class WearableDataListenerService extends WearableListenerService {
                                 new Intent(WearableDataListenerService.this, WeatherComplicationIntentService.class)
                                         .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS)
                                         .putExtra(WeatherComplicationIntentService.EXTRA_FORCEUPDATE, true));
+
+                        // Update tile
+                        startService(new Intent(WearableDataListenerService.this, WeatherTileProviderService.class)
+                                .setAction(WeatherTileProviderService.ACTION_UPDATETILE)
+                                .putExtra(WeatherTileProviderService.EXTRA_FORCEUPDATE, true));
                     }
                 } catch (IOException e) {
                     Logger.writeLine(Log.ERROR, e);
