@@ -506,6 +506,7 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
             });
 
             // Disable GPS feature if location is not enabled
+            enableControls(true);
             Settings.setFollowGPS(false);
             return;
         }

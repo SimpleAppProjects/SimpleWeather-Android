@@ -797,6 +797,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
             });
 
             // Disable GPS feature if location is not enabled
+            enableControls(true);
             Settings.setFollowGPS(false);
             return;
         }
