@@ -144,10 +144,10 @@ public class Settings {
                 // Data sync setting changed
                 case KEY_DATASYNC:
                     // Reset UpdateTime value to force a refresh
-                    value = sharedPreferences.getBoolean(key, false);
+                    WearableDataSync dataSync = WearableDataSync.valueOf(Integer.valueOf(sharedPreferences.getString(KEY_DATASYNC, "0")));
                     setUpdateTime(DateTimeUtils.getLocalDateTimeMIN());
                     // Reset interval if setting is off
-                    if (!value) setRefreshInterval(DEFAULTINTERVAL);
+                    if (dataSync == WearableDataSync.OFF) setRefreshInterval(DEFAULTINTERVAL);
                     break;
                 default:
                     break;
