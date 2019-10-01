@@ -23,7 +23,6 @@ android {
             applicationIdSuffix ".debug"
             debuggable true
             minifyEnabled false
-            useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             manifestPlaceholders = [allowBackup: false]
         }
@@ -48,7 +47,8 @@ dependencies {
     androidTestImplementation 'androidx.test:rules:1.2.0'
 
     implementation 'androidx.wear:wear:1.0.0'
-    implementation 'com.google.android.support:wearable:2.4.0'
+    implementation 'com.google.android.support:wearable:2.5.0'
+    compileOnly 'com.google.android.wearable:wearable:2.5.0'
 
     implementation 'androidx.core:core:1.2.0-alpha04'
     implementation 'androidx.appcompat:appcompat:1.1.0'
