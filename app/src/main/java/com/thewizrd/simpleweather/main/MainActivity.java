@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity
             // If sub-fragment exist: pop those one by one
             int backstackCount = getSupportFragmentManager().getBackStackEntryCount();
             if (current != null
-                    && (current.getClass().getName().contains("SettingsFragment$")
+                    && (current.getClass().getName().contains(SettingsFragment.class.getName() + "$")
                     || current instanceof WeatherAlertsFragment || current instanceof WeatherDetailsFragment)) {
                 getSupportFragmentManager().popBackStack();
             } else if (backstackCount >= 1) { // If backstack entry exists pop all and goto first (home) fragment
@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity
                 /* NOTE: KEEP ABOVE */
                 else {
                     // If current frag is Settings sub-fragment pop all off
-                    if (current.getClass().getName().contains("SettingsFragment$"))
+                    if (current.getClass().getName().contains(SettingsFragment.class.getName() + "$"))
                         getSupportFragmentManager().popBackStack(Constants.FRAGTAG_SETTINGS, 0);
                     /* NOTE: Don't pop here so we don't trigger onResume/onHiddenChanged of root fragment */
                     // If a Settings fragment exists remove it
@@ -287,7 +287,7 @@ public class MainActivity extends AppCompatActivity
                 fragment = new SettingsFragment();
 
                 // Commit the transaction if current frag is not a SettingsFragment sub-fragment
-                if (!current.getClass().getName().contains("SettingsFragment")) {
+                if (!current.getClass().getName().contains(SettingsFragment.class.getName())) {
                     transaction.hide(current);
                     /*
                      * NOTE
@@ -338,7 +338,7 @@ public class MainActivity extends AppCompatActivity
             checkedItemId = R.id.nav_locations;
         } else if (fragment instanceof WeatherAlertsFragment || fragment instanceof WeatherDetailsFragment) {
             checkedItemId = R.id.nav_weathernow;
-        } else if (fragment != null && fragment.getClass().getName().contains("SettingsFragment")) {
+        } else if (fragment != null && fragment.getClass().getName().contains(SettingsFragment.class.getName())) {
             checkedItemId = R.id.nav_settings;
         }
 
