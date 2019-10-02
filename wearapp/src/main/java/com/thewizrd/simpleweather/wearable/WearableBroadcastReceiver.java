@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-public class WeatherComplicationBroadcastReceiver extends BroadcastReceiver {
+public class WearableBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
@@ -22,8 +22,8 @@ public class WeatherComplicationBroadcastReceiver extends BroadcastReceiver {
             return;
         }
 
-        // Relay intent to WeatherComplicationIntentService
-        intent.setClass(context, WeatherComplicationIntentService.class);
-        WeatherComplicationIntentService.enqueueWork(context, intent);
+        // Relay intent to WeatherTileIntentService
+        intent.setClass(context, WeatherTileIntentService.class);
+        WeatherTileIntentService.enqueueWork(context, intent);
     }
 }

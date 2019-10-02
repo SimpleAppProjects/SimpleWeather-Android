@@ -27,7 +27,7 @@
             android:adjustViewBounds="true"
             android:maxHeight="72dp"
             android:paddingEnd="4dp"
-            android:scaleType="fitEnd"
+            android:scaleType="fitStart"
             android:tint="@android:color/white"
             tools:srcCompat="@drawable/day_sunny" />
 
@@ -39,7 +39,7 @@
             android:adjustViewBounds="true"
             android:maxHeight="72dp"
             android:paddingStart="4dp"
-            android:scaleType="fitStart"
+            android:scaleType="fitEnd"
             android:tint="@android:color/white"
             tools:srcCompat="@drawable/na" />
 

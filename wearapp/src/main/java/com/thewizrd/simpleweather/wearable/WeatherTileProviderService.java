@@ -53,15 +53,16 @@ import java.util.concurrent.TimeoutException;
 public class WeatherTileProviderService extends TileProviderService {
     private static final String TAG = "WeatherTileProviderService";
 
-    public static final String ACTION_UPDATETILE = "SimpleWeather.Droid.Wear.action.UPDATE_TILE";
-    public static final String EXTRA_FORCEUPDATE = "SimpleWeather.Droid.Wear.extra.FORCE_UPDATE";
-
     private Context mContext;
     private WeatherManager wm;
     private FusedLocationProviderClient mFusedLocationClient;
     private int id = -1;
 
     private static LocalDateTime updateTime = DateTimeUtils.getLocalDateTimeMIN();
+
+    public static LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
 
     @Override
     public void onCreate() {
@@ -77,23 +78,14 @@ public class WeatherTileProviderService extends TileProviderService {
     @Override
     public void onDestroy() {
         Log.d(TAG, "destroying service...");
-
         super.onDestroy();
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && ACTION_UPDATETILE.equals(intent.getAction())) {
-            boolean force = intent.getBooleanExtra(EXTRA_FORCEUPDATE, false);
-
-            if (Duration.between(LocalDateTime.now(), updateTime).toMinutes() > Settings.getRefreshInterval())
-                force = true;
-
-            if (force && id != -1 && !isIdForDummyData(id)) {
-                sendRemoteViews();
-            }
-        }
-        return super.onStartCommand(intent, flags, startId);
+    public boolean onUnbind(Intent intent) {
+        boolean result = super.onUnbind(intent);
+        Log.d(TAG, "Service unbound");
+        return result;
     }
 
     @Override
@@ -111,7 +103,10 @@ public class WeatherTileProviderService extends TileProviderService {
         super.onTileFocus(tileId);
 
         Log.d(TAG, "onTileFocus called with: tileId = " + tileId);
-        id = tileId;
+
+        if (!isIdForDummyData(tileId)) {
+            id = tileId;
+        }
     }
 
     @Override
@@ -119,6 +114,10 @@ public class WeatherTileProviderService extends TileProviderService {
         super.onTileBlur(tileId);
 
         Log.d(TAG, "onTileBlur called with: tileId = " + tileId);
+
+        if (!isIdForDummyData(tileId)) {
+            id = tileId;
+        }
     }
 
     private void sendRemoteViews() {
@@ -135,6 +134,9 @@ public class WeatherTileProviderService extends TileProviderService {
 
                     updateTime = LocalDateTime.now();
                     sendData(id, tileData);
+                    // Reset alarm
+                    WeatherTileIntentService.enqueueWork(mContext, new Intent(mContext, WeatherTileIntentService.class)
+                            .setAction(WeatherTileIntentService.ACTION_UPDATEALARM));
                 }
             }
         });
