@@ -436,16 +436,18 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     ctsCancel();
 
                     CharSequence selectedValue = (CharSequence) newValue;
-                    if (Constants.KEY_SEARCH.equals(selectedValue)) {
+                    if (Constants.KEY_SEARCH.contentEquals(selectedValue)) {
                         // Setup search UI
                         prepareSearchUI();
                         query_vm = null;
                         return false;
+                    } else if (Constants.KEY_GPS.contentEquals(selectedValue)) {
+                        mLastSelectedValue = null;
+                        query_vm = null;
                     } else {
                         mLastSelectedValue = selectedValue;
                     }
 
-                    query_vm = null;
                     updateLocationView();
                     return true;
                 }
@@ -487,6 +489,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         }
                     }
 
+                    bgStylePref.setValueIndex(0);
+                    bgStylePref.callChangeListener(bgStylePref.getValue());
                     bgStylePref.setVisible(false);
                     return true;
                 }
@@ -1469,7 +1473,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         LocationData lastGPSLocData = Settings.getLastGPSLocData();
 
                         // Check if last location exists
-                        if (lastGPSLocData == null && !updateLocation()) {
+                        if ((lastGPSLocData == null || !lastGPSLocData.isValid()) && !updateLocation()) {
                             showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
                             return;
                         }

@@ -1014,11 +1014,11 @@ public class WeatherWidgetService extends JobIntentService {
         int textColor = getTextColor(background);
         int panelTextColor = getPanelTextColor(background, style, isNightMode);
 
-        int tempTextSize = 72;
+        int tempTextSize = 36;
         if (provider.getWidgetType() == WidgetType.Widget4x1Google)
-            tempTextSize = 60;
+            tempTextSize = 24;
 
-        float shadowRadius = 2.75f;
+        float shadowRadius = 1.75f;
         if (provider.getWidgetType() == WidgetType.Widget4x1Google)
             shadowRadius = 7.5f;
 
@@ -1070,7 +1070,7 @@ public class WeatherWidgetService extends JobIntentService {
                  */
                 if (maxBitmapSize < 3840000) { // (200 * 4) * (200 * 4) * 4 * 1.5f
                     imgWidth = imgHeight = 200;
-                } else if (imgHeight * imgWidth * 4 * 1.5f > maxBitmapSize) {
+                } else if (imgHeight * imgWidth * 3 * 1.5f > maxBitmapSize) {
                     switch (provider.getWidgetType()) {
                         default:
                         case Widget1x1:
@@ -1289,7 +1289,7 @@ public class WeatherWidgetService extends JobIntentService {
             WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
             WidgetUtils.WidgetBackgroundStyle style = WidgetUtils.getBackgroundStyle(appWidgetId);
             int textColor = getPanelTextColor(background, style, isNightMode);
-            int tempTextSize = 72;
+            int tempTextSize = 36;
             boolean tap2SwitchEnabled = WidgetUtils.isTapToSwitchEnabled(appWidgetId);
 
             RemoteViews forecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_layout_container);
@@ -1375,7 +1375,7 @@ public class WeatherWidgetService extends JobIntentService {
 
             int size = (int) ActivityUtils.dpToPx(mContext, 30);
             if (cellHeight > 2 && (!isSmallWidth || cellWidth > 4)) {
-                size *= (5f / 3); // 50dp
+                size *= (4f / 3); // 40dp
             }
             forecastItem.setInt(R.id.forecast_icon, "setMaxWidth", size);
             forecastItem.setInt(R.id.forecast_icon, "setMaxHeight", size);
@@ -1394,7 +1394,7 @@ public class WeatherWidgetService extends JobIntentService {
             forecastItem.setTextColor(R.id.forecast_lo, textColor);
         }
         forecastItem.setImageViewBitmap(R.id.forecast_icon,
-                ImageUtils.weatherIconToBitmap(this, forecast.getWeatherIcon(), tempTextSize, textColor, true));
+                ImageUtils.weatherIconToBitmap(this, forecast.getWeatherIcon(), tempTextSize, textColor, 1.75f));
 
         if (provider.getWidgetType() == WidgetType.Widget4x1) {
             if (forceSmallHeight) {

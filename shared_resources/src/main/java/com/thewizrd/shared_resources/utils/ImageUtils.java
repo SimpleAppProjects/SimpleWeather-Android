@@ -65,7 +65,7 @@ public class ImageUtils {
 
     public static Bitmap weatherIconToBitmap(Context context, CharSequence text, int textSize, int textColor, float shadowRadius) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        float textSizePx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, textSize, metrics);
+        float textSizePx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize, metrics);
 
         TextPaint paint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         Typeface weathericons = ResourcesCompat.getFont(context, R.font.weathericons);
