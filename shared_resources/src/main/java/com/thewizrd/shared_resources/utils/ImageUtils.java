@@ -22,6 +22,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
@@ -47,23 +48,23 @@ public class ImageUtils {
         return bmp;
     }
 
-    public static Bitmap weatherIconToBitmap(Context context, CharSequence text, int textSize) {
+    public static Bitmap weatherIconToBitmap(@NonNull Context context, @NonNull CharSequence text, int textSize) {
         return weatherIconToBitmap(context, text, textSize, Color.WHITE);
     }
 
-    public static Bitmap weatherIconToBitmap(Context context, CharSequence text, int textSize, boolean addShadow) {
+    public static Bitmap weatherIconToBitmap(@NonNull Context context, @NonNull CharSequence text, int textSize, boolean addShadow) {
         return weatherIconToBitmap(context, text, textSize, Color.WHITE, addShadow);
     }
 
-    public static Bitmap weatherIconToBitmap(Context context, CharSequence text, int textSize, int textColor) {
+    public static Bitmap weatherIconToBitmap(@NonNull Context context, @NonNull CharSequence text, int textSize, int textColor) {
         return weatherIconToBitmap(context, text, textSize, textColor, false);
     }
 
-    public static Bitmap weatherIconToBitmap(Context context, CharSequence text, int textSize, int textColor, boolean addShadow) {
+    public static Bitmap weatherIconToBitmap(@NonNull Context context, @NonNull CharSequence text, int textSize, int textColor, boolean addShadow) {
         return weatherIconToBitmap(context, text, textSize, textColor, addShadow ? 2.75f : 0);
     }
 
-    public static Bitmap weatherIconToBitmap(Context context, CharSequence text, int textSize, int textColor, float shadowRadius) {
+    public static Bitmap weatherIconToBitmap(@NonNull Context context, @NonNull CharSequence text, int textSize, int textColor, float shadowRadius) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         float textSizePx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize, metrics);
 
@@ -94,23 +95,23 @@ public class ImageUtils {
         return bmp;
     }
 
-    public static Bitmap bitmapFromDrawable(Context context, int resDrawable) {
+    public static Bitmap bitmapFromDrawable(@NonNull Context context, int resDrawable) {
         Drawable drawable = ContextCompat.getDrawable(context, resDrawable);
         return bitmapFromDrawable(drawable);
     }
 
-    public static Bitmap bitmapFromDrawable(Context context, Drawable drawable) {
+    public static Bitmap bitmapFromDrawable(@NonNull Context context, @NonNull Drawable drawable) {
         return bitmapFromDrawable(drawable);
     }
 
-    public static Bitmap tintedBitmapFromDrawable(Context context, int resDrawable, int color) {
+    public static Bitmap tintedBitmapFromDrawable(@NonNull Context context, int resDrawable, int color) {
         Drawable drawable = ContextCompat.getDrawable(context, resDrawable);
         Drawable wrapped = DrawableCompat.wrap(drawable);
         DrawableCompat.setTint(wrapped, color);
         return bitmapFromDrawable(wrapped);
     }
 
-    private static Bitmap bitmapFromDrawable(Drawable drawable) {
+    private static Bitmap bitmapFromDrawable(@NonNull Drawable drawable) {
         Bitmap bitmap;
 
         if (drawable.getIntrinsicHeight() <= 0 || drawable.getIntrinsicWidth() <= 0) {
