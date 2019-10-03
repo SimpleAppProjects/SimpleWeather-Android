@@ -616,6 +616,8 @@ public class WeatherNowFragment extends WindowColorFragment
                 int dY = scrollY - oldScrollY;
                 boolean mScrollHandled = false;
 
+                if (dY == 0) return;
+
                 Log.d("ScrollView", String.format("onFlingStopped: height: %d; offset|scrollY: %d; prevScrollY: %d; dY: %d;", condPnlHeight, scrollOffset, oldScrollY, dY));
 
                 if (dY < 0 && scrollOffset < condPnlHeight - THRESHOLD) {
@@ -629,7 +631,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     mScrollHandled = true;
                 }
 
-                if (dY != 0 && !mScrollHandled && scrollOffset < condPnlHeight) {
+                if (!mScrollHandled && scrollOffset < condPnlHeight) {
                     int animDY = (int) getSplineFlingDistance(startvelocityY);
                     int animScrollY = oldScrollY + animDY;
 
@@ -652,6 +654,8 @@ public class WeatherNowFragment extends WindowColorFragment
                 int THRESHOLD = condPnlHeight / 2;
                 int scrollOffset = scrollView.computeVerticalScrollOffset();
                 int dY = scrollY - oldScrollY;
+
+                if (dY == 0) return;
 
                 Log.d("ScrollView", String.format("onTouchScrollChange: height: %d; offset: %d; scrollY: %d; prevScrollY: %d; dY: %d",
                         condPnlHeight, scrollOffset, scrollY, oldScrollY, dY));
