@@ -357,7 +357,7 @@ public class WeatherWidgetService extends JobIntentService {
             // Add widget providers here
             List<Task<Void>> tasks = new ArrayList<>();
 
-            if (mAppWidget1x1.hasInstances(WeatherWidgetService.this)) {
+            if (mAppWidget1x1.hasInstances(mContext)) {
                 Task<Void> task = AsyncTask.create(new Callable<Void>() {
                     @Override
                     public Void call() throws Exception {
@@ -374,7 +374,7 @@ public class WeatherWidgetService extends JobIntentService {
                 tasks.add(task);
             }
 
-            if (mAppWidget2x2.hasInstances(WeatherWidgetService.this)) {
+            if (mAppWidget2x2.hasInstances(mContext)) {
                 Task<Void> task = AsyncTask.create(new Callable<Void>() {
                     @Override
                     public Void call() throws Exception {
@@ -394,7 +394,7 @@ public class WeatherWidgetService extends JobIntentService {
                 tasks.add(task);
             }
 
-            if (mAppWidget4x1.hasInstances(WeatherWidgetService.this)) {
+            if (mAppWidget4x1.hasInstances(mContext)) {
                 Task<Void> task = AsyncTask.create(new Callable<Void>() {
                     @Override
                     public Void call() throws Exception {
@@ -411,7 +411,7 @@ public class WeatherWidgetService extends JobIntentService {
                 tasks.add(task);
             }
 
-            if (mAppWidget4x2.hasInstances(WeatherWidgetService.this)) {
+            if (mAppWidget4x2.hasInstances(mContext)) {
                 Task<Void> task = AsyncTask.create(new Callable<Void>() {
                     @Override
                     public Void call() throws Exception {
@@ -431,7 +431,7 @@ public class WeatherWidgetService extends JobIntentService {
                 tasks.add(task);
             }
 
-            if (mAppWidget4x1Google.hasInstances(WeatherWidgetService.this)) {
+            if (mAppWidget4x1Google.hasInstances(mContext)) {
                 Task<Void> task = AsyncTask.create(new Callable<Void>() {
                     @Override
                     public Void call() throws Exception {
@@ -1394,7 +1394,7 @@ public class WeatherWidgetService extends JobIntentService {
             forecastItem.setTextColor(R.id.forecast_lo, textColor);
         }
         forecastItem.setImageViewBitmap(R.id.forecast_icon,
-                ImageUtils.weatherIconToBitmap(this, forecast.getWeatherIcon(), tempTextSize, textColor, 1.75f));
+                ImageUtils.weatherIconToBitmap(mContext, forecast.getWeatherIcon(), tempTextSize, textColor, 1.75f));
 
         if (provider.getWidgetType() == WidgetType.Widget4x1) {
             if (forceSmallHeight) {
