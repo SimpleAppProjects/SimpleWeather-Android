@@ -60,7 +60,7 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.BuildConfig;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
-import com.thewizrd.simpleweather.services.WeatherUpdaterService;
+import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
@@ -220,8 +220,8 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                 }
             } else if (WeatherWidgetService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
                 WeatherWidgetService.enqueueWork(getAppCompatActivity(), filter.getIntent());
-            } else if (WeatherUpdaterService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
-                WeatherUpdaterService.enqueueWork(getAppCompatActivity(), filter.getIntent());
+            } else if (WeatherUpdaterWorker.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
+                WeatherUpdaterWorker.enqueueAction(getAppCompatActivity(), filter.getIntent().getAction());
             } else if (WearableDataListenerService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
                 WearableDataListenerService.enqueueWork(getAppCompatActivity(), filter.getIntent());
             } else {
@@ -580,11 +580,11 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
 
                 // Alert notification
                 if ((boolean) newValue) {
-                    enqueueIntent(new Intent(context, WeatherUpdaterService.class)
-                            .setAction(WeatherUpdaterService.ACTION_STARTALARM));
+                    enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
+                            .setAction(WeatherUpdaterWorker.ACTION_STARTALARM));
                 } else {
-                    enqueueIntent(new Intent(context, WeatherUpdaterService.class)
-                            .setAction(WeatherUpdaterService.ACTION_CANCELALARM));
+                    enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
+                            .setAction(WeatherUpdaterWorker.ACTION_CANCELALARM));
                 }
                 return true;
             }
@@ -721,16 +721,16 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         if (intent == null)
             return false;
         else {
-            if (WeatherUpdaterService.ACTION_STARTALARM.equals(intent.getAction())) {
+            if (WeatherUpdaterWorker.ACTION_STARTALARM.equals(intent.getAction())) {
                 for (Intent.FilterComparison filter : intentQueue) {
-                    if (WeatherUpdaterService.ACTION_CANCELALARM.equals(filter.getIntent().getAction())) {
+                    if (WeatherUpdaterWorker.ACTION_CANCELALARM.equals(filter.getIntent().getAction())) {
                         intentQueue.remove(filter);
                         break;
                     }
                 }
-            } else if (WeatherUpdaterService.ACTION_CANCELALARM.equals(intent.getAction())) {
+            } else if (WeatherUpdaterWorker.ACTION_CANCELALARM.equals(intent.getAction())) {
                 for (Intent.FilterComparison filter : intentQueue) {
-                    if (WeatherUpdaterService.ACTION_STARTALARM.equals(filter.getIntent().getAction())) {
+                    if (WeatherUpdaterWorker.ACTION_STARTALARM.equals(filter.getIntent().getAction())) {
                         intentQueue.remove(filter);
                         break;
                     }
@@ -754,8 +754,8 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                 enqueueIntent(new Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI));
                 enqueueIntent(new Intent(context, WearableDataListenerService.class)
                         .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
-                enqueueIntent(new Intent(context, WeatherUpdaterService.class)
-                        .setAction(WeatherUpdaterService.ACTION_UPDATEWEATHER));
+                enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
+                        .setAction(WeatherUpdaterWorker.ACTION_UPDATEWEATHER));
                 break;
             // FollowGPS changed
             case KEY_FOLLOWGPS:
@@ -764,8 +764,8 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                         .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
                 enqueueIntent(new Intent(context, WearableDataListenerService.class)
                         .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
-                enqueueIntent(new Intent(context, WeatherUpdaterService.class)
-                        .setAction(WeatherUpdaterService.ACTION_UPDATEWEATHER));
+                enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
+                        .setAction(WeatherUpdaterWorker.ACTION_UPDATEWEATHER));
                 enqueueIntent(new Intent(context, WearableDataListenerService.class)
                         .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
                 enqueueIntent(new Intent(context, WeatherWidgetService.class)
@@ -775,13 +775,13 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
             case KEY_USECELSIUS:
                 enqueueIntent(new Intent(context, WearableDataListenerService.class)
                         .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
-                enqueueIntent(new Intent(context, WeatherUpdaterService.class)
-                        .setAction(WeatherUpdaterService.ACTION_UPDATEWEATHER));
+                enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
+                        .setAction(WeatherUpdaterWorker.ACTION_UPDATEWEATHER));
                 break;
             // Refresh interval changed
             case KEY_REFRESHINTERVAL:
-                enqueueIntent(new Intent(context, WeatherUpdaterService.class)
-                        .setAction(WeatherUpdaterService.ACTION_UPDATEALARM));
+                enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
+                        .setAction(WeatherUpdaterWorker.ACTION_UPDATEALARM));
                 break;
             default:
                 break;

@@ -170,10 +170,6 @@
             android:name=".notifications.WeatherNotificationService"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
-        <service
-            android:name=".services.WeatherUpdaterService"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <uses-library
             android:name="com.google.android.wearable"

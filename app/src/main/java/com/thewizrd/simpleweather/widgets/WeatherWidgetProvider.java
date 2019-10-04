@@ -10,11 +10,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.services.WeatherUpdaterService;
+import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 
 public abstract class WeatherWidgetProvider extends AppWidgetProvider {
     private static final String TAG = "WeatherWidgetProvider";
@@ -51,8 +52,7 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
                 // Reset weather update time
                 Settings.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN());
                 // Restart update alarm
-                WeatherUpdaterService.enqueueWork(context, new Intent(context, WeatherUpdaterService.class)
-                        .setAction(WeatherUpdaterService.ACTION_STARTALARM));
+                WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_STARTALARM);
             } else if (Intent.ACTION_LOCALE_CHANGED.equals(intent.getAction())) {
                 updateWidgets(context, null);
             } else if (ACTION_SHOWREFRESH.equals(intent.getAction())) {
@@ -68,9 +68,10 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
                 int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
                 updateWidgets(context, appWidgetIds);
             } else {
-                Logger.writeLine(Log.INFO, "%s: Unhandled action: %s", TAG, intent.getAction());
                 super.onReceive(context, intent);
             }
+
+            Logger.writeLine(Log.INFO, "%s: onReceive: %s", TAG, intent.getAction());
         }
     }
 
@@ -104,15 +105,13 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
     @Override
     public void onEnabled(Context context) {
         // Schedule alarms/updates
-        WeatherUpdaterService.enqueueWork(context, new Intent(context, WeatherUpdaterService.class)
-                .setAction(WeatherUpdaterService.ACTION_STARTALARM));
+        WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_STARTALARM);
     }
 
     @Override
     public void onDisabled(Context context) {
         // Remove alarms/updates
-        WeatherUpdaterService.enqueueWork(context, new Intent(context, WeatherUpdaterService.class)
-                .setAction(WeatherUpdaterService.ACTION_CANCELALARM));
+        WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_CANCELALARM);
     }
 
     @Override

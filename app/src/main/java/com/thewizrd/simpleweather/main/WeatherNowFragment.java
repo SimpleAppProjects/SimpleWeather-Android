@@ -118,7 +118,7 @@ import com.thewizrd.simpleweather.helpers.DarkMode;
 import com.thewizrd.simpleweather.helpers.LocationPanelOffsetDecoration;
 import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
-import com.thewizrd.simpleweather.services.WeatherUpdaterService;
+import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler;
@@ -261,8 +261,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     if (Settings.getHomeData().equals(location)) {
                         // Update widgets if they haven't been already
                         if (Duration.between(LocalDateTime.now(), Settings.getUpdateTime()).toMinutes() > Settings.getRefreshInterval()) {
-                            WeatherUpdaterService.enqueueWork(App.getInstance().getAppContext(), new Intent(App.getInstance().getAppContext(), WeatherUpdaterService.class)
-                                    .setAction(WeatherUpdaterService.ACTION_UPDATEWEATHER));
+                            WeatherUpdaterWorker.enqueueAction(App.getInstance().getAppContext(), WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
                         }
 
                         // Update ongoing notification if its not showing

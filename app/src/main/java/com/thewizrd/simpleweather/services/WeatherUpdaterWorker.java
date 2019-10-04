@@ -2,8 +2,6 @@ package com.thewizrd.simpleweather.services;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,14 +9,21 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
-import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.JobIntentService;
 import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.CancellationTokenSource;
@@ -44,16 +49,16 @@ import com.thewizrd.simpleweather.widgets.WeatherWidgetBroadcastReceiver;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetProvider;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
-import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class WeatherUpdaterService extends JobIntentService {
-    private static String TAG = "WeatherUpdaterService";
+public class WeatherUpdaterWorker extends Worker {
+    private static String TAG = "WeatherUpdaterWorker";
 
     public static final String ACTION_UPDATEWEATHER = "SimpleWeather.Droid.action.UPDATE_WEATHER";
 
@@ -61,19 +66,24 @@ public class WeatherUpdaterService extends JobIntentService {
     public static final String ACTION_CANCELALARM = "SimpleWeather.Droid.action.CANCEL_ALARM";
     public static final String ACTION_UPDATEALARM = "SimpleWeather.Droid.action.UPDATE_ALARM";
 
-    private static final int JOB_ID = 1004;
-
     private Context mContext;
-    private static boolean mAlarmStarted = false;
 
     private WeatherManager wm;
 
     private FusedLocationProviderClient mFusedLocationClient;
     private CancellationTokenSource cts;
 
-    public static void enqueueWork(Context context, Intent work) {
-        enqueueWork(context, WeatherUpdaterService.class,
-                JOB_ID, work);
+    public WeatherUpdaterWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+        mContext = context.getApplicationContext();
+
+        wm = WeatherManager.getInstance();
+
+        if (WearableHelper.isGooglePlayServicesInstalled()) {
+            mFusedLocationClient = new FusedLocationProviderClient(mContext);
+        }
+
+        cts = new CancellationTokenSource();
     }
 
     private boolean isCtsCancelRequested() {
@@ -83,145 +93,130 @@ public class WeatherUpdaterService extends JobIntentService {
             return true;
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
+    public static void enqueueAction(@NonNull Context context, @NonNull String intentAction) {
+        context = context.getApplicationContext();
 
-        mContext = getApplicationContext();
-        wm = WeatherManager.getInstance();
-
-        // Check if alarm is already set
-        mAlarmStarted = (PendingIntent.getBroadcast(mContext, 0,
-                new Intent(mContext, WeatherUpdaterService.class)
-                        .setAction(ACTION_UPDATEWEATHER),
-                PendingIntent.FLAG_NO_CREATE) != null);
-
-        cts = new CancellationTokenSource();
-
-        if (WearableHelper.isGooglePlayServicesInstalled()) {
-            mFusedLocationClient = new FusedLocationProviderClient(this);
+        if (ACTION_UPDATEWEATHER.equals(intentAction) || ACTION_UPDATEALARM.equals(intentAction)) {
+            requestWeatherUpdate(context);
+        } else if (ACTION_STARTALARM.equals(intentAction)) {
+            enqueueWork(context);
+        } else if (ACTION_CANCELALARM.equals(intentAction)) {
+            cancelWork(context);
         }
     }
 
-    @Override
-    public void onDestroy() {
-        if (Settings.showOngoingNotification() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            sendBroadcast(new Intent(mContext, WeatherNotificationBroadcastReceiver.class)
-                    .setAction(WeatherNotificationService.ACTION_STOPREFRESH));
-        }
+    private static void requestWeatherUpdate(@NonNull Context context) {
+        context = context.getApplicationContext();
 
-        Logger.writeLine(Log.INFO, "%s: destroying service and cancelling tasks...", TAG);
+        Logger.writeLine(Log.INFO, "%s: Requesting work; workExists: %s", TAG, Boolean.toString(isWorkScheduled(context)));
 
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresCharging(false)
+                .build();
+
+        PeriodicWorkRequest updateRequest =
+                new PeriodicWorkRequest.Builder(WeatherUpdaterWorker.class, Settings.getRefreshInterval(), TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
+                        .setConstraints(constraints)
+                        .setBackoffCriteria(BackoffPolicy.LINEAR, 1, TimeUnit.MINUTES)
+                        .build();
+
+        WorkManager.getInstance(context)
+                .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest);
+
+        Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG);
+    }
+
+    private static boolean isWorkScheduled(@NonNull Context context) {
+        context = context.getApplicationContext();
+        WorkManager workMgr = WorkManager.getInstance(context);
+        List<WorkInfo> statuses = null;
         try {
-            if (cts != null) cts.cancel();
-        } catch (Exception ex) {
-            Logger.writeLine(Log.ERROR, ex, "%s: Error cancelling task...", TAG);
+            statuses = workMgr.getWorkInfosForUniqueWork(TAG).get();
+        } catch (ExecutionException | InterruptedException ignored) {
         }
+        if (statuses == null || statuses.isEmpty()) return false;
+        boolean running = false;
+        for (WorkInfo workStatus : statuses) {
+            running = workStatus.getState() == WorkInfo.State.RUNNING
+                    | workStatus.getState() == WorkInfo.State.ENQUEUED;
+        }
+        return running;
+    }
 
-        super.onDestroy();
+
+    private static void cancelWork(@NonNull Context context) {
+        // Cancel alarm if dependent features are turned off
+        context = context.getApplicationContext();
+        if (!WeatherWidgetService.widgetsExist(context) && !Settings.showOngoingNotification() && !Settings.useAlerts()) {
+            WorkManager.getInstance(context).cancelUniqueWork(TAG);
+            Logger.writeLine(Log.INFO, "%s: Canceled work", TAG);
+        }
+    }
+
+    private static void enqueueWork(@NonNull Context context) {
+        // Start alarm if dependent features are enabled
+        context = context.getApplicationContext();
+        if (!isWorkScheduled(context) && (WeatherWidgetService.widgetsExist(context) || Settings.showOngoingNotification() || Settings.useAlerts())) {
+            requestWeatherUpdate(context);
+        }
     }
 
     @Override
-    protected void onHandleWork(@NonNull Intent intent) {
-        if (ACTION_STARTALARM.equals(intent.getAction())) {
-            // Start alarm if it hasn't started already
-            startAlarm(mContext);
-        } else if (ACTION_CANCELALARM.equals(intent.getAction())) {
-            // Cancel all alarms if no widgets exist
-            cancelAlarms(mContext);
-        } else if (ACTION_UPDATEALARM.equals(intent.getAction())) {
-            // Refresh interval was changed
-            // Update alarm
-            updateAlarm(mContext);
-        } else if (ACTION_UPDATEWEATHER.equals(intent.getAction())) {
-            if (Settings.isWeatherLoaded()) {
-                // Send broadcast to signal update
-                if (WeatherWidgetService.widgetsExist(mContext))
-                    sendBroadcast(new Intent(WeatherWidgetProvider.ACTION_SHOWREFRESH));
-                // NOTE: Don't try to show refresh for pre-M devices
-                // If app gets killed, instance of notif is lost & view is reset
-                // and might get stuck
-                if (Settings.showOngoingNotification() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                    sendBroadcast(new Intent(mContext, WeatherNotificationBroadcastReceiver.class)
-                            .setAction(WeatherNotificationService.ACTION_SHOWREFRESH));
+    public void onStopped() {
+        super.onStopped();
+        mContext.sendBroadcast(new Intent(mContext, WeatherNotificationBroadcastReceiver.class)
+                .setAction(WeatherNotificationService.ACTION_STOPREFRESH));
+        if (cts != null) cts.cancel();
+    }
 
-                // Update for home
-                final Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
-                    @Override
-                    public Weather call() throws Exception {
-                        return getWeather();
-                    }
-                });
+    @NonNull
+    @Override
+    public Result doWork() {
+        Logger.writeLine(Log.INFO, "%s: Work started", TAG);
 
-                if (WeatherWidgetService.widgetsExist(mContext)) {
-                    sendBroadcast(new Intent(mContext, WeatherWidgetBroadcastReceiver.class)
-                            .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET));
+        if (Settings.isWeatherLoaded()) {
+            // Send broadcast to signal update
+            if (WeatherWidgetService.widgetsExist(mContext))
+                mContext.sendBroadcast(new Intent(WeatherWidgetProvider.ACTION_SHOWREFRESH));
+            // NOTE: Don't try to show refresh for pre-M devices
+            // If app gets killed, instance of notif is lost & view is reset
+            // and might get stuck
+            if (Settings.showOngoingNotification() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                mContext.sendBroadcast(new Intent(mContext, WeatherNotificationBroadcastReceiver.class)
+                        .setAction(WeatherNotificationService.ACTION_SHOWREFRESH));
+
+            // Update for home
+            final Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
+                @Override
+                public Weather call() throws Exception {
+                    return getWeather();
+                }
+            });
+
+            if (WeatherWidgetService.widgetsExist(mContext)) {
+                mContext.sendBroadcast(new Intent(mContext, WeatherWidgetBroadcastReceiver.class)
+                        .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET));
+            }
+
+            if (weather != null) {
+                if (Settings.showOngoingNotification()) {
+                    mContext.sendBroadcast(new Intent(mContext, WeatherNotificationBroadcastReceiver.class)
+                            .setAction(WeatherNotificationService.ACTION_REFRESHNOTIFICATION));
                 }
 
-                if (weather != null) {
-                    if (Settings.showOngoingNotification()) {
-                        sendBroadcast(new Intent(mContext, WeatherNotificationBroadcastReceiver.class)
-                                .setAction(WeatherNotificationService.ACTION_REFRESHNOTIFICATION));
-                    }
-
-                    if (Settings.useAlerts() && wm.supportsAlerts()) {
-                        AsyncTask.run(new Runnable() {
-                            @Override
-                            public void run() {
-                                WeatherAlertHandler.postAlerts(Settings.getHomeData(), weather.getWeatherAlerts());
-                            }
-                        });
-                    }
+                if (Settings.useAlerts() && wm.supportsAlerts()) {
+                    AsyncTask.run(new Runnable() {
+                        @Override
+                        public void run() {
+                            WeatherAlertHandler.postAlerts(Settings.getHomeData(), weather.getWeatherAlerts());
+                        }
+                    });
                 }
             }
         }
-    }
 
-    private static PendingIntent getAlarmIntent(Context context) {
-        Intent intent = new Intent(context, WeatherUpdaterService.class)
-                .setAction(ACTION_UPDATEWEATHER);
-
-        return PendingIntent.getBroadcast(context, 0, intent, 0);
-    }
-
-    private static void updateAlarm(Context context) {
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        int interval = Settings.getRefreshInterval();
-
-        boolean startNow = !mAlarmStarted;
-        long intervalMillis = Duration.ofMinutes(interval).toMillis();
-        long triggerAtTime = SystemClock.elapsedRealtime() + intervalMillis;
-
-        if (startNow) {
-            enqueueWork(context, new Intent(context, WeatherUpdaterService.class)
-                    .setAction(ACTION_UPDATEWEATHER));
-        }
-
-        PendingIntent pendingIntent = getAlarmIntent(context);
-        am.cancel(pendingIntent);
-        am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, triggerAtTime, intervalMillis, pendingIntent);
-        mAlarmStarted = true;
-
-        Logger.writeLine(Log.INFO, "%s: Updated alarm", TAG);
-    }
-
-    private void cancelAlarms(Context context) {
-        // Cancel alarm if dependent features are turned off
-        if (!WeatherWidgetService.widgetsExist(context) && !Settings.showOngoingNotification() && !Settings.useAlerts()) {
-            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            am.cancel(getAlarmIntent(context));
-            mAlarmStarted = false;
-
-            Logger.writeLine(Log.INFO, "%s: Canceled alarm", TAG);
-        }
-    }
-
-    private void startAlarm(Context context) {
-        // Start alarm if dependent features are enabled
-        if (!mAlarmStarted && (WeatherWidgetService.widgetsExist(context) || Settings.showOngoingNotification() || Settings.useAlerts())) {
-            updateAlarm(context);
-            mAlarmStarted = true;
-        }
+        return Result.success();
     }
 
     private Weather getWeather() {
@@ -250,7 +245,7 @@ public class WeatherUpdaterService extends JobIntentService {
 
                     if (refreshWeather && weather != null) {
                         // Re-schedule alarm at selected interval from now
-                        updateAlarm(App.getInstance().getAppContext());
+                        requestWeatherUpdate(App.getInstance().getAppContext());
                         Settings.setUpdateTime(LocalDateTime.now());
                     }
                 } catch (InterruptedException cancelEx) {

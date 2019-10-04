@@ -19,7 +19,6 @@ import androidx.lifecycle.Lifecycle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.stream.JsonReader;
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
@@ -31,7 +30,7 @@ import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
 import com.thewizrd.simpleweather.preferences.SettingsFragment;
-import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
+import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import java.io.StringReader;
@@ -126,12 +125,7 @@ public class MainActivity extends AppCompatActivity
         refreshNavViewCheckedItem();
 
         // Update app shortcuts
-        AsyncTask.run(new Runnable() {
-            @Override
-            public void run() {
-                ShortcutCreator.updateShortcuts();
-            }
-        });
+        ShortcutCreatorWorker.requestUpdateShortcuts(this);
 
         final int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         isSystemNightMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;

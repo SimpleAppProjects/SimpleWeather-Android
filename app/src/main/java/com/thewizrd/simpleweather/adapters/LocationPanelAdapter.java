@@ -29,12 +29,13 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
+import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.BuildConfig;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.LocationPanel;
 import com.thewizrd.simpleweather.controls.LocationPanelViewModel;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperAdapterInterface;
-import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
+import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 
@@ -459,12 +460,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         }).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                AsyncTask.run(new Runnable() {
-                    @Override
-                    public void run() {
-                        ShortcutCreator.updateShortcuts();
-                    }
-                });
+                ShortcutCreatorWorker.requestUpdateShortcuts(App.getInstance().getAppContext());
             }
         });
     }

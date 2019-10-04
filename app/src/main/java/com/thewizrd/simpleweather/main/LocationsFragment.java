@@ -95,7 +95,7 @@ import com.thewizrd.simpleweather.fragments.ToolbarFragment;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperCallback;
 import com.thewizrd.simpleweather.helpers.OffsetMargin;
 import com.thewizrd.simpleweather.helpers.SwipeToDeleteOffSetItemDecoration;
-import com.thewizrd.simpleweather.shortcuts.ShortcutCreator;
+import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface;
@@ -1370,7 +1370,7 @@ public class LocationsFragment extends ToolbarFragment
                         });
 
                         // Update shortcuts
-                        ShortcutCreator.updateShortcuts();
+                        ShortcutCreatorWorker.requestUpdateShortcuts(getAppCompatActivity());
 
                         // Hide dialog
                         runOnUiThread(new Runnable() {
