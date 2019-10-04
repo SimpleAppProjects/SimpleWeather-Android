@@ -474,6 +474,19 @@ public class WidgetUtils {
         }
     }
 
+    public static void remapWidget(int oldId, int newId) {
+        if (isGPS(oldId)) {
+            removeWidgetId(Constants.KEY_GPS, oldId);
+            addWidgetId(Constants.KEY_GPS, newId);
+        } else {
+            LocationData locData = getLocationData(oldId);
+            if (locData != null) {
+                removeWidgetId(locData.getQuery(), oldId);
+                addWidgetId(locData.getQuery(), newId);
+            }
+        }
+    }
+
     /**
      * Returns number of cells needed for given size of the widget.
      *

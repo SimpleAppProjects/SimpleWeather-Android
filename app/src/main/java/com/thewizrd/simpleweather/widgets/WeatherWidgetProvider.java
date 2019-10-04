@@ -10,10 +10,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 
@@ -71,7 +73,7 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
                 super.onReceive(context, intent);
             }
 
-            Logger.writeLine(Log.INFO, "%s: onReceive: %s", TAG, intent.getAction());
+            Logger.writeLine(Log.INFO, "%s: WidgetType: %s; onReceive: %s", TAG, getWidgetType().name(), intent.getAction());
         }
     }
 
@@ -87,8 +89,30 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
         appWidgetManager.partiallyUpdateAppWidget(appWidgetIds, views);
     }
 
-    protected void updateWidgets(Context context, int[] appWidgetIds) {
+    protected void updateWidgets(Context context, final int[] appWidgetIds) {
         showRefresh(context, appWidgetIds);
+
+        AsyncTask.run(new Runnable() {
+            @Override
+            public void run() {
+                Context context = App.getInstance().getAppContext();
+
+                if (appWidgetIds != null && appWidgetIds.length > 0) {
+                    for (int appWidgetId : appWidgetIds) {
+                        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+                        LocationData location = WidgetUtils.getLocationData(appWidgetId);
+
+                        RemoteViews updateViews = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
+                        WeatherWidgetService.setOnRefreshIntent(context, WeatherWidgetProvider.this, appWidgetId, updateViews);
+                        if (location != null) {
+                            WeatherWidgetService.setOnSettingsClickIntent(context, updateViews, location, appWidgetId);
+                        }
+
+                        appWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews);
+                    }
+                }
+            }
+        });
 
         WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
                 .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET)
@@ -130,6 +154,16 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
         for (int id : appWidgetIds) {
             // Remove id from list
             WidgetUtils.deleteWidget(id);
+        }
+    }
+
+    @Override
+    public void onRestored(Context context, int[] oldWidgetIds, int[] newWidgetIds) {
+        super.onRestored(context, oldWidgetIds, newWidgetIds);
+
+        for (int i = 0; i < oldWidgetIds.length; i++) {
+            // Remap widget ids
+            WidgetUtils.remapWidget(oldWidgetIds[i], newWidgetIds[i]);
         }
     }
 }

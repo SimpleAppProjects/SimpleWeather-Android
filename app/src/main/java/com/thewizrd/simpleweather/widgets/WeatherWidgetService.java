@@ -1111,7 +1111,7 @@ public class WeatherWidgetService extends JobIntentService {
         });
     }
 
-    private static void setOnRefreshIntent(Context context, WeatherWidgetProvider provider, int appWidgetId, RemoteViews updateViews) {
+    static void setOnRefreshIntent(Context context, WeatherWidgetProvider provider, int appWidgetId, RemoteViews updateViews) {
         Intent refreshIntent = new Intent(context, provider.getClass())
                 .setAction(WeatherWidgetProvider.ACTION_REFRESHWIDGETS)
                 .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, new int[]{appWidgetId})
@@ -1130,7 +1130,7 @@ public class WeatherWidgetService extends JobIntentService {
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         if (!Settings.getHomeData().equals(location))
-            onClickIntent.putExtra("shortcut-data", location == null ? null : location.toJson());
+            onClickIntent.putExtra(Constants.KEY_SHORTCUTDATA, location == null ? null : location.toJson());
 
         PendingIntent clickPendingIntent =
                 PendingIntent.getActivity(context, location.hashCode(), onClickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -1138,7 +1138,7 @@ public class WeatherWidgetService extends JobIntentService {
             updateViews.setOnClickPendingIntent(R.id.widget, clickPendingIntent);
     }
 
-    private static void setOnSettingsClickIntent(Context context, RemoteViews updateViews, LocationData location, int appWidgetId) {
+    static void setOnSettingsClickIntent(Context context, RemoteViews updateViews, LocationData location, int appWidgetId) {
         // When user clicks on widget, launch to Config activity
         Intent onClickIntent = new Intent(context.getApplicationContext(), WeatherWidgetConfigActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
