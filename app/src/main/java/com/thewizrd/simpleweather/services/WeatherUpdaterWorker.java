@@ -18,7 +18,9 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
@@ -97,18 +99,47 @@ public class WeatherUpdaterWorker extends Worker {
         context = context.getApplicationContext();
 
         if (ACTION_UPDATEWEATHER.equals(intentAction) || ACTION_UPDATEALARM.equals(intentAction)) {
-            requestWeatherUpdate(context);
-        } else if (ACTION_STARTALARM.equals(intentAction)) {
             enqueueWork(context);
+        } else if (ACTION_STARTALARM.equals(intentAction)) {
+            startWork(context);
         } else if (ACTION_CANCELALARM.equals(intentAction)) {
             cancelWork(context);
         }
     }
 
-    private static void requestWeatherUpdate(@NonNull Context context) {
+    private static void startWork(@NonNull Context context) {
+        context = context.getApplicationContext();
+
+        Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG);
+
+        // Check if features are actually enabled which require this service
+        if (cancelWork(context)) return;
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresCharging(false)
+                .build();
+
+        OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(WeatherUpdaterWorker.class)
+                .setConstraints(constraints)
+                .build();
+
+        WorkManager.getInstance(context)
+                .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.KEEP, updateRequest);
+
+        Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG);
+
+        // Enqueue periodic task as well
+        enqueueWork(context);
+    }
+
+    private static void enqueueWork(@NonNull Context context) {
         context = context.getApplicationContext();
 
         Logger.writeLine(Log.INFO, "%s: Requesting work; workExists: %s", TAG, Boolean.toString(isWorkScheduled(context)));
+
+        // Check if features are actually enabled which require this service
+        if (cancelWork(context)) return;
 
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -145,21 +176,16 @@ public class WeatherUpdaterWorker extends Worker {
     }
 
 
-    private static void cancelWork(@NonNull Context context) {
+    private static boolean cancelWork(@NonNull Context context) {
         // Cancel alarm if dependent features are turned off
         context = context.getApplicationContext();
         if (!WeatherWidgetService.widgetsExist(context) && !Settings.showOngoingNotification() && !Settings.useAlerts()) {
             WorkManager.getInstance(context).cancelUniqueWork(TAG);
             Logger.writeLine(Log.INFO, "%s: Canceled work", TAG);
+            return true;
         }
-    }
 
-    private static void enqueueWork(@NonNull Context context) {
-        // Start alarm if dependent features are enabled
-        context = context.getApplicationContext();
-        if (!isWorkScheduled(context) && (WeatherWidgetService.widgetsExist(context) || Settings.showOngoingNotification() || Settings.useAlerts())) {
-            requestWeatherUpdate(context);
-        }
+        return false;
     }
 
     @Override
@@ -242,7 +268,7 @@ public class WeatherUpdaterWorker extends Worker {
 
                     if (weather != null) {
                         // Re-schedule alarm at selected interval from now
-                        requestWeatherUpdate(App.getInstance().getAppContext());
+                        enqueueWork(App.getInstance().getAppContext());
                         Settings.setUpdateTime(LocalDateTime.now());
                     }
                 } catch (InterruptedException cancelEx) {

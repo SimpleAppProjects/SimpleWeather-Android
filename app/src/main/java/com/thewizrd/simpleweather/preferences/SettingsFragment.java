@@ -581,7 +581,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                 // Alert notification
                 if ((boolean) newValue) {
                     enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
-                            .setAction(WeatherUpdaterWorker.ACTION_STARTALARM));
+                            .setAction(WeatherUpdaterWorker.ACTION_UPDATEALARM));
                 } else {
                     enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
                             .setAction(WeatherUpdaterWorker.ACTION_CANCELALARM));
@@ -721,7 +721,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         if (intent == null)
             return false;
         else {
-            if (WeatherUpdaterWorker.ACTION_STARTALARM.equals(intent.getAction())) {
+            if (WeatherUpdaterWorker.ACTION_UPDATEALARM.equals(intent.getAction())) {
                 for (Intent.FilterComparison filter : intentQueue) {
                     if (WeatherUpdaterWorker.ACTION_CANCELALARM.equals(filter.getIntent().getAction())) {
                         intentQueue.remove(filter);
@@ -730,7 +730,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                 }
             } else if (WeatherUpdaterWorker.ACTION_CANCELALARM.equals(intent.getAction())) {
                 for (Intent.FilterComparison filter : intentQueue) {
-                    if (WeatherUpdaterWorker.ACTION_STARTALARM.equals(filter.getIntent().getAction())) {
+                    if (WeatherUpdaterWorker.ACTION_UPDATEALARM.equals(filter.getIntent().getAction())) {
                         intentQueue.remove(filter);
                         break;
                     }

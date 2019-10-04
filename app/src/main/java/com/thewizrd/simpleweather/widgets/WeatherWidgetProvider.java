@@ -54,7 +54,7 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
                 // Reset weather update time
                 Settings.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN());
                 // Restart update alarm
-                WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_STARTALARM);
+                WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEALARM);
             } else if (Intent.ACTION_LOCALE_CHANGED.equals(intent.getAction())) {
                 updateWidgets(context, null);
             } else if (ACTION_SHOWREFRESH.equals(intent.getAction())) {
@@ -129,7 +129,7 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
     @Override
     public void onEnabled(Context context) {
         // Schedule alarms/updates
-        WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_STARTALARM);
+        WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEALARM);
     }
 
     @Override
