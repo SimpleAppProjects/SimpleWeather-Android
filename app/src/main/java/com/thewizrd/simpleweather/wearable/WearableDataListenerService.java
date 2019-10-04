@@ -10,12 +10,12 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.CapabilityClient;
 import com.google.android.gms.wearable.CapabilityInfo;
 import com.google.android.gms.wearable.DataEventBuffer;
@@ -30,7 +30,6 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
-import com.thewizrd.shared_resources.wearable.WearWeatherJSON;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.wearable.WearableSettings;
 import com.thewizrd.shared_resources.weatherdata.Weather;
@@ -43,7 +42,6 @@ import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 import org.threeten.bp.Instant;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -175,7 +173,7 @@ public class WearableDataListenerService extends WearableListenerService {
                 AsyncTask.run(new Runnable() {
                     @Override
                     public void run() {
-                        createWeatherDataRequest(messageEvent.getSourceNodeId());
+                        createWeatherDataRequest(true);
                     }
                 });
             } else {
@@ -211,7 +209,7 @@ public class WearableDataListenerService extends WearableListenerService {
                 } else if (intent != null && ACTION_SENDLOCATIONUPDATE.equals(intent.getAction())) {
                     createLocationDataRequest(true);
                 } else if (intent != null && ACTION_SENDWEATHERUPDATE.equals(intent.getAction())) {
-                    createWeatherDataRequest(null);
+                    createWeatherDataRequest(true);
                 } else if (intent != null) {
                     Logger.writeLine(Log.INFO, "%s: Unhandled action: %s", TAG, intent.getAction());
                 }
@@ -321,61 +319,41 @@ public class WearableDataListenerService extends WearableListenerService {
         Logger.writeLine(Log.ERROR, "%s: CreateLocationDataRequest(): urgent: %s", TAG, Boolean.toString(urgent));
     }
 
-    private void createWeatherDataRequest(@Nullable String nodeID) {
+    private void createWeatherDataRequest(boolean urgent) {
         // Don't send anything unless we're setup
         if (!Settings.isWeatherLoaded())
             return;
 
-        if (nodeID == null) {
-            if (mWearNodesWithApp == null) {
-                // Create requests if nodes exist with app support
-                mWearNodesWithApp = findWearDevicesWithApp();
+        if (mWearNodesWithApp == null) {
+            // Create requests if nodes exist with app support
+            mWearNodesWithApp = findWearDevicesWithApp();
 
-                if (mWearNodesWithApp == null || mWearNodesWithApp.size() == 0)
-                    return;
-            }
+            if (mWearNodesWithApp == null || mWearNodesWithApp.size() == 0)
+                return;
         }
 
+        PutDataMapRequest mapRequest = PutDataMapRequest.create(WearableHelper.WeatherPath);
         LocationData homeData = Settings.getHomeData();
         Weather weatherData = Settings.getWeatherData(homeData.getQuery());
         List<WeatherAlert> alertData = Settings.getWeatherAlertData(homeData.getQuery());
 
         if (weatherData != null) {
             weatherData.setWeatherAlerts(alertData);
-
-            WearWeatherJSON weatherJSON = new WearWeatherJSON();
-
-            weatherJSON.setWeatherData(weatherData.toJson());
-
-            ArrayList<String> alerts = new ArrayList<>();
-            if (weatherData.getWeatherAlerts().size() > 0) {
-                for (WeatherAlert alert : weatherData.getWeatherAlerts()) {
-                    alerts.add(alert.toJson());
-                }
-            }
-            weatherJSON.setWeatherAlerts(alerts);
-            weatherJSON.setUpdateTime(Instant.now().toEpochMilli());
-
-            if (nodeID == null) {
-                for (Node node : mWearNodesWithApp) {
-                    try {
-                        Tasks.await(Wearable.getMessageClient(this)
-                                .sendMessage(node.getId(), WearableHelper.WeatherPath, weatherJSON.toJson().getBytes(Charset.forName("UTF-8"))));
-                    } catch (ExecutionException | InterruptedException e) {
-                        Logger.writeLine(Log.ERROR, e);
-                    }
-                }
-            } else {
-                try {
-                    Tasks.await(Wearable.getMessageClient(this)
-                            .sendMessage(nodeID, WearableHelper.WeatherPath, weatherJSON.toJson().getBytes(Charset.forName("UTF-8"))));
-                } catch (ExecutionException | InterruptedException e) {
-                    Logger.writeLine(Log.ERROR, e);
-                }
-            }
-
-            Logger.writeLine(Log.ERROR, "%s: CreateWeatherDataRequest(): urgent: %s", TAG, Boolean.toString(true));
+            mapRequest.getDataMap().putAsset(WearableSettings.KEY_WEATHERDATA, Asset.createFromBytes(weatherData.toJson().getBytes(Charset.forName("UTF-8"))));
         }
+
+        mapRequest.getDataMap().putLong(WearableSettings.KEY_UPDATETIME, Instant.now().toEpochMilli());
+
+        PutDataRequest request = mapRequest.asPutDataRequest();
+        if (urgent) request.setUrgent();
+        try {
+            Tasks.await(Wearable.getDataClient(this)
+                    .putDataItem(request));
+        } catch (ExecutionException | InterruptedException e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
+
+        Logger.writeLine(Log.ERROR, "%s: CreateWeatherDataRequest(): urgent: %s", TAG, Boolean.toString(urgent));
     }
 
     private void sendSetupStatus(String nodeID) {

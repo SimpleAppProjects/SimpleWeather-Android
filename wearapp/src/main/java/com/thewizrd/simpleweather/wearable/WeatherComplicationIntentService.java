@@ -14,6 +14,7 @@ import com.thewizrd.shared_resources.utils.Settings;
 
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneOffset;
 
 public class WeatherComplicationIntentService extends JobIntentService {
     private static String TAG = "WeatherComplicationIntentService";
@@ -48,7 +49,7 @@ public class WeatherComplicationIntentService extends JobIntentService {
         if (ACTION_UPDATECOMPLICATIONS.equals(intent.getAction())) {
             boolean force = intent.getBooleanExtra(EXTRA_FORCEUPDATE, false);
 
-            if (Duration.between(LocalDateTime.now(), WeatherComplicationService.getUpdateTime()).toMinutes() > Settings.getRefreshInterval())
+            if (Duration.between(LocalDateTime.now(ZoneOffset.UTC), WeatherComplicationService.getUpdateTime()).toMinutes() > Settings.getRefreshInterval())
                 force = true;
 
             if (force) {
@@ -57,8 +58,8 @@ public class WeatherComplicationIntentService extends JobIntentService {
             }
         } else if (ACTION_UPDATECOMPLICATION.equals(intent.getAction())) {
             updateRequester.requestUpdate(intent.getIntExtra(EXTRA_COMPLICATIONID, 0));
-        } else {
-            Logger.writeLine(Log.INFO, "%s: Unhandled action: %s", TAG, intent.getAction());
         }
+
+        Logger.writeLine(Log.INFO, "%s: Intent Action: %s", TAG, intent.getAction());
     }
 }

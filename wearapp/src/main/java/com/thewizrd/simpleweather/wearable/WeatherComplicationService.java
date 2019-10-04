@@ -38,6 +38,7 @@ import com.thewizrd.simpleweather.LaunchActivity;
 
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import java.util.concurrent.Callable;
@@ -100,7 +101,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
 
                 if (complicationData != null) {
                     manager.updateComplicationData(complicationId, complicationData);
-                    updateTime = LocalDateTime.now();
+                    updateTime = LocalDateTime.now(ZoneOffset.UTC);
                     Logger.writeLine(Log.DEBUG, "%s: Complication %d updated", TAG, complicationId);
                 } else {
                     // If no data is sent, we still need to inform the ComplicationManager, so
@@ -182,7 +183,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
                         }
 
                         // Check file age
-                        ZonedDateTime updateTime = weather.getUpdateTime();
+                        ZonedDateTime updateTime = Settings.getUpdateTime().atZone(ZoneOffset.UTC);
 
                         Duration span = Duration.between(ZonedDateTime.now(), updateTime).abs();
                         if (span.toMinutes() > ttl) {

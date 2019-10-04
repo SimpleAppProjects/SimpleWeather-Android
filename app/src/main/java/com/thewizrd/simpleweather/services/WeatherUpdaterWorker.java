@@ -213,6 +213,10 @@ public class WeatherUpdaterWorker extends Worker {
                         }
                     });
                 }
+
+                // Update weather data for Wearables
+                LocalBroadcastManager.getInstance(mContext)
+                        .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE));
             }
         }
 
@@ -220,10 +224,6 @@ public class WeatherUpdaterWorker extends Worker {
     }
 
     private Weather getWeather() {
-        return getWeather(true);
-    }
-
-    private Weather getWeather(final boolean refreshWeather) {
         return new AsyncTask<Weather>().await(new Callable<Weather>() {
             @Override
             public Weather call() throws Exception {
@@ -236,14 +236,11 @@ public class WeatherUpdaterWorker extends Worker {
                     if (isCtsCancelRequested()) throw new InterruptedException();
 
                     WeatherDataLoader wloader = new WeatherDataLoader(Settings.getHomeData());
-                    if (refreshWeather)
-                        wloader.loadWeatherData(false);
-                    else
-                        wloader.forceLoadSavedWeatherData();
+                    wloader.loadWeatherData(false);
 
                     weather = wloader.getWeather();
 
-                    if (refreshWeather && weather != null) {
+                    if (weather != null) {
                         // Re-schedule alarm at selected interval from now
                         requestWeatherUpdate(App.getInstance().getAppContext());
                         Settings.setUpdateTime(LocalDateTime.now());

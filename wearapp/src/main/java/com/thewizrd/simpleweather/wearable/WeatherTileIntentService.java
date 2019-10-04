@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.utils.Settings;
 
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneOffset;
 
 public class WeatherTileIntentService extends JobIntentService {
     private static String TAG = "WeatherTileIntentService";
@@ -62,7 +63,7 @@ public class WeatherTileIntentService extends JobIntentService {
         if (ACTION_UPDATETILES.equals(intent.getAction())) {
             boolean force = intent.getBooleanExtra(EXTRA_FORCEUPDATE, false);
 
-            if (Duration.between(LocalDateTime.now(), WeatherTileProviderService.getUpdateTime()).toMinutes() > Settings.getRefreshInterval())
+            if (Duration.between(LocalDateTime.now(ZoneOffset.UTC), WeatherTileProviderService.getUpdateTime()).toMinutes() > Settings.getRefreshInterval())
                 force = true;
 
             if (force) {
@@ -77,9 +78,9 @@ public class WeatherTileIntentService extends JobIntentService {
             updateAlarm(mContext);
         } else if (ACTION_CANCELALARM.equals(intent.getAction())) {
             cancelAlarms(mContext);
-        } else {
-            Logger.writeLine(Log.INFO, "%s: Unhandled action: %s", TAG, intent.getAction());
         }
+
+        Logger.writeLine(Log.INFO, "%s: Intent Action: %s", TAG, intent.getAction());
     }
 
     private static PendingIntent getAlarmIntent(Context context) {

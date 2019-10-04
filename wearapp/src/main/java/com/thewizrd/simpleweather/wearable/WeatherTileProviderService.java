@@ -44,6 +44,7 @@ import com.thewizrd.simpleweather.R;
 
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import java.util.concurrent.Callable;
@@ -132,7 +133,7 @@ public class WeatherTileProviderService extends TileProviderService {
                             .setRemoteViews(updateViews)
                             .build();
 
-                    updateTime = LocalDateTime.now();
+                    updateTime = LocalDateTime.now(ZoneOffset.UTC);
                     sendData(id, tileData);
                     // Reset alarm
                     WeatherTileIntentService.enqueueWork(mContext, new Intent(mContext, WeatherTileIntentService.class)
@@ -241,7 +242,7 @@ public class WeatherTileProviderService extends TileProviderService {
                         }
 
                         // Check file age
-                        ZonedDateTime updateTime = weather.getUpdateTime();
+                        ZonedDateTime updateTime = Settings.getUpdateTime().atZone(ZoneOffset.UTC);
 
                         Duration span = Duration.between(ZonedDateTime.now(), updateTime).abs();
                         if (span.toMinutes() > ttl) {

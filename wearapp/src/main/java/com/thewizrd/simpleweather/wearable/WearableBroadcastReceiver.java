@@ -7,7 +7,8 @@ import android.content.Intent;
 public class WearableBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
+        if (Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction()) ||
+                Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             // Request a full update
             WearableDataListenerService.enqueueWork(context,
                     new Intent(context, WearableDataListenerService.class)
@@ -17,8 +18,7 @@ public class WearableBroadcastReceiver extends BroadcastReceiver {
                             .setAction(WearableDataListenerService.ACTION_REQUESTLOCATIONUPDATE));
             WearableDataListenerService.enqueueWork(context,
                     new Intent(context, WearableDataListenerService.class)
-                            .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE)
-                            .putExtra(WearableDataListenerService.EXTRA_FORCEUPDATE, true));
+                            .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE));
             return;
         }
 

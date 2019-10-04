@@ -318,10 +318,6 @@ public class WeatherDataLoader {
         Settings.saveWeatherData(weather);
 
         if (SimpleLibrary.getInstance().getApp().isPhone()) {
-            // Update weather data for Wearables
-            if (location.equals(Settings.getHomeData()))
-                mLocalBroadcastManager.sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE));
-
             // Update cached weather data for widgets
             mLocalBroadcastManager.sendBroadcast(
                     new Intent(CommonActions.ACTION_WEATHER_UPDATEWIDGETWEATHER)

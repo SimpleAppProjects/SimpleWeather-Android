@@ -10,4 +10,6 @@ public class WearableSettings {
     public static final String KEY_REFRESHINTERVAL = "refresh_interval";
 
     public static final String KEY_LOCATIONDATA = "locationData";
+    public static final String KEY_WEATHERDATA = "weatherData";
+    public static final String KEY_WEATHERALERTDATA = "weatherAlertData";
 }
