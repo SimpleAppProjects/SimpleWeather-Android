@@ -98,9 +98,10 @@ public class WeatherUpdaterWorker extends Worker {
     public static void enqueueAction(@NonNull Context context, @NonNull String intentAction) {
         context = context.getApplicationContext();
 
-        if (ACTION_UPDATEWEATHER.equals(intentAction) || ACTION_UPDATEALARM.equals(intentAction)) {
+        if (ACTION_UPDATEALARM.equals(intentAction)) {
             enqueueWork(context);
-        } else if (ACTION_STARTALARM.equals(intentAction)) {
+        } else if (ACTION_UPDATEWEATHER.equals(intentAction) || ACTION_STARTALARM.equals(intentAction)) {
+            // For immediate action
             startWork(context);
         } else if (ACTION_CANCELALARM.equals(intentAction)) {
             cancelWork(context);
