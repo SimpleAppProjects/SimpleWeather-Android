@@ -1064,6 +1064,31 @@ public class WeatherWidgetService extends JobIntentService {
                 float radius = mContext.getResources().getDimensionPixelSize(R.dimen.widget_corner_radius);
 
                 /*
+                 * Ensure width and height are both > 0
+                 * To avoid IllegalArgumentException
+                 */
+                if (imgWidth == 0 || imgHeight == 0) {
+                    switch (provider.getWidgetType()) {
+                        default:
+                        case Widget1x1:
+                            imgWidth = imgHeight = 200;
+                            break;
+                        case Widget2x2:
+                            imgWidth = imgHeight = 200 * 2;
+                            break;
+                        case Widget4x1:
+                        case Widget4x1Google:
+                            imgWidth = 200 * 4;
+                            imgHeight = 200;
+                            break;
+                        case Widget4x2:
+                            imgWidth = 200 * 4;
+                            imgHeight = 200 * 2;
+                            break;
+                    }
+                }
+
+                /*
                  * The total Bitmap memory used by the RemoteViews object cannot exceed
                  * that required to fill the screen 1.5 times,
                  * ie. (screen width x screen height x 4 x 1.5) bytes.
