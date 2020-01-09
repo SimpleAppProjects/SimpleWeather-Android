@@ -11,6 +11,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import org.threeten.bp.ZonedDateTime;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -33,15 +34,17 @@ public class WeatherExtrasViewModel extends ViewModel {
     }
 
     public WeatherExtrasViewModel() {
-        hourlyForecast = new ArrayList<>();
-        textForecast = new ArrayList<>();
+        /*
+         * Use a synchronized (thread-safe ^^) collection to avoid
+         * odd errors (such as ArrayIndexOutOfBoundsException for ArrayList.add())
+         */
+        hourlyForecast = Collections.synchronizedList(new ArrayList<HourlyForecastItemViewModel>());
+        textForecast = Collections.synchronizedList(new ArrayList<TextForecastItemViewModel>());
         alerts = new ArrayList<>();
     }
 
     public WeatherExtrasViewModel(Weather weather) {
-        hourlyForecast = new ArrayList<>();
-        textForecast = new ArrayList<>();
-        alerts = new ArrayList<>();
+        this();
         updateView(weather);
     }
 
