@@ -56,7 +56,7 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
 
                 new AsyncTask<Void>().await(new Callable<Void>() {
                     @Override
-                    public Void call() throws Exception {
+                    public Void call() {
                         LocationData location = LocationData.fromJson(new JsonReader(new StringReader(locationJson)));
 
                         if (WidgetUtils.exists(oldKey)) {
@@ -71,7 +71,7 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
 
                 new AsyncTask<Void>().await(new Callable<Void>() {
                     @Override
-                    public Void call() throws Exception {
+                    public Void call() {
                         Weather weather = Weather.fromJson(new JsonReader(new StringReader(weatherJson)));
 
                         if (WidgetUtils.exists(locationQuery)) {

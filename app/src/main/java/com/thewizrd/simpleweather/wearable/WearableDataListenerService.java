@@ -203,7 +203,7 @@ public class WearableDataListenerService extends WearableListenerService {
 
         Tasks.call(Executors.newSingleThreadExecutor(), new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 if (intent != null && ACTION_SENDSETTINGSUPDATE.equals(intent.getAction())) {
                     createSettingsDataRequest(true);
                 } else if (intent != null && ACTION_SENDLOCATIONUPDATE.equals(intent.getAction())) {

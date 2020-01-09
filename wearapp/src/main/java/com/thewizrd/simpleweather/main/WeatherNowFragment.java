@@ -87,7 +87,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class WeatherNowFragment extends Fragment implements WeatherLoadedListenerInterface,
         WeatherErrorListenerInterface, SharedPreferences.OnSharedPreferenceChangeListener {
@@ -889,7 +888,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     private boolean updateLocation() {
         return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
             @Override
-            public Boolean call() throws Exception {
+            public Boolean call() {
                 boolean locationChanged = false;
 
                 if (Settings.getDataSync() == WearableDataSync.OFF &&
@@ -928,11 +927,11 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                         location = new AsyncTask<Location>().await(new Callable<Location>() {
                             @SuppressLint("MissingPermission")
                             @Override
-                            public Location call() throws Exception {
+                            public Location call() {
                                 Location result = null;
                                 try {
                                     result = Tasks.await(mFusedLocationClient.getLastLocation(), 10, TimeUnit.SECONDS);
-                                } catch (TimeoutException e) {
+                                } catch (Exception e) {
                                     Logger.writeLine(Log.ERROR, e);
                                 }
                                 return result;
@@ -997,7 +996,14 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                         if (isCtsCancelRequested())
                             return false;
 
-                        view = wm.getLocation(location);
+                        try {
+                            view = wm.getLocation(location);
+                        } catch (WeatherException e) {
+                            // Stop since there is no valid query
+                            Logger.writeLine(Log.ERROR, e);
+                            return false;
+                        }
+
                         if (StringUtils.isNullOrEmpty(view.getLocationQuery()))
                             view = new LocationQueryViewModel();
 

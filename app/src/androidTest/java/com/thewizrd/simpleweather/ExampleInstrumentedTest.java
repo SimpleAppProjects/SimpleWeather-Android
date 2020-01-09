@@ -121,7 +121,7 @@ public class ExampleInstrumentedTest {
             final LocationQueryViewModel query_vm = loc;
             loc = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
                 @Override
-                public LocationQueryViewModel call() throws Exception {
+                public LocationQueryViewModel call() throws WeatherException {
                     return new HERELocationProvider().getLocationfromLocID(query_vm.getLocationQuery(), WeatherAPI.HERE);
                 }
             });
@@ -150,7 +150,7 @@ public class ExampleInstrumentedTest {
             final LocationQueryViewModel query_vm = loc;
             loc = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
                 @Override
-                public LocationQueryViewModel call() throws Exception {
+                public LocationQueryViewModel call() throws WeatherException {
                     return new HERELocationProvider().getLocationfromLocID(query_vm.getLocationQuery(), WeatherAPI.HERE);
                 }
             });

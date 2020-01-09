@@ -255,7 +255,7 @@ public class WearableDataListenerService extends WearableListenerService {
 
         Tasks.call(Executors.newSingleThreadExecutor(), new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 if (ACTION_OPENONPHONE.equals(intent.getAction())) {
                     openAppOnPhone();
                 } else if (ACTION_UPDATECONNECTIONSTATUS.equals(intent.getAction())) {
@@ -334,7 +334,7 @@ public class WearableDataListenerService extends WearableListenerService {
     private boolean connect() {
         return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
             @Override
-            public Boolean call() throws Exception {
+            public Boolean call() {
                 if (!mLoaded && mPhoneNodeWithApp == null)
                     mPhoneNodeWithApp = checkIfPhoneHasApp();
 
@@ -611,7 +611,7 @@ public class WearableDataListenerService extends WearableListenerService {
 
                     Weather weatherData = new AsyncTask<Weather>().await(new Callable<Weather>() {
                         @Override
-                        public Weather call() throws Exception {
+                        public Weather call() {
                             return Weather.fromJson(weatherTextReader);
                         }
                     });

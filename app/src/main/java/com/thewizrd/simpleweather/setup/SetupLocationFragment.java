@@ -90,8 +90,8 @@ import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class SetupLocationFragment extends Fragment implements Step, OnBackPressedFragmentListener, SnackbarManagerInterface {
 
@@ -252,8 +252,14 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                 public void onLocationAvailability(LocationAvailability locationAvailability) {
                     new AsyncTask<Void>().await(new Callable<Void>() {
                         @Override
-                        public Void call() throws Exception {
-                            return Tasks.await(mFusedLocationClient.flushLocations());
+                        public Void call() {
+                            try {
+                                return Tasks.await(mFusedLocationClient.flushLocations());
+                            } catch (ExecutionException | InterruptedException e) {
+                                Logger.writeLine(Log.ERROR, e);
+                            }
+
+                            return null;
                         }
                     });
 
@@ -806,11 +812,11 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
             location = new AsyncTask<Location>().await(new Callable<Location>() {
                 @SuppressLint("MissingPermission")
                 @Override
-                public Location call() throws Exception {
+                public Location call() {
                     Location result = null;
                     try {
                         result = Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
-                    } catch (TimeoutException e) {
+                    } catch (Exception e) {
                         Logger.writeLine(Log.ERROR, e);
                     }
                     return result;

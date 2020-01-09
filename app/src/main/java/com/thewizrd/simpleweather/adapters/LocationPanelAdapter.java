@@ -444,7 +444,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         Tasks.call(Executors.newSingleThreadExecutor(), new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 if (mParentRecyclerView != null) {
                     mMainHandler.post(new Runnable() {
                         @Override

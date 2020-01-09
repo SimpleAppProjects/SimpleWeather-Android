@@ -125,7 +125,7 @@ public class WeatherManager implements WeatherProviderImplInterface {
     public void updateLocationData(final LocationData location) {
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 weatherProvider.updateLocationData(location);
                 return null;
             }
@@ -136,7 +136,7 @@ public class WeatherManager implements WeatherProviderImplInterface {
     public String updateLocationQuery(final Weather weather) {
         return new AsyncTask<String>().await(new Callable<String>() {
             @Override
-            public String call() throws Exception {
+            public String call() {
                 return weatherProvider.updateLocationQuery(weather);
             }
         });
@@ -146,7 +146,7 @@ public class WeatherManager implements WeatherProviderImplInterface {
     public String updateLocationQuery(final LocationData location) {
         return new AsyncTask<String>().await(new Callable<String>() {
             @Override
-            public String call() throws Exception {
+            public String call() {
                 return weatherProvider.updateLocationQuery(location);
             }
         });

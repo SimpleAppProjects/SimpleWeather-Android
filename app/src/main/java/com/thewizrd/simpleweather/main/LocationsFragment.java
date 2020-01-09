@@ -105,8 +105,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class LocationsFragment extends ToolbarFragment
         implements WeatherLoadedListenerInterface, WeatherErrorListenerInterface, SnackbarManagerInterface {
@@ -391,8 +391,14 @@ public class LocationsFragment extends ToolbarFragment
 
                     new AsyncTask<Void>().await(new Callable<Void>() {
                         @Override
-                        public Void call() throws Exception {
-                            return Tasks.await(mFusedLocationClient.removeLocationUpdates(mLocCallback));
+                        public Void call() {
+                            try {
+                                return Tasks.await(mFusedLocationClient.removeLocationUpdates(mLocCallback));
+                            } catch (ExecutionException | InterruptedException e) {
+                                Logger.writeLine(Log.ERROR, e);
+                            }
+
+                            return null;
                         }
                     });
                 }
@@ -401,8 +407,14 @@ public class LocationsFragment extends ToolbarFragment
                 public void onLocationAvailability(LocationAvailability locationAvailability) {
                     new AsyncTask<Void>().await(new Callable<Void>() {
                         @Override
-                        public Void call() throws Exception {
-                            return Tasks.await(mFusedLocationClient.flushLocations());
+                        public Void call() {
+                            try {
+                                return Tasks.await(mFusedLocationClient.flushLocations());
+                            } catch (ExecutionException | InterruptedException e) {
+                                Logger.writeLine(Log.ERROR, e);
+                            }
+
+                            return null;
                         }
                     });
 
@@ -854,7 +866,7 @@ public class LocationsFragment extends ToolbarFragment
     private LocationData getGPSPanel() {
         return new AsyncTask<LocationData>().await(new Callable<LocationData>() {
             @Override
-            public LocationData call() throws Exception {
+            public LocationData call() {
                 // Setup gps panel
                 if (getAppCompatActivity() != null && Settings.useFollowGPS()) {
                     LocationData locData = Settings.getLastGPSLocData();
@@ -973,7 +985,7 @@ public class LocationsFragment extends ToolbarFragment
     private LocationData updateLocation() {
         return new AsyncTask<LocationData>().await(new Callable<LocationData>() {
             @Override
-            public LocationData call() throws Exception {
+            public LocationData call() {
                 LocationData locationData = null;
 
                 if (Settings.useFollowGPS()) {
@@ -1011,11 +1023,11 @@ public class LocationsFragment extends ToolbarFragment
                         location = new AsyncTask<Location>().await(new Callable<Location>() {
                             @SuppressLint("MissingPermission")
                             @Override
-                            public Location call() throws Exception {
+                            public Location call() {
                                 Location result = null;
                                 try {
                                     result = Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
-                                } catch (TimeoutException e) {
+                                } catch (Exception e) {
                                     Logger.writeLine(Log.ERROR, e);
                                 }
                                 return result;
@@ -1067,7 +1079,19 @@ public class LocationsFragment extends ToolbarFragment
                         if (isCtsCancelRequested())
                             return null;
 
-                        view = wm.getLocation(location);
+                        try {
+                            view = wm.getLocation(location);
+                        } catch (WeatherException e) {
+                            Logger.writeLine(Log.ERROR, e);
+                            // Stop since there is no valid query
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    removeGPSPanel();
+                                }
+                            });
+                            return null;
+                        }
 
                         if (isCtsCancelRequested())
                             return null;

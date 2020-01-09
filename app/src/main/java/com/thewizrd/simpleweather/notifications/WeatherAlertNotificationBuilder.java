@@ -164,7 +164,7 @@ public class WeatherAlertNotificationBuilder {
 
             Bitmap iconBmp = new AsyncTask<Bitmap>().await(new Callable<Bitmap>() {
                 @Override
-                public Bitmap call() throws Exception {
+                public Bitmap call() {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         return ImageUtils.tintedBitmapFromDrawable(context, R.drawable.ic_error_white,
                                 Colors.BLACK);

@@ -315,7 +315,7 @@ public class WeatherWidgetService extends JobIntentService {
         if (Settings.isWeatherLoaded()) rebuildWidget(provider, appWidgetId, newOptions);
     }
 
-    private void refreshWidget(final WeatherWidgetProvider provider, int[] appWidgetIds) throws InterruptedException {
+    private void refreshWidget(final WeatherWidgetProvider provider, int[] appWidgetIds) {
         if (appWidgetIds == null || appWidgetIds.length == 0)
             appWidgetIds = mAppWidgetManager.getAppWidgetIds(provider.getComponentName());
 
@@ -351,7 +351,7 @@ public class WeatherWidgetService extends JobIntentService {
         }
     }
 
-    private void refreshWidgets() throws InterruptedException {
+    private void refreshWidgets() {
         if (Settings.isWeatherLoaded()) {
             // Build the widget update for available providers
             // Add widget providers here
@@ -517,7 +517,7 @@ public class WeatherWidgetService extends JobIntentService {
         for (final int appWidgetId : appWidgetIds) {
             Task<Void> task = AsyncTask.create(new Callable<Void>() {
                 @Override
-                public Void call() throws Exception {
+                public Void call() {
                     RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_configure_layout);
 
                     Intent configureIntent = new Intent(mContext, WeatherWidgetConfigActivity.class)
@@ -555,7 +555,7 @@ public class WeatherWidgetService extends JobIntentService {
         final WeatherDataLoader wLoader = new WeatherDataLoader(locationData);
         final Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
             @Override
-            public Weather call() throws Exception {
+            public Weather call() {
                 wLoader.loadWeatherData(false);
                 return wLoader.getWeather();
             }
@@ -566,7 +566,7 @@ public class WeatherWidgetService extends JobIntentService {
         for (final int appWidgetId : appWidgetIds) {
             Task<Void> task = AsyncTask.create(new Callable<Void>() {
                 @Override
-                public Void call() throws Exception {
+                public Void call() {
                     if (weather != null) {
                         // Save weather data
                         WidgetUtils.saveWeatherData(appWidgetId, weather);
@@ -635,7 +635,7 @@ public class WeatherWidgetService extends JobIntentService {
         for (final int appWidgetId : appWidgetIds) {
             Task<Void> task = AsyncTask.create(new Callable<Void>() {
                 @Override
-                public Void call() throws Exception {
+                public Void call() {
                     WidgetType widgetType = getWidgetTypeFromID(appWidgetId);
 
                     RemoteViews views;
@@ -741,7 +741,7 @@ public class WeatherWidgetService extends JobIntentService {
         for (final int appWidgetId : appWidgetIds) {
             Task<Void> task = AsyncTask.create(new Callable<Void>() {
                 @Override
-                public Void call() throws Exception {
+                public Void call() {
                     // Update clock widgets
                     WidgetType widgetType = getWidgetTypeFromID(appWidgetId);
 

@@ -117,7 +117,7 @@ public class ShortcutCreatorWorker extends Worker {
 
             Bitmap bmp = new AsyncTask<Bitmap>().await(new Callable<Bitmap>() {
                 @Override
-                public Bitmap call() throws Exception {
+                public Bitmap call() {
                     return ImageUtils.tintedBitmapFromDrawable(mContext, wm.getWeatherIconResource(weather.getCondition().getIcon()),
                             mContext.getColor(R.color.colorPrimaryDark));
                 }

@@ -224,7 +224,7 @@ public class Settings {
     public static void loadIfNeeded() {
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 if (!loaded) {
                     load();
                     loaded = true;
@@ -237,7 +237,7 @@ public class Settings {
     private static void load() {
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 /* DB Migration */
                 DBMigrations.performMigrations(weatherDB, locationDB);
 
@@ -264,7 +264,7 @@ public class Settings {
     public static List<LocationData> getFavorites() {
         return new AsyncTask<List<LocationData>>().await(new Callable<List<LocationData>>() {
             @Override
-            public List<LocationData> call() throws Exception {
+            public List<LocationData> call() {
                 loadIfNeeded();
                 return locationDB.locationsDAO().getFavorites();
             }
@@ -274,7 +274,7 @@ public class Settings {
     public static List<LocationData> getLocationData() {
         return new AsyncTask<List<LocationData>>().await(new Callable<List<LocationData>>() {
             @Override
-            public List<LocationData> call() throws Exception {
+            public List<LocationData> call() {
                 loadIfNeeded();
                 return locationDB.locationsDAO().loadAllLocationData();
             }
@@ -284,7 +284,7 @@ public class Settings {
     public static LocationData getLocation(final String key) {
         return new AsyncTask<LocationData>().await(new Callable<LocationData>() {
             @Override
-            public LocationData call() throws Exception {
+            public LocationData call() {
                 loadIfNeeded();
                 return locationDB.locationsDAO().getLocation(key);
             }
@@ -294,7 +294,7 @@ public class Settings {
     public static Weather getWeatherData(final String key) {
         return new AsyncTask<Weather>().await(new Callable<Weather>() {
             @Override
-            public Weather call() throws Exception {
+            public Weather call() {
                 loadIfNeeded();
                 return weatherDB.weatherDAO().getWeatherData(key);
             }
@@ -304,7 +304,7 @@ public class Settings {
     public static Weather getWeatherDataByCoordinate(final LocationData location) {
         return new AsyncTask<Weather>().await(new Callable<Weather>() {
             @Override
-            public Weather call() throws Exception {
+            public Weather call() {
                 loadIfNeeded();
                 String query = String.format(Locale.ROOT, "\"latitude\":\"%s\",\"longitude\":\"%s\"",
                         Double.toString(location.getLatitude()), Double.toString(location.getLongitude()));
@@ -316,7 +316,7 @@ public class Settings {
     public static List<WeatherAlert> getWeatherAlertData(final String key) {
         return new AsyncTask<List<WeatherAlert>>().await(new Callable<List<WeatherAlert>>() {
             @Override
-            public List<WeatherAlert> call() throws Exception {
+            public List<WeatherAlert> call() {
                 loadIfNeeded();
 
                 List<WeatherAlert> alerts = null;
@@ -341,7 +341,7 @@ public class Settings {
     public static LocationData getLastGPSLocData() {
         return new AsyncTask<LocationData>().await(new Callable<LocationData>() {
             @Override
-            public LocationData call() throws Exception {
+            public LocationData call() {
                 loadIfNeeded();
 
                 if (lastGPSLocData != null && lastGPSLocData.getLocationType() != LocationType.GPS)
@@ -356,7 +356,7 @@ public class Settings {
         if (weather != null && weather.isValid()) {
             new AsyncTask<Void>().await(new Callable<Void>() {
                 @Override
-                public Void call() throws Exception {
+                public Void call() {
                     weatherDB.weatherDAO().insertWeatherData(weather);
                     return null;
                 }
@@ -375,7 +375,7 @@ public class Settings {
         if (location != null && location.isValid()) {
             new AsyncTask<Void>().await(new Callable<Void>() {
                 @Override
-                public Void call() throws Exception {
+                public Void call() {
                     WeatherAlerts alertData = new WeatherAlerts(location.getQuery(), alerts);
                     weatherDB.weatherDAO().insertWeatherAlertData(alertData);
                     return null;

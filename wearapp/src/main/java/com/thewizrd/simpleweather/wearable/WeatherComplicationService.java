@@ -29,6 +29,7 @@ import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.Weather;
@@ -43,7 +44,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class WeatherComplicationService extends ComplicationProviderService {
     private static final String TAG = "WeatherComplicationService";
@@ -155,7 +155,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
     private Weather getWeather() {
         return new AsyncTask<Weather>().await(new Callable<Weather>() {
             @Override
-            public Weather call() throws Exception {
+            public Weather call() {
                 Weather weather = null;
 
                 try {
@@ -204,7 +204,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
     private boolean updateLocation() {
         return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
             @Override
-            public Boolean call() throws Exception {
+            public Boolean call() {
                 boolean locationChanged = false;
 
                 if (Settings.useFollowGPS()) {
@@ -227,11 +227,11 @@ public class WeatherComplicationService extends ComplicationProviderService {
                         location = new AsyncTask<Location>().await(new Callable<Location>() {
                             @SuppressLint("MissingPermission")
                             @Override
-                            public Location call() throws Exception {
+                            public Location call() {
                                 Location result = null;
                                 try {
                                     result = Tasks.await(mFusedLocationClient.getLastLocation(), 10, TimeUnit.SECONDS);
-                                } catch (TimeoutException e) {
+                                } catch (Exception e) {
                                     Logger.writeLine(Log.ERROR, e);
                                 }
                                 return result;
@@ -264,7 +264,12 @@ public class WeatherComplicationService extends ComplicationProviderService {
                         LocationQueryViewModel query_vm = null;
 
                         // TODO: task it
-                        query_vm = wm.getLocation(location);
+                        try {
+                            query_vm = wm.getLocation(location);
+                        } catch (WeatherException e) {
+                            Logger.writeLine(Log.ERROR, e);
+                            return false;
+                        }
 
                         if (StringUtils.isNullOrEmpty(query_vm.getLocationQuery()))
                             query_vm = new LocationQueryViewModel();

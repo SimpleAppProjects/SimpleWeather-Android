@@ -74,7 +74,7 @@ public class WeatherNotificationService extends Service {
 
         Tasks.call(Executors.newSingleThreadExecutor(), new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 if (intent != null && ACTION_REFRESHNOTIFICATION.equals(intent.getAction())) {
                     showRefresh(true);
 
@@ -83,7 +83,7 @@ public class WeatherNotificationService extends Service {
                     if (Settings.isWeatherLoaded()) {
                         Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
                             @Override
-                            public Weather call() throws Exception {
+                            public Weather call() {
                                 LocationData locData = Settings.getHomeData();
                                 WeatherDataLoader wLoader = new WeatherDataLoader(locData);
                                 if (forceRefresh)

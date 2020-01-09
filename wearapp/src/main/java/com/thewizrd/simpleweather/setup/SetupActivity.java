@@ -60,8 +60,8 @@ import com.thewizrd.simpleweather.main.MainActivity;
 import com.thewizrd.simpleweather.preferences.SettingsActivity;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuItemClickListener {
 
@@ -170,8 +170,14 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
                 public void onLocationAvailability(LocationAvailability locationAvailability) {
                     new AsyncTask<Void>().await(new Callable<Void>() {
                         @Override
-                        public Void call() throws Exception {
-                            return Tasks.await(mFusedLocationClient.flushLocations());
+                        public Void call() {
+                            try {
+                                return Tasks.await(mFusedLocationClient.flushLocations());
+                            } catch (ExecutionException | InterruptedException e) {
+                                Logger.writeLine(Log.ERROR, e);
+                            }
+
+                            return null;
                         }
                     });
 
@@ -515,11 +521,11 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
             location = new AsyncTask<Location>().await(new Callable<Location>() {
                 @SuppressLint("MissingPermission")
                 @Override
-                public Location call() throws Exception {
+                public Location call() {
                     Location result = null;
                     try {
                         result = Tasks.await(mFusedLocationClient.getLastLocation(), 10, TimeUnit.SECONDS);
-                    } catch (TimeoutException e) {
+                    } catch (Exception e) {
                         Logger.writeLine(Log.ERROR, e);
                     }
                     return result;

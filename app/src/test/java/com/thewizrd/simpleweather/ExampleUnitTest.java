@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class ExampleUnitTest {
     @Test
-    public void zoning() throws Exception {
+    public void zoning() {
         ZoneId zId = ZoneId.of("Asia/Tokyo");
         System.out.println(zId.getDisplayName(TextStyle.SHORT, Locale.ROOT));
         assertTrue(true);

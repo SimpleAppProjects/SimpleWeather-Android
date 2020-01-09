@@ -115,7 +115,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.getWidgetTypeFromID;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.isForecastWidget;
@@ -1547,7 +1546,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         private boolean updateLocation() {
             return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
                 @Override
-                public Boolean call() throws Exception {
+                public Boolean call() {
                     boolean locationChanged = false;
 
                     if (Settings.useFollowGPS()) {
@@ -1579,11 +1578,11 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                             location = new AsyncTask<Location>().await(new Callable<Location>() {
                                 @SuppressLint("MissingPermission")
                                 @Override
-                                public Location call() throws Exception {
+                                public Location call() {
                                     Location result = null;
                                     try {
                                         result = Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
-                                    } catch (TimeoutException e) {
+                                    } catch (Exception e) {
                                         Logger.writeLine(Log.ERROR, e);
                                     }
                                     return result;
@@ -1608,12 +1607,12 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                             LocationQueryViewModel query_vm = null;
 
                             TaskCompletionSource<LocationQueryViewModel> tcs = new TaskCompletionSource<>(cts.getToken());
-                            tcs.setResult(wm.getLocation(location));
                             try {
+                                tcs.setResult(wm.getLocation(location));
                                 query_vm = Tasks.await(tcs.getTask());
-                            } catch (ExecutionException e) {
-                                query_vm = new LocationQueryViewModel();
-                                Logger.writeLine(Log.ERROR, e.getCause());
+                            } catch (ExecutionException | WeatherException e) {
+                                Logger.writeLine(Log.ERROR, e);
+                                return false;
                             } catch (InterruptedException e) {
                                 return false;
                             }

@@ -57,7 +57,7 @@ public class WeatherExtrasViewModel extends ViewModel {
                 HourlyForecastItemViewModel hrforecastView;
                 hrforecastView = new AsyncTask<HourlyForecastItemViewModel>().await(new Callable<HourlyForecastItemViewModel>() {
                     @Override
-                    public HourlyForecastItemViewModel call() throws Exception {
+                    public HourlyForecastItemViewModel call() {
                         return new HourlyForecastItemViewModel(hr_forecast);
                     }
                 });
@@ -70,7 +70,7 @@ public class WeatherExtrasViewModel extends ViewModel {
                 TextForecastItemViewModel txtforecastView;
                 txtforecastView = new AsyncTask<TextForecastItemViewModel>().await(new Callable<TextForecastItemViewModel>() {
                     @Override
-                    public TextForecastItemViewModel call() throws Exception {
+                    public TextForecastItemViewModel call() {
                         return new TextForecastItemViewModel(txt_forecast);
                     }
                 });

@@ -333,7 +333,7 @@ public class WeatherDataLoader {
         if (weather.getWeatherAlerts() != null) {
             new AsyncTask<Void>().await(new Callable<Void>() {
                 @Override
-                public Void call() throws Exception {
+                public Void call() {
                     // Check for previously saved alerts
                     List<WeatherAlert> previousAlerts = Settings.getWeatherAlertData(location.getQuery());
 

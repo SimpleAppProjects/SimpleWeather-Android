@@ -52,7 +52,7 @@ public class OSSCreditsPreference extends Preference {
 
         String creditsText = new AsyncTask<String>().await(new Callable<String>() {
             @Override
-            public String call() throws Exception {
+            public String call() {
                 StringBuilder sBuilder = new StringBuilder();
                 InputStreamReader sReader = null;
                 try {
@@ -64,8 +64,12 @@ public class OSSCreditsPreference extends Preference {
                     }
                 } catch (IOException ignored) {
                 } finally {
-                    if (sReader != null)
-                        sReader.close();
+                    if (sReader != null) {
+                        try {
+                            sReader.close();
+                        } catch (IOException ignored) {
+                        }
+                    }
                 }
 
                 return sBuilder.toString();

@@ -40,7 +40,7 @@ public class OSSCreditsPreference extends Preference {
         // Load html to string
         String creditsText = new AsyncTask<String>().await(new Callable<String>() {
             @Override
-            public String call() throws Exception {
+            public String call() {
                 StringBuilder sBuilder = new StringBuilder();
                 try (InputStreamReader sReader = new InputStreamReader(getContext().getAssets().open("credits/licenses.txt"))) {
 

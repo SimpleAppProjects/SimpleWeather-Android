@@ -39,6 +39,7 @@ import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
@@ -57,7 +58,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class WeatherUpdaterWorker extends Worker {
     private static String TAG = "WeatherUpdaterWorker";
@@ -216,7 +216,7 @@ public class WeatherUpdaterWorker extends Worker {
             // Update for home
             final Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
                 @Override
-                public Weather call() throws Exception {
+                public Weather call() {
                     return getWeather();
                 }
             });
@@ -253,7 +253,7 @@ public class WeatherUpdaterWorker extends Worker {
     private Weather getWeather() {
         return new AsyncTask<Weather>().await(new Callable<Weather>() {
             @Override
-            public Weather call() throws Exception {
+            public Weather call() {
                 Weather weather = null;
 
                 try {
@@ -288,7 +288,7 @@ public class WeatherUpdaterWorker extends Worker {
     private boolean updateLocation() {
         return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
             @Override
-            public Boolean call() throws Exception {
+            public Boolean call() {
                 boolean locationChanged = false;
 
                 if (Settings.useFollowGPS()) {
@@ -311,11 +311,11 @@ public class WeatherUpdaterWorker extends Worker {
                         location = new AsyncTask<Location>().await(new Callable<Location>() {
                             @SuppressLint("MissingPermission")
                             @Override
-                            public Location call() throws Exception {
+                            public Location call() {
                                 Location result = null;
                                 try {
                                     result = Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
-                                } catch (TimeoutException e) {
+                                } catch (Exception e) {
                                     Logger.writeLine(Log.ERROR, e);
                                 }
                                 return result;
@@ -350,12 +350,12 @@ public class WeatherUpdaterWorker extends Worker {
                         LocationQueryViewModel query_vm = null;
 
                         TaskCompletionSource<LocationQueryViewModel> tcs = new TaskCompletionSource<>(cts.getToken());
-                        tcs.setResult(wm.getLocation(location));
                         try {
+                            tcs.setResult(wm.getLocation(location));
                             query_vm = Tasks.await(tcs.getTask());
-                        } catch (ExecutionException e) {
-                            query_vm = new LocationQueryViewModel();
-                            Logger.writeLine(Log.ERROR, e.getCause());
+                        } catch (ExecutionException | WeatherException e) {
+                            Logger.writeLine(Log.ERROR, e);
+                            return false;
                         } catch (InterruptedException e) {
                             return locationChanged;
                         }

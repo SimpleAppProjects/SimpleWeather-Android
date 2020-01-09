@@ -310,7 +310,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
 
             navItems = new AsyncTask<List<NavDrawerItem>>().await(new Callable<List<NavDrawerItem>>() {
                 @Override
-                public List<NavDrawerItem> call() throws Exception {
+                public List<NavDrawerItem> call() {
                     List<NavDrawerItem> items = new ArrayList<>(navDrawerItems);
                     if (weatherNowView.getExtras().getAlerts().size() == 0) {
                         List<NavDrawerItem> tmp = new ArrayList<>();

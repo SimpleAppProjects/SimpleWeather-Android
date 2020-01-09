@@ -135,7 +135,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class WeatherNowFragment extends WindowColorFragment
         implements WeatherLoadedListenerInterface, WeatherErrorListenerInterface {
@@ -1415,11 +1414,11 @@ public class WeatherNowFragment extends WindowColorFragment
                         location = new AsyncTask<Location>().await(new Callable<Location>() {
                             @SuppressLint("MissingPermission")
                             @Override
-                            public Location call() throws Exception {
+                            public Location call() {
                                 Location result = null;
                                 try {
                                     result = Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
-                                } catch (TimeoutException e) {
+                                } catch (Exception e) {
                                     Logger.writeLine(Log.ERROR, e);
                                 }
                                 return result;
