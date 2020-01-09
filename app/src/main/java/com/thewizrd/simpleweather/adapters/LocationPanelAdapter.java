@@ -541,7 +541,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
             final int dataPosition = mDataPosition;
             if (mParentRecyclerView != null && isFragmentAlive) {
                 // Make SnackBar
-                Snackbar snackbar = Snackbar.make(R.string.message_locationremoved, Snackbar.Duration.SHORT);
+                final Snackbar snackbar = Snackbar.make(R.string.message_locationremoved, Snackbar.Duration.SHORT);
                 snackbar.setAction(R.string.undo, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -550,7 +550,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
                         performUndoAction(dataPosition, pendingVMForRemoval);
                     }
                 });
-                com.google.android.material.snackbar.Snackbar.Callback callback = new com.google.android.material.snackbar.Snackbar.Callback() {
+                final com.google.android.material.snackbar.Snackbar.Callback callback = new com.google.android.material.snackbar.Snackbar.Callback() {
                     @Override
                     public void onDismissed(com.google.android.material.snackbar.Snackbar transientBottomBar, int event) {
                         super.onDismissed(transientBottomBar, event);
@@ -572,7 +572,13 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
 
                 if (mSnackMgr == null)
                     mSnackMgr = new SnackbarManager(mParentRecyclerView);
-                mSnackMgr.show(snackbar, callback);
+
+                mMainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mSnackMgr.show(snackbar, callback);
+                    }
+                });
             }
         }
 

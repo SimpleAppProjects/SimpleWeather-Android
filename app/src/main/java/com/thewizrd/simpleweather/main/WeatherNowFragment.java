@@ -333,12 +333,22 @@ public class WeatherNowFragment extends WindowColorFragment
         }
     }
 
-    private void showSnackbar(Snackbar snackbar, com.google.android.material.snackbar.Snackbar.Callback callback) {
-        if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
+    private void showSnackbar(final Snackbar snackbar, final com.google.android.material.snackbar.Snackbar.Callback callback) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
+            }
+        });
     }
 
     private void dismissAllSnackbars() {
-        if (mSnackMgr != null) mSnackMgr.dismissAll();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mSnackMgr != null) mSnackMgr.dismissAll();
+            }
+        });
     }
 
     @Override

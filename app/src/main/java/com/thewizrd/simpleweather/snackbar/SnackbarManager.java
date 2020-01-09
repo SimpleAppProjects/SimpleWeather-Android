@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.view.View;
 
 import androidx.annotation.IdRes;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -81,6 +82,7 @@ public final class SnackbarManager {
      * @param callback Optional: the callback which is called when the snackbar is
      *                 dismissed and/or shown
      */
+    @MainThread
     public void show(@NonNull final Snackbar snackbar, @Nullable com.google.android.material.snackbar.Snackbar.Callback callback) {
         // Add current snackbar to stack
         mSnacks.push(new SnackbarPair(snackbar, callback));
@@ -92,6 +94,7 @@ public final class SnackbarManager {
     /**
      * Dismisses all snackbars.
      */
+    @MainThread
     public void dismissAll() {
         if (mSnacks.empty()) return;
 
@@ -123,7 +126,13 @@ public final class SnackbarManager {
     /**
      * Update the Snackbar view
      */
+    @MainThread
     private void updateView() {
+        if (Looper.getMainLooper().getThread() != Thread.currentThread()) {
+            // NOT ON THE MAIN THREAD!!
+            throw new IllegalStateException("Cannot update the Snackbar view off the main thread");
+        }
+
         // Get current SnackBar
         final SnackbarPair snackPair = getCurrentSnackPair();
         if (snackPair == null) {

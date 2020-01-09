@@ -140,13 +140,23 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     }
 
     @Override
-    public void showSnackbar(com.thewizrd.simpleweather.snackbar.Snackbar snackbar, com.google.android.material.snackbar.Snackbar.Callback callback) {
-        if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
+    public void showSnackbar(final com.thewizrd.simpleweather.snackbar.Snackbar snackbar, final com.google.android.material.snackbar.Snackbar.Callback callback) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
+            }
+        });
     }
 
     @Override
     public void dismissAllSnackbars() {
-        if (mSnackMgr != null) mSnackMgr.dismissAll();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mSnackMgr != null) mSnackMgr.dismissAll();
+            }
+        });
     }
 
     @Override
