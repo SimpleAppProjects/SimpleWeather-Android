@@ -79,31 +79,31 @@ public class Forecast {
         try {
             extras.setFeelslikeF(Float.valueOf(WeatherUtils.getFeelsLikeTemp(highF, Integer.toString(forecast.getAvewind().getMph()), Integer.toString(forecast.getAvehumidity()))));
             extras.setFeelslikeC(Float.valueOf(ConversionMethods.FtoC(Double.toString(extras.getFeelslikeF()))));
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
         }
         try {
             extras.setHumidity(Integer.toString(forecast.getAvehumidity()));
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
         }
         try {
             extras.setPop(Integer.toString(forecast.getPop()));
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
         }
         try {
             extras.setQpfRainIn((float) forecast.getQpf_allday().getIn());
             extras.setQpfRainMm((float) forecast.getQpf_allday().getMm());
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
         }
         try {
             extras.setQpfSnowIn(forecast.getSnow_allday().getIn());
             extras.setQpfSnowCm(forecast.getSnow_allday().getCm());
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
         }
         try {
             extras.setWindDegrees(forecast.getAvewind().getDegrees());
             extras.setWindMph((float) forecast.getAvewind().getMph());
             extras.setWindKph((float) forecast.getAvewind().getKph());
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
         }
     }
 
@@ -154,25 +154,30 @@ public class Forecast {
             extras.setDewpointF(forecast.getDewPoint());
             extras.setDewpointC(ConversionMethods.FtoC(forecast.getDewPoint()));
         } catch (NumberFormatException ignored) {
+            extras.setDewpointF(null);
+            extras.setDewpointC(null);
         }
         extras.setPop(forecast.getPrecipitationProbability());
         try {
-            extras.setQpfRainIn(Float.valueOf(forecast.getRainFall()));
+            float rain_in = Float.valueOf(forecast.getRainFall());
+            extras.setQpfRainIn(rain_in);
+            extras.setQpfRainMm(Float.valueOf(ConversionMethods.inToMM(Float.toString(rain_in))));
         } catch (NumberFormatException ignored) {
         }
-        extras.setQpfRainMm(Float.valueOf(ConversionMethods.inToMM(Float.toString(extras.getQpfRainIn()))));
         try {
-            extras.setQpfSnowIn(Float.valueOf(forecast.getSnowFall()));
+            float snow_in = Float.valueOf(forecast.getSnowFall());
+            extras.setQpfSnowIn(snow_in);
+            extras.setQpfSnowCm(Float.valueOf(ConversionMethods.inToMM(Float.toString(snow_in))) / 10);
         } catch (NumberFormatException ignored) {
         }
-        extras.setQpfSnowCm(Float.valueOf(ConversionMethods.inToMM(Float.toString(extras.getQpfSnowIn()))) / 10);
         extras.setPressureIn(forecast.getBarometerPressure());
         extras.setPressureMb(ConversionMethods.inHgToMB(forecast.getBarometerPressure()));
         extras.setWindDegrees(Integer.valueOf(forecast.getWindDirection()));
         extras.setWindMph(Float.valueOf(forecast.getWindSpeed()));
         extras.setWindKph(Float.valueOf(ConversionMethods.mphTokph(forecast.getWindSpeed())));
         try {
-            extras.setUvIndex(Float.valueOf(forecast.getUvIndex()));
+            float uv_index = Float.valueOf(forecast.getUvIndex());
+            extras.setUvIndex(uv_index);
         } catch (NumberFormatException ignored) {
         }
     }

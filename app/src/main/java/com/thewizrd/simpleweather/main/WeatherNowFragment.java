@@ -730,7 +730,7 @@ public class WeatherNowFragment extends WindowColorFragment
             @Override
             public void onClick(View v) {
                 // Show Alert Fragment
-                if (weatherView.getExtras().getAlerts().size() > 0)
+                if (mActivity != null && weatherView.getExtras().getAlerts().size() > 0)
                     mActivity.getSupportFragmentManager().beginTransaction()
                             .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left,
                                     R.anim.slide_in_right, R.anim.slide_out_left)
@@ -831,7 +831,7 @@ public class WeatherNowFragment extends WindowColorFragment
             @Override
             public void run() {
                 // Reload background image
-                if (weatherView != null) {
+                if (mActivity != null && weatherView != null) {
                     Glide.with(mActivity)
                             .load(weatherView.getBackground())
                             .apply(RequestOptions.centerCropTransform()
@@ -856,13 +856,15 @@ public class WeatherNowFragment extends WindowColorFragment
         // It is a good practice to remove location requests when the activity is in a paused or
         // stopped state. Doing so helps battery performance and is especially
         // recommended in applications that request frequent location updates.
-        mFusedLocationClient.removeLocationUpdates(mLocCallback)
-                .addOnCompleteListener(mActivity, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        mRequestingLocationUpdates = false;
-                    }
-                });
+        if (mActivity != null) {
+            mFusedLocationClient.removeLocationUpdates(mLocCallback)
+                    .addOnCompleteListener(mActivity, new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            mRequestingLocationUpdates = false;
+                        }
+                    });
+        }
     }
 
     private void resizeSunPhasePanel() {
@@ -1000,7 +1002,7 @@ public class WeatherNowFragment extends WindowColorFragment
             adjustDetailsLayout();
 
             // Go straight to alerts here
-            if (getArguments() != null && getArguments().getBoolean(WeatherWidgetService.ACTION_SHOWALERTS, false)) {
+            if (mActivity != null && getArguments() != null && getArguments().getBoolean(WeatherWidgetService.ACTION_SHOWALERTS, false)) {
                 // Remove key from Arguments
                 getArguments().remove(WeatherWidgetService.ACTION_SHOWALERTS);
 
@@ -1305,12 +1307,14 @@ public class WeatherNowFragment extends WindowColorFragment
                 args.putInt(Constants.KEY_POSITION, position);
                 fragment.setArguments(args);
 
-                mActivity.getSupportFragmentManager().beginTransaction()
-                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                        .add(R.id.fragment_container, fragment)
-                        .hide(WeatherNowFragment.this)
-                        .addToBackStack(null)
-                        .commit();
+                if (mActivity != null) {
+                    mActivity.getSupportFragmentManager().beginTransaction()
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                            .add(R.id.fragment_container, fragment)
+                            .hide(WeatherNowFragment.this)
+                            .addToBackStack(null)
+                            .commit();
+                }
             }
         });
 
@@ -1325,12 +1329,14 @@ public class WeatherNowFragment extends WindowColorFragment
                         args.putInt(Constants.KEY_POSITION, position);
                         fragment.setArguments(args);
 
-                        mActivity.getSupportFragmentManager().beginTransaction()
-                                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                                .add(R.id.fragment_container, fragment)
-                                .hide(WeatherNowFragment.this)
-                                .addToBackStack(null)
-                                .commit();
+                        if (mActivity != null) {
+                            mActivity.getSupportFragmentManager().beginTransaction()
+                                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                                    .add(R.id.fragment_container, fragment)
+                                    .hide(WeatherNowFragment.this)
+                                    .addToBackStack(null)
+                                    .commit();
+                        }
                     }
                 };
 

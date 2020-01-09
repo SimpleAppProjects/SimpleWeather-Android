@@ -184,19 +184,21 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
 
                     if (mCallback != null) mCallback.onWeatherViewUpdated(weatherView);
 
-                    // Update complications if they haven't been already
-                    WeatherComplicationIntentService.enqueueWork(mActivity,
-                            new Intent(mActivity, WeatherComplicationIntentService.class)
-                                    .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS));
+                    if (mActivity != null) {
+                        // Update complications if they haven't been already
+                        WeatherComplicationIntentService.enqueueWork(mActivity,
+                                new Intent(mActivity, WeatherComplicationIntentService.class)
+                                        .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS));
 
-                    // Update tile if it hasn't been already
-                    WeatherTileIntentService.enqueueWork(mActivity,
-                            new Intent(mActivity, WeatherTileIntentService.class)
-                                    .setAction(WeatherTileIntentService.ACTION_UPDATETILES));
+                        // Update tile if it hasn't been already
+                        WeatherTileIntentService.enqueueWork(mActivity,
+                                new Intent(mActivity, WeatherTileIntentService.class)
+                                        .setAction(WeatherTileIntentService.ACTION_UPDATETILES));
+                    }
 
                     if (!loaded) {
                         Duration span = Duration.between(ZonedDateTime.now(), weather.getUpdateTime()).abs();
-                        if (Settings.getDataSync() != WearableDataSync.OFF && span.toMinutes() > Settings.getRefreshInterval()) {
+                        if (mActivity != null && Settings.getDataSync() != WearableDataSync.OFF && span.toMinutes() > Settings.getRefreshInterval()) {
                             // send request to refresh data on connected device
                             mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
                                     .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE)
@@ -400,7 +402,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         view.setOnGenericMotionListener(new View.OnGenericMotionListener() {
             @Override
             public boolean onGenericMotion(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_SCROLL && RotaryEncoder.isFromRotaryEncoder(event)) {
+                if (mActivity != null && event.getAction() == MotionEvent.ACTION_SCROLL && RotaryEncoder.isFromRotaryEncoder(event)) {
 
                     // Don't forget the negation here
                     float delta = -RotaryEncoder.getRotaryAxisValue(event) * RotaryEncoder.getScaledScrollFactor(mActivity);
@@ -1038,7 +1040,12 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     Settings.setFollowGPS(false);
-                    Toast.makeText(mActivity, R.string.error_location_denied, Toast.LENGTH_SHORT).show();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(mActivity, R.string.error_location_denied, Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
                 return;
             }

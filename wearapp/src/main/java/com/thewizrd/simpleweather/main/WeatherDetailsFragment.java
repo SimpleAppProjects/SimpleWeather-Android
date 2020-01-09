@@ -57,7 +57,9 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
         // Don't resume if fragment is hidden
         if (!this.isHidden()) {
             initialize();
-            weatherView.addOnPropertyChangedCallback(propertyChangedCallback);
+            if (weatherView != null) {
+                weatherView.addOnPropertyChangedCallback(propertyChangedCallback);
+            }
         }
     }
 

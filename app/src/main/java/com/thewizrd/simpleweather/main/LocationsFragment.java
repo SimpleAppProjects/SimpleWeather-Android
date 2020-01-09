@@ -1194,12 +1194,12 @@ public class LocationsFragment extends ToolbarFragment
         searchFragment.setRecyclerOnClickListener(new RecyclerOnClickListenerInterface() {
             @Override
             public void onClick(final View view, final int position) {
-                if (mSearchFragment == null)
-                    return;
-
                 AsyncTask.run(new Runnable() {
                     @Override
                     public void run() {
+                        if (mSearchFragment == null)
+                            return;
+
                         final LocationQueryAdapter adapter = searchFragment.getAdapter();
                         LocationQuery v = (LocationQuery) view;
                         LocationQueryViewModel query_vm = null;
@@ -1339,16 +1339,16 @@ public class LocationsFragment extends ToolbarFragment
                             }
                         });
 
-                        if (mSearchFragment != null && mSearchFragment.getView() != null &&
-                                mSearchFragment.getView().findViewById(R.id.recycler_view) instanceof RecyclerView) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (mSearchFragment != null && mSearchFragment.getView() != null &&
+                                        mSearchFragment.getView().findViewById(R.id.recycler_view) instanceof RecyclerView) {
                                     RecyclerView recyclerView = mSearchFragment.getView().findViewById(R.id.recycler_view);
                                     recyclerView.setEnabled(false);
                                 }
-                            });
-                        }
+                            }
+                        });
 
                         // Save data
                         Settings.addLocation(location);
@@ -1376,7 +1376,8 @@ public class LocationsFragment extends ToolbarFragment
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                mSearchFragment.showLoading(false);
+                                if (mSearchFragment != null)
+                                    mSearchFragment.showLoading(false);
                                 exitSearchUi(false);
                             }
                         });

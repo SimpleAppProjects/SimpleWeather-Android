@@ -45,7 +45,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
 
         // Extras
         if (forecast.getExtras() != null) {
-            if (forecast.getExtras().getFeelslikeF() != 0) {
+            if (forecast.getExtras().getFeelslikeF() != 0 && (forecast.getExtras().getFeelslikeF() != forecast.getExtras().getFeelslikeC())) {
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
                         Settings.isFahrenheit() ?
                                 String.format(Locale.getDefault(), "%dº", Math.round(forecast.getExtras().getFeelslikeF())) :
@@ -83,7 +83,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
                                 forecast.getExtras().getHumidity() + "%"));
             }
 
-            if (!StringUtils.isNullOrWhitespace(forecast.getExtras().getDewpointF())) {
+            if (!StringUtils.isNullOrWhitespace(forecast.getExtras().getDewpointF()) && (forecast.getExtras().getDewpointF() != forecast.getExtras().getDewpointC())) {
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.DEWPOINT,
                         Settings.isFahrenheit() ?
                                 String.format(Locale.getDefault(), "%dº", Math.round(Float.valueOf(forecast.getExtras().getDewpointF()))) :

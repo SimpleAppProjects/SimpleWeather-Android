@@ -188,8 +188,9 @@ public class HourlyForecast {
         } catch (NumberFormatException ignored) {
         }
         try {
-            windMph = Float.valueOf(hr_forecast.getWindSpeed());
-            windKph = Float.valueOf(ConversionMethods.mphTokph(hr_forecast.getWindSpeed()));
+            String windSpeed = hr_forecast.getWindSpeed();
+            windMph = Float.valueOf(windSpeed);
+            windKph = Float.valueOf(ConversionMethods.mphTokph(windSpeed));
         } catch (NumberFormatException ignored) {
         }
 
@@ -206,18 +207,22 @@ public class HourlyForecast {
             extras.setDewpointF(hr_forecast.getDewPoint());
             extras.setDewpointC(ConversionMethods.FtoC(hr_forecast.getDewPoint()));
         } catch (NumberFormatException ignored) {
+            extras.setDewpointF(null);
+            extras.setDewpointC(null);
         }
         extras.setPop(pop);
         try {
-            extras.setQpfRainIn(Float.valueOf(hr_forecast.getRainFall()));
+            float rain_in = Float.valueOf(hr_forecast.getRainFall());
+            extras.setQpfRainIn(rain_in);
+            extras.setQpfRainMm(Float.valueOf(ConversionMethods.inToMM(Float.toString(rain_in))));
         } catch (NumberFormatException ignored) {
         }
-        extras.setQpfRainMm(Float.valueOf(ConversionMethods.inToMM(Float.toString(extras.getQpfRainIn()))));
         try {
-            extras.setQpfSnowIn(Float.valueOf(hr_forecast.getSnowFall()));
+            float snow_in = Float.valueOf(hr_forecast.getSnowFall());
+            extras.setQpfSnowIn(snow_in);
+            extras.setQpfSnowCm(Float.valueOf(ConversionMethods.inToMM(Float.toString(snow_in))) / 10);
         } catch (NumberFormatException ignored) {
         }
-        extras.setQpfSnowCm(Float.valueOf(ConversionMethods.inToMM(Float.toString(extras.getQpfSnowIn()))) / 10);
         //extras.setPressureIn(hr_forecast.getBarometerPressure());
         //extras.setPressureMb(ConversionMethods.inHgToMB(hr_forecast.getBarometerPressure()));
         extras.setWindDegrees(windDegrees);

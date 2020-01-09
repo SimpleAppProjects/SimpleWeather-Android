@@ -70,7 +70,9 @@ public class WeatherListFragment extends SwipeDismissFragment {
         // Don't resume if fragment is hidden
         if (!this.isHidden()) {
             initialize();
-            weatherView.addOnPropertyChangedCallback(propertyChangedCallback);
+            if (weatherView != null) {
+                weatherView.addOnPropertyChangedCallback(propertyChangedCallback);
+            }
         }
     }
 
@@ -85,7 +87,9 @@ public class WeatherListFragment extends SwipeDismissFragment {
 
     @Override
     public void onPause() {
-        weatherView.removeOnPropertyChangedCallback(propertyChangedCallback);
+        if (weatherView != null) {
+            weatherView.removeOnPropertyChangedCallback(propertyChangedCallback);
+        }
         super.onPause();
     }
 

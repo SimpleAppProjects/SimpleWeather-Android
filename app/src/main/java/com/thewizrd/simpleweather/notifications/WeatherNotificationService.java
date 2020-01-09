@@ -190,6 +190,19 @@ public class WeatherNotificationService extends Service {
                 }
             } catch (Exception ex) {
                 Logger.writeLine(Log.DEBUG, ex, "SimpleWeather: %s: error access notifications");
+            } finally {
+                if (mNotification == null) {
+                    NotificationCompat.Builder mBuilder =
+                            new NotificationCompat.Builder(context, NOT_CHANNEL_ID)
+                                    .setSmallIcon(R.drawable.ic_logo)
+                                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                                    .setOnlyAlertOnce(true)
+                                    .setOngoing(true);
+
+                    mNotification = mBuilder.build();
+                } else if (mNotification.contentView == null) {
+                    mNotification.contentView = new RemoteViews(context.getPackageName(), R.layout.weather_notification_layout);
+                }
             }
         }
 
