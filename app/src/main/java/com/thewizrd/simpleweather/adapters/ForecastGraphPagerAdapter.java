@@ -2,6 +2,8 @@ package com.thewizrd.simpleweather.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -37,6 +39,9 @@ import java.util.Stack;
 public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> extends PagerAdapter {
     private List<T> forecasts;
     private boolean isDarkMode;
+    private int itemCount = 1;
+
+    private Handler mMainHandler;
 
     // Cache collection for views
     private Stack<LineView> mLineViewCache;
@@ -51,17 +56,20 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
     public ForecastGraphPagerAdapter() {
         this.forecasts = new ArrayList<>();
         this.mLineViewCache = new Stack<>();
+        this.mMainHandler = new Handler(Looper.getMainLooper());
     }
 
     @Override
     public int getCount() {
+        int count = 1;
+
         if (forecasts != null && forecasts.size() > 0) {
             T first = forecasts.get(0);
 
             if (first instanceof ForecastItemViewModel) {
                 if (!StringUtils.isNullOrWhitespace(first.getWindSpeed()) &&
                         !StringUtils.isNullOrWhitespace(first.getPop().replace("%", ""))) {
-                    return 3;
+                    count = 3;
                 }
             }
 
@@ -69,14 +77,24 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
                 if (Settings.getAPI().equals(WeatherAPI.OPENWEATHERMAP) ||
                         Settings.getAPI().equals(WeatherAPI.METNO) ||
                         Settings.getAPI().equals(WeatherAPI.NWS)) {
-                    return 2;
+                    count = 2;
                 } else {
-                    return 3;
+                    count = 3;
                 }
             }
         }
 
-        return 1;
+        if (itemCount != count) {
+            mMainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    notifyDataSetChanged();
+                }
+            });
+            itemCount = count;
+        }
+
+        return itemCount;
     }
 
     @SuppressLint("ClickableViewAccessibility")
