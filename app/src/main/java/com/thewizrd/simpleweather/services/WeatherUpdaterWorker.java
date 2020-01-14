@@ -9,6 +9,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.PowerManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -290,20 +291,38 @@ public class WeatherUpdaterWorker extends Worker {
             @Override
             public Boolean call() {
                 boolean locationChanged = false;
+                Context context = App.getInstance().getAppContext();
 
                 if (Settings.useFollowGPS()) {
-                    if (ContextCompat.checkSelfPermission(App.getInstance().getAppContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                            ContextCompat.checkSelfPermission(App.getInstance().getAppContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         return false;
                     }
 
                     Location location = null;
 
-                    LocationManager locMan = (LocationManager) App.getInstance().getAppContext().getSystemService(Context.LOCATION_SERVICE);
+                    LocationManager locMan = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
                     if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                        // Disable GPS feature if location is not enabled
-                        Settings.setFollowGPS(false);
+                        boolean disable = true;
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            PowerManager pwrMan = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+                            // Some devices (ex. Pixel) disable location services if device is in Battery Saver mode
+                            // and the screen is off; don't disable this feature for this case
+                            boolean lowPwrMode = pwrMan != null && (pwrMan.isPowerSaveMode() && !pwrMan.isInteractive());
+
+                            // Disable if we're unable to access location
+                            // and we're not in Low Power (Battery Saver) mode
+                            disable = !lowPwrMode;
+                        }
+
+                        if (disable) {
+                            // Disable GPS feature if location is not enabled
+                            Settings.setFollowGPS(false);
+                            Logger.writeLine(Log.INFO, "%s: Disabled location feature", TAG);
+                        }
+
                         return false;
                     }
 
@@ -374,7 +393,7 @@ public class WeatherUpdaterWorker extends Worker {
                         lastGPSLocData.setData(query_vm, location);
                         Settings.saveLastGPSLocData(lastGPSLocData);
 
-                        LocalBroadcastManager.getInstance(App.getInstance().getAppContext())
+                        LocalBroadcastManager.getInstance(context)
                                 .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
 
                         locationChanged = true;

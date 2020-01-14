@@ -5,6 +5,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -20,8 +21,8 @@
         android:name=".App"
         android:allowBackup="${allowBackup}"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Launcher"
         tools:ignore="GoogleAppIndexingWarning">
@@ -33,22 +34,22 @@
         </activity>
         <activity
             android:name=".setup.SetupActivity"
-            android:theme="@style/SetupTheme"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/SetupTheme"
             android:windowSoftInputMode="stateAlwaysHidden|adjustNothing" />
         <activity
             android:name=".main.MainActivity"
+            android:clearTaskOnLaunch="true"
+            android:configChanges="orientation|keyboardHidden|screenSize|uiMode"
+            android:finishOnTaskLaunch="true"
             android:label="@string/title_activity_weather_now"
             android:theme="@style/AppTheme"
-            android:configChanges="orientation|keyboardHidden|screenSize|uiMode"
-            android:clearTaskOnLaunch="true"
-            android:finishOnTaskLaunch="true"
             android:windowSoftInputMode="stateAlwaysHidden|adjustNothing" />
         <activity
             android:name=".widgets.WeatherWidgetConfigActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_widget_config"
             android:theme="@style/SetupTheme"
-            android:configChanges="orientation|keyboardHidden|screenSize"
             android:windowSoftInputMode="stateAlwaysHidden|adjustNothing">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
@@ -64,11 +65,11 @@
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
                 <action android:name="SimpleWeather.Droid.action.UPDATEWIDGETS" />
             </intent-filter>
+
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/app_widget_1x1_info" />
         </receiver>
-
         <receiver
             android:name=".widgets.WeatherWidgetProvider2x2"
             android:label="Weather + Clock (2x2)">
@@ -80,11 +81,11 @@
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
                 <action android:name="SimpleWeather.Droid.action.UPDATEWIDGETS" />
             </intent-filter>
+
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/app_widget_2x2_info" />
         </receiver>
-
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x1"
             android:label="Weather (4x1)">
@@ -94,11 +95,11 @@
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
                 <action android:name="SimpleWeather.Droid.action.UPDATEWIDGETS" />
             </intent-filter>
+
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/app_widget_4x1_info" />
         </receiver>
-
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x2"
             android:label="Weather + Clock (4x2)">
@@ -110,11 +111,11 @@
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
                 <action android:name="SimpleWeather.Droid.action.UPDATEWIDGETS" />
             </intent-filter>
+
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/app_widget_4x2_info" />
         </receiver>
-
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x1Google"
             android:label="Weather + Date (4x1)">
@@ -126,11 +127,11 @@
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
                 <action android:name="SimpleWeather.Droid.action.UPDATEWIDGETS" />
             </intent-filter>
+
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/app_widget_4x1_google_info" />
         </receiver>
-
         <receiver android:name=".widgets.WeatherWidgetBroadcastReceiver" />
         <receiver android:name=".notifications.WeatherNotificationBroadcastReceiver" />
         <receiver
@@ -147,15 +148,14 @@
             android:name=".wearable.WearableDataListenerService"
             android:enabled="true"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
                 <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
                 <action android:name="com.google.android.gms.wearable.CAPABILITY_CHANGED" />
 
                 <data
-                    android:scheme="wear"
-                    android:host="*" />
+                    android:host="*"
+                    android:scheme="wear" />
             </intent-filter>
         </service>
         <service
@@ -175,10 +175,12 @@
         <uses-library
             android:name="com.google.android.wearable"
             android:required="false" />
+
         <activity
             android:name="com.google.android.gms.common.api.GoogleApiActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -186,4 +188,5 @@
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
     </application>
+
 </manifest>

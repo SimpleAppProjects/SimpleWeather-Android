@@ -792,8 +792,13 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     private void updateLocation() {
         if (mActivity != null && ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSION_LOCATION_REQUEST_CODE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                        PERMISSION_LOCATION_REQUEST_CODE);
+            } else {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                        PERMISSION_LOCATION_REQUEST_CODE);
+            }
             return;
         }
 
