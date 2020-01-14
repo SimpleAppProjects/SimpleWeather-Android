@@ -38,6 +38,9 @@ public class LocationQueryViewModel {
     }
 
     public void setLocation(AC_RESULTS location, String weatherAPI) {
+        if (location == null)
+            return;
+
         locationName = location.getName();
         locationCountry = location.getC();
 
@@ -57,6 +60,9 @@ public class LocationQueryViewModel {
     }
 
     public void setLocation(Location location, String weatherAPI) {
+        if (location == null)
+            return;
+
         locationName = String.format("%s, %s", location.getCity(), location.getState());
         locationCountry = location.getCountry();
 
@@ -76,6 +82,9 @@ public class LocationQueryViewModel {
     }
 
     public void setLocation(SuggestionsItem location, String weatherAPI) {
+        if (location == null || location.getAddress() == null)
+            return;
+
         String town, region;
 
         // Try to get district name or fallback to city name
@@ -113,6 +122,9 @@ public class LocationQueryViewModel {
     }
 
     public void setLocation(ResultItem location, String weatherAPI) {
+        if (location == null || location.getLocation() == null || location.getLocation().getAddress() == null)
+            return;
+
         String country = null, region = null, town = null;
 
         if (location.getLocation().getAddress().getAdditionalData() != null) {
@@ -165,6 +177,9 @@ public class LocationQueryViewModel {
     }
 
     private void setLocation(AutoCompleteQuery result, String weatherAPI) {
+        if (result == null || result.getAddress() == null)
+            return;
+
         String town, region;
 
         // Try to get district name or fallback to city name
@@ -221,6 +236,9 @@ public class LocationQueryViewModel {
     }
 
     private void setLocation(GeoLocation result, String weatherAPI) {
+        if (result == null || result.getAddress() == null)
+            return;
+
         String town, region;
 
         // Try to get district name or fallback to city name
