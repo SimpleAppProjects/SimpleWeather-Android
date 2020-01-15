@@ -38,12 +38,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.ColorUtils;
 import androidx.core.location.LocationManagerCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
@@ -377,9 +379,18 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             });
 
             ViewCompat.setOnApplyWindowInsetsListener(mScrollView, new OnApplyWindowInsetsListener() {
+                private int paddingStart = ViewCompat.getPaddingStart(mScrollView);
+                private int paddingTop = mScrollView.getPaddingTop();
+                private int paddingEnd = ViewCompat.getPaddingEnd(mScrollView);
+                private int paddingBottom = mScrollView.getPaddingBottom();
+
                 @Override
                 public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                    ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
+                    ViewCompat.setPaddingRelative(v,
+                            paddingStart + insets.getSystemWindowInsetLeft(),
+                            paddingTop,
+                            paddingEnd + insets.getSystemWindowInsetRight(),
+                            paddingBottom);
                     return insets;
                 }
             });
@@ -387,7 +398,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             ViewCompat.setOnApplyWindowInsetsListener(mSearchFragmentContainer, new OnApplyWindowInsetsListener() {
                 @Override
                 public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                    ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
+                    ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
                     return insets;
                 }
             });
@@ -925,6 +936,21 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
              * This is handled on API 21+ with the translationZ attribute
              */
             mSearchFragmentContainer.bringToFront();
+
+            final Configuration config = this.getResources().getConfiguration();
+            final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            @ColorInt int bg_color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+            @ColorInt int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+            if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
+                if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+                    bg_color = Colors.BLACK;
+                } else {
+                    bg_color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+                }
+                color = bg_color;
+            }
+            ActivityUtils.setTransparentWindow(mActivity.getWindow(), bg_color, color, ColorUtils.setAlphaComponent(bg_color, 0xB3), true);
+
             enterSearchUi();
             enterSearchUiTransition(null);
         }
@@ -1008,6 +1034,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 }
             }
 
+            updateWindowColors();
             hideInputMethod(mActivity == null ? null : mActivity.getCurrentFocus());
             inSearchUI = false;
 
@@ -1214,7 +1241,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 appBarLayout.setBackgroundColor(color);
                 ActivityUtils.setTransparentWindow(mActivity.getWindow(), bg_color,
                         color, /* StatusBar */
-                        config.orientation == Configuration.ORIENTATION_PORTRAIT || ActivityUtils.isLargeTablet(mActivity) ? Colors.TRANSPARENT : color /* NavBar */,
+                        config.orientation == Configuration.ORIENTATION_PORTRAIT || ActivityUtils.isLargeTablet(mActivity) ? ColorUtils.setAlphaComponent(bg_color, 0xB3) : color /* NavBar */,
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
             }
             mRootView.setBackgroundColor(bg_color);

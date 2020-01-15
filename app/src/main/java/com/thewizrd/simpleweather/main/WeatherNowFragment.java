@@ -571,7 +571,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
                         if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible() && mSysBarColorsIface != null) {
                             if (gradientAlpha.get() >= 0.5f) {
-                                mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, mSystemBarColor);
+                                mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT);
                             } else if (gradientAlpha.get() == 0.0f) {
                                 mSysBarColorsIface.setSystemBarColors(mSystemBarColor);
                             }
@@ -1284,7 +1284,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 }
 
                 if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible() && mSysBarColorsIface != null) {
-                    mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, mSystemBarColor);
+                    mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT);
                 }
                 mRootView.setBackgroundColor(mBackgroundColor);
             }

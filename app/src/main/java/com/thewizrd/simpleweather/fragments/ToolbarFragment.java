@@ -54,6 +54,10 @@ public abstract class ToolbarFragment extends WindowColorFragment
         return mActivity;
     }
 
+    public final SystemBarColorManager getSysBarColorMgr() {
+        return mSysBarColorsIface;
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -108,7 +112,7 @@ public abstract class ToolbarFragment extends WindowColorFragment
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
                 ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
-                return insets.replaceSystemWindowInsets(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
+                return insets;
             }
         });
 
@@ -120,7 +124,7 @@ public abstract class ToolbarFragment extends WindowColorFragment
 
     @CallSuper
     public void updateWindowColors() {
-        Configuration config = mActivity.getResources().getConfiguration();
+        Configuration config = getCurrentConfiguration();
         final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
         @ColorInt int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);

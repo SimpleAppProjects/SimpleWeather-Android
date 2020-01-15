@@ -27,6 +27,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -340,6 +343,35 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
                 }
 
                 return false;
+            }
+        });
+
+        ViewCompat.setOnApplyWindowInsetsListener(mRecyclerView, new OnApplyWindowInsetsListener() {
+            private int paddingStart = ViewCompat.getPaddingStart(mRecyclerView);
+            private int paddingTop = mRecyclerView.getPaddingTop();
+            private int paddingEnd = ViewCompat.getPaddingEnd(mRecyclerView);
+            private int paddingBottom = mRecyclerView.getPaddingBottom();
+
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                ViewCompat.setPaddingRelative(v,
+                        paddingStart,
+                        paddingTop,
+                        paddingEnd,
+                        paddingBottom + insets.getSystemWindowInsetBottom());
+                return insets;
+            }
+        });
+
+        mRecyclerView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View v) {
+                ViewCompat.requestApplyInsets(v);
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(View v) {
+
             }
         });
 

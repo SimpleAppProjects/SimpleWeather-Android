@@ -363,7 +363,10 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 // Actionbar, BottomNavBar & StatusBar
-                ActivityUtils.setTransparentWindow(getWindow(), backgroundColor, statusBarColor, navBarColor, false);
+                Configuration config = getResources().getConfiguration();
+                final boolean isLandscapeMode = config.orientation != Configuration.ORIENTATION_PORTRAIT && !ActivityUtils.isLargeTablet(MainActivity.this);
+
+                ActivityUtils.setTransparentWindow(getWindow(), backgroundColor, statusBarColor, isLandscapeMode ? navBarColor : Colors.TRANSPARENT, isLandscapeMode);
                 mRootView.setBackgroundColor(backgroundColor);
 
                 if (!ColorsUtils.isSuperLight(navBarColor)) {

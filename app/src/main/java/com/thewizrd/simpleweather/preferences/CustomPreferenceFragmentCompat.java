@@ -158,6 +158,10 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
                 updateWindowColors();
                 getListView().setAdapter(getListView().getAdapter());
             }
+        } else if ((diff & ActivityInfo.CONFIG_ORIENTATION) != 0) {
+            if (!this.isHidden() && this.isVisible()) {
+                updateWindowColors();
+            }
         }
     }
 

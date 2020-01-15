@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -27,9 +28,11 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.ColorUtils;
 import androidx.core.location.LocationManagerCompat;
 import androidx.core.view.MarginLayoutParamsCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
@@ -73,10 +76,12 @@ import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
@@ -569,7 +574,7 @@ public class LocationsFragment extends ToolbarFragment
                         paddingStart + insets.getSystemWindowInsetLeft(),
                         paddingTop + insets.getSystemWindowInsetTop(),
                         paddingEnd + insets.getSystemWindowInsetRight(),
-                        paddingBottom + insets.getSystemWindowInsetBottom());
+                        paddingBottom);
                 return insets;
             }
         });
@@ -1189,6 +1194,31 @@ public class LocationsFragment extends ToolbarFragment
 
     private void prepareSearchUI() {
         mBottomNavView.setVisibility(View.GONE);
+        if (getSysBarColorMgr() != null) {
+            @ColorInt int bg_color;
+            @ColorInt int color;
+
+            if (getRootView() != null && getRootView().getBackground() instanceof ColorDrawable &&
+                    getRootView().getStatusBarBackground() instanceof ColorDrawable) {
+                bg_color = ((ColorDrawable) getRootView().getBackground()).getColor();
+                color = ((ColorDrawable) getRootView().getStatusBarBackground()).getColor();
+            } else {
+                Configuration config = getCurrentConfiguration();
+                final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+                bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
+                color = ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary);
+                if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
+                    if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+                        bg_color = Colors.BLACK;
+                    } else {
+                        bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
+                    }
+                    color = bg_color;
+                }
+            }
+
+            ActivityUtils.setTransparentWindow(getAppCompatActivity().getWindow(), bg_color, color, ColorUtils.setAlphaComponent(bg_color, 0xB3), true);
+        }
         enterSearchUi();
         enterSearchUiTransition(null);
     }
@@ -1469,6 +1499,7 @@ public class LocationsFragment extends ToolbarFragment
             addLocationsButton.show();
 
         mBottomNavView.setVisibility(View.VISIBLE);
+        updateWindowColors();
 
         hideInputMethod(getAppCompatActivity() == null ? null : getAppCompatActivity().getCurrentFocus());
         if (getRootView() != null) getRootView().requestFocus();

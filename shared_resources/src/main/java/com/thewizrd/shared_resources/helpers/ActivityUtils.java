@@ -73,18 +73,16 @@ public class ActivityUtils {
         );
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            int targetSDK = window.getContext().getApplicationInfo().targetSdkVersion;
-
             boolean isLightNavBar =
                     ColorsUtils.isSuperLight(navBarColor) || (navBarColor == Colors.TRANSPARENT && ColorsUtils.isSuperLight(backgroundColor));
-            boolean navBarProtection = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && targetSDK > Build.VERSION_CODES.P) || !isLightNavBar;
+            boolean navBarProtected = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) || !isLightNavBar;
 
             boolean isLightStatusBar =
                     ColorsUtils.isSuperLight(statusBarColor) || (statusBarColor == Colors.TRANSPARENT && ColorsUtils.isSuperLight(backgroundColor));
-            boolean statBarProtection = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && targetSDK > Build.VERSION_CODES.P) || !isLightStatusBar;
+            boolean statBarProtected = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) || !isLightStatusBar;
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (isLightStatusBar) {
+                if (setColors && isLightStatusBar) {
                     window.getDecorView().setSystemUiVisibility(
                             window.getDecorView().getSystemUiVisibility()
                                     | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
@@ -96,7 +94,7 @@ public class ActivityUtils {
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (isLightNavBar) {
+                if (setColors && isLightNavBar) {
                     window.getDecorView().setSystemUiVisibility(
                             window.getDecorView().getSystemUiVisibility()
                                     | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
@@ -107,10 +105,12 @@ public class ActivityUtils {
                 }
             }
 
-            window.setStatusBarColor(statBarProtection ? (setColors ? statusBarColor : Colors.TRANSPARENT) :
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? backgroundColor : ColorUtils.setAlphaComponent(Colors.BLACK, 0x66));
-            window.setNavigationBarColor(navBarProtection ? (setColors ? navBarColor : Colors.TRANSPARENT) :
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? backgroundColor : ColorUtils.setAlphaComponent(Colors.BLACK, 0x66));
+            window.setStatusBarColor((setColors ?
+                    (statBarProtected ? statusBarColor : ColorUtils.blendARGB(statusBarColor, Colors.BLACK, 0.25f))
+                    : Colors.TRANSPARENT));
+            window.setNavigationBarColor((setColors ?
+                    (navBarProtected ? navBarColor : ColorUtils.blendARGB(navBarColor, Colors.BLACK, 0.25f))
+                    : Colors.TRANSPARENT));
         }
     }
 

@@ -14,12 +14,12 @@ import com.thewizrd.simpleweather.helpers.WindowColorManager;
 
 public abstract class WindowColorFragment extends Fragment implements WindowColorManager {
 
-    private Configuration prevConfig;
+    private Configuration currentConfig;
 
     @Override
     public void onResume() {
         super.onResume();
-        prevConfig = new Configuration(getResources().getConfiguration());
+        currentConfig = new Configuration(getResources().getConfiguration());
     }
 
     @Override
@@ -38,18 +38,25 @@ public abstract class WindowColorFragment extends Fragment implements WindowColo
         }
     }
 
+    public final Configuration getCurrentConfiguration() {
+        if (currentConfig == null) {
+            currentConfig = new Configuration(getResources().getConfiguration());
+        }
+
+        return currentConfig;
+    }
+
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        int diff = newConfig.diff(prevConfig);
-        if ((diff & ActivityInfo.CONFIG_UI_MODE) != 0) {
+        int diff = newConfig.diff(currentConfig);
+        currentConfig = new Configuration(newConfig);
+        if ((diff & ActivityInfo.CONFIG_UI_MODE) != 0 || (diff & ActivityInfo.CONFIG_ORIENTATION) != 0) {
             if (!this.isHidden() && this.isVisible()) {
                 updateWindowColors();
             }
         }
-
-        prevConfig = new Configuration(newConfig);
     }
 
     public abstract void updateWindowColors();
