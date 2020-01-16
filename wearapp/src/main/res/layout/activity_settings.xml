@@ -2,6 +2,9 @@
 <androidx.wear.widget.SwipeDismissFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/swipe_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:descendantFocusability="afterDescendants"
+    android:focusableInTouchMode="true">
 
+    <requestFocus />
 </androidx.wear.widget.SwipeDismissFrameLayout>

@@ -395,6 +395,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
         mProgressBar.setVisibility(View.VISIBLE);
         mSearchView.setVisibility(View.GONE);
         swipeViewLayout.setVisibility(View.VISIBLE);
+        swipeViewLayout.requestFocus();
         hideInputMethod(mSearchView);
         fetchLocations(mSearchView.getText().toString());
     }
@@ -441,6 +442,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
             ctsCancel();
             mProgressBar.setVisibility(View.GONE);
             swipeViewLayout.setVisibility(View.GONE);
+            swipeViewLayout.clearFocus();
             // Hide flyout if query is empty or null
             mAdapter.getDataset().clear();
             mAdapter.notifyDataSetChanged();

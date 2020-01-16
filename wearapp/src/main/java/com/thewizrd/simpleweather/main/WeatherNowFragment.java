@@ -397,29 +397,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         binding.setLifecycleOwner(this);
 
         View view = binding.getRoot();
-        view.setFocusableInTouchMode(true);
-        view.setOnGenericMotionListener(new View.OnGenericMotionListener() {
-            @Override
-            public boolean onGenericMotion(View v, MotionEvent event) {
-                if (mActivity != null && event.getAction() == MotionEvent.ACTION_SCROLL && RotaryEncoder.isFromRotaryEncoder(event)) {
-
-                    // Don't forget the negation here
-                    float delta = -RotaryEncoder.getRotaryAxisValue(event) * RotaryEncoder.getScaledScrollFactor(mActivity);
-
-                    // Swap these axes if you want to do horizontal scrolling instead
-                    scrollView.scrollBy(0, Math.round(delta));
-
-                    return true;
-                }
-
-                return false;
-            }
-        });
-
-        refreshLayout = (SwipeRefreshLayout) view;
-        scrollView = view.findViewById(R.id.fragment_weather_now);
 
         // SwipeRefresh
+        refreshLayout = (SwipeRefreshLayout) view;
         refreshLayout.setColorSchemeColors(Colors.SIMPLEBLUE);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -437,9 +417,28 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                 });
             }
         });
+        refreshLayout.setRefreshing(true);
+
+        scrollView = view.findViewById(R.id.fragment_weather_now);
+        scrollView.setOnGenericMotionListener(new View.OnGenericMotionListener() {
+            @Override
+            public boolean onGenericMotion(View v, MotionEvent event) {
+                if (mActivity != null && event.getAction() == MotionEvent.ACTION_SCROLL && RotaryEncoder.isFromRotaryEncoder(event)) {
+
+                    // Don't forget the negation here
+                    float delta = -RotaryEncoder.getRotaryAxisValue(event) * RotaryEncoder.getScaledScrollFactor(mActivity);
+
+                    // Swap these axes if you want to do horizontal scrolling instead
+                    v.scrollBy(0, Math.round(delta));
+
+                    return true;
+                }
+
+                return false;
+            }
+        });
 
         loaded = true;
-        refreshLayout.setRefreshing(true);
 
         // Set property change listeners
         weatherView.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
