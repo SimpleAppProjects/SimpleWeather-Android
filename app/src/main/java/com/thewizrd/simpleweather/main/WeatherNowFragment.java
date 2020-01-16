@@ -257,17 +257,28 @@ public class WeatherNowFragment extends WindowColorFragment
                 if (weather != null && weather.isValid()) {
                     weatherView.updateView(weather);
 
+                    Context context = App.getInstance().getAppContext();
+
                     if (Settings.getHomeData().equals(location)) {
                         // Update widgets if they haven't been already
                         if (Duration.between(LocalDateTime.now(), Settings.getUpdateTime()).toMinutes() > Settings.getRefreshInterval()) {
-                            WeatherUpdaterWorker.enqueueAction(App.getInstance().getAppContext(), WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
-                        }
+                            WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
+                        } else {
+                            // Update ongoing notification
+                            if (Settings.showOngoingNotification()) {
+                                WeatherNotificationService.enqueueWork(context, new Intent(context, WeatherNotificationService.class)
+                                        .setAction(WeatherNotificationService.ACTION_REFRESHNOTIFICATION));
+                            }
 
-                        // Update ongoing notification if its not showing
-                        if (Settings.showOngoingNotification() && !WeatherNotificationService.isNotificationShowing()) {
-                            WeatherNotificationService.enqueueWork(App.getInstance().getAppContext(), new Intent(App.getInstance().getAppContext(), WeatherNotificationService.class)
-                                    .setAction(WeatherNotificationService.ACTION_REFRESHNOTIFICATION));
+                            // Update widgets anyway
+                            WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
+                                    .setAction(WeatherWidgetService.ACTION_REFRESHGPSWIDGETS));
                         }
+                    } else {
+                        // Update widgets anyway
+                        WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
+                                .setAction(WeatherWidgetService.ACTION_REFRESHWIDGETS)
+                                .putExtra(WeatherWidgetService.EXTRA_LOCATIONQUERY, location.getQuery()));
                     }
 
                     if (wm.supportsAlerts() && Settings.useAlerts()

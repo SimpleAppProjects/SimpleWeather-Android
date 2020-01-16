@@ -100,6 +100,7 @@ public class WeatherWidgetService extends JobIntentService {
 
     public static final String ACTION_RESETGPSWIDGETS = "SimpleWeather.Droid.action.RESET_GPSWIDGETS";
     public static final String ACTION_REFRESHGPSWIDGETS = "SimpleWeather.Droid.action.REFRESH_GPSWIDGETS";
+    public static final String ACTION_REFRESHWIDGETS = "SimpleWeather.Droid.action.REFRESH_WIDGETS";
 
     public static final String EXTRA_LOCATIONNAME = "SimpleWeather.Droid.extra.LOCATION_NAME";
     public static final String EXTRA_LOCATIONQUERY = "SimpleWeather.Droid.extra.LOCATION_QUERY";
@@ -203,7 +204,7 @@ public class WeatherWidgetService extends JobIntentService {
                     // so just update all
                     case Unknown:
                     default:
-                        refreshWidgets();
+                        refreshAllWidgets();
                         break;
                 }
             } else if (ACTION_RESIZEWIDGET.equals(intent.getAction())) {
@@ -246,7 +247,9 @@ public class WeatherWidgetService extends JobIntentService {
                 // GPS feature disabled; reset widget
                 resetGPSWidgets();
             } else if (ACTION_REFRESHGPSWIDGETS.equals(intent.getAction())) {
-                refreshGPSWidgets();
+                refreshWidgets(Constants.KEY_GPS);
+            } else if (ACTION_REFRESHWIDGETS.equals(intent.getAction())) {
+                refreshWidgets(intent.getStringExtra(EXTRA_LOCATIONQUERY));
             }
 
             Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent.getAction());
@@ -351,7 +354,7 @@ public class WeatherWidgetService extends JobIntentService {
         }
     }
 
-    private void refreshWidgets() {
+    private void refreshAllWidgets() {
         if (Settings.isWeatherLoaded()) {
             // Build the widget update for available providers
             // Add widget providers here
@@ -361,7 +364,7 @@ public class WeatherWidgetService extends JobIntentService {
                 Task<Void> task = AsyncTask.create(new Callable<Void>() {
                     @Override
                     public Void call() throws Exception {
-                        Logger.writeLine(Log.DEBUG, "%s: refreshWidgets: started 1x1", TAG);
+                        Logger.writeLine(Log.DEBUG, "%s: refreshAllWidgets: started 1x1", TAG);
                         int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.getComponentName());
 
                         for (int id : appWidgetIds) {
@@ -378,7 +381,7 @@ public class WeatherWidgetService extends JobIntentService {
                 Task<Void> task = AsyncTask.create(new Callable<Void>() {
                     @Override
                     public Void call() throws Exception {
-                        Logger.writeLine(Log.DEBUG, "%s: refreshWidgets: started 2x2", TAG);
+                        Logger.writeLine(Log.DEBUG, "%s: refreshAllWidgets: started 2x2", TAG);
                         int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName());
 
                         for (int id : appWidgetIds) {
@@ -398,7 +401,7 @@ public class WeatherWidgetService extends JobIntentService {
                 Task<Void> task = AsyncTask.create(new Callable<Void>() {
                     @Override
                     public Void call() throws Exception {
-                        Logger.writeLine(Log.DEBUG, "%s: refreshWidgets: started 4x1", TAG);
+                        Logger.writeLine(Log.DEBUG, "%s: refreshAllWidgets: started 4x1", TAG);
                         int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1.getComponentName());
 
                         for (int id : appWidgetIds) {
@@ -415,7 +418,7 @@ public class WeatherWidgetService extends JobIntentService {
                 Task<Void> task = AsyncTask.create(new Callable<Void>() {
                     @Override
                     public Void call() throws Exception {
-                        Logger.writeLine(Log.DEBUG, "%s: refreshWidgets: started 4x2", TAG);
+                        Logger.writeLine(Log.DEBUG, "%s: refreshAllWidgets: started 4x2", TAG);
                         int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName());
 
                         for (int id : appWidgetIds) {
@@ -435,7 +438,7 @@ public class WeatherWidgetService extends JobIntentService {
                 Task<Void> task = AsyncTask.create(new Callable<Void>() {
                     @Override
                     public Void call() throws Exception {
-                        Logger.writeLine(Log.DEBUG, "%s: refreshWidgets: started 4x1Google", TAG);
+                        Logger.writeLine(Log.DEBUG, "%s: refreshAllWidgets: started 4x1Google", TAG);
                         int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1Google.getComponentName());
 
                         for (int id : appWidgetIds) {
@@ -543,15 +546,24 @@ public class WeatherWidgetService extends JobIntentService {
         }
     }
 
-    private void refreshGPSWidgets() {
-        final int[] appWidgetIds = WidgetUtils.getWidgetIds(Constants.KEY_GPS);
+    private void refreshWidgets(String location_query) {
+        final int[] appWidgetIds = WidgetUtils.getWidgetIds(location_query);
 
         final int[] ids1x1 = mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.getComponentName());
         final int[] ids2x2 = mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName());
         final int[] ids4x1 = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1.getComponentName());
         final int[] ids4x2 = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName());
         final int[] ids4x1G = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1Google.getComponentName());
-        final LocationData locationData = Settings.getLastGPSLocData();
+        final LocationData locationData;
+        if (Constants.KEY_GPS.equals(location_query)) {
+            locationData = Settings.getLastGPSLocData();
+        } else {
+            locationData = Settings.getLocation(location_query);
+        }
+
+        if (locationData == null)
+            return;
+
         final WeatherDataLoader wLoader = new WeatherDataLoader(locationData);
         final Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
             @Override
@@ -604,7 +616,7 @@ public class WeatherWidgetService extends JobIntentService {
                             // Push update for this widget to the home screen
                             mAppWidgetManager.updateAppWidget(appWidgetId, views);
                         } else {
-                            Logger.writeLine(Log.DEBUG, "%s: refreshGPSWidgets: unable to find widget provider", TAG);
+                            Logger.writeLine(Log.DEBUG, "%s: refreshWidgets: unable to find widget provider", TAG);
                         }
                     }
                     return null;
