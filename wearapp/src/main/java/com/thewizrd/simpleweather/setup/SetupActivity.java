@@ -26,6 +26,8 @@ import androidx.core.location.LocationManagerCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.wear.widget.drawer.WearableActionDrawerView;
+import androidx.wear.widget.drawer.WearableDrawerLayout;
+import androidx.wear.widget.drawer.WearableDrawerView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
@@ -68,6 +70,7 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
     private FloatingActionButton searchButton;
     private FloatingActionButton locationButton;
     private WearableActionDrawerView mWearableActionDrawer;
+    private WearableDrawerLayout mWearableDrawerLayout;
     private ProgressBar progressBar;
 
     private FusedLocationProviderClient mFusedLocationClient;
@@ -134,9 +137,25 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
             }
         });
 
+        mWearableDrawerLayout = findViewById(R.id.activity_setup);
+        mWearableDrawerLayout.setDrawerStateCallback(new WearableDrawerLayout.DrawerStateCallback() {
+            @Override
+            public void onDrawerOpened(WearableDrawerLayout layout, WearableDrawerView drawerView) {
+                super.onDrawerOpened(layout, drawerView);
+                drawerView.requestFocus();
+            }
+
+            @Override
+            public void onDrawerClosed(WearableDrawerLayout layout, WearableDrawerView drawerView) {
+                super.onDrawerClosed(layout, drawerView);
+                drawerView.clearFocus();
+            }
+        });
+
         mWearableActionDrawer = findViewById(R.id.bottom_action_drawer);
         mWearableActionDrawer.setOnMenuItemClickListener(this);
         mWearableActionDrawer.setLockedWhenClosed(true);
+        mWearableActionDrawer.setPeekOnScrollDownEnabled(true);
         mWearableActionDrawer.getController().peekDrawer();
         progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);

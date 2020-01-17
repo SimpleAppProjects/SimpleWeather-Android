@@ -35,7 +35,7 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         // Use this to return your custom view for this Fragment
         View outerView = super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.fragment_weather_details, (ViewGroup) outerView, true);
+        View view = inflater.inflate(R.layout.fragment_weather_list, (ViewGroup) outerView, true);
 
         recyclerView = view.findViewById(R.id.recycler_view);
 
@@ -44,8 +44,6 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
         recyclerView.setHasFixedSize(true);
         recyclerView.setEdgeItemsCenteringEnabled(true);
         recyclerView.setLayoutManager(new WearableLinearLayoutManager(mActivity));
-
-        recyclerView.requestFocus();
 
         return outerView;
     }

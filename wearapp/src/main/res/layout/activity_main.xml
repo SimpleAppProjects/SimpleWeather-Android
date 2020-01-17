@@ -2,6 +2,7 @@
 <androidx.wear.widget.drawer.WearableDrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:deviceIds="wear">
@@ -11,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/colorPrimary"
+        android:focusableInTouchMode="true"
         app:navigationStyle="multiPage" />
 
     <FrameLayout
@@ -24,6 +26,8 @@
         android:layout_height="match_parent"
         android:layout_gravity="bottom"
         android:background="?attr/colorPrimary"
+        android:descendantFocusability="afterDescendants"
+        android:focusableInTouchMode="true"
         app:actionMenu="@menu/main_botton_drawer_menu"
         app:showOverflowInPeek="true" />
 

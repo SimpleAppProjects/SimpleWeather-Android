@@ -93,6 +93,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="bottom"
+        android:descendantFocusability="afterDescendants"
+        android:focusableInTouchMode="true"
         app:actionMenu="@menu/setup_bottom_drawer_menu"
         app:showOverflowInPeek="true" />
 

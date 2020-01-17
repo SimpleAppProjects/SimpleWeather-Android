@@ -17,6 +17,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
+            android:paddingStart="4dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="4dp"
             android:text="@string/location_search_hint"
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white" />

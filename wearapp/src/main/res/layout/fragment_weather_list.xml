@@ -4,4 +4,7 @@
     android:id="@+id/recycler_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:listitem="@layout/weather_forecast_panel" />
+    tools:listitem="@layout/weather_forecast_panel">
+
+    <requestFocus />
+</androidx.wear.widget.WearableRecyclerView>

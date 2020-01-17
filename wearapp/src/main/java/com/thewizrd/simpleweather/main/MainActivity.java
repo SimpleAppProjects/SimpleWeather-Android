@@ -6,15 +6,22 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.support.wearable.input.RotaryEncoder;
 import android.support.wearable.view.ConfirmationOverlay;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.viewpager.widget.ViewPager;
 import androidx.wear.widget.drawer.WearableActionDrawerView;
+import androidx.wear.widget.drawer.WearableDrawerLayout;
+import androidx.wear.widget.drawer.WearableDrawerView;
 import androidx.wear.widget.drawer.WearableNavigationDrawerView;
 
 import com.google.android.wearable.intent.RemoteIntent;
@@ -40,15 +47,44 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
         WearableNavigationDrawerView.OnItemSelectedListener,
         WeatherViewLoadedListener {
 
+    private WearableDrawerLayout mWearableDrawerLayout;
     private WearableNavigationDrawerView mWearableNavigationDrawer;
     private WearableActionDrawerView mWearableActionDrawer;
     private NavDrawerAdapter mNavDrawerAdapter;
     private BroadcastReceiver mBroadcastReceiver;
 
+    private int mNavViewSelectedIdx = 0;
+    private Runnable mItemSelectedRunnable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mWearableDrawerLayout = findViewById(R.id.activity_main);
+        mWearableDrawerLayout.setDrawerStateCallback(new WearableDrawerLayout.DrawerStateCallback() {
+            @Override
+            public void onDrawerOpened(WearableDrawerLayout layout, WearableDrawerView drawerView) {
+                super.onDrawerOpened(layout, drawerView);
+                drawerView.requestFocus();
+            }
+
+            @Override
+            public void onDrawerClosed(WearableDrawerLayout layout, WearableDrawerView drawerView) {
+                super.onDrawerClosed(layout, drawerView);
+                drawerView.clearFocus();
+            }
+
+            @Override
+            public void onDrawerStateChanged(WearableDrawerLayout layout, int newState) {
+                super.onDrawerStateChanged(layout, newState);
+
+                if (newState != WearableDrawerView.STATE_IDLE && mItemSelectedRunnable != null) {
+                    mItemSelectedRunnable.run();
+                    mItemSelectedRunnable = null;
+                }
+            }
+        });
 
         mWearableActionDrawer = findViewById(R.id.bottom_action_drawer);
         mWearableActionDrawer.setOnMenuItemClickListener(this);
@@ -57,6 +93,55 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
         mWearableNavigationDrawer = findViewById(R.id.top_nav_drawer);
         mWearableNavigationDrawer.addOnItemSelectedListener(this);
         mWearableNavigationDrawer.setPeekOnScrollDownEnabled(true);
+        mWearableNavigationDrawer.setOnGenericMotionListener(new View.OnGenericMotionListener() {
+            final ViewPager pager = mWearableNavigationDrawer.findViewById(R.id.ws_navigation_drawer_view_pager);
+            final CountDownTimer timer = new CountDownTimer(200, 200) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                }
+
+                @Override
+                public void onFinish() {
+                    if (pager != null && pager.isFakeDragging()) {
+                        pager.endFakeDrag();
+                    }
+                    xTotalOffset = 0;
+                }
+            };
+            float xTotalOffset = 0;
+
+            @Override
+            public boolean onGenericMotion(View v, MotionEvent event) {
+                if (pager != null && event.getAction() == MotionEvent.ACTION_SCROLL && RotaryEncoder.isFromRotaryEncoder(event)) {
+                    timer.cancel();
+                    // Send event to postpone auto close of drawer
+                    mWearableNavigationDrawer.onInterceptTouchEvent(event);
+
+                    // Don't forget the negation here
+                    float delta = RotaryEncoder.getRotaryAxisValue(event) * RotaryEncoder.getScaledScrollFactor(MainActivity.this);
+                    if (Math.signum(delta) != Math.signum(xTotalOffset)) {
+                        timer.onFinish();
+                        xTotalOffset = delta * 1.5f;
+                    } else {
+                        xTotalOffset += delta * 1.5f;
+                    }
+
+                    if (!pager.isFakeDragging())
+                        pager.beginFakeDrag();
+
+                    pager.fakeDragBy(xTotalOffset);
+                    if (Math.abs(xTotalOffset) >= pager.getMeasuredWidth()) {
+                        timer.onFinish();
+                    } else {
+                        timer.start();
+                    }
+
+                    return true;
+                }
+
+                return false;
+            }
+        });
         mNavDrawerAdapter = new NavDrawerAdapter(this);
         mWearableNavigationDrawer.setAdapter(mNavDrawerAdapter);
 
@@ -106,13 +191,21 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
             getSupportFragmentManager().beginTransaction()
                     .remove(current)
                     .commit();
-            current.onDestroy();
-            current = null;
 
             // Reset to home
+            int drawerState = mWearableNavigationDrawer.getDrawerState();
             mWearableNavigationDrawer.setCurrentItem(0, false);
-        } else
+            if (mItemSelectedRunnable != null && drawerState == WearableNavigationDrawerView.STATE_IDLE) {
+                mItemSelectedRunnable.run();
+            }
+        }
+
+        // If backstack entry exists pop all and goto first (home) fragment
+        if (getSupportFragmentManager().getBackStackEntryCount() >= 1) {
+            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        } else { // Otherwise fallback
             super.onBackPressed();
+        }
     }
 
     @Override
@@ -133,94 +226,108 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
         return true;
     }
 
-    public void onItemSelected(int position) {
-        Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        Class targetFragmentType = null;
-        WeatherListType weatherListType = WeatherListType.valueOf(0);
+    public void onItemSelected(final int position) {
+        mNavViewSelectedIdx = position;
 
-        if (mNavDrawerAdapter != null) {
-            switch (mNavDrawerAdapter.getStringId(position)) {
-                case R.string.label_condition:
-                default:
-                    targetFragmentType = WeatherNowFragment.class;
-                    break;
-                case R.string.title_fragment_alerts:
-                    targetFragmentType = WeatherListFragment.class;
-                    weatherListType = WeatherListType.ALERTS;
-                    break;
-                case R.string.label_forecast:
-                    targetFragmentType = WeatherListFragment.class;
-                    weatherListType = WeatherListType.FORECAST;
-                    break;
-                case R.string.label_hourlyforecast:
-                    targetFragmentType = WeatherListFragment.class;
-                    weatherListType = WeatherListType.HOURLYFORECAST;
-                    break;
-                case R.string.label_details:
-                    targetFragmentType = WeatherDetailsFragment.class;
-                    break;
-            }
-        }
+        mItemSelectedRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                Class targetFragmentType = null;
+                WeatherListType weatherListType = WeatherListType.valueOf(0);
 
-        if (WeatherNowFragment.class.equals(targetFragmentType)) {
-            if (!WeatherNowFragment.class.equals(current.getClass())) {
-                // Pop all since we're going home
-                getSupportFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            }
-        } else if (WeatherListFragment.class.equals(targetFragmentType)) {
-            if (!targetFragmentType.equals(current.getClass())) {
-                // Add fragment to backstack
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                ft.add(R.id.fragment_container,
-                        WeatherListFragment.newInstance(weatherListType, mNavDrawerAdapter.weatherNowView),
-                        null)
-                        .addToBackStack(null);
-
-                /*
-                 * NOTE
-                 * Destroy lingering frag and commit transaction
-                 * This is to avoid adding the fragment again from the backstack
-                 */
-                if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-                    getSupportFragmentManager().beginTransaction()
-                            .remove(current)
-                            .commitAllowingStateLoss();
+                if (mNavDrawerAdapter != null) {
+                    switch (mNavDrawerAdapter.getStringId(position)) {
+                        case R.string.label_condition:
+                        default:
+                            targetFragmentType = WeatherNowFragment.class;
+                            break;
+                        case R.string.title_fragment_alerts:
+                            targetFragmentType = WeatherListFragment.class;
+                            weatherListType = WeatherListType.ALERTS;
+                            break;
+                        case R.string.label_forecast:
+                            targetFragmentType = WeatherListFragment.class;
+                            weatherListType = WeatherListType.FORECAST;
+                            break;
+                        case R.string.label_hourlyforecast:
+                            targetFragmentType = WeatherListFragment.class;
+                            weatherListType = WeatherListType.HOURLYFORECAST;
+                            break;
+                        case R.string.label_details:
+                            targetFragmentType = WeatherDetailsFragment.class;
+                            break;
+                    }
                 }
 
-                ft.commit();
-            } else if (current instanceof WeatherListFragment) {
-                WeatherListFragment forecastFragment = (WeatherListFragment) current;
-                if (forecastFragment.getArguments() != null) {
-                    Bundle args = forecastFragment.getArguments();
-                    if (WeatherListType.valueOf(args.getInt(Constants.ARGS_WEATHERLISTTYPE, 0)) != weatherListType) {
-                        args.putInt(Constants.ARGS_WEATHERLISTTYPE, weatherListType.getValue());
-                        // Note: Causes IllegalStateException if args already set (not null)
-                        // forecastFragment.setArguments(args);
-                        forecastFragment.initialize();
+                if (current == null) return;
+
+                if (WeatherNowFragment.class.equals(targetFragmentType)) {
+                    if (!WeatherNowFragment.class.equals(current.getClass())) {
+                        // Pop all since we're going home
+                        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    }
+                } else if (WeatherListFragment.class.equals(targetFragmentType)) {
+                    if (!targetFragmentType.equals(current.getClass())) {
+                        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                        int backstackCount = getSupportFragmentManager().getBackStackEntryCount();
+
+                        /*
+                         * NOTE
+                         * Destroy lingering frag and commit transaction
+                         * This is to avoid adding the fragment again from the backstack
+                         */
+                        if (backstackCount > 0) {
+                            getSupportFragmentManager().beginTransaction()
+                                    .remove(current)
+                                    .commitAllowingStateLoss();
+                        } else {
+                            // Hide home frag
+                            ft.hide(current);
+                        }
+
+                        // Add fragment to backstack
+                        ft.add(R.id.fragment_container,
+                                WeatherListFragment.newInstance(weatherListType, mNavDrawerAdapter.weatherNowView),
+                                null)
+                                .addToBackStack(null);
+
+                        ft.commit();
+                    } else if (current instanceof WeatherListFragment) {
+                        WeatherListFragment forecastFragment = (WeatherListFragment) current;
+                        if (forecastFragment.getArguments() != null) {
+                            Bundle args = forecastFragment.getArguments();
+                            if (WeatherListType.valueOf(args.getInt(Constants.ARGS_WEATHERLISTTYPE, 0)) != weatherListType) {
+                                args.putInt(Constants.ARGS_WEATHERLISTTYPE, weatherListType.getValue());
+                                // Note: Causes IllegalStateException if args already set (not null)
+                                // forecastFragment.setArguments(args);
+                                forecastFragment.initialize();
+                            }
+                        }
+                    }
+                } else if (WeatherDetailsFragment.class.equals(targetFragmentType)) {
+                    if (!WeatherDetailsFragment.class.equals(current.getClass())) {
+                        // Add fragment to backstack
+                        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                        ft.add(R.id.fragment_container, WeatherDetailsFragment.newInstance(mNavDrawerAdapter.weatherNowView), null)
+                                .addToBackStack(null);
+
+                        /*
+                         * NOTE
+                         * Destroy lingering frag and commit transaction
+                         * This is to avoid adding the fragment again from the backstack
+                         */
+                        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                            getSupportFragmentManager().beginTransaction()
+                                    .remove(current)
+                                    .commitAllowingStateLoss();
+                        }
+
+                        ft.commit();
                     }
                 }
             }
-        } else if (WeatherDetailsFragment.class.equals(targetFragmentType)) {
-            if (!WeatherDetailsFragment.class.equals(current.getClass())) {
-                // Add fragment to backstack
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                ft.add(R.id.fragment_container, WeatherDetailsFragment.newInstance(mNavDrawerAdapter.weatherNowView), null)
-                        .addToBackStack(null);
-
-                /*
-                 * NOTE
-                 * Destroy lingering frag and commit transaction
-                 * This is to avoid adding the fragment again from the backstack
-                 */
-                if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-                    getSupportFragmentManager().beginTransaction()
-                            .remove(current)
-                            .commitAllowingStateLoss();
-                }
-
-                ft.commit();
-            }
-        }
+        };
     }
 
     @Override
