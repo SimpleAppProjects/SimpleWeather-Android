@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import androidx.test.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.thewizrd.shared_resources.AppState;
@@ -15,6 +15,7 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
+import com.thewizrd.shared_resources.utils.FileUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -27,12 +28,15 @@ import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationBuilder;
 import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationService;
 import com.thewizrd.simpleweather.widgets.WidgetUtils;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -50,7 +54,7 @@ public class ExampleInstrumentedTest {
     @Before
     public void init() {
         // Context of the app under test.
-        final Context appContext = InstrumentationRegistry.getTargetContext();
+        final Context appContext = ApplicationProvider.getApplicationContext();
 
         ApplicationLib app = new ApplicationLib() {
             @Override
@@ -232,5 +236,26 @@ public class ExampleInstrumentedTest {
                 //e.printStackTrace();
             }
         }
+    }
+
+    @Test
+    public void logCleanupTest() throws IOException {
+        // Context of the app under test.
+        final Context appContext = SimpleLibrary.getInstance().getAppContext();
+
+        String filePath = appContext.getExternalFilesDir(null) + "/logs";
+
+        File directory = new File(filePath);
+
+        if (!directory.exists()) {
+            Assert.assertTrue(directory.mkdir());
+        }
+
+        for (int i = 0; i < 4; i++) {
+            File file = new File(filePath + File.separator + "Log." + i + ".log");
+            Assert.assertTrue(file.createNewFile());
+        }
+
+        Assert.assertTrue(FileUtils.deleteDirectory(filePath));
     }
 }

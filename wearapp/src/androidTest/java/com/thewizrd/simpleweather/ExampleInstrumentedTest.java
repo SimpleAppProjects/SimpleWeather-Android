@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import androidx.test.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.thewizrd.shared_resources.AppState;
@@ -45,7 +45,7 @@ public class ExampleInstrumentedTest {
     @Before
     public void init() {
         // Context of the app under test.
-        final Context appContext = InstrumentationRegistry.getTargetContext();
+        final Context appContext = ApplicationProvider.getApplicationContext();
 
         ApplicationLib app = new ApplicationLib() {
             @Override
