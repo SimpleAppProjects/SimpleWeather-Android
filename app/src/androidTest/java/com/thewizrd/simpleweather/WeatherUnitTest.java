@@ -10,13 +10,16 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.ApplicationLib;
+import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.utils.here.HEREOAuthUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
@@ -26,6 +29,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.Callable;
 
 @RunWith(AndroidJUnit4.class)
 public class WeatherUnitTest {
@@ -108,5 +113,16 @@ public class WeatherUnitTest {
         WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP);
         Weather weather = getWeather(provider);
         Assert.assertTrue(weather != null && weather.isValid());
+    }
+
+    @Test
+    public void getHEREOAuthToken() {
+        String token = new AsyncTask<String>().await(new Callable<String>() {
+            @Override
+            public String call() {
+                return HEREOAuthUtils.getBearerToken(true);
+            }
+        });
+        Assert.assertTrue(!StringUtils.isNullOrWhitespace(token));
     }
 }

@@ -5,11 +5,11 @@ public class Keys {
         return null;
     }
 
-    public static String getHEREAppID() {
+    public static String getHERECliID() {
         return null;
     }
 
-    public static String getHEREAppCode() {
+    public static String getHERECliSecr() {
         return null;
     }
 

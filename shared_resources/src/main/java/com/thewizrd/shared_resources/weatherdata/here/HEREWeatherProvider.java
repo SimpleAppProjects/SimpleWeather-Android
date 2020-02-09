@@ -3,8 +3,7 @@ package com.thewizrd.shared_resources.weatherdata.here;
 import android.util.Log;
 
 import com.ibm.icu.util.ULocale;
-import com.thewizrd.shared_resources.BuildConfig;
-import com.thewizrd.shared_resources.keys.Keys;
+import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -13,6 +12,7 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.utils.here.HEREOAuthUtils;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
@@ -30,6 +30,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Callable;
 
 public final class HEREWeatherProvider extends WeatherProviderImpl {
 
@@ -50,7 +51,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
 
     @Override
     public boolean isKeyRequired() {
-        return true;
+        return false;
     }
 
     @Override
@@ -64,80 +65,13 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
     }
 
     @Override
-    public boolean isKeyValid(String key) throws WeatherException {
-        String queryAPI = "https://weather.cit.api.here.com/weather/1.0/report.json";
-
-        String app_id = "";
-        String app_code = "";
-
-        if (!StringUtils.isNullOrWhitespace(key)) {
-            String[] keyArr = key.split(";");
-            if (keyArr.length > 0) {
-                app_id = keyArr[0];
-                app_code = keyArr[keyArr.length > 1 ? keyArr.length - 1 : 0];
-            }
-        }
-
-        HttpURLConnection client = null;
-        boolean isValid = false;
-        WeatherException wEx = null;
-
-        try {
-            if (StringUtils.isNullOrWhitespace(app_id) || StringUtils.isNullOrWhitespace(app_code)) {
-                wEx = new WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY);
-                throw wEx;
-            }
-
-            // Connect to webstream
-            URL queryURL = new URL(String.format("%s?app_id=%s&app_code=%s", queryAPI, app_id, app_code));
-            client = (HttpURLConnection) queryURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
-
-            // Check for errors
-            switch (client.getResponseCode()) {
-                // 400 (OK since this isn't a valid request)
-                case HttpURLConnection.HTTP_BAD_REQUEST:
-                    isValid = true;
-                    break;
-                // 401 (Unauthorized - Key is invalid)
-                case HttpURLConnection.HTTP_UNAUTHORIZED:
-                    wEx = new WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY);
-                    isValid = false;
-                    break;
-            }
-        } catch (Exception ex) {
-            if (ex instanceof IOException) {
-                wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
-            }
-
-            isValid = false;
-        } finally {
-            if (client != null)
-                client.disconnect();
-        }
-
-        if (wEx != null) {
-            throw wEx;
-        }
-
-        return isValid;
-    }
-
-    private String getAppID() {
-        return Keys.getHEREAppID();
-    }
-
-    private String getAppCode() {
-        return Keys.getHEREAppCode();
+    public boolean isKeyValid(String key) {
+        return false;
     }
 
     @Override
     public String getAPIKey() {
-        if (StringUtils.isNullOrWhitespace(getAppID()) && StringUtils.isNullOrWhitespace(getAppCode()))
-            return null;
-        else
-            return String.format("%s;%s", getAppID(), getAppCode());
+        return null;
     }
 
     @Override
@@ -151,35 +85,31 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
-        queryAPI = "https://weather.api.here.com/weather/1.0/report.json";
-        if (BuildConfig.DEBUG)
-            queryAPI = "https://weather.cit.api.here.com/weather/1.0/report.json";
+        queryAPI = "https://weather.ls.hereapi.com/weather/1.0/report.json";
 
         queryAPI += "?product=alerts&product=forecast_7days_simple" +
                 "&product=forecast_hourly&product=forecast_astronomy&product=observation&oneobservation=true&%s" +
-                "&language=%s&metric=false&app_id=%s&app_code=%s";
-
-        String key = Settings.usePersonalKey() ? Settings.getAPIKEY() : getAPIKey();
-        String app_id = "";
-        String app_code = "";
-
-        if (!StringUtils.isNullOrWhitespace(key)) {
-            String[] keyArr = key.split(";");
-            if (keyArr.length > 0) {
-                app_id = keyArr[0];
-                app_code = keyArr[keyArr.length > 1 ? keyArr.length - 1 : 0];
-            }
-        }
+                "&language=%s&metric=false";
 
         WeatherException wEx = null;
 
         try {
-            weatherURL = new URL(String.format(queryAPI, location_query, locale, app_id, app_code));
+            weatherURL = new URL(String.format(queryAPI, location_query, locale));
 
             client = (HttpURLConnection) weatherURL.openConnection();
             client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
             client.setReadTimeout(Settings.READ_TIMEOUT);
 
+            // Add headers to request
+            String authorization = new AsyncTask<String>().await(new Callable<String>() {
+                @Override
+                public String call() {
+                    return HEREOAuthUtils.getBearerToken(false);
+                }
+            });
+            client.addRequestProperty("Authorization", authorization);
+
+            // Connect to webstream
             InputStream stream = client.getInputStream();
 
             // Reset exception
@@ -289,31 +219,26 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
-        queryAPI = "https://weather.api.here.com/weather/1.0/report.json";
-        if (BuildConfig.DEBUG)
-            queryAPI = "https://weather.cit.api.here.com/weather/1.0/report.json";
-
-        queryAPI += "?product=alerts&%s&language=%s&metric=false&app_id=%s&app_code=%s";
-
-        String key = Settings.usePersonalKey() ? Settings.getAPIKEY() : getAPIKey();
-        String app_id = "";
-        String app_code = "";
-
-        if (!StringUtils.isNullOrWhitespace(key)) {
-            String[] keyArr = key.split(";");
-            if (keyArr.length > 0) {
-                app_id = keyArr[0];
-                app_code = keyArr[keyArr.length > 1 ? keyArr.length - 1 : 0];
-            }
-        }
+        queryAPI = "https://weather.ls.hereapi.com/weather/1.0/report.json?product=alerts&%s" +
+                "&language=%s&metric=false";
 
         try {
-            weatherURL = new URL(String.format(queryAPI, location.getQuery(), locale, app_id, app_code));
+            weatherURL = new URL(String.format(queryAPI, location.getQuery(), locale));
 
             client = (HttpURLConnection) weatherURL.openConnection();
             client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
             client.setReadTimeout(Settings.READ_TIMEOUT);
 
+            // Add headers to request
+            String authorization = new AsyncTask<String>().await(new Callable<String>() {
+                @Override
+                public String call() {
+                    return HEREOAuthUtils.getBearerToken(false);
+                }
+            });
+            client.addRequestProperty("Authorization", authorization);
+
+            // Connect to webstream
             InputStream stream = client.getInputStream();
 
             // Load data

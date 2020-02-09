@@ -13,17 +13,13 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.utils.oauth.OAuthRequest;
 import com.thewizrd.shared_resources.weatherdata.AstroDataProviderInterface;
 import com.thewizrd.shared_resources.weatherdata.Astronomy;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
-
-import net.oauth.OAuth;
-import net.oauth.OAuthAccessor;
-import net.oauth.OAuthConsumer;
-import net.oauth.OAuthMessage;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalTime;
@@ -99,16 +95,13 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
         URL weatherURL = null;
         HttpURLConnection client = null;
 
-        OAuthConsumer consumer = new OAuthConsumer(null, getCliID(), getCliSecr(), null);
-        consumer.setProperty(OAuth.OAUTH_SIGNATURE_METHOD, OAuth.HMAC_SHA1);
-        OAuthAccessor accessor = new OAuthAccessor(consumer);
+        OAuthRequest authRequest = new OAuthRequest(getCliID(), getCliSecr());
 
         try {
             String query = "?" + location_query + "&format=json&u=f";
             weatherURL = new URL(queryAPI + query);
 
-            OAuthMessage request = accessor.newRequestMessage(OAuthMessage.GET, weatherURL.toString(), null);
-            String authorization = request.getAuthorizationHeader(null);
+            String authorization = authRequest.getAuthorizationHeader(weatherURL.toString());
 
             client = (HttpURLConnection) weatherURL.openConnection();
             client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
