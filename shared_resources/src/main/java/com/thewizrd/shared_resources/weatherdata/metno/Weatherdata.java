@@ -4,14 +4,8 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
-import org.simpleframework.xml.convert.Convert;
-import org.simpleframework.xml.convert.Converter;
-import org.simpleframework.xml.stream.InputNode;
-import org.simpleframework.xml.stream.NodeMap;
-import org.simpleframework.xml.stream.OutputNode;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Root(name = "weatherdata", strict = false)
@@ -53,8 +47,8 @@ public class Weatherdata {
         this.meta = value;
     }
 
-    //public String getNoNamespaceSchemaLocation() {return this.noNamespaceSchemaLocation;}
-    //public void setNoNamespaceSchemaLocation(String value) {this.noNamespaceSchemaLocation = value;}
+    //public URL getNoNamespaceSchemaLocation() {return this.noNamespaceSchemaLocation;}
+    //public void setNoNamespaceSchemaLocation(URL value) {this.noNamespaceSchemaLocation = value;}
 
     public static class MaxTemperature {
 
@@ -119,100 +113,20 @@ public class Weatherdata {
 
     }
 
-    public static class SymbolProbability {
+    public static class WindGust {
 
-        @Attribute(name = "value", required = false)
-        byte value;
-
-        @Attribute(name = "unit", required = false)
-        String unit;
-
-        public String getUnit() {
-            return unit;
-        }
-
-        public void setUnit(String unit) {
-            this.unit = unit;
-        }
-
-        public byte getValue() {
-            return value;
-        }
-
-        public void setValue(byte value) {
-            this.value = value;
-        }
-    }
-
-    public static class Product {
-
-        @ElementList(name = "time", required = false, entry = "time", inline = true)
-        List<Time> time;
-
-        @Attribute(name = "class", required = false)
-        String _class;
-
-        public List<Time> getTime() {
-            return this.time;
-        }
-
-        public void setTime(List<Time> value) {
-            this.time = value;
-        }
-
-        public String get_class() {
-            return this._class;
-        }
-
-        public void set_class(String value) {
-            this._class = value;
-        }
-
-    }
-
-    public static class HighClouds {
+        @Attribute(name = "mps", required = false)
+        BigDecimal mps;
 
         @Attribute(name = "id", required = false)
         String id;
 
-        @Attribute(name = "percent", required = false)
-        BigDecimal percent;
-
-        public String getId() {
-            return this.id;
+        public BigDecimal getMps() {
+            return this.mps;
         }
 
-        public void setId(String value) {
-            this.id = value;
-        }
-
-        public BigDecimal getPercent() {
-            return this.percent;
-        }
-
-        public void setPercent(BigDecimal value) {
-            this.percent = value;
-        }
-
-    }
-
-    public static class Pressure {
-
-        @Attribute(name = "unit", required = false)
-        String unit;
-
-        @Attribute(name = "id", required = false)
-        String id;
-
-        @Attribute(name = "value", required = false)
-        BigDecimal value;
-
-        public String getUnit() {
-            return this.unit;
-        }
-
-        public void setUnit(String value) {
-            this.unit = value;
+        public void setMps(BigDecimal value) {
+            this.mps = value;
         }
 
         public String getId() {
@@ -221,40 +135,6 @@ public class Weatherdata {
 
         public void setId(String value) {
             this.id = value;
-        }
-
-        public BigDecimal getValue() {
-            return this.value;
-        }
-
-        public void setValue(BigDecimal value) {
-            this.value = value;
-        }
-
-    }
-
-    public static class Cloudiness {
-
-        @Attribute(name = "id", required = false)
-        String id;
-
-        @Attribute(name = "percent", required = false)
-        BigDecimal percent;
-
-        public String getId() {
-            return this.id;
-        }
-
-        public void setId(String value) {
-            this.id = value;
-        }
-
-        public BigDecimal getPercent() {
-            return this.percent;
-        }
-
-        public void setPercent(BigDecimal value) {
-            this.percent = value;
         }
 
     }
@@ -264,8 +144,14 @@ public class Weatherdata {
         @Attribute(name = "unit", required = false)
         String unit;
 
+        @Attribute(name = "maxvalue", required = false)
+        BigDecimal maxvalue;
+
         @Attribute(name = "value", required = false)
         BigDecimal value;
+
+        @Attribute(name = "minvalue", required = false)
+        BigDecimal minvalue;
 
         public String getUnit() {
             return this.unit;
@@ -275,12 +161,28 @@ public class Weatherdata {
             this.unit = value;
         }
 
+        public BigDecimal getMaxvalue() {
+            return this.maxvalue;
+        }
+
+        public void setMaxvalue(BigDecimal value) {
+            this.maxvalue = value;
+        }
+
         public BigDecimal getValue() {
             return this.value;
         }
 
         public void setValue(BigDecimal value) {
             this.value = value;
+        }
+
+        public BigDecimal getMinvalue() {
+            return this.minvalue;
+        }
+
+        public void setMinvalue(BigDecimal value) {
+            this.minvalue = value;
         }
 
     }
@@ -348,61 +250,6 @@ public class Weatherdata {
 
     }
 
-    public static class Meta {
-
-        @Element(name = "model", required = false)
-        @Convert(MetaConvertor.class)
-        List<Model> model;
-
-        public List<Model> getModel() {
-            return this.model;
-        }
-
-        public void setModel(List<Model> value) {
-            this.model = value;
-        }
-
-    }
-
-    public static class MetaConvertor implements Converter<List<Model>> {
-
-        @Override
-        public List<Model> read(InputNode node) throws Exception {
-            List<Model> model = new ArrayList<>();
-
-            InputNode node1 = node;
-            NodeMap<InputNode> map = node.getAttributes();
-
-            while (node1 != null) {
-                Model mod = new Model();
-                mod.name = node1.getAttribute("name").getValue();
-                mod.termin = node1.getAttribute("termin").getValue();
-                mod.runended = node1.getAttribute("runended").getValue();
-                mod.nextrun = node1.getAttribute("nextrun").getValue();
-                mod.from = node1.getAttribute("from").getValue();
-                mod.to = node1.getAttribute("to").getValue();
-
-                model.add(mod);
-                node1 = node.getNext("model");
-            }
-
-            return model;
-        }
-
-        @Override
-        public void write(OutputNode node, List<Model> value) throws Exception {
-            for (Model mod : value) {
-                OutputNode nod = node.getChild("model");
-                nod.setAttribute("name", mod.name);
-                nod.setAttribute("termin", mod.termin);
-                nod.setAttribute("runended", mod.runended);
-                nod.setAttribute("nextrun", mod.nextrun);
-                nod.setAttribute("from", mod.from);
-                nod.setAttribute("to", mod.to);
-            }
-        }
-    }
-
     public static class Temperature {
 
         @Attribute(name = "unit", required = false)
@@ -436,32 +283,6 @@ public class Weatherdata {
 
         public void setValue(BigDecimal value) {
             this.value = value;
-        }
-
-    }
-
-    public static class MediumClouds {
-
-        @Attribute(name = "id", required = false)
-        String id;
-
-        @Attribute(name = "percent", required = false)
-        BigDecimal percent;
-
-        public String getId() {
-            return this.id;
-        }
-
-        public void setId(String value) {
-            this.id = value;
-        }
-
-        public BigDecimal getPercent() {
-            return this.percent;
-        }
-
-        public void setPercent(BigDecimal value) {
-            this.percent = value;
         }
 
     }
@@ -562,6 +383,325 @@ public class Weatherdata {
 
     }
 
+    public static class WindDirection {
+
+        @Attribute(name = "deg", required = false)
+        Double deg;
+
+        @Attribute(name = "name", required = false)
+        String name;
+
+        @Attribute(name = "id", required = false)
+        String id;
+
+        public Double getDeg() {
+            return this.deg;
+        }
+
+        public void setDeg(Double value) {
+            this.deg = value;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public void setName(String value) {
+            this.name = value;
+        }
+
+        public String getId() {
+            return this.id;
+        }
+
+        public void setId(String value) {
+            this.id = value;
+        }
+
+    }
+
+    public static class WindSpeed {
+
+        @Attribute(name = "mps", required = false)
+        BigDecimal mps;
+
+        @Attribute(name = "name", required = false)
+        String name;
+
+        @Attribute(name = "id", required = false)
+        String id;
+
+        @Attribute(name = "beaufort", required = false)
+        byte beaufort;
+
+        public BigDecimal getMps() {
+            return this.mps;
+        }
+
+        public void setMps(BigDecimal value) {
+            this.mps = value;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public void setName(String value) {
+            this.name = value;
+        }
+
+        public String getId() {
+            return this.id;
+        }
+
+        public void setId(String value) {
+            this.id = value;
+        }
+
+        public byte getBeaufort() {
+            return this.beaufort;
+        }
+
+        public void setBeaufort(byte value) {
+            this.beaufort = value;
+        }
+
+    }
+
+    public static class Product {
+
+        @ElementList(name = "time", required = false, entry = "time", inline = true)
+        List<Time> time;
+
+        @Attribute(name = "class", required = false)
+        String _class;
+
+        public List<Time> getTime() {
+            return this.time;
+        }
+
+        public void setTime(List<Time> value) {
+            this.time = value;
+        }
+
+        public String get_class() {
+            return this._class;
+        }
+
+        public void set_class(String value) {
+            this._class = value;
+        }
+
+    }
+
+    public static class HighClouds {
+
+        @Attribute(name = "id", required = false)
+        String id;
+
+        @Attribute(name = "percent", required = false)
+        BigDecimal percent;
+
+        public String getId() {
+            return this.id;
+        }
+
+        public void setId(String value) {
+            this.id = value;
+        }
+
+        public BigDecimal getPercent() {
+            return this.percent;
+        }
+
+        public void setPercent(BigDecimal value) {
+            this.percent = value;
+        }
+
+    }
+
+    public static class WindProbability {
+
+        @Attribute(name = "unit", required = false)
+        String unit;
+
+        @Attribute(name = "value", required = false)
+        byte value;
+
+        public String getUnit() {
+            return this.unit;
+        }
+
+        public void setUnit(String value) {
+            this.unit = value;
+        }
+
+        public byte getValue() {
+            return this.value;
+        }
+
+        public void setValue(byte value) {
+            this.value = value;
+        }
+
+    }
+
+    public static class Pressure {
+
+        @Attribute(name = "unit", required = false)
+        String unit;
+
+        @Attribute(name = "id", required = false)
+        String id;
+
+        @Attribute(name = "value", required = false)
+        BigDecimal value;
+
+        public String getUnit() {
+            return this.unit;
+        }
+
+        public void setUnit(String value) {
+            this.unit = value;
+        }
+
+        public String getId() {
+            return this.id;
+        }
+
+        public void setId(String value) {
+            this.id = value;
+        }
+
+        public BigDecimal getValue() {
+            return this.value;
+        }
+
+        public void setValue(BigDecimal value) {
+            this.value = value;
+        }
+
+    }
+
+    public static class Cloudiness {
+
+        @Attribute(name = "id", required = false)
+        String id;
+
+        @Attribute(name = "percent", required = false)
+        BigDecimal percent;
+
+        public String getId() {
+            return this.id;
+        }
+
+        public void setId(String value) {
+            this.id = value;
+        }
+
+        public BigDecimal getPercent() {
+            return this.percent;
+        }
+
+        public void setPercent(BigDecimal value) {
+            this.percent = value;
+        }
+
+    }
+
+    public static class SymbolProbability {
+
+        @Attribute(name = "unit", required = false)
+        String unit;
+
+        @Attribute(name = "value", required = false)
+        byte value;
+
+        public String getUnit() {
+            return this.unit;
+        }
+
+        public void setUnit(String value) {
+            this.unit = value;
+        }
+
+        public byte getValue() {
+            return this.value;
+        }
+
+        public void setValue(byte value) {
+            this.value = value;
+        }
+
+    }
+
+    public static class TemperatureProbability {
+
+        @Attribute(name = "unit", required = false)
+        String unit;
+
+        @Attribute(name = "value", required = false)
+        byte value;
+
+        public String getUnit() {
+            return this.unit;
+        }
+
+        public void setUnit(String value) {
+            this.unit = value;
+        }
+
+        public byte getValue() {
+            return this.value;
+        }
+
+        public void setValue(byte value) {
+            this.value = value;
+        }
+
+    }
+
+    public static class Meta {
+
+        @Element(name = "model", required = false)
+        Model model;
+
+        public Model getModel() {
+            return this.model;
+        }
+
+        public void setModel(Model value) {
+            this.model = value;
+        }
+
+    }
+
+    public static class MediumClouds {
+
+        @Attribute(name = "id", required = false)
+        String id;
+
+        @Attribute(name = "percent", required = false)
+        BigDecimal percent;
+
+        public String getId() {
+            return this.id;
+        }
+
+        public void setId(String value) {
+            this.id = value;
+        }
+
+        public BigDecimal getPercent() {
+            return this.percent;
+        }
+
+        public void setPercent(BigDecimal value) {
+            this.percent = value;
+        }
+
+    }
+
     public static class Location {
 
         @Element(name = "maxTemperature", required = false)
@@ -573,14 +713,17 @@ public class Weatherdata {
         @Element(name = "symbol", required = false)
         Symbol symbol;
 
-        @Element(name = "symbolProbability", required = false)
-        SymbolProbability symbolProbability;
-
         @Element(name = "highClouds", required = false)
         HighClouds highClouds;
 
+        @Element(name = "windGust", required = false)
+        WindGust windGust;
+
         @Attribute(name = "latitude", required = false)
         BigDecimal latitude;
+
+        @Element(name = "windProbability", required = false)
+        WindProbability windProbability;
 
         @Element(name = "pressure", required = false)
         Pressure pressure;
@@ -588,20 +731,23 @@ public class Weatherdata {
         @Element(name = "cloudiness", required = false)
         Cloudiness cloudiness;
 
+        @Element(name = "symbolProbability", required = false)
+        SymbolProbability symbolProbability;
+
         @Element(name = "precipitation", required = false)
         Precipitation precipitation;
 
         @Element(name = "lowClouds", required = false)
         LowClouds lowClouds;
 
+        @Element(name = "temperatureProbability", required = false)
+        TemperatureProbability temperatureProbability;
+
         @Element(name = "minTemperature", required = false)
         MinTemperature minTemperature;
 
         @Element(name = "temperature", required = false)
         Temperature temperature;
-
-        @Element(name = "temperatureProbability", required = false)
-        TemperatureProbability temperatureProbability;
 
         @Element(name = "mediumClouds", required = false)
         MediumClouds mediumClouds;
@@ -617,15 +763,6 @@ public class Weatherdata {
 
         @Element(name = "windSpeed", required = false)
         WindSpeed windSpeed;
-
-        @Element(name = "windGust", required = false)
-        WindGust windGust;
-
-        @Element(name = "areaMaxWindSpeed", required = false)
-        AreaMaxWindSpeed areaMaxWindSpeed;
-
-        @Element(name = "windProbability", required = false)
-        WindProbability windProbability;
 
         @Attribute(name = "longitude", required = false)
         BigDecimal longitude;
@@ -665,12 +802,28 @@ public class Weatherdata {
             this.highClouds = value;
         }
 
+        public WindGust getWindGust() {
+            return this.windGust;
+        }
+
+        public void setWindGust(WindGust value) {
+            this.windGust = value;
+        }
+
         public BigDecimal getLatitude() {
             return this.latitude;
         }
 
         public void setLatitude(BigDecimal value) {
             this.latitude = value;
+        }
+
+        public WindProbability getWindProbability() {
+            return this.windProbability;
+        }
+
+        public void setWindProbability(WindProbability value) {
+            this.windProbability = value;
         }
 
         public Pressure getPressure() {
@@ -689,6 +842,14 @@ public class Weatherdata {
             this.cloudiness = value;
         }
 
+        public SymbolProbability getSymbolProbability() {
+            return this.symbolProbability;
+        }
+
+        public void setSymbolProbability(SymbolProbability value) {
+            this.symbolProbability = value;
+        }
+
         public Precipitation getPrecipitation() {
             return this.precipitation;
         }
@@ -703,6 +864,14 @@ public class Weatherdata {
 
         public void setLowClouds(LowClouds value) {
             this.lowClouds = value;
+        }
+
+        public TemperatureProbability getTemperatureProbability() {
+            return this.temperatureProbability;
+        }
+
+        public void setTemperatureProbability(TemperatureProbability value) {
+            this.temperatureProbability = value;
         }
 
         public MinTemperature getMinTemperature() {
@@ -777,45 +946,6 @@ public class Weatherdata {
             this.fog = value;
         }
 
-        public SymbolProbability getSymbolProbability() {
-            return symbolProbability;
-        }
-
-        public void setSymbolProbability(SymbolProbability symbolProbability) {
-            this.symbolProbability = symbolProbability;
-        }
-
-        public TemperatureProbability getTemperatureProbability() {
-            return temperatureProbability;
-        }
-
-        public void setTemperatureProbability(TemperatureProbability temperatureProbability) {
-            this.temperatureProbability = temperatureProbability;
-        }
-
-        public WindGust getWindGust() {
-            return windGust;
-        }
-
-        public void setWindGust(WindGust windGust) {
-            this.windGust = windGust;
-        }
-
-        public AreaMaxWindSpeed getAreaMaxWindSpeed() {
-            return areaMaxWindSpeed;
-        }
-
-        public void setAreaMaxWindSpeed(AreaMaxWindSpeed areaMaxWindSpeed) {
-            this.areaMaxWindSpeed = areaMaxWindSpeed;
-        }
-
-        public WindProbability getWindProbability() {
-            return windProbability;
-        }
-
-        public void setWindProbability(WindProbability windProbability) {
-            this.windProbability = windProbability;
-        }
     }
 
     public static class DewpointTemperature {
@@ -903,91 +1033,6 @@ public class Weatherdata {
 
     }
 
-    public static class WindDirection {
-
-        @Attribute(name = "deg", required = false)
-        BigDecimal deg;
-
-        @Attribute(name = "name", required = false)
-        String name;
-
-        @Attribute(name = "id", required = false)
-        String id;
-
-        public BigDecimal getDeg() {
-            return this.deg;
-        }
-
-        public void setDeg(BigDecimal value) {
-            this.deg = value;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-        public void setName(String value) {
-            this.name = value;
-        }
-
-        public String getId() {
-            return this.id;
-        }
-
-        public void setId(String value) {
-            this.id = value;
-        }
-
-    }
-
-    public static class WindSpeed {
-
-        @Attribute(name = "mps", required = false)
-        BigDecimal mps;
-
-        @Attribute(name = "name", required = false)
-        String name;
-
-        @Attribute(name = "id", required = false)
-        String id;
-
-        @Attribute(name = "beaufort", required = false)
-        byte beaufort;
-
-        public BigDecimal getMps() {
-            return this.mps;
-        }
-
-        public void setMps(BigDecimal value) {
-            this.mps = value;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-        public void setName(String value) {
-            this.name = value;
-        }
-
-        public String getId() {
-            return this.id;
-        }
-
-        public void setId(String value) {
-            this.id = value;
-        }
-
-        public byte getBeaufort() {
-            return this.beaufort;
-        }
-
-        public void setBeaufort(byte value) {
-            this.beaufort = value;
-        }
-
-    }
-
     public static class Fog {
 
         @Attribute(name = "id", required = false)
@@ -1014,92 +1059,4 @@ public class Weatherdata {
 
     }
 
-    public static class WindGust {
-
-        @Attribute(name = "id", required = false)
-        String id;
-
-        @Attribute(name = "mps", required = false)
-        BigDecimal mps;
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public BigDecimal getMps() {
-            return mps;
-        }
-
-        public void setMps(BigDecimal mps) {
-            this.mps = mps;
-        }
-    }
-
-    public static class AreaMaxWindSpeed {
-
-        @Attribute(name = "mps", required = false)
-        BigDecimal mps;
-
-        public BigDecimal getMps() {
-            return mps;
-        }
-
-        public void setMps(BigDecimal mps) {
-            this.mps = mps;
-        }
-    }
-
-    public static class TemperatureProbability {
-
-        @Attribute(name = "value", required = false)
-        byte value;
-
-        @Attribute(name = "unit", required = false)
-        String unit;
-
-        public String getUnit() {
-            return unit;
-        }
-
-        public void setUnit(String unit) {
-            this.unit = unit;
-        }
-
-        public byte getValue() {
-            return value;
-        }
-
-        public void setValue(byte value) {
-            this.value = value;
-        }
-    }
-
-    public static class WindProbability {
-
-        @Attribute(name = "value", required = false)
-        byte value;
-
-        @Attribute(name = "unit", required = false)
-        String unit;
-
-        public String getUnit() {
-            return unit;
-        }
-
-        public void setUnit(String unit) {
-            this.unit = unit;
-        }
-
-        public byte getValue() {
-            return value;
-        }
-
-        public void setValue(byte value) {
-            this.value = value;
-        }
-    }
 }

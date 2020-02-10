@@ -100,7 +100,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
         WeatherException wEx = null;
 
         try {
-            forecastAPI = "https://api.met.no/weatherapi/locationforecastlts/1.3/?%s";
+            forecastAPI = "https://api.met.no/weatherapi/locationforecast/1.9/?%s";
             forecastURL = new URL(String.format(forecastAPI, location_query));
             sunrisesetAPI = "https://api.met.no/weatherapi/sunrise/2.0/?%s&date=%s&offset=+00:00";
             String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT));
@@ -237,6 +237,9 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
     public static String getWeatherCondition(String icon) {
         String condition = "";
 
+        if (icon == null)
+            return Weather.NA;
+
         switch (icon) {
             case "1": // Sun
                 condition = "Clear";
@@ -328,6 +331,9 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
     @Override
     public String getWeatherIcon(boolean isNight, String icon) {
         String weatherIcon = "";
+
+        if (icon == null)
+            return WeatherIcons.NA;
 
         switch (icon) {
             case "1": // Sun

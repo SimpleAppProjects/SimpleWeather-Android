@@ -20,7 +20,6 @@ import com.thewizrd.shared_resources.utils.WeatherUtils;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -216,10 +215,9 @@ public class Weather {
         int fcastCount = 0;
 
         LocalDateTime startDate = LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(
-                foreRoot.getMeta().getModel().get(0).getFrom())), ZoneOffset.UTC);
+                foreRoot.getMeta().getModel().getFrom())), ZoneOffset.UTC);
         LocalDateTime endDate = LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(
-                foreRoot.getMeta().getModel().get(foreRoot.getMeta().getModel().size() <= 0 ? 0 : foreRoot.getMeta().getModel().size() - 1).getTo())),
-                ZoneOffset.UTC).minusSeconds(LocalTime.of(6, 0, 0).toSecondOfDay());
+                foreRoot.getMeta().getModel().getTo())), ZoneOffset.UTC);
         Forecast fcast = null;
 
         // Metno data is troublesome to parse thru
@@ -359,6 +357,11 @@ public class Weather {
 
                 conditionSet = true;
             }
+        }
+
+        fcast = forecastL.get(forecastL.size() <= 0 ? 0 : forecastL.size() - 1);
+        if (fcast != null && (fcast.getCondition() == null && fcast.getIcon() == null)) {
+            forecastL.remove(fcast);
         }
 
         forecast = forecastL.toArray(new Forecast[0]);
