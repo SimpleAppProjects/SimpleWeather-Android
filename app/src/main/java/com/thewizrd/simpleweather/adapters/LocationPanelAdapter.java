@@ -260,7 +260,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     @Override
-    public int getItemViewType(int position) {
+    public synchronized int getItemViewType(int position) {
         if (hasGPSPanel && hasSearchPanel && position == 0)
             return ItemType.HEADER_GPS;
         else if (hasGPSPanel && position == 0)
@@ -275,7 +275,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         return getPanelViewModel(position).getLocationType();
     }
 
-    public int getViewPosition(LocationPanelViewModel item) {
+    public synchronized int getViewPosition(LocationPanelViewModel item) {
         int position = mDataset.indexOf(item);
 
         if (position == 0)
@@ -288,7 +288,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         return position;
     }
 
-    public int getDataPosition(int position) {
+    public synchronized int getDataPosition(int position) {
         if (position == 1)
             position--;
         else if (hasSearchPanel && hasGPSPanel && position > 1)
@@ -301,7 +301,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     // Return the size of your dataset (invoked by the layout manager)
-    public int getItemCount() {
+    public synchronized int getItemCount() {
         int size = mDataset.size();
 
         if (hasGPSPanel)
@@ -314,11 +314,11 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         return size;
     }
 
-    public int getDataCount() {
+    public synchronized int getDataCount() {
         return mDataset.size();
     }
 
-    public int getFavoritesCount() {
+    public synchronized int getFavoritesCount() {
         int size = mDataset.size();
 
         if (hasGPSPanel)
@@ -398,7 +398,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         hasSearchPanel = false;
     }
 
-    public LocationPanelViewModel getPanelViewModel(int position) {
+    public synchronized LocationPanelViewModel getPanelViewModel(int position) {
         if (position >= getItemCount() || mDataset.size() == 0)
             return null;
 
@@ -411,7 +411,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         return mDataset.get(dataPosition);
     }
 
-    public LocationData getPanelData(int position) {
+    public synchronized LocationData getPanelData(int position) {
         if (position >= getItemCount() || mDataset.size() == 0)
             return null;
 
@@ -466,7 +466,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         });
     }
 
-    public class GPSHeaderViewHolder extends RecyclerView.ViewHolder implements HeaderSetterInterface {
+    public static class GPSHeaderViewHolder extends RecyclerView.ViewHolder implements HeaderSetterInterface {
         TextView header;
 
         GPSHeaderViewHolder(View itemView) {
@@ -485,7 +485,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
-    public class FavHeaderViewHolder extends RecyclerView.ViewHolder implements HeaderSetterInterface {
+    public static class FavHeaderViewHolder extends RecyclerView.ViewHolder implements HeaderSetterInterface {
         TextView header;
 
         FavHeaderViewHolder(View itemView) {
@@ -504,7 +504,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
-    private class ViewHolder extends RecyclerView.ViewHolder {
+    private static class ViewHolder extends RecyclerView.ViewHolder {
         ViewHolder(View itemView) {
             super(itemView);
         }
