@@ -596,6 +596,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 startvelocityY = velocityY;
             }
 
+            @SuppressLint("RestrictedApi")
             @Override
             public void onFlingStopped(int scrollY) {
                 int condPnlHeight = binding.conditionPanel.getHeight();
@@ -636,6 +637,7 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
         binding.scrollView.setTouchScrollListener(new ObservableNestedScrollView.OnTouchScrollChangeListener() {
+            @SuppressLint("RestrictedApi")
             @Override
             public void onTouchScrollChange(int scrollY, int oldScrollY) {
                 int condPnlHeight = binding.conditionPanel.getHeight();

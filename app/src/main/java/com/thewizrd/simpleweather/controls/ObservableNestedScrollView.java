@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.controls;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -74,6 +75,7 @@ public class ObservableNestedScrollView extends NestedScrollView {
         mTouchScrollListener = listener;
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void fling(int velocityY) {
         super.fling(velocityY);
@@ -93,6 +95,7 @@ public class ObservableNestedScrollView extends NestedScrollView {
      * Indicates that the input type for the gesture is caused by something which is not a user
      * touching a screen. This is usually from a fling which is settling.
      */
+    @SuppressLint("RestrictedApi")
     @Override
     public void stopNestedScroll(int type) {
         super.stopNestedScroll(type);
@@ -108,6 +111,7 @@ public class ObservableNestedScrollView extends NestedScrollView {
         }
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         boolean result = super.dispatchTouchEvent(ev);
