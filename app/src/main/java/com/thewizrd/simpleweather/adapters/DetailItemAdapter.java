@@ -25,7 +25,7 @@ public class DetailItemAdapter extends ColorModeRecyclerViewAdapter<DetailItemAd
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
-    class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         private DetailCard mDetailCard;
 
         public ViewHolder(DetailCard v) {
@@ -103,11 +103,11 @@ public class DetailItemAdapter extends ColorModeRecyclerViewAdapter<DetailItemAd
 
     @Override
     // Return the size of your dataset (invoked by the layout manager)
-    public int getItemCount() {
+    public synchronized int getItemCount() {
         return mDataset.size();
     }
 
-    public void updateItems(WeatherNowViewModel weatherNowViewModel) {
+    public synchronized void updateItems(WeatherNowViewModel weatherNowViewModel) {
         List<DetailItemViewModel> oldItems = new ArrayList<>(mDataset);
         DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ListDiffUtilCallback<DetailItemViewModel>(oldItems, weatherNowViewModel.getWeatherDetails()) {
             @Override
