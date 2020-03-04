@@ -116,8 +116,8 @@ public class WeatherDataLoader {
                             Settings.saveHomeData(location);
                     }
                     if (location.getLatitude() == 0 && location.getLongitude() == 0) {
-                        location.setLatitude(Double.valueOf(weather.getLocation().getLatitude()));
-                        location.setLongitude(Double.valueOf(weather.getLocation().getLongitude()));
+                        location.setLatitude(Double.parseDouble(weather.getLocation().getLatitude()));
+                        location.setLongitude(Double.parseDouble(weather.getLocation().getLongitude()));
 
                         if (SimpleLibrary.getInstance().getApp().isPhone())
                             Settings.updateLocation(location);

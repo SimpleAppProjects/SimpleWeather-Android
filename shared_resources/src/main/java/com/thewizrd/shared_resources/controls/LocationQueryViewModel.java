@@ -44,8 +44,8 @@ public class LocationQueryViewModel {
         locationName = location.getName();
         locationCountry = location.getC();
 
-        locationLat = Double.valueOf(location.getLat());
-        locationLong = Double.valueOf(location.getLon());
+        locationLat = Double.parseDouble(location.getLat());
+        locationLong = Double.parseDouble(location.getLon());
 
         locationTZLong = location.getTz();
 
@@ -66,8 +66,8 @@ public class LocationQueryViewModel {
         locationName = String.format("%s, %s", location.getCity(), location.getState());
         locationCountry = location.getCountry();
 
-        locationLat = Double.valueOf(location.getLat());
-        locationLong = Double.valueOf(location.getLon());
+        locationLat = Double.parseDouble(location.getLat());
+        locationLong = Double.parseDouble(location.getLon());
 
         locationTZLong = location.getTzUnix();
 
@@ -220,8 +220,8 @@ public class LocationQueryViewModel {
         else
             locationCountry = result.getAddress().getCountry();
 
-        locationLat = Double.valueOf(result.getLat());
-        locationLong = Double.valueOf(result.getLon());
+        locationLat = Double.parseDouble(result.getLat());
+        locationLong = Double.parseDouble(result.getLon());
 
         locationTZLong = null;
 
@@ -279,8 +279,8 @@ public class LocationQueryViewModel {
         else
             locationCountry = result.getAddress().getCountry();
 
-        locationLat = Double.valueOf(result.getLat());
-        locationLong = Double.valueOf(result.getLon());
+        locationLat = Double.parseDouble(result.getLat());
+        locationLong = Double.parseDouble(result.getLon());
 
         locationTZLong = null;
 

@@ -86,7 +86,7 @@ public class Atmosphere {
 
         try {
             float visMi = 10.0f;
-            visibilityMi = Float.valueOf(visMi - (visMi * time.getLocation().getFog().getPercent().floatValue() / 100)).toString();
+            visibilityMi = Float.toString(visMi - (visMi * time.getLocation().getFog().getPercent().floatValue() / 100));
             visibilityKm = ConversionMethods.miToKm(visibilityMi);
         } catch (NumberFormatException ex) {
             visibilityMi = Weather.NA;

@@ -87,8 +87,8 @@ public class LocationPanelViewModel {
             locationData = new LocationData();
             locationData.setQuery(weather.getQuery());
             locationData.setName(weather.getLocation().getName());
-            locationData.setLatitude(Double.valueOf(weather.getLocation().getLatitude()));
-            locationData.setLongitude(Double.valueOf(weather.getLocation().getLongitude()));
+            locationData.setLatitude(Double.parseDouble(weather.getLocation().getLatitude()));
+            locationData.setLongitude(Double.parseDouble(weather.getLocation().getLongitude()));
             locationData.setTzLong(weather.getLocation().getTzLong());
         }
     }

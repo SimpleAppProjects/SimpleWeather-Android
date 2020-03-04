@@ -182,7 +182,7 @@ public class WidgetUtils {
     }
 
     private static int getVersion() {
-        return Integer.valueOf(widgetPrefs.getString(KEY_VERSION, "-1"));
+        return Integer.parseInt(widgetPrefs.getString(KEY_VERSION, "-1"));
     }
 
     private static void setVersion(int value) {
@@ -552,7 +552,7 @@ public class WidgetUtils {
         if (StringUtils.isNullOrWhitespace(value))
             value = "3";
 
-        return WidgetBackground.valueOf(Integer.valueOf(value));
+        return WidgetBackground.valueOf(Integer.parseInt(value));
     }
 
     public static void setWidgetBackground(int widgetId, int value) {
@@ -569,7 +569,7 @@ public class WidgetUtils {
         if (StringUtils.isNullOrWhitespace(value))
             value = "0";
 
-        return WidgetBackgroundStyle.valueOf(Integer.valueOf(value));
+        return WidgetBackgroundStyle.valueOf(Integer.parseInt(value));
     }
 
     public static void setBackgroundStyle(int widgetId, int value) {

@@ -74,7 +74,7 @@ public class WeatherNotificationBuilder {
 
         int level = 0;
         try {
-            level = Integer.valueOf(temp.replace("º", ""));
+            level = Integer.parseInt(temp.replace("º", ""));
         } catch (NumberFormatException e) {
             // Do nothing
         }

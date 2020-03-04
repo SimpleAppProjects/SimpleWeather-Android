@@ -66,7 +66,7 @@ public class Condition {
         icon = WeatherManager.getProvider(WeatherAPI.WEATHERUNDERGROUND)
                 .getWeatherIcon(condition.getIconUrl().replace("http://icons.wxug.com/i/c/k/", "").replace(".gif", ""));
         try {
-            uv = new UV(Float.valueOf(condition.getUV()));
+            uv = new UV(Float.parseFloat(condition.getUV()));
         } catch (NumberFormatException ex) {
             uv = null;
         }
@@ -74,24 +74,24 @@ public class Condition {
 
     public Condition(com.thewizrd.shared_resources.weatherdata.weatheryahoo.CurrentObservation observation) {
         weather = observation.getCondition().getText();
-        tempF = Float.valueOf(observation.getCondition().getTemperature());
-        tempC = Float.valueOf(ConversionMethods.FtoC((observation.getCondition().getTemperature())));
-        windDegrees = Integer.valueOf(observation.getWind().getDirection());
-        windKph = Float.valueOf(observation.getWind().getSpeed());
-        windMph = Float.valueOf(ConversionMethods.kphTomph(observation.getWind().getSpeed()));
-        feelslikeF = Float.valueOf(observation.getWind().getChill());
-        feelslikeC = Float.valueOf(ConversionMethods.FtoC(observation.getWind().getChill()));
+        tempF = Float.parseFloat(observation.getCondition().getTemperature());
+        tempC = Float.parseFloat(ConversionMethods.FtoC((observation.getCondition().getTemperature())));
+        windDegrees = Integer.parseInt(observation.getWind().getDirection());
+        windKph = Float.parseFloat(observation.getWind().getSpeed());
+        windMph = Float.parseFloat(ConversionMethods.kphTomph(observation.getWind().getSpeed()));
+        feelslikeF = Float.parseFloat(observation.getWind().getChill());
+        feelslikeC = Float.parseFloat(ConversionMethods.FtoC(observation.getWind().getChill()));
         icon = WeatherManager.getProvider(WeatherAPI.YAHOO)
                 .getWeatherIcon(observation.getCondition().getCode());
     }
 
     public Condition(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
         weather = StringUtils.toUpperCase(root.getWeather().get(0).getDescription());
-        tempF = Float.valueOf(ConversionMethods.KtoF(Float.toString(root.getMain().getTemp())));
-        tempC = Float.valueOf(ConversionMethods.KtoC(Float.toString(root.getMain().getTemp())));
+        tempF = Float.parseFloat(ConversionMethods.KtoF(Float.toString(root.getMain().getTemp())));
+        tempC = Float.parseFloat(ConversionMethods.KtoC(Float.toString(root.getMain().getTemp())));
         windDegrees = (int) root.getWind().getDeg();
-        windMph = Float.valueOf(ConversionMethods.msecToMph(Float.toString(root.getWind().getSpeed())));
-        windKph = Float.valueOf(ConversionMethods.msecToKph(Float.toString(root.getWind().getSpeed())));
+        windMph = Float.parseFloat(ConversionMethods.msecToMph(Float.toString(root.getWind().getSpeed())));
+        windKph = Float.parseFloat(ConversionMethods.msecToKph(Float.toString(root.getWind().getSpeed())));
         // This will be calculated after with formula
         feelslikeF = tempF;
         feelslikeC = tempC;
@@ -100,7 +100,7 @@ public class Condition {
         String dn = Character.toString(ico.charAt(ico.length() == 0 ? 0 : ico.length() - 1));
 
         try {
-            int x = Integer.valueOf(dn);
+            int x = Integer.parseInt(dn);
             dn = "";
         } catch (NumberFormatException ex) {
             // DO nothing
@@ -112,11 +112,11 @@ public class Condition {
 
     public Condition(com.thewizrd.shared_resources.weatherdata.metno.Weatherdata.Time time) {
         // weather
-        tempF = Float.valueOf(ConversionMethods.CtoF(time.getLocation().getTemperature().getValue().toString()));
+        tempF = Float.parseFloat(ConversionMethods.CtoF(time.getLocation().getTemperature().getValue().toString()));
         tempC = time.getLocation().getTemperature().getValue().floatValue();
         windDegrees = Math.round(time.getLocation().getWindDirection().getDeg().floatValue());
-        windMph = (float) Math.round(Double.valueOf(ConversionMethods.msecToMph(time.getLocation().getWindSpeed().getMps().toString())));
-        windKph = (float) Math.round(Double.valueOf(ConversionMethods.msecToKph(time.getLocation().getWindSpeed().getMps().toString())));
+        windMph = (float) Math.round(Double.parseDouble(ConversionMethods.msecToMph(time.getLocation().getWindSpeed().getMps().toString())));
+        windKph = (float) Math.round(Double.parseDouble(ConversionMethods.msecToKph(time.getLocation().getWindSpeed().getMps().toString())));
         // This will be calculated after with formula
         feelslikeF = tempF;
         feelslikeC = tempC;
@@ -130,21 +130,21 @@ public class Condition {
         try {
             Float tempF = Float.valueOf(observation.getTemperature());
             this.tempF = tempF;
-            tempC = Float.valueOf(ConversionMethods.FtoC(tempF.toString()));
+            tempC = Float.parseFloat(ConversionMethods.FtoC(tempF.toString()));
         } catch (NumberFormatException ex) {
             this.tempF = 0.00f;
             tempC = 0.00f;
         }
 
         try {
-            this.windDegrees = Integer.valueOf(observation.getWindDirection());
+            this.windDegrees = Integer.parseInt(observation.getWindDirection());
         } catch (NumberFormatException ex) {
             this.windDegrees = 0;
         }
 
         try {
-            windMph = Float.valueOf(observation.getWindSpeed());
-            windKph = Float.valueOf(ConversionMethods.mphTokph(observation.getWindSpeed()));
+            windMph = Float.parseFloat(observation.getWindSpeed());
+            windKph = Float.parseFloat(ConversionMethods.mphTokph(observation.getWindSpeed()));
         } catch (NumberFormatException ex) {
             windMph = 0.00f;
             windKph = 0.00f;
@@ -153,7 +153,7 @@ public class Condition {
         try {
             Float comfortTempF = Float.valueOf(observation.getComfort());
             feelslikeF = comfortTempF;
-            feelslikeC = Float.valueOf(ConversionMethods.FtoC(comfortTempF.toString()));
+            feelslikeC = Float.parseFloat(ConversionMethods.FtoC(comfortTempF.toString()));
         } catch (NumberFormatException ex) {
             feelslikeF = 0.00f;
             feelslikeC = 0.00f;
@@ -163,14 +163,14 @@ public class Condition {
                 .getWeatherIcon(String.format("%s_%s", observation.getDaylight(), observation.getIconName()));
 
         try {
-            int scale = Integer.valueOf(forecastItem.getBeaufortScale());
+            int scale = Integer.parseInt(forecastItem.getBeaufortScale());
             beaufort = new Beaufort(scale, forecastItem.getBeaufortDescription());
         } catch (NumberFormatException ex) {
             beaufort = null;
         }
 
         try {
-            float index = Float.valueOf(forecastItem.getUvIndex());
+            float index = Float.parseFloat(forecastItem.getUvIndex());
             uv = new UV(index, forecastItem.getUvDesc());
         } catch (NumberFormatException ex) {
             uv = null;
@@ -341,25 +341,25 @@ public class Condition {
                         obj.weather = reader.nextString();
                         break;
                     case "temp_f":
-                        obj.tempF = Float.valueOf(reader.nextString());
+                        obj.tempF = Float.parseFloat(reader.nextString());
                         break;
                     case "temp_c":
-                        obj.tempC = Float.valueOf(reader.nextString());
+                        obj.tempC = Float.parseFloat(reader.nextString());
                         break;
                     case "wind_degrees":
-                        obj.windDegrees = Integer.valueOf(reader.nextString());
+                        obj.windDegrees = Integer.parseInt(reader.nextString());
                         break;
                     case "wind_mph":
-                        obj.windMph = Float.valueOf(reader.nextString());
+                        obj.windMph = Float.parseFloat(reader.nextString());
                         break;
                     case "wind_kph":
-                        obj.windKph = Float.valueOf(reader.nextString());
+                        obj.windKph = Float.parseFloat(reader.nextString());
                         break;
                     case "feelslike_f":
-                        obj.feelslikeF = Float.valueOf(reader.nextString());
+                        obj.feelslikeF = Float.parseFloat(reader.nextString());
                         break;
                     case "feelslike_c":
-                        obj.feelslikeC = Float.valueOf(reader.nextString());
+                        obj.feelslikeC = Float.parseFloat(reader.nextString());
                         break;
                     case "icon":
                         obj.icon = reader.nextString();

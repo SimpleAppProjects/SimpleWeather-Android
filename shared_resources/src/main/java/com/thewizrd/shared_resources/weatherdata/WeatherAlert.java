@@ -567,10 +567,10 @@ public class WeatherAlert {
 
                 switch (property) {
                     case "Type":
-                        obj.type = WeatherAlertType.valueOf(Integer.valueOf(reader.nextString()));
+                        obj.type = WeatherAlertType.valueOf(Integer.parseInt(reader.nextString()));
                         break;
                     case "Severity":
-                        obj.severity = WeatherAlertSeverity.valueOf(Integer.valueOf(reader.nextString()));
+                        obj.severity = WeatherAlertSeverity.valueOf(Integer.parseInt(reader.nextString()));
                         break;
                     case "Title":
                         obj.title = reader.nextString();

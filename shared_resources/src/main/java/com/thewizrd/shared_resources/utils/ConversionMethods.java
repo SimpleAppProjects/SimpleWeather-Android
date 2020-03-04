@@ -28,82 +28,82 @@ public class ConversionMethods {
     }
 
     public static String mbToInHg(String input) {
-        double result = MB_TO_INHG * Double.valueOf(input);
+        double result = MB_TO_INHG * Double.parseDouble(input);
         return df.format(result);
     }
 
     public static String inHgToMB(String input) {
-        double result = INHG_TO_MB * Double.valueOf(input);
+        double result = INHG_TO_MB * Double.parseDouble(input);
         return df.format(result);
     }
 
     public static String paToInHg(String input) {
-        double result = PA_TO_INHG * Double.valueOf(input);
+        double result = PA_TO_INHG * Double.parseDouble(input);
         return df.format(result);
     }
 
     public static String paToMB(String input) {
-        double result = PA_TO_MB * Double.valueOf(input);
+        double result = PA_TO_MB * Double.parseDouble(input);
         return df.format(result);
     }
 
     public static String kmToMi(String input) {
-        double result = KM_TO_MI * Double.valueOf(input);
+        double result = KM_TO_MI * Double.parseDouble(input);
         return String.format("%d", Math.round(result));
     }
 
     public static String miToKm(String input) {
-        double result = MI_TO_KM * Double.valueOf(input);
+        double result = MI_TO_KM * Double.parseDouble(input);
         return String.format("%d", Math.round(result));
     }
 
     public static String mmToIn(String input) {
-        double result = MM_TO_IN * Double.valueOf(input);
+        double result = MM_TO_IN * Double.parseDouble(input);
         return String.format("%d", Math.round(result));
     }
 
     public static String inToMM(String input) {
-        double result = IN_TO_MM * Double.valueOf(input);
+        double result = IN_TO_MM * Double.parseDouble(input);
         return String.format("%d", Math.round(result));
     }
 
     public static String mphTokph(String input) {
-        double result = MI_TO_KM * Double.valueOf(input);
+        double result = MI_TO_KM * Double.parseDouble(input);
         return String.format("%d", Math.round(result));
     }
 
     public static String kphTomph(String input) {
-        double result = KM_TO_MI * Double.valueOf(input);
+        double result = KM_TO_MI * Double.parseDouble(input);
         return String.format("%d", Math.round(result));
     }
 
     public static String msecToMph(String input) {
-        double result = MSEC_TO_MPH * Double.valueOf(input);
+        double result = MSEC_TO_MPH * Double.parseDouble(input);
         return df.format(Math.round(result));
     }
 
     public static String msecToKph(String input) {
-        double result = MSEC_TO_KPH * Double.valueOf(input);
+        double result = MSEC_TO_KPH * Double.parseDouble(input);
         return df.format(Math.round(result));
     }
 
     public static String FtoC(String input) {
-        double result = (Double.valueOf(input) - 32) * ((double) 5 / 9);
+        double result = (Double.parseDouble(input) - 32) * ((double) 5 / 9);
         return String.format("%d", Math.round(result));
     }
 
     public static String CtoF(String input) {
-        double result = (Double.valueOf(input) * ((double) 9 / 5)) + 32;
+        double result = (Double.parseDouble(input) * ((double) 9 / 5)) + 32;
         return String.format("%d", Math.round(result));
     }
 
     public static String KtoC(String input) {
-        double result = Double.valueOf(input) - 273.15;
+        double result = Double.parseDouble(input) - 273.15;
         return String.format("%d", Math.round(result));
     }
 
     public static String KtoF(String input) {
-        double result = (Double.valueOf(input) * ((double) 9 / 5)) - 459.67;
+        double result = (Double.parseDouble(input) * ((double) 9 / 5)) - 459.67;
         return String.format("%d", Math.round(result));
     }
 

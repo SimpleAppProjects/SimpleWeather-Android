@@ -46,11 +46,11 @@ public class Precipitation {
         // Use cloudiness value here
         pop = Integer.toString(root.getClouds().getAll());
         if (root.getRain() != null) {
-            qpfRainIn = Float.valueOf(ConversionMethods.mmToIn(Float.toString(root.getRain().get_3h())));
+            qpfRainIn = Float.parseFloat(ConversionMethods.mmToIn(Float.toString(root.getRain().get_3h())));
             qpfRainMm = root.getRain().get_3h();
         }
         if (root.getSnow() != null) {
-            qpfSnowIn = Float.valueOf(ConversionMethods.mmToIn(Float.toString(root.getSnow().get_3h())));
+            qpfSnowIn = Float.parseFloat(ConversionMethods.mmToIn(Float.toString(root.getSnow().get_3h())));
             qpfSnowCm = root.getSnow().get_3h();
         }
     }
@@ -65,20 +65,20 @@ public class Precipitation {
         pop = forecast.getPrecipitationProbability();
 
         try {
-            qpfRainIn = Float.valueOf(forecast.getRainFall());
+            qpfRainIn = Float.parseFloat(forecast.getRainFall());
         } catch (NumberFormatException ex) {
             qpfRainIn = 0.00f;
         }
 
-        qpfRainMm = Float.valueOf(ConversionMethods.inToMM(Float.toString(qpfRainIn)));
+        qpfRainMm = Float.parseFloat(ConversionMethods.inToMM(Float.toString(qpfRainIn)));
 
         try {
-            qpfSnowIn = Float.valueOf(forecast.getSnowFall());
+            qpfSnowIn = Float.parseFloat(forecast.getSnowFall());
         } catch (NumberFormatException ex) {
             qpfSnowIn = 0.00f;
         }
 
-        qpfSnowCm = Float.valueOf(ConversionMethods.inToMM(Float.toString(qpfSnowIn))) / 10;
+        qpfSnowCm = Float.parseFloat(ConversionMethods.inToMM(Float.toString(qpfSnowIn))) / 10;
     }
 
     public String getPop() {
@@ -158,16 +158,16 @@ public class Precipitation {
                         obj.pop = reader.nextString();
                         break;
                     case "qpf_rain_in":
-                        obj.qpfRainIn = Float.valueOf(reader.nextString());
+                        obj.qpfRainIn = Float.parseFloat(reader.nextString());
                         break;
                     case "qpf_rain_mm":
-                        obj.qpfRainMm = Float.valueOf(reader.nextString());
+                        obj.qpfRainMm = Float.parseFloat(reader.nextString());
                         break;
                     case "qpf_snow_in":
-                        obj.qpfSnowIn = Float.valueOf(reader.nextString());
+                        obj.qpfSnowIn = Float.parseFloat(reader.nextString());
                         break;
                     case "qpf_snow_cm":
-                        obj.qpfSnowCm = Float.valueOf(reader.nextString());
+                        obj.qpfSnowCm = Float.parseFloat(reader.nextString());
                         break;
                     default:
                         break;

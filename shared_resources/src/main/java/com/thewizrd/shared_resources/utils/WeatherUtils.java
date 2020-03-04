@@ -313,8 +313,8 @@ public class WeatherUtils {
 
         public void setCoordinate(String coordinatePair) {
             String[] coord = coordinatePair.split(",");
-            lat = Double.valueOf(coord[0]);
-            _long = Double.valueOf(coord[1]);
+            lat = Double.parseDouble(coord[0]);
+            _long = Double.parseDouble(coord[1]);
         }
 
         public void setCoordinate(double latitude, double longitude) {

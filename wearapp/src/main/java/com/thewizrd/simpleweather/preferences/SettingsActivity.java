@@ -460,7 +460,7 @@ public class SettingsActivity extends WearableActivity {
             syncPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    int newVal = Integer.valueOf(newValue.toString());
+                    int newVal = Integer.parseInt(newValue.toString());
 
                     ListPreference pref = (ListPreference) preference;
                     pref.setSummary(pref.getEntries()[newVal]);
@@ -469,7 +469,7 @@ public class SettingsActivity extends WearableActivity {
                     return true;
                 }
             });
-            syncPreference.setSummary(syncPreference.getEntries()[Integer.valueOf(syncPreference.getValue())]);
+            syncPreference.setSummary(syncPreference.getEntries()[Integer.parseInt(syncPreference.getValue())]);
             enableSyncedSettings(Settings.getDataSync() == WearableDataSync.OFF);
 
             connStatusPref = findPreference(KEY_CONNSTATUS);

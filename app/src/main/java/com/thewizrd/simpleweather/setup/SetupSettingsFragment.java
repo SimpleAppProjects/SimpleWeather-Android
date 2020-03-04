@@ -97,7 +97,7 @@ public class SetupSettingsFragment extends Fragment implements Step {
                 if (binding.intervalPrefSpinner.getSelectedItem() instanceof ComboBoxItem) {
                     ComboBoxItem item = (ComboBoxItem) binding.intervalPrefSpinner.getSelectedItem();
                     binding.intervalPrefSummary.setText(item.getDisplay());
-                    mDataManager.getArguments().putInt(Settings.KEY_REFRESHINTERVAL, Integer.valueOf(item.getValue()));
+                    mDataManager.getArguments().putInt(Settings.KEY_REFRESHINTERVAL, Integer.parseInt(item.getValue()));
                 }
             }
 

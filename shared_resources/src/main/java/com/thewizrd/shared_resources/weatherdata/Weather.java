@@ -81,8 +81,8 @@ public class Weather {
 
         // Set feelslike temp
         if (condition.getTempF() > 80) {
-            condition.setFeelslikeF(WeatherUtils.calculateHeatIndex((float) condition.getTempF(), Integer.valueOf(atmosphere.getHumidity().replace("%", ""))));
-            condition.setFeelslikeC(Double.valueOf(ConversionMethods.FtoC(Double.toString(condition.getFeelslikeF()))));
+            condition.setFeelslikeF(WeatherUtils.calculateHeatIndex((float) condition.getTempF(), Integer.parseInt(atmosphere.getHumidity().replace("%", ""))));
+            condition.setFeelslikeC(Double.parseDouble(ConversionMethods.FtoC(Double.toString(condition.getFeelslikeF()))));
         }
 
         source = WeatherAPI.YAHOO;
@@ -191,8 +191,8 @@ public class Weather {
         query = Integer.toString(currRoot.getId());
 
         // Set feelslike temp
-        condition.setFeelslikeF(Float.valueOf(WeatherUtils.getFeelsLikeTemp(Double.toString(condition.getTempF()), Double.toString(condition.getWindMph()), atmosphere.getHumidity())));
-        condition.setFeelslikeC(Float.valueOf(ConversionMethods.FtoC(Double.toString(condition.getFeelslikeF()))));
+        condition.setFeelslikeF(Float.parseFloat(WeatherUtils.getFeelsLikeTemp(Double.toString(condition.getTempF()), Double.toString(condition.getWindMph()), atmosphere.getHumidity())));
+        condition.setFeelslikeC(Float.parseFloat(ConversionMethods.FtoC(Double.toString(condition.getFeelslikeF()))));
 
         source = WeatherAPI.OPENWEATHERMAP;
     }
@@ -372,8 +372,8 @@ public class Weather {
         query = String.format("lat=%s&lon=%s", location.getLatitude(), location.getLongitude());
 
         // Set feelslike temp
-        condition.setFeelslikeF(Float.valueOf(WeatherUtils.getFeelsLikeTemp(Double.toString(condition.getTempF()), Double.toString(condition.getWindMph()), atmosphere.getHumidity())));
-        condition.setFeelslikeC(Float.valueOf(ConversionMethods.FtoC(Double.toString(condition.getFeelslikeF()))));
+        condition.setFeelslikeF(Float.parseFloat(WeatherUtils.getFeelsLikeTemp(Double.toString(condition.getTempF()), Double.toString(condition.getWindMph()), atmosphere.getHumidity())));
+        condition.setFeelslikeC(Float.parseFloat(ConversionMethods.FtoC(Double.toString(condition.getFeelslikeF()))));
 
         source = WeatherAPI.METNO;
     }

@@ -246,10 +246,10 @@ public class ForecastExtras {
 
                 switch (property) {
                     case "feelslike_f":
-                        obj.feelslikeF = Float.valueOf(reader.nextString());
+                        obj.feelslikeF = Float.parseFloat(reader.nextString());
                         break;
                     case "feelslike_c":
-                        obj.feelslikeC = Float.valueOf(reader.nextString());
+                        obj.feelslikeC = Float.parseFloat(reader.nextString());
                         break;
                     case "humidity":
                         obj.humidity = reader.nextString();
@@ -261,22 +261,22 @@ public class ForecastExtras {
                         obj.dewpointC = reader.nextString();
                         break;
                     case "uv_index":
-                        obj.uvIndex = Float.valueOf(reader.nextString());
+                        obj.uvIndex = Float.parseFloat(reader.nextString());
                         break;
                     case "pop":
                         obj.pop = reader.nextString();
                         break;
                     case "qpf_rain_in":
-                        obj.qpfRainIn = Float.valueOf(reader.nextString());
+                        obj.qpfRainIn = Float.parseFloat(reader.nextString());
                         break;
                     case "qpf_rain_mm":
-                        obj.qpfRainMm = Float.valueOf(reader.nextString());
+                        obj.qpfRainMm = Float.parseFloat(reader.nextString());
                         break;
                     case "qpf_snow_in":
-                        obj.qpfSnowIn = Float.valueOf(reader.nextString());
+                        obj.qpfSnowIn = Float.parseFloat(reader.nextString());
                         break;
                     case "qpf_snow_cm":
-                        obj.qpfSnowCm = Float.valueOf(reader.nextString());
+                        obj.qpfSnowCm = Float.parseFloat(reader.nextString());
                         break;
                     case "pressure_mb":
                         obj.pressureMb = reader.nextString();
@@ -285,13 +285,13 @@ public class ForecastExtras {
                         obj.pressureIn = reader.nextString();
                         break;
                     case "wind_degrees":
-                        obj.windDegrees = Integer.valueOf(reader.nextString());
+                        obj.windDegrees = Integer.parseInt(reader.nextString());
                         break;
                     case "wind_mph":
-                        obj.windMph = Float.valueOf(reader.nextString());
+                        obj.windMph = Float.parseFloat(reader.nextString());
                         break;
                     case "wind_kph":
-                        obj.windKph = Float.valueOf(reader.nextString());
+                        obj.windKph = Float.parseFloat(reader.nextString());
                         break;
                     case "visibility_mi":
                         obj.visibilityMi = reader.nextString();

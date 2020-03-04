@@ -162,14 +162,14 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
 
                     for (T forecastItemViewModel : forecasts) {
                         try {
-                            float hiTemp = Float.valueOf(StringUtils.removeNonDigitChars(forecastItemViewModel.getHiTemp()));
+                            float hiTemp = Float.parseFloat(StringUtils.removeNonDigitChars(forecastItemViewModel.getHiTemp()));
                             YEntryData hiTempData = new YEntryData(hiTemp, forecastItemViewModel.getHiTemp().trim());
                             hiTempSeries.add(hiTempData);
 
                             if (loTempSeries != null && forecastItemViewModel instanceof ForecastItemViewModel) {
                                 ForecastItemViewModel fVM = (ForecastItemViewModel) forecastItemViewModel;
 
-                                float loTemp = Float.valueOf(StringUtils.removeNonDigitChars(fVM.getLoTemp()));
+                                float loTemp = Float.parseFloat(StringUtils.removeNonDigitChars(fVM.getLoTemp()));
                                 YEntryData loTempData = new YEntryData(loTemp, fVM.getLoTemp().trim());
                                 loTempSeries.add(loTempData);
                             }
@@ -204,7 +204,7 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
 
                     for (T forecastItemViewModel : forecasts) {
                         try {
-                            float wind = Float.valueOf(StringUtils.removeNonDigitChars(forecastItemViewModel.getWindSpeed()));
+                            float wind = Float.parseFloat(StringUtils.removeNonDigitChars(forecastItemViewModel.getWindSpeed()));
                             YEntryData windData = new YEntryData(wind, forecastItemViewModel.getWindSpeed());
 
                             windDataSeries.add(windData);
@@ -235,7 +235,7 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
 
                     for (T forecastItemViewModel : forecasts) {
                         try {
-                            float pop = Float.valueOf(StringUtils.removeNonDigitChars(forecastItemViewModel.getPop()));
+                            float pop = Float.parseFloat(StringUtils.removeNonDigitChars(forecastItemViewModel.getPop()));
                             YEntryData popData = new YEntryData(pop, forecastItemViewModel.getPop().trim());
 
                             popDataSeries.add(popData);

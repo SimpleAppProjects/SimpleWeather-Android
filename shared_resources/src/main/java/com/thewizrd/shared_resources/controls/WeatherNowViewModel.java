@@ -275,8 +275,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
             if (!StringUtils.isNullOrWhitespace(weather.getAtmosphere().getDewpointF())) {
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.DEWPOINT,
                         Settings.isFahrenheit() ?
-                                String.format(Locale.getDefault(), "%dº", Math.round(Float.valueOf(weather.getAtmosphere().getDewpointF()))) :
-                                String.format(Locale.getDefault(), "%dº", Math.round(Float.valueOf(weather.getAtmosphere().getDewpointC())))));
+                                String.format(Locale.getDefault(), "%dº", Math.round(Float.parseFloat(weather.getAtmosphere().getDewpointF()))) :
+                                String.format(Locale.getDefault(), "%dº", Math.round(Float.parseFloat(weather.getAtmosphere().getDewpointC())))));
             }
 
             if (!StringUtils.isNullOrWhitespace(weather.getAtmosphere().getVisibilityMi())) {

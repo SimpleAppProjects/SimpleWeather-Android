@@ -1382,7 +1382,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         private void prepareWidget() {
             // Update Settings
             try {
-                int refreshValue = Integer.valueOf(refreshPref.getValue());
+                int refreshValue = Integer.parseInt(refreshPref.getValue());
                 Settings.setRefreshInterval(refreshValue);
             } catch (NumberFormatException e) {
                 // DO nothing

@@ -30,14 +30,14 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
         condition = forecast.getCondition();
         try {
             hiTemp = (Settings.isFahrenheit() ?
-                    String.format(Locale.ROOT, "%d", Math.round(Double.valueOf(forecast.getHighF()))) : String.format(Locale.ROOT, "%d", Math.round(Double.valueOf(forecast.getHighC())))) + "º";
+                    String.format(Locale.ROOT, "%d", Math.round(Double.parseDouble(forecast.getHighF()))) : String.format(Locale.ROOT, "%d", Math.round(Double.parseDouble(forecast.getHighC())))) + "º";
         } catch (NumberFormatException nFe) {
             hiTemp = "--º ";
             Logger.writeLine(Log.ERROR, nFe);
         }
         try {
             loTemp = (Settings.isFahrenheit() ?
-                    String.format(Locale.ROOT, "%d", Math.round(Double.valueOf(forecast.getLowF()))) : String.format(Locale.ROOT, "%d", Math.round(Double.valueOf(forecast.getLowC())))) + "º";
+                    String.format(Locale.ROOT, "%d", Math.round(Double.parseDouble(forecast.getLowF()))) : String.format(Locale.ROOT, "%d", Math.round(Double.parseDouble(forecast.getLowC())))) + "º";
         } catch (NumberFormatException nFe) {
             loTemp = "--º ";
             Logger.writeLine(Log.ERROR, nFe);
@@ -86,8 +86,8 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
             if (!StringUtils.isNullOrWhitespace(forecast.getExtras().getDewpointF()) && (forecast.getExtras().getDewpointF() != forecast.getExtras().getDewpointC())) {
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.DEWPOINT,
                         Settings.isFahrenheit() ?
-                                String.format(Locale.getDefault(), "%dº", Math.round(Float.valueOf(forecast.getExtras().getDewpointF()))) :
-                                String.format(Locale.getDefault(), "%dº", Math.round(Float.valueOf(forecast.getExtras().getDewpointC())))));
+                                String.format(Locale.getDefault(), "%dº", Math.round(Float.parseFloat(forecast.getExtras().getDewpointF()))) :
+                                String.format(Locale.getDefault(), "%dº", Math.round(Float.parseFloat(forecast.getExtras().getDewpointC())))));
             }
 
             if (forecast.getExtras().getUvIndex() >= 0) {

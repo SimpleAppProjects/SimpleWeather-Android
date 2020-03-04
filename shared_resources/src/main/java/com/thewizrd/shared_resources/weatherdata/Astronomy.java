@@ -94,7 +94,7 @@ public class Astronomy {
         try {
             MoonPhase.MoonPhaseType moonPhaseType;
 
-            int ageOfMoon = Integer.valueOf(moonPhase.getAgeOfMoon());
+            int ageOfMoon = Integer.parseInt(moonPhase.getAgeOfMoon());
             if (ageOfMoon >= 2 && ageOfMoon < 8) {
                 moonPhaseType = MoonPhase.MoonPhaseType.WAXING_CRESCENT;
             } else if (ageOfMoon == 8) {

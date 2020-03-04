@@ -219,16 +219,16 @@ public class LocationData {
                         obj.name = reader.nextString();
                         break;
                     case "latitude":
-                        obj.latitude = Double.valueOf(reader.nextString());
+                        obj.latitude = Double.parseDouble(reader.nextString());
                         break;
                     case "longitude":
-                        obj.longitude = Double.valueOf(reader.nextString());
+                        obj.longitude = Double.parseDouble(reader.nextString());
                         break;
                     case "tz_long":
                         obj.tzLong = reader.nextString();
                         break;
                     case "locationType":
-                        obj.locationType = LocationType.valueOf(Integer.valueOf(reader.nextString()));
+                        obj.locationType = LocationType.valueOf(Integer.parseInt(reader.nextString()));
                         break;
                     case "source":
                         obj.weatherSource = reader.nextString();

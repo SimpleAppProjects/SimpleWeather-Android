@@ -62,11 +62,11 @@ public class TextForecast {
         fcttext = String.format("%s %s %sF. %s %sF. %s %s %smph",
                 fctxt,
                 context.getString(R.string.label_high),
-                Math.round(Double.valueOf(forecast.getHighTemperature())),
+                Math.round(Double.parseDouble(forecast.getHighTemperature())),
                 context.getString(R.string.label_low),
-                Math.round(Double.valueOf(forecast.getLowTemperature())),
+                Math.round(Double.parseDouble(forecast.getLowTemperature())),
                 context.getString(R.string.label_wind),
-                forecast.getWindDesc(), Math.round(Double.valueOf(forecast.getWindSpeed())));
+                forecast.getWindDesc(), Math.round(Double.parseDouble(forecast.getWindSpeed())));
 
         fcttextMetric = String.format("%s %s %sC. %s %sC. %s %s %skph",
                 fctxt,
@@ -75,7 +75,7 @@ public class TextForecast {
                 context.getString(R.string.label_low),
                 ConversionMethods.FtoC(forecast.getLowTemperature()),
                 context.getString(R.string.label_wind),
-                forecast.getWindDesc(), Math.round(Double.valueOf(ConversionMethods.mphTokph(forecast.getWindSpeed()))));
+                forecast.getWindDesc(), Math.round(Double.parseDouble(ConversionMethods.mphTokph(forecast.getWindSpeed()))));
 
         icon = WeatherManager.getProvider(WeatherAPI.HERE)
                 .getWeatherIcon(String.format("%s_%s", forecast.getDaylight(), forecast.getIconName()));
