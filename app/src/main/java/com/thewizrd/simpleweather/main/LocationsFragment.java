@@ -1535,20 +1535,20 @@ public class LocationsFragment extends ToolbarFragment
 
     private OnListChangedListener<LocationPanelViewModel> onListChangedListener = new OnListChangedListener<LocationPanelViewModel>() {
         @Override
-        public void onChanged(ArrayList<LocationPanelViewModel> sender, ListChangedArgs e) {
-            final boolean dataMoved = (e.action == ListChangedAction.REMOVE || e.action == ListChangedAction.MOVE);
-            final boolean onlyHomeIsLeft = (mAdapter.getFavoritesCount() == 1);
-
-            // Flag that data has changed
-            if (mEditMode && dataMoved)
-                mDataChanged = true;
-
-            if (mEditMode && (e.newStartingIndex == App.HOMEIDX || e.oldStartingIndex == App.HOMEIDX))
-                mHomeChanged = true;
-
+        public void onChanged(final ArrayList<LocationPanelViewModel> sender, final ListChangedArgs e) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    boolean dataMoved = (e.action == ListChangedAction.REMOVE || e.action == ListChangedAction.MOVE);
+                    boolean onlyHomeIsLeft = (mAdapter.getFavoritesCount() == 1);
+
+                    // Flag that data has changed
+                    if (mEditMode && dataMoved)
+                        mDataChanged = true;
+
+                    if (mEditMode && (e.newStartingIndex == App.HOMEIDX || e.oldStartingIndex == App.HOMEIDX))
+                        mHomeChanged = true;
+
                     // Hide FAB; Don't allow adding more locations
                     if (mAdapter.getDataCount() >= MAX_LOCATIONS) {
                         binding.fab.hide();
