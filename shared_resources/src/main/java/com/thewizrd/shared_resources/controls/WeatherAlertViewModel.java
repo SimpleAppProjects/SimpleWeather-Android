@@ -111,6 +111,10 @@ public class WeatherAlertViewModel {
         this.attribution = attribution;
     }
 
+    public String getAlertBodyMessage() {
+        return String.format("%s\n%s\n%s", getExpireDate(), getMessage(), getAttribution());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

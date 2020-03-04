@@ -20,8 +20,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -51,6 +49,8 @@ import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.FragmentLocationSearchBinding;
+import com.thewizrd.simpleweather.databinding.SearchActionBarBinding;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface;
@@ -63,13 +63,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class LocationSearchFragment extends Fragment implements SnackbarManagerInterface {
-    private RecyclerView mRecyclerView;
+    private FragmentLocationSearchBinding binding;
+    private SearchActionBarBinding searchBarBinding;
     private LocationQueryAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private ProgressBar mProgressBar;
-    private View mBackButton;
-    private View mClearButton;
-    private EditText mSearchView;
     private FragmentActivity mActivity;
 
     private SnackbarManager mSnackMgr;
@@ -121,7 +118,7 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
 
     @Override
     public void onPause() {
-        mSearchView.clearFocus();
+        searchBarBinding.searchView.clearFocus();
         super.onPause();
         ctsCancel();
     }
@@ -193,12 +190,21 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+                searchBarBinding.searchProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
 
-                if (show || (!show && StringUtils.isNullOrEmpty(mSearchView.getText().toString())))
-                    mClearButton.setVisibility(View.GONE);
+                if (show || StringUtils.isNullOrEmpty(searchBarBinding.searchView.getText().toString()))
+                    searchBarBinding.searchCloseButton.setVisibility(View.GONE);
                 else
-                    mClearButton.setVisibility(View.VISIBLE);
+                    searchBarBinding.searchCloseButton.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    public void disableRecyclerView() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                binding.recyclerView.setEnabled(false);
             }
         });
     }
@@ -208,30 +214,27 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_location_search, container, false);
-
-        mProgressBar = view.findViewById(R.id.search_progressBar);
-        mBackButton = view.findViewById(R.id.search_back_button);
-        mClearButton = view.findViewById(R.id.search_close_button);
-        mSearchView = view.findViewById(R.id.search_view);
+        binding = FragmentLocationSearchBinding.inflate(inflater, container, false);
+        searchBarBinding = binding.searchBar;
+        View view = binding.getRoot();
 
         // Initialize
-        mBackButton.setOnClickListener(new View.OnClickListener() {
+        searchBarBinding.searchBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mActivity != null) mActivity.onBackPressed();
             }
         });
 
-        mClearButton.setOnClickListener(new View.OnClickListener() {
+        searchBarBinding.searchCloseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mSearchView.setText("");
+                searchBarBinding.searchView.setText("");
             }
         });
-        mClearButton.setVisibility(View.GONE);
+        searchBarBinding.searchCloseButton.setVisibility(View.GONE);
 
-        mSearchView.addTextChangedListener(new TextWatcher() {
+        searchBarBinding.searchView.addTextChangedListener(new TextWatcher() {
             private Timer timer = new Timer();
             private final long DELAY = 1000; // milliseconds
 
@@ -272,13 +275,13 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
                     public void run() {
                         final String newText = e.toString();
 
-                        mClearButton.setVisibility(StringUtils.isNullOrEmpty(newText) ? View.GONE : View.VISIBLE);
+                        searchBarBinding.searchCloseButton.setVisibility(StringUtils.isNullOrEmpty(newText) ? View.GONE : View.VISIBLE);
                         fetchLocations(newText);
                     }
                 });
             }
         });
-        mSearchView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        searchBarBinding.searchView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
@@ -288,7 +291,7 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
                 }
             }
         });
-        mSearchView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        searchBarBinding.searchView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -301,11 +304,9 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
         });
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            mProgressBar.setIndeterminateDrawable(
+            searchBarBinding.searchProgressBar.setIndeterminateDrawable(
                     ContextCompat.getDrawable(mActivity, R.drawable.progressring));
         }
-
-        mRecyclerView = view.findViewById(R.id.recycler_view);
 
         /*
            Capture touch events on RecyclerView
@@ -313,7 +314,7 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
            Hide the keyboard if we're scrolling to the bottom (so the bottom items behind the keyboard are visible)
            Leave the keyboard up if we're scrolling to the top (items at the top are already visible)
         */
-        mRecyclerView.setOnTouchListener(new View.OnTouchListener() {
+        binding.recyclerView.setOnTouchListener(new View.OnTouchListener() {
             private int mY;
             private boolean shouldCloseKeyboard = false;
 
@@ -346,11 +347,11 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
             }
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(mRecyclerView, new OnApplyWindowInsetsListener() {
-            private int paddingStart = ViewCompat.getPaddingStart(mRecyclerView);
-            private int paddingTop = mRecyclerView.getPaddingTop();
-            private int paddingEnd = ViewCompat.getPaddingEnd(mRecyclerView);
-            private int paddingBottom = mRecyclerView.getPaddingBottom();
+        ViewCompat.setOnApplyWindowInsetsListener(binding.recyclerView, new OnApplyWindowInsetsListener() {
+            private int paddingStart = ViewCompat.getPaddingStart(binding.recyclerView);
+            private int paddingTop = binding.recyclerView.getPaddingTop();
+            private int paddingEnd = ViewCompat.getPaddingEnd(binding.recyclerView);
+            private int paddingBottom = binding.recyclerView.getPaddingBottom();
 
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
@@ -363,7 +364,7 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
             }
         });
 
-        mRecyclerView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+        binding.recyclerView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
             @Override
             public void onViewAttachedToWindow(View v) {
                 ViewCompat.requestApplyInsets(v);
@@ -377,21 +378,21 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
-        mRecyclerView.setHasFixedSize(true);
+        binding.recyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(mActivity);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        binding.recyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
         mAdapter = new LocationQueryAdapter(new ArrayList<LocationQueryViewModel>());
         mAdapter.setOnClickListener(recyclerClickListener);
-        mRecyclerView.setAdapter(mAdapter);
+        binding.recyclerView.setAdapter(mAdapter);
 
         if (savedInstanceState != null) {
             String text = savedInstanceState.getString(KEY_SEARCHTEXT);
             if (!StringUtils.isNullOrWhitespace(text)) {
-                mSearchView.setText(text, TextView.BufferType.EDITABLE);
+                searchBarBinding.searchView.setText(text, TextView.BufferType.EDITABLE);
             }
         }
 
@@ -405,6 +406,13 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
         int bg_color = Settings.getUserThemeMode() != UserThemeMode.AMOLED_DARK ?
                 ActivityUtils.getColor(mActivity, android.R.attr.colorBackground) : Colors.BLACK;
         view.setBackgroundColor(bg_color);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        searchBarBinding = null;
+        binding = null;
     }
 
     public void fetchLocations(final String queryString) {
@@ -459,7 +467,7 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
 
         final View root = getView();
         if (root != null) {
-            final View searchBarContainer = root.findViewById(R.id.search_action_bar);
+            final View searchBarContainer = searchBarBinding.getRoot();
             searchBarContainer.postOnAnimation(new Runnable() {
                 @Override
                 public void run() {
@@ -483,7 +491,7 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
             });
         }
 
-        mSearchView.requestFocus();
+        searchBarBinding.searchView.requestFocus();
     }
 
     private void showInputMethod(View view) {
@@ -519,8 +527,8 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putString(KEY_SEARCHTEXT,
-                mSearchView.getText() != null && !StringUtils.isNullOrWhitespace(mSearchView.getText().toString())
-                        ? mSearchView.getText().toString() : "");
+                searchBarBinding.searchView.getText() != null && !StringUtils.isNullOrWhitespace(searchBarBinding.searchView.getText().toString())
+                        ? searchBarBinding.searchView.getText().toString() : "");
 
         super.onSaveInstanceState(outState);
     }

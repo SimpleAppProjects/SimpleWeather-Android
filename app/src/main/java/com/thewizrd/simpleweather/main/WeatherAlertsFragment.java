@@ -53,13 +53,13 @@ public class WeatherAlertsFragment extends WeatherListFragment {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    locationName.setText(weatherView.getLocation());
+                    binding.locationName.setText(weatherView.getLocation());
 
                     // specify an adapter (see also next example)
                     List<WeatherAlertViewModel> alerts = null;
                     if (weatherView.getExtras() != null && weatherView.getExtras().getAlerts() != null)
                         alerts = weatherView.getExtras().getAlerts();
-                    recyclerView.setAdapter(new WeatherAlertPanelAdapter(alerts));
+                    binding.recyclerView.setAdapter(new WeatherAlertPanelAdapter(alerts));
                 }
             });
         }

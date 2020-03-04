@@ -23,12 +23,12 @@ import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
-import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.ActivitySetupBinding;
 import com.thewizrd.simpleweather.main.MainActivity;
 
 public class SetupActivity extends AppCompatActivity implements StepperLayout.StepperListener, StepperDataManager {
 
-    private StepperLayout mStepperLayout;
+    private ActivitySetupBinding binding;
     private final String CURRENT_STEP_POSITION_KEY = "position";
     private final String KEY_ARGS = "args";
     private Bundle args = new Bundle();
@@ -59,9 +59,10 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
                 setResult(RESULT_CANCELED, new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId));
         }
 
-        setContentView(R.layout.activity_setup);
+        binding = ActivitySetupBinding.inflate(getLayoutInflater());
+        View mRootView = binding.getRoot();
+        setContentView(mRootView);
 
-        View mRootView = findViewById(R.id.activity_setup);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
             mRootView.setFitsSystemWindows(true);
 
@@ -79,12 +80,11 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
         if (args == null) args = new Bundle();
         args.putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
 
-        mStepperLayout = findViewById(R.id.stepperLayout);
-        mStepperLayout.setCompleteButtonColor(Colors.WHITE);
-        mStepperLayout.setAdapter(new SetupStepperAdapter(getSupportFragmentManager(), this), startingStepPosition);
-        mStepperLayout.setListener(this);
+        binding.stepperLayout.setCompleteButtonColor(Colors.WHITE);
+        binding.stepperLayout.setAdapter(new SetupStepperAdapter(getSupportFragmentManager(), this), startingStepPosition);
+        binding.stepperLayout.setListener(this);
 
-        ViewCompat.setOnApplyWindowInsetsListener(mStepperLayout, new OnApplyWindowInsetsListener() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.stepperLayout, new OnApplyWindowInsetsListener() {
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
@@ -96,7 +96,7 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putInt(CURRENT_STEP_POSITION_KEY, mStepperLayout.getCurrentStepPosition());
+        outState.putInt(CURRENT_STEP_POSITION_KEY, binding.stepperLayout.getCurrentStepPosition());
         outState.putBundle(KEY_ARGS, args);
         super.onSaveInstanceState(outState);
     }
@@ -153,7 +153,7 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
 
     @Override
     public void onBackPressed() {
-        StepAdapter adapter = mStepperLayout.getAdapter();
+        StepAdapter adapter = binding.stepperLayout.getAdapter();
         Fragment current = (Fragment) adapter.findStep(currentPosition);
 
         OnBackPressedFragmentListener fragBackPressedListener = null;

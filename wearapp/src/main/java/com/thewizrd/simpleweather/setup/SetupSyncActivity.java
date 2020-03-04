@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.wearable.view.ConfirmationOverlay;
 import android.view.View;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -18,6 +17,7 @@ import com.google.android.wearable.intent.RemoteIntent;
 import com.thewizrd.shared_resources.wearable.WearConnectionStatus;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.ActivitySetupSyncBinding;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
@@ -26,8 +26,7 @@ public class SetupSyncActivity extends Activity {
     private boolean locationDataReceived = false;
     private boolean weatherDataReceived = false;
 
-    private CircularProgressLayout mCircularProgress;
-    private TextView mTextView;
+    private ActivitySetupSyncBinding binding;
     private BroadcastReceiver mBroadcastReceiver;
     private IntentFilter intentFilter;
 
@@ -35,21 +34,20 @@ public class SetupSyncActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Create your application here
-        setContentView(R.layout.activity_setup_sync);
+        binding = ActivitySetupSyncBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        mCircularProgress = findViewById(R.id.circular_progress);
-        mCircularProgress.setIndeterminate(true);
-        mCircularProgress.setOnClickListener(new View.OnClickListener() {
+        binding.circularProgress.setIndeterminate(true);
+        binding.circularProgress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // User canceled, abort the action
-                mCircularProgress.stopTimer();
+                binding.circularProgress.stopTimer();
                 setResult(RESULT_CANCELED);
                 finish();
             }
         });
-        mCircularProgress.setOnTimerFinishedListener(new CircularProgressLayout.OnTimerFinishedListener() {
+        binding.circularProgress.setOnTimerFinishedListener(new CircularProgressLayout.OnTimerFinishedListener() {
             @Override
             public void onTimerFinished(CircularProgressLayout layout) {
                 // User didn't cancel, perform the action
@@ -61,7 +59,6 @@ public class SetupSyncActivity extends Activity {
                 finish();
             }
         });
-        mTextView = findViewById(R.id.message);
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -69,15 +66,15 @@ public class SetupSyncActivity extends Activity {
                     WearConnectionStatus connStatus = WearConnectionStatus.valueOf(intent.getIntExtra(WearableDataListenerService.EXTRA_CONNECTIONSTATUS, 0));
                     switch (connStatus) {
                         case DISCONNECTED:
-                            mTextView.setText(R.string.status_disconnected);
+                            binding.message.setText(R.string.status_disconnected);
                             errorProgress();
                             break;
                         case CONNECTING:
-                            mTextView.setText(R.string.status_connecting);
+                            binding.message.setText(R.string.status_connecting);
                             resetTimer();
                             break;
                         case APPNOTINSTALLED:
-                            mTextView.setText(R.string.error_notinstalled);
+                            binding.message.setText(R.string.error_notinstalled);
                             resetTimer();
 
                             // Open store on remote device
@@ -91,7 +88,7 @@ public class SetupSyncActivity extends Activity {
                             errorProgress();
                             break;
                         case CONNECTED:
-                            mTextView.setText(R.string.status_connected);
+                            binding.message.setText(R.string.status_connected);
                             resetTimer();
                             // Continue operation
                             startService(new Intent(SetupSyncActivity.this, WearableDataListenerService.class)
@@ -99,7 +96,7 @@ public class SetupSyncActivity extends Activity {
                             break;
                     }
                 } else if (WearableHelper.ErrorPath.equals(intent.getAction())) {
-                    mTextView.setText(R.string.error_syncing);
+                    binding.message.setText(R.string.error_syncing);
                     errorProgress();
                 } else if (WearableHelper.IsSetupPath.equals(intent.getAction())) {
                     boolean isDeviceSetup = intent.getBooleanExtra(WearableDataListenerService.EXTRA_DEVICESETUPSTATUS, false);
@@ -113,23 +110,23 @@ public class SetupSyncActivity extends Activity {
                             .showOn(SetupSyncActivity.this);
 
                     if (!success) {
-                        mTextView.setText(R.string.error_syncing);
+                        binding.message.setText(R.string.error_syncing);
                         errorProgress();
                     }
                 } else if (WearableHelper.SettingsPath.equals(intent.getAction())) {
-                    mTextView.setText(R.string.message_settingsretrieved);
+                    binding.message.setText(R.string.message_settingsretrieved);
                     settingsDataReceived = true;
 
                     if (settingsDataReceived && locationDataReceived && weatherDataReceived)
                         successProgress();
                 } else if (WearableHelper.LocationPath.equals(intent.getAction())) {
-                    mTextView.setText(R.string.message_locationretrieved);
+                    binding.message.setText(R.string.message_locationretrieved);
                     locationDataReceived = true;
 
                     if (settingsDataReceived && locationDataReceived && weatherDataReceived)
                         successProgress();
                 } else if (WearableHelper.WeatherPath.equals(intent.getAction())) {
-                    mTextView.setText(R.string.message_weatherretrieved);
+                    binding.message.setText(R.string.message_weatherretrieved);
                     weatherDataReceived = true;
 
                     if (settingsDataReceived && locationDataReceived && weatherDataReceived)
@@ -138,7 +135,7 @@ public class SetupSyncActivity extends Activity {
             }
         };
 
-        mTextView.setText(R.string.message_gettingstatus);
+        binding.message.setText(R.string.message_gettingstatus);
 
         intentFilter = new IntentFilter();
         intentFilter.addAction(WearableDataListenerService.ACTION_UPDATECONNECTIONSTATUS);
@@ -178,9 +175,9 @@ public class SetupSyncActivity extends Activity {
     }
 
     private void errorProgress() {
-        mCircularProgress.setIndeterminate(false);
-        mCircularProgress.setTotalTime(5000);
-        mCircularProgress.startTimer();
+        binding.circularProgress.setIndeterminate(false);
+        binding.circularProgress.setTotalTime(5000);
+        binding.circularProgress.startTimer();
 
         settingsDataReceived = false;
         locationDataReceived = false;
@@ -188,21 +185,21 @@ public class SetupSyncActivity extends Activity {
     }
 
     private void resetTimer() {
-        mCircularProgress.stopTimer();
-        mCircularProgress.setIndeterminate(true);
+        binding.circularProgress.stopTimer();
+        binding.circularProgress.setIndeterminate(true);
     }
 
     private void successProgress() {
-        mTextView.setText(R.string.message_synccompleted);
+        binding.message.setText(R.string.message_synccompleted);
 
-        mCircularProgress.setIndeterminate(false);
-        mCircularProgress.setTotalTime(1);
-        mCircularProgress.startTimer();
+        binding.circularProgress.setIndeterminate(false);
+        binding.circularProgress.setTotalTime(1);
+        binding.circularProgress.startTimer();
     }
 
     private void start(boolean isDeviceSetup) {
         if (isDeviceSetup) {
-            mTextView.setText(R.string.message_retrievingdata);
+            binding.message.setText(R.string.message_retrievingdata);
 
             startService(new Intent(this, WearableDataListenerService.class)
                     .setAction(WearableDataListenerService.ACTION_REQUESTSETTINGSUPDATE));
@@ -211,7 +208,7 @@ public class SetupSyncActivity extends Activity {
             startService(new Intent(this, WearableDataListenerService.class)
                     .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE));
         } else {
-            mTextView.setText(R.string.message_continueondevice);
+            binding.message.setText(R.string.message_continueondevice);
 
             startService(new Intent(this, WearableDataListenerService.class)
                     .setAction(WearableDataListenerService.ACTION_OPENONPHONE));

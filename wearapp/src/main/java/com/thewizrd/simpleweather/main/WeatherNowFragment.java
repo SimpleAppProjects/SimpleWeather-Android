@@ -25,7 +25,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
-import androidx.core.widget.NestedScrollView;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.Observable;
 import androidx.fragment.app.Fragment;
@@ -102,8 +101,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     private CancellationTokenSource cts;
 
     // Views
-    private SwipeRefreshLayout refreshLayout;
-    private NestedScrollView scrollView;
+    private FragmentWeatherNowBinding binding;
 
     // GPS location
     private FusedLocationProviderClient mFusedLocationClient;
@@ -391,7 +389,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        FragmentWeatherNowBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_weather_now, container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_weather_now, container, false);
 
         binding.setWeatherView(weatherView);
         binding.setLifecycleOwner(this);
@@ -399,9 +397,8 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         View view = binding.getRoot();
 
         // SwipeRefresh
-        refreshLayout = (SwipeRefreshLayout) view;
-        refreshLayout.setColorSchemeColors(Colors.SIMPLEBLUE);
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        binding.swipeRefreshLayout.setColorSchemeColors(Colors.SIMPLEBLUE);
+        binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 AsyncTask.run(new Runnable() {
@@ -417,10 +414,9 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                 });
             }
         });
-        refreshLayout.setRefreshing(true);
+        binding.swipeRefreshLayout.setRefreshing(true);
 
-        scrollView = view.findViewById(R.id.fragment_weather_now);
-        scrollView.setOnGenericMotionListener(new View.OnGenericMotionListener() {
+        binding.scrollView.setOnGenericMotionListener(new View.OnGenericMotionListener() {
             @Override
             public boolean onGenericMotion(View v, MotionEvent event) {
                 if (mActivity != null && event.getAction() == MotionEvent.ACTION_SCROLL && RotaryEncoder.isFromRotaryEncoder(event)) {
@@ -449,7 +445,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                         @Override
                         public void run() {
                             updateWindowColors();
-                            refreshLayout.setRefreshing(false);
+                            binding.swipeRefreshLayout.setRefreshing(false);
                         }
                     });
                 }
@@ -457,6 +453,12 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         });
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     private void updateWindowColors() {
@@ -470,7 +472,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                 if (weatherView != null && weatherView.getPendingBackground() != -1) {
                     color = weatherView.getPendingBackground();
                 }
-                refreshLayout.setBackgroundColor(color);
+                binding.swipeRefreshLayout.setBackgroundColor(color);
             }
         });
     }
@@ -551,7 +553,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             // Cancel pending actions
             if (cts != null) {
                 cts.cancel();
-                refreshLayout.setRefreshing(false);
+                binding.swipeRefreshLayout.setRefreshing(false);
             }
         }
 
@@ -579,7 +581,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
         // Cancel pending actions
         if (cts != null) {
             cts.cancel();
-            refreshLayout.setRefreshing(false);
+            binding.swipeRefreshLayout.setRefreshing(false);
         }
 
         if (receiverRegistered) {
@@ -719,7 +721,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    refreshLayout.setRefreshing(true);
+                    binding.swipeRefreshLayout.setRefreshing(true);
                 }
             });
             mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
@@ -780,7 +782,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    refreshLayout.setRefreshing(true);
+                                    binding.swipeRefreshLayout.setRefreshing(true);
                                 }
                             });
 
@@ -866,7 +868,7 @@ public class WeatherNowFragment extends Fragment implements WeatherLoadedListene
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    refreshLayout.setRefreshing(true);
+                    binding.swipeRefreshLayout.setRefreshing(true);
                 }
             });
             AsyncTask.run(new Runnable() {

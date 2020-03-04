@@ -10,20 +10,19 @@ import androidx.databinding.Observable;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.wear.widget.CurvingLayoutCallback;
 import androidx.wear.widget.WearableLinearLayoutManager;
-import androidx.wear.widget.WearableRecyclerView;
 
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
-import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.ForecastItemAdapter;
 import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter;
+import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding;
 import com.thewizrd.simpleweather.fragments.SwipeDismissFragment;
 
 public class WeatherListFragment extends SwipeDismissFragment {
     private WeatherNowViewModel weatherView = null;
 
-    private WearableRecyclerView recyclerView;
+    private FragmentWeatherListBinding binding;
     private WearableLinearLayoutManager mLayoutManager;
     private RecyclerView.Adapter mAdapter;
 
@@ -47,18 +46,23 @@ public class WeatherListFragment extends SwipeDismissFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         // Use this to return your custom view for this Fragment
         View outerView = super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.fragment_weather_list, (ViewGroup) outerView, true);
+        binding = FragmentWeatherListBinding.inflate(inflater, (ViewGroup) outerView, true);
 
-        recyclerView = view.findViewById(R.id.recycler_view);
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setEdgeItemsCenteringEnabled(true);
+        binding.recyclerView.setHasFixedSize(true);
+        binding.recyclerView.setEdgeItemsCenteringEnabled(true);
 
         mLayoutManager = new WearableLinearLayoutManager(mActivity);
-        recyclerView.setLayoutManager(mLayoutManager);
+        binding.recyclerView.setLayoutManager(mLayoutManager);
 
         return outerView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     @Override
@@ -135,7 +139,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
                         break;
                 }
 
-                recyclerView.setAdapter(mAdapter);
+                binding.recyclerView.setAdapter(mAdapter);
             } else {
                 if (mAdapter instanceof ForecastItemAdapter) {
                     ((ForecastItemAdapter) mAdapter).updateItems(weatherView.getForecasts());

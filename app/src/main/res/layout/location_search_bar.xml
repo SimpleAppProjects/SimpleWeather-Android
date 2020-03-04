@@ -1,51 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/search_view_container"
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/searchview_height_region_search"
-    android:layout_marginBottom="8dp"
-    android:layout_marginLeft="8dp"
-    android:layout_marginRight="8dp"
-    android:layout_marginTop="8dp"
-    android:clickable="true"
-    android:elevation="@dimen/appbar_elevation"
-    android:orientation="horizontal">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
-        android:id="@+id/search_box_collapsed"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/search_view_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingLeft="8dp"
-        android:paddingStart="8dp">
+        android:layout_height="@dimen/searchview_height_region_search"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:clickable="true"
+        android:elevation="@dimen/appbar_elevation"
+        android:orientation="horizontal">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/search_magnifying_glass"
-            style="@style/MaterialIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:importantForAccessibility="no"
-            android:padding="4dp"
-            android:text="@string/materialicon_search"
-            android:textColor="@color/invButtonColorText"
-            app:fontFamily="@font/materialicons_regular"
-            tools:fontFamily="@font/materialicons_regular" />
-
-        <TextView
-            android:id="@+id/search_box_start_search"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="22dp"
-            android:layout_marginLeft="22dp"
-            android:layout_weight="1"
-            android:fontFamily="sans-serif"
+        <LinearLayout
+            android:id="@+id/search_box_collapsed"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:hint="@string/setup_location_prompt"
-            android:textColorHint="@color/invButtonColorText"
-            android:textColor="@color/invButtonColorText"
-            android:textSize="14sp" />
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
+            android:orientation="horizontal"
+            android:paddingLeft="8dp"
+            android:paddingStart="8dp">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/search_magnifying_glass"
+                style="@style/MaterialIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:importantForAccessibility="no"
+                android:padding="4dp"
+                android:text="@string/materialicon_search"
+                android:textColor="@color/invButtonColorText"
+                app:fontFamily="@font/materialicons_regular"
+                tools:fontFamily="@font/materialicons_regular" />
+
+            <TextView
+                android:id="@+id/search_box_start_search"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="22dp"
+                android:layout_marginLeft="22dp"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif"
+                android:gravity="center_vertical"
+                android:hint="@string/setup_location_prompt"
+                android:textColorHint="@color/invButtonColorText"
+                android:textColor="@color/invButtonColorText"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</layout>

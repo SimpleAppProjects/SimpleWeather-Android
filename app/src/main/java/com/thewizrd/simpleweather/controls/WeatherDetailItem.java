@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.google.android.material.card.MaterialCardView;
+import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
@@ -23,30 +23,17 @@ import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
-import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.WeatherDetailPanelBinding;
 
 import java.util.Locale;
 
 public class WeatherDetailItem extends ConstraintLayout {
-    private TextView forecastDate;
-    private TextView forecastIcon;
-    private TextView forecastCondition;
-    private TextView forecastExtra;
-    private MaterialCardView headerCard;
-    private MaterialCardView bodyCard;
-    private TextView bodyTextView;
-
+    private WeatherDetailPanelBinding binding;
     private boolean expanded = false;
 
     public WeatherDetailItem(Context context) {
         super(context);
         initialize(context);
-    }
-
-    public WeatherDetailItem(Context context, ForecastItemViewModel forecastView) {
-        super(context);
-        initialize(context);
-        setForecast(forecastView);
     }
 
     public WeatherDetailItem(Context context, AttributeSet attrs) {
@@ -61,40 +48,39 @@ public class WeatherDetailItem extends ConstraintLayout {
 
     private void initialize(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View viewLayout = inflater.inflate(R.layout.weather_detail_panel, this);
 
-        viewLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        binding = WeatherDetailPanelBinding.inflate(inflater, this, true);
 
-        forecastDate = viewLayout.findViewById(R.id.forecast_date);
-        forecastIcon = viewLayout.findViewById(R.id.forecast_icon);
-        forecastCondition = viewLayout.findViewById(R.id.forecast_condition);
-        forecastExtra = viewLayout.findViewById(R.id.forecast_extra);
-        headerCard = viewLayout.findViewById(R.id.header_card);
-        bodyCard = viewLayout.findViewById(R.id.body_card);
-        bodyTextView = viewLayout.findViewById(R.id.body_textview);
+        this.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        forecastExtra.setVisibility(GONE);
-
-        bodyCard.setVisibility(GONE);
-        headerCard.setOnClickListener(onClickListener);
+        binding.headerCard.setOnClickListener(onClickListener);
     }
 
     private View.OnClickListener onClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             expanded = !expanded;
-            bodyCard.setVisibility(expanded ? VISIBLE : GONE);
+            binding.bodyCard.setVisibility(expanded ? VISIBLE : GONE);
         }
     };
 
-    public void setForecast(ForecastItemViewModel forecastView) {
-        forecastDate.setText(forecastView.getDate());
-        forecastIcon.setText(forecastView.getWeatherIcon());
-        forecastCondition.setText(String.format(Locale.ROOT, "%s/ %s- %s",
-                forecastView.getHiTemp(), forecastView.getLoTemp(), forecastView.getCondition()));
-        forecastExtra.setVisibility(GONE);
+    public void bind(BaseForecastItemViewModel model) {
+        if (model instanceof ForecastItemViewModel) {
+            bindModel((ForecastItemViewModel) model);
+        } else if (model instanceof HourlyForecastItemViewModel) {
+            bindModel((HourlyForecastItemViewModel) model);
+        }
+        binding.executePendingBindings();
+    }
 
-        bodyCard.setVisibility(GONE);
+    private void bindModel(ForecastItemViewModel forecastView) {
+        binding.forecastDate.setText(forecastView.getDate());
+        binding.forecastIcon.setText(forecastView.getWeatherIcon());
+        binding.forecastCondition.setText(String.format(Locale.ROOT, "%s/ %s- %s",
+                forecastView.getHiTemp(), forecastView.getLoTemp(), forecastView.getCondition()));
+        binding.forecastExtra.setVisibility(GONE);
+
+        binding.bodyCard.setVisibility(GONE);
 
         SpannableStringBuilder sb = new SpannableStringBuilder();
 
@@ -106,13 +92,13 @@ public class WeatherDetailItem extends ConstraintLayout {
 
         if (forecastView.getExtras() != null && forecastView.getExtras().size() > 0) {
             Context context = getContext();
-            headerCard.setOnClickListener(onClickListener);
+            binding.headerCard.setOnClickListener(onClickListener);
 
             StringBuilder sbExtra = new StringBuilder();
 
             if (StringUtils.isNullOrWhitespace(forecastView.getConditionLongDesc())) {
-                TextPaint paint = forecastCondition.getPaint();
-                Layout layout = forecastCondition.getLayout();
+                TextPaint paint = binding.forecastCondition.getPaint();
+                Layout layout = binding.forecastCondition.getLayout();
                 float textWidth = paint.measureText(forecastView.getCondition());
 
                 if (layout != null && textWidth > layout.getWidth()) {
@@ -154,30 +140,30 @@ public class WeatherDetailItem extends ConstraintLayout {
             }
 
             if (sbExtra.length() > 0) {
-                forecastExtra.setVisibility(VISIBLE);
-                forecastExtra.setText(sbExtra);
+                binding.forecastExtra.setVisibility(VISIBLE);
+                binding.forecastExtra.setText(sbExtra);
             }
 
-            bodyTextView.setText(sb, TextView.BufferType.SPANNABLE);
+            binding.bodyTextview.setText(sb, TextView.BufferType.SPANNABLE);
         } else if (sb.length() > 0) {
-            bodyTextView.setText(sb, TextView.BufferType.SPANNABLE);
-            headerCard.setOnClickListener(onClickListener);
+            binding.bodyTextview.setText(sb, TextView.BufferType.SPANNABLE);
+            binding.headerCard.setOnClickListener(onClickListener);
         } else {
-            headerCard.setOnClickListener(null);
+            binding.headerCard.setOnClickListener(null);
         }
     }
 
-    public void setForecast(final HourlyForecastItemViewModel forecastView) {
-        forecastDate.setText(forecastView.getDate());
-        forecastIcon.setText(forecastView.getWeatherIcon());
-        forecastCondition.setText(String.format(Locale.ROOT, "%s- %s",
+    private void bindModel(final HourlyForecastItemViewModel forecastView) {
+        binding.forecastDate.setText(forecastView.getDate());
+        binding.forecastIcon.setText(forecastView.getWeatherIcon());
+        binding.forecastCondition.setText(String.format(Locale.ROOT, "%s- %s",
                 forecastView.getHiTemp(), forecastView.getCondition()));
-        forecastExtra.setVisibility(GONE);
+        binding.forecastExtra.setVisibility(GONE);
 
-        bodyCard.setVisibility(GONE);
+        binding.bodyCard.setVisibility(GONE);
         if (forecastView.getExtras() != null && forecastView.getExtras().size() > 0) {
             Context context = getContext();
-            headerCard.setOnClickListener(onClickListener);
+            binding.headerCard.setOnClickListener(onClickListener);
 
             final SpannableStringBuilder sbExtra = new SpannableStringBuilder();
             final SpannableStringBuilder sb = new SpannableStringBuilder();
@@ -214,30 +200,30 @@ public class WeatherDetailItem extends ConstraintLayout {
             }
 
             if (sbExtra.length() > 0) {
-                forecastExtra.setVisibility(VISIBLE);
-                forecastExtra.setText(sbExtra);
+                binding.forecastExtra.setVisibility(VISIBLE);
+                binding.forecastExtra.setText(sbExtra);
             }
 
-            forecastCondition.post(new Runnable() {
+            binding.forecastCondition.post(new Runnable() {
                 @Override
                 public void run() {
-                    TextPaint paint = forecastCondition.getPaint();
+                    TextPaint paint = binding.forecastCondition.getPaint();
                     float textWidth = paint.measureText(forecastView.getCondition());
 
-                    if (textWidth > forecastCondition.getWidth()) {
+                    if (textWidth > binding.forecastCondition.getWidth()) {
                         sb.insert(0, forecastView.getCondition())
                                 .append(StringUtils.lineSeparator())
                                 .append(StringUtils.lineSeparator());
                     } else if (sb.length() == 0) {
-                        headerCard.setOnClickListener(null);
+                        binding.headerCard.setOnClickListener(null);
                         return;
                     }
 
-                    bodyTextView.setText(sb, TextView.BufferType.SPANNABLE);
+                    binding.bodyTextview.setText(sb, TextView.BufferType.SPANNABLE);
                 }
             });
         } else {
-            headerCard.setOnClickListener(null);
+            binding.headerCard.setOnClickListener(null);
         }
     }
 }

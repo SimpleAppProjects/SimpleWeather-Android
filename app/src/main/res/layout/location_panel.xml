@@ -1,97 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".controls.LocationPanel"
-    tools:parentTag="com.google.android.material.card.MaterialCardView"
-    tools:layout_height="@dimen/location_panel_height">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/image_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:srcCompat="@color/colorPrimary" />
+    <data>
 
-    <View
-        android:id="@+id/image_overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:background="@drawable/background_overlay" />
+        <variable
+            name="viewModel"
+            type="com.thewizrd.simpleweather.controls.LocationPanelViewModel" />
+    </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <merge
+        tools:context=".controls.LocationPanel"
+        tools:parentTag="com.google.android.material.card.MaterialCardView"
+        tools:layout_height="@dimen/location_panel_height">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/location_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:ellipsize="marquee"
-            android:gravity="center_vertical"
-            android:maxLines="2"
-            android:padding="10dp"
-            style="@style/ShadowText"
-            android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-            android:textSize="@dimen/location_panel_text_size"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/weather_temp"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintHorizontal_chainStyle="spread"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="New York, NY" />
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/image_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:srcCompat="@color/colorPrimary" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/weather_temp"
-            android:layout_width="@dimen/location_panel_textview_size"
-            android:layout_height="@dimen/location_panel_textview_size"
-            android:layout_margin="5dp"
-            android:gravity="center"
-            style="@style/ShadowText"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-            android:textSize="@dimen/location_panel_text_size"
-            android:textStyle="bold"
-            app:autoSizeMaxTextSize="@dimen/location_panel_text_size"
-            app:autoSizeMinTextSize="6sp"
-            app:autoSizeTextType="uniform"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/weather_icon"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="50º" />
+        <View
+            android:id="@+id/image_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:background="@drawable/background_overlay" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/weather_icon"
-            android:layout_width="@dimen/location_panel_textview_size"
-            android:layout_height="@dimen/location_panel_textview_size"
-            android:layout_margin="10dp"
-            android:gravity="center"
-            style="@style/ShadowText"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-            android:textStyle="bold"
-            app:autoSizeMaxTextSize="@dimen/location_panel_icon_size"
-            app:autoSizeMinTextSize="6sp"
-            app:autoSizeTextType="uniform"
-            app:fontFamily="@font/weathericons"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_weight="0"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:fontFamily="@font/weathericons"
-            tools:text="@string/wi_night_cloudy" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/location_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:gravity="center_vertical"
+                android:maxLines="2"
+                android:padding="10dp"
+                style="@style/ShadowText"
+                android:text="@{viewModel.locationName}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
+                android:textSize="@dimen/location_panel_text_size"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/weather_temp"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="New York, NY" />
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="@style/ShadowProgressBar"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_gravity="center"
-        android:indeterminate="true"
-        android:indeterminateTint="@android:color/white"
-        android:visibility="visible" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/weather_temp"
+                android:layout_width="@dimen/location_panel_textview_size"
+                android:layout_height="@dimen/location_panel_textview_size"
+                android:layout_margin="5dp"
+                android:gravity="center"
+                style="@style/ShadowText"
+                android:text="@{viewModel.currTemp}"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
+                android:textSize="@dimen/location_panel_text_size"
+                android:textStyle="bold"
+                app:autoSizeMaxTextSize="@dimen/location_panel_text_size"
+                app:autoSizeMinTextSize="6sp"
+                app:autoSizeTextType="uniform"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/weather_icon"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="50º" />
 
-</merge>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/weather_icon"
+                android:layout_width="@dimen/location_panel_textview_size"
+                android:layout_height="@dimen/location_panel_textview_size"
+                android:layout_margin="10dp"
+                android:gravity="center"
+                style="@style/ShadowText"
+                android:text="@{viewModel.weatherIcon}"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
+                android:textStyle="bold"
+                app:autoSizeMaxTextSize="@dimen/location_panel_icon_size"
+                app:autoSizeMinTextSize="6sp"
+                app:autoSizeTextType="uniform"
+                app:fontFamily="@font/weathericons"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="0"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:fontFamily="@font/weathericons"
+                tools:text="@string/wi_night_cloudy" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="@style/ShadowProgressBar"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:indeterminateTint="@android:color/white"
+            android:visibility="visible" />
+
+    </merge>
+</layout>

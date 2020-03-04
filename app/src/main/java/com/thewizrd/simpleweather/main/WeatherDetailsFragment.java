@@ -56,19 +56,19 @@ public class WeatherDetailsFragment extends WeatherListFragment {
             }
         }
 
-        if (recyclerView.getItemDecorationCount() == 0)
-            recyclerView.addItemDecoration(new DividerItemDecoration(getAppCompatActivity(), DividerItemDecoration.VERTICAL));
+        if (binding.recyclerView.getItemDecorationCount() == 0)
+            binding.recyclerView.addItemDecoration(new DividerItemDecoration(getAppCompatActivity(), DividerItemDecoration.VERTICAL));
 
         if (weatherView != null) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    locationName.setText(weatherView.getLocation());
+                    binding.locationName.setText(weatherView.getLocation());
                     // specify an adapter (see also next example)
                     if (isHourly && weatherView.getExtras().getHourlyForecast().size() > 0)
-                        recyclerView.setAdapter(new WeatherDetailsAdapter(weatherView.getExtras().getHourlyForecast()));
+                        binding.recyclerView.setAdapter(new WeatherDetailsAdapter<>(weatherView.getExtras().getHourlyForecast()));
                     else if (!isHourly) {
-                        recyclerView.setAdapter(new WeatherDetailsAdapter(weatherView.getForecasts()));
+                        binding.recyclerView.setAdapter(new WeatherDetailsAdapter<>(weatherView.getForecasts()));
                     }
 
                     if (getArguments() != null) {

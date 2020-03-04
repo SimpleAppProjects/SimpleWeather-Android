@@ -1,289 +1,292 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment_setup_location"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".setup.SetupActivity">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@null"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        tools:context=".setup.SetupActivity">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/main_logo"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:gravity="bottom|center_horizontal"
-            android:text="@string/materialicon_settings"
-            android:textColor="@android:color/white"
-            android:textSize="72sp"
-            app:autoSizeMaxTextSize="72sp"
-            app:autoSizeMinTextSize="32sp"
-            app:autoSizeTextType="uniform"
-            app:fontFamily="@font/materialicons_regular"
-            app:layout_constraintBottom_toTopOf="@+id/welcome_subtext"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_max="150dp"
-            app:layout_constraintHeight_min="100dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0"
-            tools:fontFamily="@font/materialicons_regular" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/welcome_subtext"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="@string/setup_preferences_prompt"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-            android:textColor="@android:color/white"
-            app:autoSizeMaxTextSize="18sp"
-            app:autoSizeMinTextSize="12sp"
-            app:autoSizeStepGranularity="2sp"
-            app:autoSizeTextType="uniform"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_max="wrap"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/main_logo" />
+            android:background="@null"
+            android:orientation="vertical">
 
-        <RelativeLayout
-            android:id="@+id/units_pref"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="?android:attr/colorBackground"
-            android:minHeight="64dp"
-            android:padding="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/welcome_subtext"
-            app:layout_constraintVertical_chainStyle="packed"
-            app:layout_constraintWidth_max="600dp">
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/main_logo"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="bottom|center_horizontal"
+                android:text="@string/materialicon_settings"
+                android:textColor="@android:color/white"
+                android:textSize="72sp"
+                app:autoSizeMaxTextSize="72sp"
+                app:autoSizeMinTextSize="32sp"
+                app:autoSizeTextType="uniform"
+                app:fontFamily="@font/materialicons_regular"
+                app:layout_constraintBottom_toTopOf="@+id/welcome_subtext"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHeight_max="150dp"
+                app:layout_constraintHeight_min="100dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="1.0"
+                tools:fontFamily="@font/materialicons_regular" />
 
-            <TextView
-                android:id="@+id/units_pref_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:layout_toStartOf="@+id/units_pref_switch"
-                android:layout_toLeftOf="@+id/units_pref_switch"
-                android:ellipsize="marquee"
-                android:fadingEdge="horizontal"
-                android:singleLine="true"
-                android:text="@string/pref_title_units"
-                android:textAppearance="@style/TextAppearance.AppCompat"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/units_pref_summary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/units_pref_title"
-                android:layout_alignStart="@+id/units_pref_title"
-                android:layout_alignLeft="@+id/units_pref_title"
-                android:layout_toStartOf="@+id/units_pref_switch"
-                android:layout_toLeftOf="@+id/units_pref_switch"
-                android:maxLines="4"
-                android:text="@string/pref_summary_fahrenheit"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small" />
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/units_pref_switch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true" />
-
-        </RelativeLayout>
-
-        <View
-            android:id="@+id/border1"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:background="@android:color/transparent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/units_pref"
-            app:layout_constraintWidth_max="600dp" />
-
-        <RelativeLayout
-            android:id="@+id/interval_pref"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="?android:attr/colorBackground"
-            android:minHeight="64dp"
-            android:padding="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/border1"
-            app:layout_constraintWidth_max="600dp">
-
-            <TextView
-                android:id="@+id/interval_pref_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:ellipsize="marquee"
-                android:fadingEdge="horizontal"
-                android:singleLine="true"
-                android:text="@string/pref_title_refreshinterval"
-                android:textAppearance="@style/TextAppearance.AppCompat"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/interval_pref_summary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/interval_pref_title"
-                android:layout_alignStart="@+id/interval_pref_title"
-                android:layout_alignLeft="@+id/interval_pref_title"
-                android:maxLines="4"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                tools:text="1 hour" />
-
-            <androidx.appcompat.widget.AppCompatSpinner
-                android:id="@+id/interval_pref_spinner"
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/welcome_subtext"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:visibility="invisible" />
+                android:gravity="center"
+                android:padding="8dp"
+                android:text="@string/setup_preferences_prompt"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                android:textColor="@android:color/white"
+                app:autoSizeMaxTextSize="18sp"
+                app:autoSizeMinTextSize="12sp"
+                app:autoSizeStepGranularity="2sp"
+                app:autoSizeTextType="uniform"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHeight_max="wrap"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/main_logo" />
 
-        </RelativeLayout>
-
-        <View
-            android:id="@+id/border2"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:background="@android:color/transparent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/interval_pref"
-            app:layout_constraintWidth_max="600dp" />
-
-        <RelativeLayout
-            android:id="@+id/notification_pref"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="?android:attr/colorBackground"
-            android:minHeight="64dp"
-            android:padding="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/border2"
-            app:layout_constraintWidth_max="600dp">
-
-            <TextView
-                android:id="@+id/notification_pref_title"
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:id="@+id/units_pref"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:layout_toStartOf="@+id/notification_pref_switch"
-                android:layout_toLeftOf="@+id/notification_pref_switch"
-                android:ellipsize="marquee"
-                android:fadingEdge="horizontal"
-                android:singleLine="true"
-                android:text="@string/pref_title_onnotification"
-                android:textAppearance="@style/TextAppearance.AppCompat"
-                android:textSize="16sp" />
+                android:background="?android:attr/colorBackground"
+                android:minHeight="64dp"
+                android:padding="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/welcome_subtext"
+                app:layout_constraintVertical_chainStyle="packed"
+                app:layout_constraintWidth_max="600dp">
 
-            <TextView
-                android:id="@+id/notification_pref_summary"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/units_pref_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_toStartOf="@+id/units_pref_switch"
+                    android:layout_toLeftOf="@+id/units_pref_switch"
+                    android:ellipsize="marquee"
+                    android:fadingEdge="horizontal"
+                    android:singleLine="true"
+                    android:text="@string/pref_title_units"
+                    android:textAppearance="@style/TextAppearance.AppCompat"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/units_pref_summary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/units_pref_title"
+                    android:layout_alignStart="@+id/units_pref_title"
+                    android:layout_alignLeft="@+id/units_pref_title"
+                    android:layout_toStartOf="@+id/units_pref_switch"
+                    android:layout_toLeftOf="@+id/units_pref_switch"
+                    android:maxLines="4"
+                    android:text="@string/pref_summary_fahrenheit"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/units_pref_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
+
+            </RelativeLayout>
+
+            <View
+                android:id="@+id/border1"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="@android:color/transparent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/units_pref"
+                app:layout_constraintWidth_max="600dp" />
+
+            <RelativeLayout
+                android:id="@+id/interval_pref"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/notification_pref_title"
-                android:layout_alignStart="@+id/notification_pref_title"
-                android:layout_alignLeft="@+id/notification_pref_title"
-                android:layout_toStartOf="@+id/notification_pref_switch"
-                android:layout_toLeftOf="@+id/notification_pref_switch"
-                android:maxLines="4"
-                android:text="@string/pref_summary_notification"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+                android:background="?android:attr/colorBackground"
+                android:minHeight="64dp"
+                android:padding="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/border1"
+                app:layout_constraintWidth_max="600dp">
 
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/notification_pref_switch"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/interval_pref_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:ellipsize="marquee"
+                    android:fadingEdge="horizontal"
+                    android:singleLine="true"
+                    android:text="@string/pref_title_refreshinterval"
+                    android:textAppearance="@style/TextAppearance.AppCompat"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/interval_pref_summary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/interval_pref_title"
+                    android:layout_alignStart="@+id/interval_pref_title"
+                    android:layout_alignLeft="@+id/interval_pref_title"
+                    android:maxLines="4"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    tools:text="1 hour" />
+
+                <androidx.appcompat.widget.AppCompatSpinner
+                    android:id="@+id/interval_pref_spinner"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:visibility="invisible" />
+
+            </RelativeLayout>
+
+            <View
+                android:id="@+id/border2"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="@android:color/transparent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/interval_pref"
+                app:layout_constraintWidth_max="600dp" />
+
+            <RelativeLayout
+                android:id="@+id/notification_pref"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true" />
+                android:background="?android:attr/colorBackground"
+                android:minHeight="64dp"
+                android:padding="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/border2"
+                app:layout_constraintWidth_max="600dp">
 
-        </RelativeLayout>
+                <TextView
+                    android:id="@+id/notification_pref_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_toStartOf="@+id/notification_pref_switch"
+                    android:layout_toLeftOf="@+id/notification_pref_switch"
+                    android:ellipsize="marquee"
+                    android:fadingEdge="horizontal"
+                    android:singleLine="true"
+                    android:text="@string/pref_title_onnotification"
+                    android:textAppearance="@style/TextAppearance.AppCompat"
+                    android:textSize="16sp" />
 
-        <View
-            android:id="@+id/border3"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:background="@android:color/transparent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/notification_pref"
-            app:layout_constraintWidth_max="600dp" />
+                <TextView
+                    android:id="@+id/notification_pref_summary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/notification_pref_title"
+                    android:layout_alignStart="@+id/notification_pref_title"
+                    android:layout_alignLeft="@+id/notification_pref_title"
+                    android:layout_toStartOf="@+id/notification_pref_switch"
+                    android:layout_toLeftOf="@+id/notification_pref_switch"
+                    android:maxLines="4"
+                    android:text="@string/pref_summary_notification"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
-        <RelativeLayout
-            android:id="@+id/alerts_pref"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="?android:attr/colorBackground"
-            android:minHeight="64dp"
-            android:padding="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/border3"
-            app:layout_constraintWidth_max="600dp">
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/notification_pref_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
 
-            <TextView
-                android:id="@+id/alerts_pref_title"
-                android:layout_width="wrap_content"
+            </RelativeLayout>
+
+            <View
+                android:id="@+id/border3"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="@android:color/transparent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/notification_pref"
+                app:layout_constraintWidth_max="600dp" />
+
+            <RelativeLayout
+                android:id="@+id/alerts_pref"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:layout_toStartOf="@+id/alerts_pref_switch"
-                android:layout_toLeftOf="@+id/alerts_pref_switch"
-                android:ellipsize="marquee"
-                android:fadingEdge="horizontal"
-                android:singleLine="true"
-                android:text="@string/pref_title_alerts"
-                android:textAppearance="@style/TextAppearance.AppCompat"
-                android:textSize="16sp" />
+                android:background="?android:attr/colorBackground"
+                android:minHeight="64dp"
+                android:padding="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/border3"
+                app:layout_constraintWidth_max="600dp">
 
-            <TextView
-                android:id="@+id/alerts_pref_summary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/alerts_pref_title"
-                android:layout_alignStart="@+id/alerts_pref_title"
-                android:layout_alignLeft="@+id/alerts_pref_title"
-                android:layout_toStartOf="@+id/alerts_pref_switch"
-                android:layout_toLeftOf="@+id/alerts_pref_switch"
-                android:maxLines="4"
-                android:text="@string/pref_summary_alerts"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+                <TextView
+                    android:id="@+id/alerts_pref_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_toStartOf="@+id/alerts_pref_switch"
+                    android:layout_toLeftOf="@+id/alerts_pref_switch"
+                    android:ellipsize="marquee"
+                    android:fadingEdge="horizontal"
+                    android:singleLine="true"
+                    android:text="@string/pref_title_alerts"
+                    android:textAppearance="@style/TextAppearance.AppCompat"
+                    android:textSize="16sp" />
 
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/alerts_pref_switch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true" />
+                <TextView
+                    android:id="@+id/alerts_pref_summary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/alerts_pref_title"
+                    android:layout_alignStart="@+id/alerts_pref_title"
+                    android:layout_alignLeft="@+id/alerts_pref_title"
+                    android:layout_toStartOf="@+id/alerts_pref_switch"
+                    android:layout_toLeftOf="@+id/alerts_pref_switch"
+                    android:maxLines="4"
+                    android:text="@string/pref_summary_alerts"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
-        </RelativeLayout>
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/alerts_pref_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            </RelativeLayout>
 
-</ScrollView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+</layout>

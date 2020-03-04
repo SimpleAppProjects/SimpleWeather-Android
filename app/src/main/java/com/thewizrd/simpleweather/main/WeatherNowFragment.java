@@ -32,14 +32,12 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.ViewTreeObserver;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -49,6 +47,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.databinding.BindingAdapter;
+import androidx.databinding.DataBindingComponent;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.Observable;
 import androidx.databinding.ObservableField;
@@ -77,7 +76,6 @@ import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.gson.stream.JsonReader;
 import com.ibm.icu.util.ULocale;
@@ -151,7 +149,7 @@ public class WeatherNowFragment extends WindowColorFragment
     private WeatherManager wm;
     private WeatherDataLoader wLoader = null;
     private WeatherNowViewModel weatherView = null;
-    private androidx.databinding.DataBindingComponent dataBindingComponent =
+    private DataBindingComponent dataBindingComponent =
             new WeatherFragmentDataBindingComponent(this);
 
     private AppCompatActivity mActivity;
@@ -160,31 +158,11 @@ public class WeatherNowFragment extends WindowColorFragment
     private SnackbarManager mSnackMgr;
 
     // Views
-    private View mRootView;
-    private AppBarLayout mAppBarLayout;
-    private TextView mTitleView;
-    private ImageView mImageView;
-    private View mGradView;
-    private SwipeRefreshLayout refreshLayout;
-    private ObservableNestedScrollView scrollView;
-    private View conditionPanel;
-    // Condition
-    private TextView weatherIcon;
-    private TextView bgAttribution;
-    // Details
-    private RecyclerView detailsContainer;
+    private FragmentWeatherNowBinding binding;
     private DetailItemAdapter detailsAdapter;
     private GridLayoutManager mLayoutManager;
-    // Forecast
-    private ViewPager forecastGraphView;
     private ForecastGraphPagerAdapter forecastGraphAdapter;
-    // Additional Details
-    private ConstraintLayout hrforecastPanel;
-    private ViewPager hrForecastGraphView;
     private ForecastGraphPagerAdapter hrGraphAdapter;
-    private SunPhaseView sunView;
-    // Alerts
-    private View alertButton;
 
     // GPS location
     private FusedLocationProviderClient mFusedLocationClient;
@@ -338,7 +316,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
     private void initSnackManager() {
         if (mSnackMgr == null) {
-            mSnackMgr = new SnackbarManager(mRootView);
+            mSnackMgr = new SnackbarManager(binding.getRoot());
             mSnackMgr.setSwipeDismissEnabled(true);
             mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
         }
@@ -493,7 +471,7 @@ public class WeatherNowFragment extends WindowColorFragment
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        FragmentWeatherNowBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_weather_now, container, false,
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_weather_now, container, false,
                 dataBindingComponent);
 
         binding.setWeatherView(weatherView);
@@ -503,16 +481,14 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.setLifecycleOwner(this);
 
         View view = binding.getRoot();
-        mRootView = view;
         // Request focus away from RecyclerView
         view.setFocusableInTouchMode(true);
         view.requestFocus();
 
         // Setup ActionBar
         setHasOptionsMenu(true);
-        mAppBarLayout = view.findViewById(R.id.app_bar);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mAppBarLayout.setOutlineProvider(new ViewOutlineProvider() {
+            binding.appBar.setOutlineProvider(new ViewOutlineProvider() {
                 @Override
                 public void getOutline(View view, Outline outline) {
                     // L, T, R, B
@@ -522,7 +498,7 @@ public class WeatherNowFragment extends WindowColorFragment
             });
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(mAppBarLayout, new OnApplyWindowInsetsListener() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.appBar, new OnApplyWindowInsetsListener() {
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
                 ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
@@ -530,8 +506,7 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
 
-        mGradView = view.findViewById(R.id.gradient_view);
-        ViewCompat.setOnApplyWindowInsetsListener(mGradView, new OnApplyWindowInsetsListener() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.gradientView, new OnApplyWindowInsetsListener() {
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
@@ -540,8 +515,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 return insets;
             }
         });
-        mImageView = view.findViewById(R.id.image_view);
-        ViewCompat.setOnApplyWindowInsetsListener(mImageView, new OnApplyWindowInsetsListener() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.imageView, new OnApplyWindowInsetsListener() {
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
@@ -551,13 +525,9 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
 
-        mTitleView = view.findViewById(R.id.toolbar_title);
-        mTitleView.setText(R.string.title_activity_weather_now);
+        binding.toolbarTitle.setText(R.string.title_activity_weather_now);
 
-        conditionPanel = view.findViewById(R.id.condition_panel);
-
-        refreshLayout = view.findViewById(R.id.refresh_layout);
-        ViewCompat.setOnApplyWindowInsetsListener(refreshLayout, new OnApplyWindowInsetsListener() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.refreshLayout, new OnApplyWindowInsetsListener() {
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
@@ -566,8 +536,7 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
 
-        scrollView = view.findViewById(R.id.fragment_weather_now);
-        scrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+        binding.scrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
             public void onScrollChange(final NestedScrollView v, int scrollX, final int scrollY, int oldScrollX, final int oldScrollY) {
                 runOnUiThread(new Runnable() {
@@ -576,7 +545,7 @@ public class WeatherNowFragment extends WindowColorFragment
                         // Default adj = 1.25
                         float adj = 2.5f;
                         int backAlpha = 0xFF - (int) (0xFF * adj * scrollY / (v.getChildAt(0).getHeight() - v.getHeight()));
-                        float gradAlpha = 1.0f - (1.0f * adj * scrollY / (conditionPanel.getHeight()));
+                        float gradAlpha = 1.0f - (1.0f * adj * scrollY / (binding.conditionPanel.getHeight()));
                         backgroundAlpha.set(Math.max(backAlpha, 0x25));
                         gradientAlpha.set(Math.max(gradAlpha, 0));
 
@@ -591,7 +560,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 });
             }
         });
-        scrollView.setOnFlingListener(new ObservableNestedScrollView.OnFlingListener() {
+        binding.scrollView.setOnFlingListener(new ObservableNestedScrollView.OnFlingListener() {
             private int oldScrollY;
             private int startvelocityY;
 
@@ -629,9 +598,9 @@ public class WeatherNowFragment extends WindowColorFragment
 
             @Override
             public void onFlingStopped(int scrollY) {
-                int condPnlHeight = conditionPanel.getHeight();
+                int condPnlHeight = binding.conditionPanel.getHeight();
                 int THRESHOLD = condPnlHeight / 2;
-                int scrollOffset = scrollView.computeVerticalScrollOffset();
+                int scrollOffset = binding.scrollView.computeVerticalScrollOffset();
                 int dY = scrollY - oldScrollY;
                 boolean mScrollHandled = false;
 
@@ -640,13 +609,13 @@ public class WeatherNowFragment extends WindowColorFragment
                 Log.d("ScrollView", String.format("onFlingStopped: height: %d; offset|scrollY: %d; prevScrollY: %d; dY: %d;", condPnlHeight, scrollOffset, oldScrollY, dY));
 
                 if (dY < 0 && scrollOffset < condPnlHeight - THRESHOLD) {
-                    scrollView.smoothScrollTo(0, 0);
+                    binding.scrollView.smoothScrollTo(0, 0);
                     mScrollHandled = true;
                 } else if (scrollOffset < condPnlHeight && scrollOffset >= condPnlHeight - THRESHOLD) {
-                    scrollView.smoothScrollTo(0, condPnlHeight);
+                    binding.scrollView.smoothScrollTo(0, condPnlHeight);
                     mScrollHandled = true;
                 } else if (dY > 0 && scrollOffset < condPnlHeight - THRESHOLD) {
-                    scrollView.smoothScrollTo(0, condPnlHeight);
+                    binding.scrollView.smoothScrollTo(0, condPnlHeight);
                     mScrollHandled = true;
                 }
 
@@ -657,21 +626,21 @@ public class WeatherNowFragment extends WindowColorFragment
                     Log.d("ScrollView", String.format("onFlingStopped: height: %d; animScrollY: %d; prevScrollY: %d; animDY: %d;", condPnlHeight, animScrollY, oldScrollY, animDY));
 
                     if (startvelocityY < 0 && animScrollY < condPnlHeight - THRESHOLD) {
-                        scrollView.smoothScrollTo(0, 0);
+                        binding.scrollView.smoothScrollTo(0, 0);
                     } else if (animScrollY < condPnlHeight && animScrollY >= condPnlHeight - THRESHOLD) {
-                        scrollView.smoothScrollTo(0, condPnlHeight);
+                        binding.scrollView.smoothScrollTo(0, condPnlHeight);
                     } else if (startvelocityY > 0 && animScrollY < condPnlHeight - THRESHOLD) {
-                        scrollView.smoothScrollTo(0, condPnlHeight);
+                        binding.scrollView.smoothScrollTo(0, condPnlHeight);
                     }
                 }
             }
         });
-        scrollView.setTouchScrollListener(new ObservableNestedScrollView.OnTouchScrollChangeListener() {
+        binding.scrollView.setTouchScrollListener(new ObservableNestedScrollView.OnTouchScrollChangeListener() {
             @Override
             public void onTouchScrollChange(int scrollY, int oldScrollY) {
-                int condPnlHeight = conditionPanel.getHeight();
+                int condPnlHeight = binding.conditionPanel.getHeight();
                 int THRESHOLD = condPnlHeight / 2;
-                int scrollOffset = scrollView.computeVerticalScrollOffset();
+                int scrollOffset = binding.scrollView.computeVerticalScrollOffset();
                 int dY = scrollY - oldScrollY;
 
                 if (dY == 0) return;
@@ -680,21 +649,18 @@ public class WeatherNowFragment extends WindowColorFragment
                         condPnlHeight, scrollOffset, scrollY, oldScrollY, dY));
 
                 if (dY < 0 && scrollY < condPnlHeight - THRESHOLD) {
-                    scrollView.smoothScrollTo(0, 0);
+                    binding.scrollView.smoothScrollTo(0, 0);
                 } else if (scrollY < condPnlHeight && scrollY >= condPnlHeight - THRESHOLD) {
-                    scrollView.smoothScrollTo(0, condPnlHeight);
+                    binding.scrollView.smoothScrollTo(0, condPnlHeight);
                 } else if (dY > 0 && scrollY < condPnlHeight) {
-                    scrollView.smoothScrollTo(0, condPnlHeight);
+                    binding.scrollView.smoothScrollTo(0, condPnlHeight);
                 }
             }
         });
         // Condition
-        weatherIcon = view.findViewById(R.id.weather_icon);
-        bgAttribution = view.findViewById(R.id.bg_attribution);
-        bgAttribution.setMovementMethod(LinkMovementMethod.getInstance());
+        binding.bgAttribution.setMovementMethod(LinkMovementMethod.getInstance());
         // Details
-        detailsContainer = view.findViewById(R.id.details_container);
-        detailsContainer.setHasFixedSize(false);
+        binding.detailsContainer.setHasFixedSize(false);
         mLayoutManager = new GridLayoutManager(mActivity, 4, RecyclerView.VERTICAL, false) {
             @Override
             // View should not scroll
@@ -702,20 +668,20 @@ public class WeatherNowFragment extends WindowColorFragment
                 return false;
             }
         };
-        detailsContainer.setLayoutManager(mLayoutManager);
+        binding.detailsContainer.setLayoutManager(mLayoutManager);
 
         int horizMargin = 16;
         if (ActivityUtils.isLargeTablet(mActivity)) horizMargin = 24;
 
-        detailsContainer.addItemDecoration(new LocationPanelOffsetDecoration(mActivity, horizMargin / 2f));
+        binding.detailsContainer.addItemDecoration(new LocationPanelOffsetDecoration(mActivity, horizMargin / 2f));
         detailsAdapter = new DetailItemAdapter();
-        detailsContainer.setAdapter(detailsAdapter);
+        binding.detailsContainer.setAdapter(detailsAdapter);
 
         // Disable touch events on container
         // View does not scroll
-        detailsContainer.setFocusable(false);
-        detailsContainer.setFocusableInTouchMode(false);
-        detailsContainer.setOnTouchListener(new View.OnTouchListener() {
+        binding.detailsContainer.setFocusable(false);
+        binding.detailsContainer.setFocusableInTouchMode(false);
+        binding.detailsContainer.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 return true;
@@ -723,30 +689,26 @@ public class WeatherNowFragment extends WindowColorFragment
         });
 
         // Forecast
-        forecastGraphView = view.findViewById(R.id.forecast_viewpgr);
         forecastGraphAdapter = new ForecastGraphPagerAdapter();
-        forecastGraphView.setAdapter(forecastGraphAdapter);
-        forecastGraphView.setOffscreenPageLimit(1);
+        binding.forecastViewpgr.setAdapter(forecastGraphAdapter);
+        binding.forecastViewpgr.setOffscreenPageLimit(1);
         // Additional Details
-        hrforecastPanel = view.findViewById(R.id.hourly_forecast_panel);
-        hrforecastPanel.setVisibility(View.GONE);
+        binding.hourlyForecastPanel.setVisibility(View.GONE);
         // Alerts
-        alertButton = view.findViewById(R.id.alert_button);
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alertButton.setBackgroundTintList(ColorStateList.valueOf(Colors.ORANGERED));
+            binding.alertButton.setBackgroundTintList(ColorStateList.valueOf(Colors.ORANGERED));
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Drawable drawable = alertButton.getBackground().mutate();
+            Drawable drawable = binding.alertButton.getBackground().mutate();
             drawable.setColorFilter(Colors.ORANGERED, PorterDuff.Mode.SRC_IN);
-            alertButton.setBackground(drawable);
+            binding.alertButton.setBackground(drawable);
         } else {
             Drawable origDrawable = ContextCompat.getDrawable(mActivity, R.drawable.light_round_corner_bg);
             Drawable compatDrawable = DrawableCompat.wrap(origDrawable);
             DrawableCompat.setTint(compatDrawable, Colors.ORANGERED);
-            alertButton.setBackground(compatDrawable);
+            binding.alertButton.setBackground(compatDrawable);
         }
 
-        alertButton.setOnClickListener(new View.OnClickListener() {
+        binding.alertButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Show Alert Fragment
@@ -761,17 +723,14 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
 
-        hrForecastGraphView = view.findViewById(R.id.hourly_forecast_viewpgr);
         hrGraphAdapter = new ForecastGraphPagerAdapter();
-        hrForecastGraphView.setAdapter(hrGraphAdapter);
-        hrForecastGraphView.setOffscreenPageLimit(1);
-
-        sunView = view.findViewById(R.id.sun_phase_view);
+        binding.hourlyForecastViewpgr.setAdapter(hrGraphAdapter);
+        binding.hourlyForecastViewpgr.setOffscreenPageLimit(1);
 
         // SwipeRefresh
-        refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(mActivity, R.color.invButtonColor));
-        refreshLayout.setColorSchemeColors(ActivityUtils.getColor(mActivity, R.attr.colorPrimary));
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        binding.refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(mActivity, R.color.invButtonColor));
+        binding.refreshLayout.setColorSchemeColors(ActivityUtils.getColor(mActivity, R.attr.colorPrimary));
+        binding.refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 AsyncTask.run(new Runnable() {
@@ -789,7 +748,7 @@ public class WeatherNowFragment extends WindowColorFragment
         });
 
         loaded = true;
-        refreshLayout.setRefreshing(true);
+        binding.refreshLayout.setRefreshing(true);
 
         // Set property change listeners
         weatherView.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
@@ -830,15 +789,15 @@ public class WeatherNowFragment extends WindowColorFragment
         weatherView.updatePendingBackground(mActivity.getApplicationContext(), true);
         weatherView.notifyChange();
 
-        refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(mActivity, R.color.invButtonColor));
-        refreshLayout.setColorSchemeColors(ActivityUtils.getColor(mActivity, R.attr.colorPrimary));
+        binding.refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(mActivity, R.color.invButtonColor));
+        binding.refreshLayout.setColorSchemeColors(ActivityUtils.getColor(mActivity, R.attr.colorPrimary));
 
         // Resize necessary views
-        ViewTreeObserver observer = mRootView.getViewTreeObserver();
+        ViewTreeObserver observer = binding.getRoot().getViewTreeObserver();
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                mRootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                binding.getRoot().getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                 adjustConditionPanelLayout();
                 adjustDetailsLayout();
@@ -847,7 +806,7 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
 
-        mImageView.post(new Runnable() {
+        binding.imageView.post(new Runnable() {
             @Override
             public void run() {
                 // Reload background image
@@ -858,7 +817,7 @@ public class WeatherNowFragment extends WindowColorFragment
                                     .format(DecodeFormat.PREFER_RGB_565)
                                     .skipMemoryCache(true))
                             .transition(DrawableTransitionOptions.withCrossFade())
-                            .into(mImageView);
+                            .into(binding.imageView);
                 }
             }
         });
@@ -900,11 +859,11 @@ public class WeatherNowFragment extends WindowColorFragment
                     int viewWidth = view.getWidth();
 
                     if (viewWidth <= 600)
-                        sunView.getLayoutParams().width = viewWidth;
+                        binding.sunPhaseView.getLayoutParams().width = viewWidth;
                     else if (viewWidth <= 1200)
-                        sunView.getLayoutParams().width = (int) (viewWidth * (0.75));
+                        binding.sunPhaseView.getLayoutParams().width = (int) (viewWidth * (0.75));
                     else
-                        sunView.getLayoutParams().width = (int) (viewWidth * (0.50));
+                        binding.sunPhaseView.getLayoutParams().width = (int) (viewWidth * (0.50));
                 }
             });
         }
@@ -923,11 +882,11 @@ public class WeatherNowFragment extends WindowColorFragment
                     int viewWidth = view.getWidth();
 
                     if (viewWidth <= 600)
-                        alertButton.getLayoutParams().width = viewWidth;
+                        binding.alertButton.getLayoutParams().width = viewWidth;
                     else if (viewWidth <= 1200)
-                        alertButton.getLayoutParams().width = (int) (viewWidth * (0.75));
+                        binding.alertButton.getLayoutParams().width = (int) (viewWidth * (0.75));
                     else
-                        alertButton.getLayoutParams().width = (int) (viewWidth * (0.50));
+                        binding.alertButton.getLayoutParams().width = (int) (viewWidth * (0.50));
                 }
             });
         }
@@ -1057,7 +1016,7 @@ public class WeatherNowFragment extends WindowColorFragment
             // Cancel pending actions
             if (cts != null) {
                 cts.cancel();
-                refreshLayout.setRefreshing(false);
+                binding.refreshLayout.setRefreshing(false);
             }
         }
 
@@ -1085,7 +1044,7 @@ public class WeatherNowFragment extends WindowColorFragment
         // Cancel pending actions
         if (cts != null) {
             cts.cancel();
-            refreshLayout.setRefreshing(false);
+            binding.refreshLayout.setRefreshing(false);
         }
 
         dismissAllSnackbars();
@@ -1147,7 +1106,7 @@ public class WeatherNowFragment extends WindowColorFragment
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    refreshLayout.setRefreshing(true);
+                    binding.refreshLayout.setRefreshing(true);
                 }
             });
             AsyncTask.run(new Runnable() {
@@ -1161,31 +1120,31 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     private void adjustConditionPanelLayout() {
-        conditionPanel.post(new Runnable() {
+        binding.conditionPanel.post(new Runnable() {
             @Override
             public void run() {
                 if (mActivity != null) {
-                    int height = mRootView.getMeasuredHeight() - mAppBarLayout.getMeasuredHeight();
+                    int height = binding.getRoot().getMeasuredHeight() - binding.appBar.getMeasuredHeight();
                     if (height > 0) {
-                        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) conditionPanel.getLayoutParams();
+                        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) binding.conditionPanel.getLayoutParams();
                         lp.height = height;
-                        conditionPanel.setLayoutParams(lp);
+                        binding.conditionPanel.setLayoutParams(lp);
                     }
                 }
             }
         });
 
-        weatherIcon.post(new Runnable() {
+        binding.weatherIcon.post(new Runnable() {
             @Override
             public void run() {
-                weatherIcon.setLayoutParams(weatherIcon.getLayoutParams());
+                binding.weatherIcon.setLayoutParams(binding.weatherIcon.getLayoutParams());
             }
         });
 
-        scrollView.post(new Runnable() {
+        binding.scrollView.post(new Runnable() {
             @Override
             public void run() {
-                scrollView.scrollTo(0, 0);
+                binding.scrollView.scrollTo(0, 0);
             }
         });
 
@@ -1230,14 +1189,14 @@ public class WeatherNowFragment extends WindowColorFragment
          * For some reason the %p suffix does not work on pre-Lollipop devices
          */
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            mGradView.post(new Runnable() {
+            binding.gradientView.post(new Runnable() {
                 @Override
                 public void run() {
-                    int height = mRootView.getHeight();
-                    int width = mRootView.getWidth();
+                    int height = binding.getRoot().getHeight();
+                    int width = binding.getRoot().getWidth();
 
-                    if (mGradView.getBackground() instanceof GradientDrawable && height > 0 && width > 0) {
-                        GradientDrawable drawable = ((GradientDrawable) mGradView.getBackground().mutate());
+                    if (binding.gradientView.getBackground() instanceof GradientDrawable && height > 0 && width > 0) {
+                        GradientDrawable drawable = ((GradientDrawable) binding.gradientView.getBackground().mutate());
                         float radius = 1.5f;
                         radius *= Math.min(width, height);
                         drawable.setGradientRadius(radius);
@@ -1297,7 +1256,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible() && mSysBarColorsIface != null) {
                     mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT);
                 }
-                mRootView.setBackgroundColor(mBackgroundColor);
+                binding.getRoot().setBackgroundColor(mBackgroundColor);
             }
         });
     }
@@ -1315,7 +1274,7 @@ public class WeatherNowFragment extends WindowColorFragment
                         .apply(RequestOptions.centerCropTransform()
                                 .format(DecodeFormat.PREFER_RGB_565))
                         .transition(DrawableTransitionOptions.withCrossFade())
-                        .into(mImageView);
+                        .into(binding.imageView);
             }
         });
 
@@ -1339,7 +1298,7 @@ public class WeatherNowFragment extends WindowColorFragment
         });
 
         // Additional Details
-        if (weatherView.getExtras().getHourlyForecast().size() >= 1) {
+        if (weatherView.getExtras().getHourlyForecast().size() > 0) {
             if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
                 RecyclerOnClickListenerInterface onClickListener = new RecyclerOnClickListenerInterface() {
                     @Override
@@ -1367,7 +1326,7 @@ public class WeatherNowFragment extends WindowColorFragment
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    hrforecastPanel.setVisibility(View.GONE);
+                    binding.hourlyForecastPanel.setVisibility(View.GONE);
                 }
             });
         }
@@ -1389,7 +1348,7 @@ public class WeatherNowFragment extends WindowColorFragment
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                refreshLayout.setRefreshing(false);
+                binding.refreshLayout.setRefreshing(false);
             }
         });
     }

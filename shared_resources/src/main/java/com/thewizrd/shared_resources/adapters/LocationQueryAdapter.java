@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
-import com.thewizrd.shared_resources.controls.LocationQuery;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.databinding.LocationQueryViewBinding;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
@@ -36,18 +36,23 @@ public class LocationQueryAdapter extends RecyclerView.Adapter {
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
     class ViewHolder extends RecyclerView.ViewHolder {
-        public LocationQuery mLocView;
+        private LocationQueryViewBinding binding;
 
-        public ViewHolder(View itemView) {
-            super(itemView);
-            mLocView = (LocationQuery) itemView;
-            mLocView.setOnClickListener(new View.OnClickListener() {
+        public ViewHolder(LocationQueryViewBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+            binding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (onClickListener != null)
                         onClickListener.onClick(v, getAdapterPosition());
                 }
             });
+        }
+
+        public void bind(LocationQueryViewModel model) {
+            binding.setViewModel(model);
+            binding.executePendingBindings();
         }
     }
 
@@ -66,10 +71,10 @@ public class LocationQueryAdapter extends RecyclerView.Adapter {
                 return new FooterViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.locations_header, parent, false));
             default:
                 // create a new view
-                LocationQuery v = new LocationQuery(parent.getContext());
-                // set the view's size, margins, paddings and layout parameters
-                v.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                return new ViewHolder(v);
+                LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+                LocationQueryViewBinding binding = LocationQueryViewBinding.inflate(inflater);
+                binding.getRoot().setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                return new ViewHolder(binding);
         }
     }
 
@@ -82,7 +87,7 @@ public class LocationQueryAdapter extends RecyclerView.Adapter {
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
             ViewHolder vh = (ViewHolder) holder;
-            vh.mLocView.setLocation(mDataset.get(position));
+            vh.bind(mDataset.get(position));
         }
     }
 

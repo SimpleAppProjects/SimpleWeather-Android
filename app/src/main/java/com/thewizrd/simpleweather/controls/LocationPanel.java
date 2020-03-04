@@ -8,11 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -32,15 +28,10 @@ import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.LocationPanelBinding;
 
 public class LocationPanel extends MaterialCardView {
-    private View viewLayout;
-    private View bgImageOverlay;
-    private ImageView bgImageView;
-    private TextView locationNameView;
-    private TextView locationTempView;
-    private TextView locationWeatherIcon;
-    private ProgressBar progressBar;
+    private LocationPanelBinding binding;
     private Drawable colorDrawable;
     private Drawable overlayDrawable;
     private RequestManager mGlide;
@@ -48,12 +39,6 @@ public class LocationPanel extends MaterialCardView {
     public LocationPanel(@NonNull Context context) {
         super(context);
         initialize(context);
-    }
-
-    public LocationPanel(@NonNull Context context, LocationPanelViewModel panelView) {
-        super(context);
-        initialize(context);
-        setWeather(panelView);
     }
 
     public LocationPanel(@NonNull Context context, @Nullable AttributeSet attrs) {
@@ -72,23 +57,17 @@ public class LocationPanel extends MaterialCardView {
 
     private void initialize(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        viewLayout = inflater.inflate(R.layout.location_panel, this);
+        binding = LocationPanelBinding.inflate(inflater, this, true);
 
         int height = context.getResources().getDimensionPixelSize(R.dimen.location_panel_height);
-        viewLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
+        this.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
 
-        bgImageOverlay = viewLayout.findViewById(R.id.image_overlay);
-        bgImageView = viewLayout.findViewById(R.id.image_view);
-        locationNameView = viewLayout.findViewById(R.id.location_name);
-        locationTempView = viewLayout.findViewById(R.id.weather_temp);
-        locationWeatherIcon = viewLayout.findViewById(R.id.weather_icon);
-        progressBar = viewLayout.findViewById(R.id.progressBar);
         colorDrawable = new ColorDrawable(Colors.SIMPLEBLUEMEDIUM);
         overlayDrawable = ContextCompat.getDrawable(context, R.drawable.background_overlay);
 
         // NOTE: Bug: Explicitly set tintmode on Lollipop devices
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP)
-            progressBar.setIndeterminateTintMode(PorterDuff.Mode.SRC_IN);
+            binding.progressBar.setIndeterminateTintMode(PorterDuff.Mode.SRC_IN);
 
         // Remove extra (compat) padding on pre-Lollipop devices
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -116,7 +95,7 @@ public class LocationPanel extends MaterialCardView {
                         .placeholder(colorDrawable)
                         .skipMemoryCache(skipCache))
                 .transition(BitmapTransitionOptions.withCrossFade())
-                .into(new BitmapImageViewTarget(bgImageView) {
+                .into(new BitmapImageViewTarget(binding.imageView) {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                         super.onResourceReady(resource, transition);
@@ -128,7 +107,7 @@ public class LocationPanel extends MaterialCardView {
                             shadowColor = Colors.GRAY;
                         }
 
-                        bgImageOverlay.setBackground(overlayDrawable);
+                        binding.imageOverlay.setBackground(overlayDrawable);
 
                         setTextColor(textColor);
                         setTextShadowColor(shadowColor);
@@ -137,57 +116,57 @@ public class LocationPanel extends MaterialCardView {
                     @Override
                     public void onLoadFailed(@Nullable Drawable errorDrawable) {
                         super.onLoadFailed(errorDrawable);
-                        bgImageOverlay.setBackground(null);
+                        binding.imageOverlay.setBackground(null);
                     }
 
                     @Override
                     public void onLoadCleared(@Nullable Drawable placeholder) {
                         super.onLoadCleared(placeholder);
-                        bgImageOverlay.setBackground(null);
+                        binding.imageOverlay.setBackground(null);
                     }
 
                     @Override
                     public void onLoadStarted(@Nullable Drawable placeholder) {
                         super.onLoadStarted(placeholder);
-                        bgImageOverlay.setBackground(null);
+                        binding.imageOverlay.setBackground(null);
                     }
                 });
     }
 
     public void clearBackground() {
-        mGlide.clear(bgImageView);
-        bgImageView.setImageDrawable(colorDrawable);
+        mGlide.clear(binding.imageView);
+        binding.imageView.setImageDrawable(colorDrawable);
         setTextColor(Colors.WHITE);
     }
 
-    public void setWeather(LocationPanelViewModel panelView) {
-        locationNameView.setText(panelView.getLocationName());
-        locationTempView.setText(panelView.getCurrTemp());
-        locationWeatherIcon.setText(panelView.getWeatherIcon());
-        setTag(panelView.getLocationData());
+    public void bindModel(LocationPanelViewModel model) {
+        binding.setViewModel(model);
+        binding.executePendingBindings();
 
-        if (panelView.getLocationName() != null && getTag() != null)
+        this.setTag(model.getLocationData());
+
+        if (model.getLocationName() != null && getTag() != null)
             showLoading(false);
     }
 
     public void showLoading(boolean show) {
-        progressBar.setVisibility(show ? VISIBLE : GONE);
+        binding.progressBar.setVisibility(show ? VISIBLE : GONE);
         setClickable(!show);
     }
 
     public void setTextColor(@ColorInt int color) {
-        locationNameView.setTextColor(color);
-        locationTempView.setTextColor(color);
-        locationWeatherIcon.setTextColor(color);
+        binding.locationName.setTextColor(color);
+        binding.weatherTemp.setTextColor(color);
+        binding.weatherIcon.setTextColor(color);
     }
 
     public void setTextShadowColor(@ColorInt int color) {
-        locationNameView.setShadowLayer(
-                locationNameView.getShadowRadius(), locationNameView.getShadowDx(), locationNameView.getShadowDy(), color);
-        locationTempView.setShadowLayer(
-                locationTempView.getShadowRadius(), locationTempView.getShadowDx(), locationTempView.getShadowDy(), color);
-        locationWeatherIcon.setShadowLayer(
-                locationWeatherIcon.getShadowRadius(), locationWeatherIcon.getShadowDx(), locationWeatherIcon.getShadowDy(), color);
+        binding.locationName.setShadowLayer(
+                binding.locationName.getShadowRadius(), binding.locationName.getShadowDx(), binding.locationName.getShadowDy(), color);
+        binding.weatherTemp.setShadowLayer(
+                binding.weatherTemp.getShadowRadius(), binding.weatherTemp.getShadowDx(), binding.weatherTemp.getShadowDy(), color);
+        binding.weatherIcon.setShadowLayer(
+                binding.weatherIcon.getShadowRadius(), binding.weatherIcon.getShadowDx(), binding.weatherIcon.getShadowDy(), color);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.adapters;
 
 import android.annotation.SuppressLint;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -10,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.helpers.ListDiffUtilCallback;
-import com.thewizrd.simpleweather.controls.ForecastItem;
+import com.thewizrd.simpleweather.databinding.WeatherForecastPanelBinding;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +24,16 @@ public class ForecastItemAdapter extends RecyclerView.Adapter {
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
     class ViewHolder extends RecyclerView.ViewHolder {
-        public ForecastItem mForecastItem;
+        private WeatherForecastPanelBinding binding;
 
-        public ViewHolder(ForecastItem v) {
-            super(v);
-            mForecastItem = v;
+        public ViewHolder(WeatherForecastPanelBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+
+        public void bind(ForecastItemViewModel model) {
+            binding.setViewModel(model);
+            binding.executePendingBindings();
         }
     }
 
@@ -42,13 +48,14 @@ public class ForecastItemAdapter extends RecyclerView.Adapter {
     // Create new views (invoked by the layout manager)
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // create a new view
-        ForecastItem v = new ForecastItem(parent.getContext());
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        WeatherForecastPanelBinding binding = WeatherForecastPanelBinding.inflate(inflater);
         // FOR WEAR ONLY
         // set the view's size, margins, paddings and layout parameters
-        v.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        binding.getRoot().setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         int paddingHoriz = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, parent.getContext().getResources().getDisplayMetrics());
-        v.setPaddingRelative(paddingHoriz, 0, paddingHoriz, 0);
-        return new ViewHolder(v);
+        binding.getRoot().setPaddingRelative(paddingHoriz, 0, paddingHoriz, 0);
+        return new ViewHolder(binding);
     }
 
     @Override
@@ -57,7 +64,7 @@ public class ForecastItemAdapter extends RecyclerView.Adapter {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         ViewHolder vh = (ViewHolder) holder;
-        vh.mForecastItem.setForecast(mDataset.get(position));
+        vh.bind(mDataset.get(position));
     }
 
     @Override

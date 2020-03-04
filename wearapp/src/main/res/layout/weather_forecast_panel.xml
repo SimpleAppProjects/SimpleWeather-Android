@@ -1,59 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:parentTag="android.widget.LinearLayout">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/forecast_date"
-        android:layout_width="0dp"
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.thewizrd.shared_resources.controls.ForecastItemViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_weight="1"
-        android:padding="4dp"
-        android:textAppearance="?android:textAppearanceSmallInverse"
-        android:textColor="@android:color/white"
-        tools:text="Thu 08" />
+        android:orientation="horizontal">
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/forecast_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:textAppearance="?android:textAppearanceLargeInverse"
-        android:textColor="@android:color/white"
-        app:fontFamily="@font/weathericons"
-        tools:fontFamily="@font/weathericons"
-        tools:text="@string/wi_wu_sunny" />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/forecast_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:padding="4dp"
+            android:text="@{viewModel.date}"
+            android:textAppearance="?android:textAppearanceSmallInverse"
+            android:textColor="@android:color/white"
+            tools:text="Thu 08" />
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/forecast_temphi"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:textAppearance="?android:textAppearanceSmallInverse"
-        android:textColor="@android:color/white"
-        tools:text="77º" />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/forecast_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="@{viewModel.weatherIcon}"
+            android:textAppearance="?android:textAppearanceLargeInverse"
+            android:textColor="@android:color/white"
+            app:fontFamily="@font/weathericons"
+            tools:fontFamily="@font/weathericons"
+            tools:text="@string/wi_wu_sunny" />
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:text="/"
-        android:textAppearance="?android:textAppearanceSmallInverse"
-        android:textColor="@android:color/white" />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/forecast_temphi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@{viewModel.hiTemp}"
+            android:textAppearance="?android:textAppearanceSmallInverse"
+            android:textColor="@android:color/white"
+            tools:text="77º" />
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/forecast_templo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:alpha="0.7"
-        android:padding="2dp"
-        android:textAppearance="?android:textAppearanceSmallInverse"
-        android:textColor="@android:color/white"
-        tools:text="66º" />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="/"
+            android:textAppearance="?android:textAppearanceSmallInverse"
+            android:textColor="@android:color/white" />
 
-</merge>
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/forecast_templo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:alpha="0.7"
+            android:padding="2dp"
+            android:text="@{viewModel.loTemp}"
+            android:textAppearance="?android:textAppearanceSmallInverse"
+            android:textColor="@android:color/white"
+            tools:text="66º" />
+
+    </LinearLayout>
+</layout>

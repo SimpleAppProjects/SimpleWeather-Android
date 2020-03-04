@@ -60,14 +60,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
-import com.thewizrd.shared_resources.controls.LocationQuery;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ListChangedAction;
@@ -96,6 +94,7 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.LocationPanelAdapter;
 import com.thewizrd.simpleweather.controls.LocationPanelViewModel;
+import com.thewizrd.simpleweather.databinding.FragmentLocationsBinding;
 import com.thewizrd.simpleweather.fragments.LocationSearchFragment;
 import com.thewizrd.simpleweather.fragments.ToolbarFragment;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperCallback;
@@ -125,17 +124,14 @@ public class LocationsFragment extends ToolbarFragment
     private SnackbarManager mSnackMgr;
 
     // Views
-    private NestedScrollView mScrollView;
-    private RecyclerView mRecyclerView;
+    private FragmentLocationsBinding binding;
     private LocationPanelAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private ItemTouchHelper mItemTouchHelper;
     private ItemTouchHelperCallback mITHCallback;
-    private ExtendedFloatingActionButton addLocationsButton;
     private BottomNavigationView mBottomNavView;
 
     // Search
-    private View mSearchFragmentContainer;
     private LocationSearchFragment mSearchFragment;
     private boolean inSearchUI;
 
@@ -239,7 +235,7 @@ public class LocationsFragment extends ToolbarFragment
                     if (panel != null) {
                         panel.setWeather(weather);
                         final LocationPanelViewModel finalPanel = panel;
-                        mRecyclerView.post(new Runnable() {
+                        binding.recyclerView.post(new Runnable() {
                             @Override
                             public void run() {
                                 mAdapter.notifyItemChanged(mAdapter.getViewPosition(finalPanel));
@@ -510,37 +506,36 @@ public class LocationsFragment extends ToolbarFragment
                              Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_locations, root, true);
+        binding = FragmentLocationsBinding.inflate(inflater, root, true);
         // Request focus away from RecyclerView
-        view.setFocusableInTouchMode(true);
-        view.requestFocus();
+        root.setFocusableInTouchMode(true);
+        root.requestFocus();
 
         mBottomNavView = getAppCompatActivity().findViewById(R.id.bottom_nav_bar);
 
-        mScrollView = view.findViewById(R.id.scrollView);
         /*
            Capture touch events on ScrollView
            Expand or collapse FAB (MaterialButton) based on scroll direction
            Collapse FAB if we're scrolling to the bottom (so the bottom items behind the keyboard are visible)
            Expand FAB if we're scrolling to the top (items at the top are already visible)
         */
-        mScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+        binding.scrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
             public void onScrollChange(NestedScrollView nestedScrollView, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
                 int dY = scrollY - oldScrollY;
                 if (dY < 0) {
-                    addLocationsButton.extend();
+                    binding.fab.extend();
                 } else {
-                    addLocationsButton.shrink();
+                    binding.fab.shrink();
                 }
             }
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(mScrollView, new OnApplyWindowInsetsListener() {
-            private int paddingStart = ViewCompat.getPaddingStart(mScrollView);
-            private int paddingTop = mScrollView.getPaddingTop();
-            private int paddingEnd = ViewCompat.getPaddingEnd(mScrollView);
-            private int paddingBottom = mScrollView.getPaddingBottom();
+        ViewCompat.setOnApplyWindowInsetsListener(binding.scrollView, new OnApplyWindowInsetsListener() {
+            private int paddingStart = ViewCompat.getPaddingStart(binding.scrollView);
+            private int paddingTop = binding.scrollView.getPaddingTop();
+            private int paddingEnd = ViewCompat.getPaddingEnd(binding.scrollView);
+            private int paddingBottom = binding.scrollView.getPaddingBottom();
 
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
@@ -553,20 +548,19 @@ public class LocationsFragment extends ToolbarFragment
         });
 
         getToolbar().setOnMenuItemClickListener(menuItemClickListener);
-        mSearchFragmentContainer = view.findViewById(R.id.search_fragment_container);
 
-        mSearchFragmentContainer.setOnClickListener(new View.OnClickListener() {
+        binding.searchFragmentContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 exitSearchUi(false);
             }
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(mSearchFragmentContainer, new OnApplyWindowInsetsListener() {
-            private int paddingStart = ViewCompat.getPaddingStart(mSearchFragmentContainer);
-            private int paddingTop = mSearchFragmentContainer.getPaddingTop();
-            private int paddingEnd = ViewCompat.getPaddingEnd(mSearchFragmentContainer);
-            private int paddingBottom = mSearchFragmentContainer.getPaddingBottom();
+        ViewCompat.setOnApplyWindowInsetsListener(binding.searchFragmentContainer, new OnApplyWindowInsetsListener() {
+            private int paddingStart = ViewCompat.getPaddingStart(binding.searchFragmentContainer);
+            private int paddingTop = binding.searchFragmentContainer.getPaddingTop();
+            private int paddingEnd = ViewCompat.getPaddingEnd(binding.searchFragmentContainer);
+            private int paddingBottom = binding.searchFragmentContainer.getPaddingBottom();
 
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
@@ -579,8 +573,7 @@ public class LocationsFragment extends ToolbarFragment
             }
         });
 
-        addLocationsButton = view.findViewById(R.id.fab);
-        addLocationsButton.setOnClickListener(new View.OnClickListener() {
+        binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Hide FAB in actionmode
@@ -589,8 +582,8 @@ public class LocationsFragment extends ToolbarFragment
             }
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(addLocationsButton, new OnApplyWindowInsetsListener() {
-            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) addLocationsButton.getLayoutParams();
+        ViewCompat.setOnApplyWindowInsetsListener(binding.fab, new OnApplyWindowInsetsListener() {
+            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.fab.getLayoutParams();
             private int marginStart = MarginLayoutParamsCompat.getMarginStart(layoutParams);
             private int marginEnd = MarginLayoutParamsCompat.getMarginEnd(layoutParams);
 
@@ -606,11 +599,9 @@ public class LocationsFragment extends ToolbarFragment
             }
         });
 
-        mRecyclerView = view.findViewById(R.id.locations_container);
-
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
-        mRecyclerView.setHasFixedSize(false);
+        binding.recyclerView.setHasFixedSize(false);
 
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(getAppCompatActivity()) {
@@ -620,25 +611,25 @@ public class LocationsFragment extends ToolbarFragment
                         ViewGroup.LayoutParams.WRAP_CONTENT);
             }
         };
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        binding.recyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
         mAdapter = new LocationPanelAdapter();
         mAdapter.setOnClickListener(onRecyclerClickListener);
         mAdapter.setOnLongClickListener(onRecyclerLongClickListener);
         mAdapter.setOnListChangedCallback(onListChangedListener);
-        mRecyclerView.setAdapter(mAdapter);
+        binding.recyclerView.setAdapter(mAdapter);
         mITHCallback = new ItemTouchHelperCallback(mAdapter);
         mItemTouchHelper = new ItemTouchHelper(mITHCallback);
-        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
+        mItemTouchHelper.attachToRecyclerView(binding.recyclerView);
         SwipeToDeleteOffSetItemDecoration swipeDecor =
-                new SwipeToDeleteOffSetItemDecoration(mRecyclerView.getContext(), 2f,
+                new SwipeToDeleteOffSetItemDecoration(binding.recyclerView.getContext(), 2f,
                         OffsetMargin.TOP | OffsetMargin.BOTTOM);
         mITHCallback.setItemTouchHelperCallbackListener(swipeDecor);
-        mRecyclerView.addItemDecoration(swipeDecor);
+        binding.recyclerView.addItemDecoration(swipeDecor);
         SimpleItemAnimator animator = new DefaultItemAnimator();
         animator.setSupportsChangeAnimations(false);
-        mRecyclerView.setItemAnimator(animator);
+        binding.recyclerView.setItemAnimator(animator);
 
         // Turn off by default
         mITHCallback.setLongPressDragEnabled(false);
@@ -667,13 +658,14 @@ public class LocationsFragment extends ToolbarFragment
     public void onDestroyView() {
         this.getLifecycle().removeObserver(mAdapter);
         super.onDestroyView();
+        binding = null;
     }
 
     @Override
     public void updateWindowColors() {
         super.updateWindowColors();
 
-        addLocationsButton.setBackgroundTintList(ColorStateList.valueOf(ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary)));
+        binding.fab.setBackgroundTintList(ColorStateList.valueOf(ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary)));
     }
 
     @Override
@@ -1245,14 +1237,14 @@ public class LocationsFragment extends ToolbarFragment
         TranslateAnimation fragmentAnimation = new TranslateAnimation(
                 Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0,
-                Animation.ABSOLUTE, mSearchFragmentContainer.getRootView().getHeight(),
+                Animation.ABSOLUTE, binding.searchFragmentContainer.getRootView().getHeight(),
                 Animation.ABSOLUTE, 0);
         fragmentAniSet.setDuration(ANIMATION_DURATION);
         fragmentAniSet.setFillEnabled(false);
         fragmentAniSet.addAnimation(fragFadeAni);
         fragmentAniSet.addAnimation(fragmentAnimation);
         fragmentAniSet.setAnimationListener(enterAnimationListener);
-        mSearchFragmentContainer.startAnimation(fragmentAniSet);
+        binding.searchFragmentContainer.startAnimation(fragmentAniSet);
     }
 
     private void addSearchFragment() {
@@ -1271,7 +1263,6 @@ public class LocationsFragment extends ToolbarFragment
                             return;
 
                         final LocationQueryAdapter adapter = searchFragment.getAdapter();
-                        LocationQuery v = (LocationQuery) view;
                         LocationQueryViewModel query_vm = null;
 
                         try {
@@ -1412,10 +1403,8 @@ public class LocationsFragment extends ToolbarFragment
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if (mSearchFragment != null && mSearchFragment.getView() != null &&
-                                        mSearchFragment.getView().findViewById(R.id.recycler_view) instanceof RecyclerView) {
-                                    RecyclerView recyclerView = mSearchFragment.getView().findViewById(R.id.recycler_view);
-                                    recyclerView.setEnabled(false);
+                                if (mSearchFragment != null) {
+                                    mSearchFragment.disableRecyclerView();
                                 }
                             }
                         });
@@ -1496,7 +1485,7 @@ public class LocationsFragment extends ToolbarFragment
         }
 
         if (mAdapter.getDataCount() < MAX_LOCATIONS)
-            addLocationsButton.show();
+            binding.fab.show();
 
         mBottomNavView.setVisibility(View.VISIBLE);
         updateWindowColors();
@@ -1515,13 +1504,13 @@ public class LocationsFragment extends ToolbarFragment
                 Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0,
                 Animation.ABSOLUTE, 0,
-                Animation.ABSOLUTE, mSearchFragmentContainer.getRootView().getHeight());
+                Animation.ABSOLUTE, binding.searchFragmentContainer.getRootView().getHeight());
         fragmentAniSet.setDuration(ANIMATION_DURATION);
         fragmentAniSet.setFillEnabled(false);
         fragmentAniSet.addAnimation(fragFadeAni);
         fragmentAniSet.addAnimation(fragmentAnimation);
         fragmentAniSet.setAnimationListener(exitAnimationListener);
-        mSearchFragmentContainer.startAnimation(fragmentAniSet);
+        binding.searchFragmentContainer.startAnimation(fragmentAniSet);
     }
 
     private void showInputMethod(View view) {
@@ -1562,9 +1551,9 @@ public class LocationsFragment extends ToolbarFragment
                 public void run() {
                     // Hide FAB; Don't allow adding more locations
                     if (mAdapter.getDataCount() >= MAX_LOCATIONS) {
-                        addLocationsButton.hide();
+                        binding.fab.hide();
                     } else {
-                        addLocationsButton.show();
+                        binding.fab.show();
                     }
 
                     // Cancel edit Mode

@@ -25,8 +25,6 @@ import android.view.animation.AnimationSet;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,7 +39,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.AutoTransition;
 import androidx.transition.Transition;
 import androidx.transition.TransitionManager;
@@ -66,7 +63,6 @@ import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
-import com.thewizrd.shared_resources.controls.LocationQuery;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
@@ -82,6 +78,7 @@ import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.FragmentSetupLocationBinding;
 import com.thewizrd.simpleweather.fragments.LocationSearchFragment;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
@@ -95,9 +92,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SetupLocationFragment extends Fragment implements Step, OnBackPressedFragmentListener, SnackbarManagerInterface {
 
-    private View mSearchFragmentContainer;
     private LocationSearchFragment mSearchFragment;
-    private View searchViewContainer;
     private boolean inSearchUI;
 
     private static final int ANIMATION_DURATION = 240;
@@ -105,9 +100,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     private SnackbarManager mSnackMgr;
 
     // Views
-    private View mMainView;
-    private Button gpsFollowButton;
-    private ProgressBar progressBar;
+    private FragmentSetupLocationBinding binding;
     private FusedLocationProviderClient mFusedLocationClient;
     private Location mLocation;
     private LocationCallback mLocCallback;
@@ -132,7 +125,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     @Override
     public void initSnackManager() {
         if (mSnackMgr == null) {
-            mSnackMgr = new SnackbarManager(mMainView);
+            mSnackMgr = new SnackbarManager(binding.getRoot());
             mSnackMgr.setSwipeDismissEnabled(true);
             mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
             mSnackMgr.setAnchorView(mStepperNavBar);
@@ -168,17 +161,13 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_setup_location, container, false);
-        mMainView = view;
+        binding = FragmentSetupLocationBinding.inflate(inflater, container, false);
         wm = WeatherManager.getInstance();
 
         mStepperLayout = mActivity.findViewById(R.id.stepperLayout);
         mStepperNavBar = mActivity.findViewById(R.id.ms_bottomNavigation);
 
-        searchViewContainer = view.findViewById(R.id.search_bar);
-
-        mSearchFragmentContainer = view.findViewById(R.id.search_fragment_container);
-        ViewCompat.setOnApplyWindowInsetsListener(mSearchFragmentContainer, new OnApplyWindowInsetsListener() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.searchFragmentContainer, new OnApplyWindowInsetsListener() {
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
@@ -187,30 +176,28 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
             }
         });
 
-        gpsFollowButton = view.findViewById(R.id.gps_follow);
-        progressBar = view.findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.GONE);
+        binding.progressBar.setVisibility(View.GONE);
 
         // NOTE: Bug: Explicitly set tintmode on Lollipop devices
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP)
-            progressBar.setIndeterminateTintMode(PorterDuff.Mode.SRC_IN);
+            binding.progressBar.setIndeterminateTintMode(PorterDuff.Mode.SRC_IN);
 
         // Tint drawable in button view
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-            for (Drawable drawable : gpsFollowButton.getCompoundDrawables()) {
+            for (Drawable drawable : binding.gpsFollow.getCompoundDrawables()) {
                 if (drawable != null) {
                     Configuration config = mActivity.getResources().getConfiguration();
                     final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
                     drawable.setColorFilter(new PorterDuffColorFilter(
                             currentNightMode == Configuration.UI_MODE_NIGHT_YES ? Colors.WHITE : Colors.SIMPLEBLUE, PorterDuff.Mode.SRC_IN));
-                    TextViewCompat.setCompoundDrawablesRelative(gpsFollowButton, drawable, null, null, null);
+                    TextViewCompat.setCompoundDrawablesRelative(binding.gpsFollow, drawable, null, null, null);
                 }
             }
         }
 
         /* Event Listeners */
-        searchViewContainer.setOnClickListener(new View.OnClickListener() {
+        binding.searchBar.searchViewContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Setup search UI
@@ -218,14 +205,14 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
             }
         });
 
-        mSearchFragmentContainer.setOnClickListener(new View.OnClickListener() {
+        binding.searchFragmentContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 exitSearchUi(false);
             }
         });
 
-        gpsFollowButton.setOnClickListener(new View.OnClickListener() {
+        binding.gpsFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 fetchGeoLocation();
@@ -313,7 +300,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
         mRequestingLocationUpdates = false;
 
         // Reset focus
-        view.requestFocus();
+        binding.getRoot().requestFocus();
 
         // Set default API to HERE
         Settings.setAPI(WeatherAPI.HERE);
@@ -339,7 +326,13 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
             prepareSearchUI();
         }
 
-        return view;
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     /**
@@ -429,9 +422,9 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                searchViewContainer.setEnabled(enable);
-                gpsFollowButton.setEnabled(enable);
-                progressBar.setVisibility(enable ? View.GONE : View.VISIBLE);
+                binding.searchBar.searchViewContainer.setEnabled(enable);
+                binding.gpsFollow.setEnabled(enable);
+                binding.progressBar.setVisibility(enable ? View.GONE : View.VISIBLE);
             }
         });
     }
@@ -448,7 +441,6 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                     if (mActivity != null) {
                         // Get selected query view
                         final LocationQueryAdapter adapter = mSearchFragment.getAdapter();
-                        LocationQuery v = (LocationQuery) view;
                         LocationQueryViewModel query_vm = null;
 
                         try {
@@ -572,10 +564,8 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             public void run() {
                                 adapter.getDataset().clear();
                                 adapter.notifyDataSetChanged();
-                                if (mSearchFragment != null && mSearchFragment.getView() != null &&
-                                        mSearchFragment.getView().findViewById(R.id.recycler_view) instanceof RecyclerView) {
-                                    RecyclerView recyclerView = mSearchFragment.getView().findViewById(R.id.recycler_view);
-                                    recyclerView.setEnabled(false);
+                                if (mSearchFragment != null) {
+                                    mSearchFragment.disableRecyclerView();
                                 }
                             }
                         });
@@ -620,13 +610,13 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     };
 
     private void fetchGeoLocation() {
-        gpsFollowButton.setEnabled(false);
+        binding.gpsFollow.setEnabled(false);
 
         // Show loading bar
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                progressBar.setVisibility(View.VISIBLE);
+                binding.progressBar.setVisibility(View.VISIBLE);
             }
         });
 
@@ -647,7 +637,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                progressBar.setVisibility(View.VISIBLE);
+                                binding.progressBar.setVisibility(View.VISIBLE);
                             }
                         });
 
@@ -952,11 +942,11 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
         // SearchViewContainer margin transition
         Transition transition = new AutoTransition();
         transition.setDuration(ANIMATION_DURATION);
-        TransitionManager.beginDelayedTransition((ViewGroup) searchViewContainer, transition);
-        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) searchViewContainer.getLayoutParams();
+        TransitionManager.beginDelayedTransition(binding.searchBar.searchViewContainer, transition);
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) binding.searchBar.searchViewContainer.getLayoutParams();
         MarginLayoutParamsCompat.setMarginEnd(params, 0);
         MarginLayoutParamsCompat.setMarginStart(params, 0);
-        searchViewContainer.setLayoutParams(params);
+        binding.searchBar.searchViewContainer.setLayoutParams(params);
 
         // SearchViewContainer fade/translation animation
         AnimationSet searchViewAniSet = new AnimationSet(true);
@@ -966,7 +956,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                 Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0,
                 Animation.ABSOLUTE, 0,
-                Animation.ABSOLUTE, -(searchViewContainer.getY()));
+                Animation.ABSOLUTE, -(binding.searchBar.searchViewContainer.getY()));
         searchViewAniSet.setDuration((long) (ANIMATION_DURATION * 1.25));
         searchViewAniSet.setFillEnabled(false);
         searchViewAniSet.setAnimationListener(enterAnimationListener);
@@ -980,15 +970,15 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
         TranslateAnimation fragmentAnimation = new TranslateAnimation(
                 Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0,
-                Animation.ABSOLUTE, searchViewContainer.getY(),
+                Animation.ABSOLUTE, binding.searchBar.searchViewContainer.getY(),
                 Animation.ABSOLUTE, 0);
         fragmentAniSet.setDuration(ANIMATION_DURATION);
         fragmentAniSet.setFillEnabled(false);
         fragmentAniSet.addAnimation(fragFadeAni);
         fragmentAniSet.addAnimation(fragmentAnimation);
 
-        mSearchFragmentContainer.startAnimation(fragmentAniSet);
-        searchViewContainer.startAnimation(searchViewAniSet);
+        binding.searchFragmentContainer.startAnimation(fragmentAniSet);
+        binding.searchBar.searchViewContainer.startAnimation(searchViewAniSet);
     }
 
     private void addSearchFragment() {
@@ -1040,27 +1030,27 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
 
         hideInputMethod(mActivity == null ? null : mActivity.getCurrentFocus());
         mStepperLayout.setShowBottomNavigation(true);
-        if (mMainView != null) mMainView.requestFocus();
+        if (binding.getRoot() != null) binding.getRoot().requestFocus();
         inSearchUI = false;
     }
 
     private void exitSearchUiTransition(Animation.AnimationListener exitAnimationListener) {
         // SearchViewContainer margin transition
-        searchViewContainer.setVisibility(View.VISIBLE);
+        binding.searchBar.searchViewContainer.setVisibility(View.VISIBLE);
         Transition transition = new AutoTransition();
         transition.setDuration(ANIMATION_DURATION);
-        TransitionManager.beginDelayedTransition((ViewGroup) searchViewContainer, transition);
-        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) searchViewContainer.getLayoutParams();
+        TransitionManager.beginDelayedTransition(binding.searchBar.searchViewContainer, transition);
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) binding.searchBar.searchViewContainer.getLayoutParams();
         int marginHoriz = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
         MarginLayoutParamsCompat.setMarginEnd(params, marginHoriz);
         MarginLayoutParamsCompat.setMarginStart(params, marginHoriz);
-        searchViewContainer.setLayoutParams(params);
+        binding.searchBar.searchViewContainer.setLayoutParams(params);
 
         // SearchViewContainer translation animation
         TranslateAnimation searchBarAnimation = new TranslateAnimation(
                 Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0,
-                Animation.ABSOLUTE, -searchViewContainer.getY(),
+                Animation.ABSOLUTE, -binding.searchBar.searchViewContainer.getY(),
                 Animation.ABSOLUTE, 0);
         searchBarAnimation.setDuration(ANIMATION_DURATION);
         searchBarAnimation.setFillEnabled(false);
@@ -1074,15 +1064,15 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                 Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0,
                 Animation.ABSOLUTE, 0,
-                Animation.ABSOLUTE, searchViewContainer.getY());
+                Animation.ABSOLUTE, binding.searchBar.searchViewContainer.getY());
         fragmentAniSet.setDuration(ANIMATION_DURATION);
         fragmentAniSet.setFillEnabled(false);
         fragmentAniSet.addAnimation(fragFadeAni);
         fragmentAniSet.addAnimation(fragmentAnimation);
         fragmentAniSet.setAnimationListener(exitAnimationListener);
 
-        mSearchFragmentContainer.startAnimation(fragmentAniSet);
-        searchViewContainer.startAnimation(searchBarAnimation);
+        binding.searchFragmentContainer.startAnimation(fragmentAniSet);
+        binding.searchBar.searchViewContainer.startAnimation(searchBarAnimation);
     }
 
     private void showInputMethod(View view) {

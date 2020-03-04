@@ -27,30 +27,29 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.FragmentSettingsBinding;
 import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
 import com.thewizrd.simpleweather.helpers.WindowColorManager;
 
 public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentCompat
         implements OnBackPressedFragmentListener, WindowColorManager {
 
-    private AppBarLayout mAppBarLayout;
-    private CoordinatorLayout mRootView;
-    private Toolbar mToolbar;
+    private FragmentSettingsBinding binding;
     private AppCompatActivity mActivity;
     private SystemBarColorManager mSysBarColorsIface;
 
     private Configuration currentConfig;
 
     public final AppBarLayout getAppBarLayout() {
-        return mAppBarLayout;
+        return binding.appBar;
     }
 
     public final CoordinatorLayout getRootView() {
-        return mRootView;
+        return binding.coordinatorLayout;
     }
 
     public final Toolbar getToolbar() {
-        return mToolbar;
+        return binding.toolbar;
     }
 
     public final AppCompatActivity getAppCompatActivity() {
@@ -86,26 +85,23 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
         currentConfig = new Configuration(getResources().getConfiguration());
 
         // Toolbar
-        mToolbar.setTitle(getTitle());
+        binding.toolbar.setTitle(getTitle());
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container, Bundle savedInstanceState) {
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_settings, container, false);
-
+        binding = FragmentSettingsBinding.inflate(inflater, container, false);
+        ViewGroup root = binding.coordinatorLayout;
         View inflatedView = super.onCreateView(inflater, container, savedInstanceState);
 
-        mRootView = (CoordinatorLayout) root;
-        mAppBarLayout = root.findViewById(R.id.app_bar);
-        mToolbar = root.findViewById(R.id.toolbar);
-        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+        binding.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mActivity.onBackPressed();
             }
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(mAppBarLayout, new OnApplyWindowInsetsListener() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.appBar, new OnApplyWindowInsetsListener() {
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
                 ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
@@ -135,6 +131,12 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
             currentConfig = new Configuration(getResources().getConfiguration());
         }
         updateWindowColors();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     @CallSuper
@@ -185,9 +187,9 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
             }
             color = bg_color;
         }
-        mRootView.setBackgroundColor(bg_color);
-        mAppBarLayout.setBackgroundColor(color);
-        mRootView.setStatusBarBackgroundColor(color);
+        binding.coordinatorLayout.setBackgroundColor(bg_color);
+        binding.appBar.setBackgroundColor(color);
+        binding.coordinatorLayout.setStatusBarBackgroundColor(color);
         if (mSysBarColorsIface != null) {
             mSysBarColorsIface.setSystemBarColors(bg_color, color, color, color);
         }

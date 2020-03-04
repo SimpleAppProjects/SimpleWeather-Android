@@ -12,10 +12,11 @@
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:id="@+id/swipeRefreshLayout">
 
         <androidx.core.widget.NestedScrollView
-            android:id="@+id/fragment_weather_now"
+            android:id="@+id/scrollView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fillViewport="true"

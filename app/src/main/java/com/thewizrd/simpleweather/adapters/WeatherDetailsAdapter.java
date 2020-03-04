@@ -6,25 +6,28 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
-import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
+import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.simpleweather.controls.WeatherDetailItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class WeatherDetailsAdapter<T> extends RecyclerView.Adapter {
+public class WeatherDetailsAdapter<T extends BaseForecastItemViewModel> extends RecyclerView.Adapter {
     private List<T> mDataset;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
     class ViewHolder extends RecyclerView.ViewHolder {
-        public WeatherDetailItem mDetailPanel;
+        private WeatherDetailItem mDetailPanel;
 
         public ViewHolder(WeatherDetailItem v) {
             super(v);
             mDetailPanel = v;
+        }
+
+        public void bind(BaseForecastItemViewModel model) {
+            mDetailPanel.bind(model);
         }
     }
 
@@ -38,11 +41,7 @@ public class WeatherDetailsAdapter<T> extends RecyclerView.Adapter {
     @Override
     // Create new views (invoked by the layout manager)
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // create a new view
-        WeatherDetailItem v = new WeatherDetailItem(parent.getContext());
-        // set the view's size, margins, paddings and layout parameters
-        v.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        return new ViewHolder(v);
+        return new ViewHolder(new WeatherDetailItem(parent.getContext()));
     }
 
     @Override
@@ -51,11 +50,7 @@ public class WeatherDetailsAdapter<T> extends RecyclerView.Adapter {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         ViewHolder vh = (ViewHolder) holder;
-        if (mDataset.size() > 0 && mDataset.get(position) instanceof ForecastItemViewModel) {
-            vh.mDetailPanel.setForecast((ForecastItemViewModel) mDataset.get(position));
-        } else if (mDataset.size() > 0 && mDataset.get(position) instanceof HourlyForecastItemViewModel) {
-            vh.mDetailPanel.setForecast((HourlyForecastItemViewModel) mDataset.get(position));
-        }
+        vh.bind(mDataset.get(position));
     }
 
     @Override

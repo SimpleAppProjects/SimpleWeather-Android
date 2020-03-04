@@ -28,6 +28,7 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.ActivityMainBinding;
 import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
 import com.thewizrd.simpleweather.preferences.SettingsFragment;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener,
         SystemBarColorManager, UserThemeMode.OnThemeChangeListener {
 
+    private ActivityMainBinding binding;
     private BottomNavigationView mBottomNavView;
     private View mFragmentContainer;
     private View mRootView;
@@ -52,15 +54,17 @@ public class MainActivity extends AppCompatActivity
         ActivityUtils.setTransparentWindow(getWindow(), Colors.SIMPLEBLUE, Colors.TRANSPARENT, Colors.TRANSPARENT,
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
 
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
 
-        mFragmentContainer = findViewById(R.id.fragment_container);
+        mFragmentContainer = binding.fragmentContainer;
         mRootView = (View) mFragmentContainer.getParent();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
             mRootView.setFitsSystemWindows(true);
         updateWindowColors();
 
-        mBottomNavView = findViewById(R.id.bottom_nav_bar);
+        mBottomNavView = binding.bottomNavBar;
         mBottomNavView.setOnNavigationItemSelectedListener(this);
 
         // Back stack listener

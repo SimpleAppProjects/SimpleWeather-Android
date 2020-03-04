@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.Space;
 import android.widget.TextView;
 
@@ -17,7 +16,6 @@ import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
@@ -39,6 +37,7 @@ import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
@@ -60,7 +59,6 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public interface HeaderSetterInterface {
         void setHeader();
-
         void setHeaderTextColor();
     }
 
@@ -98,7 +96,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public List<LocationPanelViewModel> getDataset() {
         // Create copy of list
-        return ArrayUtils.toArrayList(mDataset.toArray(new LocationPanelViewModel[0]));
+        return new ArrayList<>(mDataset);
     }
 
     public RecyclerView.ViewHolder getGPSViewHolder() {
@@ -113,14 +111,13 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
     public class LocationPanelViewHolder extends RecyclerView.ViewHolder {
-        LocationPanel mLocView;
-        ProgressBar mProgressBar;
+        private LocationPanel mLocView;
 
         LocationPanelViewHolder(LocationPanel v) {
             super(v);
             mLocView = v;
-            mProgressBar = v.findViewById(R.id.progressBar);
-            mProgressBar.setVisibility(View.VISIBLE);
+
+            mLocView.showLoading(true);
             mLocView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -136,6 +133,10 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
                     return true;
                 }
             });
+        }
+
+        public void bind(LocationPanelViewModel model) {
+            mLocView.bindModel(model);
         }
     }
 
@@ -237,7 +238,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
             });
 
             if (!imageUpdateOnly) {
-                vHolder.mLocView.setWeather(panelView);
+                vHolder.bind(panelView);
             }
         }
     }

@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
@@ -15,9 +14,7 @@ import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.card.MaterialCardView;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
@@ -27,6 +24,7 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding;
 import com.thewizrd.simpleweather.fragments.ToolbarFragment;
 
 import java.io.StringReader;
@@ -35,9 +33,7 @@ public abstract class WeatherListFragment extends ToolbarFragment {
     protected LocationData location = null;
     protected WeatherNowViewModel weatherView = null;
 
-    protected MaterialCardView locationHeader;
-    protected TextView locationName;
-    protected RecyclerView recyclerView;
+    protected FragmentWeatherListBinding binding;
     protected LinearLayoutManager layoutManager;
 
     @Override
@@ -54,7 +50,7 @@ public abstract class WeatherListFragment extends ToolbarFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container, @Nullable Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
         // Use this to return your custom view for this Fragment
-        View view = inflater.inflate(R.layout.fragment_weather_list, root, true);
+        binding = FragmentWeatherListBinding.inflate(inflater, root, true);
 
         // Setup Actionbar
         getToolbar().setNavigationIcon(
@@ -66,33 +62,30 @@ public abstract class WeatherListFragment extends ToolbarFragment {
             }
         });
 
-        locationHeader = view.findViewById(R.id.location_header);
-        locationName = view.findViewById(R.id.location_name);
-        recyclerView = view.findViewById(R.id.recycler_view);
-        locationHeader.post(new Runnable() {
+        binding.locationHeader.post(new Runnable() {
             @Override
             public void run() {
-                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) recyclerView.getLayoutParams();
-                layoutParams.topMargin = locationHeader.getHeight();
-                recyclerView.setLayoutParams(layoutParams);
+                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.recyclerView.getLayoutParams();
+                layoutParams.topMargin = binding.locationHeader.getHeight();
+                binding.recyclerView.setLayoutParams(layoutParams);
             }
         });
 
         // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        recyclerView.setHasFixedSize(true);
+        // in content do not change the layout size of the binding.recyclerView
+        binding.recyclerView.setHasFixedSize(true);
         // use a linear layout manager
-        recyclerView.setLayoutManager(layoutManager = new LinearLayoutManager(getAppCompatActivity()));
+        binding.recyclerView.setLayoutManager(layoutManager = new LinearLayoutManager(getAppCompatActivity()));
 
-        ViewCompat.setOnApplyWindowInsetsListener(locationHeader, new OnApplyWindowInsetsListener() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.locationHeader, new OnApplyWindowInsetsListener() {
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                locationHeader.setContentPadding(insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), 0);
+                binding.locationHeader.setContentPadding(insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), 0);
                 return insets;
             }
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(recyclerView, new OnApplyWindowInsetsListener() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.recyclerView, new OnApplyWindowInsetsListener() {
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
                 ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), 0);
@@ -100,17 +93,22 @@ public abstract class WeatherListFragment extends ToolbarFragment {
             }
         });
 
-        return view;
+        return root;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        if (isHidden())
-            return;
-        else
+        if (!isHidden()) {
             initialize();
+        }
     }
 
     @Override
@@ -144,15 +142,15 @@ public abstract class WeatherListFragment extends ToolbarFragment {
         if (currentNightMode == AppCompatDelegate.MODE_NIGHT_YES && Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             bg_color = Colors.BLACK;
         }
-        locationHeader.setCardBackgroundColor(bg_color);
-        recyclerView.setBackgroundColor(bg_color);
+        binding.locationHeader.setCardBackgroundColor(bg_color);
+        binding.recyclerView.setBackgroundColor(bg_color);
     }
 
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        recyclerView.setAdapter(recyclerView.getAdapter());
+        binding.recyclerView.setAdapter(binding.recyclerView.getAdapter());
         updateWindowColors();
     }
 }

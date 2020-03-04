@@ -8,17 +8,16 @@ import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import androidx.databinding.Observable;
 import androidx.wear.widget.WearableLinearLayoutManager;
-import androidx.wear.widget.WearableRecyclerView;
 
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
-import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.DetailItemAdapter;
+import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding;
 import com.thewizrd.simpleweather.fragments.SwipeDismissFragment;
 
 public class WeatherDetailsFragment extends SwipeDismissFragment {
     private WeatherNowViewModel weatherView = null;
 
-    private WearableRecyclerView recyclerView;
+    private FragmentWeatherListBinding binding;
     private DetailItemAdapter mAdapter;
 
     public static WeatherDetailsFragment newInstance(WeatherNowViewModel weatherViewModel) {
@@ -35,15 +34,13 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         // Use this to return your custom view for this Fragment
         View outerView = super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.fragment_weather_list, (ViewGroup) outerView, true);
-
-        recyclerView = view.findViewById(R.id.recycler_view);
+        binding = FragmentWeatherListBinding.inflate(inflater, (ViewGroup) outerView, true);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setEdgeItemsCenteringEnabled(true);
-        recyclerView.setLayoutManager(new WearableLinearLayoutManager(mActivity));
+        binding.recyclerView.setHasFixedSize(true);
+        binding.recyclerView.setEdgeItemsCenteringEnabled(true);
+        binding.recyclerView.setLayoutManager(new WearableLinearLayoutManager(mActivity));
 
         return outerView;
     }
@@ -98,7 +95,7 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
             // specify an adapter (see also next example)
             if (mAdapter == null) {
                 mAdapter = new DetailItemAdapter(weatherView);
-                recyclerView.setAdapter(mAdapter);
+                binding.recyclerView.setAdapter(mAdapter);
             } else {
                 mAdapter.updateItems(weatherView);
             }

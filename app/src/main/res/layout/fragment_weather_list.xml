@@ -1,44 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:parentTag="androidx.coordinatorlayout.widget.CoordinatorLayout"
-    tools:showIn="@layout/fragment_toolbar_layout"
-    tools:context=".main.WeatherListFragment">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/location_header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardBackgroundColor="?android:attr/colorBackground"
-        app:cardCornerRadius="0dp"
-        app:cardElevation="1dp"
-        app:layout_anchor="@id/app_bar"
-        app:layout_anchorGravity="bottom"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    <merge
+        tools:parentTag="androidx.coordinatorlayout.widget.CoordinatorLayout"
+        tools:showIn="@layout/fragment_toolbar_layout"
+        tools:context=".main.WeatherListFragment">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/location_name"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/location_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:textAppearance="@style/TextAppearance.OpenSans.Menu"
-            android:textSize="16sp"
-            app:autoSizeMaxTextSize="16sp"
-            app:autoSizeMinTextSize="6sp"
-            app:autoSizeTextType="uniform"
-            tools:text="New York, NY" />
+            app:cardBackgroundColor="?android:attr/colorBackground"
+            app:cardCornerRadius="0dp"
+            app:cardElevation="1dp"
+            app:layout_anchor="@id/app_bar"
+            app:layout_anchorGravity="bottom"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    </com.google.android.material.card.MaterialCardView>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/location_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:textAppearance="@style/TextAppearance.OpenSans.Menu"
+                android:textSize="16sp"
+                app:autoSizeMaxTextSize="16sp"
+                app:autoSizeMinTextSize="6sp"
+                app:autoSizeTextType="uniform"
+                tools:text="New York, NY" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_anchor="@id/app_bar"
-        app:layout_anchorGravity="bottom"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        </com.google.android.material.card.MaterialCardView>
 
-    </androidx.recyclerview.widget.RecyclerView>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_anchor="@id/app_bar"
+            app:layout_anchorGravity="bottom"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-</merge>
+        </androidx.recyclerview.widget.RecyclerView>
+
+    </merge>
+</layout>

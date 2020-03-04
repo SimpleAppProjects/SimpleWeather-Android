@@ -13,8 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,17 +20,14 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.wear.widget.SwipeDismissFrameLayout;
 import androidx.wear.widget.WearableLinearLayoutManager;
-import androidx.wear.widget.WearableRecyclerView;
 
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
-import com.thewizrd.shared_resources.controls.LocationQuery;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -45,22 +40,18 @@ import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.FragmentLocationSearchBinding;
 import com.thewizrd.simpleweather.main.MainActivity;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 public class LocationSearchFragment extends SwipeDismissFragment {
-    private WearableRecyclerView mRecyclerView;
+    private FragmentLocationSearchBinding binding;
     private LocationQueryAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private ProgressBar mProgressBar;
-    private EditText mSearchView;
-
-    private FloatingActionButton keyboardButton;
-    private FloatingActionButton voiceButton;
-    private SwipeDismissFrameLayout swipeViewLayout;
     private SwipeDismissFrameLayout.Callback swipeCallback;
 
     private CancellationTokenSource cts;
@@ -126,7 +117,6 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                 public void run() {
                     if (mActivity != null) {
                         // Get selected query view
-                        LocationQuery v = (LocationQuery) view;
                         LocationQueryViewModel query_vm = null;
 
                         try {
@@ -242,7 +232,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                             public void run() {
                                 mAdapter.getDataset().clear();
                                 mAdapter.notifyDataSetChanged();
-                                mRecyclerView.setEnabled(false);
+                                binding.recyclerView.setEnabled(false);
                             }
                         });
 
@@ -280,31 +270,28 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                              Bundle savedInstanceState) {
         final ViewGroup view = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
         // Inflate the layout for this fragment
-        inflater.inflate(R.layout.fragment_location_search, view, true);
+        binding = FragmentLocationSearchBinding.inflate(inflater, view, true);
 
-        swipeViewLayout = view.findViewById(R.id.recycler_view_layout);
         swipeCallback = new SwipeDismissFrameLayout.Callback() {
             @Override
             public void onDismissed(SwipeDismissFrameLayout layout) {
                 layout.setVisibility(View.GONE);
             }
         };
-        swipeViewLayout.addCallback(swipeCallback);
-        keyboardButton = view.findViewById(R.id.keyboard_button);
-        keyboardButton.setOnClickListener(new View.OnClickListener() {
+        binding.recyclerViewLayout.addCallback(swipeCallback);
+        binding.keyboardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mSearchView.setVisibility(View.VISIBLE);
-                mSearchView.requestFocus();
-                showInputMethod(mSearchView);
+                binding.searchView.setVisibility(View.VISIBLE);
+                binding.searchView.requestFocus();
+                showInputMethod(binding.searchView);
             }
         });
-        voiceButton = view.findViewById(R.id.voice_button);
-        voiceButton.setOnClickListener(new View.OnClickListener() {
+        binding.voiceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mSearchView.setVisibility(View.GONE);
-                mSearchView.setText("");
+                binding.searchView.setVisibility(View.GONE);
+                binding.searchView.setText("");
                 view.requestFocus();
                 Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
                         .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
@@ -313,9 +300,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
             }
         });
 
-        mProgressBar = view.findViewById(R.id.progressBar);
-        mSearchView = view.findViewById(R.id.search_view);
-        mSearchView.addTextChangedListener(new TextWatcher() {
+        binding.searchView.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -335,7 +320,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
 
             }
         });
-        mSearchView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        binding.searchView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
@@ -345,7 +330,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                 }
             }
         });
-        mSearchView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        binding.searchView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -363,41 +348,40 @@ public class LocationSearchFragment extends SwipeDismissFragment {
             }
         });
 
-        mRecyclerView = view.findViewById(R.id.recycler_view);
-
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
-        mRecyclerView.setHasFixedSize(true);
+        binding.recyclerView.setHasFixedSize(true);
 
         // To align the edge children (first and last) with the center of the screen
-        mRecyclerView.setEdgeItemsCenteringEnabled(true);
+        binding.recyclerView.setEdgeItemsCenteringEnabled(true);
 
         // use a linear layout manager
         mLayoutManager = new WearableLinearLayoutManager(mActivity);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        binding.recyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
         mAdapter = new LocationQueryAdapter(new ArrayList<LocationQueryViewModel>());
         mAdapter.setOnClickListener(recyclerClickListener);
-        mRecyclerView.setAdapter(mAdapter);
+        binding.recyclerView.setAdapter(mAdapter);
 
         return view;
     }
 
     @Override
     public void onDestroyView() {
-        hideInputMethod(mSearchView);
-        swipeViewLayout.removeCallback(swipeCallback);
+        hideInputMethod(binding.searchView);
+        binding.recyclerViewLayout.removeCallback(swipeCallback);
         super.onDestroyView();
+        binding = null;
     }
 
     private void doSearchAction() {
-        mProgressBar.setVisibility(View.VISIBLE);
-        mSearchView.setVisibility(View.GONE);
-        swipeViewLayout.setVisibility(View.VISIBLE);
-        swipeViewLayout.requestFocus();
-        hideInputMethod(mSearchView);
-        fetchLocations(mSearchView.getText().toString());
+        binding.progressBar.setVisibility(View.VISIBLE);
+        binding.searchView.setVisibility(View.GONE);
+        binding.recyclerViewLayout.setVisibility(View.VISIBLE);
+        binding.recyclerViewLayout.requestFocus();
+        hideInputMethod(binding.searchView);
+        fetchLocations(binding.searchView.getText().toString());
     }
 
     public void fetchLocations(final String queryString) {
@@ -432,7 +416,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                         @Override
                         public void run() {
                             mAdapter.setLocations(new ArrayList<>(results));
-                            mProgressBar.setVisibility(View.GONE);
+                            binding.progressBar.setVisibility(View.GONE);
                         }
                     });
                 }
@@ -440,9 +424,9 @@ public class LocationSearchFragment extends SwipeDismissFragment {
         } else if (StringUtils.isNullOrWhitespace(queryString)) {
             // Cancel pending searches
             ctsCancel();
-            mProgressBar.setVisibility(View.GONE);
-            swipeViewLayout.setVisibility(View.GONE);
-            swipeViewLayout.clearFocus();
+            binding.progressBar.setVisibility(View.GONE);
+            binding.recyclerViewLayout.setVisibility(View.GONE);
+            binding.recyclerViewLayout.clearFocus();
             // Hide flyout if query is empty or null
             mAdapter.getDataset().clear();
             mAdapter.notifyDataSetChanged();
@@ -453,7 +437,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+                binding.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
             }
         });
     }
@@ -467,11 +451,14 @@ public class LocationSearchFragment extends SwipeDismissFragment {
 
         switch (requestCode) {
             case REQUEST_CODE_VOICE_INPUT:
-                String text = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS).get(0);
+                List<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                if (results != null && results.size() > 0) {
+                    String text = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS).get(0);
 
-                if (!StringUtils.isNullOrWhitespace(text)) {
-                    mSearchView.setText(text);
-                    doSearchAction();
+                    if (!StringUtils.isNullOrWhitespace(text)) {
+                        binding.searchView.setText(text);
+                        doSearchAction();
+                    }
                 }
                 break;
             default:

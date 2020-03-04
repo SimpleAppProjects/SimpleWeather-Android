@@ -16,7 +16,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,7 +24,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.wear.widget.drawer.WearableActionDrawerView;
 import androidx.wear.widget.drawer.WearableDrawerLayout;
 import androidx.wear.widget.drawer.WearableDrawerView;
 
@@ -40,7 +38,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -56,6 +53,7 @@ import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.ActivitySetupBinding;
 import com.thewizrd.simpleweather.fragments.LocationSearchFragment;
 import com.thewizrd.simpleweather.helpers.AcceptDenyDialogBuilder;
 import com.thewizrd.simpleweather.main.MainActivity;
@@ -67,12 +65,8 @@ import java.util.concurrent.TimeUnit;
 
 public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuItemClickListener {
 
-    private FloatingActionButton searchButton;
-    private FloatingActionButton locationButton;
-    private WearableActionDrawerView mWearableActionDrawer;
-    private WearableDrawerLayout mWearableDrawerLayout;
-    private ProgressBar progressBar;
-
+    private ActivitySetupBinding binding;
+    
     private FusedLocationProviderClient mFusedLocationClient;
     private Location mLocation;
     private LocationCallback mLocCallback;
@@ -94,7 +88,8 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_setup);
+        binding = ActivitySetupBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         wm = WeatherManager.getInstance();
 
@@ -117,28 +112,25 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
         }
 
         // Controls
-        searchButton = findViewById(R.id.search_button);
-        searchButton.setOnClickListener(new OnClickListener() {
+        binding.searchButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.search_fragment_container, new LocationSearchFragment())
                         .commit();
 
-                mWearableActionDrawer.getController().closeDrawer();
-                mWearableActionDrawer.setIsLocked(true);
+                binding.bottomActionDrawer.getController().closeDrawer();
+                binding.bottomActionDrawer.setIsLocked(true);
             }
         });
-        locationButton = findViewById(R.id.location_button);
-        locationButton.setOnClickListener(new OnClickListener() {
+        binding.locationButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 fetchGeoLocation();
             }
         });
 
-        mWearableDrawerLayout = findViewById(R.id.activity_setup);
-        mWearableDrawerLayout.setDrawerStateCallback(new WearableDrawerLayout.DrawerStateCallback() {
+        binding.activitySetup.setDrawerStateCallback(new WearableDrawerLayout.DrawerStateCallback() {
             @Override
             public void onDrawerOpened(WearableDrawerLayout layout, WearableDrawerView drawerView) {
                 super.onDrawerOpened(layout, drawerView);
@@ -152,13 +144,11 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
             }
         });
 
-        mWearableActionDrawer = findViewById(R.id.bottom_action_drawer);
-        mWearableActionDrawer.setOnMenuItemClickListener(this);
-        mWearableActionDrawer.setLockedWhenClosed(true);
-        mWearableActionDrawer.setPeekOnScrollDownEnabled(true);
-        mWearableActionDrawer.getController().peekDrawer();
-        progressBar = findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.GONE);
+        binding.bottomActionDrawer.setOnMenuItemClickListener(this);
+        binding.bottomActionDrawer.setLockedWhenClosed(true);
+        binding.bottomActionDrawer.setPeekOnScrollDownEnabled(true);
+        binding.bottomActionDrawer.getController().peekDrawer();
+        binding.progressBar.setVisibility(View.GONE);
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {
             mFusedLocationClient = new FusedLocationProviderClient(this);
@@ -345,22 +335,22 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                searchButton.setEnabled(enable);
-                locationButton.setEnabled(enable);
+                binding.searchButton.setEnabled(enable);
+                binding.locationButton.setEnabled(enable);
                 if (enable) {
-                    mWearableActionDrawer.getController().peekDrawer();
-                    progressBar.setVisibility(View.GONE);
+                    binding.bottomActionDrawer.getController().peekDrawer();
+                    binding.progressBar.setVisibility(View.GONE);
                 } else {
-                    mWearableActionDrawer.getController().closeDrawer();
-                    mWearableActionDrawer.setIsLocked(true);
-                    progressBar.setVisibility(View.VISIBLE);
+                    binding.bottomActionDrawer.getController().closeDrawer();
+                    binding.bottomActionDrawer.setIsLocked(true);
+                    binding.progressBar.setVisibility(View.VISIBLE);
                 }
             }
         });
     }
 
     private void fetchGeoLocation() {
-        locationButton.setEnabled(false);
+        binding.locationButton.setEnabled(false);
 
         // Show loading bar
         runOnUiThread(new Runnable() {

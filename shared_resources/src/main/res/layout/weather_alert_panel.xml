@@ -1,109 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:parentTag="android.widget.RelativeLayout">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/header_card"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        app:cardBackgroundColor="@color/colorPrimary"
-        app:cardCornerRadius="0dp">
+    <data>
 
-        <LinearLayout
+        <import type="androidx.core.content.ContextCompat" />
+
+        <import type="com.thewizrd.shared_resources.utils.WeatherUtils" />
+
+        <variable
+            name="viewModel"
+            type="com.thewizrd.shared_resources.controls.WeatherAlertViewModel" />
+    </data>
+
+    <merge tools:parentTag="android.widget.RelativeLayout">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/header_card"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            app:cardBackgroundColor="@{WeatherUtils.getColorFromAlertSeverity(viewModel.alertSeverity)}"
+            app:cardCornerRadius="0dp">
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/alert_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="25dp"
-                android:layout_gravity="center_vertical"
-                android:adjustViewBounds="true"
-                android:paddingEnd="8dp"
-                android:paddingLeft="24dp"
-                android:paddingRight="8dp"
-                android:paddingStart="24dp"
-                app:srcCompat="@drawable/fire" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/alert_title"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:ellipsize="marquee"
-                android:gravity="center_vertical"
-                android:paddingEnd="8dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingStart="8dp"
-                android:singleLine="true"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                app:autoSizeMaxTextSize="16sp"
-                app:autoSizeMinTextSize="2dp"
-                app:autoSizeTextType="uniform"
-                tools:text="Winter Weather Advisory" />
+                android:orientation="horizontal">
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/post_date"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:paddingEnd="8dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingStart="8dp"
-                android:singleLine="true"
-                android:textAppearance="@style/TextAppearance.AppCompat.Tooltip"
-                android:textColor="@android:color/white"
-                android:textSize="12sp"
-                app:autoSizeMaxTextSize="14sp"
-                app:autoSizeMinTextSize="2dp"
-                tools:text="1hr ago" />
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/alert_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center_vertical"
+                    android:adjustViewBounds="true"
+                    android:paddingEnd="8dp"
+                    android:paddingLeft="24dp"
+                    android:paddingRight="8dp"
+                    android:paddingStart="24dp"
+                    android:src="@{ContextCompat.getDrawable(context, WeatherUtils.getDrawableFromAlertType(viewModel.alertType))}" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/expand_icon"
-                style="@style/MaterialIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:background="@android:color/transparent"
-                android:paddingEnd="24dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="24dp"
-                android:paddingStart="8dp"
-                android:text="@string/materialicon_expand_more"
-                android:textColor="@android:color/white"
-                app:fontFamily="@font/materialicons_regular"
-                tools:fontFamily="@font/materialicons_regular" />
-        </LinearLayout>
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/alert_title"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:ellipsize="marquee"
+                    android:gravity="center_vertical"
+                    android:paddingEnd="8dp"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:paddingStart="8dp"
+                    android:singleLine="true"
+                    android:text="@{viewModel.title}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    app:autoSizeMaxTextSize="16sp"
+                    app:autoSizeMinTextSize="2dp"
+                    app:autoSizeTextType="uniform"
+                    tools:text="Winter Weather Advisory" />
 
-    </androidx.cardview.widget.CardView>
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/post_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:paddingEnd="8dp"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:paddingStart="8dp"
+                    android:singleLine="true"
+                    android:text="@{viewModel.postDate}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Tooltip"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
+                    app:autoSizeMaxTextSize="14sp"
+                    app:autoSizeMinTextSize="2dp"
+                    tools:text="1hr ago" />
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/body_card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/header_card"
-        android:visibility="gone"
-        app:cardCornerRadius="0dp"
-        tools:visibility="visible">
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/expand_icon"
+                    style="@style/MaterialIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@android:color/transparent"
+                    android:paddingEnd="24dp"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="24dp"
+                    android:paddingStart="8dp"
+                    android:text="@string/materialicon_expand_more"
+                    android:textColor="@android:color/white"
+                    app:fontFamily="@font/materialicons_regular"
+                    tools:fontFamily="@font/materialicons_regular" />
+            </LinearLayout>
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/body_textview"
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/body_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="24dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            tools:text="TextView" />
-    </androidx.cardview.widget.CardView>
-</merge>
+            android:layout_below="@+id/header_card"
+            android:visibility="gone"
+            app:cardCornerRadius="0dp"
+            tools:visibility="visible">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/body_textview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="24dp"
+                android:text="@{viewModel.alertBodyMessage}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                tools:text="TextView" />
+        </androidx.cardview.widget.CardView>
+    </merge>
+</layout>

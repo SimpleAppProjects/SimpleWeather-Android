@@ -18,7 +18,6 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
@@ -35,6 +34,7 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.FragmentToolbarLayoutBinding;
 import com.thewizrd.simpleweather.helpers.WindowColorManager;
 
 public class CustomListPreferenceDialogFragment extends PreferenceDialogFragmentCompat
@@ -133,9 +133,7 @@ public class CustomListPreferenceDialogFragment extends PreferenceDialogFragment
 
     /* Full-screen additions */
     // Views
-    private AppBarLayout mAppBarLayout;
-    private CoordinatorLayout mRootView;
-    private Toolbar mToolbar;
+    private FragmentToolbarLayoutBinding binding;
 
     /**
      * Display the full-screen fragment, adding the fragment to the given FragmentManager.  This
@@ -166,14 +164,12 @@ public class CustomListPreferenceDialogFragment extends PreferenceDialogFragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate the layout to use as dialog or embedded fragment
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_toolbar_layout, container, false);
+        binding = FragmentToolbarLayoutBinding.inflate(inflater, container, false);
+        ViewGroup root = binding.rootView;
 
-        mRootView = (CoordinatorLayout) root;
-        mAppBarLayout = root.findViewById(R.id.app_bar);
-        mToolbar = root.findViewById(R.id.toolbar);
-        mToolbar.setTitle(getPreference().getTitle());
-        mToolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
-        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+        binding.toolbar.setTitle(getPreference().getTitle());
+        binding.toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
+        binding.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 /*
@@ -186,10 +182,10 @@ public class CustomListPreferenceDialogFragment extends PreferenceDialogFragment
         });
 
         if (container != null && container.getId() == android.R.id.content) {
-            mRootView.setFitsSystemWindows(true);
+            binding.rootView.setFitsSystemWindows(true);
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(mRootView, new OnApplyWindowInsetsListener() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.rootView, new OnApplyWindowInsetsListener() {
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
                 ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
@@ -226,6 +222,12 @@ public class CustomListPreferenceDialogFragment extends PreferenceDialogFragment
         root.addView(listView, lp);
 
         return root;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     public void dismissFragment() {
@@ -303,8 +305,8 @@ public class CustomListPreferenceDialogFragment extends PreferenceDialogFragment
             }
             color = bg_color;
         }
-        mRootView.setBackgroundColor(bg_color);
-        mAppBarLayout.setBackgroundColor(color);
-        mRootView.setStatusBarBackgroundColor(color);
+        binding.rootView.setBackgroundColor(bg_color);
+        binding.appBar.setBackgroundColor(color);
+        binding.rootView.setStatusBarBackgroundColor(color);
     }
 }

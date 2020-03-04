@@ -74,7 +74,7 @@
             android:stateListAnimator="@animator/design_appbar_state_list_animator"
             android:theme="@style/AppTheme.AppBarOverlay"
             app:liftOnScroll="true"
-            app:liftOnScrollTargetViewId="@id/fragment_weather_now"
+            app:liftOnScrollTargetViewId="@id/scrollView"
             tools:stateListAnimator="@null">
 
             <androidx.appcompat.widget.Toolbar
@@ -139,7 +139,7 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <com.thewizrd.simpleweather.controls.ObservableNestedScrollView
-                android:id="@+id/fragment_weather_now"
+                android:id="@+id/scrollView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fillViewport="true"

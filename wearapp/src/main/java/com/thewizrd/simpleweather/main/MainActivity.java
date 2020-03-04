@@ -19,7 +19,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
-import androidx.wear.widget.drawer.WearableActionDrawerView;
 import androidx.wear.widget.drawer.WearableDrawerLayout;
 import androidx.wear.widget.drawer.WearableDrawerView;
 import androidx.wear.widget.drawer.WearableNavigationDrawerView;
@@ -33,6 +32,7 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.ActivityMainBinding;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
 import com.thewizrd.simpleweather.preferences.SettingsActivity;
 import com.thewizrd.simpleweather.setup.SetupActivity;
@@ -47,9 +47,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
         WearableNavigationDrawerView.OnItemSelectedListener,
         WeatherViewLoadedListener {
 
-    private WearableDrawerLayout mWearableDrawerLayout;
-    private WearableNavigationDrawerView mWearableNavigationDrawer;
-    private WearableActionDrawerView mWearableActionDrawer;
+    private ActivityMainBinding binding;
     private NavDrawerAdapter mNavDrawerAdapter;
     private BroadcastReceiver mBroadcastReceiver;
 
@@ -59,9 +57,11 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        mWearableDrawerLayout = findViewById(R.id.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        WearableDrawerLayout mWearableDrawerLayout = binding.activityMain;
+
         mWearableDrawerLayout.setDrawerStateCallback(new WearableDrawerLayout.DrawerStateCallback() {
             @Override
             public void onDrawerOpened(WearableDrawerLayout layout, WearableDrawerView drawerView) {
@@ -86,15 +86,13 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
             }
         });
 
-        mWearableActionDrawer = findViewById(R.id.bottom_action_drawer);
-        mWearableActionDrawer.setOnMenuItemClickListener(this);
-        mWearableActionDrawer.setPeekOnScrollDownEnabled(true);
+        binding.bottomActionDrawer.setOnMenuItemClickListener(this);
+        binding.bottomActionDrawer.setPeekOnScrollDownEnabled(true);
 
-        mWearableNavigationDrawer = findViewById(R.id.top_nav_drawer);
-        mWearableNavigationDrawer.addOnItemSelectedListener(this);
-        mWearableNavigationDrawer.setPeekOnScrollDownEnabled(true);
-        mWearableNavigationDrawer.setOnGenericMotionListener(new View.OnGenericMotionListener() {
-            final ViewPager pager = mWearableNavigationDrawer.findViewById(R.id.ws_navigation_drawer_view_pager);
+        binding.topNavDrawer.addOnItemSelectedListener(this);
+        binding.topNavDrawer.setPeekOnScrollDownEnabled(true);
+        binding.topNavDrawer.setOnGenericMotionListener(new View.OnGenericMotionListener() {
+            final ViewPager pager = binding.topNavDrawer.findViewById(R.id.ws_navigation_drawer_view_pager);
             final CountDownTimer timer = new CountDownTimer(200, 200) {
                 @Override
                 public void onTick(long millisUntilFinished) {
@@ -115,7 +113,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
                 if (pager != null && event.getAction() == MotionEvent.ACTION_SCROLL && RotaryEncoder.isFromRotaryEncoder(event)) {
                     timer.cancel();
                     // Send event to postpone auto close of drawer
-                    mWearableNavigationDrawer.onInterceptTouchEvent(event);
+                    binding.topNavDrawer.onInterceptTouchEvent(event);
 
                     // Don't forget the negation here
                     float delta = RotaryEncoder.getRotaryAxisValue(event) * RotaryEncoder.getScaledScrollFactor(MainActivity.this);
@@ -143,7 +141,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
             }
         });
         mNavDrawerAdapter = new NavDrawerAdapter(this);
-        mWearableNavigationDrawer.setAdapter(mNavDrawerAdapter);
+        binding.topNavDrawer.setAdapter(mNavDrawerAdapter);
 
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -193,8 +191,8 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
                     .commit();
 
             // Reset to home
-            int drawerState = mWearableNavigationDrawer.getDrawerState();
-            mWearableNavigationDrawer.setCurrentItem(0, false);
+            int drawerState = binding.topNavDrawer.getDrawerState();
+            binding.topNavDrawer.setCurrentItem(0, false);
             if (mItemSelectedRunnable != null && drawerState == WearableNavigationDrawerView.STATE_IDLE) {
                 mItemSelectedRunnable.run();
             }
@@ -342,8 +340,8 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
             @Override
             public void run() {
                 mNavDrawerAdapter.updateNavDrawerItems(weatherNowView);
-                mWearableActionDrawer.setBackgroundColor(weatherNowView.getPendingBackground());
-                mWearableNavigationDrawer.setBackgroundColor(weatherNowView.getPendingBackground());
+                binding.bottomActionDrawer.setBackgroundColor(weatherNowView.getPendingBackground());
+                binding.topNavDrawer.setBackgroundColor(weatherNowView.getPendingBackground());
             }
         });
     }
@@ -352,20 +350,20 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
     protected void onResume() {
         super.onResume();
 
-        if (mWearableActionDrawer != null) {
+        if (binding.bottomActionDrawer != null) {
             MenuItem menuItem = null;
 
-            if (mWearableActionDrawer.getMenu() != null) {
-                menuItem = mWearableActionDrawer.getMenu().findItem(R.id.menu_changelocation);
+            if (binding.bottomActionDrawer.getMenu() != null) {
+                menuItem = binding.bottomActionDrawer.getMenu().findItem(R.id.menu_changelocation);
             }
 
             if (Settings.getDataSync() != WearableDataSync.OFF && menuItem != null) {
                 // remove change location if exists
-                mWearableActionDrawer.getMenu().removeItem(R.id.menu_changelocation);
+                binding.bottomActionDrawer.getMenu().removeItem(R.id.menu_changelocation);
             } else if (Settings.getDataSync() == WearableDataSync.OFF && menuItem == null) {
                 // restore all menu options
-                mWearableActionDrawer.getMenu().clear();
-                getMenuInflater().inflate(R.menu.main_botton_drawer_menu, mWearableActionDrawer.getMenu());
+                binding.bottomActionDrawer.getMenu().clear();
+                getMenuInflater().inflate(R.menu.main_botton_drawer_menu, binding.bottomActionDrawer.getMenu());
             }
         }
     }

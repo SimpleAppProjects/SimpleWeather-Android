@@ -21,11 +21,15 @@ public class WeatherAlertPanelAdapter extends RecyclerView.Adapter {
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
     class ViewHolder extends RecyclerView.ViewHolder {
-        public WeatherAlertPanel mAlertPanel;
+        private WeatherAlertPanel mAlertPanel;
 
         public ViewHolder(WeatherAlertPanel v) {
             super(v);
             mAlertPanel = v;
+        }
+
+        public void bind(WeatherAlertViewModel model) {
+            mAlertPanel.bindModel(model);
         }
     }
 
@@ -52,7 +56,7 @@ public class WeatherAlertPanelAdapter extends RecyclerView.Adapter {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         ViewHolder vh = (ViewHolder) holder;
-        vh.mAlertPanel.setAlert(mDataset.get(position));
+        vh.bind(mDataset.get(position));
     }
 
     @Override

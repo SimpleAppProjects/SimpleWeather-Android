@@ -26,11 +26,15 @@ public class DetailItemAdapter extends ColorModeRecyclerViewAdapter<DetailItemAd
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
     class ViewHolder extends RecyclerView.ViewHolder {
-        public DetailCard mDetailCard;
+        private DetailCard mDetailCard;
 
         public ViewHolder(DetailCard v) {
             super(v);
             mDetailCard = v;
+        }
+
+        public void bind(DetailItemViewModel model) {
+            mDetailCard.bindModel(model);
         }
     }
 
@@ -70,7 +74,7 @@ public class DetailItemAdapter extends ColorModeRecyclerViewAdapter<DetailItemAd
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         if (!colorUpdateOnly) {
-            vh.mDetailCard.setDetails(mDataset.get(position));
+            vh.bind(mDataset.get(position));
         }
 
         boolean isLightBackground = ColorsUtils.isSuperLight(this.getItemColor());

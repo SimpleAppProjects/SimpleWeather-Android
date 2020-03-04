@@ -1,13 +1,12 @@
 package com.thewizrd.simpleweather.controls;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
 import androidx.core.graphics.ColorUtils;
@@ -15,11 +14,10 @@ import androidx.core.graphics.ColorUtils;
 import com.google.android.material.card.MaterialCardView;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.CardWeatherDetailBinding;
 
 public class DetailCard extends MaterialCardView {
-    private TextView detailLabel;
-    private TextView detailIcon;
-    private TextView detailValue;
+    private CardWeatherDetailBinding binding;
     private float mShadowRadius;
     private float mShadowDx;
     private float mShadowDy;
@@ -60,17 +58,13 @@ public class DetailCard extends MaterialCardView {
 
     private void initialize(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.card_weather_detail, this);
+        binding = CardWeatherDetailBinding.inflate(inflater, this, true);
 
         int height = context.getResources().getDimensionPixelSize(R.dimen.detail_card_height);
-        setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
-        setCardBackgroundColor(0xB3FFFFFF);
-        setCardElevation(0);
-        setUseCompatPadding(false);
-
-        detailLabel = view.findViewById(R.id.detail_label);
-        detailIcon = view.findViewById(R.id.detail_icon);
-        detailValue = view.findViewById(R.id.detail_value);
+        this.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
+        this.setCardBackgroundColor(0xB3FFFFFF);
+        this.setCardElevation(0);
+        this.setUseCompatPadding(false);
 
         Resources.Theme currentTheme = context.getTheme();
         TypedArray array;
@@ -92,11 +86,14 @@ public class DetailCard extends MaterialCardView {
         array.recycle();
     }
 
-    public void setDetails(DetailItemViewModel viewModel) {
-        detailLabel.setText(viewModel.getLabel());
-        detailIcon.setText(viewModel.getIcon());
-        detailValue.setText(viewModel.getValue());
-        detailIcon.setRotation(viewModel.getIconRotation());
+    @Override
+    protected void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
+
+    public void bindModel(DetailItemViewModel model) {
+        binding.setViewModel(model);
+        binding.executePendingBindings();
     }
 
     @Override
@@ -105,15 +102,15 @@ public class DetailCard extends MaterialCardView {
     }
 
     public void setTextColor(@ColorInt int color) {
-        detailLabel.setTextColor(color);
-        detailIcon.setTextColor(color);
-        detailValue.setTextColor(color);
+        binding.detailLabel.setTextColor(color);
+        binding.detailIcon.setTextColor(color);
+        binding.detailValue.setTextColor(color);
     }
 
     public void setShadowColor(@ColorInt int color) {
-        detailLabel.setShadowLayer(mShadowRadius, mShadowDx, mShadowDy, color);
-        detailIcon.setShadowLayer(mShadowRadius, mShadowDx, mShadowDy, color);
-        detailValue.setShadowLayer(mShadowRadius, mShadowDx, mShadowDy, color);
+        binding.detailLabel.setShadowLayer(mShadowRadius, mShadowDx, mShadowDy, color);
+        binding.detailIcon.setShadowLayer(mShadowRadius, mShadowDx, mShadowDy, color);
+        binding.detailValue.setShadowLayer(mShadowRadius, mShadowDx, mShadowDy, color);
     }
 
     public void setShadowLayer(float radius, float dx, float dy, @ColorInt int color) {
@@ -122,8 +119,8 @@ public class DetailCard extends MaterialCardView {
         mShadowDy = dy;
         mShadowColor = color;
 
-        detailLabel.setShadowLayer(radius, dx, dy, color);
-        detailIcon.setShadowLayer(radius, dx, dy, color);
-        detailValue.setShadowLayer(radius, dx, dy, color);
+        binding.detailLabel.setShadowLayer(radius, dx, dy, color);
+        binding.detailIcon.setShadowLayer(radius, dx, dy, color);
+        binding.detailValue.setShadowLayer(radius, dx, dy, color);
     }
 }

@@ -78,7 +78,6 @@ import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.ComboBoxItem;
-import com.thewizrd.shared_resources.controls.LocationQuery;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
@@ -1072,7 +1071,6 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         final LocationQueryAdapter adapter = mSearchFragment.getAdapter();
-                        LocationQuery v = (LocationQuery) view;
                         LocationQueryViewModel query_vm = null;
 
                         try {

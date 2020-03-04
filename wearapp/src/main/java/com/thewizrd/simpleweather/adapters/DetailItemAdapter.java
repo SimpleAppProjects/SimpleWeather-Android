@@ -19,7 +19,7 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.controls.DetailItem;
+import com.thewizrd.simpleweather.databinding.DetailItemPanelBinding;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +31,16 @@ public class DetailItemAdapter extends RecyclerView.Adapter {
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
     class ViewHolder extends RecyclerView.ViewHolder {
-        public DetailItem mDetailItem;
+        private DetailItemPanelBinding binding;
 
-        public ViewHolder(DetailItem v) {
-            super(v);
-            mDetailItem = v;
+        public ViewHolder(DetailItemPanelBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+
+        public void bind(DetailItemViewModel model) {
+            binding.setViewModel(model);
+            binding.executePendingBindings();
         }
     }
 
@@ -54,13 +59,14 @@ public class DetailItemAdapter extends RecyclerView.Adapter {
                 return new FooterViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.locations_header, parent, false));
             default:
                 // create a new view
-                DetailItem v = new DetailItem(parent.getContext());
+                LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+                DetailItemPanelBinding binding = DetailItemPanelBinding.inflate(inflater);
                 // FOR WEAR ONLY
                 // set the view's size, margins, paddings and layout parameters
-                v.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                binding.getRoot().setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 int paddingHoriz = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, parent.getContext().getResources().getDisplayMetrics());
-                v.setPaddingRelative(paddingHoriz, 0, paddingHoriz, 0);
-                return new ViewHolder(v);
+                binding.getRoot().setPaddingRelative(paddingHoriz, 0, paddingHoriz, 0);
+                return new ViewHolder(binding);
         }
     }
 
@@ -73,7 +79,7 @@ public class DetailItemAdapter extends RecyclerView.Adapter {
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
             ViewHolder vh = (ViewHolder) holder;
-            vh.mDetailItem.setDetails(mDataset.get(position));
+            vh.bind(mDataset.get(position));
         }
     }
 
