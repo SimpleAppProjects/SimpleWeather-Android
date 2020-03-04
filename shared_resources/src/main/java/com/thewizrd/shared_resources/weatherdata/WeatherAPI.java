@@ -2,7 +2,6 @@ package com.thewizrd.shared_resources.weatherdata;
 
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -17,7 +16,7 @@ public class WeatherAPI {
     public static final String LOCATIONIQ = "LocIQ";
     public static final String NWS = "NWS";
 
-    public static List<ProviderEntry> APIs = new ArrayList<>(asList(
+    public static List<ProviderEntry> APIs = asList(
             new ProviderEntry("HERE Weather", HERE,
                     "https://www.here.com/en", "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"),
             new ProviderEntry("Yahoo Weather", YAHOO,
@@ -28,12 +27,12 @@ public class WeatherAPI {
                     "https://www.weather.gov", "https://www.weather.gov"),
             new ProviderEntry("OpenWeatherMap", OPENWEATHERMAP,
                     "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up")
-    ));
+    );
 
-    public static List<ProviderEntry> LocationAPIs = new ArrayList<>(asList(
+    public static List<ProviderEntry> LocationAPIs = asList(
             new ProviderEntry("HERE Maps", HERE,
                     "https://www.here.com/en", "https://developer.here.com/"),
             new ProviderEntry("LocationIQ", LOCATIONIQ,
                     "https://locationiq.com", "https://locationiq.com")
-    ));
+    );
 }

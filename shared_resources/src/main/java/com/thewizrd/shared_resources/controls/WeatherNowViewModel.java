@@ -364,10 +364,10 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
             // Add UI elements
             forecasts.clear();
-            boolean isDayAndNt = extras.getTextForecast().size() == weather.getForecast().length * 2;
-            boolean addTextFct = isDayAndNt || extras.getTextForecast().size() == weather.getForecast().length;
-            for (int i = 0; i < weather.getForecast().length; i++) {
-                Forecast forecast = weather.getForecast()[i];
+            boolean isDayAndNt = extras.getTextForecast().size() == weather.getForecast().size() * 2;
+            boolean addTextFct = isDayAndNt || extras.getTextForecast().size() == weather.getForecast().size();
+            for (int i = 0; i < weather.getForecast().size(); i++) {
+                Forecast forecast = weather.getForecast().get(i);
                 ForecastItemViewModel forecastView;
 
                 if (addTextFct) {

@@ -52,7 +52,7 @@ public class WeatherExtrasViewModel extends ViewModel {
         // Clear all data
         clearAll();
 
-        if (weather.getHrForecast() != null && weather.getHrForecast().length > 0) {
+        if (weather.getHrForecast() != null && weather.getHrForecast().size() > 0) {
             for (final HourlyForecast hr_forecast : weather.getHrForecast()) {
                 HourlyForecastItemViewModel hrforecastView;
                 hrforecastView = new AsyncTask<HourlyForecastItemViewModel>().await(new Callable<HourlyForecastItemViewModel>() {
@@ -65,7 +65,7 @@ public class WeatherExtrasViewModel extends ViewModel {
             }
         }
 
-        if (weather.getTxtForecast() != null && weather.getTxtForecast().length > 0) {
+        if (weather.getTxtForecast() != null && weather.getTxtForecast().size() > 0) {
             for (final TextForecast txt_forecast : weather.getTxtForecast()) {
                 TextForecastItemViewModel txtforecastView;
                 txtforecastView = new AsyncTask<TextForecastItemViewModel>().await(new Callable<TextForecastItemViewModel>() {

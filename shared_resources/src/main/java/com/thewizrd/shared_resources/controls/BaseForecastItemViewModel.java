@@ -24,7 +24,8 @@ public abstract class BaseForecastItemViewModel extends ViewModel {
 
     public BaseForecastItemViewModel() {
         wm = WeatherManager.getInstance();
-        detailExtras = new ArrayList<>();
+        int capacity = WeatherDetailsType.values().length;
+        detailExtras = new ArrayList<>(capacity);
     }
 
     public String getWeatherIcon() {

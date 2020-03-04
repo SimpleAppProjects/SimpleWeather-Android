@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.utils;
+package com.thewizrd.shared_resources.database;
 
 import androidx.room.TypeConverter;
 

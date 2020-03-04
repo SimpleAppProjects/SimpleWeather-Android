@@ -24,7 +24,7 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 
@@ -335,7 +335,7 @@ public class WeatherDataLoader {
                 @Override
                 public Void call() {
                     // Check for previously saved alerts
-                    List<WeatherAlert> previousAlerts = Settings.getWeatherAlertData(location.getQuery());
+                    Collection<WeatherAlert> previousAlerts = Settings.getWeatherAlertData(location.getQuery());
 
                     if (previousAlerts != null && previousAlerts.size() > 0) {
                         // If any previous alerts were flagged before as notified

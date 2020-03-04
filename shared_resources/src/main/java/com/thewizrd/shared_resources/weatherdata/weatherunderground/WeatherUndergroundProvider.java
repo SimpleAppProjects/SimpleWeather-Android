@@ -176,7 +176,7 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
             // Add weather alerts if available
             if (root.getAlerts() != null && root.getAlerts().size() > 0) {
                 if (weather.getWeatherAlerts() == null)
-                    weather.setWeatherAlerts(new ArrayList<WeatherAlert>());
+                    weather.setWeatherAlerts(new ArrayList<WeatherAlert>(root.getAlerts().size()));
 
                 for (Alert result : root.getAlerts()) {
                     weather.getWeatherAlerts().add(new WeatherAlert(result));
@@ -266,11 +266,11 @@ public final class WeatherUndergroundProvider extends WeatherProviderImpl {
             wEx = null;
 
             // Load weather
-            alerts = new ArrayList<>();
-
             Rootobject root = null;
             // TODO: put in async task?
             root = JSONParser.deserializer(stream, Rootobject.class);
+
+            alerts = new ArrayList<>(root.getAlerts().size());
 
             for (Alert result : root.getAlerts()) {
                 alerts.add(new WeatherAlert(result));

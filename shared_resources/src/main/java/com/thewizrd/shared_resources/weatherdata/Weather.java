@@ -27,6 +27,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -40,11 +41,11 @@ public class Weather {
     @ColumnInfo(name = "update_time")
     private ZonedDateTime updateTime;
     @ColumnInfo(name = "forecastblob")
-    private Forecast[] forecast;
+    private List<Forecast> forecast;
     @ColumnInfo(name = "hrforecastblob")
-    private HourlyForecast[] hrForecast;
+    private List<HourlyForecast> hrForecast;
     @ColumnInfo(name = "txtforecastblob")
-    private TextForecast[] txtForecast;
+    private List<TextForecast> txtForecast;
     @ColumnInfo(name = "conditionblob")
     private Condition condition;
     @ColumnInfo(name = "atmosphereblob")
@@ -55,7 +56,7 @@ public class Weather {
     private Precipitation precipitation;
     @Ignore
     // Just for passing along to where its needed
-    private transient List<WeatherAlert> weather_alerts;
+    private transient Collection<WeatherAlert> weather_alerts;
     private String ttl;
     private String source;
     @PrimaryKey
@@ -70,9 +71,9 @@ public class Weather {
     public Weather(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Rootobject root) {
         location = new Location(root.getLocation());
         updateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(Long.parseLong(root.getCurrentObservation().getPubDate())), ZoneOffset.UTC);
-        forecast = new Forecast[root.getForecasts().size()];
-        for (int i = 0; i < forecast.length; i++) {
-            forecast[i] = new Forecast(root.getForecasts().get(i));
+        forecast = new ArrayList<>(root.getForecasts().size());
+        for (int i = 0; i < root.getForecasts().size(); i++) {
+            forecast.add(new Forecast(root.getForecasts().get(i)));
         }
         condition = new Condition(root.getCurrentObservation());
         atmosphere = new Atmosphere(root.getCurrentObservation().getAtmosphere());
@@ -91,35 +92,35 @@ public class Weather {
     public Weather(com.thewizrd.shared_resources.weatherdata.weatherunderground.Rootobject root) throws WeatherException {
         location = new Location(root.getCurrentObservation());
         updateTime = ZonedDateTime.parse(root.getCurrentObservation().getLocalTimeRfc822(), DateTimeFormatter.ofPattern("EEE, d MMM yyyy HH:mm:ss Z", Locale.ENGLISH));
-        forecast = new Forecast[root.getForecast().getSimpleforecast().getForecastday().size()];
-        for (int i = 0; i < forecast.length; i++) {
-            forecast[i] = new Forecast(root.getForecast().getSimpleforecast().getForecastday().get(i));
+        forecast = new ArrayList<>(root.getForecast().getSimpleforecast().getForecastday().size());
+        for (int i = 0; i < root.getForecast().getSimpleforecast().getForecastday().size(); i++) {
+            forecast.add(new Forecast(root.getForecast().getSimpleforecast().getForecastday().get(i)));
 
             if (i == 0) {
                 // Note: WUnderground API bug
                 // Data sometimes returns forecast from some date in the past
                 // If we come across this invalidate the data
                 LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
-                LocalDateTime curr = forecast[i].getDate().atOffset(ZoneOffset.UTC).toLocalDateTime();
+                LocalDateTime curr = forecast.get(i).getDate().atOffset(ZoneOffset.UTC).toLocalDateTime();
                 Duration diffSpan = Duration.between(now, curr).abs();
                 if (curr.compareTo(now) < 0 && diffSpan.toDays() > 2)
                     throw new WeatherException(WeatherUtils.ErrorStatus.UNKNOWN);
             }
         }
-        hrForecast = new HourlyForecast[root.getHourlyForecast().size()];
-        for (int i = 0; i < hrForecast.length; i++) {
-            hrForecast[i] = new HourlyForecast(root.getHourlyForecast().get(i));
+        hrForecast = new ArrayList<>(root.getHourlyForecast().size());
+        for (int i = 0; i < root.getHourlyForecast().size(); i++) {
+            hrForecast.add(new HourlyForecast(root.getHourlyForecast().get(i)));
         }
-        txtForecast = new TextForecast[root.getForecast().getTxtForecast().getForecastday().size()];
-        for (int i = 0; i < txtForecast.length; i++) {
-            txtForecast[i] = new TextForecast(root.getForecast().getTxtForecast().getForecastday().get(i));
+        txtForecast = new ArrayList<>(root.getForecast().getTxtForecast().getForecastday().size());
+        for (int i = 0; i < root.getForecast().getTxtForecast().getForecastday().size(); i++) {
+            txtForecast.add(new TextForecast(root.getForecast().getTxtForecast().getForecastday().get(i)));
 
             // Note: WUnderground API bug
             // If array is not null and we're expecting data
             // and that data is invalid, invalidate weather data
-            if (StringUtils.isNullOrWhitespace(txtForecast[i].getTitle()) &&
-                    StringUtils.isNullOrWhitespace(txtForecast[i].getFcttext()) &&
-                    StringUtils.isNullOrWhitespace(txtForecast[i].getFcttextMetric()))
+            if (StringUtils.isNullOrWhitespace(txtForecast.get(i).getTitle()) &&
+                    StringUtils.isNullOrWhitespace(txtForecast.get(i).getFcttext()) &&
+                    StringUtils.isNullOrWhitespace(txtForecast.get(i).getFcttextMetric()))
                 throw new WeatherException(WeatherUtils.ErrorStatus.UNKNOWN);
         }
         condition = new Condition(root.getCurrentObservation());
@@ -138,8 +139,8 @@ public class Weather {
 
         // 5-day forecast / 3-hr forecast
         // 24hr / 3hr = 8items for each day
-        forecast = new Forecast[5];
-        hrForecast = new HourlyForecast[foreRoot.getList().size()];
+        forecast = new ArrayList<>(5);
+        hrForecast = new ArrayList<>(foreRoot.getList().size());
 
         // Store potential min/max values
         float dayMax = Float.NaN;
@@ -147,7 +148,7 @@ public class Weather {
         int lastDay = 0;
 
         for (int i = 0; i < foreRoot.getList().size(); i++) {
-            hrForecast[i] = new HourlyForecast(foreRoot.getList().get(i));
+            hrForecast.add(new HourlyForecast(foreRoot.getList().get(i)));
 
             float max = foreRoot.getList().get(i).getMain().getTempMax();
             if (!Float.isNaN(max) && (Float.isNaN(dayMax) || max > dayMax)) {
@@ -163,19 +164,19 @@ public class Weather {
             if (i % 8 == 0) {
                 lastDay = i / 8;
 
-                forecast[i / 8] = new Forecast(foreRoot.getList().get(i));
+                forecast.add(i / 8, new Forecast(foreRoot.getList().get(i)));
             }
 
             // This is possibly the last forecast for the day (3-hrly forecast)
             // Set the min / max temp here and reset
-            if (hrForecast[i].getDate().getHour() >= 21) {
+            if (hrForecast.get(i).getDate().getHour() >= 21) {
                 if (!Float.isNaN(dayMax)) {
-                    forecast[lastDay].setHighF(ConversionMethods.KtoF(Float.toString(dayMax)));
-                    forecast[lastDay].setHighC(ConversionMethods.KtoC(Float.toString(dayMax)));
+                    forecast.get(lastDay).setHighF(ConversionMethods.KtoF(Float.toString(dayMax)));
+                    forecast.get(lastDay).setHighC(ConversionMethods.KtoC(Float.toString(dayMax)));
                 }
                 if (!Float.isNaN(dayMin)) {
-                    forecast[lastDay].setLowF(ConversionMethods.KtoF(Float.toString(dayMin)));
-                    forecast[lastDay].setLowC(ConversionMethods.KtoC(Float.toString(dayMin)));
+                    forecast.get(lastDay).setLowF(ConversionMethods.KtoF(Float.toString(dayMin)));
+                    forecast.get(lastDay).setLowC(ConversionMethods.KtoC(Float.toString(dayMin)));
                 }
 
                 dayMax = Float.NaN;
@@ -202,8 +203,8 @@ public class Weather {
         updateTime = ZonedDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse((foreRoot.getCreated()))), ZoneOffset.UTC);
 
         // 9-day forecast / hrly -> 6hrly forecast
-        List<Forecast> forecastL = new ArrayList<>();
-        List<HourlyForecast> hr_forecastL = new ArrayList<>();
+        forecast = new ArrayList<>(10);
+        hrForecast = new ArrayList<>(90);
 
         // Store potential min/max values
         float dayMax = Float.NaN;
@@ -246,14 +247,14 @@ public class Weather {
                 }
 
                 // Add a new hour
-                hr_forecastL.add(new HourlyForecast(time));
+                hrForecast.add(new HourlyForecast(time));
 
                 // Create new forecast
                 if (date.getHour() == 0 || date.equals(startDate)) {
                     fcastCount++;
 
                     // Oops, we missed one
-                    if (fcast != null && fcastCount != forecastL.size()) {
+                    if (fcast != null && fcastCount != forecast.size()) {
                         // Set forecast properties here:
                         // condition (set in provider GetWeather method)
                         // date
@@ -265,7 +266,7 @@ public class Weather {
                         fcast.setLowF(ConversionMethods.CtoF(Double.toString(dayMin)));
                         fcast.setLowC(Integer.toString(Math.round(dayMin)));
                         // icon
-                        forecastL.add(fcast);
+                        forecast.add(fcast);
 
                         // Reset
                         dayMax = Float.NaN;
@@ -286,7 +287,7 @@ public class Weather {
                     fcast.setLowF(ConversionMethods.CtoF(Double.toString(dayMin)));
                     fcast.setLowC(Integer.toString(Math.round(dayMin)));
                     // icon
-                    forecastL.add(fcast);
+                    forecast.add(fcast);
 
                     if (date.equals(endDate))
                         end = true;
@@ -299,21 +300,21 @@ public class Weather {
             }
 
             // Get conditions for hour if available
-            if (hr_forecastL.size() > 1 &&
-                    hr_forecastL.get(hr_forecastL.size() - 2).getDate().equals(
+            if (hrForecast.size() > 1 &&
+                    hrForecast.get(hrForecast.size() - 2).getDate().equals(
                             ZonedDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getFrom())), ZoneOffset.UTC))) {
                 // Set condition from id
-                HourlyForecast hr = hr_forecastL.get(hr_forecastL.size() - 2);
+                HourlyForecast hr = hrForecast.get(hrForecast.size() - 2);
                 if (StringUtils.isNullOrEmpty(hr.getIcon())) {
                     if (time.getLocation().getSymbol() != null) {
                         hr.setCondition(time.getLocation().getSymbol().getId());
                         hr.setIcon(Byte.toString(time.getLocation().getSymbol().getNumber()));
                     }
                 }
-            } else if (end && hr_forecastL.get(hr_forecastL.size() <= 0 ? 0 : hr_forecastL.size() - 1).getDate().equals(
+            } else if (end && hrForecast.get(hrForecast.size() <= 0 ? 0 : hrForecast.size() - 1).getDate().equals(
                     ZonedDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getFrom())), ZoneOffset.UTC))) {
                 // Set condition from id
-                HourlyForecast hr = hr_forecastL.get(hr_forecastL.size() <= 0 ? 0 : hr_forecastL.size() - 1);
+                HourlyForecast hr = hrForecast.get(hrForecast.size() <= 0 ? 0 : hrForecast.size() - 1);
                 if (StringUtils.isNullOrEmpty(hr.getIcon())) {
                     if (time.getLocation().getSymbol() != null) {
                         hr.setCondition(time.getLocation().getSymbol().getId());
@@ -331,16 +332,16 @@ public class Weather {
                     fcast.setCondition(time.getLocation().getSymbol().getId());
                     fcast.setIcon(Byte.toString(time.getLocation().getSymbol().getNumber()));
                 }
-            } else if (forecastL.size() > 0 && forecastL.get(forecastL.size() <= 0 ? 0 : forecastL.size() - 1).getDate().equals(
+            } else if (forecast.size() > 0 && forecast.get(forecast.size() <= 0 ? 0 : forecast.size() - 1).getDate().equals(
                     LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getFrom())), ZoneOffset.UTC)) &&
                     Duration.between(
                             LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getFrom())), ZoneOffset.UTC),
                             LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getTo())), ZoneOffset.UTC)).toHours() >= 1) {
-                int last = forecastL.size() <= 0 ? 0 : forecastL.size() - 1;
-                if (StringUtils.isNullOrEmpty(forecastL.get(last).getIcon())) {
+                int last = forecast.size() <= 0 ? 0 : forecast.size() - 1;
+                if (StringUtils.isNullOrEmpty(forecast.get(last).getIcon())) {
                     if (time.getLocation().getSymbol() != null) {
-                        forecastL.get(last).setCondition(time.getLocation().getSymbol().getId());
-                        forecastL.get(last).setIcon(Byte.toString(time.getLocation().getSymbol().getNumber()));
+                        forecast.get(last).setCondition(time.getLocation().getSymbol().getId());
+                        forecast.get(last).setIcon(Byte.toString(time.getLocation().getSymbol().getNumber()));
                     }
                 }
             }
@@ -359,13 +360,11 @@ public class Weather {
             }
         }
 
-        fcast = forecastL.get(forecastL.size() <= 0 ? 0 : forecastL.size() - 1);
+        fcast = forecast.size() <= 0 ? null : forecast.get(forecast.size() - 1);
         if (fcast != null && (fcast.getCondition() == null && fcast.getIcon() == null)) {
-            forecastL.remove(fcast);
+            forecast.remove(forecast.size() - 1);
         }
 
-        forecast = forecastL.toArray(new Forecast[0]);
-        hrForecast = hr_forecastL.toArray(new HourlyForecast[0]);
         astronomy = new Astronomy(astroRoot);
         ttl = "120";
 
@@ -384,21 +383,18 @@ public class Weather {
         location = new Location(root.getObservations().getLocation().get(0));
         updateTime = now;
         // TODO: NOTE: combine Forecast and TextForecast loops
-        forecast = new Forecast[root.getDailyForecasts().getForecastLocation().getForecast().size()];
-        for (int i = 0; i < forecast.length; i++) {
-            forecast[i] = new Forecast(root.getDailyForecasts().getForecastLocation().getForecast().get(i));
+        forecast = new ArrayList<>(root.getDailyForecasts().getForecastLocation().getForecast().size());
+        txtForecast = new ArrayList<>(root.getDailyForecasts().getForecastLocation().getForecast().size());
+        for (int i = 0; i < root.getDailyForecasts().getForecastLocation().getForecast().size(); i++) {
+            forecast.add(new Forecast(root.getDailyForecasts().getForecastLocation().getForecast().get(i)));
+            txtForecast.add(new TextForecast(root.getDailyForecasts().getForecastLocation().getForecast().get(i)));
         }
-        List<HourlyForecast> tmp_hr_forecast = new ArrayList<>(root.getHourlyForecasts().getForecastLocation().getForecast().size());
+        hrForecast = new ArrayList<>(root.getHourlyForecasts().getForecastLocation().getForecast().size());
         for (com.thewizrd.shared_resources.weatherdata.here.ForecastItem1 forecast1 : root.getHourlyForecasts().getForecastLocation().getForecast()) {
             if (ZonedDateTime.parse(forecast1.getUtcTime()).compareTo(now.withZoneSameInstant(ZoneOffset.UTC)) < 0)
                 continue;
 
-            tmp_hr_forecast.add(new HourlyForecast(forecast1));
-        }
-        hrForecast = tmp_hr_forecast.toArray(new HourlyForecast[0]);
-        txtForecast = new TextForecast[root.getDailyForecasts().getForecastLocation().getForecast().size()];
-        for (int i = 0; i < txtForecast.length; i++) {
-            txtForecast[i] = new TextForecast(root.getDailyForecasts().getForecastLocation().getForecast().get(i));
+            hrForecast.add(new HourlyForecast(forecast1));
         }
         condition = new Condition(root.getObservations().getLocation().get(0).getObservation().get(0),
                 root.getDailyForecasts().getForecastLocation().getForecast().get(0));
@@ -414,31 +410,30 @@ public class Weather {
         location = new Location(pointsResponse);
         updateTime = ZonedDateTime.now();
 
-        List<Forecast> forecasts = new ArrayList<>();
-        List<TextForecast> textForecasts = new ArrayList<>();
+        // ~8-day forecast
+        forecast = new ArrayList<>(8);
+        txtForecast = new ArrayList<>(16);
 
         for (int i = 0; i < forecastResponse.getPeriods().size(); i++) {
             com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem = forecastResponse.getPeriods().get(i);
 
-            if (forecasts.isEmpty() && !forecastItem.isIsDaytime())
+            if (forecast.isEmpty() && !forecastItem.isIsDaytime())
                 continue;
 
             if (forecastItem.isIsDaytime() && (i + 1) < forecastResponse.getPeriods().size()) {
                 com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem nightForecastItem = forecastResponse.getPeriods().get(i + 1);
-                forecasts.add(new Forecast(forecastItem, nightForecastItem));
+                forecast.add(new Forecast(forecastItem, nightForecastItem));
 
-                textForecasts.add(new TextForecast(forecastItem));
-                textForecasts.add(new TextForecast(nightForecastItem));
+                txtForecast.add(new TextForecast(forecastItem));
+                txtForecast.add(new TextForecast(nightForecastItem));
 
                 i++;
             }
         }
-        forecast = forecasts.toArray(new Forecast[0]);
-        txtForecast = textForecasts.toArray(new TextForecast[0]);
         if (hourlyForecastResponse != null) {
-            hrForecast = new HourlyForecast[hourlyForecastResponse.getPeriods().size()];
-            for (int i = 0; i < hrForecast.length; i++) {
-                hrForecast[i] = new HourlyForecast(hourlyForecastResponse.getPeriods().get(i));
+            hrForecast = new ArrayList<>(hourlyForecastResponse.getPeriods().size());
+            for (int i = 0; i < hourlyForecastResponse.getPeriods().size(); i++) {
+                hrForecast.add(new HourlyForecast(hourlyForecastResponse.getPeriods().get(i)));
             }
         }
         condition = new Condition(obsCurrentResponse);
@@ -466,27 +461,27 @@ public class Weather {
         updateTime = value;
     }
 
-    public Forecast[] getForecast() {
+    public List<Forecast> getForecast() {
         return forecast;
     }
 
-    public void setForecast(Forecast[] forecast) {
+    public void setForecast(List<Forecast> forecast) {
         this.forecast = forecast;
     }
 
-    public HourlyForecast[] getHrForecast() {
+    public List<HourlyForecast> getHrForecast() {
         return hrForecast;
     }
 
-    public void setHrForecast(HourlyForecast[] hr_forecast) {
+    public void setHrForecast(List<HourlyForecast> hr_forecast) {
         this.hrForecast = hr_forecast;
     }
 
-    public TextForecast[] getTxtForecast() {
+    public List<TextForecast> getTxtForecast() {
         return txtForecast;
     }
 
-    public void setTxtForecast(TextForecast[] txt_forecast) {
+    public void setTxtForecast(List<TextForecast> txt_forecast) {
         this.txtForecast = txt_forecast;
     }
 
@@ -522,11 +517,11 @@ public class Weather {
         this.precipitation = precipitation;
     }
 
-    public List<WeatherAlert> getWeatherAlerts() {
+    public Collection<WeatherAlert> getWeatherAlerts() {
         return weather_alerts;
     }
 
-    public void setWeatherAlerts(List<WeatherAlert> weather_alerts) {
+    public void setWeatherAlerts(Collection<WeatherAlert> weather_alerts) {
         this.weather_alerts = weather_alerts;
     }
 
@@ -599,7 +594,9 @@ public class Weather {
                         obj.setUpdateTime(result);
                         break;
                     case "forecast":
-                        ArrayList<Forecast> forecasts = new ArrayList<>();
+                        // Set initial cap to 10
+                        // Most provider forecasts are <= 10
+                        List<Forecast> forecasts = new ArrayList<>(10);
 
                         if (reader.peek() == JsonToken.BEGIN_ARRAY)
                             reader.beginArray(); // StartArray
@@ -608,14 +605,17 @@ public class Weather {
                             if (reader.peek() == JsonToken.STRING)
                                 forecasts.add(Forecast.fromJson(reader));
                         }
-                        obj.forecast = forecasts.toArray(new Forecast[0]);
+                        obj.forecast = forecasts;
 
                         if (reader.peek() == JsonToken.END_ARRAY)
                             reader.endArray(); // EndArray
 
                         break;
                     case "hr_forecast":
-                        ArrayList<HourlyForecast> hr_forecasts = new ArrayList<>();
+                        // Set initial cap to 90
+                        // MetNo contains ~90 items, but HERE contains ~165
+                        // If 90+ is needed, let the List impl allocate more
+                        List<HourlyForecast> hr_forecasts = new ArrayList<>(90);
                         if (reader.peek() == JsonToken.BEGIN_ARRAY)
                             reader.beginArray(); // StartArray
 
@@ -623,14 +623,16 @@ public class Weather {
                             if (reader.peek() == JsonToken.STRING)
                                 hr_forecasts.add(HourlyForecast.fromJson(reader));
                         }
-                        obj.hrForecast = hr_forecasts.toArray(new HourlyForecast[0]);
+                        obj.hrForecast = hr_forecasts;
 
                         if (reader.peek() == JsonToken.END_ARRAY)
                             reader.endArray(); // EndArray
 
                         break;
                     case "txt_forecast":
-                        ArrayList<TextForecast> txt_forecasts = new ArrayList<>();
+                        // Set initial cap to 20
+                        // Most provider forecasts are <= 10 (x2 for day & nt)
+                        List<TextForecast> txt_forecasts = new ArrayList<>(20);
                         if (reader.peek() == JsonToken.BEGIN_ARRAY)
                             reader.beginArray(); // StartArray
 
@@ -638,7 +640,7 @@ public class Weather {
                             if (reader.peek() == JsonToken.STRING)
                                 txt_forecasts.add(TextForecast.fromJson(reader));
                         }
-                        obj.txtForecast = txt_forecasts.toArray(new TextForecast[0]);
+                        obj.txtForecast = txt_forecasts;
 
                         if (reader.peek() == JsonToken.END_ARRAY)
                             reader.endArray(); // EndArray
@@ -797,7 +799,7 @@ public class Weather {
     }
 
     public boolean isValid() {
-        if (location == null || (forecast == null || forecast.length == 0)
+        if (location == null || (forecast == null || forecast.size() == 0)
                 || condition == null || atmosphere == null)
             return false;
         else

@@ -141,7 +141,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
             // Add weather alerts if available
             if (root.getAlerts() != null && root.getAlerts().getAlerts().size() > 0) {
                 if (weather.getWeatherAlerts() == null)
-                    weather.setWeatherAlerts(new ArrayList<WeatherAlert>());
+                    weather.setWeatherAlerts(new ArrayList<WeatherAlert>(root.getAlerts().getAlerts().size()));
 
                 for (AlertsItem result : root.getAlerts().getAlerts()) {
                     weather.getWeatherAlerts().add(new WeatherAlert(result));
@@ -242,11 +242,11 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
             InputStream stream = client.getInputStream();
 
             // Load data
-            alerts = new ArrayList<>();
-
             Rootobject root = null;
             // TODO: async task it
             root = JSONParser.deserializer(stream, Rootobject.class);
+
+            alerts = new ArrayList<>(root.getAlerts().getAlerts().size());
 
             for (AlertsItem result : root.getAlerts().getAlerts()) {
                 alerts.add(new WeatherAlert(result));

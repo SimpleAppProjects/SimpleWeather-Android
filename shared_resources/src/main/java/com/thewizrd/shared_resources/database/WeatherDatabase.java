@@ -5,7 +5,6 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
 import com.thewizrd.shared_resources.utils.Settings;
-import com.thewizrd.shared_resources.utils.WeatherDBConverters;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlerts;
 

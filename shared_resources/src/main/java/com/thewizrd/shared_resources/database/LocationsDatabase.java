@@ -5,7 +5,6 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.utils.LocationDBConverters;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Favorites;
 

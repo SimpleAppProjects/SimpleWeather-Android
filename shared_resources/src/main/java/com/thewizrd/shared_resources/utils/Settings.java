@@ -31,6 +31,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.io.File;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -261,7 +262,7 @@ public class Settings {
     }
 
     // DAO interfacing methods
-    public static List<LocationData> getFavorites() {
+    public static Collection<LocationData> getFavorites() {
         return new AsyncTask<List<LocationData>>().await(new Callable<List<LocationData>>() {
             @Override
             public List<LocationData> call() {
@@ -313,13 +314,13 @@ public class Settings {
         });
     }
 
-    public static List<WeatherAlert> getWeatherAlertData(final String key) {
-        return new AsyncTask<List<WeatherAlert>>().await(new Callable<List<WeatherAlert>>() {
+    public static Collection<WeatherAlert> getWeatherAlertData(final String key) {
+        return new AsyncTask<Collection<WeatherAlert>>().await(new Callable<Collection<WeatherAlert>>() {
             @Override
-            public List<WeatherAlert> call() {
+            public Collection<WeatherAlert> call() {
                 loadIfNeeded();
 
-                List<WeatherAlert> alerts = null;
+                Collection<WeatherAlert> alerts = null;
 
                 try {
                     WeatherAlerts weatherAlertData = weatherDB.weatherDAO().getWeatherAlertData(key);
@@ -371,7 +372,7 @@ public class Settings {
         });
     }
 
-    public static void saveWeatherAlerts(final LocationData location, final List<WeatherAlert> alerts) {
+    public static void saveWeatherAlerts(final LocationData location, final Collection<WeatherAlert> alerts) {
         if (location != null && location.isValid()) {
             new AsyncTask<Void>().await(new Callable<Void>() {
                 @Override
@@ -649,7 +650,7 @@ public class Settings {
             if (useFollowGPS())
                 homeData = getLastGPSLocData();
             else
-                homeData = (getFavorites() == null || getFavorites().size() == 0) ? null : getFavorites().get(0);
+                homeData = (getFavorites() == null || getFavorites().size() == 0) ? null : getFavorites().iterator().next();
         } else {
             homeData = getLastGPSLocData();
 

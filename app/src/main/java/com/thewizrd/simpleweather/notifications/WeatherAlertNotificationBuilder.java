@@ -30,8 +30,8 @@ import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.main.MainActivity;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -45,7 +45,7 @@ public class WeatherAlertNotificationBuilder {
     private static final int MIN_GROUPCOUNT = 3;
     private static final int SUMMARY_ID = -1;
 
-    public static void createNotifications(LocationData location, List<WeatherAlert> alerts) {
+    public static void createNotifications(LocationData location, Collection<WeatherAlert> alerts) {
         final Context context = App.getInstance().getAppContext();
         // Gets an instance of the NotificationManager service
         NotificationManagerCompat mNotifyMgr = NotificationManagerCompat.from(context);

@@ -335,7 +335,7 @@ public class WearableDataListenerService extends WearableListenerService {
         PutDataMapRequest mapRequest = PutDataMapRequest.create(WearableHelper.WeatherPath);
         LocationData homeData = Settings.getHomeData();
         Weather weatherData = Settings.getWeatherData(homeData.getQuery());
-        List<WeatherAlert> alertData = Settings.getWeatherAlertData(homeData.getQuery());
+        Collection<WeatherAlert> alertData = Settings.getWeatherAlertData(homeData.getQuery());
 
         if (weatherData != null) {
             weatherData.setWeatherAlerts(alertData);

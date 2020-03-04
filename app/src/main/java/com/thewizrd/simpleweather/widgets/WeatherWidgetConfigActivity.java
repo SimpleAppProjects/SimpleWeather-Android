@@ -112,7 +112,6 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -440,7 +439,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             locationPref.addEntry(R.string.pref_item_gpslocation, Constants.KEY_GPS);
             locationPref.addEntry(R.string.label_btn_add_location, Constants.KEY_SEARCH);
 
-            List<LocationData> favs = Settings.getFavorites();
+            Collection<LocationData> favs = Settings.getFavorites();
             favorites = new ArrayList<>(favs);
             for (LocationData location : favorites) {
                 locationPref.insertEntry(locationPref.getEntryCount() - 1,

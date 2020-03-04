@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.utils;
+package com.thewizrd.shared_resources.database;
 
 import android.util.Log;
 
@@ -6,6 +6,7 @@ import androidx.room.TypeConverter;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.weatherdata.Astronomy;
 import com.thewizrd.shared_resources.weatherdata.Atmosphere;
 import com.thewizrd.shared_resources.weatherdata.Condition;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class WeatherDBConverters {
@@ -63,7 +65,7 @@ public class WeatherDBConverters {
     }
 
     @TypeConverter
-    public static Forecast[] forecastArrfromJson(String value) {
+    public static List<Forecast> forecastArrfromJson(String value) {
         if (value == null)
             return null;
         else {
@@ -83,12 +85,12 @@ public class WeatherDBConverters {
                 Logger.writeLine(Log.ERROR, ex, "Error parsing JSON");
             }
 
-            return result.toArray(new Forecast[0]);
+            return result;
         }
     }
 
     @TypeConverter
-    public static String forecastArrtoJson(Forecast[] value) {
+    public static String forecastArrtoJson(List<Forecast> value) {
         if (value == null)
             return null;
         else {
@@ -114,7 +116,7 @@ public class WeatherDBConverters {
     }
 
     @TypeConverter
-    public static HourlyForecast[] hrforecastArrfromJson(String value) {
+    public static List<HourlyForecast> hrforecastArrfromJson(String value) {
         if (value == null)
             return null;
         else {
@@ -134,12 +136,12 @@ public class WeatherDBConverters {
                 Logger.writeLine(Log.ERROR, ex, "Error parsing JSON");
             }
 
-            return result.toArray(new HourlyForecast[0]);
+            return result;
         }
     }
 
     @TypeConverter
-    public static String hrforecastArrtoJson(HourlyForecast[] value) {
+    public static String hrforecastArrtoJson(List<HourlyForecast> value) {
         if (value == null)
             return null;
         else {
@@ -165,7 +167,7 @@ public class WeatherDBConverters {
     }
 
     @TypeConverter
-    public static TextForecast[] txtforecastArrfromJson(String value) {
+    public static List<TextForecast> txtforecastArrfromJson(String value) {
         if (value == null)
             return null;
         else {
@@ -185,12 +187,12 @@ public class WeatherDBConverters {
                 Logger.writeLine(Log.ERROR, ex, "Error parsing JSON");
             }
 
-            return result.toArray(new TextForecast[0]);
+            return result;
         }
     }
 
     @TypeConverter
-    public static String txtforecastArrtoJson(TextForecast[] value) {
+    public static String txtforecastArrtoJson(List<TextForecast> value) {
         if (value == null)
             return null;
         else {
@@ -256,7 +258,7 @@ public class WeatherDBConverters {
     }
 
     @TypeConverter
-    public static List<WeatherAlert> alertsListFromJson(String value) {
+    public static Collection<WeatherAlert> alertsListFromJson(String value) {
         if (value == null)
             return null;
         else {
@@ -281,7 +283,7 @@ public class WeatherDBConverters {
     }
 
     @TypeConverter
-    public static String alertsListToJson(List<WeatherAlert> value) {
+    public static String alertsListToJson(Collection<WeatherAlert> value) {
         if (value == null)
             return null;
         else {

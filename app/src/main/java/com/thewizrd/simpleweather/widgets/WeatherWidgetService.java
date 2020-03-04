@@ -1266,8 +1266,8 @@ public class WeatherWidgetService extends JobIntentService {
                 if (isForecastWidget(provider.getWidgetType())) {
                     // Determine forecast size
                     int forecastLength = getForecastLength(provider.getWidgetType(), cellWidth);
-                    if (weather.getForecast().length < forecastLength)
-                        forecastLength = weather.getForecast().length;
+                    if (weather.getForecast().size() < forecastLength)
+                        forecastLength = weather.getForecast().size();
 
                     WeatherNowViewModel viewModel = new WeatherNowViewModel(weather);
                     updateViews.removeAllViews(R.id.forecast_layout);

@@ -11,10 +11,11 @@ import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationBuilder;
 import org.threeten.bp.ZonedDateTime;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class WeatherAlertHandler {
-    public static void postAlerts(LocationData location, List<WeatherAlert> alerts) {
+    public static void postAlerts(LocationData location, Collection<WeatherAlert> alerts) {
         WeatherManager wm = WeatherManager.getInstance();
 
         if (wm.supportsAlerts() && alerts != null && alerts.size() > 0) {
@@ -37,7 +38,7 @@ public class WeatherAlertHandler {
         }
     }
 
-    public static void setAsNotified(LocationData location, List<WeatherAlert> alerts) {
+    public static void setAsNotified(LocationData location, Collection<WeatherAlert> alerts) {
         if (alerts != null) {
             // Update all alerts
             for (WeatherAlert alert : alerts) {

@@ -6,7 +6,7 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-import java.util.List;
+import java.util.Collection;
 
 @Entity(tableName = "weatheralerts")
 public class WeatherAlerts {
@@ -14,7 +14,7 @@ public class WeatherAlerts {
     @NonNull
     private String query;
     @ColumnInfo(name = "weather_alerts")
-    private List<WeatherAlert> alerts;
+    private Collection<WeatherAlert> alerts;
 
     public String getQuery() {
         return query;
@@ -24,11 +24,11 @@ public class WeatherAlerts {
         this.query = query;
     }
 
-    public List<WeatherAlert> getAlerts() {
+    public Collection<WeatherAlert> getAlerts() {
         return alerts;
     }
 
-    public void setAlerts(List<WeatherAlert> alerts) {
+    public void setAlerts(Collection<WeatherAlert> alerts) {
         this.alerts = alerts;
     }
 
@@ -36,7 +36,7 @@ public class WeatherAlerts {
     }
 
     @Ignore
-    public WeatherAlerts(String query, List<WeatherAlert> alerts) {
+    public WeatherAlerts(String query, Collection<WeatherAlert> alerts) {
         this.query = query;
         this.alerts = alerts;
     }
