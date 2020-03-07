@@ -26,10 +26,12 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
+import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 public class WeatherNotificationService extends Service {
@@ -86,12 +88,16 @@ public class WeatherNotificationService extends Service {
                             public Weather call() {
                                 LocationData locData = Settings.getHomeData();
                                 WeatherDataLoader wLoader = new WeatherDataLoader(locData);
+                                WeatherRequest.Builder request = new WeatherRequest.Builder();
                                 if (forceRefresh)
-                                    wLoader.loadWeatherData(false);
+                                    request.forceRefresh(false);
                                 else
-                                    wLoader.forceLoadSavedWeatherData();
-
-                                return wLoader.getWeather();
+                                    request.forceLoadSavedData();
+                                try {
+                                    return Tasks.await(wLoader.loadWeatherData(request.build()));
+                                } catch (ExecutionException | InterruptedException e) {
+                                    return null;
+                                }
                             }
                         });
 

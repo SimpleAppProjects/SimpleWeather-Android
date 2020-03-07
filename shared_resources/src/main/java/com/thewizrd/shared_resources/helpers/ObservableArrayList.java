@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.function.Predicate;
 
 public class ObservableArrayList<T> extends ArrayList<T> {
-    private transient CallbackList<T> mListeners = new CallbackList<>();
+    protected transient CallbackList<T> mListeners = new CallbackList<>();
 
     public ObservableArrayList() {
         super();

@@ -6,18 +6,30 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.room.Room;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.database.LocationsDAO;
 import com.thewizrd.shared_resources.database.LocationsDatabase;
+import com.thewizrd.shared_resources.database.WeatherDAO;
 import com.thewizrd.shared_resources.database.WeatherDatabase;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.weatherdata.Favorites;
+import com.thewizrd.shared_resources.weatherdata.Forecasts;
+import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
+import com.thewizrd.shared_resources.weatherdata.HourlyForecasts;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
@@ -25,6 +37,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlerts;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
@@ -45,7 +58,7 @@ public class Settings {
     private static WeatherDatabase weatherDB;
 
     // Data
-    public static final int CURRENT_DBVERSION = 4;
+    public static final int CURRENT_DBVERSION = 5;
     private static final int CACHE_LIMIT = 25;
     private static final int MAX_LOCATIONS = 10;
 
@@ -208,14 +221,14 @@ public class Settings {
         if (IS_PHONE && locationDB == null) {
             locationDB = Room.databaseBuilder(context,
                     LocationsDatabase.class, "locations.db")
-                    .addMigrations(DBMigrations.MIGRATION_0_3, DBMigrations.LOC_MIGRATION_3_4)
+                    .addMigrations(DBMigrations.MIGRATION_0_3, DBMigrations.LOC_MIGRATION_3_4, DBMigrations.LOC_MIGRATION_4_5)
                     .build();
         }
 
         if (weatherDB == null) {
             weatherDB = Room.databaseBuilder(context,
                     WeatherDatabase.class, "weatherdata.db")
-                    .addMigrations(DBMigrations.MIGRATION_0_3, DBMigrations.W_MIGRATION_3_4)
+                    .addMigrations(DBMigrations.MIGRATION_0_3, DBMigrations.W_MIGRATION_3_4, DBMigrations.W_MIGRATION_4_5)
                     .build();
         }
 
@@ -262,6 +275,16 @@ public class Settings {
     }
 
     // DAO interfacing methods
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static WeatherDAO getWeatherDAO() {
+        return weatherDB.weatherDAO();
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static LocationsDAO getLocationsDAO() {
+        return locationDB.locationsDAO();
+    }
+
     public static Collection<LocationData> getFavorites() {
         return new AsyncTask<List<LocationData>>().await(new Callable<List<LocationData>>() {
             @Override
@@ -339,6 +362,28 @@ public class Settings {
         });
     }
 
+    public static Forecasts getWeatherForecastData(final String key) {
+        return new AsyncTask<Forecasts>().await(new Callable<Forecasts>() {
+            @Override
+            public Forecasts call() {
+                loadIfNeeded();
+
+                return weatherDB.weatherDAO().getForecastData(key);
+            }
+        });
+    }
+
+    public static List<HourlyForecast> getHourlyWeatherForecastData(final String key) {
+        return new AsyncTask<List<HourlyForecast>>().await(new Callable<List<HourlyForecast>>() {
+            @Override
+            public List<HourlyForecast> call() {
+                loadIfNeeded();
+
+                return weatherDB.weatherDAO().loadHourlyForecastsByQueryOrderByDate(key);
+            }
+        });
+    }
+
     public static LocationData getLastGPSLocData() {
         return new AsyncTask<LocationData>().await(new Callable<LocationData>() {
             @Override
@@ -393,6 +438,54 @@ public class Settings {
         });
     }
 
+    public static void saveWeatherForecasts(final Forecasts forecasts) {
+        if (forecasts != null) {
+            new AsyncTask<Void>().await(new Callable<Void>() {
+                @Override
+                public Void call() {
+                    weatherDB.weatherDAO().insertForecast(forecasts);
+                    return null;
+                }
+            });
+        }
+        AsyncTask.run(new Runnable() {
+            @Override
+            public void run() {
+                if (weatherDB.weatherDAO().getForecastDataCountGroupedByQuery() > CACHE_LIMIT / 2)
+                    cleanupWeatherData();
+            }
+        });
+    }
+
+    public static void saveWeatherForecasts(@NonNull final String key, final Collection<HourlyForecasts> forecasts) {
+        new AsyncTask<Void>().await(new Callable<Void>() {
+            @Override
+            public Void call() {
+                weatherDB.weatherDAO().deleteHourlyForecastByKey(key);
+                return null;
+            }
+        });
+
+        if (forecasts != null) {
+            new AsyncTask<Void>().await(new Callable<Void>() {
+                @Override
+                public Void call() {
+                    for (HourlyForecasts fcast : forecasts) {
+                        weatherDB.weatherDAO().insertHourlyForecast(fcast);
+                    }
+                    return null;
+                }
+            });
+        }
+        AsyncTask.run(new Runnable() {
+            @Override
+            public void run() {
+                if (weatherDB.weatherDAO().getHourlyForecastCountGroupedByQuery() > CACHE_LIMIT / 2)
+                    cleanupWeatherForecastData();
+            }
+        });
+    }
+
     private static void cleanupWeatherData() {
         AsyncTask.run(new Runnable() {
             @Override
@@ -406,26 +499,42 @@ public class Settings {
                     locs = Collections.singletonList(getHomeData());
                 }
 
-                List<Weather> data = weatherDB.weatherDAO().loadAllWeatherData();
-                List<Weather> weatherToDelete = new ArrayList<>();
-
-                for (Weather weather : data) {
-                    boolean delete = true;
-
-                    for (LocationData loc : locs) {
-                        if (weather.getQuery().equals(loc.getQuery())) {
-                            delete = false;
-                            break;
-                        }
+                List<String> locQueries = Lists.transform(locs, new Function<LocationData, String>() {
+                    @NullableDecl
+                    @Override
+                    public String apply(@NullableDecl LocationData input) {
+                        return input.getQuery();
                     }
+                });
 
-                    if (delete)
-                        weatherToDelete.add(weather);
+                weatherDB.weatherDAO().deleteWeatherDataByKeyNotIn(locQueries);
+            }
+        });
+    }
+
+    private static void cleanupWeatherForecastData() {
+        AsyncTask.run(new Runnable() {
+            @Override
+            public void run() {
+                List<LocationData> locs = null;
+
+                if (IS_PHONE) {
+                    locs = locationDB.locationsDAO().loadAllLocationData();
+                    if (useFollowGPS()) locs.add(lastGPSLocData);
+                } else {
+                    locs = Collections.singletonList(getHomeData());
                 }
 
-                for (Weather weather : weatherToDelete) {
-                    weatherDB.weatherDAO().deleteWeatherDataByKey(weather.getQuery());
-                }
+                List<String> locQueries = Lists.transform(locs, new Function<LocationData, String>() {
+                    @NullableDecl
+                    @Override
+                    public String apply(@NullableDecl LocationData input) {
+                        return input.getQuery();
+                    }
+                });
+
+                weatherDB.weatherDAO().deleteForecastByKeyNotIn(locQueries);
+                weatherDB.weatherDAO().deleteHourlyForecastByKeyNotIn(locQueries);
             }
         });
     }
@@ -443,26 +552,15 @@ public class Settings {
                     locs = Collections.singletonList(getHomeData());
                 }
 
-                List<WeatherAlerts> data = weatherDB.weatherDAO().loadAllWeatherAlertData();
-                List<WeatherAlerts> weatherToDelete = new ArrayList<>();
-
-                for (WeatherAlerts alert : data) {
-                    boolean delete = true;
-
-                    for (LocationData loc : locs) {
-                        if (alert.getQuery().equals(loc.getQuery())) {
-                            delete = false;
-                            break;
-                        }
+                List<String> locQueries = Lists.transform(locs, new Function<LocationData, String>() {
+                    @NullableDecl
+                    @Override
+                    public String apply(@NullableDecl LocationData input) {
+                        return input.getQuery();
                     }
+                });
 
-                    if (delete)
-                        weatherToDelete.add(alert);
-                }
-
-                for (WeatherAlerts alertData : weatherToDelete) {
-                    weatherDB.weatherDAO().deleteWeatherAlertDataByKey(alertData.getQuery());
-                }
+                weatherDB.weatherDAO().deleteWeatherAlertDataByKeyNotIn(locQueries);
             }
         });
     }
@@ -484,21 +582,17 @@ public class Settings {
                     }
 
                     List<LocationData> locs = locationDB.locationsDAO().loadAllLocationData();
-                    List<LocationData> locToDelete = new ArrayList<>();
-
-                    for (LocationData l : locs) {
-                        boolean delete = true;
-
-                        for (LocationData l2 : locationData) {
-                            if (l2.equals(l)) {
-                                delete = false;
-                                break;
-                            }
+                    Collection<LocationData> locToDelete = Collections2.filter(locs, new Predicate<LocationData>() {
+                        @Override
+                        public boolean apply(@NullableDecl final LocationData l) {
+                            return Iterables.all(locationData, new Predicate<LocationData>() {
+                                @Override
+                                public boolean apply(@NullableDecl LocationData l2) {
+                                    return !l2.equals(l);
+                                }
+                            });
                         }
-
-                        if (delete)
-                            locToDelete.add(l);
-                    }
+                    });
 
                     int count = locToDelete.size();
 
@@ -551,14 +645,7 @@ public class Settings {
                 @Override
                 public Void call() {
                     // Get position from favorites table
-                    List<Favorites> favs = locationDB.locationsDAO().loadAllFavorites();
-                    Favorites fav = null;
-                    for (Favorites f : favs) {
-                        if (f.getQuery().equals(oldKey)) {
-                            fav = f;
-                            break;
-                        }
-                    }
+                    Favorites fav = locationDB.locationsDAO().getFavorite(oldKey);
 
                     if (fav == null) {
                         return null;
@@ -650,7 +737,7 @@ public class Settings {
             if (useFollowGPS())
                 homeData = getLastGPSLocData();
             else
-                homeData = (getFavorites() == null || getFavorites().size() == 0) ? null : getFavorites().iterator().next();
+                homeData = Iterables.getFirst(getFavorites(), null);
         } else {
             homeData = getLastGPSLocData();
 

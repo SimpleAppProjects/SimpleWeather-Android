@@ -41,6 +41,7 @@ import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.LaunchActivity;
 import com.thewizrd.simpleweather.R;
 
@@ -166,7 +167,7 @@ public class WeatherTileProviderService extends TileProviderService {
         RemoteViews forecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.tile_forecast_layout_container);
         RemoteViews hrForecastPanel = null;
 
-        if (viewModel.getExtras().getHourlyForecast().size() > 0) {
+        if (viewModel.getHourlyForecasts().size() > 0) {
             hrForecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.tile_forecast_layout_container);
         }
 
@@ -175,7 +176,7 @@ public class WeatherTileProviderService extends TileProviderService {
             addForecastItem(forecastPanel, forecast);
 
             if (hrForecastPanel != null) {
-                addForecastItem(hrForecastPanel, viewModel.getExtras().getHourlyForecast().get(i));
+                addForecastItem(hrForecastPanel, viewModel.getHourlyForecasts().get(i));
             }
         }
 
@@ -224,13 +225,14 @@ public class WeatherTileProviderService extends TileProviderService {
 
                     WeatherDataLoader wloader = new WeatherDataLoader(Settings.getHomeData());
 
+                    WeatherRequest.Builder request = new WeatherRequest.Builder().loadForecasts();
                     if (Settings.getDataSync() == WearableDataSync.OFF) {
-                        wloader.loadWeatherData(false);
+                        request.forceRefresh(false);
                     } else {
-                        wloader.forceLoadSavedWeatherData();
+                        request.forceLoadSavedData();
                     }
 
-                    weather = wloader.getWeather();
+                    weather = Tasks.await(wloader.loadWeatherData(request.build()));
 
                     if (weather != null && Settings.getDataSync() != WearableDataSync.OFF) {
                         int ttl = Settings.DEFAULTINTERVAL;

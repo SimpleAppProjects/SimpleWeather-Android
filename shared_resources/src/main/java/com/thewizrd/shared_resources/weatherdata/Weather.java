@@ -40,11 +40,11 @@ public class Weather {
     private Location location;
     @ColumnInfo(name = "update_time")
     private ZonedDateTime updateTime;
-    @ColumnInfo(name = "forecastblob")
+    @Ignore
     private List<Forecast> forecast;
-    @ColumnInfo(name = "hrforecastblob")
+    @Ignore
     private List<HourlyForecast> hrForecast;
-    @ColumnInfo(name = "txtforecastblob")
+    @Ignore
     private List<TextForecast> txtForecast;
     @ColumnInfo(name = "conditionblob")
     private Condition condition;
@@ -382,7 +382,6 @@ public class Weather {
 
         location = new Location(root.getObservations().getLocation().get(0));
         updateTime = now;
-        // TODO: NOTE: combine Forecast and TextForecast loops
         forecast = new ArrayList<>(root.getDailyForecasts().getForecastLocation().getForecast().size());
         txtForecast = new ArrayList<>(root.getDailyForecasts().getForecastLocation().getForecast().size());
         for (int i = 0; i < root.getDailyForecasts().getForecastLocation().getForecast().size(); i++) {
@@ -799,10 +798,61 @@ public class Weather {
     }
 
     public boolean isValid() {
-        if (location == null || (forecast == null || forecast.size() == 0)
-                || condition == null || atmosphere == null)
+        if (location == null || condition == null || atmosphere == null)
             return false;
         else
             return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Weather weather = (Weather) o;
+
+        if (location != null ? !location.equals(weather.location) : weather.location != null)
+            return false;
+        if (updateTime != null ? !updateTime.equals(weather.updateTime) : weather.updateTime != null)
+            return false;
+        if (forecast != null ? !forecast.equals(weather.forecast) : weather.forecast != null)
+            return false;
+        if (hrForecast != null ? !hrForecast.equals(weather.hrForecast) : weather.hrForecast != null)
+            return false;
+        if (txtForecast != null ? !txtForecast.equals(weather.txtForecast) : weather.txtForecast != null)
+            return false;
+        if (condition != null ? !condition.equals(weather.condition) : weather.condition != null)
+            return false;
+        if (atmosphere != null ? !atmosphere.equals(weather.atmosphere) : weather.atmosphere != null)
+            return false;
+        if (astronomy != null ? !astronomy.equals(weather.astronomy) : weather.astronomy != null)
+            return false;
+        if (precipitation != null ? !precipitation.equals(weather.precipitation) : weather.precipitation != null)
+            return false;
+        if (weather_alerts != null ? !weather_alerts.equals(weather.weather_alerts) : weather.weather_alerts != null)
+            return false;
+        if (ttl != null ? !ttl.equals(weather.ttl) : weather.ttl != null) return false;
+        if (source != null ? !source.equals(weather.source) : weather.source != null) return false;
+        if (!query.equals(weather.query)) return false;
+        return locale != null ? locale.equals(weather.locale) : weather.locale == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = location != null ? location.hashCode() : 0;
+        result = 31 * result + (updateTime != null ? updateTime.hashCode() : 0);
+        result = 31 * result + (forecast != null ? forecast.hashCode() : 0);
+        result = 31 * result + (hrForecast != null ? hrForecast.hashCode() : 0);
+        result = 31 * result + (txtForecast != null ? txtForecast.hashCode() : 0);
+        result = 31 * result + (condition != null ? condition.hashCode() : 0);
+        result = 31 * result + (atmosphere != null ? atmosphere.hashCode() : 0);
+        result = 31 * result + (astronomy != null ? astronomy.hashCode() : 0);
+        result = 31 * result + (precipitation != null ? precipitation.hashCode() : 0);
+        result = 31 * result + (weather_alerts != null ? weather_alerts.hashCode() : 0);
+        result = 31 * result + (ttl != null ? ttl.hashCode() : 0);
+        result = 31 * result + (source != null ? source.hashCode() : 0);
+        result = 31 * result + query.hashCode();
+        result = 31 * result + (locale != null ? locale.hashCode() : 0);
+        return result;
     }
 }

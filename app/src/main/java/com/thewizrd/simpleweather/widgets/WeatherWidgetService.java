@@ -61,6 +61,7 @@ import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.main.MainActivity;
@@ -484,8 +485,14 @@ public class WeatherWidgetService extends JobIntentService {
 
             WeatherDataLoader wloader = new WeatherDataLoader(locData);
             try {
-                wloader.loadWeatherData(false);
-                weather = wloader.getWeather();
+                WeatherRequest.Builder request =
+                        new WeatherRequest.Builder().forceRefresh(false);
+
+                if (WidgetUtils.isForecastWidget(provider.getWidgetType())) {
+                    request.loadForecasts();
+                }
+
+                weather = Tasks.await(wloader.loadWeatherData(request.build()));
             } catch (Exception e) {
                 weather = null;
             }
@@ -568,8 +575,14 @@ public class WeatherWidgetService extends JobIntentService {
         final Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
             @Override
             public Weather call() {
-                wLoader.loadWeatherData(false);
-                return wLoader.getWeather();
+                try {
+                    return Tasks.await(wLoader.loadWeatherData(new WeatherRequest.Builder()
+                            .forceRefresh(false)
+                            .loadForecasts()
+                            .build()));
+                } catch (ExecutionException | InterruptedException e) {
+                    return null;
+                }
             }
         });
 
@@ -1223,8 +1236,14 @@ public class WeatherWidgetService extends JobIntentService {
 
                         WeatherDataLoader wloader = new WeatherDataLoader(locData);
                         try {
-                            wloader.loadWeatherData(false);
-                            weather = wloader.getWeather();
+                            WeatherRequest.Builder request =
+                                    new WeatherRequest.Builder().forceRefresh(false);
+
+                            if (WidgetUtils.isForecastWidget(provider.getWidgetType())) {
+                                request.loadForecasts();
+                            }
+
+                            weather = Tasks.await(wloader.loadWeatherData(request.build()));
                         } catch (Exception e) {
                             weather = null;
                         }
@@ -1332,7 +1351,7 @@ public class WeatherWidgetService extends JobIntentService {
             RemoteViews forecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_layout_container);
             RemoteViews hrForecastPanel = null;
 
-            if (weather.getExtras().getHourlyForecast().size() > 0) {
+            if (weather.getHourlyForecasts().size() > 0) {
                 updateViews.setViewVisibility(R.id.showPrevious, tap2SwitchEnabled ? View.GONE : View.VISIBLE);
                 updateViews.setViewVisibility(R.id.showNext, tap2SwitchEnabled ? View.GONE : View.VISIBLE);
                 hrForecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_layout_container);
@@ -1346,7 +1365,7 @@ public class WeatherWidgetService extends JobIntentService {
                 addForecastItem(forecastPanel, provider, forecast, newOptions, textColor, tempTextSize);
 
                 if (hrForecastPanel != null) {
-                    addForecastItem(hrForecastPanel, provider, weather.getExtras().getHourlyForecast().get(i), newOptions, textColor, tempTextSize);
+                    addForecastItem(hrForecastPanel, provider, weather.getHourlyForecasts().get(i), newOptions, textColor, tempTextSize);
                 }
             }
 

@@ -55,7 +55,7 @@ import androidx.databinding.ObservableFloat;
 import androidx.databinding.ObservableInt;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -74,6 +74,8 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -100,9 +102,8 @@ import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
-import com.thewizrd.shared_resources.weatherdata.WeatherErrorListenerInterface;
-import com.thewizrd.shared_resources.weatherdata.WeatherLoadedListenerInterface;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.ColorModeRecyclerViewAdapter;
@@ -125,7 +126,6 @@ import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
-import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.StringReader;
@@ -134,8 +134,7 @@ import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-public class WeatherNowFragment extends WindowColorFragment
-        implements WeatherLoadedListenerInterface, WeatherErrorListenerInterface {
+public class WeatherNowFragment extends WindowColorFragment {
     private LocationData location = null;
     private boolean loaded = false;
     private ObservableInt backgroundAlpha;
@@ -225,7 +224,7 @@ public class WeatherNowFragment extends WindowColorFragment
             return true;
     }
 
-    public void onWeatherLoaded(final LocationData location, final Weather weather) {
+    private void onWeatherLoaded(final LocationData location, final Weather weather) {
         AsyncTask.run(new Runnable() {
             @Override
             public void run() {
@@ -269,13 +268,19 @@ public class WeatherNowFragment extends WindowColorFragment
                             }
                         });
                     }
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            binding.refreshLayout.setRefreshing(false);
+                        }
+                    });
                 }
             }
         });
     }
 
-    @Override
-    public void onWeatherError(final WeatherException wEx) {
+    private void onWeatherError(final WeatherException wEx) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -385,7 +390,7 @@ public class WeatherNowFragment extends WindowColorFragment
             }
 
             if (location != null && wLoader == null)
-                wLoader = new WeatherDataLoader(location, this, this);
+                wLoader = new WeatherDataLoader(location);
         }
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {
@@ -401,8 +406,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
                             if (Settings.useFollowGPS() && updateLocation()) {
                                 // Setup loader from updated location
-                                wLoader = new WeatherDataLoader(WeatherNowFragment.this.location,
-                                        WeatherNowFragment.this, WeatherNowFragment.this);
+                                wLoader = new WeatherDataLoader(location);
 
                                 refreshWeather(false);
                             }
@@ -424,8 +428,7 @@ public class WeatherNowFragment extends WindowColorFragment
                         public void run() {
                             if (Settings.useFollowGPS() && updateLocation()) {
                                 // Setup loader from updated location
-                                wLoader = new WeatherDataLoader(WeatherNowFragment.this.location,
-                                        WeatherNowFragment.this, WeatherNowFragment.this);
+                                wLoader = new WeatherDataLoader(WeatherNowFragment.this.location);
 
                                 refreshWeather(false);
                             }
@@ -455,7 +458,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
         final int systemNightMode = mActivity.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         // Setup ViewModel
-        weatherView = ViewModelProviders.of(this).get(WeatherNowViewModel.class);
+        weatherView = new ViewModelProvider(this).get(WeatherNowViewModel.class);
         backgroundAlpha = new ObservableInt(0xFF); // int: 255
         gradientAlpha = new ObservableFloat(1.0f);
         // Dark Mode fields
@@ -696,6 +699,10 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.forecastViewpgr.setOffscreenPageLimit(1);
         // Additional Details
         binding.hourlyForecastPanel.setVisibility(View.GONE);
+        hrGraphAdapter = new ForecastGraphPagerAdapter();
+        binding.hourlyForecastViewpgr.setAdapter(hrGraphAdapter);
+        binding.hourlyForecastViewpgr.setOffscreenPageLimit(1);
+
         // Alerts
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             binding.alertButton.setBackgroundTintList(ColorStateList.valueOf(Colors.ORANGERED));
@@ -714,20 +721,16 @@ public class WeatherNowFragment extends WindowColorFragment
             @Override
             public void onClick(View v) {
                 // Show Alert Fragment
-                if (mActivity != null && weatherView.getExtras().getAlerts().size() > 0)
+                if (mActivity != null && weatherView.getAlerts().size() > 0)
                     mActivity.getSupportFragmentManager().beginTransaction()
                             .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left,
                                     R.anim.slide_in_right, R.anim.slide_out_left)
-                            .add(R.id.fragment_container, WeatherAlertsFragment.newInstance(location, weatherView))
+                            .add(R.id.fragment_container, WeatherListFragment.newInstance(location, weatherView, WeatherListType.ALERTS))
                             .hide(WeatherNowFragment.this)
                             .addToBackStack(null)
                             .commit();
             }
         });
-
-        hrGraphAdapter = new ForecastGraphPagerAdapter();
-        binding.hourlyForecastViewpgr.setAdapter(hrGraphAdapter);
-        binding.hourlyForecastViewpgr.setOffscreenPageLimit(1);
 
         // SwipeRefresh
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(mActivity, R.color.invButtonColor));
@@ -740,8 +743,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     public void run() {
                         if (Settings.useFollowGPS() && updateLocation())
                             // Setup loader from updated location
-                            wLoader = new WeatherDataLoader(WeatherNowFragment.this.location,
-                                    WeatherNowFragment.this, WeatherNowFragment.this);
+                            wLoader = new WeatherDataLoader(location);
 
                         refreshWeather(true);
                     }
@@ -756,7 +758,7 @@ public class WeatherNowFragment extends WindowColorFragment
         weatherView.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
             @Override
             public void onPropertyChanged(Observable sender, int propertyId) {
-                if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible()) {
+                if (propertyId == 0 && !WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible()) {
                     updateView(weatherView);
                 }
             }
@@ -927,7 +929,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 if (loaded || homeChanged || wLoader == null) {
                     restore();
                     loaded = true;
-                } else if (wLoader != null && !loaded) {
+                } else {
                     ULocale currentLocale = ULocale.forLocale(Locale.getDefault());
                     String locale = wm.localeToLangCode(currentLocale.getLanguage(), currentLocale.toLanguageTag());
 
@@ -936,37 +938,18 @@ public class WeatherNowFragment extends WindowColorFragment
                             || wm.supportsWeatherLocale() && !locale.equals(weatherView.getWeatherLocale())) {
                         restore();
                         loaded = true;
-                    } else if (wLoader.getWeather() != null && wLoader.getWeather().isValid()) {
-                        Weather weather = wLoader.getWeather();
-
+                    } else {
                         // Update weather if needed on resume
                         if (Settings.useFollowGPS() && updateLocation()) {
                             // Setup loader from updated location
-                            wLoader = new WeatherDataLoader(WeatherNowFragment.this.location, WeatherNowFragment.this, WeatherNowFragment.this);
-                            refreshWeather(false);
-                            loaded = true;
-                        } else {
-                            // Check weather data expiration
-                            int ttl = -1;
-                            try {
-                                ttl = Integer.parseInt(weather.getTtl());
-                            } catch (NumberFormatException ex) {
-                                ttl = Settings.DEFAULTINTERVAL;
-                            } finally {
-                                ttl = Math.max(ttl, Settings.getRefreshInterval());
-                            }
-                            Duration span = Duration.between(ZonedDateTime.now(), weather.getUpdateTime()).abs();
-                            if (span.toMinutes() > ttl) {
-                                refreshWeather(false);
-                            } else {
-                                if (ctsToken.isCancellationRequested())
-                                    return;
-
-                                weatherView.updateView(wLoader.getWeather());
-
-                                loaded = true;
-                            }
+                            wLoader = new WeatherDataLoader(location);
                         }
+
+                        if (ctsToken.isCancellationRequested())
+                            return;
+
+                        refreshWeather(false);
+                        loaded = true;
                     }
                 }
             }
@@ -989,7 +972,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
                 // Show Alert Fragment
                 mActivity.getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container, WeatherAlertsFragment.newInstance(location))
+                        .add(R.id.fragment_container, WeatherListFragment.newInstance(location, weatherView, WeatherListType.ALERTS))
                         .hide(this)
                         .addToBackStack(null)
                         .commit();
@@ -1095,7 +1078,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     return;
 
                 if (location != null)
-                    wLoader = new WeatherDataLoader(location, WeatherNowFragment.this, WeatherNowFragment.this);
+                    wLoader = new WeatherDataLoader(location);
 
                 // Load up weather data
                 refreshWeather(forceRefresh);
@@ -1115,7 +1098,24 @@ public class WeatherNowFragment extends WindowColorFragment
                 @Override
                 public void run() {
                     if (wLoader != null && !isCtsCancelRequested())
-                        wLoader.loadWeatherData(forceRefresh);
+                        wLoader.loadWeatherData(new WeatherRequest.Builder()
+                                .forceRefresh(forceRefresh)
+                                .loadAlerts()
+                                .build())
+                                .addOnFailureListener(mActivity, new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        if (e instanceof WeatherException) {
+                                            onWeatherError((WeatherException) e);
+                                        }
+                                    }
+                                })
+                                .addOnSuccessListener(mActivity, new OnSuccessListener<Weather>() {
+                                    @Override
+                                    public void onSuccess(final Weather weather) {
+                                        onWeatherLoaded(location, weather);
+                                    }
+                                });
                 }
             });
         }
@@ -1283,7 +1283,7 @@ public class WeatherNowFragment extends WindowColorFragment
         forecastGraphAdapter.setOnClickListener(new RecyclerOnClickListenerInterface() {
             @Override
             public void onClick(View view, int position) {
-                Fragment fragment = WeatherDetailsFragment.newInstance(location, weatherView, false);
+                Fragment fragment = WeatherListFragment.newInstance(location, weatherView, WeatherListType.FORECAST);
                 Bundle args = new Bundle();
                 args.putInt(Constants.KEY_POSITION, position);
                 fragment.setArguments(args);
@@ -1300,12 +1300,12 @@ public class WeatherNowFragment extends WindowColorFragment
         });
 
         // Additional Details
-        if (weatherView.getExtras().getHourlyForecast().size() > 0) {
+        if (weatherView.getHourlyForecasts().size() > 0) {
             if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
                 RecyclerOnClickListenerInterface onClickListener = new RecyclerOnClickListenerInterface() {
                     @Override
                     public void onClick(View view, int position) {
-                        Fragment fragment = WeatherDetailsFragment.newInstance(location, weatherView, true);
+                        Fragment fragment = WeatherListFragment.newInstance(location, weatherView, WeatherListType.HOURLYFORECAST);
                         Bundle args = new Bundle();
                         args.putInt(Constants.KEY_POSITION, position);
                         fragment.setArguments(args);

@@ -7,6 +7,7 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
+import com.thewizrd.shared_resources.weatherdata.TextForecast;
 import com.thewizrd.shared_resources.weatherdata.UV;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
@@ -20,7 +21,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
     private String loTemp;
     private String conditionLongDesc;
 
-    public ForecastItemViewModel(Forecast forecast, TextForecastItemViewModel... txtForecasts) {
+    public ForecastItemViewModel(Forecast forecast, TextForecast... txtForecasts) {
         wm = WeatherManager.getInstance();
         detailExtras = new ArrayList<>();
 
@@ -144,14 +145,16 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
                 boolean dayAndNt = txtForecasts.length == 2;
                 StringBuilder sb = new StringBuilder();
 
-                TextForecastItemViewModel fctDay = txtForecasts[0];
-                sb.append(String.format(Locale.ROOT, "%s - %s", fctDay.getTitle(), fctDay.getFctText()));
+                TextForecast fctDay = txtForecasts[0];
+                sb.append(String.format(Locale.ROOT, "%s - %s", fctDay.getTitle(),
+                        Settings.isFahrenheit() ? fctDay.getFcttext() : fctDay.getFcttextMetric()));
 
                 if (dayAndNt) {
                     sb.append(StringUtils.lineSeparator()).append(StringUtils.lineSeparator());
 
-                    TextForecastItemViewModel fctNt = txtForecasts[1];
-                    sb.append(String.format(Locale.ROOT, "%s - %s", fctNt.getTitle(), fctNt.getFctText()));
+                    TextForecast fctNt = txtForecasts[1];
+                    sb.append(String.format(Locale.ROOT, "%s - %s", fctNt.getTitle(),
+                            Settings.isFahrenheit() ? fctNt.getFcttext() : fctNt.getFcttextMetric()));
                 }
 
                 conditionLongDesc = sb.toString();

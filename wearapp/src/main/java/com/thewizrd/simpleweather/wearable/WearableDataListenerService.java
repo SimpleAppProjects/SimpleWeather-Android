@@ -30,6 +30,8 @@ import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -41,11 +43,15 @@ import com.thewizrd.shared_resources.wearable.WearConnectionStatus;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.wearable.WearableSettings;
+import com.thewizrd.shared_resources.weatherdata.Forecasts;
+import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
+import com.thewizrd.shared_resources.weatherdata.HourlyForecasts;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
@@ -609,7 +615,7 @@ public class WearableDataListenerService extends WearableListenerService {
                 try (InputStream inputStream = Tasks.await(Wearable.getDataClient(this).getFdForAsset(weatherAsset)).getInputStream()) {
                     final JsonReader weatherTextReader = new JsonReader(new InputStreamReader(inputStream));
 
-                    Weather weatherData = new AsyncTask<Weather>().await(new Callable<Weather>() {
+                    final Weather weatherData = new AsyncTask<Weather>().await(new Callable<Weather>() {
                         @Override
                         public Weather call() {
                             return Weather.fromJson(weatherTextReader);
@@ -619,6 +625,15 @@ public class WearableDataListenerService extends WearableListenerService {
                     if (weatherData != null && weatherData.isValid()) {
                         Settings.saveWeatherAlerts(Settings.getHomeData(), weatherData.getWeatherAlerts());
                         Settings.saveWeatherData(weatherData);
+                        Settings.saveWeatherForecasts(new Forecasts(weatherData.getQuery(), weatherData.getForecast(), weatherData.getTxtForecast()));
+                        Settings.saveWeatherForecasts(weatherData.getQuery(), weatherData.getHrForecast() == null ? null :
+                                Collections2.transform(weatherData.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
+                                    @NullableDecl
+                                    @Override
+                                    public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
+                                        return new HourlyForecasts(weatherData.getQuery(), input);
+                                    }
+                                }));
                         Settings.setUpdateTime(LocalDateTime.now(ZoneOffset.UTC));
 
                         // Send callback to receiver

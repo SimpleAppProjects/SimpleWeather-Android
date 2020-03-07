@@ -23,6 +23,8 @@ import androidx.wear.widget.WearableLinearLayoutManager;
 
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
@@ -36,12 +38,17 @@ import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
+import com.thewizrd.shared_resources.weatherdata.Forecasts;
+import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
+import com.thewizrd.shared_resources.weatherdata.HourlyForecasts;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentLocationSearchBinding;
 import com.thewizrd.simpleweather.main.MainActivity;
+
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -241,6 +248,16 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                         if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
                             Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
                         Settings.saveWeatherData(weather);
+                        Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
+                        final Weather finalWeather = weather;
+                        Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
+                                Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
+                                    @NullableDecl
+                                    @Override
+                                    public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
+                                        return new HourlyForecasts(finalWeather.getQuery(), input);
+                                    }
+                                }));
 
                         // If we're changing locations, trigger an update
                         if (Settings.isWeatherLoaded()) {

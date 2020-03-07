@@ -10,29 +10,39 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.util.ObjectsCompat;
 import androidx.databinding.Bindable;
 
+import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.BR;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
+import com.thewizrd.shared_resources.helpers.ListChangedArgs;
+import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.WeatherIconTextSpan;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.ObservableForecastLoadingList;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
+import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
+import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
+import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Callable;
 
 public class WeatherNowViewModel extends ObservableViewModel {
     private String location;
@@ -49,10 +59,11 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private List<DetailItemViewModel> weatherDetails;
 
     // Forecast
-    private List<ForecastItemViewModel> forecasts;
+    private ObservableForecastLoadingList<ForecastItemViewModel> forecasts;
 
     // Additional Details
-    private WeatherExtrasViewModel extras;
+    private ObservableForecastLoadingList<HourlyForecastItemViewModel> hourlyForecasts;
+    private List<WeatherAlertViewModel> alerts;
 
     // Background
     private String background;
@@ -96,8 +107,18 @@ public class WeatherNowViewModel extends ObservableViewModel {
     }
 
     @Bindable
+    public List<HourlyForecastItemViewModel> getHourlyForecasts() {
+        return hourlyForecasts;
+    }
+
+    @Bindable
     public List<DetailItemViewModel> getWeatherDetails() {
         return weatherDetails;
+    }
+
+    @Bindable
+    public List<WeatherAlertViewModel> getAlerts() {
+        return alerts;
     }
 
     @Bindable
@@ -108,11 +129,6 @@ public class WeatherNowViewModel extends ObservableViewModel {
     @Bindable
     public String getSunset() {
         return sunset;
-    }
-
-    @Bindable
-    public WeatherExtrasViewModel getExtras() {
-        return extras;
     }
 
     @Bindable
@@ -146,21 +162,33 @@ public class WeatherNowViewModel extends ObservableViewModel {
     }
 
     private WeatherManager wm;
+    private Weather weather;
 
     public WeatherNowViewModel() {
         wm = WeatherManager.getInstance();
 
-        forecasts = new ArrayList<>();
+        forecasts = new ObservableForecastLoadingList<>(ForecastItemViewModel.class);
+        forecasts.addOnListChangedCallback(new OnListChangedListener<ForecastItemViewModel>() {
+            @Override
+            public void onChanged(ArrayList<ForecastItemViewModel> sender, ListChangedArgs args) {
+                notifyPropertyChanged(BR.forecasts);
+            }
+        });
+
+        hourlyForecasts = new ObservableForecastLoadingList<>(HourlyForecastItemViewModel.class);
+        hourlyForecasts.addOnListChangedCallback(new OnListChangedListener<HourlyForecastItemViewModel>() {
+            @Override
+            public void onChanged(ArrayList<HourlyForecastItemViewModel> sender, ListChangedArgs args) {
+                notifyPropertyChanged(BR.hourlyForecasts);
+            }
+        });
+
         weatherDetails = new ArrayList<>();
-        extras = new WeatherExtrasViewModel();
+        alerts = new ArrayList<>();
     }
 
     public WeatherNowViewModel(Weather weather) {
-        wm = WeatherManager.getInstance();
-
-        forecasts = new ArrayList<>();
-        weatherDetails = new ArrayList<>();
-        extras = new WeatherExtrasViewModel();
+        this();
         updateView(weather);
     }
 
@@ -179,12 +207,42 @@ public class WeatherNowViewModel extends ObservableViewModel {
     }
 
     public void updateView(Weather weather) {
-        if (weather.isValid()) {
+        if (weather != null && weather.isValid() && !ObjectsCompat.equals(this.weather, weather)) {
             Context context = SimpleLibrary.getInstance().getApp().getAppContext();
             boolean isPhone = SimpleLibrary.getInstance().getApp().isPhone();
 
+            this.weather = weather;
+
             // Update extras
-            extras.updateView(weather);
+            if (weather.getHrForecast() != null && weather.getHrForecast().size() > 0) {
+                for (final HourlyForecast hr_forecast : weather.getHrForecast()) {
+                    HourlyForecastItemViewModel hrforecastView;
+                    hrforecastView = new AsyncTask<HourlyForecastItemViewModel>().await(new Callable<HourlyForecastItemViewModel>() {
+                        @Override
+                        public HourlyForecastItemViewModel call() {
+                            return new HourlyForecastItemViewModel(hr_forecast);
+                        }
+                    });
+                    hourlyForecasts.add(hrforecastView);
+                }
+            } else {
+                // Let collection handle changes (clearing, etc.)
+                hourlyForecasts.setWeather(weather);
+            }
+            // Propertchanged
+
+            alerts.clear();
+            if (weather.getWeatherAlerts() != null && weather.getWeatherAlerts().size() > 0) {
+                for (WeatherAlert alert : weather.getWeatherAlerts()) {
+                    // Skip if alert has expired
+                    if (alert.getExpiresDate().compareTo(ZonedDateTime.now()) <= 0)
+                        continue;
+
+                    WeatherAlertViewModel alertView = new WeatherAlertViewModel(alert);
+                    alerts.add(alertView);
+                }
+            }
+            // Propertchanged
 
             // Update backgrounds
             background = wm.getWeatherBackgroundURI(weather);
@@ -363,24 +421,33 @@ public class WeatherNowViewModel extends ObservableViewModel {
             }
 
             // Add UI elements
-            forecasts.clear();
-            boolean isDayAndNt = extras.getTextForecast().size() == weather.getForecast().size() * 2;
-            boolean addTextFct = isDayAndNt || extras.getTextForecast().size() == weather.getForecast().size();
-            for (int i = 0; i < weather.getForecast().size(); i++) {
-                Forecast forecast = weather.getForecast().get(i);
-                ForecastItemViewModel forecastView;
+            if (weather.getForecast() != null && weather.getForecast().size() > 0) {
+                forecasts.clear();
 
-                if (addTextFct) {
-                    if (isDayAndNt)
-                        forecastView = new ForecastItemViewModel(forecast, extras.getTextForecast().get(i * 2), extras.getTextForecast().get((i * 2) + 1));
-                    else
-                        forecastView = new ForecastItemViewModel(forecast, extras.getTextForecast().get(i));
-                } else {
-                    forecastView = new ForecastItemViewModel(forecast);
+                int textForecastSize = weather.getTxtForecast() != null ? weather.getTxtForecast().size() : 0;
+
+                boolean isDayAndNt = textForecastSize == weather.getForecast().size() * 2;
+                boolean addTextFct = isDayAndNt || textForecastSize == weather.getForecast().size();
+                for (int i = 0; i < weather.getForecast().size(); i++) {
+                    Forecast forecast = weather.getForecast().get(i);
+                    ForecastItemViewModel forecastView;
+
+                    if (addTextFct) {
+                        if (isDayAndNt)
+                            forecastView = new ForecastItemViewModel(forecast, weather.getTxtForecast().get(i * 2), weather.getTxtForecast().get((i * 2) + 1));
+                        else
+                            forecastView = new ForecastItemViewModel(forecast, weather.getTxtForecast().get(i));
+                    } else {
+                        forecastView = new ForecastItemViewModel(forecast);
+                    }
+
+                    forecasts.add(forecastView);
                 }
-
-                forecasts.add(forecastView);
+            } else {
+                // Let collection handle changes (clearing, etc.)
+                forecasts.setWeather(weather);
             }
+            // Propertchanged
 
             // Additional Details
             weatherSource = weather.getSource();

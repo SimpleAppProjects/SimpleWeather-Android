@@ -13,10 +13,13 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.Constants;
+import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -24,25 +27,49 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.adapters.WeatherDetailsAdapter;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding;
 import com.thewizrd.simpleweather.fragments.ToolbarFragment;
 
 import java.io.StringReader;
 
-public abstract class WeatherListFragment extends ToolbarFragment {
-    protected LocationData location = null;
-    protected WeatherNowViewModel weatherView = null;
+public class WeatherListFragment extends ToolbarFragment {
+    private LocationData location = null;
+    private WeatherNowViewModel weatherView = null;
 
-    protected FragmentWeatherListBinding binding;
-    protected LinearLayoutManager layoutManager;
+    private FragmentWeatherListBinding binding;
+    private LinearLayoutManager layoutManager;
+
+    private RecyclerView.Adapter mAdapter;
+    private WeatherListType weatherType;
+
+    public static WeatherListFragment newInstance(LocationData location, WeatherNowViewModel weatherViewModel, WeatherListType type) {
+        WeatherListFragment fragment = new WeatherListFragment();
+        if (location != null && weatherViewModel != null) {
+            fragment.location = location;
+            fragment.weatherView = weatherViewModel;
+            fragment.weatherType = type;
+        }
+
+        Bundle args = new Bundle();
+        args.putInt(Constants.ARGS_WEATHERLISTTYPE, type.getValue());
+        fragment.setArguments(args);
+
+        return fragment;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (location == null && savedInstanceState != null) {
-            String json = savedInstanceState.getString(Constants.KEY_DATA, null);
-            location = LocationData.fromJson(new JsonReader(new StringReader(json)));
+        if (savedInstanceState != null) {
+            if (location == null) {
+                String json = savedInstanceState.getString(Constants.KEY_DATA, null);
+                location = LocationData.fromJson(new JsonReader(new StringReader(json)));
+            }
+            if (savedInstanceState.containsKey(Constants.ARGS_WEATHERLISTTYPE)) {
+                weatherType = WeatherListType.valueOf(savedInstanceState.getInt(Constants.ARGS_WEATHERLISTTYPE));
+            }
         }
     }
 
@@ -119,16 +146,64 @@ public abstract class WeatherListFragment extends ToolbarFragment {
             initialize();
     }
 
+    @Override
+    protected int getTitle() {
+        switch (weatherType) {
+            case FORECAST:
+            case HOURLYFORECAST:
+                return R.string.label_forecast;
+            case ALERTS:
+                return R.string.title_fragment_alerts;
+            default:
+                return R.string.label_nav_weathernow;
+        }
+    }
+
     // Initialize views here
     @CallSuper
     protected void initialize() {
         updateWindowColors();
+
+        if (location == null)
+            location = Settings.getHomeData();
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                binding.locationName.setText(location.getName());
+
+                // specify an adapter (see also next example)
+                switch (weatherType) {
+                    case FORECAST:
+                    case HOURLYFORECAST:
+                        if (binding.recyclerView.getItemDecorationCount() == 0)
+                            binding.recyclerView.addItemDecoration(new DividerItemDecoration(getAppCompatActivity(), DividerItemDecoration.VERTICAL));
+
+                        if (weatherType == WeatherListType.FORECAST)
+                            binding.recyclerView.setAdapter(new WeatherDetailsAdapter<>(weatherView.getForecasts()));
+                        else
+                            binding.recyclerView.setAdapter(new WeatherDetailsAdapter<>(weatherView.getHourlyForecasts()));
+
+                        if (getArguments() != null) {
+                            int scrollToPosition = getArguments().getInt(Constants.KEY_POSITION, 0);
+                            layoutManager.scrollToPositionWithOffset(scrollToPosition, 0);
+                        }
+                        break;
+                    case ALERTS:
+                        binding.recyclerView.setAdapter(new WeatherAlertPanelAdapter(weatherView.getAlerts()));
+                        break;
+                    default:
+                        binding.recyclerView.setAdapter(null);
+                }
+            }
+        });
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         // Save data
         outState.putString(Constants.KEY_DATA, location.toJson());
+        outState.putInt(Constants.ARGS_WEATHERLISTTYPE, weatherType.getValue());
 
         super.onSaveInstanceState(outState);
     }

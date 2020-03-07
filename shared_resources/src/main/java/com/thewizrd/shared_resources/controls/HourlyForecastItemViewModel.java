@@ -3,6 +3,9 @@ package com.thewizrd.shared_resources.controls;
 import android.text.format.DateFormat;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -20,7 +23,18 @@ import java.util.Locale;
 
 public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
 
-    public HourlyForecastItemViewModel(HourlyForecast hrForecast) {
+    private HourlyForecast forecast;
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public HourlyForecast getForecast() {
+        return forecast;
+    }
+
+    ;
+
+    public HourlyForecastItemViewModel(@NonNull HourlyForecast hrForecast) {
+        this.forecast = hrForecast;
+
         wm = WeatherManager.getInstance();
         detailExtras = new ArrayList<>();
 

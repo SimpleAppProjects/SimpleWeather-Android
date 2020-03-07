@@ -57,10 +57,14 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
@@ -83,13 +87,15 @@ import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
+import com.thewizrd.shared_resources.weatherdata.Forecasts;
+import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
+import com.thewizrd.shared_resources.weatherdata.HourlyForecasts;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
-import com.thewizrd.shared_resources.weatherdata.WeatherErrorListenerInterface;
-import com.thewizrd.shared_resources.weatherdata.WeatherLoadedListenerInterface;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.LocationPanelAdapter;
@@ -106,6 +112,8 @@ import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface;
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -113,8 +121,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public class LocationsFragment extends ToolbarFragment
-        implements WeatherLoadedListenerInterface, WeatherErrorListenerInterface, SnackbarManagerInterface {
+public class LocationsFragment extends ToolbarFragment implements SnackbarManagerInterface {
     private boolean mLoaded = false;
     private boolean mEditMode = false;
     private boolean mDataChanged = false;
@@ -189,7 +196,7 @@ public class LocationsFragment extends ToolbarFragment
             return true;
     }
 
-    public void onWeatherLoaded(final LocationData location, final Weather weather) {
+    private void onWeatherLoaded(final LocationData location, final Weather weather) {
         final List<LocationPanelViewModel> dataSet = mAdapter.getDataset();
 
         AsyncTask.run(new Runnable() {
@@ -255,8 +262,7 @@ public class LocationsFragment extends ToolbarFragment
         });
     }
 
-    @Override
-    public void onWeatherError(final WeatherException wEx) {
+    private void onWeatherError(final WeatherException wEx) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -861,8 +867,24 @@ public class LocationsFragment extends ToolbarFragment
                         AsyncTask.run(new Runnable() {
                             @Override
                             public void run() {
-                                WeatherDataLoader wLoader = new WeatherDataLoader(location, LocationsFragment.this, LocationsFragment.this);
-                                wLoader.loadWeatherData(false);
+                                WeatherDataLoader wLoader = new WeatherDataLoader(location);
+                                wLoader.loadWeatherData(new WeatherRequest.Builder()
+                                        .forceRefresh(false)
+                                        .build())
+                                        .addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                if (e instanceof WeatherException) {
+                                                    onWeatherError((WeatherException) e);
+                                                }
+                                            }
+                                        })
+                                        .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
+                                            @Override
+                                            public void onSuccess(final Weather weather) {
+                                                onWeatherLoaded(location, weather);
+                                            }
+                                        });
                             }
                         });
                     }
@@ -941,8 +963,24 @@ public class LocationsFragment extends ToolbarFragment
                         AsyncTask.run(new Runnable() {
                             @Override
                             public void run() {
-                                WeatherDataLoader wLoader = new WeatherDataLoader(view.getLocationData(), LocationsFragment.this, LocationsFragment.this);
-                                wLoader.loadWeatherData(false);
+                                WeatherDataLoader wLoader = new WeatherDataLoader(view.getLocationData());
+                                wLoader.loadWeatherData(new WeatherRequest.Builder()
+                                        .forceRefresh(false)
+                                        .build())
+                                        .addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                if (e instanceof WeatherException) {
+                                                    onWeatherError((WeatherException) e);
+                                                }
+                                            }
+                                        })
+                                        .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
+                                            @Override
+                                            public void onSuccess(final Weather weather) {
+                                                onWeatherLoaded(view.getLocationData(), weather);
+                                            }
+                                        });
                             }
                         });
                     }
@@ -956,7 +994,7 @@ public class LocationsFragment extends ToolbarFragment
             @Override
             public void run() {
                 // Setup saved favorite locations
-                LocationData gpsData = null;
+                final LocationData gpsData;
                 if (Settings.useFollowGPS()) {
                     gpsData = getGPSPanel();
 
@@ -971,14 +1009,32 @@ public class LocationsFragment extends ToolbarFragment
                             }
                         });
                     }
+                } else {
+                    gpsData = null;
                 }
 
                 if (isCtsCancelRequested())
                     return;
 
                 if (gpsData != null) {
-                    WeatherDataLoader wLoader = new WeatherDataLoader(gpsData, LocationsFragment.this, LocationsFragment.this);
-                    wLoader.loadWeatherData(false);
+                    WeatherDataLoader wLoader = new WeatherDataLoader(gpsData);
+                    wLoader.loadWeatherData(new WeatherRequest.Builder()
+                            .forceRefresh(false)
+                            .build())
+                            .addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    if (e instanceof WeatherException) {
+                                        onWeatherError((WeatherException) e);
+                                    }
+                                }
+                            })
+                            .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
+                                @Override
+                                public void onSuccess(final Weather weather) {
+                                    onWeatherLoaded(gpsData, weather);
+                                }
+                            });
                 }
             }
         });
@@ -1039,7 +1095,7 @@ public class LocationsFragment extends ToolbarFragment
                             public Location call() {
                                 Location result = null;
                                 try {
-                                    result = Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
+                                    result = AsyncTask.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
                                 } catch (Exception e) {
                                     Logger.writeLine(Log.ERROR, e);
                                 }
@@ -1414,6 +1470,16 @@ public class LocationsFragment extends ToolbarFragment
                         if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
                             Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
                         Settings.saveWeatherData(weather);
+                        Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
+                        final Weather finalWeather = weather;
+                        Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
+                                Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
+                                    @NullableDecl
+                                    @Override
+                                    public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
+                                        return new HourlyForecasts(finalWeather.getQuery(), input);
+                                    }
+                                }));
 
                         final LocationPanelViewModel panel = new LocationPanelViewModel(weather);
                         panel.setLocationData(location);

@@ -45,6 +45,7 @@ import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationBroadcastReceiver;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
@@ -264,9 +265,11 @@ public class WeatherUpdaterWorker extends Worker {
                     if (isCtsCancelRequested()) throw new InterruptedException();
 
                     WeatherDataLoader wloader = new WeatherDataLoader(Settings.getHomeData());
-                    wloader.loadWeatherData(false);
-
-                    weather = wloader.getWeather();
+                    weather = Tasks.await(wloader.loadWeatherData(new WeatherRequest.Builder()
+                            .forceRefresh(false)
+                            .loadAlerts()
+                            .loadForecasts()
+                            .build()));
 
                     if (weather != null) {
                         // Re-schedule alarm at selected interval from now

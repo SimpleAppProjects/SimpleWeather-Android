@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.CancellationToken;
@@ -12,6 +13,8 @@ import com.thewizrd.shared_resources.utils.Logger;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class AsyncTask<T> {
 
@@ -60,8 +63,16 @@ public class AsyncTask<T> {
         }
     }
 
-    public static Task<Void> create(Callable<Void> callable) {
+    public static <T> Task<T> create(Callable<T> callable) {
         return Tasks.call(Executors.newSingleThreadExecutor(), callable);
+    }
+
+    public static <T> T await(Task<T> task) throws ExecutionException, InterruptedException {
+        return Tasks.await(task);
+    }
+
+    public static <T> T await(@NonNull Task<T> task, long timeout, @NonNull TimeUnit unit) throws ExecutionException, InterruptedException, TimeoutException {
+        return Tasks.await(task, timeout, unit);
     }
 
     protected <T extends Throwable> T maskException(Throwable t) throws T {

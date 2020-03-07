@@ -36,6 +36,7 @@ import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.LaunchActivity;
 
 import org.threeten.bp.Duration;
@@ -165,13 +166,14 @@ public class WeatherComplicationService extends ComplicationProviderService {
 
                     WeatherDataLoader wloader = new WeatherDataLoader(Settings.getHomeData());
 
+                    WeatherRequest.Builder request = new WeatherRequest.Builder();
                     if (Settings.getDataSync() == WearableDataSync.OFF) {
-                        wloader.loadWeatherData(false);
+                        request.forceRefresh(false);
                     } else {
-                        wloader.forceLoadSavedWeatherData();
+                        request.forceLoadSavedData();
                     }
 
-                    weather = wloader.getWeather();
+                    weather = Tasks.await(wloader.loadWeatherData(request.build()));
 
                     if (weather != null && Settings.getDataSync() != WearableDataSync.OFF) {
                         int ttl = Settings.DEFAULTINTERVAL;

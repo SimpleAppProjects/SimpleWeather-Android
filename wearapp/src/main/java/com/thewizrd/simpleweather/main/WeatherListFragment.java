@@ -15,7 +15,6 @@ import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.simpleweather.adapters.ForecastItemAdapter;
-import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding;
 import com.thewizrd.simpleweather.fragments.SwipeDismissFragment;
 
@@ -126,27 +125,29 @@ public class WeatherListFragment extends SwipeDismissFragment {
                 switch (weatherType) {
                     default:
                     case FORECAST:
-                        mLayoutManager.setLayoutCallback(new CurvingLayoutCallback(mActivity));
-                        mAdapter = new ForecastItemAdapter(weatherView.getForecasts());
-                        break;
                     case HOURLYFORECAST:
                         mLayoutManager.setLayoutCallback(new CurvingLayoutCallback(mActivity));
-                        mAdapter = new HourlyForecastItemAdapter(weatherView.getExtras().getHourlyForecast());
+
+                        if (weatherType == WeatherListType.FORECAST)
+                            mAdapter = new ForecastItemAdapter<>(weatherView.getForecasts());
+                        else
+                            mAdapter = new ForecastItemAdapter<>(weatherView.getHourlyForecasts());
                         break;
                     case ALERTS:
                         mLayoutManager.setLayoutCallback(null);
-                        mAdapter = new WeatherAlertPanelAdapter(weatherView.getExtras().getAlerts());
+                        mAdapter = new WeatherAlertPanelAdapter(weatherView.getAlerts());
                         break;
                 }
 
                 binding.recyclerView.setAdapter(mAdapter);
             } else {
                 if (mAdapter instanceof ForecastItemAdapter) {
-                    ((ForecastItemAdapter) mAdapter).updateItems(weatherView.getForecasts());
-                } else if (mAdapter instanceof HourlyForecastItemAdapter) {
-                    ((HourlyForecastItemAdapter) mAdapter).updateItems(weatherView.getExtras().getHourlyForecast());
+                    if (weatherType == WeatherListType.FORECAST)
+                        ((ForecastItemAdapter) mAdapter).updateItems(weatherView.getForecasts());
+                    else
+                        ((ForecastItemAdapter) mAdapter).updateItems(weatherView.getHourlyForecasts());
                 } else if (mAdapter instanceof WeatherAlertPanelAdapter) {
-                    ((WeatherAlertPanelAdapter) mAdapter).updateItems(weatherView.getExtras().getAlerts());
+                    ((WeatherAlertPanelAdapter) mAdapter).updateItems(weatherView.getAlerts());
                 }
             }
         }

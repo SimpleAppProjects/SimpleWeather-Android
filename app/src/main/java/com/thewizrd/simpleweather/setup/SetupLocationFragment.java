@@ -55,6 +55,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import com.stepstone.stepper.Step;
 import com.stepstone.stepper.StepperLayout;
 import com.stepstone.stepper.VerificationError;
@@ -74,6 +76,9 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
+import com.thewizrd.shared_resources.weatherdata.Forecasts;
+import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
+import com.thewizrd.shared_resources.weatherdata.HourlyForecasts;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
@@ -85,6 +90,8 @@ import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface;
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
+
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -576,6 +583,16 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                         if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
                             Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
                         Settings.saveWeatherData(weather);
+                        Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
+                        final Weather finalWeather = weather;
+                        Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
+                                Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
+                                    @NullableDecl
+                                    @Override
+                                    public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
+                                        return new HourlyForecasts(finalWeather.getQuery(), input);
+                                    }
+                                }));
 
                         // If we're using search
                         // make sure gps feature is off
@@ -737,6 +754,16 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                         if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
                             Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
                         Settings.saveWeatherData(weather);
+                        Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
+                        final Weather finalWeather = weather;
+                        Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
+                                Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
+                                    @NullableDecl
+                                    @Override
+                                    public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
+                                        return new HourlyForecasts(finalWeather.getQuery(), input);
+                                    }
+                                }));
 
                         Settings.setFollowGPS(true);
                         Settings.setWeatherLoaded(true);

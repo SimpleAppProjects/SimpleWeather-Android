@@ -12,16 +12,20 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
-import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.ListUpdateCallback;
 import androidx.viewpager.widget.PagerAdapter;
 
+import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
+import com.thewizrd.shared_resources.helpers.ListChangedArgs;
+import com.thewizrd.shared_resources.helpers.ObservableArrayList;
+import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.ILoadingCollection;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.ObservableLoadingArrayList;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
@@ -41,6 +45,8 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
     private boolean isDarkMode;
     private int itemCount = 1;
 
+    private static final int FETCH_SIZE = 20;
+
     private Handler mMainHandler;
 
     // Cache collection for views
@@ -54,48 +60,71 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
     }
 
     public ForecastGraphPagerAdapter() {
-        this.forecasts = new ArrayList<>();
         this.mLineViewCache = new Stack<>();
         this.mMainHandler = new Handler(Looper.getMainLooper());
     }
 
     @Override
     public int getCount() {
-        int count = 1;
-
-        if (forecasts != null && forecasts.size() > 0) {
-            T first = forecasts.get(0);
-
-            if (first instanceof ForecastItemViewModel) {
-                if (!StringUtils.isNullOrWhitespace(first.getWindSpeed()) &&
-                        !StringUtils.isNullOrWhitespace(first.getPop().replace("%", ""))) {
-                    count = 3;
-                }
-            }
-
-            if (first instanceof HourlyForecastItemViewModel) {
-                if (Settings.getAPI().equals(WeatherAPI.OPENWEATHERMAP) ||
-                        Settings.getAPI().equals(WeatherAPI.METNO) ||
-                        Settings.getAPI().equals(WeatherAPI.NWS)) {
-                    count = 2;
-                } else {
-                    count = 3;
-                }
-            }
-        }
-
-        if (itemCount != count) {
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    notifyDataSetChanged();
-                }
-            });
-            itemCount = count;
-        }
-
         return itemCount;
     }
+
+    private View.OnLayoutChangeListener onLayoutChangeListener = new View.OnLayoutChangeListener() {
+        @Override
+        public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+            if (forecasts instanceof ILoadingCollection) {
+                final ILoadingCollection collection = ((ILoadingCollection) forecasts);
+
+                if (forecasts.isEmpty() && collection.hasMoreItems()) {
+                    AsyncTask.run(new Runnable() {
+                        @Override
+                        public void run() {
+                            collection.loadMoreItems(1);
+                        }
+                    });
+                }
+            }
+        }
+    };
+
+    private LineView.OnScrollChangeListener onScrollChangeListener = new LineView.OnScrollChangeListener() {
+        @Override
+        public void onScrollChange(LineView v, int scrollX, int oldScrollX) {
+            int distanceToEnd = v.getExtentWidth() - (scrollX + v.getViewportWidth());
+
+            if (distanceToEnd <= 2 * v.getViewportWidth() && forecasts instanceof ILoadingCollection) {
+                final ILoadingCollection collection = ((ILoadingCollection) forecasts);
+                if (collection.hasMoreItems() && !collection.isLoading()) {
+                    AsyncTask.run(new Runnable() {
+                        @Override
+                        public void run() {
+                            collection.loadMoreItems(FETCH_SIZE);
+                        }
+                    });
+                }
+            }
+        }
+    };
+
+    private LineView.OnSizeChangedListener onSizeChangedListener = new LineView.OnSizeChangedListener() {
+        @Override
+        public void onSizeChanged(LineView v, int canvasWidth) {
+            if (v.getViewportWidth() > 0 && canvasWidth > 0) {
+                if (canvasWidth <= v.getViewportWidth() &&
+                        forecasts instanceof ILoadingCollection) {
+                    final ILoadingCollection collection = ((ILoadingCollection) forecasts);
+                    if (collection.hasMoreItems() && !collection.isLoading()) {
+                        AsyncTask.run(new Runnable() {
+                            @Override
+                            public void run() {
+                                collection.loadMoreItems(FETCH_SIZE);
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    };
 
     @SuppressLint("ClickableViewAccessibility")
     private LineView createOrRecycleView(Context context) {
@@ -123,6 +152,10 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
             view = mLineViewCache.pop();
         }
 
+        view.addOnLayoutChangeListener(onLayoutChangeListener);
+        view.setOnScrollChangedListener(onScrollChangeListener);
+        view.setOnSizeChangedListener(onSizeChangedListener);
+
         return view;
     }
 
@@ -137,119 +170,125 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
         Context context = container.getContext();
         LineView view = createOrRecycleView(container.getContext());
 
-        switch (position) {
-            case 0:
-            default: // Temp
-                view.setDrawGridLines(false);
-                view.setDrawDotLine(false);
-                view.setDrawDataLabels(true);
-                view.setDrawIconLabels(true);
-                view.setDrawGraphBackground(true);
-                view.setDrawDotPoints(false);
+        if (forecasts != null) {
+            switch (position) {
+                case 0:
+                default: // Temp
+                    view.setDrawGridLines(false);
+                    view.setDrawDotLine(false);
+                    view.setDrawDataLabels(true);
+                    view.setDrawIconLabels(true);
+                    view.setDrawGraphBackground(true);
+                    view.setDrawDotPoints(false);
 
-                if (forecasts.size() > 0) {
-                    List<XLabelData> labelData = new ArrayList<>();
-                    List<LineDataSeries> tempDataSeries = new ArrayList<>();
-                    List<YEntryData> hiTempSeries = new ArrayList<>();
-                    List<YEntryData> loTempSeries = null;
+                    if (forecasts.size() > 0) {
+                        List<XLabelData> labelData = new ArrayList<>();
+                        List<LineDataSeries> tempDataSeries = new ArrayList<>();
+                        List<YEntryData> hiTempSeries = new ArrayList<>();
+                        List<YEntryData> loTempSeries = null;
 
-                    if (forecasts.get(0) instanceof ForecastItemViewModel) {
-                        loTempSeries = new ArrayList<>();
-                        view.setDrawSeriesLabels(true);
-                    } else {
-                        view.setDrawSeriesLabels(false);
-                    }
+                        if (forecasts.get(0) instanceof ForecastItemViewModel) {
+                            loTempSeries = new ArrayList<>();
+                            view.setDrawSeriesLabels(true);
+                        } else {
+                            view.setDrawSeriesLabels(false);
+                        }
 
-                    for (T forecastItemViewModel : forecasts) {
-                        try {
-                            float hiTemp = Float.parseFloat(StringUtils.removeNonDigitChars(forecastItemViewModel.getHiTemp()));
-                            YEntryData hiTempData = new YEntryData(hiTemp, forecastItemViewModel.getHiTemp().trim());
-                            hiTempSeries.add(hiTempData);
+                        for (int i = 0; i < forecasts.size(); i++) {
+                            T forecastItemViewModel = forecasts.get(i);
+                            try {
+                                float hiTemp = Float.parseFloat(StringUtils.removeNonDigitChars(forecastItemViewModel.getHiTemp()));
+                                YEntryData hiTempData = new YEntryData(hiTemp, forecastItemViewModel.getHiTemp().trim());
+                                hiTempSeries.add(hiTempData);
 
-                            if (loTempSeries != null && forecastItemViewModel instanceof ForecastItemViewModel) {
-                                ForecastItemViewModel fVM = (ForecastItemViewModel) forecastItemViewModel;
+                                if (loTempSeries != null && forecastItemViewModel instanceof ForecastItemViewModel) {
+                                    ForecastItemViewModel fVM = (ForecastItemViewModel) forecastItemViewModel;
 
-                                float loTemp = Float.parseFloat(StringUtils.removeNonDigitChars(fVM.getLoTemp()));
-                                YEntryData loTempData = new YEntryData(loTemp, fVM.getLoTemp().trim());
-                                loTempSeries.add(loTempData);
+                                    float loTemp = Float.parseFloat(StringUtils.removeNonDigitChars(fVM.getLoTemp()));
+                                    YEntryData loTempData = new YEntryData(loTemp, fVM.getLoTemp().trim());
+                                    loTempSeries.add(loTempData);
+                                }
+
+                                XLabelData xLabelData = new XLabelData(forecastItemViewModel.getDate(), forecastItemViewModel.getWeatherIcon(), 0);
+                                labelData.add(xLabelData);
+                            } catch (NumberFormatException ex) {
+                                Logger.writeLine(Log.DEBUG, ex);
                             }
-
-                            XLabelData xLabelData = new XLabelData(forecastItemViewModel.getDate(), forecastItemViewModel.getWeatherIcon(), 0);
-                            labelData.add(xLabelData);
-                        } catch (NumberFormatException ex) {
-                            Logger.writeLine(Log.DEBUG, ex);
                         }
-                    }
 
-                    tempDataSeries.add(new LineDataSeries(context.getString(R.string.label_high), hiTempSeries));
-                    if (loTempSeries != null) {
-                        tempDataSeries.add(new LineDataSeries(context.getString(R.string.label_low), loTempSeries));
-                    }
-                    view.setData(labelData, tempDataSeries);
-                }
-                break;
-            case 1: // Wind
-                view.setDrawGridLines(false);
-                view.setDrawDotLine(false);
-                view.setDrawDataLabels(true);
-                view.setDrawIconLabels(false);
-                view.setDrawGraphBackground(true);
-                view.setDrawDotPoints(false);
-                view.setDrawSeriesLabels(false);
-
-                if (forecasts.size() > 0) {
-                    List<XLabelData> labelData = new ArrayList<>();
-                    List<LineDataSeries> windDataList = new ArrayList<>();
-                    List<YEntryData> windDataSeries = new ArrayList<>();
-
-                    for (T forecastItemViewModel : forecasts) {
-                        try {
-                            float wind = Float.parseFloat(StringUtils.removeNonDigitChars(forecastItemViewModel.getWindSpeed()));
-                            YEntryData windData = new YEntryData(wind, forecastItemViewModel.getWindSpeed());
-
-                            windDataSeries.add(windData);
-                            XLabelData xLabelData = new XLabelData(forecastItemViewModel.getDate(), context.getString(R.string.wi_wind_direction), forecastItemViewModel.getWindDirection());
-                            labelData.add(xLabelData);
-                        } catch (NumberFormatException ex) {
-                            Logger.writeLine(Log.DEBUG, ex);
+                        tempDataSeries.add(new LineDataSeries(context.getString(R.string.label_high), hiTempSeries));
+                        if (loTempSeries != null) {
+                            tempDataSeries.add(new LineDataSeries(context.getString(R.string.label_low), loTempSeries));
                         }
+                        view.setData(labelData, tempDataSeries);
                     }
+                    break;
+                case 1: // Wind
+                    view.setDrawGridLines(false);
+                    view.setDrawDotLine(false);
+                    view.setDrawDataLabels(true);
+                    view.setDrawIconLabels(false);
+                    view.setDrawGraphBackground(true);
+                    view.setDrawDotPoints(false);
+                    view.setDrawSeriesLabels(false);
 
-                    windDataList.add(new LineDataSeries(windDataSeries));
-                    view.setData(labelData, windDataList);
-                }
-                break;
-            case 2: // PoP
-                view.setDrawGridLines(false);
-                view.setDrawDotLine(false);
-                view.setDrawDataLabels(true);
-                view.setDrawIconLabels(false);
-                view.setDrawGraphBackground(true);
-                view.setDrawDotPoints(false);
-                view.setDrawSeriesLabels(false);
+                    if (forecasts.size() > 0) {
+                        List<XLabelData> labelData = new ArrayList<>();
+                        List<LineDataSeries> windDataList = new ArrayList<>();
+                        List<YEntryData> windDataSeries = new ArrayList<>();
 
-                if (forecasts.size() > 0) {
-                    List<XLabelData> labelData = new ArrayList<>();
-                    List<LineDataSeries> popDataList = new ArrayList<>();
-                    List<YEntryData> popDataSeries = new ArrayList<>();
+                        for (int i = 0; i < forecasts.size(); i++) {
+                            T forecastItemViewModel = forecasts.get(i);
+                            try {
+                                float wind = Float.parseFloat(StringUtils.removeNonDigitChars(forecastItemViewModel.getWindSpeed()));
+                                YEntryData windData = new YEntryData(wind, forecastItemViewModel.getWindSpeed());
 
-                    for (T forecastItemViewModel : forecasts) {
-                        try {
-                            float pop = Float.parseFloat(StringUtils.removeNonDigitChars(forecastItemViewModel.getPop()));
-                            YEntryData popData = new YEntryData(pop, forecastItemViewModel.getPop().trim());
-
-                            popDataSeries.add(popData);
-                            XLabelData xLabelData = new XLabelData(forecastItemViewModel.getDate(), context.getString(R.string.wi_raindrop), 0);
-                            labelData.add(xLabelData);
-                        } catch (NumberFormatException ex) {
-                            Logger.writeLine(Log.DEBUG, ex);
+                                windDataSeries.add(windData);
+                                XLabelData xLabelData = new XLabelData(forecastItemViewModel.getDate(), context.getString(R.string.wi_wind_direction), forecastItemViewModel.getWindDirection());
+                                labelData.add(xLabelData);
+                            } catch (NumberFormatException ex) {
+                                Logger.writeLine(Log.DEBUG, ex);
+                            }
                         }
-                    }
 
-                    popDataList.add(new LineDataSeries(popDataSeries));
-                    view.setData(labelData, popDataList);
-                }
-                break;
+                        windDataList.add(new LineDataSeries(windDataSeries));
+                        view.setData(labelData, windDataList);
+                    }
+                    break;
+                case 2: // PoP
+                    view.setDrawGridLines(false);
+                    view.setDrawDotLine(false);
+                    view.setDrawDataLabels(true);
+                    view.setDrawIconLabels(false);
+                    view.setDrawGraphBackground(true);
+                    view.setDrawDotPoints(false);
+                    view.setDrawSeriesLabels(false);
+
+                    if (forecasts.size() > 0) {
+                        List<XLabelData> labelData = new ArrayList<>();
+                        List<LineDataSeries> popDataList = new ArrayList<>();
+                        List<YEntryData> popDataSeries = new ArrayList<>();
+
+                        for (int i = 0; i < forecasts.size(); i++) {
+                            T forecastItemViewModel = forecasts.get(i);
+
+                            try {
+                                float pop = Float.parseFloat(StringUtils.removeNonDigitChars(forecastItemViewModel.getPop()));
+                                YEntryData popData = new YEntryData(pop, forecastItemViewModel.getPop().trim());
+
+                                popDataSeries.add(popData);
+                                XLabelData xLabelData = new XLabelData(forecastItemViewModel.getDate(), context.getString(R.string.wi_raindrop), 0);
+                                labelData.add(xLabelData);
+                            } catch (NumberFormatException ex) {
+                                Logger.writeLine(Log.DEBUG, ex);
+                            }
+                        }
+
+                        popDataList.add(new LineDataSeries(popDataSeries));
+                        view.setData(labelData, popDataList);
+                    }
+                    break;
+            }
         }
 
         container.addView(view);
@@ -259,6 +298,9 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         LineView view = (LineView) object;
+        view.removeOnLayoutChangeListener(onLayoutChangeListener);
+        view.setOnScrollChangedListener(null);
+        view.setOnSizeChangedListener(null);
         container.removeView(view);
         mLineViewCache.push(view);
     }
@@ -282,37 +324,22 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
         return PagerAdapter.POSITION_NONE;
     }
 
-    public synchronized void updateDataset(@NonNull final List<T> dataset) {
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ForecastItemDiffCallBack(forecasts, dataset), false);
-        diffResult.dispatchUpdatesTo(new ListUpdateCallback() {
-            @Override
-            public void onInserted(int position, int count) {
-                forecasts.clear();
-                forecasts.addAll(dataset);
-                notifyDataSetChanged();
+    public void updateDataset(@NonNull final List<T> dataset) {
+        if (forecasts != dataset) {
+            // Remove handler
+            if (forecasts instanceof ObservableLoadingArrayList) {
+                ((ObservableArrayList<T>) forecasts).removeOnListChangedCallback(onListChangedListener);
             }
 
-            @Override
-            public void onRemoved(int position, int count) {
-                forecasts.clear();
-                forecasts.addAll(dataset);
-                notifyDataSetChanged();
+            forecasts = dataset;
+
+            // Add new handler
+            if (forecasts instanceof ObservableLoadingArrayList) {
+                ((ObservableArrayList<T>) forecasts).addOnListChangedCallback(onListChangedListener);
             }
 
-            @Override
-            public void onMoved(int fromPosition, int toPosition) {
-                forecasts.clear();
-                forecasts.addAll(dataset);
-                notifyDataSetChanged();
-            }
-
-            @Override
-            public void onChanged(int position, int count, @Nullable Object payload) {
-                forecasts.clear();
-                forecasts.addAll(dataset);
-                notifyDataSetChanged();
-            }
-        });
+            updateItemCount(true);
+        }
     }
 
     public void updateColors(boolean isDark) {
@@ -320,40 +347,47 @@ public class ForecastGraphPagerAdapter<T extends BaseForecastItemViewModel> exte
         notifyDataSetChanged();
     }
 
-    private class ForecastItemDiffCallBack extends DiffUtil.Callback {
+    private void updateItemCount(boolean notify) {
+        if (forecasts != null && forecasts.size() > 0) {
+            int count = 1;
+            T first = forecasts.get(0);
 
-        private List<T> oldList;
-        private List<T> newList;
+            if (first instanceof ForecastItemViewModel) {
+                if (!StringUtils.isNullOrWhitespace(first.getWindSpeed()) &&
+                        !StringUtils.isNullOrWhitespace(first.getPop().replace("%", ""))) {
+                    count = 3;
+                }
+            }
 
-        public ForecastItemDiffCallBack(@NonNull List<T> oldList, @NonNull List<T> newList) {
-            this.oldList = oldList;
-            this.newList = newList;
-        }
+            if (first instanceof HourlyForecastItemViewModel) {
+                if (Settings.getAPI().equals(WeatherAPI.OPENWEATHERMAP) ||
+                        Settings.getAPI().equals(WeatherAPI.METNO) ||
+                        Settings.getAPI().equals(WeatherAPI.NWS)) {
+                    count = 2;
+                } else {
+                    count = 3;
+                }
+            }
 
-        @Override
-        public int getOldListSize() {
-            return oldList.size();
-        }
-
-        @Override
-        public int getNewListSize() {
-            return newList.size();
-        }
-
-        @Override
-        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-            return oldList.get(oldItemPosition).getDate().equals(newList.get(newItemPosition).getDate());
-        }
-
-        @Override
-        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-            return oldList.get(oldItemPosition).equals(newList.get(newItemPosition));
-        }
-
-        @Nullable
-        @Override
-        public Object getChangePayload(int oldItemPosition, int newItemPosition) {
-            return super.getChangePayload(oldItemPosition, newItemPosition);
+            if (count != itemCount) {
+                itemCount = count;
+                if (notify) notifyDataSetChanged();
+            }
         }
     }
+
+    private OnListChangedListener<T> onListChangedListener = new OnListChangedListener<T>() {
+        @Override
+        public void onChanged(ArrayList<T> sender, ListChangedArgs args) {
+            if (forecasts instanceof ILoadingCollection) {
+                mMainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateItemCount(false);
+                        notifyDataSetChanged();
+                    }
+                });
+            }
+        }
+    };
 }

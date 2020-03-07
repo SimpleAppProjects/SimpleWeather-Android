@@ -20,7 +20,7 @@ public class WeatherAlertPanelAdapter extends RecyclerView.Adapter {
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
-    class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         private WeatherAlertPanel mAlertPanel;
 
         public ViewHolder(WeatherAlertPanel v) {
@@ -35,7 +35,7 @@ public class WeatherAlertPanelAdapter extends RecyclerView.Adapter {
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public WeatherAlertPanelAdapter(List<WeatherAlertViewModel> myDataset) {
-        mDataset = new ArrayList<>(myDataset);
+        mDataset = myDataset;
     }
 
     @SuppressLint("NewApi")

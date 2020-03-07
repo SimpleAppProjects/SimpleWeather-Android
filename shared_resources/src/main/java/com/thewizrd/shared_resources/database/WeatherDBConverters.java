@@ -116,6 +116,16 @@ public class WeatherDBConverters {
     }
 
     @TypeConverter
+    public static HourlyForecast hrforecastFromJson(String value) {
+        return value == null ? null : HourlyForecast.fromJson(new JsonReader(new StringReader(value)));
+    }
+
+    @TypeConverter
+    public static String hrforecastToJson(HourlyForecast value) {
+        return value == null ? null : value.toJson();
+    }
+
+    @TypeConverter
     public static List<HourlyForecast> hrforecastArrfromJson(String value) {
         if (value == null)
             return null;

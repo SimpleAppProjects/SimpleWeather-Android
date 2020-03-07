@@ -417,7 +417,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
                 @Override
                 public List<NavDrawerItem> call() {
                     List<NavDrawerItem> items = new ArrayList<>(navDrawerItems);
-                    if (weatherNowView.getExtras().getAlerts().size() == 0) {
+                    if (weatherNowView.getAlerts().size() == 0) {
                         List<NavDrawerItem> tmp = new ArrayList<>();
                         for (NavDrawerItem item : items) {
                             if (item.titleString != R.string.title_fragment_alerts)
@@ -425,7 +425,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
                         }
                         items = tmp;
                     }
-                    if (weatherNowView.getExtras().getHourlyForecast().size() == 0) {
+                    if (weatherNowView.getHourlyForecasts().size() == 0) {
                         List<NavDrawerItem> tmp = new ArrayList<>();
                         for (NavDrawerItem item : items) {
                             if (item.titleString != R.string.label_hourlyforecast)

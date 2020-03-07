@@ -22,10 +22,12 @@ import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
 
+import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -42,6 +44,25 @@ public class LineView extends HorizontalScrollView {
     private RectF visibleRect;
     private LineViewGraph graph;
     private OnClickListener onClickListener;
+
+    public interface OnScrollChangeListener {
+        /**
+         * Called when the scroll position of a view changes.
+         *
+         * @param v          The view whose scroll position has changed.
+         * @param scrollX    Current horizontal scroll origin.
+         * @param oldScrollX Previous horizontal scroll origin.
+         */
+        void onScrollChange(LineView v, int scrollX, int oldScrollX);
+    }
+
+    private OnScrollChangeListener mOnScrollChangeListener;
+
+    public interface OnSizeChangedListener {
+        void onSizeChanged(LineView v, int canvasWidth);
+    }
+
+    private OnSizeChangedListener mOnSizeChangedListener;
 
     public LineView(Context context) {
         super(context);
@@ -67,6 +88,22 @@ public class LineView extends HorizontalScrollView {
     @Override
     public void setOnClickListener(OnClickListener onClickListener) {
         this.onClickListener = onClickListener;
+    }
+
+    /**
+     * Register a callback to be invoked when the scroll X of
+     * this view change.
+     * <p>This version of the method works on all versions of Android, back to API v4.</p>
+     *
+     * @param l The listener to notify when the scroll X position changes.
+     * @see android.view.View#getScrollX()
+     */
+    public void setOnScrollChangedListener(@Nullable OnScrollChangeListener l) {
+        mOnScrollChangeListener = l;
+    }
+
+    public void setOnSizeChangedListener(@Nullable OnSizeChangedListener l) {
+        mOnSizeChangedListener = l;
     }
 
     private void initialize(Context context) {
@@ -118,8 +155,11 @@ public class LineView extends HorizontalScrollView {
     }
 
     public void setData(List<XLabelData> dataLabels, List<LineDataSeries> dataLists) {
-        this.graph.setDataLabels(dataLabels);
-        this.graph.setDataList(dataLists);
+        if (!Iterables.elementsEqual(this.graph.dataLabels, dataLabels) &&
+                !Iterables.elementsEqual(this.graph.dataLists, dataLists)) {
+            this.graph.setDataLabels(dataLabels);
+            this.graph.setDataList(dataLists);
+        }
     }
 
     public void setBackgroundLineColor(@ColorInt int color) {
@@ -144,6 +184,9 @@ public class LineView extends HorizontalScrollView {
         if (visibleRect == null) visibleRect = new RectF();
         visibleRect.set(scrollX, scrollY, scrollX + this.getWidth(), scrollY + this.getHeight());
         this.graph.invalidate();
+        if (mOnScrollChangeListener != null) {
+            mOnScrollChangeListener.onScrollChange(this, scrollX, oldScrollX);
+        }
     }
 
     @Override
@@ -159,6 +202,14 @@ public class LineView extends HorizontalScrollView {
 
         // Invalidate the visible rect
         visibleRect = null;
+    }
+
+    public int getExtentWidth() {
+        return computeHorizontalScrollRange();
+    }
+
+    public int getViewportWidth() {
+        return getMeasuredWidth();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -179,6 +230,7 @@ public class LineView extends HorizontalScrollView {
     private class LineViewGraph extends View {
         private int mViewHeight;
         private int mViewWidth;
+        private int mCanvasWidth;
         // Containers to check if we're drawing w/in bounds
         private RectF drawingRect;
         private float drwTextWidth;
@@ -474,6 +526,7 @@ public class LineView extends HorizontalScrollView {
             visibleRect = null;
         }
 
+        @SuppressLint("CanvasSize")
         @Override
         protected void onDraw(Canvas canvas) {
             if (drawingRect == null) drawingRect = new RectF();
@@ -788,6 +841,8 @@ public class LineView extends HorizontalScrollView {
             refreshGridWidth();
             refreshAfterDataChanged();
             setMeasuredDimension(mViewWidth, mViewHeight);
+            if (mOnSizeChangedListener != null)
+                mOnSizeChangedListener.onSizeChanged(LineView.this, Math.max(getPreferredWidth(), mScrollViewer.getWidth()));
         }
 
         private int getPreferredWidth() {

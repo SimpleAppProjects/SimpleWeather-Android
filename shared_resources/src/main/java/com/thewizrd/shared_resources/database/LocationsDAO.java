@@ -36,8 +36,7 @@ public interface LocationsDAO {
     public List<LocationData> loadAllLocationData();
 
     @Transaction
-    @Query("SELECT locations.`query`, locations.`name`, locations.`latitude`," +
-            " locations.`longitude`, locations.`tz_long`, locations.`locationType`, locations.`source`, locations.`locsource` FROM locations" +
+    @Query("SELECT locations.* FROM locations" +
             " INNER JOIN favorites ON locations.`query` = favorites.`query`" +
             " ORDER BY favorites.position")
     public List<LocationData> getFavorites();
@@ -68,8 +67,8 @@ public interface LocationsDAO {
     @Query("SELECT * FROM favorites")
     public List<Favorites> loadAllFavorites();
 
-    @Query("SELECT * FROM favorites WHERE `query` = :query")
-    public List<Favorites> getFavoritesData(String query);
+    @Query("SELECT * FROM favorites WHERE `query` = :query LIMIT 1")
+    public Favorites getFavorite(String query);
 
     @Transaction
     @Query("SELECT * FROM favorites ORDER BY `position`")

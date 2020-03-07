@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity
             int backstackCount = getSupportFragmentManager().getBackStackEntryCount();
             if (current != null
                     && (current.getClass().getName().contains(SettingsFragment.class.getName() + "$")
-                    || current instanceof WeatherAlertsFragment || current instanceof WeatherDetailsFragment)) {
+                    || current instanceof WeatherListFragment)) {
                 getSupportFragmentManager().popBackStack();
             } else if (backstackCount >= 1) { // If backstack entry exists pop all and goto first (home) fragment
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -237,7 +237,7 @@ public class MainActivity extends AppCompatActivity
                                 .commitAllowingStateLoss();
                     }
                     // If current frag is Weather(Alerts||Details)Fragment remove it
-                    if (current instanceof WeatherAlertsFragment || current instanceof WeatherDetailsFragment) {
+                    if (current instanceof WeatherListFragment) {
                         getSupportFragmentManager().beginTransaction()
                                 .remove(current)
                                 .commitAllowingStateLoss();
@@ -334,7 +334,7 @@ public class MainActivity extends AppCompatActivity
             checkedItemId = R.id.nav_weathernow;
         } else if (fragment instanceof LocationsFragment) {
             checkedItemId = R.id.nav_locations;
-        } else if (fragment instanceof WeatherAlertsFragment || fragment instanceof WeatherDetailsFragment) {
+        } else if (fragment instanceof WeatherListFragment) {
             checkedItemId = R.id.nav_weathernow;
         } else if (fragment != null && fragment.getClass().getName().contains(SettingsFragment.class.getName())) {
             checkedItemId = R.id.nav_settings;
