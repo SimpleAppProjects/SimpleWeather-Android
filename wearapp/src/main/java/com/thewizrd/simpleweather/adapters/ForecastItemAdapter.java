@@ -21,6 +21,7 @@ import com.thewizrd.shared_resources.helpers.ListDiffUtilCallback;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.utils.ILoadingCollection;
 import com.thewizrd.shared_resources.utils.ObservableLoadingArrayList;
+import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.databinding.WeatherForecastPanelBinding;
 import com.thewizrd.simpleweather.databinding.WeatherHrforecastPanelBinding;
 
@@ -215,7 +216,7 @@ public class ForecastItemAdapter<T extends BaseForecastItemViewModel> extends Re
     private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
         // The minimum amount of items to have below your current scroll position
         // before loading more.
-        private static final int DEFAULT_FETCH_SIZE = 20;
+        private final int DEFAULT_FETCH_SIZE = (int) (5 * App.getInstance().getAppContext().getResources().getDisplayMetrics().scaledDensity);
         private int visibleThreshold = DEFAULT_FETCH_SIZE;
         // The total number of items in the dataset after the last load
         private int previousTotalItemCount = 0;
@@ -263,13 +264,13 @@ public class ForecastItemAdapter<T extends BaseForecastItemViewModel> extends Re
                 // get min and maximum element within the list
                 firstVisibleItemPosition = getFirstVisibleItem(firstVisibleItemPositions);
                 lastVisibleItemPosition = getLastVisibleItem(lastVisibleItemPositions);
-                visibleThreshold = Math.max(lastVisibleItemPosition - firstVisibleItemPosition, DEFAULT_FETCH_SIZE);
+                visibleThreshold = Math.min(lastVisibleItemPosition - firstVisibleItemPosition, DEFAULT_FETCH_SIZE);
             } else if (mLayoutMgr instanceof LinearLayoutManager) {
                 LinearLayoutManager linLayoutMgr = ((LinearLayoutManager) mLayoutMgr);
                 // get min and maximum element within the list
                 firstVisibleItemPosition = linLayoutMgr.findFirstVisibleItemPosition();
                 lastVisibleItemPosition = linLayoutMgr.findLastVisibleItemPosition();
-                visibleThreshold = Math.max(lastVisibleItemPosition - firstVisibleItemPosition, DEFAULT_FETCH_SIZE);
+                visibleThreshold = Math.min(lastVisibleItemPosition - firstVisibleItemPosition, DEFAULT_FETCH_SIZE);
             }
 
             // If the total item count is zero and the previous isn't, assume the

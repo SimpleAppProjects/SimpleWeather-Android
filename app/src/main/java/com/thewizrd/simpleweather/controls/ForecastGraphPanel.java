@@ -37,6 +37,7 @@ import com.thewizrd.shared_resources.utils.ObservableLoadingArrayList;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
+import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.lineview.LineDataSeries;
 import com.thewizrd.simpleweather.controls.lineview.LineView;
@@ -55,7 +56,7 @@ public class ForecastGraphPanel extends LinearLayout {
     private List<BaseForecastItemViewModel> forecasts;
 
     private boolean isDarkMode;
-    private static final int FETCH_SIZE = 20;
+    private final int FETCH_SIZE = (int) (5 * App.getInstance().getAppContext().getResources().getDisplayMetrics().scaledDensity);
 
     private enum GraphType {
         FORECASTS,
