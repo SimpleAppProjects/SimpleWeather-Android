@@ -77,8 +77,8 @@ public class Condition {
         tempF = Float.parseFloat(observation.getCondition().getTemperature());
         tempC = Float.parseFloat(ConversionMethods.FtoC((observation.getCondition().getTemperature())));
         windDegrees = Integer.parseInt(observation.getWind().getDirection());
-        windKph = Float.parseFloat(observation.getWind().getSpeed());
-        windMph = Float.parseFloat(ConversionMethods.kphTomph(observation.getWind().getSpeed()));
+        windMph = Float.parseFloat(observation.getWind().getSpeed());
+        windKph = Float.parseFloat(ConversionMethods.mphTokph(observation.getWind().getSpeed()));
         feelslikeF = Float.parseFloat(observation.getWind().getChill());
         feelslikeC = Float.parseFloat(ConversionMethods.FtoC(observation.getWind().getChill()));
         icon = WeatherManager.getProvider(WeatherAPI.YAHOO)

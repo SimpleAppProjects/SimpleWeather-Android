@@ -62,11 +62,11 @@ public class Atmosphere {
 
     public Atmosphere(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Atmosphere atmosphere) {
         humidity = atmosphere.getHumidity();
-        pressureMb = atmosphere.getPressure();
-        pressureIn = ConversionMethods.mbToInHg(pressureMb);
+        pressureIn = atmosphere.getPressure();
+        pressureMb = ConversionMethods.inHgToMB(atmosphere.getPressure());
         pressureTrend = atmosphere.getRising();
-        visibilityKm = atmosphere.getVisibility();
-        visibilityMi = ConversionMethods.kmToMi(visibilityKm);
+        visibilityMi = atmosphere.getVisibility();
+        visibilityKm = ConversionMethods.miToKm(atmosphere.getVisibility());
     }
 
     public Atmosphere(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
