@@ -37,7 +37,7 @@ public class ObservableForecastLoadingList<T extends BaseForecastItemViewModel> 
     }
 
     @Override
-    public long loadMoreItems(final long count) {
+    public synchronized long loadMoreItems(final long count) {
         long resultCount = 0;
 
         if (weather != null) {

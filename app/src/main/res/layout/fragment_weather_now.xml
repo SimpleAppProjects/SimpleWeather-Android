@@ -324,7 +324,7 @@
                             android:textColor="@android:color/white"
                             android:textStyle="bold"
                             app:darkModeEnabled="@{!weatherView.lightBackground}"
-                            app:layout_constraintBottom_toTopOf="@id/forecast_viewpgr"
+                            app:layout_constraintBottom_toTopOf="@id/forecast_graph_panel"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -339,31 +339,18 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/forecast_viewpgr" />
+                            app:layout_constraintTop_toBottomOf="@id/forecast_graph_panel" />
 
-                        <androidx.viewpager.widget.ViewPager
-                            android:id="@+id/forecast_viewpgr"
+                        <com.thewizrd.simpleweather.controls.ForecastGraphPanel
+                            android:id="@+id/forecast_graph_panel"
                             android:layout_width="match_parent"
-                            android:layout_height="@dimen/forecast_panel_height"
-                            android:layout_marginTop="20dp"
+                            android:layout_height="wrap_content"
                             app:darkModeEnabled="@{!weatherView.lightBackground}"
                             app:forecast_data="@{weatherView.forecasts}"
                             app:layout_constraintTop_toBottomOf="@id/forecast_label"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintBottom_toTopOf="@id/forecast_border">
-
-                            <androidx.viewpager.widget.PagerTabStrip
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="bottom"
-                                android:paddingTop="20dp"
-                                android:paddingBottom="10dp"
-                                android:textColor="@android:color/white"
-                                android:textAppearance="@style/PagerTabTitleStyle"
-                                app:darkModeEnabled="@{!weatherView.lightBackground}" />
-
-                        </androidx.viewpager.widget.ViewPager>
+                            app:layout_constraintBottom_toTopOf="@id/forecast_border" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -403,31 +390,19 @@
                             app:darkModeEnabled="@{!weatherView.lightBackground}"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent" />
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/hourly_forecast_graph_panel" />
 
-                        <androidx.viewpager.widget.ViewPager
-                            android:id="@+id/hourly_forecast_viewpgr"
+                        <com.thewizrd.simpleweather.controls.ForecastGraphPanel
+                            android:id="@+id/hourly_forecast_graph_panel"
                             android:layout_width="match_parent"
-                            android:layout_height="@dimen/hrforecast_panel_height"
-                            android:layout_marginTop="20dp"
+                            android:layout_height="wrap_content"
                             app:darkModeEnabled="@{!weatherView.lightBackground}"
                             app:forecast_data="@{weatherView.hourlyForecasts}"
                             app:layout_constraintTop_toBottomOf="@id/hourly_forecast_label"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintBottom_toTopOf="@id/hourly_forecast_border">
-
-                            <androidx.viewpager.widget.PagerTabStrip
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="bottom"
-                                android:paddingTop="20dp"
-                                android:paddingBottom="10dp"
-                                android:textColor="@android:color/white"
-                                android:textAppearance="@style/PagerTabTitleStyle"
-                                app:darkModeEnabled="@{!weatherView.lightBackground}" />
-
-                        </androidx.viewpager.widget.ViewPager>
+                            app:layout_constraintBottom_toTopOf="@id/hourly_forecast_border" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -61,7 +61,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.PagerTabStrip;
-import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DecodeFormat;
@@ -108,7 +107,7 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.ColorModeRecyclerViewAdapter;
 import com.thewizrd.simpleweather.adapters.DetailItemAdapter;
-import com.thewizrd.simpleweather.adapters.ForecastGraphPagerAdapter;
+import com.thewizrd.simpleweather.controls.ForecastGraphPanel;
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView;
 import com.thewizrd.simpleweather.controls.SunPhaseView;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding;
@@ -160,8 +159,6 @@ public class WeatherNowFragment extends WindowColorFragment {
     private FragmentWeatherNowBinding binding;
     private DetailItemAdapter detailsAdapter;
     private GridLayoutManager mLayoutManager;
-    private ForecastGraphPagerAdapter forecastGraphAdapter;
-    private ForecastGraphPagerAdapter hrGraphAdapter;
 
     // GPS location
     private FusedLocationProviderClient mFusedLocationClient;
@@ -694,14 +691,8 @@ public class WeatherNowFragment extends WindowColorFragment {
         });
 
         // Forecast
-        forecastGraphAdapter = new ForecastGraphPagerAdapter();
-        binding.forecastViewpgr.setAdapter(forecastGraphAdapter);
-        binding.forecastViewpgr.setOffscreenPageLimit(1);
         // Additional Details
         binding.hourlyForecastPanel.setVisibility(View.GONE);
-        hrGraphAdapter = new ForecastGraphPagerAdapter();
-        binding.hourlyForecastViewpgr.setAdapter(hrGraphAdapter);
-        binding.hourlyForecastViewpgr.setOffscreenPageLimit(1);
 
         // Alerts
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -1280,7 +1271,7 @@ public class WeatherNowFragment extends WindowColorFragment {
             }
         });
 
-        forecastGraphAdapter.setOnClickListener(new RecyclerOnClickListenerInterface() {
+        binding.forecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
             @Override
             public void onClick(View view, int position) {
                 Fragment fragment = WeatherListFragment.newInstance(location, weatherView, WeatherListType.FORECAST);
@@ -1302,7 +1293,7 @@ public class WeatherNowFragment extends WindowColorFragment {
         // Additional Details
         if (weatherView.getHourlyForecasts().size() > 0) {
             if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
-                RecyclerOnClickListenerInterface onClickListener = new RecyclerOnClickListenerInterface() {
+                binding.hourlyForecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
                     @Override
                     public void onClick(View view, int position) {
                         Fragment fragment = WeatherListFragment.newInstance(location, weatherView, WeatherListType.HOURLYFORECAST);
@@ -1319,12 +1310,10 @@ public class WeatherNowFragment extends WindowColorFragment {
                                     .commit();
                         }
                     }
-                };
-
-                hrGraphAdapter.setOnClickListener(onClickListener);
+                });
             }
         } else {
-            hrGraphAdapter.setOnClickListener(null);
+            binding.hourlyForecastGraphPanel.setOnClickPositionListener(null);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -1564,11 +1553,8 @@ public class WeatherNowFragment extends WindowColorFragment {
         }
 
         @BindingAdapter("forecast_data")
-        @SuppressWarnings("unchecked")
-        public <T extends BaseForecastItemViewModel> void updateForecastGraph(ViewPager view, List<T> forecasts) {
-            if (view.getAdapter() instanceof ForecastGraphPagerAdapter) {
-                ((ForecastGraphPagerAdapter<T>) view.getAdapter()).updateDataset(forecasts);
-            }
+        public <T extends BaseForecastItemViewModel> void updateForecastGraph(ForecastGraphPanel view, List<T> forecasts) {
+            view.updateForecasts((List<BaseForecastItemViewModel>) forecasts);
         }
 
         /* BindingAdapters for dark mode (text color for views) */
@@ -1595,11 +1581,9 @@ public class WeatherNowFragment extends WindowColorFragment {
         }
 
         @BindingAdapter("darkModeEnabled")
-        public void updateForecastGraphColors(ViewPager view, boolean enabled) {
-            if (view.getAdapter() instanceof ForecastGraphPagerAdapter) {
-                boolean enableDarkMode = enabled || AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES;
-                ((ForecastGraphPagerAdapter) view.getAdapter()).updateColors(enableDarkMode);
-            }
+        public void updateForecastGraphColors(ForecastGraphPanel view, boolean enabled) {
+            boolean enableDarkMode = enabled || AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES;
+            view.updateColors(enableDarkMode);
         }
 
         @BindingAdapter("darkMode")

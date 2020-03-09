@@ -1601,7 +1601,7 @@ public class LocationsFragment extends ToolbarFragment implements SnackbarManage
 
     private OnListChangedListener<LocationPanelViewModel> onListChangedListener = new OnListChangedListener<LocationPanelViewModel>() {
         @Override
-        public void onChanged(final ArrayList<LocationPanelViewModel> sender, final ListChangedArgs e) {
+        public void onChanged(final ArrayList<LocationPanelViewModel> sender, final ListChangedArgs<LocationPanelViewModel> e) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

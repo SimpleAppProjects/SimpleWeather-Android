@@ -27,9 +27,11 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
 
-import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
+import com.thewizrd.shared_resources.helpers.ListChangedArgs;
+import com.thewizrd.shared_resources.helpers.ObservableArrayList;
+import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.R;
@@ -154,14 +156,6 @@ public class LineView extends HorizontalScrollView {
         this.graph.drawSeriesLabels = drawSeriesLabels;
     }
 
-    public void setData(List<XLabelData> dataLabels, List<LineDataSeries> dataLists) {
-        if (!Iterables.elementsEqual(this.graph.dataLabels, dataLabels) &&
-                !Iterables.elementsEqual(this.graph.dataLists, dataLists)) {
-            this.graph.setDataLabels(dataLabels);
-            this.graph.setDataList(dataLists);
-        }
-    }
-
     public void setBackgroundLineColor(@ColorInt int color) {
         this.graph.BACKGROUND_LINE_COLOR = color;
     }
@@ -183,7 +177,6 @@ public class LineView extends HorizontalScrollView {
         super.onScrollChanged(scrollX, scrollY, oldScrollX, oldScrollY);
         if (visibleRect == null) visibleRect = new RectF();
         visibleRect.set(scrollX, scrollY, scrollX + this.getWidth(), scrollY + this.getHeight());
-        this.graph.invalidate();
         if (mOnScrollChangeListener != null) {
             mOnScrollChangeListener.onScrollChange(this, scrollX, oldScrollX);
         }
@@ -222,6 +215,18 @@ public class LineView extends HorizontalScrollView {
         return this.graph.getItemPositionFromPoint(xCoordinate);
     }
 
+    public List<XLabelData> getDataLabels() {
+        return this.graph.dataLabels;
+    }
+
+    public List<LineDataSeries> getDataLists() {
+        return this.graph.dataLists;
+    }
+
+    public void resetData() {
+        this.graph.resetData();
+    }
+
     /*
      *  Multi-series line graph
      *  Based on LineView from http://www.androidtrainee.com/draw-android-line-chart-with-animation/
@@ -230,18 +235,19 @@ public class LineView extends HorizontalScrollView {
     private class LineViewGraph extends View {
         private int mViewHeight;
         private int mViewWidth;
-        private int mCanvasWidth;
         // Containers to check if we're drawing w/in bounds
         private RectF drawingRect;
         private float drwTextWidth;
         //drawBackground
         private int dataOfAGird = 10;
         private float bottomTextHeight = 0;
-        private List<XLabelData> dataLabels; // X
-        private List<LineDataSeries> dataLists; // Y data
+        private ObservableArrayList<XLabelData> dataLabels; // X
+        private ObservableArrayList<LineDataSeries> dataLists; // Y data
 
         private List<Float> xCoordinateList;
         private List<Float> yCoordinateList;
+        private float horizontalGridNum;
+        private float verticalGridNum;
 
         private List<List<Dot>> drawDotLists;
 
@@ -257,6 +263,8 @@ public class LineView extends HorizontalScrollView {
         private final float DOT_OUTER_CIR_RADIUS = ActivityUtils.dpToPx(getContext(), 5);
         private final float MIN_TOP_LINE_LENGTH = ActivityUtils.dpToPx(getContext(), 12);
         private final float LEGEND_MARGIN_HEIGHT = ActivityUtils.dpToPx(getContext(), 20);
+        private final int MIN_VERTICAL_GRID_NUM = 4;
+        private final int MIN_HORIZONTAL_GRID_NUM = 1;
         private int BACKGROUND_LINE_COLOR = Colors.WHITESMOKE;
         private int BOTTOM_TEXT_COLOR = Colors.WHITE;
         private int LINE_COLOR = Colors.BLACK;
@@ -283,11 +291,16 @@ public class LineView extends HorizontalScrollView {
         LineViewGraph(Context context, AttributeSet attrs) {
             super(context, attrs);
             bottomTextPaint = new Paint();
-            dataLabels = new ArrayList<>();
-            dataLists = new ArrayList<>();
+            dataLabels = new ObservableArrayList<>();
+            dataLists = new ObservableArrayList<>();
             xCoordinateList = new ArrayList<>();
             yCoordinateList = new ArrayList<>();
             drawDotLists = new ArrayList<>();
+
+            horizontalGridNum = MIN_HORIZONTAL_GRID_NUM;
+            verticalGridNum = MIN_VERTICAL_GRID_NUM;
+            dataLabels.addOnListChangedCallback(onXLabelDataChangedListener);
+            dataLists.addOnListChangedCallback(onLineDataSeriesChangedListener);
 
             bottomTextPaint.setAntiAlias(true);
             bottomTextPaint.setTextSize(ActivityUtils.dpToPx(getContext(), 12));
@@ -322,81 +335,125 @@ public class LineView extends HorizontalScrollView {
             return graphHeight;
         }
 
-        private void setDataLabels(List<XLabelData> dataLabels) {
-            this.dataLabels.clear();
-
-            if (dataLabels != null) {
-                this.dataLabels.addAll(dataLabels);
-            }
-
-            if (!drawIconsLabels && dataLabels != null && dataLabels.size() > 0 && !TextUtils.isEmpty(dataLabels.get(0).getIcon()))
-                drawIconsLabels = true;
-            else if (drawIconsLabels && (dataLabels == null || dataLabels.size() <= 0))
-                drawIconsLabels = false;
-
-            Rect r = new Rect();
-            int longestWidth = 0;
-            String longestStr = "";
-            bottomTextDescent = 0;
-            longestTextWidth = 0;
-            for (XLabelData labelData : this.dataLabels) {
-                String s = labelData.getLabel().toString();
-                bottomTextPaint.getTextBounds(s, 0, s.length(), r);
-                if (bottomTextHeight < r.height()) {
-                    bottomTextHeight = r.height();
-                }
-                if (longestWidth < r.width()) {
-                    longestWidth = r.width();
-                    longestStr = s;
-                }
-                if (bottomTextDescent < (Math.abs(r.bottom))) {
-                    bottomTextDescent = Math.abs(r.bottom);
-                }
-            }
-
-            if (longestTextWidth < longestWidth) {
-                longestTextWidth = longestWidth + (int) bottomTextPaint.measureText(longestStr, 0, 1);
-            }
-            if (sideLineLength < longestWidth / 2f) {
-                sideLineLength = longestWidth / 2f;
-            }
-
-            backgroundGridWidth = longestTextWidth;
-
-            refreshXCoordinateList(getHorizontalGridNum());
-        }
-
-        private void setDataList(List<LineDataSeries> dataLists) {
+        private void resetData() {
             this.dataLists.clear();
-
-            if (dataLists != null) {
-                this.dataLists.addAll(dataLists);
-            }
-
-            for (LineDataSeries series : this.dataLists) {
-                if (series.getSeriesData().size() > dataLabels.size()) {
-                    throw new RuntimeException("LineView error:" +
-                            " seriesData.size() > dataLabels.size() !!!");
-                }
-            }
-            float biggestData = 0;
-            for (LineDataSeries series : this.dataLists) {
-                for (YEntryData i : series.getSeriesData()) {
-                    if (biggestData < i.getY()) {
-                        biggestData = i.getY();
-                    }
-                }
-                dataOfAGird = 1;
-                while (biggestData / 10 > dataOfAGird) {
-                    dataOfAGird *= 10;
-                }
-            }
-
-            refreshAfterDataChanged();
-            setMinimumWidth(0); // It can help the LineView reset the Width,
-            // I don't know the better way..
-            postInvalidate();
+            this.dataLabels.clear();
         }
+
+        private OnListChangedListener<XLabelData> onXLabelDataChangedListener = new OnListChangedListener<XLabelData>() {
+            @Override
+            public void onChanged(ArrayList<XLabelData> sender, ListChangedArgs<XLabelData> args) {
+                switch (args.action) {
+                    case ADD:
+                        if (!drawIconsLabels && dataLabels != null && dataLabels.size() > 0 && !TextUtils.isEmpty(dataLabels.get(0).getIcon()))
+                            drawIconsLabels = true;
+                        else if (drawIconsLabels && (dataLabels == null || dataLabels.size() <= 0))
+                            drawIconsLabels = false;
+
+                        Rect r = new Rect();
+                        int longestWidth = 0;
+                        String longestStr = "";
+
+                        for (XLabelData labelData : args.newItems) {
+                            String s = labelData.getLabel().toString();
+                            bottomTextPaint.getTextBounds(s, 0, s.length(), r);
+                            if (bottomTextHeight < r.height()) {
+                                bottomTextHeight = r.height();
+                            }
+                            if (longestWidth < r.width()) {
+                                longestWidth = r.width();
+                                longestStr = s;
+                            }
+                            if (bottomTextDescent < (Math.abs(r.bottom))) {
+                                bottomTextDescent = Math.abs(r.bottom);
+                            }
+
+                            if (longestTextWidth < longestWidth) {
+                                longestTextWidth = longestWidth + (int) bottomTextPaint.measureText(longestStr, 0, 1);
+                            }
+                            if (sideLineLength < longestWidth / 2f) {
+                                sideLineLength = longestWidth / 2f;
+                            }
+
+                            backgroundGridWidth = longestTextWidth;
+
+                            // Add XCoordinate list
+                            updateHorizontalGridNum();
+                            addXCoordinateList();
+                        }
+                        break;
+                    case REMOVE:
+                        updateHorizontalGridNum();
+                        break;
+                    case MOVE:
+                    case REPLACE:
+                    case RESET:
+                        bottomTextDescent = 0;
+                        longestTextWidth = 0;
+                        drawIconsLabels = false;
+                        updateHorizontalGridNum();
+                        refreshXCoordinateList();
+                        break;
+                }
+            }
+        };
+
+        private OnListChangedListener<LineDataSeries> onLineDataSeriesChangedListener = new OnListChangedListener<LineDataSeries>() {
+            @Override
+            public void onChanged(ArrayList<LineDataSeries> sender, final ListChangedArgs<LineDataSeries> args) {
+                switch (args.action) {
+                    case ADD:
+                        for (LineDataSeries series : args.newItems) {
+                            if (series.getSeriesData().size() > dataLabels.size()) {
+                                throw new RuntimeException("LineView error:" +
+                                        " seriesData.size() > dataLabels.size() !!!");
+                            }
+                        }
+                        float biggestData = 0;
+                        for (LineDataSeries series : args.newItems) {
+                            for (YEntryData i : series.getSeriesData()) {
+                                if (biggestData < i.getY()) {
+                                    biggestData = i.getY();
+                                }
+                            }
+                            dataOfAGird = 1;
+                            while (biggestData / 10 > dataOfAGird) {
+                                dataOfAGird *= 10;
+                            }
+                        }
+
+                        post(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateAfterDataChanged(args.newItems);
+                                invalidate();
+                            }
+                        });
+                        break;
+                    case MOVE:
+                    case REMOVE:
+                    case REPLACE:
+                        post(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshAfterDataChanged();
+                                invalidate();
+                            }
+                        });
+                        break;
+                    case RESET:
+                        verticalGridNum = MIN_VERTICAL_GRID_NUM;
+                        post(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshAfterDataChanged();
+                                invalidate();
+                            }
+                        });
+                        break;
+                }
+            }
+        };
 
         private void refreshGridWidth() {
             // Reset the grid width
@@ -404,50 +461,62 @@ public class LineView extends HorizontalScrollView {
 
             if (getPreferredWidth() < mScrollViewer.getMeasuredWidth()) {
                 int freeSpace = mScrollViewer.getMeasuredWidth() - getPreferredWidth();
-                int additionalSpace = freeSpace / getHorizontalGridNum();
+                float additionalSpace = freeSpace / horizontalGridNum;
                 backgroundGridWidth += additionalSpace;
-                refreshXCoordinateList(getHorizontalGridNum());
+                refreshXCoordinateList();
             }
         }
 
         private void refreshAfterDataChanged() {
-            float verticalGridNum = getVerticalGridNum();
-            refreshTopLineLength(verticalGridNum);
-            refreshYCoordinateList(verticalGridNum);
+            updateVerticalGridNum(dataLists);
+            refreshTopLineLength();
+            refreshYCoordinateList();
             refreshDrawDotList();
         }
 
-        private float getVerticalGridNum() {
-            float verticalGridNum = 4; // int MIN_VERTICAL_GRID_NUM = 4;
-            if (dataLists != null && !dataLists.isEmpty()) {
-                for (LineDataSeries series : dataLists) {
+        private void updateAfterDataChanged(List<LineDataSeries> dataSeriesList) {
+            updateVerticalGridNum(dataSeriesList);
+            refreshTopLineLength();
+            refreshYCoordinateList();
+            refreshDrawDotList();
+        }
+
+        private void updateVerticalGridNum(List<LineDataSeries> dataSeriesList) {
+            if (dataSeriesList != null && !dataSeriesList.isEmpty()) {
+                for (LineDataSeries series : dataSeriesList) {
                     for (YEntryData entry : series.getSeriesData()) {
-                        if (verticalGridNum < (entry.getY() + 1)) {
-                            verticalGridNum = entry.getY() + 1;
-                        }
+                        verticalGridNum = Math.max(verticalGridNum,
+                                Math.max(MIN_VERTICAL_GRID_NUM, entry.getY() + 1));
                     }
                 }
+            } else {
+                verticalGridNum = MIN_VERTICAL_GRID_NUM;
             }
-            return verticalGridNum;
         }
 
-        private int getHorizontalGridNum() {
-            final int MIN_HORIZONTAL_GRID_NUM = 1;
-            int horizontalGridNum = dataLabels.size() - 1;
-            if (horizontalGridNum < MIN_HORIZONTAL_GRID_NUM) {
-                horizontalGridNum = MIN_HORIZONTAL_GRID_NUM;
-            }
-            return horizontalGridNum;
+        private void updateHorizontalGridNum() {
+            horizontalGridNum = Math.max(horizontalGridNum,
+                    Math.max(MIN_HORIZONTAL_GRID_NUM, dataLabels.size() - 1));
         }
 
-        private void refreshXCoordinateList(float horizontalGridNum) {
+        private void refreshXCoordinateList() {
             xCoordinateList.clear();
-            for (int i = 0; i < (horizontalGridNum + 1); i++) {
+            addXCoordinateList();
+        }
+
+        private void addXCoordinateList() {
+            int startIdx = xCoordinateList.size() > 0 ? xCoordinateList.size() - 1 : 0;
+            if (xCoordinateList.size() - 1 > 0 && startIdx == xCoordinateList.size() - 1) {
+                // Replace buffer coordinate
+                xCoordinateList.set(startIdx, sideLineLength + backgroundGridWidth * startIdx);
+                startIdx++;
+            }
+            for (int i = startIdx; i < (horizontalGridNum + 1); i++) {
                 xCoordinateList.add(sideLineLength + backgroundGridWidth * i);
             }
         }
 
-        private void refreshYCoordinateList(float verticalGridNum) {
+        private void refreshYCoordinateList() {
             yCoordinateList.clear();
             for (int i = 0; i < (verticalGridNum + 1); i++) {
                 yCoordinateList.add(topLineLength + ((getGraphHeight()) * i / (verticalGridNum)));
@@ -509,8 +578,8 @@ public class LineView extends HorizontalScrollView {
             }
         }
 
-        private void refreshTopLineLength(float verticalGridNum) {
-            float labelsize = bottomTextHeight * 2 + bottomTextTopMargin;
+        private void refreshTopLineLength() {
+            float labelsize = bottomTextHeight * 3f + bottomTextTopMargin;
 
             if (drawDataLabels && (getGraphHeight()) /
                     (verticalGridNum + 2) < labelsize) {
@@ -522,11 +591,11 @@ public class LineView extends HorizontalScrollView {
 
         @Override
         public void invalidate() {
+            setMinimumWidth(0);
             super.invalidate();
             visibleRect = null;
         }
 
-        @SuppressLint("CanvasSize")
         @Override
         protected void onDraw(Canvas canvas) {
             if (drawingRect == null) drawingRect = new RectF();
@@ -609,7 +678,7 @@ public class LineView extends HorizontalScrollView {
                             sideLineLength + backgroundGridWidth * i + drwTextWidth,
                             dot.y + bottomTextHeight);
                     if (drawDataLabels && RectF.intersects(drawingRect, visibleRect))
-                        canvas.drawText(entry.getLabel().toString(), sideLineLength + backgroundGridWidth * i, dot.y - bottomTextHeight, bottomTextPaint);
+                        canvas.drawText(entry.getLabel().toString(), sideLineLength + backgroundGridWidth * i, dot.y - bottomTextHeight * 1.5f, bottomTextPaint);
 
                     if (firstX == -1) {
                         firstX = visibleRect.left;
@@ -634,7 +703,7 @@ public class LineView extends HorizontalScrollView {
                                 nextDot.y + bottomTextHeight);
 
                         if (drawDataLabels && RectF.intersects(drawingRect, visibleRect))
-                            canvas.drawText(nextEntry.getLabel().toString(), sideLineLength + backgroundGridWidth * (i + 1), nextDot.y - bottomTextHeight, bottomTextPaint);
+                            canvas.drawText(nextEntry.getLabel().toString(), sideLineLength + backgroundGridWidth * (i + 1), nextDot.y - bottomTextHeight * 1.5f, bottomTextPaint);
 
                         drawingRect.set(nextDot.x, nextDot.y, visibleRect.right, nextDot.y);
 
@@ -810,7 +879,7 @@ public class LineView extends HorizontalScrollView {
         }
 
         private int getItemPositionFromPoint(float xCoordinate) {
-            if (getHorizontalGridNum() <= 1) {
+            if (horizontalGridNum <= 1) {
                 return 0;
             }
 
@@ -846,7 +915,6 @@ public class LineView extends HorizontalScrollView {
         }
 
         private int getPreferredWidth() {
-            int horizontalGridNum = getHorizontalGridNum();
             return (int) (backgroundGridWidth * horizontalGridNum + sideLineLength * 2);
         }
 

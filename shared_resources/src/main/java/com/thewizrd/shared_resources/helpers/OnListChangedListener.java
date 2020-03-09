@@ -10,5 +10,5 @@ public abstract class OnListChangedListener<T> {
      * @param sender The changing list.
      * @param args   The data for the onChanged event.
      */
-    public abstract void onChanged(ArrayList<T> sender, ListChangedArgs args);
+    public abstract void onChanged(ArrayList<T> sender, ListChangedArgs<T> args);
 }

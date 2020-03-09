@@ -170,7 +170,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         forecasts = new ObservableForecastLoadingList<>(ForecastItemViewModel.class);
         forecasts.addOnListChangedCallback(new OnListChangedListener<ForecastItemViewModel>() {
             @Override
-            public void onChanged(ArrayList<ForecastItemViewModel> sender, ListChangedArgs args) {
+            public void onChanged(ArrayList<ForecastItemViewModel> sender, ListChangedArgs<ForecastItemViewModel> args) {
                 notifyPropertyChanged(BR.forecasts);
             }
         });
@@ -178,7 +178,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         hourlyForecasts = new ObservableForecastLoadingList<>(HourlyForecastItemViewModel.class);
         hourlyForecasts.addOnListChangedCallback(new OnListChangedListener<HourlyForecastItemViewModel>() {
             @Override
-            public void onChanged(ArrayList<HourlyForecastItemViewModel> sender, ListChangedArgs args) {
+            public void onChanged(ArrayList<HourlyForecastItemViewModel> sender, ListChangedArgs<HourlyForecastItemViewModel> args) {
                 notifyPropertyChanged(BR.hourlyForecasts);
             }
         });
