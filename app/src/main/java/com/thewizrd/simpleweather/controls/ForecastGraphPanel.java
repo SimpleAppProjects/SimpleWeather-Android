@@ -278,7 +278,10 @@ public class ForecastGraphPanel extends LinearLayout {
                     mGraphType = GraphType.WIND;
                 }
 
-                TabLayout.Tab precipTab = tabLayout.getTabAt(1);
+                tabLayout.getTabAt(0).view.setVisibility(VISIBLE);
+                tabLayout.getTabAt(1).view.setVisibility(VISIBLE);
+
+                TabLayout.Tab precipTab = tabLayout.getTabAt(2);
                 if (precipTab.view.getVisibility() == VISIBLE) {
                     precipTab.view.setVisibility(GONE);
                 }
