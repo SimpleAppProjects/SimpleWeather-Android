@@ -73,7 +73,6 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -133,7 +132,8 @@ import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-public class WeatherNowFragment extends WindowColorFragment {
+public class WeatherNowFragment extends WindowColorFragment
+        implements WeatherRequest.WeatherErrorListener {
     private LocationData location = null;
     private boolean loaded = false;
     private ObservableInt backgroundAlpha;
@@ -277,7 +277,7 @@ public class WeatherNowFragment extends WindowColorFragment {
         });
     }
 
-    private void onWeatherError(final WeatherException wEx) {
+    public void onWeatherError(final WeatherException wEx) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -1092,15 +1092,8 @@ public class WeatherNowFragment extends WindowColorFragment {
                         wLoader.loadWeatherData(new WeatherRequest.Builder()
                                 .forceRefresh(forceRefresh)
                                 .loadAlerts()
+                                .setErrorListener(WeatherNowFragment.this)
                                 .build())
-                                .addOnFailureListener(mActivity, new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        if (e instanceof WeatherException) {
-                                            onWeatherError((WeatherException) e);
-                                        }
-                                    }
-                                })
                                 .addOnSuccessListener(mActivity, new OnSuccessListener<Weather>() {
                                     @Override
                                     public void onSuccess(final Weather weather) {

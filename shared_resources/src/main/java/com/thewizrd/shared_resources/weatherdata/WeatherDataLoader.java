@@ -131,16 +131,23 @@ public class WeatherDataLoader {
         return AsyncTask.create(new Callable<Weather>() {
             @Override
             public Weather call() throws WeatherException {
-                if (request.isForceLoadSavedData()) {
-                    loadSavedWeatherData(request, true);
-                } else {
-                    if (request.isForceRefresh()) {
-                        getWeatherData(request);
+                try {
+                    if (request.isForceLoadSavedData()) {
+                        loadSavedWeatherData(request, true);
                     } else {
-                        if (!isDataValid(false)) {
-                            _loadWeatherData(request);
+                        if (request.isForceRefresh()) {
+                            getWeatherData(request);
+                        } else {
+                            if (!isDataValid(false)) {
+                                _loadWeatherData(request);
+                            }
                         }
                     }
+                } catch (WeatherException wEx) {
+                    if (request.getErrorListener() != null)
+                        request.getErrorListener().onWeatherError(wEx);
+                    else
+                        throw wEx;
                 }
 
                 Logger.writeLine(Log.DEBUG, "%s: Weather data for %s is valid = %s", TAG,

@@ -57,7 +57,6 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -121,7 +120,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public class LocationsFragment extends ToolbarFragment implements SnackbarManagerInterface {
+public class LocationsFragment extends ToolbarFragment
+        implements SnackbarManagerInterface, WeatherRequest.WeatherErrorListener {
     private boolean mLoaded = false;
     private boolean mEditMode = false;
     private boolean mDataChanged = false;
@@ -262,7 +262,7 @@ public class LocationsFragment extends ToolbarFragment implements SnackbarManage
         });
     }
 
-    private void onWeatherError(final WeatherException wEx) {
+    public void onWeatherError(final WeatherException wEx) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -870,15 +870,8 @@ public class LocationsFragment extends ToolbarFragment implements SnackbarManage
                                 WeatherDataLoader wLoader = new WeatherDataLoader(location);
                                 wLoader.loadWeatherData(new WeatherRequest.Builder()
                                         .forceRefresh(false)
+                                        .setErrorListener(LocationsFragment.this)
                                         .build())
-                                        .addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                if (e instanceof WeatherException) {
-                                                    onWeatherError((WeatherException) e);
-                                                }
-                                            }
-                                        })
                                         .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
                                             @Override
                                             public void onSuccess(final Weather weather) {
@@ -966,15 +959,8 @@ public class LocationsFragment extends ToolbarFragment implements SnackbarManage
                                 WeatherDataLoader wLoader = new WeatherDataLoader(view.getLocationData());
                                 wLoader.loadWeatherData(new WeatherRequest.Builder()
                                         .forceRefresh(false)
+                                        .setErrorListener(LocationsFragment.this)
                                         .build())
-                                        .addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                if (e instanceof WeatherException) {
-                                                    onWeatherError((WeatherException) e);
-                                                }
-                                            }
-                                        })
                                         .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
                                             @Override
                                             public void onSuccess(final Weather weather) {
@@ -1020,15 +1006,8 @@ public class LocationsFragment extends ToolbarFragment implements SnackbarManage
                     WeatherDataLoader wLoader = new WeatherDataLoader(gpsData);
                     wLoader.loadWeatherData(new WeatherRequest.Builder()
                             .forceRefresh(false)
+                            .setErrorListener(LocationsFragment.this)
                             .build())
-                            .addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    if (e instanceof WeatherException) {
-                                        onWeatherError((WeatherException) e);
-                                    }
-                                }
-                            })
                             .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
                                 @Override
                                 public void onSuccess(final Weather weather) {

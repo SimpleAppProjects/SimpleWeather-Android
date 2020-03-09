@@ -1,13 +1,20 @@
 package com.thewizrd.shared_resources.weatherdata;
 
+import com.thewizrd.shared_resources.utils.WeatherException;
+
 public final class WeatherRequest {
     private WeatherRequest() {
+    }
+
+    public interface WeatherErrorListener {
+        void onWeatherError(WeatherException wEx);
     }
 
     private boolean forceRefresh;
     private boolean loadAlerts;
     private boolean loadForecasts;
     private boolean forceLoadSavedData;
+    private WeatherErrorListener errorListener;
 
     public boolean isForceRefresh() {
         return forceRefresh;
@@ -23,6 +30,10 @@ public final class WeatherRequest {
 
     public boolean isForceLoadSavedData() {
         return forceLoadSavedData;
+    }
+
+    public WeatherErrorListener getErrorListener() {
+        return errorListener;
     }
 
     public static final class Builder {
@@ -50,6 +61,11 @@ public final class WeatherRequest {
         public Builder forceLoadSavedData() {
             request.forceLoadSavedData = true;
             request.forceRefresh = false;
+            return this;
+        }
+
+        public Builder setErrorListener(WeatherErrorListener listener) {
+            request.errorListener = listener;
             return this;
         }
 

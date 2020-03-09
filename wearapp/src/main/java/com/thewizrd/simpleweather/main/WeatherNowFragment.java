@@ -40,7 +40,6 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -87,7 +86,8 @@ import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-public class WeatherNowFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class WeatherNowFragment extends Fragment
+        implements SharedPreferences.OnSharedPreferenceChangeListener, WeatherRequest.WeatherErrorListener {
     private LocationData location = null;
     private boolean loaded = false;
 
@@ -215,7 +215,7 @@ public class WeatherNowFragment extends Fragment implements SharedPreferences.On
         });
     }
 
-    private void onWeatherError(final WeatherException wEx) {
+    public void onWeatherError(final WeatherException wEx) {
         if (wEx != null) {
             runOnUiThread(new Runnable() {
                 @Override
@@ -343,15 +343,8 @@ public class WeatherNowFragment extends Fragment implements SharedPreferences.On
                         wLoader.loadWeatherData(new WeatherRequest.Builder()
                                 .forceLoadSavedData()
                                 .loadAlerts()
+                                .setErrorListener(WeatherNowFragment.this)
                                 .build())
-                                .addOnFailureListener(mActivity, new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        if (e instanceof WeatherException) {
-                                            onWeatherError((WeatherException) e);
-                                        }
-                                    }
-                                })
                                 .addOnSuccessListener(mActivity, new OnSuccessListener<Weather>() {
                                     @Override
                                     public void onSuccess(final Weather weather) {
@@ -397,15 +390,8 @@ public class WeatherNowFragment extends Fragment implements SharedPreferences.On
                     wLoader.loadWeatherData(new WeatherRequest.Builder()
                             .forceLoadSavedData()
                             .loadAlerts()
+                            .setErrorListener(WeatherNowFragment.this)
                             .build())
-                            .addOnFailureListener(mActivity, new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    if (e instanceof WeatherException) {
-                                        onWeatherError((WeatherException) e);
-                                    }
-                                }
-                            })
                             .addOnSuccessListener(mActivity, new OnSuccessListener<Weather>() {
                                 @Override
                                 public void onSuccess(final Weather weather) {
@@ -804,17 +790,8 @@ public class WeatherNowFragment extends Fragment implements SharedPreferences.On
                     wLoader.loadWeatherData(new WeatherRequest.Builder()
                             .forceLoadSavedData()
                             .loadAlerts()
+                            .setErrorListener(WeatherNowFragment.this)
                             .build())
-                            .addOnFailureListener(mActivity, new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    if (e instanceof WeatherException) {
-                                        onWeatherError((WeatherException) e);
-                                        // Data is null; restore
-                                        dataSyncRestore();
-                                    }
-                                }
-                            })
                             .addOnSuccessListener(mActivity, new OnSuccessListener<Weather>() {
                                 @Override
                                 public void onSuccess(final Weather weather) {
@@ -846,15 +823,8 @@ public class WeatherNowFragment extends Fragment implements SharedPreferences.On
                         wLoader.loadWeatherData(new WeatherRequest.Builder()
                                 .forceLoadSavedData()
                                 .loadAlerts()
+                                .setErrorListener(WeatherNowFragment.this)
                                 .build())
-                                .addOnFailureListener(mActivity, new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        if (e instanceof WeatherException) {
-                                            onWeatherError((WeatherException) e);
-                                        }
-                                    }
-                                })
                                 .addOnSuccessListener(mActivity, new OnSuccessListener<Weather>() {
                                     @Override
                                     public void onSuccess(final Weather weather) {
@@ -914,15 +884,8 @@ public class WeatherNowFragment extends Fragment implements SharedPreferences.On
                         wLoader.loadWeatherData(new WeatherRequest.Builder()
                                 .forceRefresh(forceRefresh)
                                 .loadAlerts()
+                                .setErrorListener(WeatherNowFragment.this)
                                 .build())
-                                .addOnFailureListener(mActivity, new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        if (e instanceof WeatherException) {
-                                            onWeatherError((WeatherException) e);
-                                        }
-                                    }
-                                })
                                 .addOnSuccessListener(mActivity, new OnSuccessListener<Weather>() {
                                     @Override
                                     public void onSuccess(final Weather weather) {
