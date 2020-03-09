@@ -215,6 +215,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
             // Update extras
             if (weather.getHrForecast() != null && weather.getHrForecast().size() > 0) {
+                hourlyForecasts.clear();
+
                 for (final HourlyForecast hr_forecast : weather.getHrForecast()) {
                     HourlyForecastItemViewModel hrforecastView;
                     hrforecastView = new AsyncTask<HourlyForecastItemViewModel>().await(new Callable<HourlyForecastItemViewModel>() {
