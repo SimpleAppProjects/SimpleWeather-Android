@@ -2,18 +2,20 @@ package com.thewizrd.shared_resources.weatherdata;
 
 import android.util.Log;
 
+import androidx.annotation.RestrictTo;
+
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
+import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 
-public class Atmosphere {
+public class Atmosphere extends CustomJsonObject {
 
     @SerializedName("humidity")
     private String humidity;
@@ -39,7 +41,8 @@ public class Atmosphere {
     @SerializedName("dewpoint_c")
     private String dewpointC;
 
-    private Atmosphere() {
+    @RestrictTo({RestrictTo.Scope.LIBRARY})
+    public Atmosphere() {
         // Needed for deserialization
     }
 
@@ -229,11 +232,9 @@ public class Atmosphere {
         this.dewpointC = dewpointC;
     }
 
-    public static Atmosphere fromJson(JsonReader extReader) {
-        Atmosphere obj = null;
-
+    @Override
+    public void fromJson(JsonReader extReader) {
         try {
-            obj = new Atmosphere();
             JsonReader reader;
             String jsonValue;
 
@@ -263,28 +264,28 @@ public class Atmosphere {
 
                 switch (property) {
                     case "humidity":
-                        obj.humidity = reader.nextString();
+                        this.humidity = reader.nextString();
                         break;
                     case "pressure_mb":
-                        obj.pressureMb = reader.nextString();
+                        this.pressureMb = reader.nextString();
                         break;
                     case "pressure_in":
-                        obj.pressureIn = reader.nextString();
+                        this.pressureIn = reader.nextString();
                         break;
                     case "pressure_trend":
-                        obj.pressureTrend = reader.nextString();
+                        this.pressureTrend = reader.nextString();
                         break;
                     case "visibility_mi":
-                        obj.visibilityMi = reader.nextString();
+                        this.visibilityMi = reader.nextString();
                         break;
                     case "visibility_km":
-                        obj.visibilityKm = reader.nextString();
+                        this.visibilityKm = reader.nextString();
                         break;
                     case "dewpoint_f":
-                        obj.dewpointF = reader.nextString();
+                        this.dewpointF = reader.nextString();
                         break;
                     case "dewpoint_c":
-                        obj.dewpointC = reader.nextString();
+                        this.dewpointC = reader.nextString();
                         break;
                     default:
                         break;
@@ -294,18 +295,12 @@ public class Atmosphere {
             if (reader.peek() == JsonToken.END_OBJECT)
                 reader.endObject();
 
-        } catch (Exception ex) {
-            obj = null;
+        } catch (Exception ignored) {
         }
-
-        return obj;
     }
 
-    public String toJson() {
-        StringWriter sw = new StringWriter();
-        JsonWriter writer = new JsonWriter(sw);
-        writer.setSerializeNulls(true);
-
+    @Override
+    public void toJson(JsonWriter writer) {
         try {
             // {
             writer.beginObject();
@@ -347,7 +342,5 @@ public class Atmosphere {
         } catch (IOException e) {
             Logger.writeLine(Log.ERROR, e, "Atmosphere: error writing json string");
         }
-
-        return sw.toString();
     }
 }

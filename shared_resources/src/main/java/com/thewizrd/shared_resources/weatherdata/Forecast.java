@@ -2,11 +2,14 @@ package com.thewizrd.shared_resources.weatherdata;
 
 import android.util.Log;
 
+import androidx.annotation.RestrictTo;
+
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
+import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -20,9 +23,8 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 
-public class Forecast {
+public class Forecast extends CustomJsonObject {
 
     @SerializedName("date")
     private LocalDateTime date;
@@ -48,7 +50,8 @@ public class Forecast {
     @SerializedName("extras")
     private ForecastExtras extras;
 
-    private Forecast() {
+    @RestrictTo({RestrictTo.Scope.LIBRARY})
+    public Forecast() {
         // Needed for deserialization
     }
 
@@ -257,11 +260,10 @@ public class Forecast {
         this.extras = extras;
     }
 
-    public static Forecast fromJson(JsonReader extReader) {
-        Forecast obj = null;
+    @Override
+    public void fromJson(JsonReader extReader) {
 
         try {
-            obj = new Forecast();
             JsonReader reader;
             String jsonValue;
 
@@ -291,28 +293,29 @@ public class Forecast {
 
                 switch (property) {
                     case "date":
-                        obj.date = LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(reader.nextString())), ZoneOffset.UTC);
+                        this.date = LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(reader.nextString())), ZoneOffset.UTC);
                         break;
                     case "high_f":
-                        obj.highF = reader.nextString();
+                        this.highF = reader.nextString();
                         break;
                     case "high_c":
-                        obj.highC = reader.nextString();
+                        this.highC = reader.nextString();
                         break;
                     case "low_f":
-                        obj.lowF = reader.nextString();
+                        this.lowF = reader.nextString();
                         break;
                     case "low_c":
-                        obj.lowC = reader.nextString();
+                        this.lowC = reader.nextString();
                         break;
                     case "condition":
-                        obj.condition = reader.nextString();
+                        this.condition = reader.nextString();
                         break;
                     case "icon":
-                        obj.icon = reader.nextString();
+                        this.icon = reader.nextString();
                         break;
                     case "extras":
-                        obj.extras = ForecastExtras.fromJson(reader);
+                        this.extras = new ForecastExtras();
+                        this.extras.fromJson(reader);
                         break;
                     default:
                         break;
@@ -322,18 +325,12 @@ public class Forecast {
             if (reader.peek() == JsonToken.END_OBJECT)
                 reader.endObject();
 
-        } catch (Exception ex) {
-            obj = null;
+        } catch (Exception ignored) {
         }
-
-        return obj;
     }
 
-    public String toJson() {
-        StringWriter sw = new StringWriter();
-        JsonWriter writer = new JsonWriter(sw);
-        writer.setSerializeNulls(true);
-
+    @Override
+    public void toJson(JsonWriter writer) {
         try {
             // {
             writer.beginObject();
@@ -372,7 +369,7 @@ public class Forecast {
                 if (extras == null)
                     writer.nullValue();
                 else
-                    writer.value(extras.toJson());
+                    extras.toJson(writer);
             }
 
             // }
@@ -380,7 +377,5 @@ public class Forecast {
         } catch (IOException e) {
             Logger.writeLine(Log.ERROR, e, "Forecast: error writing json string");
         }
-
-        return sw.toString();
     }
 }

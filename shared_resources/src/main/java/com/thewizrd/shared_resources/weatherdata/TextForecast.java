@@ -3,6 +3,8 @@ package com.thewizrd.shared_resources.weatherdata;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.RestrictTo;
+
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -10,14 +12,14 @@ import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
+import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 
-public class TextForecast {
+public class TextForecast extends CustomJsonObject {
 
     @SerializedName("title")
     private String title;
@@ -34,8 +36,9 @@ public class TextForecast {
     @SerializedName("pop")
     private String pop;
 
-    private TextForecast() {
-
+    @RestrictTo({RestrictTo.Scope.LIBRARY})
+    public TextForecast() {
+        // Needed for deserialization
     }
 
     public TextForecast(com.thewizrd.shared_resources.weatherdata.weatherunderground.ForecastdayItem txt_forecast) {
@@ -132,11 +135,9 @@ public class TextForecast {
         this.pop = pop;
     }
 
-    public static TextForecast fromJson(JsonReader extReader) {
-        TextForecast obj = null;
-
+    @Override
+    public void fromJson(JsonReader extReader) {
         try {
-            obj = new TextForecast();
             JsonReader reader;
             String jsonValue;
 
@@ -166,19 +167,19 @@ public class TextForecast {
 
                 switch (property) {
                     case "title":
-                        obj.title = reader.nextString();
+                        this.title = reader.nextString();
                         break;
                     case "fcttext":
-                        obj.fcttext = reader.nextString();
+                        this.fcttext = reader.nextString();
                         break;
                     case "fcttext_metric":
-                        obj.fcttextMetric = reader.nextString();
+                        this.fcttextMetric = reader.nextString();
                         break;
                     case "icon":
-                        obj.icon = reader.nextString();
+                        this.icon = reader.nextString();
                         break;
                     case "pop":
-                        obj.pop = reader.nextString();
+                        this.pop = reader.nextString();
                         break;
                     default:
                         break;
@@ -188,18 +189,12 @@ public class TextForecast {
             if (reader.peek() == JsonToken.END_OBJECT)
                 reader.endObject();
 
-        } catch (Exception ex) {
-            obj = null;
+        } catch (Exception ignored) {
         }
-
-        return obj;
     }
 
-    public String toJson() {
-        StringWriter sw = new StringWriter();
-        JsonWriter writer = new JsonWriter(sw);
-        writer.setSerializeNulls(true);
-
+    @Override
+    public void toJson(JsonWriter writer) {
         try {
             // {
             writer.beginObject();
@@ -229,7 +224,5 @@ public class TextForecast {
         } catch (IOException e) {
             Logger.writeLine(Log.ERROR, e, "TextForecast: error writing json string");
         }
-
-        return sw.toString();
     }
 }

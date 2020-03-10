@@ -3,20 +3,22 @@ package com.thewizrd.shared_resources.weatherdata;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.RestrictTo;
+
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 
-public class Beaufort {
+public class Beaufort extends CustomJsonObject {
 
     public enum BeaufortScale {
         B0,
@@ -73,7 +75,8 @@ public class Beaufort {
     @SerializedName("desc")
     private String desc;
 
-    private Beaufort() {
+    @RestrictTo({RestrictTo.Scope.LIBRARY})
+    public Beaufort() {
         // Needed for deserialization
     }
 
@@ -159,11 +162,9 @@ public class Beaufort {
         this.desc = description;
     }
 
-    public static Beaufort fromJson(JsonReader extReader) {
-        Beaufort obj = null;
-
+    @Override
+    public void fromJson(JsonReader extReader) {
         try {
-            obj = new Beaufort();
             JsonReader reader;
             String jsonValue;
 
@@ -193,10 +194,10 @@ public class Beaufort {
 
                 switch (property) {
                     case "scale":
-                        obj.scale = BeaufortScale.valueOf(reader.nextInt());
+                        this.scale = BeaufortScale.valueOf(reader.nextInt());
                         break;
                     case "desc":
-                        obj.desc = reader.nextString();
+                        this.desc = reader.nextString();
                         break;
                     default:
                         break;
@@ -206,18 +207,12 @@ public class Beaufort {
             if (reader.peek() == JsonToken.END_OBJECT)
                 reader.endObject();
 
-        } catch (Exception ex) {
-            obj = null;
+        } catch (Exception ignored) {
         }
-
-        return obj;
     }
 
-    public String toJson() {
-        StringWriter sw = new StringWriter();
-        JsonWriter writer = new JsonWriter(sw);
-        writer.setSerializeNulls(true);
-
+    @Override
+    public void toJson(JsonWriter writer) {
         try {
             // {
             writer.beginObject();
@@ -235,7 +230,5 @@ public class Beaufort {
         } catch (IOException e) {
             Logger.writeLine(Log.ERROR, e, "Beaufort: error writing json string");
         }
-
-        return sw.toString();
     }
 }

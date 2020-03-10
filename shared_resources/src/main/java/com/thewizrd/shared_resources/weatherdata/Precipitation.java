@@ -2,18 +2,20 @@ package com.thewizrd.shared_resources.weatherdata;
 
 import android.util.Log;
 
+import androidx.annotation.RestrictTo;
+
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
+import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 
-public class Precipitation {
+public class Precipitation extends CustomJsonObject {
 
     @SerializedName("pop")
     private String pop;
@@ -30,7 +32,8 @@ public class Precipitation {
     @SerializedName("qpf_snow_cm")
     private float qpfSnowCm;
 
-    private Precipitation() {
+    @RestrictTo({RestrictTo.Scope.LIBRARY})
+    public Precipitation() {
         // Needed for deserialization
     }
 
@@ -121,11 +124,9 @@ public class Precipitation {
         this.qpfSnowCm = qpfSnowCm;
     }
 
-    public static Precipitation fromJson(JsonReader extReader) {
-        Precipitation obj = null;
-
+    @Override
+    public void fromJson(JsonReader extReader) {
         try {
-            obj = new Precipitation();
             JsonReader reader;
             String jsonValue;
 
@@ -155,19 +156,19 @@ public class Precipitation {
 
                 switch (property) {
                     case "pop":
-                        obj.pop = reader.nextString();
+                        this.pop = reader.nextString();
                         break;
                     case "qpf_rain_in":
-                        obj.qpfRainIn = Float.parseFloat(reader.nextString());
+                        this.qpfRainIn = Float.parseFloat(reader.nextString());
                         break;
                     case "qpf_rain_mm":
-                        obj.qpfRainMm = Float.parseFloat(reader.nextString());
+                        this.qpfRainMm = Float.parseFloat(reader.nextString());
                         break;
                     case "qpf_snow_in":
-                        obj.qpfSnowIn = Float.parseFloat(reader.nextString());
+                        this.qpfSnowIn = Float.parseFloat(reader.nextString());
                         break;
                     case "qpf_snow_cm":
-                        obj.qpfSnowCm = Float.parseFloat(reader.nextString());
+                        this.qpfSnowCm = Float.parseFloat(reader.nextString());
                         break;
                     default:
                         break;
@@ -177,18 +178,12 @@ public class Precipitation {
             if (reader.peek() == JsonToken.END_OBJECT)
                 reader.endObject();
 
-        } catch (Exception ex) {
-            obj = null;
+        } catch (Exception ignored) {
         }
-
-        return obj;
     }
 
-    public String toJson() {
-        StringWriter sw = new StringWriter();
-        JsonWriter writer = new JsonWriter(sw);
-        writer.setSerializeNulls(true);
-
+    @Override
+    public void toJson(JsonWriter writer) {
         try {
             // {
             writer.beginObject();
@@ -218,7 +213,5 @@ public class Precipitation {
         } catch (IOException e) {
             Logger.writeLine(Log.ERROR, e, "Precipitation: error writing json string");
         }
-
-        return sw.toString();
     }
 }

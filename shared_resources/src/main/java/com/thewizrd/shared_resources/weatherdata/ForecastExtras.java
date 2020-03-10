@@ -6,13 +6,13 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 
-public class ForecastExtras {
+public class ForecastExtras extends CustomJsonObject {
 
     @SerializedName("feelslike_f")
     private double feelslikeF;
@@ -212,11 +212,9 @@ public class ForecastExtras {
         this.visibilityKm = visibilityKm;
     }
 
-    public static ForecastExtras fromJson(JsonReader extReader) {
-        ForecastExtras obj = null;
-
+    @Override
+    public void fromJson(JsonReader extReader) {
         try {
-            obj = new ForecastExtras();
             JsonReader reader;
             String jsonValue;
 
@@ -246,58 +244,58 @@ public class ForecastExtras {
 
                 switch (property) {
                     case "feelslike_f":
-                        obj.feelslikeF = Float.parseFloat(reader.nextString());
+                        this.feelslikeF = Float.parseFloat(reader.nextString());
                         break;
                     case "feelslike_c":
-                        obj.feelslikeC = Float.parseFloat(reader.nextString());
+                        this.feelslikeC = Float.parseFloat(reader.nextString());
                         break;
                     case "humidity":
-                        obj.humidity = reader.nextString();
+                        this.humidity = reader.nextString();
                         break;
                     case "dewpoint_f":
-                        obj.dewpointF = reader.nextString();
+                        this.dewpointF = reader.nextString();
                         break;
                     case "dewpoint_c":
-                        obj.dewpointC = reader.nextString();
+                        this.dewpointC = reader.nextString();
                         break;
                     case "uv_index":
-                        obj.uvIndex = Float.parseFloat(reader.nextString());
+                        this.uvIndex = Float.parseFloat(reader.nextString());
                         break;
                     case "pop":
-                        obj.pop = reader.nextString();
+                        this.pop = reader.nextString();
                         break;
                     case "qpf_rain_in":
-                        obj.qpfRainIn = Float.parseFloat(reader.nextString());
+                        this.qpfRainIn = Float.parseFloat(reader.nextString());
                         break;
                     case "qpf_rain_mm":
-                        obj.qpfRainMm = Float.parseFloat(reader.nextString());
+                        this.qpfRainMm = Float.parseFloat(reader.nextString());
                         break;
                     case "qpf_snow_in":
-                        obj.qpfSnowIn = Float.parseFloat(reader.nextString());
+                        this.qpfSnowIn = Float.parseFloat(reader.nextString());
                         break;
                     case "qpf_snow_cm":
-                        obj.qpfSnowCm = Float.parseFloat(reader.nextString());
+                        this.qpfSnowCm = Float.parseFloat(reader.nextString());
                         break;
                     case "pressure_mb":
-                        obj.pressureMb = reader.nextString();
+                        this.pressureMb = reader.nextString();
                         break;
                     case "pressure_in":
-                        obj.pressureIn = reader.nextString();
+                        this.pressureIn = reader.nextString();
                         break;
                     case "wind_degrees":
-                        obj.windDegrees = Integer.parseInt(reader.nextString());
+                        this.windDegrees = Integer.parseInt(reader.nextString());
                         break;
                     case "wind_mph":
-                        obj.windMph = Float.parseFloat(reader.nextString());
+                        this.windMph = Float.parseFloat(reader.nextString());
                         break;
                     case "wind_kph":
-                        obj.windKph = Float.parseFloat(reader.nextString());
+                        this.windKph = Float.parseFloat(reader.nextString());
                         break;
                     case "visibility_mi":
-                        obj.visibilityMi = reader.nextString();
+                        this.visibilityMi = reader.nextString();
                         break;
                     case "visibility_km":
-                        obj.visibilityKm = reader.nextString();
+                        this.visibilityKm = reader.nextString();
                         break;
                     default:
                         break;
@@ -307,18 +305,11 @@ public class ForecastExtras {
             if (reader.peek() == JsonToken.END_OBJECT)
                 reader.endObject();
 
-        } catch (Exception ex) {
-            obj = null;
+        } catch (Exception ignored) {
         }
-
-        return obj;
     }
 
-    public String toJson() {
-        StringWriter sw = new StringWriter();
-        JsonWriter writer = new JsonWriter(sw);
-        writer.setSerializeNulls(true);
-
+    public void toJson(JsonWriter writer) {
         try {
             // {
             writer.beginObject();
@@ -400,7 +391,5 @@ public class ForecastExtras {
         } catch (IOException e) {
             Logger.writeLine(Log.ERROR, e, "ForecastExtras: error writing json string");
         }
-
-        return sw.toString();
     }
 }

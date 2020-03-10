@@ -17,21 +17,19 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.WeatherDetailsAdapter;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding;
 import com.thewizrd.simpleweather.fragments.ToolbarFragment;
-
-import java.io.StringReader;
 
 public class WeatherListFragment extends ToolbarFragment {
     private LocationData location = null;
@@ -65,7 +63,7 @@ public class WeatherListFragment extends ToolbarFragment {
         if (savedInstanceState != null) {
             if (location == null) {
                 String json = savedInstanceState.getString(Constants.KEY_DATA, null);
-                location = LocationData.fromJson(new JsonReader(new StringReader(json)));
+                location = JSONParser.deserializer(json, LocationData.class);
             }
             if (savedInstanceState.containsKey(Constants.ARGS_WEATHERLISTTYPE)) {
                 weatherType = WeatherListType.valueOf(savedInstanceState.getInt(Constants.ARGS_WEATHERLISTTYPE));
@@ -202,7 +200,7 @@ public class WeatherListFragment extends ToolbarFragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         // Save data
-        outState.putString(Constants.KEY_DATA, location.toJson());
+        outState.putString(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class));
         outState.putInt(Constants.ARGS_WEATHERLISTTYPE, weatherType.getValue());
 
         super.onSaveInstanceState(outState);

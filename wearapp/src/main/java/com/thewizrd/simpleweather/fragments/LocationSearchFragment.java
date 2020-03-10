@@ -35,6 +35,7 @@ import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.CommonActions;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -272,7 +273,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
 
                         // Start WeatherNow Activity with weather data
                         Intent intent = new Intent(mActivity, MainActivity.class);
-                        intent.putExtra(Constants.KEY_DATA, location.toJson());
+                        intent.putExtra(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class));
 
                         mActivity.startActivity(intent);
                         mActivity.finishAffinity();

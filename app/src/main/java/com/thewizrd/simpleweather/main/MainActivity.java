@@ -18,13 +18,13 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Lifecycle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
@@ -33,8 +33,6 @@ import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
 import com.thewizrd.simpleweather.preferences.SettingsFragment;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
-
-import java.io.StringReader;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener,
@@ -112,9 +110,8 @@ public class MainActivity extends AppCompatActivity
 
         // Shortcut intent: from app shortcuts
         if (getIntent() != null && getIntent().hasExtra(Constants.KEY_SHORTCUTDATA)) {
-            JsonReader reader = new JsonReader(
-                    new StringReader(getIntent().getStringExtra(Constants.KEY_SHORTCUTDATA)));
-            LocationData locData = LocationData.fromJson(reader);
+            LocationData locData = JSONParser.deserializer(
+                    getIntent().getStringExtra(Constants.KEY_SHORTCUTDATA), LocationData.class);
 
             // Navigate to WeatherNowFragment
             Fragment newFragment = WeatherNowFragment.newInstance(locData);

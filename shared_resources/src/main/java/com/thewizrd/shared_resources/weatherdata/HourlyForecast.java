@@ -9,6 +9,8 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
+import com.thewizrd.shared_resources.utils.CustomJsonObject;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -21,10 +23,9 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Locale;
 
-public class HourlyForecast {
+public class HourlyForecast extends CustomJsonObject {
 
     @SerializedName("high_f")
     private String highF;
@@ -49,6 +50,14 @@ public class HourlyForecast {
 
     @SerializedName("wind_kph")
     private float windKph;
+
+    public String get_date() {
+        return _date;
+    }
+
+    public void set_date(String _date) {
+        this._date = _date;
+    }
 
     @SerializedName("date")
     private String _date;
@@ -256,7 +265,7 @@ public class HourlyForecast {
         ZonedDateTime dateTime = null;
 
         try {
-            dateTime = ZonedDateTime.parse(_date, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss ZZZZZ"));
+            dateTime = ZonedDateTime.parse(_date, DateTimeUtils.getZonedDateTimeFormatter());
         } catch (Exception ex) {
             dateTime = null;
         }
@@ -268,7 +277,7 @@ public class HourlyForecast {
     }
 
     public void setDate(ZonedDateTime date) {
-        _date = date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss ZZZZZ"));
+        _date = date.format(DateTimeUtils.getZonedDateTimeFormatter());
     }
 
     public String getHighF() {
@@ -343,11 +352,9 @@ public class HourlyForecast {
         this.extras = extras;
     }
 
-    public static HourlyForecast fromJson(JsonReader extReader) {
-        HourlyForecast obj = null;
-
+    @Override
+    public void fromJson(JsonReader extReader) {
         try {
-            obj = new HourlyForecast();
             JsonReader reader;
             String jsonValue;
 
@@ -377,34 +384,35 @@ public class HourlyForecast {
 
                 switch (property) {
                     case "date":
-                        obj._date = reader.nextString();
+                        this._date = reader.nextString();
                         break;
                     case "high_f":
-                        obj.highF = reader.nextString();
+                        this.highF = reader.nextString();
                         break;
                     case "high_c":
-                        obj.highC = reader.nextString();
+                        this.highC = reader.nextString();
                         break;
                     case "condition":
-                        obj.condition = reader.nextString();
+                        this.condition = reader.nextString();
                         break;
                     case "icon":
-                        obj.icon = reader.nextString();
+                        this.icon = reader.nextString();
                         break;
                     case "pop":
-                        obj.pop = reader.nextString();
+                        this.pop = reader.nextString();
                         break;
                     case "wind_degrees":
-                        obj.windDegrees = Integer.parseInt(reader.nextString());
+                        this.windDegrees = Integer.parseInt(reader.nextString());
                         break;
                     case "wind_mph":
-                        obj.windMph = Float.parseFloat(reader.nextString());
+                        this.windMph = Float.parseFloat(reader.nextString());
                         break;
                     case "wind_kph":
-                        obj.windKph = Float.parseFloat(reader.nextString());
+                        this.windKph = Float.parseFloat(reader.nextString());
                         break;
                     case "extras":
-                        obj.extras = ForecastExtras.fromJson(reader);
+                        this.extras = new ForecastExtras();
+                        this.extras.fromJson(reader);
                         break;
                     default:
                         break;
@@ -414,18 +422,12 @@ public class HourlyForecast {
             if (reader.peek() == JsonToken.END_OBJECT)
                 reader.endObject();
 
-        } catch (Exception ex) {
-            obj = null;
+        } catch (Exception ignored) {
         }
-
-        return obj;
     }
 
-    public String toJson() {
-        StringWriter sw = new StringWriter();
-        JsonWriter writer = new JsonWriter(sw);
-        writer.setSerializeNulls(true);
-
+    @Override
+    public void toJson(JsonWriter writer) {
         try {
             // {
             writer.beginObject();
@@ -472,7 +474,7 @@ public class HourlyForecast {
                 if (extras == null)
                     writer.nullValue();
                 else
-                    writer.value(extras.toJson());
+                    extras.toJson(writer);
             }
 
             // }
@@ -480,7 +482,5 @@ public class HourlyForecast {
         } catch (IOException e) {
             Logger.writeLine(Log.ERROR, e, "HourlyForecast: error writing json string");
         }
-
-        return sw.toString();
     }
 }

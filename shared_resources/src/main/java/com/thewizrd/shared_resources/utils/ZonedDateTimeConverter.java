@@ -1,28 +1,24 @@
 package com.thewizrd.shared_resources.utils;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
-import java.lang.reflect.Type;
+import java.io.IOException;
 
-public class ZonedDateTimeConverter implements JsonSerializer<ZonedDateTime>, JsonDeserializer<ZonedDateTime> {
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss ZZZZZ");
+public class ZonedDateTimeConverter extends TypeAdapter<ZonedDateTime> {
+    private static final DateTimeFormatter formatter = DateTimeUtils.getZonedDateTimeFormatter();
 
     @Override
-    public ZonedDateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        return ZonedDateTime.parse(json.getAsString(), formatter);
+    public ZonedDateTime read(JsonReader in) throws IOException {
+        return ZonedDateTime.parse(in.nextString(), formatter);
     }
 
     @Override
-    public JsonElement serialize(ZonedDateTime src, Type typeOfSrc, JsonSerializationContext context) {
-        return new JsonPrimitive(formatter.format(src));
+    public void write(JsonWriter out, ZonedDateTime value) throws IOException {
+        out.value(formatter.format(value));
     }
 }

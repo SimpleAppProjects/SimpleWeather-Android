@@ -6,6 +6,8 @@ import androidx.room.TypeConverter;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.weatherdata.Astronomy;
 import com.thewizrd.shared_resources.weatherdata.Atmosphere;
@@ -31,17 +33,17 @@ import java.util.Collection;
 import java.util.List;
 
 public class WeatherDBConverters {
-    private static final DateTimeFormatter zDTF = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss ZZZZZ");
+    private static final DateTimeFormatter zDTF = DateTimeUtils.getZonedDateTimeFormatter();
     private static final DateTimeFormatter lDTF = DateTimeFormatter.ISO_INSTANT;
 
     @TypeConverter
     public static Location locationFromJson(String value) {
-        return value == null ? null : Location.fromJson(new JsonReader(new StringReader(value)));
+        return JSONParser.deserializer(value, Location.class);
     }
 
     @TypeConverter
     public static String locationToJson(Location value) {
-        return value == null ? null : value.toJson();
+        return JSONParser.serializer(value, Location.class);
     }
 
     @TypeConverter
@@ -77,7 +79,9 @@ public class WeatherDBConverters {
                 reader.beginArray();
 
                 while (reader.hasNext()) {
-                    result.add(Forecast.fromJson(reader));
+                    Forecast obj = new Forecast();
+                    obj.fromJson(reader);
+                    result.add(obj);
                 }
 
                 reader.endArray();
@@ -102,7 +106,7 @@ public class WeatherDBConverters {
                 writer.beginArray();
 
                 for (Forecast forecast : value) {
-                    writer.value(forecast.toJson());
+                    forecast.toJson(writer);
                 }
 
                 writer.endArray();
@@ -117,12 +121,18 @@ public class WeatherDBConverters {
 
     @TypeConverter
     public static HourlyForecast hrforecastFromJson(String value) {
-        return value == null ? null : HourlyForecast.fromJson(new JsonReader(new StringReader(value)));
+        if (value == null)
+            return null;
+        else {
+            HourlyForecast obj = new HourlyForecast();
+            obj.fromJson(new JsonReader(new StringReader(value)));
+            return obj;
+        }
     }
 
     @TypeConverter
     public static String hrforecastToJson(HourlyForecast value) {
-        return value == null ? null : value.toJson();
+        return JSONParser.serializer(value, HourlyForecast.class);
     }
 
     @TypeConverter
@@ -138,7 +148,9 @@ public class WeatherDBConverters {
                 reader.beginArray();
 
                 while (reader.hasNext()) {
-                    result.add(HourlyForecast.fromJson(reader));
+                    HourlyForecast obj = new HourlyForecast();
+                    obj.fromJson(reader);
+                    result.add(obj);
                 }
 
                 reader.endArray();
@@ -163,7 +175,7 @@ public class WeatherDBConverters {
                 writer.beginArray();
 
                 for (HourlyForecast forecast : value) {
-                    writer.value(forecast.toJson());
+                    forecast.toJson(writer);
                 }
 
                 writer.endArray();
@@ -189,7 +201,9 @@ public class WeatherDBConverters {
                 reader.beginArray();
 
                 while (reader.hasNext()) {
-                    result.add(TextForecast.fromJson(reader));
+                    TextForecast obj = new TextForecast();
+                    obj.fromJson(reader);
+                    result.add(obj);
                 }
 
                 reader.endArray();
@@ -214,7 +228,7 @@ public class WeatherDBConverters {
                 writer.beginArray();
 
                 for (TextForecast forecast : value) {
-                    writer.value(forecast.toJson());
+                    forecast.toJson(writer);
                 }
 
                 writer.endArray();
@@ -229,42 +243,66 @@ public class WeatherDBConverters {
 
     @TypeConverter
     public static Condition conditionFromJson(String value) {
-        return value == null ? null : Condition.fromJson(new JsonReader(new StringReader(value)));
+        if (value == null)
+            return null;
+        else {
+            Condition obj = new Condition();
+            obj.fromJson(new JsonReader(new StringReader(value)));
+            return obj;
+        }
     }
 
     @TypeConverter
     public static String conditionToJson(Condition value) {
-        return value == null ? null : value.toJson();
+        return JSONParser.serializer(value, Condition.class);
     }
 
     @TypeConverter
     public static Atmosphere atmosphereFromJson(String value) {
-        return value == null ? null : Atmosphere.fromJson(new JsonReader(new StringReader(value)));
+        if (value == null)
+            return null;
+        else {
+            Atmosphere obj = new Atmosphere();
+            obj.fromJson(new JsonReader(new StringReader(value)));
+            return obj;
+        }
     }
 
     @TypeConverter
     public static String atmosphereToJson(Atmosphere value) {
-        return value == null ? null : value.toJson();
+        return JSONParser.serializer(value, Atmosphere.class);
     }
 
     @TypeConverter
     public static Astronomy astronomyFromJson(String value) {
-        return value == null ? null : Astronomy.fromJson(new JsonReader(new StringReader(value)));
+        if (value == null)
+            return null;
+        else {
+            Astronomy obj = new Astronomy();
+            obj.fromJson(new JsonReader(new StringReader(value)));
+            return obj;
+        }
     }
 
     @TypeConverter
     public static String astronomyToJson(Astronomy value) {
-        return value == null ? null : value.toJson();
+        return JSONParser.serializer(value, Astronomy.class);
     }
 
     @TypeConverter
     public static Precipitation precipitationFromJson(String value) {
-        return value == null ? null : Precipitation.fromJson(new JsonReader(new StringReader(value)));
+        if (value == null)
+            return null;
+        else {
+            Precipitation obj = new Precipitation();
+            obj.fromJson(new JsonReader(new StringReader(value)));
+            return obj;
+        }
     }
 
     @TypeConverter
     public static String precipitationToJson(Precipitation value) {
-        return value == null ? null : value.toJson();
+        return JSONParser.serializer(value, Precipitation.class);
     }
 
     @TypeConverter
@@ -280,7 +318,9 @@ public class WeatherDBConverters {
                 reader.beginArray();
 
                 while (reader.hasNext()) {
-                    result.add(WeatherAlert.fromJson(reader));
+                    WeatherAlert obj = new WeatherAlert();
+                    obj.fromJson(reader);
+                    result.add(obj);
                 }
 
                 reader.endArray();
@@ -305,7 +345,7 @@ public class WeatherDBConverters {
                 writer.beginArray();
 
                 for (WeatherAlert alert : value) {
-                    writer.value(alert.toJson());
+                    alert.toJson(writer);
                 }
 
                 writer.endArray();

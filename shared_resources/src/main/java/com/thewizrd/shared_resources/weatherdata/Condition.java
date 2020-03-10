@@ -2,20 +2,22 @@ package com.thewizrd.shared_resources.weatherdata;
 
 import android.util.Log;
 
+import androidx.annotation.RestrictTo;
+
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
+import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 
-public class Condition {
+public class Condition extends CustomJsonObject {
 
     @SerializedName("weather")
     private String weather;
@@ -50,7 +52,8 @@ public class Condition {
     @SerializedName("uv")
     private UV uv;
 
-    private Condition() {
+    @RestrictTo({RestrictTo.Scope.LIBRARY})
+    public Condition() {
         // Needed for deserialization
     }
 
@@ -296,19 +299,17 @@ public class Condition {
         this.beaufort = beaufort;
     }
 
-    public UV getUV() {
+    public UV getUv() {
         return uv;
     }
 
-    public void setUV(UV uv) {
+    public void setUv(UV uv) {
         this.uv = uv;
     }
 
-    public static Condition fromJson(JsonReader extReader) {
-        Condition obj = null;
-
+    @Override
+    public void fromJson(JsonReader extReader) {
         try {
-            obj = new Condition();
             JsonReader reader;
             String jsonValue;
 
@@ -338,37 +339,39 @@ public class Condition {
 
                 switch (property) {
                     case "weather":
-                        obj.weather = reader.nextString();
+                        this.weather = reader.nextString();
                         break;
                     case "temp_f":
-                        obj.tempF = Float.parseFloat(reader.nextString());
+                        this.tempF = Float.parseFloat(reader.nextString());
                         break;
                     case "temp_c":
-                        obj.tempC = Float.parseFloat(reader.nextString());
+                        this.tempC = Float.parseFloat(reader.nextString());
                         break;
                     case "wind_degrees":
-                        obj.windDegrees = Integer.parseInt(reader.nextString());
+                        this.windDegrees = Integer.parseInt(reader.nextString());
                         break;
                     case "wind_mph":
-                        obj.windMph = Float.parseFloat(reader.nextString());
+                        this.windMph = Float.parseFloat(reader.nextString());
                         break;
                     case "wind_kph":
-                        obj.windKph = Float.parseFloat(reader.nextString());
+                        this.windKph = Float.parseFloat(reader.nextString());
                         break;
                     case "feelslike_f":
-                        obj.feelslikeF = Float.parseFloat(reader.nextString());
+                        this.feelslikeF = Float.parseFloat(reader.nextString());
                         break;
                     case "feelslike_c":
-                        obj.feelslikeC = Float.parseFloat(reader.nextString());
+                        this.feelslikeC = Float.parseFloat(reader.nextString());
                         break;
                     case "icon":
-                        obj.icon = reader.nextString();
+                        this.icon = reader.nextString();
                         break;
                     case "beaufort":
-                        obj.beaufort = Beaufort.fromJson(reader);
+                        this.beaufort = new Beaufort();
+                        this.beaufort.fromJson(reader);
                         break;
                     case "uv":
-                        obj.uv = UV.fromJson(reader);
+                        this.uv = new UV();
+                        this.uv.fromJson(reader);
                         break;
                     default:
                         break;
@@ -378,18 +381,12 @@ public class Condition {
             if (reader.peek() == JsonToken.END_OBJECT)
                 reader.endObject();
 
-        } catch (Exception ex) {
-            obj = null;
+        } catch (Exception ignored) {
         }
-
-        return obj;
     }
 
-    public String toJson() {
-        StringWriter sw = new StringWriter();
-        JsonWriter writer = new JsonWriter(sw);
-        writer.setSerializeNulls(true);
-
+    @Override
+    public void toJson(JsonWriter writer) {
         try {
             // {
             writer.beginObject();
@@ -436,7 +433,7 @@ public class Condition {
                 if (beaufort == null)
                     writer.nullValue();
                 else
-                    writer.value(beaufort.toJson());
+                    beaufort.toJson(writer);
             }
 
             // "uv" : ""
@@ -445,7 +442,7 @@ public class Condition {
                 if (uv == null)
                     writer.nullValue();
                 else
-                    writer.value(uv.toJson());
+                    uv.toJson(writer);
             }
 
             // }
@@ -453,7 +450,5 @@ public class Condition {
         } catch (IOException e) {
             Logger.writeLine(Log.ERROR, e, "Condition: error writing json string");
         }
-
-        return sw.toString();
     }
 }

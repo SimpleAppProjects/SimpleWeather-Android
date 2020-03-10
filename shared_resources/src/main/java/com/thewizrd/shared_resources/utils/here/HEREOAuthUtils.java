@@ -85,7 +85,7 @@ public class HEREOAuthUtils {
                     // Store token for future operations
                     Token token = new Token();
                     token.setExpirationDate(date.plusSeconds(tokenRoot.getExpiresIn()));
-                    token.setAccessToken(tokenStr);
+                    token.setAccess_token(tokenStr);
 
                     storeToken(token);
 
@@ -117,7 +117,7 @@ public class HEREOAuthUtils {
                 });
 
                 if (token != null && token.getExpirationDate().plusSeconds(-90).compareTo(ZonedDateTime.now(ZoneOffset.UTC)) > 0) {
-                    return token.getAccessToken();
+                    return token.getAccess_token();
                 }
             }
         }

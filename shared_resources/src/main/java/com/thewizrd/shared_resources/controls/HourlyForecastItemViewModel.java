@@ -30,8 +30,6 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
         return forecast;
     }
 
-    ;
-
     public HourlyForecastItemViewModel(@NonNull HourlyForecast hrForecast) {
         this.forecast = hrForecast;
 

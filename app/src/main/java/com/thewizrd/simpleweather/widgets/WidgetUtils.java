@@ -15,7 +15,6 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.common.util.ArrayUtils;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -29,7 +28,6 @@ import com.thewizrd.simpleweather.R;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -344,8 +342,8 @@ public class WidgetUtils {
     public static void saveAllData(int appWidgetId, LocationData location, Weather weather) {
         SharedPreferences.Editor editor = getEditor(appWidgetId);
 
-        String locJson = location == null ? null : location.toJson();
-        String weatherJson = weather == null ? null : weather.toJson();
+        String locJson = JSONParser.serializer(location, LocationData.class);
+        String weatherJson = JSONParser.serializer(weather, Weather.class);
 
         if (locJson != null)
             editor.putString(KEY_LOCATIONDATA, locJson);
@@ -357,7 +355,7 @@ public class WidgetUtils {
     static void saveLocationData(int appWidgetId, LocationData location) {
         SharedPreferences.Editor editor = getEditor(appWidgetId);
 
-        String locJson = location == null ? null : location.toJson();
+        String locJson = JSONParser.serializer(location, LocationData.class);
 
         if (locJson != null)
             editor.putString(KEY_LOCATIONDATA, locJson);
@@ -367,7 +365,7 @@ public class WidgetUtils {
     public static void saveWeatherData(int appWidgetId, Weather weather) {
         SharedPreferences.Editor editor = getEditor(appWidgetId);
 
-        String weatherJson = weather == null ? null : weather.toJson();
+        String weatherJson = JSONParser.serializer(weather, Weather.class);
 
         if (weatherJson != null)
             editor.putString(KEY_WEATHERDATA, weatherJson);
@@ -381,8 +379,7 @@ public class WidgetUtils {
         if (StringUtils.isNullOrWhitespace(locDataJson)) {
             return null;
         } else {
-            JsonReader jsonTextReader = new JsonReader(new StringReader(locDataJson));
-            return LocationData.fromJson(jsonTextReader);
+            return JSONParser.deserializer(locDataJson, LocationData.class);
         }
     }
 
@@ -393,8 +390,7 @@ public class WidgetUtils {
         if (StringUtils.isNullOrWhitespace(weatherDataJson)) {
             return null;
         } else {
-            JsonReader jsonTextReader = new JsonReader(new StringReader(weatherDataJson));
-            return Weather.fromJson(jsonTextReader);
+            return JSONParser.deserializer(weatherDataJson, Weather.class);
         }
     }
 

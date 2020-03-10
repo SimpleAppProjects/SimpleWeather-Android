@@ -45,6 +45,7 @@ import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.CommonActions;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -500,7 +501,7 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
 
                         // Start WeatherNow Activity with weather data
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                        intent.putExtra(Constants.KEY_DATA, location.toJson());
+                        intent.putExtra(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class));
 
                         startActivity(intent);
                         finishAffinity();

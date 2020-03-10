@@ -354,10 +354,10 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 }
             }
 
-            if (weather.getCondition().getUV() != null) {
+            if (weather.getCondition().getUv() != null) {
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.UV,
                         String.format(Locale.ROOT, "%s, %s",
-                                weather.getCondition().getUV().getIndex(), weather.getCondition().getUV().getDescription())));
+                                weather.getCondition().getUv().getIndex(), weather.getCondition().getUv().getDescription())));
             }
 
             if (weather.getCondition().getFeelslikeF() != weather.getCondition().getFeelslikeC()) {

@@ -71,6 +71,7 @@ import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -613,7 +614,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                         }
 
                         // Setup complete
-                        mDataManager.getArguments().putString(Constants.KEY_DATA, location.toJson());
+                        mDataManager.getArguments().putString(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class));
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -779,7 +780,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                         }
 
                         // Setup complete
-                        mDataManager.getArguments().putString(Constants.KEY_DATA, location.toJson());
+                        mDataManager.getArguments().putString(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class));
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -1128,7 +1129,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
         if (mDataManager != null) {
             if (Settings.isWeatherLoaded()) {
                 if (location != null)
-                    mDataManager.getArguments().putString(Constants.KEY_DATA, location.toJson());
+                    mDataManager.getArguments().putString(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class));
 
                 if (inSearchUI) {
                     runOnUiThread(new Runnable() {

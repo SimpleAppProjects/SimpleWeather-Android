@@ -6,6 +6,7 @@ import androidx.core.util.AtomicFile;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -19,6 +20,7 @@ import com.thewizrd.shared_resources.weatherdata.Precipitation;
 import com.thewizrd.shared_resources.weatherdata.TextForecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
+import com.vimeo.stag.generated.Stag;
 
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZonedDateTime;
@@ -30,6 +32,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.reflect.Type;
 
 public class JSONParser {
@@ -38,6 +42,7 @@ public class JSONParser {
 
     static {
         gson = new GsonBuilder()
+                .registerTypeAdapterFactory(new Stag.Factory())
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeConverter())
                 .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeConverter())
                 .registerTypeAdapter(LocationData.class, new CustomJsonConverter<>(LocationData.class))
@@ -51,8 +56,9 @@ public class JSONParser {
                 .registerTypeAdapter(Astronomy.class, new CustomJsonConverter<>(Astronomy.class))
                 .registerTypeAdapter(Precipitation.class, new CustomJsonConverter<>(Precipitation.class))
                 .registerTypeAdapter(WeatherAlert.class, new CustomJsonConverter<>(WeatherAlert.class))
-                .setDateFormat("dd.MM.yyyy HH:mm:ss ZZZZZ")
-                .serializeNulls().create();
+                .setDateFormat(DateTimeUtils.ZONED_DATETIME_FORMAT)
+                .serializeNulls()
+                .create();
     }
 
     public static <T> T deserializer(String response, Type type) {
@@ -67,6 +73,7 @@ public class JSONParser {
         return object;
     }
 
+    /*
     public static <T> T deserializer(String response, Class<T> obj) {
         T object = null;
 
@@ -78,6 +85,7 @@ public class JSONParser {
 
         return object;
     }
+     */
 
     public static <T> T deserializer(InputStream stream, Type type) {
         T object = null;
@@ -192,7 +200,67 @@ public class JSONParser {
     }
 
     public static String serializer(Object object, Type type) {
+        if (object == null) return null;
         return gson.toJson(object, type);
     }
-}
 
+    /* Custom [De]Serializers for CustomJsonObjects */
+    public static <T extends CustomJsonObject> String serializer(T object, Type type) {
+        if (object == null) return null;
+        StringWriter sw = new StringWriter();
+        try {
+            object.toJson(gson.newJsonWriter(Streams.writerForAppendable(sw)));
+        } catch (IOException e) {
+            return null;
+        }
+        return sw.toString();
+    }
+
+    public static <T extends CustomJsonObject> T deserializer(String response, Class<T> obj) {
+        T object = null;
+        StringReader sr = new StringReader(response);
+
+        try {
+            object = obj.newInstance();
+            object.fromJson(gson.newJsonReader(sr));
+        } catch (Exception ex) {
+            Logger.writeLine(Log.ERROR, ex);
+        }
+
+        return object;
+    }
+
+    public static <T extends CustomJsonObject> T deserializer(InputStream stream, Class<T> obj) {
+        T object = null;
+        InputStreamReader sReader = null;
+        JsonReader reader = null;
+
+        try {
+            sReader = new InputStreamReader(stream);
+            reader = new JsonReader(sReader);
+
+            object = obj.newInstance();
+            object.fromJson(reader);
+        } catch (Exception ex) {
+            Logger.writeLine(Log.ERROR, ex);
+            object = null;
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                //e.printStackTrace();
+            }
+            try {
+                if (sReader != null) {
+                    sReader.close();
+                }
+            } catch (IOException e) {
+                //e.printStackTrace();
+            }
+        }
+
+        return object;
+    }
+}

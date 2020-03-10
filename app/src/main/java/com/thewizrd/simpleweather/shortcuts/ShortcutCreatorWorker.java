@@ -21,6 +21,7 @@ import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.ImageUtils;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Weather;
@@ -112,7 +113,7 @@ public class ShortcutCreatorWorker extends Worker {
             // Start WeatherNow Activity with weather data
             Intent intent = new Intent(mContext, MainActivity.class)
                     .setAction(Intent.ACTION_MAIN)
-                    .putExtra(Constants.KEY_SHORTCUTDATA, location.toJson())
+                    .putExtra(Constants.KEY_SHORTCUTDATA, JSONParser.serializer(location, LocationData.class))
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
 
             Bitmap bmp = new AsyncTask<Bitmap>().await(new Callable<Bitmap>() {

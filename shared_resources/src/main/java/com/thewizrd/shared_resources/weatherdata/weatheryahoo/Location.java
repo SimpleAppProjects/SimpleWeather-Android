@@ -1,7 +1,9 @@
 package com.thewizrd.shared_resources.weatherdata.weatheryahoo;
 
 import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.UseStag;
 
+@UseStag(UseStag.FieldOption.ALL)
 public class Location {
 
     @SerializedName("country")
@@ -73,11 +75,11 @@ public class Location {
         return lat;
     }
 
-    public void setLong(String _long) {
+    public void set_long(String _long) {
         this._long = _long;
     }
 
-    public String getLong() {
+    public String get_long() {
         return _long;
     }
 }

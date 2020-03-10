@@ -2,10 +2,13 @@ package com.thewizrd.shared_resources.weatherdata;
 
 import android.util.Log;
 
+import androidx.annotation.RestrictTo;
+
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 
@@ -18,11 +21,10 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.List;
 import java.util.Locale;
 
-public class Astronomy {
+public class Astronomy extends CustomJsonObject {
 
     @SerializedName("sunrise")
     private LocalDateTime sunrise;
@@ -39,7 +41,8 @@ public class Astronomy {
     @SerializedName("moonphase")
     private MoonPhase moonPhase;
 
-    private Astronomy() {
+    @RestrictTo({RestrictTo.Scope.LIBRARY})
+    public Astronomy() {
         // Needed for deserialization
     }
 
@@ -354,11 +357,9 @@ public class Astronomy {
         this.moonPhase = moonPhase;
     }
 
-    public static Astronomy fromJson(JsonReader extReader) {
-        Astronomy obj = null;
-
+    @Override
+    public void fromJson(JsonReader extReader) {
         try {
-            obj = new Astronomy();
             JsonReader reader;
             String jsonValue;
 
@@ -388,19 +389,20 @@ public class Astronomy {
 
                 switch (property) {
                     case "sunrise":
-                        obj.sunrise = LocalDateTime.parse(reader.nextString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                        this.sunrise = LocalDateTime.parse(reader.nextString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                         break;
                     case "sunset":
-                        obj.sunset = LocalDateTime.parse(reader.nextString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                        this.sunset = LocalDateTime.parse(reader.nextString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                         break;
                     case "moonrise":
-                        obj.moonrise = LocalDateTime.parse(reader.nextString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                        this.moonrise = LocalDateTime.parse(reader.nextString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                         break;
                     case "moonset":
-                        obj.moonset = LocalDateTime.parse(reader.nextString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                        this.moonset = LocalDateTime.parse(reader.nextString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                         break;
                     case "moonphase":
-                        obj.moonPhase = MoonPhase.fromJson(reader);
+                        this.moonPhase = new MoonPhase();
+                        this.moonPhase.fromJson(reader);
                         break;
                     default:
                         break;
@@ -410,18 +412,12 @@ public class Astronomy {
             if (reader.peek() == JsonToken.END_OBJECT)
                 reader.endObject();
 
-        } catch (Exception ex) {
-            obj = null;
+        } catch (Exception ignored) {
         }
-
-        return obj;
     }
 
-    public String toJson() {
-        StringWriter sw = new StringWriter();
-        JsonWriter writer = new JsonWriter(sw);
-        writer.setSerializeNulls(true);
-
+    @Override
+    public void toJson(JsonWriter writer) {
         try {
             // {
             writer.beginObject();
@@ -448,7 +444,7 @@ public class Astronomy {
                 if (moonPhase == null)
                     writer.nullValue();
                 else
-                    writer.value(moonPhase.toJson());
+                    moonPhase.toJson(writer);
             }
 
             // }
@@ -456,7 +452,5 @@ public class Astronomy {
         } catch (IOException e) {
             Logger.writeLine(Log.ERROR, e, "Astronomy: error writing json string");
         }
-
-        return sw.toString();
     }
 }

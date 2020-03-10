@@ -1,7 +1,9 @@
 package com.thewizrd.shared_resources.weatherdata.nws;
 
 import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.UseStag;
 
+@UseStag(UseStag.FieldOption.ALL)
 public class MinTemperatureLast24Hours {
 
     @SerializedName("unitCode")
@@ -25,7 +27,7 @@ public class MinTemperatureLast24Hours {
         this.qualityControl = qualityControl;
     }
 
-    public Object getQualityControl() {
+    public String getQualityControl() {
         return qualityControl;
     }
 

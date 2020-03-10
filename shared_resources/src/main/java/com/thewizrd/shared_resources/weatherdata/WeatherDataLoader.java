@@ -14,6 +14,7 @@ import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.CommonActions;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -196,7 +197,7 @@ public class WeatherDataLoader {
                             mLocalBroadcastManager.sendBroadcast(
                                     new Intent(CommonActions.ACTION_WEATHER_UPDATEWIDGETLOCATION)
                                             .putExtra(Constants.WIDGETKEY_OLDKEY, oldKey)
-                                            .putExtra(Constants.WIDGETKEY_LOCATION, location.toJson()));
+                                            .putExtra(Constants.WIDGETKEY_LOCATION, JSONParser.serializer(location, LocationData.class)));
                         }
                     } else {
                         Settings.saveHomeData(location);
@@ -301,7 +302,7 @@ public class WeatherDataLoader {
                     new Intent(CommonActions.ACTION_WEATHER_UPDATEWIDGETWEATHER)
                             .putExtra(Constants.WIDGETKEY_LOCATIONQUERY,
                                     location.getLocationType() == LocationType.GPS ? Constants.KEY_GPS : location.getQuery())
-                            .putExtra(Constants.WIDGETKEY_WEATHER, weather.toJson()));
+                            .putExtra(Constants.WIDGETKEY_WEATHER, JSONParser.serializer(weather, Weather.class)));
         } else {
             Settings.setUpdateTime(LocalDateTime.ofInstant(weather.getUpdateTime().toInstant(), ZoneOffset.UTC));
         }

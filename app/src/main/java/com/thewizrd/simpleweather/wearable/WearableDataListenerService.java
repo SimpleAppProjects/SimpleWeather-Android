@@ -28,6 +28,7 @@ import com.google.android.gms.wearable.WearableListenerService;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
@@ -305,7 +306,7 @@ public class WearableDataListenerService extends WearableListenerService {
 
         PutDataMapRequest mapRequest = PutDataMapRequest.create(WearableHelper.LocationPath);
         LocationData homeData = Settings.getHomeData();
-        mapRequest.getDataMap().putString(WearableSettings.KEY_LOCATIONDATA, homeData == null ? null : homeData.toJson());
+        mapRequest.getDataMap().putString(WearableSettings.KEY_LOCATIONDATA, JSONParser.serializer(homeData, LocationData.class));
         mapRequest.getDataMap().putLong(WearableSettings.KEY_UPDATETIME, Instant.now().toEpochMilli());
         PutDataRequest request = mapRequest.asPutDataRequest();
         if (urgent) request.setUrgent();
@@ -339,7 +340,7 @@ public class WearableDataListenerService extends WearableListenerService {
 
         if (weatherData != null) {
             weatherData.setWeatherAlerts(alertData);
-            mapRequest.getDataMap().putAsset(WearableSettings.KEY_WEATHERDATA, Asset.createFromBytes(weatherData.toJson().getBytes(Charset.forName("UTF-8"))));
+            mapRequest.getDataMap().putAsset(WearableSettings.KEY_WEATHERDATA, Asset.createFromBytes(JSONParser.serializer(weatherData, Weather.class).getBytes(Charset.forName("UTF-8"))));
         }
 
         mapRequest.getDataMap().putLong(WearableSettings.KEY_UPDATETIME, Instant.now().toEpochMilli());

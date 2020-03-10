@@ -1,7 +1,9 @@
 package com.thewizrd.shared_resources.utils.here;
 
 import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.UseStag;
 
+@UseStag(UseStag.FieldOption.ALL)
 public class TokenRootobject {
 
     @SerializedName("access_token")

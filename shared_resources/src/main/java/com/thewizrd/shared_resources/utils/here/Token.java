@@ -1,17 +1,20 @@
 package com.thewizrd.shared_resources.utils.here;
 
-import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
+import com.vimeo.stag.UseStag;
 
+import org.threeten.bp.ZonedDateTime;
+
+@UseStag(UseStag.FieldOption.ALL)
 class Token {
     private String access_token;
     private String expiration_date;
 
-    public String getAccessToken() {
+    public String getAccess_token() {
         return access_token;
     }
 
-    public void setAccessToken(String token) {
+    public void setAccess_token(String token) {
         access_token = token;
     }
 
@@ -19,7 +22,7 @@ class Token {
         ZonedDateTime dateTime = null;
 
         try {
-            dateTime = ZonedDateTime.parse(expiration_date, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss ZZZZZ"));
+            dateTime = ZonedDateTime.parse(expiration_date, DateTimeUtils.getZonedDateTimeFormatter());
         } catch (Exception ignored) {
         }
 
@@ -30,6 +33,14 @@ class Token {
     }
 
     public void setExpirationDate(ZonedDateTime date) {
-        expiration_date = date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss ZZZZZ"));
+        expiration_date = date.format(DateTimeUtils.getZonedDateTimeFormatter());
+    }
+
+    String getExpiration_date() {
+        return expiration_date;
+    }
+
+    void setExpiration_date(String expiration_date) {
+        this.expiration_date = expiration_date;
     }
 }

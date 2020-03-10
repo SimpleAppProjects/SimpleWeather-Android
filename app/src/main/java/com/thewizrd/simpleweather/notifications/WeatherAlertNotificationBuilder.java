@@ -22,6 +22,7 @@ import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ImageUtils;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
@@ -55,7 +56,7 @@ public class WeatherAlertNotificationBuilder {
         // Start WeatherNow Activity with weather data
         Intent intent = new Intent(context, MainActivity.class)
                 .setAction(WeatherWidgetService.ACTION_SHOWALERTS)
-                .putExtra(Constants.KEY_DATA, location.toJson())
+                .putExtra(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class))
                 .putExtra(WeatherWidgetService.ACTION_SHOWALERTS, true)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent clickPendingIntent = PendingIntent.getActivity(context, 0, intent, 0);

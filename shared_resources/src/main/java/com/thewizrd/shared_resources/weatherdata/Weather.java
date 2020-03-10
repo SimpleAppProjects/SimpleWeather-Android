@@ -3,6 +3,7 @@ package com.thewizrd.shared_resources.weatherdata;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -12,6 +13,8 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
+import com.thewizrd.shared_resources.utils.CustomJsonObject;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -25,14 +28,13 @@ import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
 @Entity(tableName = "weatherdata")
-public class Weather {
+public class Weather extends CustomJsonObject {
     @Ignore
     public static final transient String NA = "N/A";
 
@@ -64,6 +66,7 @@ public class Weather {
     private String query;
     private String locale;
 
+    @RestrictTo({RestrictTo.Scope.LIBRARY, RestrictTo.Scope.TESTS})
     public Weather() {
         // Needed for deserialization
     }
@@ -416,10 +419,10 @@ public class Weather {
         for (int i = 0; i < forecastResponse.getPeriods().size(); i++) {
             com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem = forecastResponse.getPeriods().get(i);
 
-            if (forecast.isEmpty() && !forecastItem.isIsDaytime())
+            if (forecast.isEmpty() && !forecastItem.getIsDaytime())
                 continue;
 
-            if (forecastItem.isIsDaytime() && (i + 1) < forecastResponse.getPeriods().size()) {
+            if (forecastItem.getIsDaytime() && (i + 1) < forecastResponse.getPeriods().size()) {
                 com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem nightForecastItem = forecastResponse.getPeriods().get(i + 1);
                 forecast.add(new Forecast(forecastItem, nightForecastItem));
 
@@ -556,12 +559,9 @@ public class Weather {
         this.locale = locale;
     }
 
-    public static Weather fromJson(JsonReader reader) {
-        Weather obj = null;
-
+    @Override
+    public void fromJson(JsonReader reader) {
         try {
-            obj = new Weather();
-
             while (reader.hasNext() && reader.peek() != JsonToken.END_OBJECT) {
                 if (reader.peek() == JsonToken.BEGIN_OBJECT)
                     reader.beginObject(); // StartObject
@@ -575,22 +575,23 @@ public class Weather {
 
                 switch (property) {
                     case "location":
-                        obj.location = Location.fromJson(reader);
+                        this.location = new Location();
+                        this.location.fromJson(reader);
                         break;
                     case "update_time":
                         String json = reader.nextString();
                         ZonedDateTime result = null;
                         try {
-                            result = ZonedDateTime.parse(json, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss ZZZZZ"));
-                            if (obj.getLocation().getTzOffset() != null && result.getOffset().getTotalSeconds() == 0) {
-                                result = ZonedDateTime.ofInstant(result.toInstant(), obj.getLocation().getTzOffset());
+                            result = ZonedDateTime.parse(json, DateTimeUtils.getZonedDateTimeFormatter());
+                            if (this.getLocation().getTzOffset() != null && result.getOffset().getTotalSeconds() == 0) {
+                                result = ZonedDateTime.ofInstant(result.toInstant(), this.getLocation().getTzOffset());
                             }
                         } catch (Exception e) {
                             // If we can't parse as DateTimeOffset try DateTime (data could be old)
                             result = ZonedDateTime.parse(json);
                         }
 
-                        obj.setUpdateTime(result);
+                        this.setUpdateTime(result);
                         break;
                     case "forecast":
                         // Set initial cap to 10
@@ -601,10 +602,13 @@ public class Weather {
                             reader.beginArray(); // StartArray
 
                         while (reader.hasNext() && reader.peek() != JsonToken.END_ARRAY) {
-                            if (reader.peek() == JsonToken.STRING)
-                                forecasts.add(Forecast.fromJson(reader));
+                            if (reader.peek() == JsonToken.STRING || reader.peek() == JsonToken.BEGIN_OBJECT) {
+                                Forecast fcast = new Forecast();
+                                fcast.fromJson(reader);
+                                forecasts.add(fcast);
+                            }
                         }
-                        obj.forecast = forecasts;
+                        this.forecast = forecasts;
 
                         if (reader.peek() == JsonToken.END_ARRAY)
                             reader.endArray(); // EndArray
@@ -619,10 +623,13 @@ public class Weather {
                             reader.beginArray(); // StartArray
 
                         while (reader.hasNext() && reader.peek() != JsonToken.END_ARRAY) {
-                            if (reader.peek() == JsonToken.STRING)
-                                hr_forecasts.add(HourlyForecast.fromJson(reader));
+                            if (reader.peek() == JsonToken.STRING || reader.peek() == JsonToken.BEGIN_OBJECT) {
+                                HourlyForecast hr_fcast = new HourlyForecast();
+                                hr_fcast.fromJson(reader);
+                                hr_forecasts.add(hr_fcast);
+                            }
                         }
-                        obj.hrForecast = hr_forecasts;
+                        this.hrForecast = hr_forecasts;
 
                         if (reader.peek() == JsonToken.END_ARRAY)
                             reader.endArray(); // EndArray
@@ -636,38 +643,45 @@ public class Weather {
                             reader.beginArray(); // StartArray
 
                         while (reader.hasNext() && reader.peek() != JsonToken.END_ARRAY) {
-                            if (reader.peek() == JsonToken.STRING)
-                                txt_forecasts.add(TextForecast.fromJson(reader));
+                            if (reader.peek() == JsonToken.STRING || reader.peek() == JsonToken.BEGIN_OBJECT) {
+                                TextForecast txtFcast = new TextForecast();
+                                txtFcast.fromJson(reader);
+                                txt_forecasts.add(txtFcast);
+                            }
                         }
-                        obj.txtForecast = txt_forecasts;
+                        this.txtForecast = txt_forecasts;
 
                         if (reader.peek() == JsonToken.END_ARRAY)
                             reader.endArray(); // EndArray
 
                         break;
                     case "condition":
-                        obj.condition = Condition.fromJson(reader);
+                        this.condition = new Condition();
+                        this.condition.fromJson(reader);
                         break;
                     case "atmosphere":
-                        obj.atmosphere = Atmosphere.fromJson(reader);
+                        this.atmosphere = new Atmosphere();
+                        this.atmosphere.fromJson(reader);
                         break;
                     case "astronomy":
-                        obj.astronomy = Astronomy.fromJson(reader);
+                        this.astronomy = new Astronomy();
+                        this.astronomy.fromJson(reader);
                         break;
                     case "precipitation":
-                        obj.precipitation = Precipitation.fromJson(reader);
+                        this.precipitation = new Precipitation();
+                        this.precipitation.fromJson(reader);
                         break;
                     case "ttl":
-                        obj.ttl = reader.nextString();
+                        this.ttl = reader.nextString();
                         break;
                     case "source":
-                        obj.source = reader.nextString();
+                        this.source = reader.nextString();
                         break;
                     case "query":
-                        obj.query = reader.nextString();
+                        this.query = reader.nextString();
                         break;
                     case "locale":
-                        obj.locale = reader.nextString();
+                        this.locale = reader.nextString();
                         break;
                     default:
                         break;
@@ -677,18 +691,12 @@ public class Weather {
             if (reader.peek() == JsonToken.END_OBJECT)
                 reader.endObject();
 
-        } catch (Exception ex) {
-            obj = null;
+        } catch (Exception ignored) {
         }
-
-        return obj;
     }
 
-    public String toJson() {
-        StringWriter sw = new StringWriter();
-        JsonWriter writer = new JsonWriter(sw);
-        writer.setSerializeNulls(true);
-
+    @Override
+    public void toJson(JsonWriter writer) {
         try {
             // {
             writer.beginObject();
@@ -698,11 +706,11 @@ public class Weather {
             if (location == null)
                 writer.nullValue();
             else
-                writer.value(location.toJson());
+                location.toJson(writer);
 
             // "update_time" : ""
             writer.name("update_time");
-            writer.value(updateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss ZZZZZ", Locale.ROOT)));
+            writer.value(updateTime.format(DateTimeUtils.getZonedDateTimeFormatter()));
 
             // "forecast" : ""
             if (forecast != null) {
@@ -712,7 +720,7 @@ public class Weather {
                     if (cast == null)
                         writer.nullValue();
                     else
-                        writer.value(cast.toJson());
+                        cast.toJson(writer);
                 }
                 writer.endArray();
             }
@@ -725,7 +733,7 @@ public class Weather {
                     if (hr_cast == null)
                         writer.nullValue();
                     else
-                        writer.value(hr_cast.toJson());
+                        hr_cast.toJson(writer);
                 }
                 writer.endArray();
             }
@@ -738,7 +746,7 @@ public class Weather {
                     if (txt_cast == null)
                         writer.nullValue();
                     else
-                        writer.value(txt_cast.toJson());
+                        txt_cast.toJson(writer);
                 }
                 writer.endArray();
             }
@@ -748,21 +756,21 @@ public class Weather {
             if (condition == null)
                 writer.nullValue();
             else
-                writer.value(condition.toJson());
+                condition.toJson(writer);
 
             // "atmosphere" : ""
             writer.name("atmosphere");
             if (atmosphere == null)
                 writer.nullValue();
             else
-                writer.value(atmosphere.toJson());
+                atmosphere.toJson(writer);
 
             // "astronomy" : ""
             writer.name("astronomy");
             if (astronomy == null)
                 writer.nullValue();
             else
-                writer.value(astronomy.toJson());
+                astronomy.toJson(writer);
 
             // "precipitation" : ""
             if (precipitation != null) {
@@ -770,7 +778,7 @@ public class Weather {
                 if (precipitation == null)
                     writer.nullValue();
                 else
-                    writer.value(precipitation.toJson());
+                    precipitation.toJson(writer);
             }
 
             // "ttl" : ""
@@ -794,7 +802,6 @@ public class Weather {
         } catch (IOException e) {
             Logger.writeLine(Log.ERROR, e, "LocationData: error writing json string");
         }
-        return sw.toString();
     }
 
     public boolean isValid() {

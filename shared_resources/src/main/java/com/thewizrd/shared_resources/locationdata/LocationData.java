@@ -14,6 +14,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.ibm.icu.util.TimeZone;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -26,11 +27,10 @@ import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Locale;
 
 @Entity(tableName = "locations")
-public class LocationData {
+public class LocationData extends CustomJsonObject {
     @PrimaryKey
     @NonNull
     private String query;
@@ -194,12 +194,9 @@ public class LocationData {
         return hashCode;
     }
 
-    public static LocationData fromJson(JsonReader reader) {
-        LocationData obj = null;
-
+    @Override
+    public void fromJson(JsonReader reader) {
         try {
-            obj = new LocationData();
-
             while (reader.hasNext() && reader.peek() != JsonToken.END_OBJECT) {
                 if (reader.peek() == JsonToken.BEGIN_OBJECT)
                     reader.beginObject(); // StartObject
@@ -213,28 +210,28 @@ public class LocationData {
 
                 switch (property) {
                     case "query":
-                        obj.query = reader.nextString();
+                        this.query = reader.nextString();
                         break;
                     case "name":
-                        obj.name = reader.nextString();
+                        this.name = reader.nextString();
                         break;
                     case "latitude":
-                        obj.latitude = Double.parseDouble(reader.nextString());
+                        this.latitude = Double.parseDouble(reader.nextString());
                         break;
                     case "longitude":
-                        obj.longitude = Double.parseDouble(reader.nextString());
+                        this.longitude = Double.parseDouble(reader.nextString());
                         break;
                     case "tz_long":
-                        obj.tzLong = reader.nextString();
+                        this.tzLong = reader.nextString();
                         break;
                     case "locationType":
-                        obj.locationType = LocationType.valueOf(Integer.parseInt(reader.nextString()));
+                        this.locationType = LocationType.valueOf(Integer.parseInt(reader.nextString()));
                         break;
                     case "source":
-                        obj.weatherSource = reader.nextString();
+                        this.weatherSource = reader.nextString();
                         break;
                     case "locsource":
-                        obj.locationSource = reader.nextString();
+                        this.locationSource = reader.nextString();
                         break;
                 }
             }
@@ -242,18 +239,12 @@ public class LocationData {
             if (reader.peek() == JsonToken.END_OBJECT)
                 reader.endObject();
 
-        } catch (Exception ex) {
-            obj = null;
+        } catch (Exception ignored) {
         }
-
-        return obj;
     }
 
-    public String toJson() {
-        StringWriter sw = new StringWriter();
-        JsonWriter writer = new JsonWriter(sw);
-        writer.setSerializeNulls(true);
-
+    @Override
+    public void toJson(JsonWriter writer) {
         try {
             // {
             writer.beginObject();
@@ -295,8 +286,6 @@ public class LocationData {
         } catch (IOException e) {
             Logger.writeLine(Log.ERROR, e, "LocationData: error writing json string");
         }
-
-        return sw.toString();
     }
 
     public boolean isValid() {

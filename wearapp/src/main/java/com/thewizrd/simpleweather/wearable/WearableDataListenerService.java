@@ -32,10 +32,10 @@ import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -59,8 +59,6 @@ import org.threeten.bp.ZoneOffset;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -569,20 +567,16 @@ public class WearableDataListenerService extends WearableListenerService {
         if (dataMap != null && !dataMap.isEmpty()) {
             String locationJSON = dataMap.getString(WearableSettings.KEY_LOCATIONDATA, "");
             if (!StringUtils.isNullOrWhitespace(locationJSON)) {
-                try (JsonReader reader = new JsonReader(new StringReader(locationJSON))) {
-                    LocationData locationData = LocationData.fromJson(reader);
+                LocationData locationData = JSONParser.deserializer(locationJSON, LocationData.class);
 
-                    if (locationData != null) {
-                        if (!locationData.equals(Settings.getHomeData())) {
-                            Settings.saveHomeData(locationData);
-                        }
-
-                        // Send callback to receiver
-                        LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
-                                new Intent(WearableHelper.LocationPath));
+                if (locationData != null) {
+                    if (!locationData.equals(Settings.getHomeData())) {
+                        Settings.saveHomeData(locationData);
                     }
-                } catch (IOException e) {
-                    Logger.writeLine(Log.ERROR, e);
+
+                    // Send callback to receiver
+                    LocalBroadcastManager.getInstance(WearableDataListenerService.this).sendBroadcast(
+                            new Intent(WearableHelper.LocationPath));
                 }
             }
         }
@@ -613,12 +607,10 @@ public class WearableDataListenerService extends WearableListenerService {
             final Asset weatherAsset = dataMap.getAsset(WearableSettings.KEY_WEATHERDATA);
             if (weatherAsset != null) {
                 try (InputStream inputStream = Tasks.await(Wearable.getDataClient(this).getFdForAsset(weatherAsset)).getInputStream()) {
-                    final JsonReader weatherTextReader = new JsonReader(new InputStreamReader(inputStream));
-
                     final Weather weatherData = new AsyncTask<Weather>().await(new Callable<Weather>() {
                         @Override
                         public Weather call() {
-                            return Weather.fromJson(weatherTextReader);
+                            return JSONParser.deserializer(inputStream, Weather.class);
                         }
                     });
 
@@ -652,8 +644,6 @@ public class WearableDataListenerService extends WearableListenerService {
                                         .setAction(WeatherTileIntentService.ACTION_UPDATETILES)
                                         .putExtra(WeatherTileIntentService.EXTRA_FORCEUPDATE, true));
                     }
-
-                    weatherTextReader.close();
                 } catch (ExecutionException | InterruptedException | IOException e) {
                     Logger.writeLine(Log.ERROR, e);
                 }

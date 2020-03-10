@@ -11,6 +11,8 @@ import org.threeten.bp.temporal.TemporalAdjusters;
 import java.util.Locale;
 
 public class DateTimeUtils {
+    public static final String ZONED_DATETIME_FORMAT = "dd.MM.yyyy HH:mm:ss ZZZZZ";
+
     public static Duration maxTimeOfDay() {
         return Duration.ofHours(23).plusMinutes(59).plusSeconds(59).plusMillis(999);
     }
@@ -59,5 +61,9 @@ public class DateTimeUtils {
     public static LocalDateTime getLocalDateTimeMIN() {
         return LocalDateTime.parse("1/1/1900 12:00:00 AM",
                 DateTimeFormatter.ofPattern("M/d/yyyy h:mm:ss a", Locale.ROOT));
+    }
+
+    public static DateTimeFormatter getZonedDateTimeFormatter() {
+        return DateTimeFormatter.ofPattern(ZONED_DATETIME_FORMAT, Locale.ROOT);
     }
 }

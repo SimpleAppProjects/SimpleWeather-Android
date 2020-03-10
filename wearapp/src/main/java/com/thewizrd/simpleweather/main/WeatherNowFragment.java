@@ -43,7 +43,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.gson.stream.JsonReader;
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
@@ -54,6 +53,7 @@ import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -78,8 +78,6 @@ import com.thewizrd.simpleweather.wearable.WeatherTileIntentService;
 import org.threeten.bp.Duration;
 import org.threeten.bp.ZonedDateTime;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -137,7 +135,7 @@ public class WeatherNowFragment extends Fragment
         WeatherNowFragment fragment = new WeatherNowFragment();
         if (data != null) {
             Bundle args = new Bundle();
-            args.putString(Constants.KEY_DATA, data.toJson());
+            args.putString(Constants.KEY_DATA, JSONParser.serializer(data, LocationData.class));
             fragment.setArguments(args);
         }
         return fragment;
@@ -238,13 +236,8 @@ public class WeatherNowFragment extends Fragment
 
         // Create your fragment here
         if (getArguments() != null) {
-            JsonReader jsonReader = new JsonReader(new StringReader(getArguments().getString(Constants.KEY_DATA, null)));
-            location = LocationData.fromJson(jsonReader);
-            try {
-                jsonReader.close();
-            } catch (IOException e) {
-                Logger.writeLine(Log.ERROR, e);
-            }
+            location = JSONParser.deserializer(
+                    getArguments().getString(Constants.KEY_DATA, null), LocationData.class);
 
             if (location != null && wLoader == null)
                 wLoader = new WeatherDataLoader(location);

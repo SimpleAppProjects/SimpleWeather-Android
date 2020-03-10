@@ -3,10 +3,12 @@ package com.thewizrd.simpleweather;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.common.base.Stopwatch;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.ApplicationLib;
@@ -14,6 +16,7 @@ import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -30,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
 import java.util.concurrent.Callable;
 
 @RunWith(AndroidJUnit4.class)
@@ -124,5 +128,24 @@ public class WeatherUnitTest {
             }
         });
         Assert.assertTrue(!StringUtils.isNullOrWhitespace(token));
+    }
+
+    @Test
+    public void serializationTest() throws WeatherException, IOException {
+        WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.YAHOO);
+
+        Stopwatch s = Stopwatch.createStarted();
+        Weather weather = getWeather(provider);
+        s.stop();
+        Log.d("Serialzer", "JSON GetWeather Test: " + s.toString());
+
+        for (int i = 0; i < 30; i++) {
+            Stopwatch s2 = Stopwatch.createStarted();
+            String json2 = JSONParser.serializer(weather, Weather.class);
+            Weather desW2 = JSONParser.deserializer(json2, Weather.class);
+            s2.stop();
+
+            Log.d("Serialzer", "JSON2 Test " + (i + 1) + ": " + s2.toString());
+        }
     }
 }

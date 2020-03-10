@@ -2,10 +2,13 @@ package com.thewizrd.shared_resources.weatherdata;
 
 import android.util.Log;
 
+import androidx.annotation.RestrictTo;
+
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 
@@ -17,10 +20,9 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Locale;
 
-public class Location {
+public class Location extends CustomJsonObject {
 
     @SerializedName("name")
     private String name;
@@ -35,7 +37,9 @@ public class Location {
     @SerializedName("tz_long")
     private String tzLong;
 
-    private Location() {
+    @RestrictTo({RestrictTo.Scope.LIBRARY})
+    public Location() {
+        // Needed for deserialization
         tzOffset = ZoneOffset.UTC;
     }
 
@@ -55,7 +59,7 @@ public class Location {
         // Use location name from location provider
         name = null;
         latitude = location.getLat();
-        longitude = location.getLong();
+        longitude = location.get_long();
 
         ZoneId zId = ZoneId.of(location.getTimezoneId());
 
@@ -152,11 +156,9 @@ public class Location {
         this.tzLong = tzLong;
     }
 
-    public static Location fromJson(JsonReader extReader) {
-        Location obj = null;
-
+    @Override
+    public void fromJson(JsonReader extReader) {
         try {
-            obj = new Location();
             JsonReader reader;
             String jsonValue;
 
@@ -186,22 +188,22 @@ public class Location {
 
                 switch (property) {
                     case "name":
-                        obj.name = reader.nextString();
+                        this.name = reader.nextString();
                         break;
                     case "latitude":
-                        obj.latitude = reader.nextString();
+                        this.latitude = reader.nextString();
                         break;
                     case "longitude":
-                        obj.longitude = reader.nextString();
+                        this.longitude = reader.nextString();
                         break;
                     case "tz_offset":
-                        obj.tzOffset = ZoneOffset.of(reader.nextString());
+                        this.tzOffset = ZoneOffset.of(reader.nextString());
                         break;
                     case "tz_short":
-                        obj.tzShort = reader.nextString();
+                        this.tzShort = reader.nextString();
                         break;
                     case "tz_long":
-                        obj.tzLong = reader.nextString();
+                        this.tzLong = reader.nextString();
                         break;
                     default:
                         break;
@@ -211,18 +213,12 @@ public class Location {
             if (reader.peek() == JsonToken.END_OBJECT)
                 reader.endObject();
 
-        } catch (Exception ex) {
-            obj = null;
+        } catch (Exception ignored) {
         }
-
-        return obj;
     }
 
-    public String toJson() {
-        StringWriter sw = new StringWriter();
-        JsonWriter writer = new JsonWriter(sw);
-        writer.setSerializeNulls(true);
-
+    @Override
+    public void toJson(JsonWriter writer) {
         try {
             // {
             writer.beginObject();
@@ -256,7 +252,5 @@ public class Location {
         } catch (IOException e) {
             Logger.writeLine(Log.ERROR, e, "Location: error writing json string");
         }
-
-        return sw.toString();
     }
 }

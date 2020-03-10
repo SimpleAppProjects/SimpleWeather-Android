@@ -66,7 +66,7 @@ public class WULocationProvider extends LocationProviderImpl {
             locations = new ArrayList<>();
             AC_Rootobject root = JSONParser.deserializer(stream, AC_Rootobject.class);
 
-            for (AC_RESULTS result : root.getRESULTS()) {
+            for (AC_RESULTS result : root.getResults()) {
                 // Filter: only store city results
                 if (!"city".equals(result.getType()))
                     continue;

@@ -77,7 +77,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.gson.stream.JsonReader;
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
@@ -90,6 +89,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -126,7 +126,6 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
-import java.io.StringReader;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
@@ -187,7 +186,7 @@ public class WeatherNowFragment extends WindowColorFragment
         WeatherNowFragment fragment = new WeatherNowFragment();
         if (data != null) {
             Bundle args = new Bundle();
-            args.putString(Constants.KEY_DATA, data.toJson());
+            args.putString(Constants.KEY_DATA, JSONParser.serializer(data, LocationData.class));
             fragment.setArguments(args);
         }
         return fragment;
@@ -379,9 +378,8 @@ public class WeatherNowFragment extends WindowColorFragment
         // Create your fragment here
         if (getArguments() != null) {
             try {
-                JsonReader jsonReader = new JsonReader(new StringReader(getArguments().getString(Constants.KEY_DATA, null)));
-                location = LocationData.fromJson(jsonReader);
-                jsonReader.close();
+                location = JSONParser.deserializer(
+                        getArguments().getString(Constants.KEY_DATA, null), LocationData.class);
             } catch (Exception e) {
                 Logger.writeLine(Log.ERROR, e);
             }

@@ -258,7 +258,8 @@ public class Settings {
                 if (!StringUtils.isNullOrWhitespace(getLastGPSLocation())) {
                     try {
                         JsonReader reader = new JsonReader(new StringReader(getLastGPSLocation()));
-                        lastGPSLocData = LocationData.fromJson(reader);
+                        lastGPSLocData = new LocationData();
+                        lastGPSLocData.fromJson(reader);
                     } catch (Exception ex) {
                         Logger.writeLine(Log.ERROR, ex, "SimpleWeather: Settings.Load(): LastGPSLocation");
                     } finally {
@@ -727,7 +728,7 @@ public class Settings {
 
     public static void saveLastGPSLocData(LocationData data) {
         lastGPSLocData = data;
-        setLastGPSLocation(lastGPSLocData == null ? null : lastGPSLocData.toJson());
+        setLastGPSLocation(JSONParser.serializer(lastGPSLocData, LocationData.class));
     }
 
     public static LocationData getHomeData() {
@@ -752,7 +753,7 @@ public class Settings {
     @RequiresApi(Build.VERSION_CODES.M)
     public static void saveHomeData(LocationData data) {
         lastGPSLocData = data;
-        setLastGPSLocation(lastGPSLocData == null ? null : lastGPSLocData.toJson());
+        setLastGPSLocation(JSONParser.serializer(lastGPSLocData, LocationData.class));
     }
 
     @RequiresApi(Build.VERSION_CODES.M)

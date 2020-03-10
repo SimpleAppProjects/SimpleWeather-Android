@@ -53,6 +53,7 @@ import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ImageUtils;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -1180,7 +1181,7 @@ public class WeatherWidgetService extends JobIntentService {
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         if (!Settings.getHomeData().equals(location))
-            onClickIntent.putExtra(Constants.KEY_SHORTCUTDATA, location == null ? null : location.toJson());
+            onClickIntent.putExtra(Constants.KEY_SHORTCUTDATA, JSONParser.serializer(location, LocationData.class));
 
         PendingIntent clickPendingIntent =
                 PendingIntent.getActivity(context, location.hashCode(), onClickIntent, PendingIntent.FLAG_UPDATE_CURRENT);

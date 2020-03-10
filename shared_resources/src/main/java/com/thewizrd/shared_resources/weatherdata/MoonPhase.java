@@ -3,20 +3,22 @@ package com.thewizrd.shared_resources.weatherdata;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.RestrictTo;
+
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 
-public class MoonPhase {
+public class MoonPhase extends CustomJsonObject {
 
     public enum MoonPhaseType {
         NEWMOON,
@@ -35,7 +37,8 @@ public class MoonPhase {
     @SerializedName("desc")
     private String desc;
 
-    private MoonPhase() {
+    @RestrictTo({RestrictTo.Scope.LIBRARY})
+    public MoonPhase() {
         // Needed for deserialization
     }
 
@@ -95,11 +98,9 @@ public class MoonPhase {
         this.desc = description;
     }
 
-    public static MoonPhase fromJson(JsonReader extReader) {
-        MoonPhase obj = null;
-
+    @Override
+    public void fromJson(JsonReader extReader) {
         try {
-            obj = new MoonPhase();
             JsonReader reader;
             String jsonValue;
 
@@ -129,10 +130,10 @@ public class MoonPhase {
 
                 switch (property) {
                     case "phase":
-                        obj.phase = MoonPhaseType.valueOf(reader.nextString());
+                        this.phase = MoonPhaseType.valueOf(reader.nextString());
                         break;
                     case "desc":
-                        obj.desc = reader.nextString();
+                        this.desc = reader.nextString();
                         break;
                     default:
                         break;
@@ -142,18 +143,11 @@ public class MoonPhase {
             if (reader.peek() == JsonToken.END_OBJECT)
                 reader.endObject();
 
-        } catch (Exception ex) {
-            obj = null;
+        } catch (Exception ignored) {
         }
-
-        return obj;
     }
 
-    public String toJson() {
-        StringWriter sw = new StringWriter();
-        JsonWriter writer = new JsonWriter(sw);
-        writer.setSerializeNulls(true);
-
+    public void toJson(JsonWriter writer) {
         try {
             // {
             writer.beginObject();
@@ -171,7 +165,5 @@ public class MoonPhase {
         } catch (IOException e) {
             Logger.writeLine(Log.ERROR, e, "MoonPhase: error writing json string");
         }
-
-        return sw.toString();
     }
 }

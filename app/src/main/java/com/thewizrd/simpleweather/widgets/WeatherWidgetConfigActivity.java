@@ -71,7 +71,6 @@ import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
@@ -85,6 +84,7 @@ import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -109,7 +109,6 @@ import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Callable;
@@ -1319,8 +1318,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     String dataJson = (data == null || !data.hasExtra(Constants.KEY_DATA)) ? null : data.getStringExtra(Constants.KEY_DATA);
 
                     if (!StringUtils.isNullOrWhitespace(dataJson)) {
-                        JsonReader reader = new JsonReader(new StringReader(dataJson));
-                        LocationData locData = LocationData.fromJson(reader);
+                        LocationData locData = JSONParser.deserializer(dataJson, LocationData.class);
 
                         if (locData.getLocationType() == LocationType.SEARCH) {
                             // Add location to adapter and select it

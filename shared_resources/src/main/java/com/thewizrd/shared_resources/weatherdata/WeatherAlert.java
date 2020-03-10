@@ -8,6 +8,7 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -22,15 +23,12 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.List;
-import java.util.Locale;
 
-public class WeatherAlert {
+public class WeatherAlert extends CustomJsonObject {
     @SerializedName("Type")
     private WeatherAlertType type = WeatherAlertType.SPECIALWEATHERALERT;
     @SerializedName("Severity")
@@ -48,7 +46,7 @@ public class WeatherAlert {
     @SerializedName("Notified")
     private boolean notified;
 
-    @RestrictTo({RestrictTo.Scope.TESTS, RestrictTo.Scope.SUBCLASSES})
+    @RestrictTo({RestrictTo.Scope.LIBRARY, RestrictTo.Scope.TESTS})
     public WeatherAlert() {
 
     }
@@ -533,11 +531,9 @@ public class WeatherAlert {
         this.notified = notified;
     }
 
-    public static WeatherAlert fromJson(JsonReader extReader) {
-        WeatherAlert obj = null;
-
+    @Override
+    public void fromJson(JsonReader extReader) {
         try {
-            obj = new WeatherAlert();
             JsonReader reader;
             String jsonValue;
 
@@ -567,44 +563,44 @@ public class WeatherAlert {
 
                 switch (property) {
                     case "Type":
-                        obj.type = WeatherAlertType.valueOf(Integer.parseInt(reader.nextString()));
+                        this.type = WeatherAlertType.valueOf(Integer.parseInt(reader.nextString()));
                         break;
                     case "Severity":
-                        obj.severity = WeatherAlertSeverity.valueOf(Integer.parseInt(reader.nextString()));
+                        this.severity = WeatherAlertSeverity.valueOf(Integer.parseInt(reader.nextString()));
                         break;
                     case "Title":
-                        obj.title = reader.nextString();
+                        this.title = reader.nextString();
                         break;
                     case "Message":
-                        obj.message = reader.nextString();
+                        this.message = reader.nextString();
                         break;
                     case "Attribution":
-                        obj.attribution = reader.nextString();
+                        this.attribution = reader.nextString();
                         break;
                     case "Date":
                         String json = reader.nextString();
                         ZonedDateTime result = null;
                         try {
-                            result = ZonedDateTime.parse(json, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss ZZZZZ", Locale.ROOT));
+                            result = ZonedDateTime.parse(json, DateTimeUtils.getZonedDateTimeFormatter());
                         } catch (Exception e) {
                             // If we can't parse as DateTimeOffset try DateTime (data could be old)
                             result = ZonedDateTime.parse(json);
                         }
-                        obj.date = result;
+                        this.date = result;
                         break;
                     case "ExpiresDate":
                         json = reader.nextString();
                         result = null;
                         try {
-                            result = ZonedDateTime.parse(json, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss ZZZZZ", Locale.ROOT));
+                            result = ZonedDateTime.parse(json, DateTimeUtils.getZonedDateTimeFormatter());
                         } catch (Exception e) {
                             // If we can't parse as DateTimeOffset try DateTime (data could be old)
                             result = ZonedDateTime.parse(json);
                         }
-                        obj.expiresDate = result;
+                        this.expiresDate = result;
                         break;
                     case "Notified":
-                        obj.notified = reader.nextBoolean();
+                        this.notified = reader.nextBoolean();
                         break;
                     default:
                         break;
@@ -614,18 +610,12 @@ public class WeatherAlert {
             if (reader.peek() == JsonToken.END_OBJECT)
                 reader.endObject();
 
-        } catch (Exception ex) {
-            obj = null;
+        } catch (Exception ignored) {
         }
-
-        return obj;
     }
 
-    public String toJson() {
-        StringWriter sw = new StringWriter();
-        JsonWriter writer = new JsonWriter(sw);
-        writer.setSerializeNulls(true);
-
+    @Override
+    public void toJson(JsonWriter writer) {
         try {
             // {
             writer.beginObject();
@@ -652,11 +642,11 @@ public class WeatherAlert {
 
             // "Date" : ""
             writer.name("Date");
-            writer.value(date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss ZZZZZ")));
+            writer.value(date.format(DateTimeUtils.getZonedDateTimeFormatter()));
 
             // "ExpiresDate" : ""
             writer.name("ExpiresDate");
-            writer.value(expiresDate.format(DateTimeFormatter.ofPattern(("dd.MM.yyyy HH:mm:ss ZZZZZ"))));
+            writer.value(expiresDate.format(DateTimeUtils.getZonedDateTimeFormatter()));
 
             // "Notified" : ""
             writer.name("Notified");
@@ -667,8 +657,6 @@ public class WeatherAlert {
         } catch (IOException e) {
             Logger.writeLine(Log.ERROR, e, "WeatherAlert: error writing json string");
         }
-
-        return sw.toString();
     }
 
     @Override

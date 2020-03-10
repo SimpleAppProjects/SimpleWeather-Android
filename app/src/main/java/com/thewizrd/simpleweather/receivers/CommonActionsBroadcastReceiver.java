@@ -5,11 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.CommonActions;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
@@ -17,7 +17,6 @@ import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 import com.thewizrd.simpleweather.widgets.WidgetUtils;
 
-import java.io.StringReader;
 import java.util.concurrent.Callable;
 
 public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
@@ -57,7 +56,7 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
                 new AsyncTask<Void>().await(new Callable<Void>() {
                     @Override
                     public Void call() {
-                        LocationData location = LocationData.fromJson(new JsonReader(new StringReader(locationJson)));
+                        LocationData location = JSONParser.deserializer(locationJson, LocationData.class);
 
                         if (WidgetUtils.exists(oldKey)) {
                             WidgetUtils.updateWidgetIds(oldKey, location);
@@ -72,7 +71,7 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
                 new AsyncTask<Void>().await(new Callable<Void>() {
                     @Override
                     public Void call() {
-                        Weather weather = Weather.fromJson(new JsonReader(new StringReader(weatherJson)));
+                        Weather weather = JSONParser.deserializer(weatherJson, Weather.class);
 
                         if (WidgetUtils.exists(locationQuery)) {
                             int[] ids = WidgetUtils.getWidgetIds(locationQuery);

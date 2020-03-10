@@ -3,20 +3,22 @@ package com.thewizrd.shared_resources.weatherdata;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.RestrictTo;
+
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 
-public class UV {
+public class UV extends CustomJsonObject {
 
     @SerializedName("index")
     private float index = -1;
@@ -24,7 +26,8 @@ public class UV {
     @SerializedName("desc")
     private String desc;
 
-    private UV() {
+    @RestrictTo({RestrictTo.Scope.LIBRARY})
+    public UV() {
         // Needed for deserialization
     }
 
@@ -69,11 +72,9 @@ public class UV {
         this.desc = description;
     }
 
-    public static UV fromJson(JsonReader extReader) {
-        UV obj = null;
-
+    @Override
+    public void fromJson(JsonReader extReader) {
         try {
-            obj = new UV();
             JsonReader reader;
             String jsonValue;
 
@@ -103,10 +104,10 @@ public class UV {
 
                 switch (property) {
                     case "index":
-                        obj.index = Float.parseFloat(reader.nextString());
+                        this.index = Float.parseFloat(reader.nextString());
                         break;
                     case "desc":
-                        obj.desc = reader.nextString();
+                        this.desc = reader.nextString();
                         break;
                     default:
                         break;
@@ -116,18 +117,12 @@ public class UV {
             if (reader.peek() == JsonToken.END_OBJECT)
                 reader.endObject();
 
-        } catch (Exception ex) {
-            obj = null;
+        } catch (Exception ignored) {
         }
-
-        return obj;
     }
 
-    public String toJson() {
-        StringWriter sw = new StringWriter();
-        JsonWriter writer = new JsonWriter(sw);
-        writer.setSerializeNulls(true);
-
+    @Override
+    public void toJson(JsonWriter writer) {
         try {
             // {
             writer.beginObject();
@@ -145,7 +140,5 @@ public class UV {
         } catch (IOException e) {
             Logger.writeLine(Log.ERROR, e, "UV: error writing json string");
         }
-
-        return sw.toString();
     }
 }
