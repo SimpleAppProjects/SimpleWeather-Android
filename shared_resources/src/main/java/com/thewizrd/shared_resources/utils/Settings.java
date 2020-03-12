@@ -629,7 +629,9 @@ public class Settings {
     }
 
     public static void updateLocation(final LocationData location) {
-        if (location != null && location.isValid()) {
+        if (location != null && location.getLocationType() == LocationType.GPS && location.isValid()) {
+            Settings.saveLastGPSLocData(location);
+        } else if (location != null && location.getLocationType() == LocationType.SEARCH && location.isValid()) {
             new AsyncTask<Void>().await(new Callable<Void>() {
                 @Override
                 public Void call() {
