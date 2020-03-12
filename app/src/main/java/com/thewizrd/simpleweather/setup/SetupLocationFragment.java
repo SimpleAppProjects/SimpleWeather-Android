@@ -314,7 +314,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
         Settings.setAPI(WeatherAPI.HERE);
         wm.updateAPI();
 
-        if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
+        if (wm.isKeyRequired() && StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
             // If (internal) key doesn't exist, fallback to Yahoo
             Settings.setAPI(WeatherAPI.YAHOO);
             wm.updateAPI();

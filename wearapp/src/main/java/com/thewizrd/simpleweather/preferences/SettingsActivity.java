@@ -153,7 +153,7 @@ public class SettingsActivity extends WearableActivity {
                 Settings.setAPI(WeatherAPI.HERE);
                 wm.updateAPI();
 
-                if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
+                if (wm.isKeyRequired() && StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
                     // If (internal) key doesn't exist, fallback to Yahoo
                     providerPref.setValue(WeatherAPI.YAHOO);
                     providerPref.getOnPreferenceChangeListener()
@@ -297,7 +297,7 @@ public class SettingsActivity extends WearableActivity {
                     } else {
                         WeatherProviderImpl selectedWProv = WeatherManager.getProvider(providerPref.getValue());
 
-                        if (!StringUtils.isNullOrWhitespace(selectedWProv.getAPIKey())) {
+                        if (!selectedWProv.isKeyRequired() || !StringUtils.isNullOrWhitespace(selectedWProv.getAPIKey())) {
                             // We're using our own (verified) keys
                             Settings.setKeyVerified(true);
                             Settings.setAPI(providerPref.getValue());

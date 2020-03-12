@@ -185,7 +185,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
             Settings.setAPI(WeatherAPI.HERE);
             wm.updateAPI();
 
-            if (StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
+            if (wm.isKeyRequired() && StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
                 // If (internal) key doesn't exist, fallback to Yahoo
                 providerPref.setValue(WeatherAPI.YAHOO);
                 providerPref.callChangeListener(WeatherAPI.YAHOO);
@@ -375,7 +375,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
                 } else {
                     WeatherProviderImpl selectedWProv = WeatherManager.getProvider(providerPref.getValue());
 
-                    if (!StringUtils.isNullOrWhitespace(selectedWProv.getAPIKey())) {
+                    if (!selectedWProv.isKeyRequired() || !StringUtils.isNullOrWhitespace(selectedWProv.getAPIKey())) {
                         // We're using our own (verified) keys
                         Settings.setKeyVerified(true);
                         Settings.setAPI(providerPref.getValue());
