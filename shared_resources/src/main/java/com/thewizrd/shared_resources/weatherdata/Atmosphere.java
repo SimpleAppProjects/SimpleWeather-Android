@@ -107,20 +107,21 @@ public class Atmosphere extends CustomJsonObject {
 
     public Atmosphere(com.thewizrd.shared_resources.weatherdata.here.ObservationItem observation) {
         humidity = observation.getHumidity();
-        pressureIn = observation.getBarometerPressure();
         try {
+            pressureIn = observation.getBarometerPressure();
             pressureMb = ConversionMethods.inHgToMB(observation.getBarometerPressure());
         } catch (NumberFormatException ex) {
-            pressureMb = observation.getBarometerPressure();
+            pressureIn = null;
+            pressureMb = null;
         }
         pressureTrend = observation.getBarometerTrend();
-        visibilityMi = observation.getVisibility();
 
         try {
-            Float visible_mi = Float.valueOf(observation.getVisibility());
-            visibilityKm = ConversionMethods.miToKm(visible_mi.toString());
+            visibilityMi = observation.getVisibility();
+            visibilityKm = ConversionMethods.miToKm(observation.getVisibility());
         } catch (NumberFormatException ex) {
-            visibilityKm = observation.getVisibility();
+            visibilityMi = null;
+            visibilityKm = null;
         }
 
         try {

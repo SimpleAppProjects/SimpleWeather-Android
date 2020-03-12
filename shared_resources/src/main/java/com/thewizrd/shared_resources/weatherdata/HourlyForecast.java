@@ -183,11 +183,12 @@ public class HourlyForecast extends CustomJsonObject {
 
     public HourlyForecast(com.thewizrd.shared_resources.weatherdata.here.ForecastItem1 hr_forecast) {
         setDate(ZonedDateTime.parse(hr_forecast.getUtcTime()));
-        highF = hr_forecast.getTemperature();
         try {
+            highF = hr_forecast.getTemperature();
             highC = ConversionMethods.FtoC(hr_forecast.getTemperature());
         } catch (NumberFormatException ignored) {
-            highC = hr_forecast.getTemperature();
+            highF = null;
+            highC = null;
         }
         condition = StringUtils.toPascalCase(hr_forecast.getDescription());
 

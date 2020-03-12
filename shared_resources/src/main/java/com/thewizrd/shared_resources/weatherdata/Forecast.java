@@ -128,17 +128,19 @@ public class Forecast extends CustomJsonObject {
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.here.ForecastItem forecast) {
         date = ZonedDateTime.parse(forecast.getUtcTime()).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
-        highF = forecast.getHighTemperature();
         try {
+            highF = forecast.getHighTemperature();
             highC = ConversionMethods.FtoC(forecast.getHighTemperature());
         } catch (NumberFormatException ignored) {
-            highC = forecast.getHighTemperature();
+            highF = null;
+            highC = null;
         }
-        lowF = forecast.getLowTemperature();
         try {
+            lowF = forecast.getLowTemperature();
             lowC = ConversionMethods.FtoC(forecast.getLowTemperature());
         } catch (NumberFormatException ignored) {
-            lowC = forecast.getLowTemperature();
+            lowF = null;
+            lowC = null;
         }
         condition = StringUtils.toPascalCase(forecast.getDescription());
         icon = WeatherManager.getProvider(WeatherAPI.HERE)
@@ -173,11 +175,19 @@ public class Forecast extends CustomJsonObject {
             extras.setQpfSnowCm(Float.parseFloat(ConversionMethods.inToMM(Float.toString(snow_in))) / 10);
         } catch (NumberFormatException ignored) {
         }
-        extras.setPressureIn(forecast.getBarometerPressure());
-        extras.setPressureMb(ConversionMethods.inHgToMB(forecast.getBarometerPressure()));
+        try {
+            extras.setPressureIn(forecast.getBarometerPressure());
+            extras.setPressureMb(ConversionMethods.inHgToMB(forecast.getBarometerPressure()));
+        } catch (NumberFormatException ignored) {
+            extras.setPressureIn(null);
+            extras.setPressureMb(null);
+        }
         extras.setWindDegrees(Integer.parseInt(forecast.getWindDirection()));
-        extras.setWindMph(Float.parseFloat(forecast.getWindSpeed()));
-        extras.setWindKph(Float.parseFloat(ConversionMethods.mphTokph(forecast.getWindSpeed())));
+        try {
+            extras.setWindMph(Float.parseFloat(forecast.getWindSpeed()));
+            extras.setWindKph(Float.parseFloat(ConversionMethods.mphTokph(forecast.getWindSpeed())));
+        } catch (NumberFormatException ignored) {
+        }
         try {
             float uv_index = Float.parseFloat(forecast.getUvIndex());
             extras.setUvIndex(uv_index);
