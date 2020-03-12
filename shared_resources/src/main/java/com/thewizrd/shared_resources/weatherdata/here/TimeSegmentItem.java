@@ -12,8 +12,8 @@ public class TimeSegmentItem {
     @SerializedName("value")
     private String value;
 
-    @SerializedName("otherAttributes")
-    private OtherAttributes otherAttributes;
+    //@SerializedName("otherAttributes")
+    //private OtherAttributes otherAttributes;
 
     @SerializedName("day_of_week")
     private String dayOfWeek;
@@ -34,6 +34,7 @@ public class TimeSegmentItem {
         return value;
     }
 
+    /*
     public void setOtherAttributes(OtherAttributes otherAttributes) {
         this.otherAttributes = otherAttributes;
     }
@@ -41,6 +42,7 @@ public class TimeSegmentItem {
     public OtherAttributes getOtherAttributes() {
         return otherAttributes;
     }
+     */
 
     public void setDayOfWeek(String dayOfWeek) {
         this.dayOfWeek = dayOfWeek;

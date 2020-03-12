@@ -1,11 +1,10 @@
 package com.thewizrd.shared_resources.weatherdata.nws.alerts;
 
 import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+//@UseStag(UseStag.FieldOption.ALL)
 public class Geocode {
 
     @SerializedName("UGC")

@@ -14,8 +14,8 @@ public class AlertRootobject {
     @SerializedName("title")
     private String title;
 
-    @SerializedName("@context")
-    private Context context;
+    //@SerializedName("@context")
+    //private Context context;
 
     public void setGraph(List<GraphItem> graph) {
         this.graph = graph;
@@ -33,6 +33,7 @@ public class AlertRootobject {
         return title;
     }
 
+    /*
     public void setContext(Context context) {
         this.context = context;
     }
@@ -40,4 +41,5 @@ public class AlertRootobject {
     public Context getContext() {
         return context;
     }
+     */
 }

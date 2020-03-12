@@ -6,20 +6,20 @@ import com.vimeo.stag.UseStag;
 @UseStag(UseStag.FieldOption.ALL)
 public class PointsResponse {
 
-    @SerializedName("radarStation")
-    private String radarStation;
+    //@SerializedName("radarStation")
+    //private String radarStation;
 
-    @SerializedName("fireWeatherZone")
-    private String fireWeatherZone;
+    //@SerializedName("fireWeatherZone")
+    //private String fireWeatherZone;
 
-    @SerializedName("@type")
-    private String type;
+    //@SerializedName("@type")
+    //private String type;
 
-    @SerializedName("forecastZone")
-    private String forecastZone;
+    //@SerializedName("forecastZone")
+    //private String forecastZone;
 
-    @SerializedName("county")
-    private String county;
+    //@SerializedName("county")
+    //private String county;
 
     @SerializedName("timeZone")
     private String timeZone;
@@ -27,14 +27,14 @@ public class PointsResponse {
     @SerializedName("forecast")
     private String forecast;
 
-    @SerializedName("cwa")
-    private String cwa;
+    //@SerializedName("cwa")
+    //private String cwa;
 
-    @SerializedName("@context")
-    private Context context;
+    //@SerializedName("@context")
+    //private Context context;
 
-    @SerializedName("relativeLocation")
-    private RelativeLocation relativeLocation;
+    //@SerializedName("relativeLocation")
+    //private RelativeLocation relativeLocation;
 
     @SerializedName("forecastHourly")
     private String forecastHourly;
@@ -42,24 +42,25 @@ public class PointsResponse {
     @SerializedName("observationStations")
     private String observationStations;
 
-    @SerializedName("gridX")
-    private int gridX;
+    //@SerializedName("gridX")
+    //private int gridX;
 
     @SerializedName("forecastGridData")
     private String forecastGridData;
 
-    @SerializedName("gridY")
-    private int gridY;
+    //@SerializedName("gridY")
+    //private int gridY;
 
-    @SerializedName("forecastOffice")
-    private String forecastOffice;
+    //@SerializedName("forecastOffice")
+    //private String forecastOffice;
 
-    @SerializedName("geometry")
-    private String geometry;
+    //@SerializedName("geometry")
+    //private String geometry;
 
-    @SerializedName("@id")
-    private String id;
+    //@SerializedName("@id")
+    //private String id;
 
+    /*
     public void setRadarStation(String radarStation) {
         this.radarStation = radarStation;
     }
@@ -99,6 +100,7 @@ public class PointsResponse {
     public String getCounty() {
         return county;
     }
+    */
 
     public void setTimeZone(String timeZone) {
         this.timeZone = timeZone;
@@ -116,6 +118,7 @@ public class PointsResponse {
         return forecast;
     }
 
+    /*
     public void setCwa(String cwa) {
         this.cwa = cwa;
     }
@@ -139,6 +142,7 @@ public class PointsResponse {
     public RelativeLocation getRelativeLocation() {
         return relativeLocation;
     }
+     */
 
     public void setForecastHourly(String forecastHourly) {
         this.forecastHourly = forecastHourly;
@@ -156,6 +160,7 @@ public class PointsResponse {
         return observationStations;
     }
 
+    /*
     public void setGridX(int gridX) {
         this.gridX = gridX;
     }
@@ -163,6 +168,7 @@ public class PointsResponse {
     public int getGridX() {
         return gridX;
     }
+     */
 
     public void setForecastGridData(String forecastGridData) {
         this.forecastGridData = forecastGridData;
@@ -172,6 +178,7 @@ public class PointsResponse {
         return forecastGridData;
     }
 
+    /*
     public void setGridY(int gridY) {
         this.gridY = gridY;
     }
@@ -203,4 +210,5 @@ public class PointsResponse {
     public String getId() {
         return id;
     }
+     */
 }

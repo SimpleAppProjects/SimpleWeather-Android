@@ -3,40 +3,38 @@ package com.thewizrd.shared_resources.weatherdata.nws;
 import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.UseStag;
 
-import java.util.List;
-
 @UseStag(UseStag.FieldOption.ALL)
 public class ObservationCurrentResponse {
 
     @SerializedName("dewpoint")
     private Dewpoint dewpoint;
 
-    @SerializedName("windGust")
-    private WindGust windGust;
+    //@SerializedName("windGust")
+    //private WindGust windGust;
 
-    @SerializedName("@type")
-    private String type;
+    //@SerializedName("@type")
+    //private String type;
 
     @SerializedName("icon")
     private String icon;
 
-    @SerializedName("heatIndex")
-    private HeatIndex heatIndex;
+    //@SerializedName("heatIndex")
+    //private HeatIndex heatIndex;
 
-    @SerializedName("minTemperatureLast24Hours")
-    private MinTemperatureLast24Hours minTemperatureLast24Hours;
+    //@SerializedName("minTemperatureLast24Hours")
+    //private MinTemperatureLast24Hours minTemperatureLast24Hours;
 
-    @SerializedName("station")
-    private String station;
+    //@SerializedName("station")
+    //private String station;
 
     @SerializedName("temperature")
     private Temperature temperature;
 
-    @SerializedName("precipitationLastHour")
-    private PrecipitationLastHour precipitationLastHour;
+    //@SerializedName("precipitationLastHour")
+    //private PrecipitationLastHour precipitationLastHour;
 
-    @SerializedName("@id")
-    private String id;
+    //@SerializedName("@id")
+    //private String id;
 
     @SerializedName("windDirection")
     private WindDirection windDirection;
@@ -47,20 +45,20 @@ public class ObservationCurrentResponse {
     @SerializedName("timestamp")
     private String timestamp;
 
-    @SerializedName("windChill")
-    private WindChill windChill;
+    //@SerializedName("windChill")
+    //private WindChill windChill;
 
     @SerializedName("visibility")
     private Visibility visibility;
 
-    @SerializedName("maxTemperatureLast24Hours")
-    private MaxTemperatureLast24Hours maxTemperatureLast24Hours;
+    //@SerializedName("maxTemperatureLast24Hours")
+    //private MaxTemperatureLast24Hours maxTemperatureLast24Hours;
 
-    @SerializedName("precipitationLast6Hours")
-    private PrecipitationLast6Hours precipitationLast6Hours;
+    //@SerializedName("precipitationLast6Hours")
+    //private PrecipitationLast6Hours precipitationLast6Hours;
 
-    @SerializedName("precipitationLast3Hours")
-    private PrecipitationLast3Hours precipitationLast3Hours;
+    //@SerializedName("precipitationLast3Hours")
+    //private PrecipitationLast3Hours precipitationLast3Hours;
 
     @SerializedName("barometricPressure")
     private BarometricPressure barometricPressure;
@@ -71,8 +69,8 @@ public class ObservationCurrentResponse {
     @SerializedName("textDescription")
     private String textDescription;
 
-    @SerializedName("presentWeather")
-    private List<Object> presentWeather;
+    //@SerializedName("presentWeather")
+    //private List<Object> presentWeather;
 
     public void setDewpoint(Dewpoint dewpoint) {
         this.dewpoint = dewpoint;
@@ -82,6 +80,7 @@ public class ObservationCurrentResponse {
         return dewpoint;
     }
 
+    /*
     public void setWindGust(WindGust windGust) {
         this.windGust = windGust;
     }
@@ -97,6 +96,7 @@ public class ObservationCurrentResponse {
     public String getType() {
         return type;
     }
+    */
 
     public void setIcon(String icon) {
         this.icon = icon;
@@ -106,6 +106,7 @@ public class ObservationCurrentResponse {
         return icon;
     }
 
+    /*
     public void setHeatIndex(HeatIndex heatIndex) {
         this.heatIndex = heatIndex;
     }
@@ -129,6 +130,7 @@ public class ObservationCurrentResponse {
     public String getStation() {
         return station;
     }
+    */
 
     public void setTemperature(Temperature temperature) {
         this.temperature = temperature;
@@ -138,6 +140,7 @@ public class ObservationCurrentResponse {
         return temperature;
     }
 
+    /*
     public void setPrecipitationLastHour(PrecipitationLastHour precipitationLastHour) {
         this.precipitationLastHour = precipitationLastHour;
     }
@@ -153,6 +156,7 @@ public class ObservationCurrentResponse {
     public String getId() {
         return id;
     }
+    */
 
     public void setWindDirection(WindDirection windDirection) {
         this.windDirection = windDirection;
@@ -178,6 +182,7 @@ public class ObservationCurrentResponse {
         return timestamp;
     }
 
+    /*
     public void setWindChill(WindChill windChill) {
         this.windChill = windChill;
     }
@@ -185,6 +190,7 @@ public class ObservationCurrentResponse {
     public WindChill getWindChill() {
         return windChill;
     }
+    */
 
     public void setVisibility(Visibility visibility) {
         this.visibility = visibility;
@@ -194,6 +200,7 @@ public class ObservationCurrentResponse {
         return visibility;
     }
 
+    /*
     public void setMaxTemperatureLast24Hours(MaxTemperatureLast24Hours maxTemperatureLast24Hours) {
         this.maxTemperatureLast24Hours = maxTemperatureLast24Hours;
     }
@@ -217,6 +224,7 @@ public class ObservationCurrentResponse {
     public PrecipitationLast3Hours getPrecipitationLast3Hours() {
         return precipitationLast3Hours;
     }
+    */
 
     public void setBarometricPressure(BarometricPressure barometricPressure) {
         this.barometricPressure = barometricPressure;
@@ -242,6 +250,7 @@ public class ObservationCurrentResponse {
         return textDescription;
     }
 
+    /*
     public void setPresentWeather(List<Object> presentWeather) {
         this.presentWeather = presentWeather;
     }
@@ -249,4 +258,5 @@ public class ObservationCurrentResponse {
     public List<Object> getPresentWeather() {
         return presentWeather;
     }
+    */
 }

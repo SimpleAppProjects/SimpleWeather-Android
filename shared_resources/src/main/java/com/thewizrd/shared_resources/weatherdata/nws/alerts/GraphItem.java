@@ -11,8 +11,8 @@ public class GraphItem {
     @SerializedName("expires")
     private String expires;
 
-    @SerializedName("@type")
-    private String type;
+    //@SerializedName("@type")
+    //private String type;
 
     @SerializedName("description")
     private String description;
@@ -26,32 +26,32 @@ public class GraphItem {
     @SerializedName("affectedZones")
     private List<String> affectedZones;
 
-    @SerializedName("messageType")
-    private String messageType;
+    //@SerializedName("messageType")
+    //private String messageType;
 
-    @SerializedName("urgency")
-    private String urgency;
+    //@SerializedName("urgency")
+    //private String urgency;
 
-    @SerializedName("areaDesc")
-    private String areaDesc;
+    //@SerializedName("areaDesc")
+    //private String areaDesc;
 
-    @SerializedName("@id")
-    private String atId;
+    //@SerializedName("@id")
+    //private String atId;
 
-    @SerializedName("id")
-    private String id;
+    //@SerializedName("id")
+    //private String id;
 
     @SerializedName("event")
     private String event;
 
-    @SerializedName("headline")
-    private String headline;
+    //@SerializedName("headline")
+    //private String headline;
 
     @SerializedName("severity")
     private String severity;
 
-    @SerializedName("certainty")
-    private String certainty;
+    //@SerializedName("certainty")
+    //private String certainty;
 
     @SerializedName("onset")
     private String onset;
@@ -59,29 +59,29 @@ public class GraphItem {
     @SerializedName("sent")
     private String sent;
 
-    @SerializedName("sender")
-    private String sender;
+    //@SerializedName("sender")
+    //private String sender;
 
     @SerializedName("instruction")
     private String instruction;
 
-    @SerializedName("response")
-    private String response;
+    //@SerializedName("response")
+    //private String response;
 
-    @SerializedName("geocode")
-    private Geocode geocode;
+    //@SerializedName("geocode")
+    //private Geocode geocode;
 
-    @SerializedName("geometry")
-    private Object geometry;
+    //@SerializedName("geometry")
+    //private Object geometry;
 
-    @SerializedName("category")
-    private String category;
+    //@SerializedName("category")
+    //private String category;
 
-    @SerializedName("parameters")
-    private Parameters parameters;
+    //@SerializedName("parameters")
+    //private Parameters parameters;
 
-    @SerializedName("status")
-    private String status;
+    //@SerializedName("status")
+    //private String status;
 
     public void setExpires(String expires) {
         this.expires = expires;
@@ -91,6 +91,7 @@ public class GraphItem {
         return expires;
     }
 
+    /*
     public void setType(String type) {
         this.type = type;
     }
@@ -98,6 +99,7 @@ public class GraphItem {
     public String getType() {
         return type;
     }
+     */
 
     public void setDescription(String description) {
         this.description = description;
@@ -131,6 +133,7 @@ public class GraphItem {
         return affectedZones;
     }
 
+    /*
     public void setMessageType(String messageType) {
         this.messageType = messageType;
     }
@@ -170,6 +173,7 @@ public class GraphItem {
     public String getId() {
         return id;
     }
+     */
 
     public void setEvent(String event) {
         this.event = event;
@@ -179,6 +183,7 @@ public class GraphItem {
         return event;
     }
 
+    /*
     public void setHeadline(String headline) {
         this.headline = headline;
     }
@@ -186,6 +191,7 @@ public class GraphItem {
     public String getHeadline() {
         return headline;
     }
+     */
 
     public void setSeverity(String severity) {
         this.severity = severity;
@@ -195,6 +201,7 @@ public class GraphItem {
         return severity;
     }
 
+    /*
     public void setCertainty(String certainty) {
         this.certainty = certainty;
     }
@@ -202,6 +209,7 @@ public class GraphItem {
     public String getCertainty() {
         return certainty;
     }
+     */
 
     public void setOnset(String onset) {
         this.onset = onset;
@@ -219,6 +227,7 @@ public class GraphItem {
         return sent;
     }
 
+    /*
     public void setSender(String sender) {
         this.sender = sender;
     }
@@ -226,6 +235,7 @@ public class GraphItem {
     public String getSender() {
         return sender;
     }
+     */
 
     public void setInstruction(String instruction) {
         this.instruction = instruction;
@@ -235,6 +245,7 @@ public class GraphItem {
         return instruction;
     }
 
+    /*
     public void setResponse(String response) {
         this.response = response;
     }
@@ -282,4 +293,5 @@ public class GraphItem {
     public String getStatus() {
         return status;
     }
+     */
 }
