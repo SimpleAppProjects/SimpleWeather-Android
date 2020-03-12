@@ -17,7 +17,6 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ObservableArrayList;
@@ -40,7 +39,6 @@ import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
 
 public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements ItemTouchHelperAdapterInterface, LifecycleEventObserver {
@@ -443,7 +441,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     public void onItemDismiss(final int position) {
         final LocationPanelViewModel dismissedPanel = getPanelViewModel(position);
 
-        Tasks.call(Executors.newSingleThreadExecutor(), new Callable<Void>() {
+        AsyncTask.create(new Callable<Void>() {
             @Override
             public Void call() {
                 if (mParentRecyclerView != null) {

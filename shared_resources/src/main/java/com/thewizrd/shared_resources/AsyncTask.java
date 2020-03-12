@@ -12,15 +12,18 @@ import com.thewizrd.shared_resources.utils.Logger;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class AsyncTask<T> {
 
-    public T await(Callable<T> callable) {
+    protected static ExecutorService sThreadPool = Executors.newCachedThreadPool();
+
+    public T await(final Callable<T> callable) {
         try {
-            return Executors.newSingleThreadExecutor().submit(callable).get();
+            return sThreadPool.submit(callable).get();
         } catch (InterruptedException | NullPointerException e) {
             Logger.writeLine(Log.ERROR, e);
             return null;
@@ -29,9 +32,9 @@ public class AsyncTask<T> {
         }
     }
 
-    public static void run(Runnable runnable) {
+    public static void run(final Runnable runnable) {
         try {
-            new Thread(runnable).start();
+            sThreadPool.submit(runnable);
         } catch (NullPointerException e) {
             Logger.writeLine(Log.ERROR, e);
         }
@@ -43,13 +46,13 @@ public class AsyncTask<T> {
 
     public static void run(final Runnable runnable, final long millisDelay, @Nullable final CancellationToken token) {
         try {
-            new Thread(new Runnable() {
+            sThreadPool.submit(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         Thread.sleep(millisDelay);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        Logger.writeLine(Log.ERROR, e);
                     }
 
                     if (token != null && token.isCancellationRequested())
@@ -57,14 +60,14 @@ public class AsyncTask<T> {
 
                     runnable.run();
                 }
-            }).start();
+            });
         } catch (NullPointerException e) {
             Logger.writeLine(Log.ERROR, e);
         }
     }
 
-    public static <T> Task<T> create(Callable<T> callable) {
-        return Tasks.call(Executors.newSingleThreadExecutor(), callable);
+    public static <T> Task<T> create(final Callable<T> callable) {
+        return Tasks.call(sThreadPool, callable);
     }
 
     public static <T> T await(Task<T> task) throws ExecutionException, InterruptedException {

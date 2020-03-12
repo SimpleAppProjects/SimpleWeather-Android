@@ -47,7 +47,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 
 public class WearableDataListenerService extends WearableListenerService {
     private static final String TAG = "WearableDataListenerService";
@@ -202,7 +201,7 @@ public class WearableDataListenerService extends WearableListenerService {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             startForeground(JOB_ID, getForegroundNotification());
 
-        Tasks.call(Executors.newSingleThreadExecutor(), new Callable<Void>() {
+        AsyncTask.create(new Callable<Void>() {
             @Override
             public Void call() {
                 if (intent != null && ACTION_SENDSETTINGSUPDATE.equals(intent.getAction())) {

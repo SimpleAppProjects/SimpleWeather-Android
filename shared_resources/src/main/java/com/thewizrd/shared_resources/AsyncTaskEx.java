@@ -5,13 +5,12 @@ import android.util.Log;
 import com.thewizrd.shared_resources.utils.Logger;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 
 public class AsyncTaskEx<T, X extends Exception> extends AsyncTask<T> {
 
-    public T await(CallableEx<T, X> callable) throws X {
+    public T await(final CallableEx<T, X> callable) throws X {
         try {
-            return Executors.newSingleThreadExecutor().submit(callable).get();
+            return sThreadPool.submit(callable).get();
         } catch (InterruptedException | NullPointerException e) {
             Logger.writeLine(Log.ERROR, e);
             return null;

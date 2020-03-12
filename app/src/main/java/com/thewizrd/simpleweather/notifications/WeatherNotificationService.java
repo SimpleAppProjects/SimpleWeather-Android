@@ -32,7 +32,6 @@ import com.thewizrd.simpleweather.R;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 
 public class WeatherNotificationService extends Service {
     private static final String TAG = "WeatherNotificationService";
@@ -74,7 +73,7 @@ public class WeatherNotificationService extends Service {
     public int onStartCommand(final Intent intent, int flags, int startId) {
         startForeground(JOB_ID, getNotification());
 
-        Tasks.call(Executors.newSingleThreadExecutor(), new Callable<Void>() {
+        AsyncTask.create(new Callable<Void>() {
             @Override
             public Void call() {
                 if (intent != null && ACTION_REFRESHNOTIFICATION.equals(intent.getAction())) {
