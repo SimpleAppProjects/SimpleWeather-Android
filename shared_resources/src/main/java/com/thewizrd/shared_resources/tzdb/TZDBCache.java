@@ -33,6 +33,7 @@ public class TZDBCache {
                 tzDB = Room.databaseBuilder(context,
                         TZDatabase.class, "tzdb.db")
                         .addMigrations(TZDB_MIGRATION_0_5)
+                        .fallbackToDestructiveMigration()
                         .build();
             }
 

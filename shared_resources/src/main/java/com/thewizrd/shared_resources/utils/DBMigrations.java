@@ -31,6 +31,8 @@ class DBMigrations {
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             // Create the new table
             database.execSQL(
+                    "DROP TABLE IF EXISTS `weatherdata_new`");
+            database.execSQL(
                     "CREATE TABLE weatherdata_new (`locationblob` TEXT, `update_time` TEXT, `forecastblob` TEXT, `hrforecastblob` TEXT, `txtforecastblob` TEXT, `conditionblob` TEXT, `atmosphereblob` TEXT, `astronomyblob` TEXT, `precipitationblob` TEXT, `ttl` TEXT, `source` TEXT, `query` TEXT NOT NULL, `locale` TEXT, PRIMARY KEY(`query`))");
             // Copy the data
             database.execSQL(
@@ -41,6 +43,8 @@ class DBMigrations {
             database.execSQL("ALTER TABLE weatherdata_new RENAME TO weatherdata");
 
             // Create the new table
+            database.execSQL(
+                    "DROP TABLE IF EXISTS `weatheralerts_new`");
             database.execSQL(
                     "CREATE TABLE weatheralerts_new (`query` TEXT NOT NULL, `weather_alerts` TEXT, PRIMARY KEY(`query`))");
             // Copy the data
@@ -58,6 +62,8 @@ class DBMigrations {
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             // Create the new table
             database.execSQL(
+                    "DROP TABLE IF EXISTS `locations_new`");
+            database.execSQL(
                     "CREATE TABLE locations_new (`query` TEXT NOT NULL, `name` TEXT, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `tz_long` TEXT, `locationType` INTEGER, `source` TEXT, `locsource` TEXT, PRIMARY KEY(`query`))");
             // Copy the data
             database.execSQL(
@@ -68,6 +74,8 @@ class DBMigrations {
             database.execSQL("ALTER TABLE locations_new RENAME TO locations");
 
             // Create the new table
+            database.execSQL(
+                    "DROP TABLE IF EXISTS `favorites_new`");
             database.execSQL(
                     "CREATE TABLE favorites_new (`query` TEXT NOT NULL, `position` INTEGER NOT NULL, PRIMARY KEY(`query`))");
             // Copy the data
@@ -84,6 +92,8 @@ class DBMigrations {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             // Create the new table
+            database.execSQL(
+                    "DROP TABLE IF EXISTS `weatherdata_new`");
             database.execSQL(
                     "CREATE TABLE `weatherdata_new` (`ttl` varchar, `source` varchar, `query` varchar NOT NULL, `locale` varchar, `locationblob` varchar, `update_time` varchar, `conditionblob` varchar, `atmosphereblob` varchar, `astronomyblob` varchar, `precipitationblob` varchar, PRIMARY KEY(`query`))");
             database.execSQL(
@@ -118,7 +128,7 @@ class DBMigrations {
                                         String dtoStr = SortableDateTimeConverters.zonedDateTimetoString(dto);
 
                                         database.execSQL(
-                                                "INSERT INTO hr_forecasts (`query`, `date`, `hr_forecast`) VALUES (?, ?, ?)",
+                                                "INSERT INTO hr_forecasts (`query`, `dateblob`, `hrforecastblob`) VALUES (?, ?, ?)",
                                                 new Object[]{query, dtoStr, json});
                                     }
                                 }
@@ -154,27 +164,20 @@ class DBMigrations {
 
         if (vDB < Settings.CURRENT_DBVERSION) {
             switch (vDB) {
-                // Move data from json to db
                 case 0:
+                    // Move data from json to db
                     // Not available here
-                    break;
-                // Add and set tz_long column in db
                 case 1:
-                    if (Settings.IS_PHONE && locationDB.locationsDAO().getLocationDataCount() > 0) {
-                        DBUtils.setLocationData(locationDB, Settings.getAPI());
-                    }
-                    break;
-                // Room DB migration
+                    // Add and set tz_long column in db
                 case 2:
+                    // Room DB migration
                     // Move db from appdata to db folder
                     // Handled in init method
-                    break;
-                // LocationData updates: added new fields
                 case 3:
+                    // LocationData updates: added new fields
                     if (Settings.IS_PHONE && locationDB.locationsDAO().getLocationDataCount() > 0) {
                         DBUtils.setLocationData(locationDB, Settings.getAPI());
                     }
-                    break;
                 case 4:
                     // Migration for incremental loading
                     // Handled in init method

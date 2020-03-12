@@ -222,6 +222,7 @@ public class Settings {
             locationDB = Room.databaseBuilder(context,
                     LocationsDatabase.class, "locations.db")
                     .addMigrations(DBMigrations.MIGRATION_0_3, DBMigrations.LOC_MIGRATION_3_4, DBMigrations.LOC_MIGRATION_4_5)
+                    .fallbackToDestructiveMigration()
                     .build();
         }
 
@@ -229,6 +230,7 @@ public class Settings {
             weatherDB = Room.databaseBuilder(context,
                     WeatherDatabase.class, "weatherdata.db")
                     .addMigrations(DBMigrations.MIGRATION_0_3, DBMigrations.W_MIGRATION_3_4, DBMigrations.W_MIGRATION_4_5)
+                    .fallbackToDestructiveMigration()
                     .build();
         }
 
