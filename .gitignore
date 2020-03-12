@@ -23,3 +23,5 @@ wearapp/debug
 wearapp/release
 wearapp/google-services.json
 wearapp/src/*/google-services.json
+/keycheck.bat
+/keycheck.ps1

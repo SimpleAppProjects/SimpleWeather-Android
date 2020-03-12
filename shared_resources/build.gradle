@@ -89,3 +89,14 @@ dependencies {
         exclude group: "org.jetbrains", module: "annotations-java5"
     }
 }
+
+task keyCheck(type:Exec) {
+    workingDir '../'
+    commandLine 'cmd', '/c', 'keycheck.bat'
+
+    doLast {
+        execResult.assertNormalExitValue()
+    }
+}
+
+preBuild.dependsOn keyCheck
