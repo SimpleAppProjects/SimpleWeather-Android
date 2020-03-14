@@ -5,22 +5,22 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.util.ObjectsCompat;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
-import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
-import com.thewizrd.shared_resources.helpers.ColorsUtils;
-import com.thewizrd.shared_resources.helpers.ListDiffUtilCallback;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.controls.DetailCard;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 public class DetailItemAdapter extends ColorModeRecyclerViewAdapter<DetailItemAdapter.ViewHolder> {
-    private List<DetailItemViewModel> mDataset;
+    private AsyncListDiffer<DetailItemViewModel> mDiffer;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -40,8 +40,20 @@ public class DetailItemAdapter extends ColorModeRecyclerViewAdapter<DetailItemAd
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public DetailItemAdapter() {
-        mDataset = new ArrayList<>();
+        mDiffer = new AsyncListDiffer<>(this, diffCallback);
     }
+
+    private DiffUtil.ItemCallback<DetailItemViewModel> diffCallback = new DiffUtil.ItemCallback<DetailItemViewModel>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull DetailItemViewModel oldItem, @NonNull DetailItemViewModel newItem) {
+            return oldItem.getDetailsType() == newItem.getDetailsType();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull DetailItemViewModel oldItem, @NonNull DetailItemViewModel newItem) {
+            return ObjectsCompat.equals(oldItem, newItem);
+        }
+    };
 
     @SuppressLint("NewApi")
     @NonNull
@@ -74,23 +86,21 @@ public class DetailItemAdapter extends ColorModeRecyclerViewAdapter<DetailItemAd
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         if (!colorUpdateOnly) {
-            vh.bind(mDataset.get(position));
+            vh.bind(mDiffer.getCurrentList().get(position));
         }
-
-        boolean isLightBackground = ColorsUtils.isSuperLight(this.getItemColor());
 
         switch (getDarkThemeMode()) {
             case OFF:
-                vh.mDetailCard.setBackgroundColor(isLightBackground ? getItemColor() : ColorUtils.blendARGB(getItemColor(), Colors.WHITE, 0.25f));
-                vh.mDetailCard.setTextColor(isLightBackground ? Colors.BLACK : Colors.WHITE);
-                vh.mDetailCard.setStrokeColor(ColorUtils.setAlphaComponent(isLightBackground ? Colors.BLACK : Colors.LIGHTGRAY, 0x40));
-                vh.mDetailCard.setShadowColor(isLightBackground ? Colors.GRAY : Colors.BLACK);
+                vh.mDetailCard.setBackgroundColor(isLightBackground() ? getItemColor() : ColorUtils.blendARGB(getItemColor(), Colors.WHITE, 0.25f));
+                vh.mDetailCard.setTextColor(isLightBackground() ? Colors.BLACK : Colors.WHITE);
+                vh.mDetailCard.setStrokeColor(ColorUtils.setAlphaComponent(isLightBackground() ? Colors.BLACK : Colors.LIGHTGRAY, 0x40));
+                vh.mDetailCard.setShadowColor(isLightBackground() ? Colors.GRAY : Colors.BLACK);
                 break;
             case ON:
                 vh.mDetailCard.setBackgroundColor(ColorUtils.blendARGB(getItemColor(), Colors.BLACK, 0.75f));
-                vh.mDetailCard.setTextColor(isLightBackground ? Colors.BLACK : Colors.WHITE);
-                vh.mDetailCard.setStrokeColor(ColorUtils.setAlphaComponent(isLightBackground ? Colors.BLACK : Colors.LIGHTGRAY, 0x40));
-                vh.mDetailCard.setShadowColor(isLightBackground ? Colors.GRAY : Colors.BLACK);
+                vh.mDetailCard.setTextColor(isLightBackground() ? Colors.BLACK : Colors.WHITE);
+                vh.mDetailCard.setStrokeColor(ColorUtils.setAlphaComponent(isLightBackground() ? Colors.BLACK : Colors.LIGHTGRAY, 0x40));
+                vh.mDetailCard.setShadowColor(isLightBackground() ? Colors.GRAY : Colors.BLACK);
                 break;
             case AMOLED_DARK:
                 vh.mDetailCard.setBackgroundColor(0x90909); // 0x121212 (colorSurface) / 2
@@ -103,21 +113,17 @@ public class DetailItemAdapter extends ColorModeRecyclerViewAdapter<DetailItemAd
 
     @Override
     // Return the size of your dataset (invoked by the layout manager)
-    public synchronized int getItemCount() {
-        return mDataset.size();
+    public int getItemCount() {
+        return mDiffer.getCurrentList().size();
     }
 
-    public synchronized void updateItems(WeatherNowViewModel weatherNowViewModel) {
-        List<DetailItemViewModel> oldItems = new ArrayList<>(mDataset);
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ListDiffUtilCallback<DetailItemViewModel>(oldItems, weatherNowViewModel.getWeatherDetails()) {
+    public void updateItems(final List<DetailItemViewModel> dataset) {
+        new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
-            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                return getOldList().get(oldItemPosition).getDetailsType() == getNewList().get(newItemPosition).getDetailsType();
+            public Void call() {
+                mDiffer.submitList(dataset);
+                return null;
             }
         });
-        mDataset.clear();
-        mDataset.addAll(weatherNowViewModel.getWeatherDetails());
-        diffResult.dispatchUpdatesTo(this);
-        oldItems.clear();
     }
 }

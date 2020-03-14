@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -85,6 +86,25 @@ public class App extends Application implements ApplicationLib, Application.Acti
 
         // Init common action broadcast receiver
         registerCommonReceiver();
+
+        if (BuildConfig.DEBUG) {
+            StrictMode.setThreadPolicy(
+                    new StrictMode.ThreadPolicy.Builder()
+                            .detectCustomSlowCalls()
+                            .penaltyLog()
+                            .build());
+
+            StrictMode.VmPolicy.Builder vmPolicyBuild = new StrictMode.VmPolicy.Builder()
+                    .detectActivityLeaks()
+                    .detectLeakedClosableObjects()
+                    .penaltyLog();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                vmPolicyBuild.detectCleartextNetwork();
+            }
+
+            StrictMode.setVmPolicy(vmPolicyBuild.build());
+        }
 
         final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
 

@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.util.ObjectsCompat;
+import androidx.core.view.ViewGroupCompat;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.common.base.Predicate;
@@ -48,6 +49,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 public class ForecastGraphPanel extends LinearLayout {
     private Context context;
@@ -56,7 +58,8 @@ public class ForecastGraphPanel extends LinearLayout {
     private List<BaseForecastItemViewModel> forecasts;
 
     private boolean isDarkMode;
-    private final int FETCH_SIZE = (int) (5 * App.getInstance().getAppContext().getResources().getDisplayMetrics().scaledDensity);
+    private final int MAX_FETCH_SIZE = (int) (5 * App.getInstance().getAppContext().getResources().getDisplayMetrics().scaledDensity);
+    private int dataFetchSize = 1;
 
     private enum GraphType {
         FORECASTS,
@@ -129,7 +132,7 @@ public class ForecastGraphPanel extends LinearLayout {
                     AsyncTask.run(new Runnable() {
                         @Override
                         public void run() {
-                            collection.loadMoreItems(FETCH_SIZE);
+                            collection.loadMoreItems(dataFetchSize);
                         }
                     });
                 }
@@ -141,14 +144,19 @@ public class ForecastGraphPanel extends LinearLayout {
         @Override
         public void onSizeChanged(LineView v, int canvasWidth) {
             if (v.getViewportWidth() > 0 && canvasWidth > 0) {
-                if (canvasWidth <= v.getViewportWidth() &&
-                        forecasts instanceof ILoadingCollection) {
+                int desiredFetchSize = Math.round((float) v.getViewportWidth() / canvasWidth);
+                if (desiredFetchSize > MAX_FETCH_SIZE || desiredFetchSize <= 1)
+                    dataFetchSize = MAX_FETCH_SIZE;
+                else
+                    dataFetchSize = desiredFetchSize;
+
+                if (canvasWidth <= v.getViewportWidth() && forecasts instanceof ILoadingCollection) {
                     final ILoadingCollection collection = ((ILoadingCollection) forecasts);
                     if (collection.hasMoreItems() && !collection.isLoading()) {
                         AsyncTask.run(new Runnable() {
                             @Override
                             public void run() {
-                                collection.loadMoreItems(FETCH_SIZE);
+                                collection.loadMoreItems(dataFetchSize);
                             }
                         });
                     }
@@ -211,6 +219,9 @@ public class ForecastGraphPanel extends LinearLayout {
         this.removeAllViews();
         this.addView(view);
         this.addView(tabLayout);
+        // Individual transitions on the view can cause
+        // OpenGLRenderer: GL error:  GL_INVALID_VALUE
+        ViewGroupCompat.setTransitionGroup(this, true);
 
         resetLineView(true);
     }
@@ -309,38 +320,50 @@ public class ForecastGraphPanel extends LinearLayout {
 
         view.resetData();
 
-        switch (mGraphType) {
-            case FORECASTS:
-            default: // Temp
-                updateForecastGraph(forecasts);
-                break;
-            case WIND: // Wind
-                updateWindForecastGraph(forecasts);
-                break;
-            case PRECIPITATION: // PoP
-                updatePrecipicationGraph(forecasts);
-                break;
-        }
+        new AsyncTask<Void>().await(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                switch (mGraphType) {
+                    case FORECASTS:
+                    default: // Temp
+                        updateForecastGraph(forecasts);
+                        break;
+                    case WIND: // Wind
+                        updateWindForecastGraph(forecasts);
+                        break;
+                    case PRECIPITATION: // PoP
+                        updatePrecipicationGraph(forecasts);
+                        break;
+                }
+                return null;
+            }
+        });
 
         if (resetOffset) view.smoothScrollTo(0, 0);
     }
 
-    private void updateLineView(List<BaseForecastItemViewModel> dataset, boolean resetOffset) {
+    private void updateLineView(final List<BaseForecastItemViewModel> dataset, boolean resetOffset) {
         updateLineViewColors();
         updateTabs();
 
-        switch (mGraphType) {
-            case FORECASTS:
-            default: // Temp
-                updateForecastGraph(dataset);
-                break;
-            case WIND: // Wind
-                updateWindForecastGraph(dataset);
-                break;
-            case PRECIPITATION: // PoP
-                updatePrecipicationGraph(dataset);
-                break;
-        }
+        new AsyncTask<Void>().await(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                switch (mGraphType) {
+                    case FORECASTS:
+                    default: // Temp
+                        updateForecastGraph(dataset);
+                        break;
+                    case WIND: // Wind
+                        updateWindForecastGraph(dataset);
+                        break;
+                    case PRECIPITATION: // PoP
+                        updatePrecipicationGraph(dataset);
+                        break;
+                }
+                return null;
+            }
+        });
 
         if (resetOffset) view.smoothScrollTo(0, 0);
     }

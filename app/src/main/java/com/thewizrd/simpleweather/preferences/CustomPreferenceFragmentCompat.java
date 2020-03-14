@@ -17,8 +17,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewGroupCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.transition.Transition;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -29,6 +31,7 @@ import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentSettingsBinding;
 import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
+import com.thewizrd.simpleweather.helpers.TransitionHelper;
 import com.thewizrd.simpleweather.helpers.WindowColorManager;
 
 public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentCompat
@@ -79,6 +82,12 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
     int getTitle();
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        TransitionHelper.onCreate(this);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
 
@@ -125,12 +134,35 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (currentConfig == null) {
             currentConfig = new Configuration(getResources().getConfiguration());
         }
         updateWindowColors();
+
+        ViewGroupCompat.setTransitionGroup(getRootView(), false);
+        ViewGroupCompat.setTransitionGroup(getAppBarLayout(), false);
+        ViewGroupCompat.setTransitionGroup(getToolbar(), false);
+        ViewGroupCompat.setTransitionGroup(getListView(), true);
+
+        TransitionHelper.onViewCreated(this, (ViewGroup) view.getParent(), new TransitionHelper.OnPrepareTransitionListener() {
+            @Override
+            public void prepareTransitions(@Nullable Transition enterTransition, @Nullable Transition exitTransition, @Nullable Transition reenterTransition, @Nullable Transition returnTransition) {
+                if (enterTransition != null) {
+                    enterTransition.addTarget(getListView());
+                }
+                if (exitTransition != null) {
+                    exitTransition.addTarget(getListView());
+                }
+                if (reenterTransition != null) {
+                    reenterTransition.addTarget(getListView());
+                }
+                if (returnTransition != null) {
+                    returnTransition.addTarget(getListView());
+                }
+            }
+        });
     }
 
     @Override

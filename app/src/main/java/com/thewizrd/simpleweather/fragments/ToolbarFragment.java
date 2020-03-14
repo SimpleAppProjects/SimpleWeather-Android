@@ -10,13 +10,17 @@ import android.view.ViewGroup;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewGroupCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.Transition;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -27,6 +31,7 @@ import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentToolbarLayoutBinding;
 import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
+import com.thewizrd.simpleweather.helpers.TransitionHelper;
 
 public abstract class ToolbarFragment extends WindowColorFragment
         implements OnBackPressedFragmentListener {
@@ -92,6 +97,13 @@ public abstract class ToolbarFragment extends WindowColorFragment
     protected abstract @StringRes
     int getTitle();
 
+    @CallSuper
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        TransitionHelper.onCreate(this);
+    }
+
     @Override
     @CallSuper
     public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container, Bundle savedInstanceState) {
@@ -117,6 +129,38 @@ public abstract class ToolbarFragment extends WindowColorFragment
         binding.toolbar.setTitle(getTitle());
 
         return root;
+    }
+
+    @CallSuper
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        ViewGroupCompat.setTransitionGroup(getRootView(), false);
+        ViewGroupCompat.setTransitionGroup(getAppBarLayout(), false);
+        ViewGroupCompat.setTransitionGroup(getToolbar(), false);
+
+        TransitionHelper.onViewCreated(this, (ViewGroup) view.getParent(), new TransitionHelper.OnPrepareTransitionListener() {
+            @Override
+            public void prepareTransitions(@Nullable Transition enterTransition, @Nullable Transition exitTransition, @Nullable Transition reenterTransition, @Nullable Transition returnTransition) {
+                if (enterTransition != null) {
+                    enterTransition
+                            .addTarget(RecyclerView.class);
+                }
+                if (exitTransition != null) {
+                    exitTransition
+                            .addTarget(RecyclerView.class);
+                }
+                if (reenterTransition != null) {
+                    reenterTransition
+                            .addTarget(RecyclerView.class);
+                }
+                if (returnTransition != null) {
+                    returnTransition
+                            .addTarget(RecyclerView.class);
+                }
+            }
+        });
     }
 
     @Override

@@ -9,7 +9,6 @@ import android.graphics.Path;
 import android.graphics.PathEffect;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Typeface;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.view.View;
@@ -17,6 +16,7 @@ import android.view.View;
 import androidx.annotation.ColorInt;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.util.ObjectsCompat;
 
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -91,21 +91,27 @@ public class SunPhaseView extends View {
     }
 
     public void setTextColor(@ColorInt int color) {
-        BOTTOM_TEXT_COLOR = color;
-        if (bottomTextPaint != null) {
-            bottomTextPaint.setColor(BOTTOM_TEXT_COLOR);
-            invalidate();
+        if (BOTTOM_TEXT_COLOR != color) {
+            BOTTOM_TEXT_COLOR = color;
+            if (bottomTextPaint != null) {
+                bottomTextPaint.setColor(BOTTOM_TEXT_COLOR);
+                invalidate();
+            }
         }
     }
 
     public void setPhaseArcColor(@ColorInt int color) {
-        PHASE_ARC_COLOR = color;
-        invalidate();
+        if (PHASE_ARC_COLOR != color) {
+            PHASE_ARC_COLOR = color;
+            invalidate();
+        }
     }
 
     public void setPaintColor(@ColorInt int color) {
-        PAINT_COLOR = color;
-        invalidate();
+        if (PAINT_COLOR != color) {
+            PAINT_COLOR = color;
+            invalidate();
+        }
     }
 
     public void setSunriseSetTimes(LocalTime sunrise, LocalTime sunset) {
@@ -113,36 +119,39 @@ public class SunPhaseView extends View {
     }
 
     public void setSunriseSetTimes(LocalTime sunrise, LocalTime sunset, ZoneOffset offset) {
-        this.sunrise = sunrise;
-        this.sunset = sunset;
-        this.offset = offset;
+        if (!ObjectsCompat.equals(this.sunrise, sunrise) || !ObjectsCompat.equals(this.sunset, sunset) || !ObjectsCompat.equals(this.offset, offset)) {
+            this.sunrise = sunrise;
+            this.sunset = sunset;
+            this.offset = offset;
 
-        Rect r = new Rect();
-        int longestWidth = 0;
-        String longestStr = "";
-        bottomTextDescent = 0;
-        for (String s : Arrays.asList(getSunriseLabel(), getSunriseLabel())) {
-            bottomTextPaint.getTextBounds(s, 0, s.length(), r);
-            if (bottomTextHeight < r.height()) {
-                bottomTextHeight = r.height();
+            Rect r = new Rect();
+            int longestWidth = 0;
+            String longestStr = "";
+            bottomTextDescent = 0;
+            for (String s : Arrays.asList(getSunriseLabel(), getSunriseLabel())) {
+                bottomTextPaint.getTextBounds(s, 0, s.length(), r);
+                if (bottomTextHeight < r.height()) {
+                    bottomTextHeight = r.height();
+                }
+                if (longestWidth < r.width()) {
+                    longestWidth = r.width();
+                    longestStr = s;
+                }
+                if (bottomTextDescent < (Math.abs(r.bottom))) {
+                    bottomTextDescent = Math.abs(r.bottom);
+                }
             }
-            if (longestWidth < r.width()) {
-                longestWidth = r.width();
-                longestStr = s;
-            }
-            if (bottomTextDescent < (Math.abs(r.bottom))) {
-                bottomTextDescent = Math.abs(r.bottom);
-            }
-        }
 
-        if (backgroundGridWidth < longestWidth) {
-            backgroundGridWidth = longestWidth + (int) bottomTextPaint.measureText(longestStr, 0, 1);
-        }
-        if (sideLineLength < longestWidth / 2) {
-            sideLineLength = longestWidth / 2f;
-        }
+            if (backgroundGridWidth < longestWidth) {
+                backgroundGridWidth = longestWidth + (int) bottomTextPaint.measureText(longestStr, 0, 1);
+            }
+            if (sideLineLength < longestWidth / 2) {
+                sideLineLength = longestWidth / 2f;
+            }
 
-        refreshXCoordinateList();
+            refreshXCoordinateList();
+            invalidate();
+        }
     }
 
     private void refreshXCoordinateList() {
@@ -181,25 +190,12 @@ public class SunPhaseView extends View {
                 new float[]{10, 5, 10, 5}, 1);
         arcPaint.setPathEffect(dashEffect);
 
-        Paint iconPaint = new Paint();
-        iconPaint.setAntiAlias(true);
-        iconPaint.setTextSize(ActivityUtils.dpToPx(getContext(), 14));
-        iconPaint.setTextAlign(Paint.Align.LEFT);
-        iconPaint.setStyle(Paint.Style.FILL);
-        iconPaint.setColor(PAINT_COLOR);
-        Typeface weathericons = ResourcesCompat.getFont(getContext(), R.font.weathericons);
-        iconPaint.setSubpixelText(true);
-        iconPaint.setTypeface(weathericons);
-
         float radius = getGraphHeight() * 0.9f;
         float trueRadius = (sunsetX - sunriseX) * 0.5f;
 
         float x, y;
         float centerX = mViewWidth * 0.5f;
         float centerY = getGraphHeight();
-
-        final Rect bounds = new Rect();
-        iconPaint.getTextBounds(WeatherIcons.DAY_SUNNY, 0, 1, bounds);
 
         /*
             Point on circle (width = height = r)
@@ -279,8 +275,21 @@ public class SunPhaseView extends View {
         final RectF oval = new RectF(sunriseX, getGraphHeight() - radius, sunsetX, getGraphHeight() + radius);
         canvas.drawArc(oval, -180, 180, true, arcPaint);
 
-        if (isDay)
+        if (isDay) {
+            Paint iconPaint = new Paint();
+            iconPaint.setAntiAlias(true);
+            iconPaint.setTextSize(ActivityUtils.dpToPx(getContext(), 14));
+            iconPaint.setTextAlign(Paint.Align.LEFT);
+            iconPaint.setStyle(Paint.Style.FILL);
+            iconPaint.setColor(PAINT_COLOR);
+            iconPaint.setSubpixelText(true);
+            iconPaint.setTypeface(ResourcesCompat.getFont(getContext(), R.font.weathericons));
+
+            final Rect bounds = new Rect();
+            iconPaint.getTextBounds(WeatherIcons.DAY_SUNNY, 0, 1, bounds);
+
             canvas.drawText(WeatherIcons.DAY_SUNNY, x - bounds.exactCenterX(), y - bounds.exactCenterY(), iconPaint);
+        }
     }
 
     private void drawLabels(Canvas canvas) {

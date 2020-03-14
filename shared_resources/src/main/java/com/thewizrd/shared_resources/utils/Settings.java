@@ -742,7 +742,13 @@ public class Settings {
             if (useFollowGPS())
                 homeData = getLastGPSLocData();
             else
-                homeData = Iterables.getFirst(getFavorites(), null);
+                homeData = new AsyncTask<LocationData>().await(new Callable<LocationData>() {
+                    @Override
+                    public LocationData call() {
+                        loadIfNeeded();
+                        return locationDB.locationsDAO().getFirstFavorite();
+                    }
+                });
         } else {
             homeData = getLastGPSLocData();
 

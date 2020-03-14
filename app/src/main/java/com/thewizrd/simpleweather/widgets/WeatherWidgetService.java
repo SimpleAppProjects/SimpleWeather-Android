@@ -569,7 +569,7 @@ public class WeatherWidgetService extends JobIntentService {
             locationData = Settings.getLocation(location_query);
         }
 
-        if (locationData == null)
+        if (locationData == null || !locationData.isValid())
             return;
 
         final WeatherDataLoader wLoader = new WeatherDataLoader(locationData);

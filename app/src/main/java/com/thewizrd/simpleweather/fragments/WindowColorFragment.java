@@ -16,6 +16,12 @@ public abstract class WindowColorFragment extends Fragment implements WindowColo
 
     private Configuration currentConfig;
 
+    protected void postToViewQueue(Runnable runnable) {
+        if (getView() != null) {
+            getView().post(runnable);
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -34,7 +40,12 @@ public abstract class WindowColorFragment extends Fragment implements WindowColo
         super.onHiddenChanged(hidden);
 
         if (!hidden && this.isVisible()) {
-            updateWindowColors();
+            postToViewQueue(new Runnable() {
+                @Override
+                public void run() {
+                    updateWindowColors();
+                }
+            });
         }
     }
 

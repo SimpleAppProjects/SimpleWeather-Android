@@ -41,6 +41,12 @@ public interface LocationsDAO {
             " ORDER BY favorites.position")
     public List<LocationData> getFavorites();
 
+    @Transaction
+    @Query("SELECT locations.* FROM locations" +
+            " INNER JOIN favorites ON locations.`query` = favorites.`query`" +
+            " ORDER BY favorites.position LIMIT 1")
+    public LocationData getFirstFavorite();
+
     @Query("SELECT * FROM locations WHERE `query` = :query")
     public LocationData getLocation(String query);
 

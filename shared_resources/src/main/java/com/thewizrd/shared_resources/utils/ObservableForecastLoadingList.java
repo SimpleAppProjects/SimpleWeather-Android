@@ -2,7 +2,8 @@ package com.thewizrd.shared_resources.utils;
 
 import android.util.Log;
 
-import com.google.common.base.Objects;
+import androidx.core.util.ObjectsCompat;
+
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
@@ -31,7 +32,7 @@ public class ObservableForecastLoadingList<T extends BaseForecastItemViewModel> 
         Object old = this.weather;
         this.weather = weather;
 
-        if (Objects.equal(old, weather) || size() == 0) {
+        if (ObjectsCompat.equals(old, weather) || size() == 0) {
             refresh();
         }
     }

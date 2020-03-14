@@ -183,7 +183,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
             }
         });
 
-        weatherDetails = new ArrayList<>();
+        weatherDetails = new ArrayList<>(WeatherDetailsType.values().length);
         alerts = new ArrayList<>();
     }
 
@@ -206,56 +206,35 @@ public class WeatherNowViewModel extends ObservableViewModel {
         isDark = pendingBackground != -1 && !ColorsUtils.isSuperLight(pendingBackground);
     }
 
-    public void updateView(Weather weather) {
+    public void updateView(final Weather weather) {
         if (weather != null && weather.isValid() && !ObjectsCompat.equals(this.weather, weather)) {
             Context context = SimpleLibrary.getInstance().getApp().getAppContext();
             boolean isPhone = SimpleLibrary.getInstance().getApp().isPhone();
 
             this.weather = weather;
 
-            // Update extras
-            if (weather.getHrForecast() != null && weather.getHrForecast().size() > 0) {
-                hourlyForecasts.clear();
-
-                for (final HourlyForecast hr_forecast : weather.getHrForecast()) {
-                    HourlyForecastItemViewModel hrforecastView;
-                    hrforecastView = new AsyncTask<HourlyForecastItemViewModel>().await(new Callable<HourlyForecastItemViewModel>() {
-                        @Override
-                        public HourlyForecastItemViewModel call() {
-                            return new HourlyForecastItemViewModel(hr_forecast);
-                        }
-                    });
-                    hourlyForecasts.add(hrforecastView);
-                }
-            } else {
-                // Let collection handle changes (clearing, etc.)
-                hourlyForecasts.setWeather(weather);
-            }
-            // Propertchanged
-
-            alerts.clear();
-            if (weather.getWeatherAlerts() != null && weather.getWeatherAlerts().size() > 0) {
-                for (WeatherAlert alert : weather.getWeatherAlerts()) {
-                    // Skip if alert has expired
-                    if (alert.getExpiresDate().compareTo(ZonedDateTime.now()) <= 0)
-                        continue;
-
-                    WeatherAlertViewModel alertView = new WeatherAlertViewModel(alert);
-                    alerts.add(alertView);
-                }
-            }
-            // Propertchanged
-
             // Update backgrounds
-            background = wm.getWeatherBackgroundURI(weather);
+            String newBg = wm.getWeatherBackgroundURI(weather);
+            if (!ObjectsCompat.equals(newBg, background)) {
+                background = newBg;
+                notifyPropertyChanged(BR.background);
+            }
+
             origPendingBackground = wm.getWeatherBackgroundColor(weather);
             updatePendingBackground(context, isPhone);
+            notifyPropertyChanged(BR.pendingBackground);
 
             // Location
-            location = weather.getLocation().getName();
+            if (!ObjectsCompat.equals(location, weather.getLocation().getName())) {
+                location = weather.getLocation().getName();
+                notifyPropertyChanged(BR.location);
+            }
 
             // Date Updated
-            updateDate = WeatherUtils.getLastBuildDate(weather);
+            if (!ObjectsCompat.equals(updateDate, WeatherUtils.getLastBuildDate(weather))) {
+                updateDate = WeatherUtils.getLastBuildDate(weather);
+                notifyPropertyChanged(BR.updateDate);
+            }
 
             // Update current condition
             SpannableStringBuilder curTempSSBuilder = new SpannableStringBuilder();
@@ -269,9 +248,19 @@ public class WeatherNowViewModel extends ObservableViewModel {
             curTempSSBuilder.append(unitTemp)
                     .setSpan(new WeatherIconTextSpan(context), curTempSSBuilder.length() - unitTemp.length(), curTempSSBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-            curTemp = curTempSSBuilder;
-            curCondition = (StringUtils.isNullOrWhitespace(weather.getCondition().getWeather()) ? "---" : weather.getCondition().getWeather());
-            weatherIcon = weather.getCondition().getIcon();
+            if (!ObjectsCompat.equals(curTemp, curTempSSBuilder)) {
+                curTemp = curTempSSBuilder;
+                notifyPropertyChanged(BR.curTemp);
+            }
+            String newCondition = (StringUtils.isNullOrWhitespace(weather.getCondition().getWeather()) ? "---" : weather.getCondition().getWeather());
+            if (!ObjectsCompat.equals(curCondition, newCondition)) {
+                curCondition = newCondition;
+                notifyPropertyChanged(BR.curCondition);
+            }
+            if (!ObjectsCompat.equals(weatherIcon, weather.getCondition().getIcon())) {
+                weatherIcon = weather.getCondition().getIcon();
+                notifyPropertyChanged(BR.weatherIcon);
+            }
 
             // WeatherDetails
             weatherDetails.clear();
@@ -421,6 +410,9 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 sunrise = null;
                 sunset = null;
             }
+            notifyPropertyChanged(BR.sunrise);
+            notifyPropertyChanged(BR.sunset);
+            notifyPropertyChanged(BR.weatherDetails);
 
             // Add UI elements
             if (weather.getForecast() != null && weather.getForecast().size() > 0) {
@@ -449,12 +441,48 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 // Let collection handle changes (clearing, etc.)
                 forecasts.setWeather(weather);
             }
-            // Propertchanged
+            notifyPropertyChanged(BR.forecasts);
+
+            // Update extras
+            if (weather.getHrForecast() != null && weather.getHrForecast().size() > 0) {
+                hourlyForecasts.clear();
+
+                for (final HourlyForecast hr_forecast : weather.getHrForecast()) {
+                    HourlyForecastItemViewModel hrforecastView;
+                    hrforecastView = new AsyncTask<HourlyForecastItemViewModel>().await(new Callable<HourlyForecastItemViewModel>() {
+                        @Override
+                        public HourlyForecastItemViewModel call() {
+                            return new HourlyForecastItemViewModel(hr_forecast);
+                        }
+                    });
+                    hourlyForecasts.add(hrforecastView);
+                }
+            } else {
+                // Let collection handle changes (clearing, etc.)
+                hourlyForecasts.setWeather(weather);
+            }
+            notifyPropertyChanged(BR.hourlyForecasts);
+
+            alerts.clear();
+            if (weather.getWeatherAlerts() != null && weather.getWeatherAlerts().size() > 0) {
+                for (WeatherAlert alert : weather.getWeatherAlerts()) {
+                    // Skip if alert has expired
+                    if (alert.getExpiresDate().compareTo(ZonedDateTime.now()) <= 0)
+                        continue;
+
+                    WeatherAlertViewModel alertView = new WeatherAlertViewModel(alert);
+                    alerts.add(alertView);
+                }
+            }
+            notifyPropertyChanged(BR.alerts);
 
             // Additional Details
-            weatherSource = weather.getSource();
-            String creditPrefix = context.getString(R.string.credit_prefix);
+            if (!ObjectsCompat.equals(weatherSource, weather.getSource())) {
+                weatherSource = weather.getSource();
+                notifyPropertyChanged(BR.weatherSource);
+            }
 
+            String creditPrefix = context.getString(R.string.credit_prefix);
             if (WeatherAPI.WEATHERUNDERGROUND.equals(weather.getSource()))
                 weatherCredit = String.format("%s WeatherUnderground", creditPrefix);
             else if (WeatherAPI.YAHOO.equals(weather.getSource()))
@@ -467,12 +495,36 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 weatherCredit = String.format("%s HERE Weather", creditPrefix);
             else if (WeatherAPI.NWS.equals(weather.getSource()))
                 weatherCredit = String.format("%s U.S. National Weather Service", creditPrefix);
+            notifyPropertyChanged(BR.weatherCredit);
 
             // Language
             weatherLocale = weather.getLocale();
-
-            notifyChange();
+            notifyPropertyChanged(BR.weatherLocale);
         }
+    }
+
+    public void reset() {
+        location = null;
+        updateDate = null;
+        curTemp = null;
+        curCondition = null;
+        weatherIcon = null;
+        sunrise = null;
+        sunset = null;
+        weatherDetails.clear();
+        forecasts.clear();
+        hourlyForecasts.clear();
+        alerts.clear();
+        background = null;
+        pendingBackground = -1;
+        origPendingBackground = -1;
+        isDark = true;
+        weatherCredit = null;
+        weatherSource = null;
+        weatherLocale = null;
+
+        weather = null;
+        notifyChange();
     }
 
     private String getPressureStateIcon(String state) {

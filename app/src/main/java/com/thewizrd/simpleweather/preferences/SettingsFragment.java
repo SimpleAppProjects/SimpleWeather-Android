@@ -250,16 +250,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable final Bundle savedInstanceState) {
         updateWindowColors();
-        /*
-         * Delay binding preferences by 500ms for a smoother transition
-         */
-        view.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (getListView() != null)
-                    SettingsFragment.super.onViewCreated(view, savedInstanceState);
-            }
-        }, 500);
+        super.onViewCreated(view, savedInstanceState);
     }
 
     @Override

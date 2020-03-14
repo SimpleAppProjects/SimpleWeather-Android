@@ -5,18 +5,16 @@ import android.util.Log;
 
 import com.thewizrd.shared_resources.AsyncTask;
 
-import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZoneId;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -44,10 +42,10 @@ public class FileLoggingTree extends Timber.Tree {
                 directory.mkdir();
             }
 
-            final Date today = new Date();
+            final LocalDateTime today = LocalDateTime.now(ZoneOffset.UTC);
 
-            final String dateTimeStamp = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT).format(today);
-            String logTimeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS", Locale.ROOT).format(today);
+            final String dateTimeStamp = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT));
+            String logTimeStamp = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS", Locale.ROOT));
 
             final String logNameFormat = "Logger.%s.log";
             String fileName = String.format(Locale.ROOT, logNameFormat, dateTimeStamp);
@@ -61,7 +59,7 @@ public class FileLoggingTree extends Timber.Tree {
 
                 OutputStream fileOutputStream = new FileOutputStream(file, true);
 
-                String priorityTAG = null;
+                String priorityTAG;
                 switch (priority) {
                     default:
                     case Log.DEBUG:
@@ -99,8 +97,7 @@ public class FileLoggingTree extends Timber.Tree {
                             int daysToKeep = 7;
 
                             // Get todays date
-                            LocalDate todayLocal = Instant.ofEpochMilli(today.getTime())
-                                    .atZone(ZoneId.systemDefault()).toLocalDate();
+                            LocalDate todayLocal = today.toLocalDate();
 
                             // Create a list of the last 7 day's dates
                             final List<String> dateStampsToKeep = new ArrayList<>();

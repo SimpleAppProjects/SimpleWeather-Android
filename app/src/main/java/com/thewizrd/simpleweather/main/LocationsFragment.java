@@ -30,15 +30,17 @@ import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.location.LocationManagerCompat;
+import androidx.core.util.ObjectsCompat;
 import androidx.core.view.MarginLayoutParamsCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewGroupCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -63,7 +65,9 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
@@ -79,6 +83,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -349,36 +354,51 @@ public class LocationsFragment extends ToolbarFragment
             if (view != null && view.isEnabled() && view.getTag() instanceof LocationData) {
                 LocationData locData = (LocationData) view.getTag();
 
-                if (locData.equals(Settings.getHomeData())) {
-                    FragmentManager fragMgr = getAppCompatActivity().getSupportFragmentManager();
-                    Fragment home = fragMgr.findFragmentByTag(Constants.FRAGTAG_HOME);
+                FragmentManager fragMgr = getAppCompatActivity().getSupportFragmentManager();
+                Fragment home = fragMgr.findFragmentByTag(Constants.FRAGTAG_HOME);
+                boolean isHome = ObjectsCompat.equals(locData, Settings.getHomeData());
 
-                    // Pop all since we're going home
-                    fragMgr.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                    if (home == null) {
-                        fragMgr.beginTransaction()
-                                .replace(R.id.fragment_container, new WeatherNowFragment(), Constants.FRAGTAG_HOME)
-                                .commit();
+                /*
+                 * NOTE
+                 * Hide current fragment and commit transaction
+                 * This is to avoid showing the fragment again from the backstack
+                 */
+                fragMgr.beginTransaction()
+                        .remove(LocationsFragment.this)
+                        .setReorderingAllowed(true)
+                        .commit();
+
+                if (home == null) {
+                    Fragment newFragment = Iterables.find(fragMgr.getFragments(), new Predicate<Fragment>() {
+                        @Override
+                        public boolean apply(@NullableDecl Fragment input) {
+                            return input instanceof WeatherNowFragment;
+                        }
+                    });
+
+                    if (newFragment == null) {
+                        newFragment = WeatherNowFragment.newInstance(locData);
+                    } else {
+                        newFragment.requireArguments()
+                                .putString(Constants.KEY_DATA, JSONParser.serializer(locData, LocationData.class));
                     }
+
+                    newFragment.requireArguments()
+                            .putBoolean(Constants.FRAGTAG_HOME, isHome);
+
+                    fragMgr.beginTransaction()
+                            .replace(R.id.fragment_container, newFragment, Constants.FRAGTAG_HOME)
+                            .setReorderingAllowed(true)
+                            .commit();
                 } else {
-                    /*
-                     * NOTE
-                     * Hide current fragment and commit transaction
-                     * This is to avoid showing the fragment again from the backstack
-                     */
-                    getAppCompatActivity().getSupportFragmentManager().beginTransaction()
-                            .remove(LocationsFragment.this)
-                            .commit();
-
-                    // Navigate to WeatherNowFragment
-                    Fragment fragment = WeatherNowFragment.newInstance(locData);
-
-                    getAppCompatActivity().getSupportFragmentManager().beginTransaction()
-                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                            .add(R.id.fragment_container, fragment, Constants.FRAGTAG_FAVORITES)
-                            .addToBackStack(null)
-                            .commit();
+                    home.requireArguments()
+                            .putBoolean(Constants.FRAGTAG_HOME, isHome);
+                    home.requireArguments()
+                            .putString(Constants.KEY_DATA, JSONParser.serializer(locData, LocationData.class));
                 }
+
+                // Pop all since we're going home
+                fragMgr.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             }
         }
     };
@@ -520,28 +540,37 @@ public class LocationsFragment extends ToolbarFragment
         mBottomNavView = getAppCompatActivity().findViewById(R.id.bottom_nav_bar);
 
         /*
-           Capture touch events on ScrollView
+           Capture touch events on RecyclerView
            Expand or collapse FAB (MaterialButton) based on scroll direction
            Collapse FAB if we're scrolling to the bottom (so the bottom items behind the keyboard are visible)
            Expand FAB if we're scrolling to the top (items at the top are already visible)
         */
-        binding.scrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+        binding.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            private int scrollState = RecyclerView.SCROLL_STATE_IDLE;
+
             @Override
-            public void onScrollChange(NestedScrollView nestedScrollView, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                int dY = scrollY - oldScrollY;
-                if (dY < 0) {
-                    binding.fab.extend();
-                } else {
-                    binding.fab.shrink();
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                scrollState = newState;
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (scrollState != RecyclerView.SCROLL_STATE_IDLE) {
+                    if (dy < 0) {
+                        binding.fab.extend();
+                    } else {
+                        binding.fab.shrink();
+                    }
                 }
             }
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.scrollView, new OnApplyWindowInsetsListener() {
-            private int paddingStart = ViewCompat.getPaddingStart(binding.scrollView);
-            private int paddingTop = binding.scrollView.getPaddingTop();
-            private int paddingEnd = ViewCompat.getPaddingEnd(binding.scrollView);
-            private int paddingBottom = binding.scrollView.getPaddingBottom();
+        ViewCompat.setOnApplyWindowInsetsListener(binding.recyclerView, new OnApplyWindowInsetsListener() {
+            private int paddingStart = ViewCompat.getPaddingStart(binding.recyclerView);
+            private int paddingTop = binding.recyclerView.getPaddingTop();
+            private int paddingEnd = ViewCompat.getPaddingEnd(binding.recyclerView);
+            private int paddingBottom = binding.recyclerView.getPaddingBottom();
 
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
@@ -579,6 +608,7 @@ public class LocationsFragment extends ToolbarFragment
             }
         });
 
+        // FAB
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -607,7 +637,7 @@ public class LocationsFragment extends ToolbarFragment
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
-        binding.recyclerView.setHasFixedSize(false);
+        binding.recyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(getAppCompatActivity()) {
@@ -658,6 +688,13 @@ public class LocationsFragment extends ToolbarFragment
         this.getLifecycle().addObserver(mAdapter);
 
         return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        ViewGroupCompat.setTransitionGroup(binding.recyclerView, true);
     }
 
     @Override
@@ -734,7 +771,7 @@ public class LocationsFragment extends ToolbarFragment
                     mLoaded = true;
                 }
             }
-        }, 500, cts.getToken()); // Add a minor delay for a smoother transition
+        });
     }
 
     @Override

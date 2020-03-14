@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.util.ObjectsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -85,12 +86,14 @@ public class MainActivity extends AppCompatActivity
                 // Make sure we exit if location is not home
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, fragment, Constants.FRAGTAG_NOTIFICATION)
+                        .setReorderingAllowed(true)
                         .commitNow();
             } else {
                 // Navigate to WeatherNowFragment
                 // Make sure we exit if location is not home
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, newFragment)
+                        .setReorderingAllowed(true)
                         .addToBackStack(null) // allow exit
                         .commitNow();
             }
@@ -103,8 +106,11 @@ public class MainActivity extends AppCompatActivity
                 fragment = new WeatherNowFragment();
 
             // Navigate to WeatherNowFragment
+            fragment.requireArguments()
+                    .putBoolean(Constants.FRAGTAG_HOME, true);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fragment, Constants.FRAGTAG_HOME)
+                    .setReorderingAllowed(true)
                     .commitNow();
         }
 
@@ -115,9 +121,12 @@ public class MainActivity extends AppCompatActivity
 
             // Navigate to WeatherNowFragment
             Fragment newFragment = WeatherNowFragment.newInstance(locData);
+            fragment.requireArguments()
+                    .putBoolean(Constants.FRAGTAG_HOME, ObjectsCompat.equals(locData, Settings.getHomeData()));
 
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, newFragment, Constants.FRAGTAG_SHORTCUT)
+                    .setReorderingAllowed(true)
                     .commitNow();
         }
 
@@ -156,9 +165,9 @@ public class MainActivity extends AppCompatActivity
 
             // If sub-fragment exist: pop those one by one
             int backstackCount = getSupportFragmentManager().getBackStackEntryCount();
-            if (current != null
-                    && (current.getClass().getName().contains(SettingsFragment.class.getName() + "$")
-                    || current instanceof WeatherListFragment)) {
+            if (current != null &&
+                    (current.getClass().getName().contains(SettingsFragment.class.getName() + "$") ||
+                            current instanceof WeatherListFragment)) {
                 getSupportFragmentManager().popBackStack();
             } else if (backstackCount >= 1) { // If backstack entry exists pop all and goto first (home) fragment
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -174,7 +183,7 @@ public class MainActivity extends AppCompatActivity
         final int id = item.getItemId();
         final int currentId;
 
-        FragmentTransaction transaction = addCustomAnimations(getSupportFragmentManager().beginTransaction());
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         Fragment fragment = null;
 
@@ -279,8 +288,6 @@ public class MainActivity extends AppCompatActivity
                 // Commit the transaction
                 transaction.commit();
             } else if (id == R.id.nav_settings) {
-                fragment = new SettingsFragment();
-
                 // Commit the transaction if current frag is not a SettingsFragment sub-fragment
                 if (!current.getClass().getName().contains(SettingsFragment.class.getName())) {
                     transaction.hide(current);
@@ -291,8 +298,10 @@ public class MainActivity extends AppCompatActivity
                      */
                     if (!(current instanceof WeatherNowFragment)) {
                         transaction.commit();
-                        transaction = addCustomAnimations(getSupportFragmentManager().beginTransaction());
+                        transaction = getSupportFragmentManager().beginTransaction();
                     }
+
+                    fragment = new SettingsFragment();
                     transaction
                             .add(R.id.fragment_container, fragment, Constants.FRAGTAG_SETTINGS)
                             .addToBackStack(Constants.FRAGTAG_SETTINGS)
@@ -302,10 +311,6 @@ public class MainActivity extends AppCompatActivity
         }
 
         return true;
-    }
-
-    private FragmentTransaction addCustomAnimations(@NonNull FragmentTransaction transaction) {
-        return transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
     }
 
     protected void onResumeFragments() {
@@ -327,12 +332,10 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         int checkedItemId = -1;
 
-        if (fragment instanceof WeatherNowFragment) {
+        if (fragment instanceof WeatherNowFragment || fragment instanceof WeatherListFragment) {
             checkedItemId = R.id.nav_weathernow;
         } else if (fragment instanceof LocationsFragment) {
             checkedItemId = R.id.nav_locations;
-        } else if (fragment instanceof WeatherListFragment) {
-            checkedItemId = R.id.nav_weathernow;
         } else if (fragment != null && fragment.getClass().getName().contains(SettingsFragment.class.getName())) {
             checkedItemId = R.id.nav_settings;
         }
