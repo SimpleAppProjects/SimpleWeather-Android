@@ -16,6 +16,7 @@ import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.controls.DetailCard;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -121,7 +122,7 @@ public class DetailItemAdapter extends ColorModeRecyclerViewAdapter<DetailItemAd
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
             public Void call() {
-                mDiffer.submitList(dataset);
+                mDiffer.submitList(new ArrayList<>(dataset));
                 return null;
             }
         });
