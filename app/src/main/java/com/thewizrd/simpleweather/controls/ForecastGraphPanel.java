@@ -103,17 +103,19 @@ public class ForecastGraphPanel extends LinearLayout {
         view.invalidate();
     }
 
-    private View.OnLayoutChangeListener onLayoutChangeListener = new View.OnLayoutChangeListener() {
+    private LineView.OnLayoutChangeListener onLayoutChangeListener = new LineView.OnLayoutChangeListener() {
         @Override
         public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-            if (forecasts instanceof ILoadingCollection) {
-                final ILoadingCollection collection = ((ILoadingCollection) forecasts);
+            LineView lv = (LineView) v;
+            int distanceToEnd = lv.getExtentWidth() - (lv.getScrollX() + lv.getViewportWidth());
 
-                if (forecasts.isEmpty() && collection.hasMoreItems()) {
+            if (distanceToEnd <= lv.getViewportWidth() && forecasts instanceof ILoadingCollection) {
+                final ILoadingCollection collection = ((ILoadingCollection) forecasts);
+                if (collection.hasMoreItems() && !collection.isLoading()) {
                     AsyncTask.run(new Runnable() {
                         @Override
                         public void run() {
-                            collection.loadMoreItems(1);
+                            collection.loadMoreItems(dataFetchSize);
                         }
                     });
                 }
