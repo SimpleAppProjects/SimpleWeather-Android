@@ -71,6 +71,7 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:focusable="true"
+        android:visibility="gone"
         android:translationZ="@dimen/floating_window_z" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

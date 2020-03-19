@@ -42,6 +42,7 @@
             android:clearTaskOnLaunch="true"
             android:configChanges="orientation|keyboardHidden|screenSize|uiMode"
             android:finishOnTaskLaunch="true"
+            android:hardwareAccelerated="true"
             android:label="@string/title_activity_weather_now"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateAlwaysHidden|adjustNothing" />

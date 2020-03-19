@@ -15,6 +15,8 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.transition.Transition;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -64,6 +66,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.transition.MaterialContainerTransform;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -110,6 +113,7 @@ import com.thewizrd.simpleweather.fragments.ToolbarFragment;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperCallback;
 import com.thewizrd.simpleweather.helpers.OffsetMargin;
 import com.thewizrd.simpleweather.helpers.SwipeToDeleteOffSetItemDecoration;
+import com.thewizrd.simpleweather.helpers.TransitionHelper;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
@@ -353,6 +357,7 @@ public class LocationsFragment extends ToolbarFragment
         public void onClick(View view, int position) {
             if (view != null && view.isEnabled() && view.getTag() instanceof LocationData) {
                 LocationData locData = (LocationData) view.getTag();
+                LocationPanelViewModel vm = mAdapter.getPanelViewModel(position);
 
                 FragmentManager fragMgr = getAppCompatActivity().getSupportFragmentManager();
                 Fragment home = fragMgr.findFragmentByTag(Constants.FRAGTAG_HOME);
@@ -385,12 +390,18 @@ public class LocationsFragment extends ToolbarFragment
 
                     newFragment.requireArguments()
                             .putBoolean(Constants.FRAGTAG_HOME, isHome);
+                    newFragment.requireArguments()
+                            .putString(Constants.ARGS_BACKGROUND, vm.getBackground());
 
                     fragMgr.beginTransaction()
                             .replace(R.id.fragment_container, newFragment, Constants.FRAGTAG_HOME)
                             .setReorderingAllowed(true)
                             .commit();
                 } else {
+                    home.requireArguments()
+                            .putBundle(TransitionHelper.ARGS_TRANSITION, TransitionHelper.captureElementValues(view));
+                    home.requireArguments()
+                            .putString(Constants.ARGS_BACKGROUND, vm.getBackground());
                     home.requireArguments()
                             .putBoolean(Constants.FRAGTAG_HOME, isHome);
                     home.requireArguments()
@@ -613,7 +624,8 @@ public class LocationsFragment extends ToolbarFragment
             @Override
             public void onClick(View v) {
                 // Hide FAB in actionmode
-                v.setVisibility(View.GONE);
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+                    v.setVisibility(View.GONE);
                 prepareSearchUI();
             }
         });
@@ -1284,7 +1296,23 @@ public class LocationsFragment extends ToolbarFragment
             ActivityUtils.setTransparentWindow(getAppCompatActivity().getWindow(), bg_color, color, ColorUtils.setAlphaComponent(bg_color, 0xB3), true);
         }
         enterSearchUi();
-        enterSearchUiTransition(null);
+        enterSearchUiTransition(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                if (mSearchFragment != null)
+                    mSearchFragment.requestSearchbarFocus();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
     }
 
     private void enterSearchUi() {
@@ -1301,22 +1329,61 @@ public class LocationsFragment extends ToolbarFragment
         getChildFragmentManager().executePendingTransactions();
     }
 
-    private void enterSearchUiTransition(Animation.AnimationListener enterAnimationListener) {
-        // FragmentContainer fade/translation animation
-        AnimationSet fragmentAniSet = new AnimationSet(true);
-        fragmentAniSet.setInterpolator(new DecelerateInterpolator());
-        AlphaAnimation fragFadeAni = new AlphaAnimation(0.0f, 1.0f);
-        TranslateAnimation fragmentAnimation = new TranslateAnimation(
-                Animation.RELATIVE_TO_SELF, 0,
-                Animation.RELATIVE_TO_SELF, 0,
-                Animation.ABSOLUTE, binding.searchFragmentContainer.getRootView().getHeight(),
-                Animation.ABSOLUTE, 0);
-        fragmentAniSet.setDuration(ANIMATION_DURATION);
-        fragmentAniSet.setFillEnabled(false);
-        fragmentAniSet.addAnimation(fragFadeAni);
-        fragmentAniSet.addAnimation(fragmentAnimation);
-        fragmentAniSet.setAnimationListener(enterAnimationListener);
-        binding.searchFragmentContainer.startAnimation(fragmentAniSet);
+    private void enterSearchUiTransition(final Animation.AnimationListener enterAnimationListener) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            MaterialContainerTransform transition = new MaterialContainerTransform(requireContext());
+            transition.setStartView(binding.fabContainer);
+            transition.setEndView(binding.searchFragmentContainer);
+            transition.setPathMotion(null);
+            transition.addListener(new Transition.TransitionListener() {
+                @Override
+                public void onTransitionStart(Transition transition) {
+
+                }
+
+                @Override
+                public void onTransitionEnd(Transition transition) {
+                    if (enterAnimationListener != null)
+                        enterAnimationListener.onAnimationEnd(null);
+                }
+
+                @Override
+                public void onTransitionCancel(Transition transition) {
+
+                }
+
+                @Override
+                public void onTransitionPause(Transition transition) {
+
+                }
+
+                @Override
+                public void onTransitionResume(Transition transition) {
+
+                }
+            });
+
+            TransitionManager.beginDelayedTransition((ViewGroup) binding.getRoot(), transition);
+            binding.searchFragmentContainer.setVisibility(View.VISIBLE);
+            binding.fabContainer.setVisibility(View.GONE);
+        } else {
+            // FragmentContainer fade/translation animation
+            AnimationSet fragmentAniSet = new AnimationSet(true);
+            fragmentAniSet.setInterpolator(new DecelerateInterpolator());
+            AlphaAnimation fragFadeAni = new AlphaAnimation(0.0f, 1.0f);
+            TranslateAnimation fragmentAnimation = new TranslateAnimation(
+                    Animation.RELATIVE_TO_SELF, 0,
+                    Animation.RELATIVE_TO_SELF, 0,
+                    Animation.ABSOLUTE, binding.searchFragmentContainer.getRootView().getHeight(),
+                    Animation.ABSOLUTE, 0);
+            fragmentAniSet.setDuration(ANIMATION_DURATION);
+            fragmentAniSet.setFillEnabled(false);
+            fragmentAniSet.addAnimation(fragFadeAni);
+            fragmentAniSet.addAnimation(fragmentAnimation);
+            fragmentAniSet.setAnimationListener(enterAnimationListener);
+            binding.searchFragmentContainer.setVisibility(View.VISIBLE);
+            binding.searchFragmentContainer.startAnimation(fragmentAniSet);
+        }
     }
 
     private void addSearchFragment() {
@@ -1532,12 +1599,14 @@ public class LocationsFragment extends ToolbarFragment
     }
 
     private void removeSearchFragment() {
-        mSearchFragment.setUserVisibleHint(false);
-        final FragmentTransaction transaction = getChildFragmentManager()
-                .beginTransaction();
-        transaction.remove(mSearchFragment);
-        mSearchFragment = null;
-        transaction.commitNowAllowingStateLoss();
+        if (mSearchFragment != null) {
+            mSearchFragment.setUserVisibleHint(false);
+            final FragmentTransaction transaction = getChildFragmentManager()
+                    .beginTransaction();
+            transaction.remove(mSearchFragment);
+            mSearchFragment = null;
+            transaction.commitNowAllowingStateLoss();
+        }
     }
 
     private void exitSearchUi(boolean skipAnimation) {
@@ -1577,22 +1646,58 @@ public class LocationsFragment extends ToolbarFragment
         inSearchUI = false;
     }
 
-    private void exitSearchUiTransition(Animation.AnimationListener exitAnimationListener) {
-        // FragmentContainer fade/translation animation
-        AnimationSet fragmentAniSet = new AnimationSet(true);
-        fragmentAniSet.setInterpolator(new DecelerateInterpolator());
-        AlphaAnimation fragFadeAni = new AlphaAnimation(1.0f, 0.0f);
-        TranslateAnimation fragmentAnimation = new TranslateAnimation(
-                Animation.RELATIVE_TO_SELF, 0,
-                Animation.RELATIVE_TO_SELF, 0,
-                Animation.ABSOLUTE, 0,
-                Animation.ABSOLUTE, binding.searchFragmentContainer.getRootView().getHeight());
-        fragmentAniSet.setDuration(ANIMATION_DURATION);
-        fragmentAniSet.setFillEnabled(false);
-        fragmentAniSet.addAnimation(fragFadeAni);
-        fragmentAniSet.addAnimation(fragmentAnimation);
-        fragmentAniSet.setAnimationListener(exitAnimationListener);
-        binding.searchFragmentContainer.startAnimation(fragmentAniSet);
+    private void exitSearchUiTransition(final Animation.AnimationListener exitAnimationListener) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            MaterialContainerTransform transition = new MaterialContainerTransform(requireContext());
+            transition.setStartView(binding.searchFragmentContainer);
+            transition.setEndView(binding.fabContainer);
+            transition.setPathMotion(null);
+            transition.addListener(new Transition.TransitionListener() {
+                @Override
+                public void onTransitionStart(Transition transition) {
+
+                }
+
+                @Override
+                public void onTransitionEnd(Transition transition) {
+                    exitAnimationListener.onAnimationEnd(null);
+                }
+
+                @Override
+                public void onTransitionCancel(Transition transition) {
+
+                }
+
+                @Override
+                public void onTransitionPause(Transition transition) {
+
+                }
+
+                @Override
+                public void onTransitionResume(Transition transition) {
+
+                }
+            });
+
+            TransitionManager.beginDelayedTransition((ViewGroup) binding.getRoot(), transition);
+            binding.fabContainer.setVisibility(View.VISIBLE);
+        } else {
+            // FragmentContainer fade/translation animation
+            AnimationSet fragmentAniSet = new AnimationSet(true);
+            fragmentAniSet.setInterpolator(new DecelerateInterpolator());
+            AlphaAnimation fragFadeAni = new AlphaAnimation(1.0f, 0.0f);
+            TranslateAnimation fragmentAnimation = new TranslateAnimation(
+                    Animation.RELATIVE_TO_SELF, 0,
+                    Animation.RELATIVE_TO_SELF, 0,
+                    Animation.ABSOLUTE, 0,
+                    Animation.ABSOLUTE, binding.searchFragmentContainer.getRootView().getHeight());
+            fragmentAniSet.setDuration(ANIMATION_DURATION);
+            fragmentAniSet.setFillEnabled(false);
+            fragmentAniSet.addAnimation(fragFadeAni);
+            fragmentAniSet.addAnimation(fragmentAnimation);
+            fragmentAniSet.setAnimationListener(exitAnimationListener);
+            binding.searchFragmentContainer.startAnimation(fragmentAniSet);
+        }
     }
 
     private void showInputMethod(View view) {

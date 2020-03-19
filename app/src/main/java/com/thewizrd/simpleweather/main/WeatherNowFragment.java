@@ -936,6 +936,22 @@ public class WeatherNowFragment extends WindowColorFragment
         });
     }
 
+    private void loadBackgroundImage(final String imageURI) {
+        binding.imageView.post(new Runnable() {
+            @Override
+            public void run() {
+                // Reload background image
+                if (mActivity != null && weatherView != null && !StringUtils.isNullOrWhitespace(imageURI)) {
+                    Glide.with(WeatherNowFragment.this)
+                            .load(imageURI)
+                            .apply(RequestOptions.centerCropTransform()
+                                    .format(DecodeFormat.PREFER_RGB_565))
+                            .into(binding.imageView);
+                }
+            }
+        });
+    }
+
     /**
      * Removes location updates from the FusedLocationApi.
      */
@@ -1022,11 +1038,14 @@ public class WeatherNowFragment extends WindowColorFragment
                 if (!loaded) {
                     // Load new favorite location if argument data is present
                     if (requireArguments().containsKey(Constants.KEY_DATA)) {
-                        location = JSONParser.deserializer(requireArguments().getString(Constants.KEY_DATA), LocationData.class);
-                        requireArguments().remove(Constants.KEY_DATA);
-                        weatherView.reset();
-                        updateWindowColors();
-                        locationChanged = true;
+                        LocationData locationData =
+                                JSONParser.deserializer(requireArguments().getString(Constants.KEY_DATA), LocationData.class);
+                        if (!ObjectsCompat.equals(locationData, location)) {
+                            location = JSONParser.deserializer(requireArguments().getString(Constants.KEY_DATA), LocationData.class);
+                            requireArguments().remove(Constants.KEY_DATA);
+                            weatherView.reset();
+                            locationChanged = true;
+                        }
                     } else if (requireArguments().getBoolean(Constants.FRAGTAG_HOME)) {
                         // Check if home location changed
                         // For ex. due to GPS setting change
@@ -1121,6 +1140,14 @@ public class WeatherNowFragment extends WindowColorFragment
             adjustDetailsLayout();
 
             initSnackManager();
+
+            if (requireArguments().containsKey(Constants.ARGS_BACKGROUND)) {
+                loadBackgroundImage(requireArguments().getString(Constants.ARGS_BACKGROUND));
+                requireArguments().remove(Constants.ARGS_BACKGROUND);
+            }
+
+            // Perform manual shared element transition
+            TransitionHelper.performElementTransition(this, binding.imageView);
 
             AsyncTask.run(new Runnable() {
                 @Override

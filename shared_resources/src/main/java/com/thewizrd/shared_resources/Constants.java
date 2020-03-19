@@ -22,4 +22,5 @@ public final class Constants {
     public static final String WIDGETKEY_WEATHER = "weather";
 
     public static final String ARGS_WEATHERLISTTYPE = "WeatherListType";
+    public static final String ARGS_BACKGROUND = "background";
 }

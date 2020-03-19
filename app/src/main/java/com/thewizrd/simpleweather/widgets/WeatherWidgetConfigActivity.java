@@ -71,6 +71,7 @@ import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.transition.MaterialContainerTransform;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
@@ -949,7 +950,23 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             ActivityUtils.setTransparentWindow(mActivity.getWindow(), bg_color, color, ColorUtils.setAlphaComponent(bg_color, 0xB3), true);
 
             enterSearchUi();
-            enterSearchUiTransition(null);
+            enterSearchUiTransition(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    if (mSearchFragment != null)
+                        mSearchFragment.requestSearchbarFocus();
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
         }
 
         private void enterSearchUi() {
@@ -967,7 +984,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             getChildFragmentManager().executePendingTransactions();
         }
 
-        private void enterSearchUiTransition(Animation.AnimationListener enterAnimationListener) {
+        private void enterSearchUiTransition(final Animation.AnimationListener enterAnimationListener) {
             // FragmentContainer fade/translation animation
             AnimationSet fragmentAniSet = new AnimationSet(true);
             fragmentAniSet.setInterpolator(new DecelerateInterpolator());
@@ -982,6 +999,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             fragmentAniSet.addAnimation(fragFadeAni);
             fragmentAniSet.addAnimation(fragmentAnimation);
             fragmentAniSet.setAnimationListener(enterAnimationListener);
+            mSearchFragmentContainer.setVisibility(View.VISIBLE);
             mSearchFragmentContainer.startAnimation(fragmentAniSet);
         }
 
@@ -998,12 +1016,15 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         }
 
         private void removeSearchFragment() {
-            mSearchFragment.setUserVisibleHint(false);
-            final FragmentTransaction transaction = getChildFragmentManager()
-                    .beginTransaction();
-            transaction.remove(mSearchFragment);
-            mSearchFragment = null;
-            transaction.commitAllowingStateLoss();
+            if (mSearchFragment != null) {
+                mSearchFragment.setUserVisibleHint(false);
+                final FragmentTransaction transaction = getChildFragmentManager()
+                        .beginTransaction();
+                transaction.remove(mSearchFragment);
+                mSearchFragment = null;
+                transaction.commitAllowingStateLoss();
+            }
+            mSearchFragmentContainer.setVisibility(View.GONE);
         }
 
         private void exitSearchUi(boolean skipAnimation) {
@@ -1040,23 +1061,59 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 locationPref.setValue(mLastSelectedValue.toString());
         }
 
-        private void exitSearchUiTransition(Animation.AnimationListener exitAnimationListener) {
-            // FragmentContainer fade/translation animation
-            AnimationSet fragmentAniSet = new AnimationSet(true);
-            fragmentAniSet.setInterpolator(new DecelerateInterpolator());
-            AlphaAnimation fragFadeAni = new AlphaAnimation(1.0f, 0.0f);
-            TranslateAnimation fragmentAnimation = new TranslateAnimation(
-                    Animation.RELATIVE_TO_SELF, 0,
-                    Animation.RELATIVE_TO_SELF, 0,
-                    Animation.ABSOLUTE, 0,
-                    Animation.ABSOLUTE, mSearchFragmentContainer.getRootView().getHeight());
-            fragmentAniSet.setDuration(ANIMATION_DURATION);
-            fragmentAniSet.setFillEnabled(false);
-            fragmentAniSet.addAnimation(fragFadeAni);
-            fragmentAniSet.addAnimation(fragmentAnimation);
-            fragmentAniSet.setAnimationListener(exitAnimationListener);
+        private void exitSearchUiTransition(final Animation.AnimationListener exitAnimationListener) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                MaterialContainerTransform transition = new MaterialContainerTransform(requireContext());
+                transition.setStartView(mSearchFragmentContainer);
+                transition.setEndView(getListView().getChildAt(0));
+                transition.setPathMotion(null);
+                transition.addListener(new android.transition.Transition.TransitionListener() {
+                    @Override
+                    public void onTransitionStart(android.transition.Transition transition) {
 
-            mSearchFragmentContainer.startAnimation(fragmentAniSet);
+                    }
+
+                    @Override
+                    public void onTransitionEnd(android.transition.Transition transition) {
+                        exitAnimationListener.onAnimationEnd(null);
+                    }
+
+                    @Override
+                    public void onTransitionCancel(android.transition.Transition transition) {
+
+                    }
+
+                    @Override
+                    public void onTransitionPause(android.transition.Transition transition) {
+
+                    }
+
+                    @Override
+                    public void onTransitionResume(android.transition.Transition transition) {
+
+                    }
+                });
+
+                android.transition.TransitionManager.beginDelayedTransition((ViewGroup) getView(), transition);
+                mSearchFragmentContainer.setVisibility(View.GONE);
+                getListView().setVisibility(View.VISIBLE);
+            } else {
+                // FragmentContainer fade/translation animation
+                AnimationSet fragmentAniSet = new AnimationSet(true);
+                fragmentAniSet.setInterpolator(new DecelerateInterpolator());
+                AlphaAnimation fragFadeAni = new AlphaAnimation(1.0f, 0.0f);
+                TranslateAnimation fragmentAnimation = new TranslateAnimation(
+                        Animation.RELATIVE_TO_SELF, 0,
+                        Animation.RELATIVE_TO_SELF, 0,
+                        Animation.ABSOLUTE, 0,
+                        Animation.ABSOLUTE, mSearchFragmentContainer.getRootView().getHeight());
+                fragmentAniSet.setDuration(ANIMATION_DURATION);
+                fragmentAniSet.setFillEnabled(false);
+                fragmentAniSet.addAnimation(fragFadeAni);
+                fragmentAniSet.addAnimation(fragmentAnimation);
+                fragmentAniSet.setAnimationListener(exitAnimationListener);
+                mSearchFragmentContainer.startAnimation(fragmentAniSet);
+            }
         }
 
         private RecyclerOnClickListenerInterface recyclerClickListener = new RecyclerOnClickListenerInterface() {

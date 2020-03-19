@@ -55,6 +55,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.transition.MaterialContainerTransform;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.stepstone.stepper.Step;
@@ -942,12 +943,28 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     }
 
     private void prepareSearchUI() {
-        // Hide stepper nav bar
-        mStepperLayout.setShowBottomNavigation(false);
         ctsCancel();
 
         enterSearchUi();
-        enterSearchUiTransition(null);
+        enterSearchUiTransition(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                if (mSearchFragment != null)
+                    mSearchFragment.requestSearchbarFocus();
+                // Hide stepper nav bar
+                mStepperLayout.setShowBottomNavigation(false);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
     }
 
     private void enterSearchUi() {
@@ -966,47 +983,87 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
         getChildFragmentManager().executePendingTransactions();
     }
 
-    private void enterSearchUiTransition(Animation.AnimationListener enterAnimationListener) {
-        // SearchViewContainer margin transition
-        Transition transition = new AutoTransition();
-        transition.setDuration(ANIMATION_DURATION);
-        TransitionManager.beginDelayedTransition(binding.searchBar.searchViewContainer, transition);
-        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) binding.searchBar.searchViewContainer.getLayoutParams();
-        MarginLayoutParamsCompat.setMarginEnd(params, 0);
-        MarginLayoutParamsCompat.setMarginStart(params, 0);
-        binding.searchBar.searchViewContainer.setLayoutParams(params);
+    private void enterSearchUiTransition(final Animation.AnimationListener enterAnimationListener) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            MaterialContainerTransform transition = new MaterialContainerTransform(requireContext());
+            transition.setStartView(binding.searchBar.searchViewContainer);
+            transition.setEndView(binding.searchFragmentContainer);
+            transition.setPathMotion(null);
+            transition.addListener(new android.transition.Transition.TransitionListener() {
+                @Override
+                public void onTransitionStart(android.transition.Transition transition) {
 
-        // SearchViewContainer fade/translation animation
-        AnimationSet searchViewAniSet = new AnimationSet(true);
-        searchViewAniSet.setInterpolator(new DecelerateInterpolator());
-        AlphaAnimation searchViewFadeAni = new AlphaAnimation(1.0f, 0.0f);
-        TranslateAnimation searchViewAnimation = new TranslateAnimation(
-                Animation.RELATIVE_TO_SELF, 0,
-                Animation.RELATIVE_TO_SELF, 0,
-                Animation.ABSOLUTE, 0,
-                Animation.ABSOLUTE, -(binding.searchBar.searchViewContainer.getY()));
-        searchViewAniSet.setDuration((long) (ANIMATION_DURATION * 1.25));
-        searchViewAniSet.setFillEnabled(false);
-        searchViewAniSet.setAnimationListener(enterAnimationListener);
-        searchViewAniSet.addAnimation(searchViewAnimation);
-        searchViewAniSet.addAnimation(searchViewFadeAni);
+                }
 
-        // FragmentContainer fade/translation animation
-        AnimationSet fragmentAniSet = new AnimationSet(true);
-        fragmentAniSet.setInterpolator(new DecelerateInterpolator());
-        AlphaAnimation fragFadeAni = new AlphaAnimation(0.0f, 1.0f);
-        TranslateAnimation fragmentAnimation = new TranslateAnimation(
-                Animation.RELATIVE_TO_SELF, 0,
-                Animation.RELATIVE_TO_SELF, 0,
-                Animation.ABSOLUTE, binding.searchBar.searchViewContainer.getY(),
-                Animation.ABSOLUTE, 0);
-        fragmentAniSet.setDuration(ANIMATION_DURATION);
-        fragmentAniSet.setFillEnabled(false);
-        fragmentAniSet.addAnimation(fragFadeAni);
-        fragmentAniSet.addAnimation(fragmentAnimation);
+                @Override
+                public void onTransitionEnd(android.transition.Transition transition) {
+                    if (enterAnimationListener != null)
+                        enterAnimationListener.onAnimationEnd(null);
+                }
 
-        binding.searchFragmentContainer.startAnimation(fragmentAniSet);
-        binding.searchBar.searchViewContainer.startAnimation(searchViewAniSet);
+                @Override
+                public void onTransitionCancel(android.transition.Transition transition) {
+
+                }
+
+                @Override
+                public void onTransitionPause(android.transition.Transition transition) {
+
+                }
+
+                @Override
+                public void onTransitionResume(android.transition.Transition transition) {
+
+                }
+            });
+
+            android.transition.TransitionManager.beginDelayedTransition((ViewGroup) binding.getRoot(), transition);
+            binding.searchFragmentContainer.setVisibility(View.VISIBLE);
+            binding.searchBar.searchViewContainer.setVisibility(View.INVISIBLE);
+        } else {
+            // SearchViewContainer margin transition
+            Transition transition = new AutoTransition();
+            transition.setDuration(ANIMATION_DURATION);
+            TransitionManager.beginDelayedTransition(binding.searchBar.searchViewContainer, transition);
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) binding.searchBar.searchViewContainer.getLayoutParams();
+            MarginLayoutParamsCompat.setMarginEnd(params, 0);
+            MarginLayoutParamsCompat.setMarginStart(params, 0);
+            binding.searchBar.searchViewContainer.setLayoutParams(params);
+
+            // SearchViewContainer fade/translation animation
+            AnimationSet searchViewAniSet = new AnimationSet(true);
+            searchViewAniSet.setInterpolator(new DecelerateInterpolator());
+            AlphaAnimation searchViewFadeAni = new AlphaAnimation(1.0f, 0.0f);
+            TranslateAnimation searchViewAnimation = new TranslateAnimation(
+                    Animation.RELATIVE_TO_SELF, 0,
+                    Animation.RELATIVE_TO_SELF, 0,
+                    Animation.ABSOLUTE, 0,
+                    Animation.ABSOLUTE, -(binding.searchBar.searchViewContainer.getY()));
+            searchViewAniSet.setDuration((long) (ANIMATION_DURATION * 1.25));
+            searchViewAniSet.setFillEnabled(false);
+            searchViewAniSet.setAnimationListener(enterAnimationListener);
+            searchViewAniSet.addAnimation(searchViewAnimation);
+            searchViewAniSet.addAnimation(searchViewFadeAni);
+
+            // FragmentContainer fade/translation animation
+            AnimationSet fragmentAniSet = new AnimationSet(true);
+            fragmentAniSet.setInterpolator(new DecelerateInterpolator());
+            AlphaAnimation fragFadeAni = new AlphaAnimation(0.0f, 1.0f);
+            TranslateAnimation fragmentAnimation = new TranslateAnimation(
+                    Animation.RELATIVE_TO_SELF, 0,
+                    Animation.RELATIVE_TO_SELF, 0,
+                    Animation.ABSOLUTE, binding.searchBar.searchViewContainer.getY(),
+                    Animation.ABSOLUTE, 0);
+            fragmentAniSet.setDuration(ANIMATION_DURATION);
+            fragmentAniSet.setFillEnabled(false);
+            fragmentAniSet.addAnimation(fragFadeAni);
+            fragmentAniSet.addAnimation(fragmentAnimation);
+
+            // Hide stepper nav bar
+            mStepperLayout.setShowBottomNavigation(false);
+            binding.searchFragmentContainer.startAnimation(fragmentAniSet);
+            binding.searchBar.searchViewContainer.startAnimation(searchViewAniSet);
+        }
     }
 
     private void addSearchFragment() {
@@ -1022,12 +1079,14 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     }
 
     private void removeSearchFragment() {
-        mSearchFragment.setUserVisibleHint(false);
-        final FragmentTransaction transaction = getChildFragmentManager()
-                .beginTransaction();
-        transaction.remove(mSearchFragment);
-        mSearchFragment = null;
-        transaction.commitAllowingStateLoss();
+        if (mSearchFragment != null) {
+            mSearchFragment.setUserVisibleHint(false);
+            final FragmentTransaction transaction = getChildFragmentManager()
+                    .beginTransaction();
+            transaction.remove(mSearchFragment);
+            transaction.commitAllowingStateLoss();
+            mSearchFragment = null;
+        }
     }
 
     private void exitSearchUi(boolean skipAnimation) {
@@ -1062,45 +1121,83 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
         inSearchUI = false;
     }
 
-    private void exitSearchUiTransition(Animation.AnimationListener exitAnimationListener) {
-        // SearchViewContainer margin transition
-        binding.searchBar.searchViewContainer.setVisibility(View.VISIBLE);
-        Transition transition = new AutoTransition();
-        transition.setDuration(ANIMATION_DURATION);
-        TransitionManager.beginDelayedTransition(binding.searchBar.searchViewContainer, transition);
-        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) binding.searchBar.searchViewContainer.getLayoutParams();
-        int marginHoriz = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
-        MarginLayoutParamsCompat.setMarginEnd(params, marginHoriz);
-        MarginLayoutParamsCompat.setMarginStart(params, marginHoriz);
-        binding.searchBar.searchViewContainer.setLayoutParams(params);
+    private void exitSearchUiTransition(final Animation.AnimationListener exitAnimationListener) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            MaterialContainerTransform transition = new MaterialContainerTransform(requireContext());
+            transition.setStartView(binding.searchFragmentContainer);
+            transition.setEndView(binding.searchBar.searchViewContainer);
+            transition.setPathMotion(null);
+            transition.addListener(new android.transition.Transition.TransitionListener() {
+                @Override
+                public void onTransitionStart(android.transition.Transition transition) {
 
-        // SearchViewContainer translation animation
-        TranslateAnimation searchBarAnimation = new TranslateAnimation(
-                Animation.RELATIVE_TO_SELF, 0,
-                Animation.RELATIVE_TO_SELF, 0,
-                Animation.ABSOLUTE, -binding.searchBar.searchViewContainer.getY(),
-                Animation.ABSOLUTE, 0);
-        searchBarAnimation.setDuration(ANIMATION_DURATION);
-        searchBarAnimation.setFillEnabled(false);
-        searchBarAnimation.setInterpolator(new DecelerateInterpolator());
+                }
 
-        // FragmentContainer fade/translation animation
-        AnimationSet fragmentAniSet = new AnimationSet(true);
-        fragmentAniSet.setInterpolator(new DecelerateInterpolator());
-        AlphaAnimation fragFadeAni = new AlphaAnimation(1.0f, 0.0f);
-        TranslateAnimation fragmentAnimation = new TranslateAnimation(
-                Animation.RELATIVE_TO_SELF, 0,
-                Animation.RELATIVE_TO_SELF, 0,
-                Animation.ABSOLUTE, 0,
-                Animation.ABSOLUTE, binding.searchBar.searchViewContainer.getY());
-        fragmentAniSet.setDuration(ANIMATION_DURATION);
-        fragmentAniSet.setFillEnabled(false);
-        fragmentAniSet.addAnimation(fragFadeAni);
-        fragmentAniSet.addAnimation(fragmentAnimation);
-        fragmentAniSet.setAnimationListener(exitAnimationListener);
+                @Override
+                public void onTransitionEnd(android.transition.Transition transition) {
+                    if (exitAnimationListener != null)
+                        exitAnimationListener.onAnimationEnd(null);
+                }
 
-        binding.searchFragmentContainer.startAnimation(fragmentAniSet);
-        binding.searchBar.searchViewContainer.startAnimation(searchBarAnimation);
+                @Override
+                public void onTransitionCancel(android.transition.Transition transition) {
+
+                }
+
+                @Override
+                public void onTransitionPause(android.transition.Transition transition) {
+
+                }
+
+                @Override
+                public void onTransitionResume(android.transition.Transition transition) {
+
+                }
+            });
+
+            android.transition.TransitionManager.beginDelayedTransition((ViewGroup) binding.getRoot(), transition);
+            binding.searchFragmentContainer.setVisibility(View.GONE);
+            binding.searchBar.searchViewContainer.setVisibility(View.VISIBLE);
+        } else {
+            // SearchViewContainer margin transition
+            binding.searchBar.searchViewContainer.setVisibility(View.VISIBLE);
+            Transition transition = new AutoTransition();
+            transition.setDuration(ANIMATION_DURATION);
+            TransitionManager.beginDelayedTransition(binding.searchBar.searchViewContainer, transition);
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) binding.searchBar.searchViewContainer.getLayoutParams();
+            int marginHoriz = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
+            MarginLayoutParamsCompat.setMarginEnd(params, marginHoriz);
+            MarginLayoutParamsCompat.setMarginStart(params, marginHoriz);
+            binding.searchBar.searchViewContainer.setLayoutParams(params);
+
+            // SearchViewContainer translation animation
+            TranslateAnimation searchBarAnimation = new TranslateAnimation(
+                    Animation.RELATIVE_TO_SELF, 0,
+                    Animation.RELATIVE_TO_SELF, 0,
+                    Animation.ABSOLUTE, -binding.searchBar.searchViewContainer.getY(),
+                    Animation.ABSOLUTE, 0);
+            searchBarAnimation.setDuration(ANIMATION_DURATION);
+            searchBarAnimation.setFillEnabled(false);
+            searchBarAnimation.setInterpolator(new DecelerateInterpolator());
+
+            // FragmentContainer fade/translation animation
+            AnimationSet fragmentAniSet = new AnimationSet(true);
+            fragmentAniSet.setInterpolator(new DecelerateInterpolator());
+            AlphaAnimation fragFadeAni = new AlphaAnimation(1.0f, 0.0f);
+            TranslateAnimation fragmentAnimation = new TranslateAnimation(
+                    Animation.RELATIVE_TO_SELF, 0,
+                    Animation.RELATIVE_TO_SELF, 0,
+                    Animation.ABSOLUTE, 0,
+                    Animation.ABSOLUTE, binding.searchBar.searchViewContainer.getY());
+            fragmentAniSet.setDuration(ANIMATION_DURATION);
+            fragmentAniSet.setFillEnabled(false);
+            fragmentAniSet.addAnimation(fragFadeAni);
+            fragmentAniSet.addAnimation(fragmentAnimation);
+            fragmentAniSet.setAnimationListener(exitAnimationListener);
+
+            binding.searchFragmentContainer.startAnimation(fragmentAniSet);
+            binding.searchBar.searchViewContainer.startAnimation(searchBarAnimation);
+        }
     }
 
     private void showInputMethod(View view) {
