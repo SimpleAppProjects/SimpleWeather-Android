@@ -5,28 +5,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.Observable;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.wear.widget.WearableLinearLayoutManager;
 
+import com.thewizrd.shared_resources.BR;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.simpleweather.adapters.DetailItemAdapter;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding;
 import com.thewizrd.simpleweather.fragments.SwipeDismissFragment;
 
 public class WeatherDetailsFragment extends SwipeDismissFragment {
-    private WeatherNowViewModel weatherView = null;
+    private WeatherNowViewModel weatherView;
 
     private FragmentWeatherListBinding binding;
     private DetailItemAdapter mAdapter;
 
-    public static WeatherDetailsFragment newInstance(WeatherNowViewModel weatherViewModel) {
-        WeatherDetailsFragment fragment = new WeatherDetailsFragment();
-        if (weatherViewModel != null) {
-            fragment.weatherView = weatherViewModel;
-        }
-
-        return fragment;
+    public static WeatherDetailsFragment newInstance() {
+        return new WeatherDetailsFragment();
     }
 
     @Nullable
@@ -43,6 +41,19 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
         binding.recyclerView.setLayoutManager(new WearableLinearLayoutManager(mActivity));
 
         return outerView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        this.weatherView = new ViewModelProvider(mActivity).get(WeatherNowViewModel.class);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+        weatherView = null;
     }
 
     @Override
@@ -76,8 +87,16 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
     private Observable.OnPropertyChangedCallback propertyChangedCallback = new Observable.OnPropertyChangedCallback() {
         @Override
         public void onPropertyChanged(Observable sender, int propertyId) {
-            if (mActivity != null) {
-                mActivity.runOnUiThread(new Runnable() {
+            if (propertyId == BR.pendingBackground) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (getView() != null)
+                            getView().setBackgroundColor(weatherView.getPendingBackground());
+                    }
+                });
+            } else if (propertyId == BR.alerts || propertyId == BR.forecasts || propertyId == BR.hourlyForecasts) {
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         initialize();
@@ -94,11 +113,10 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
 
             // specify an adapter (see also next example)
             if (mAdapter == null) {
-                mAdapter = new DetailItemAdapter(weatherView);
+                mAdapter = new DetailItemAdapter();
                 binding.recyclerView.setAdapter(mAdapter);
-            } else {
-                mAdapter.updateItems(weatherView);
             }
+            mAdapter.updateItems(weatherView.getWeatherDetails());
         }
     }
 }

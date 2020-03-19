@@ -5,12 +5,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.Observable;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.wear.widget.CurvingLayoutCallback;
 import androidx.wear.widget.WearableLinearLayoutManager;
 
+import com.thewizrd.shared_resources.BR;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
@@ -27,11 +30,8 @@ public class WeatherListFragment extends SwipeDismissFragment {
 
     private WeatherListType weatherType;
 
-    public static WeatherListFragment newInstance(WeatherListType weatherType, WeatherNowViewModel weatherViewModel) {
+    public static WeatherListFragment newInstance(WeatherListType weatherType) {
         WeatherListFragment fragment = new WeatherListFragment();
-        if (weatherViewModel != null) {
-            fragment.weatherView = weatherViewModel;
-        }
 
         Bundle args = new Bundle();
         args.putInt(Constants.ARGS_WEATHERLISTTYPE, weatherType.getValue());
@@ -59,9 +59,16 @@ public class WeatherListFragment extends SwipeDismissFragment {
     }
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        this.weatherView = new ViewModelProvider(mActivity).get(WeatherNowViewModel.class);
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+        weatherView = null;
     }
 
     @Override
@@ -97,8 +104,16 @@ public class WeatherListFragment extends SwipeDismissFragment {
     private Observable.OnPropertyChangedCallback propertyChangedCallback = new Observable.OnPropertyChangedCallback() {
         @Override
         public void onPropertyChanged(Observable sender, int propertyId) {
-            if (mActivity != null) {
-                mActivity.runOnUiThread(new Runnable() {
+            if (propertyId == BR.pendingBackground) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (getView() != null)
+                            getView().setBackgroundColor(weatherView.getPendingBackground());
+                    }
+                });
+            } else if (propertyId == BR.alerts || propertyId == BR.forecasts || propertyId == BR.hourlyForecasts) {
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         initialize();

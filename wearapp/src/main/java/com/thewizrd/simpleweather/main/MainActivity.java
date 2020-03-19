@@ -13,10 +13,12 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.databinding.Observable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 import androidx.wear.widget.drawer.WearableDrawerLayout;
@@ -25,9 +27,9 @@ import androidx.wear.widget.drawer.WearableNavigationDrawerView;
 
 import com.google.android.wearable.intent.RemoteIntent;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.BR;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
-import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
@@ -44,8 +46,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class MainActivity extends FragmentActivity implements MenuItem.OnMenuItemClickListener,
-        WearableNavigationDrawerView.OnItemSelectedListener,
-        WeatherViewLoadedListener {
+        WearableNavigationDrawerView.OnItemSelectedListener {
 
     private ActivityMainBinding binding;
     private NavDrawerAdapter mNavDrawerAdapter;
@@ -53,6 +54,8 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
 
     private int mNavViewSelectedIdx = 0;
     private Runnable mItemSelectedRunnable;
+
+    private WeatherNowViewModel weatherNowView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,6 +171,23 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, filter);
 
         // Create your application here
+        this.weatherNowView = new ViewModelProvider(this).get(WeatherNowViewModel.class);
+        weatherNowView.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
+            @Override
+            public void onPropertyChanged(Observable sender, final int propertyId) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (propertyId == BR.pendingBackground) {
+                            binding.bottomActionDrawer.setBackgroundColor(weatherNowView.getPendingBackground());
+                            binding.topNavDrawer.setBackgroundColor(weatherNowView.getPendingBackground());
+                        } else if (propertyId == BR.forecasts || propertyId == BR.hourlyForecasts || propertyId == BR.alerts) {
+                            mNavDrawerAdapter.updateNavDrawerItems();
+                        }
+                    }
+                });
+            }
+        });
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
 
         // Check if fragment exists
@@ -286,7 +306,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
 
                         // Add fragment to backstack
                         ft.add(R.id.fragment_container,
-                                WeatherListFragment.newInstance(weatherListType, mNavDrawerAdapter.weatherNowView),
+                                WeatherListFragment.newInstance(weatherListType),
                                 null)
                                 .addToBackStack(null);
 
@@ -307,7 +327,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
                     if (!WeatherDetailsFragment.class.equals(current.getClass())) {
                         // Add fragment to backstack
                         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                        ft.add(R.id.fragment_container, WeatherDetailsFragment.newInstance(mNavDrawerAdapter.weatherNowView), null)
+                        ft.add(R.id.fragment_container, WeatherDetailsFragment.newInstance(), null)
                                 .addToBackStack(null);
 
                         /*
@@ -335,22 +355,10 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
     }
 
     @Override
-    public void onWeatherViewUpdated(final WeatherNowViewModel weatherNowView) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mNavDrawerAdapter.updateNavDrawerItems(weatherNowView);
-                binding.bottomActionDrawer.setBackgroundColor(weatherNowView.getPendingBackground());
-                binding.topNavDrawer.setBackgroundColor(weatherNowView.getPendingBackground());
-            }
-        });
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
 
-        if (binding.bottomActionDrawer != null) {
+        if (binding != null) {
             MenuItem menuItem = null;
 
             if (binding.bottomActionDrawer.getMenu() != null) {
@@ -378,15 +386,10 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
                 new NavDrawerItem(R.string.label_details, R.drawable.ic_list_black_24dp)
         );
         private List<NavDrawerItem> navItems;
-        private WeatherNowViewModel weatherNowView;
 
         public NavDrawerAdapter(Context context) {
             mContext = context;
             navItems = navDrawerItems;
-        }
-
-        public WeatherNowViewModel getWeatherNowView() {
-            return weatherNowView;
         }
 
         @Override
@@ -410,9 +413,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
             return navItems.get(pos).titleString;
         }
 
-        public void updateNavDrawerItems(final WeatherNowViewModel weatherNowView) {
-            this.weatherNowView = weatherNowView;
-
+        public void updateNavDrawerItems() {
             navItems = new AsyncTask<List<NavDrawerItem>>().await(new Callable<List<NavDrawerItem>>() {
                 @Override
                 public List<NavDrawerItem> call() {

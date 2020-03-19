@@ -6,32 +6,36 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.ObjectsCompat;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
-import com.thewizrd.shared_resources.helpers.ListChangedAction;
 import com.thewizrd.shared_resources.helpers.ListChangedArgs;
-import com.thewizrd.shared_resources.helpers.ListDiffUtilCallback;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.utils.ILoadingCollection;
 import com.thewizrd.shared_resources.utils.ObservableLoadingArrayList;
+import com.thewizrd.shared_resources.utils.RecyclerViewLoadingScrollListener;
+import com.thewizrd.shared_resources.utils.RecyclerViewUtils;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.databinding.WeatherForecastPanelBinding;
 import com.thewizrd.simpleweather.databinding.WeatherHrforecastPanelBinding;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.concurrent.Callable;
 
-public class ForecastItemAdapter<T extends BaseForecastItemViewModel> extends RecyclerView.Adapter {
+public class ForecastItemAdapter<T extends BaseForecastItemViewModel> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<T> mDataset;
+    private AsyncListDiffer<T> mDiffer;
+
     private RecyclerView recyclerView;
+    private RecyclerView.OnScrollListener onScrollListener;
+    private final int DEFAULT_FETCH_SIZE = (int) (5 * App.getInstance().getAppContext().getResources().getDisplayMetrics().scaledDensity);
 
     private static class ItemType {
         static final int FORECAST = 0;
@@ -71,7 +75,7 @@ public class ForecastItemAdapter<T extends BaseForecastItemViewModel> extends Re
 
     @Override
     public int getItemViewType(int position) {
-        if (mDataset.get(position) instanceof HourlyForecastItemViewModel) {
+        if (mDiffer.getCurrentList().get(position) instanceof HourlyForecastItemViewModel) {
             return ItemType.HOURLYFORECAST;
         } else {
             return ItemType.FORECAST;
@@ -80,8 +84,21 @@ public class ForecastItemAdapter<T extends BaseForecastItemViewModel> extends Re
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public ForecastItemAdapter(List<T> myDataset) {
-        mDataset = myDataset;
+        mDiffer = new AsyncListDiffer<T>(this, diffCallback);
+        updateItems(myDataset);
     }
+
+    private DiffUtil.ItemCallback<T> diffCallback = new DiffUtil.ItemCallback<T>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull T oldItem, @NonNull T newItem) {
+            return ObjectsCompat.equals(oldItem.getDate(), newItem.getDate());
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull T oldItem, @NonNull T newItem) {
+            return ObjectsCompat.equals(oldItem, newItem);
+        }
+    };
 
     @SuppressLint("NewApi")
     @NonNull
@@ -117,43 +134,52 @@ public class ForecastItemAdapter<T extends BaseForecastItemViewModel> extends Re
         // - replace the contents of the view with that element
         if (holder instanceof HourlyForecastViewHolder) {
             HourlyForecastViewHolder vh = (HourlyForecastViewHolder) holder;
-            vh.bind((HourlyForecastItemViewModel) mDataset.get(position));
+            vh.bind((HourlyForecastItemViewModel) mDiffer.getCurrentList().get(position));
         } else if (holder instanceof ForecastViewHolder) {
             ForecastViewHolder vh = (ForecastViewHolder) holder;
-            vh.bind((ForecastItemViewModel) mDataset.get(position));
+            vh.bind((ForecastItemViewModel) mDiffer.getCurrentList().get(position));
         }
     }
 
     @Override
     // Return the size of your dataset (invoked by the layout manager)
     public int getItemCount() {
-        return mDataset.size();
+        return mDiffer.getCurrentList().size();
     }
 
     public void updateItems(final List<T> items) {
         if (items != mDataset) {
             if (mDataset instanceof ILoadingCollection && !(items instanceof ILoadingCollection)) {
                 mDataset = new ArrayList<>(items);
-                notifyDataSetChanged();
+                mDiffer.submitList(new ArrayList<>(items));
             } else if (items instanceof ILoadingCollection) {
                 mDataset = items;
-                notifyDataSetChanged();
+                mDiffer.submitList(new ArrayList<>(items));
+                onScrollListener = new RecyclerViewLoadingScrollListener((ILoadingCollection) mDataset);
             } else {
-                List<T> oldItems = new ArrayList<>(mDataset);
-                DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ListDiffUtilCallback<T>(oldItems, items) {
-                    @Override
-                    public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                        return Objects.equals(getOldList().get(oldItemPosition).getDate(), getNewList().get(newItemPosition).getDate());
-                    }
-                });
-                if (mDataset instanceof ILoadingCollection) {
-                    mDataset = items;
-                } else {
-                    mDataset.clear();
-                    mDataset.addAll(items);
+                mDiffer.submitList(new ArrayList<>(items));
+            }
+        }
+    }
+
+    @Override
+    public void onViewAttachedToWindow(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+
+        if (recyclerView != null && mDataset instanceof ILoadingCollection) {
+            final ILoadingCollection _collection = (ILoadingCollection) mDataset;
+            int totalItemCount = RecyclerViewUtils.getItemCount(recyclerView);
+
+            if (totalItemCount < DEFAULT_FETCH_SIZE) {
+                // load more
+                if (_collection.hasMoreItems() && !_collection.isLoading()) {
+                    AsyncTask.run(new Runnable() {
+                        @Override
+                        public void run() {
+                            _collection.loadMoreItems(DEFAULT_FETCH_SIZE);
+                        }
+                    });
                 }
-                diffResult.dispatchUpdatesTo(this);
-                oldItems.clear();
             }
         }
     }
@@ -191,121 +217,14 @@ public class ForecastItemAdapter<T extends BaseForecastItemViewModel> extends Re
 
     private OnListChangedListener<T> onListChangedListener = new OnListChangedListener<T>() {
         @Override
-        public void onChanged(ArrayList sender, final ListChangedArgs args) {
-            if (recyclerView != null) {
-                recyclerView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (args.action == ListChangedAction.ADD) {
-                            notifyItemInserted(args.newStartingIndex);
-                        } else if (args.action == ListChangedAction.MOVE) {
-                            notifyItemMoved(args.oldStartingIndex, args.newStartingIndex);
-                        } else if (args.action == ListChangedAction.REMOVE && args.oldStartingIndex >= 0) {
-                            notifyItemRemoved(args.oldStartingIndex);
-                        } else if (args.action == ListChangedAction.REPLACE) {
-                            notifyItemChanged(args.oldStartingIndex);
-                        } else {
-                            notifyDataSetChanged();
-                        }
-                    }
-                });
-            }
-        }
-    };
-
-    private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
-        // The minimum amount of items to have below your current scroll position
-        // before loading more.
-        private final int DEFAULT_FETCH_SIZE = (int) (5 * App.getInstance().getAppContext().getResources().getDisplayMetrics().scaledDensity);
-        private int visibleThreshold = DEFAULT_FETCH_SIZE;
-        // The total number of items in the dataset after the last load
-        private int previousTotalItemCount = 0;
-        // True if we are still waiting for the last set of data to load.
-        private boolean loading = true;
-
-        private int getFirstVisibleItem(int[] firstVisibleItemPositions) {
-            int minSize = 0;
-            for (int i = 0; i < firstVisibleItemPositions.length; i++) {
-                if (i == 0) {
-                    minSize = firstVisibleItemPositions[i];
-                } else if (firstVisibleItemPositions[i] < minSize) {
-                    minSize = firstVisibleItemPositions[i];
+        public void onChanged(final ArrayList<T> sender, final ListChangedArgs<T> args) {
+            new AsyncTask<Void>().await(new Callable<Void>() {
+                @Override
+                public Void call() {
+                    mDiffer.submitList(new ArrayList<>(sender));
+                    return null;
                 }
-            }
-            return minSize;
-        }
-
-        private int getLastVisibleItem(int[] lastVisibleItemPositions) {
-            int maxSize = 0;
-            for (int i = 0; i < lastVisibleItemPositions.length; i++) {
-                if (i == 0) {
-                    maxSize = lastVisibleItemPositions[i];
-                } else if (lastVisibleItemPositions[i] > maxSize) {
-                    maxSize = lastVisibleItemPositions[i];
-                }
-            }
-            return maxSize;
-        }
-
-        @Override
-        public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-            if (!(mDataset instanceof ILoadingCollection)) return;
-            final ILoadingCollection _collection = (ILoadingCollection) mDataset;
-
-            RecyclerView.LayoutManager mLayoutMgr = recyclerView.getLayoutManager();
-            int firstVisibleItemPosition = 0;
-            int lastVisibleItemPosition = 0;
-            int totalItemCount = mLayoutMgr != null ? mLayoutMgr.getItemCount() : 0;
-
-            if (mLayoutMgr instanceof StaggeredGridLayoutManager) {
-                StaggeredGridLayoutManager sGLayoutMgr = ((StaggeredGridLayoutManager) mLayoutMgr);
-                int[] firstVisibleItemPositions = sGLayoutMgr.findFirstVisibleItemPositions(null);
-                int[] lastVisibleItemPositions = sGLayoutMgr.findLastVisibleItemPositions(null);
-                // get min and maximum element within the list
-                firstVisibleItemPosition = getFirstVisibleItem(firstVisibleItemPositions);
-                lastVisibleItemPosition = getLastVisibleItem(lastVisibleItemPositions);
-                visibleThreshold = Math.min(lastVisibleItemPosition - firstVisibleItemPosition, DEFAULT_FETCH_SIZE);
-            } else if (mLayoutMgr instanceof LinearLayoutManager) {
-                LinearLayoutManager linLayoutMgr = ((LinearLayoutManager) mLayoutMgr);
-                // get min and maximum element within the list
-                firstVisibleItemPosition = linLayoutMgr.findFirstVisibleItemPosition();
-                lastVisibleItemPosition = linLayoutMgr.findLastVisibleItemPosition();
-                visibleThreshold = Math.min(lastVisibleItemPosition - firstVisibleItemPosition, DEFAULT_FETCH_SIZE);
-            }
-
-            // If the total item count is zero and the previous isn't, assume the
-            // list is invalidated and should be reset back to initial state
-            if (totalItemCount < previousTotalItemCount) {
-                this.previousTotalItemCount = totalItemCount;
-                if (totalItemCount == 0) {
-                    this.loading = true;
-                }
-            }
-
-            // If it’s still loading, we check to see if the dataset count has
-            // changed, if so we conclude it has finished loading and update the current page
-            // number and total item count.
-            if (loading && (totalItemCount > previousTotalItemCount)) {
-                loading = false;
-                previousTotalItemCount = totalItemCount;
-            }
-
-            // If it isn’t currently loading, we check to see if we have breached
-            // the visibleThreshold and need to reload more data.
-            // If we do need to reload some more data, we execute onLoadMore to fetch the data.
-            // threshold should reflect how many total columns there are too
-            if (!loading && (lastVisibleItemPosition + visibleThreshold) > totalItemCount) {
-                // load more
-                if (_collection.hasMoreItems() && !_collection.isLoading()) {
-                    AsyncTask.run(new Runnable() {
-                        @Override
-                        public void run() {
-                            _collection.loadMoreItems(visibleThreshold);
-                        }
-                    });
-                    loading = true;
-                }
-            }
+            });
         }
     };
 }

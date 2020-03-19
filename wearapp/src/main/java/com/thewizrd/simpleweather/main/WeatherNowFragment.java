@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
 import androidx.databinding.DataBindingUtil;
@@ -45,11 +46,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.BR;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
-import com.thewizrd.shared_resources.helpers.WeatherViewLoadedListener;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
@@ -94,7 +95,6 @@ public class WeatherNowFragment extends Fragment
     private WeatherNowViewModel weatherView = null;
 
     private FragmentActivity mActivity;
-    private WeatherViewLoadedListener mCallback;
     private CancellationTokenSource cts;
 
     // Views
@@ -120,8 +120,8 @@ public class WeatherNowFragment extends Fragment
     private boolean timerEnabled;
 
     public WeatherNowFragment() {
-        // Required empty public constructor
         wm = WeatherManager.getInstance();
+        setArguments(new Bundle());
     }
 
     /**
@@ -134,9 +134,11 @@ public class WeatherNowFragment extends Fragment
     public static WeatherNowFragment newInstance(LocationData data) {
         WeatherNowFragment fragment = new WeatherNowFragment();
         if (data != null) {
-            Bundle args = new Bundle();
-            args.putString(Constants.KEY_DATA, JSONParser.serializer(data, LocationData.class));
-            fragment.setArguments(args);
+            if (fragment.getArguments() == null) {
+                fragment.setArguments(new Bundle());
+            }
+            fragment.getArguments()
+                    .putString(Constants.KEY_DATA, JSONParser.serializer(data, LocationData.class));
         }
         return fragment;
     }
@@ -150,7 +152,11 @@ public class WeatherNowFragment extends Fragment
      */
     public static WeatherNowFragment newInstance(Bundle args) {
         WeatherNowFragment fragment = new WeatherNowFragment();
-        fragment.setArguments(args);
+        if (fragment.getArguments() == null) {
+            fragment.setArguments(args);
+        } else {
+            fragment.getArguments().putAll(args);
+        }
         return fragment;
     }
 
@@ -175,26 +181,29 @@ public class WeatherNowFragment extends Fragment
 
                 if (weather != null && weather.isValid()) {
                     weatherView.updateView(weather);
+                    binding.swipeRefreshLayout.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            binding.swipeRefreshLayout.setRefreshing(false);
+                        }
+                    });
 
-                    if (mCallback != null) mCallback.onWeatherViewUpdated(weatherView);
+                    Context context = App.getInstance().getAppContext();
+                    // Update complications if they haven't been already
+                    WeatherComplicationIntentService.enqueueWork(context,
+                            new Intent(context, WeatherComplicationIntentService.class)
+                                    .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS));
 
-                    if (mActivity != null) {
-                        // Update complications if they haven't been already
-                        WeatherComplicationIntentService.enqueueWork(mActivity,
-                                new Intent(mActivity, WeatherComplicationIntentService.class)
-                                        .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS));
-
-                        // Update tile if it hasn't been already
-                        WeatherTileIntentService.enqueueWork(mActivity,
-                                new Intent(mActivity, WeatherTileIntentService.class)
-                                        .setAction(WeatherTileIntentService.ACTION_UPDATETILES));
-                    }
+                    // Update tile if it hasn't been already
+                    WeatherTileIntentService.enqueueWork(context,
+                            new Intent(context, WeatherTileIntentService.class)
+                                    .setAction(WeatherTileIntentService.ACTION_UPDATETILES));
 
                     if (!loaded) {
                         Duration span = Duration.between(ZonedDateTime.now(), weather.getUpdateTime()).abs();
-                        if (mActivity != null && Settings.getDataSync() != WearableDataSync.OFF && span.toMinutes() > Settings.getRefreshInterval()) {
+                        if (Settings.getDataSync() != WearableDataSync.OFF && span.toMinutes() > Settings.getRefreshInterval()) {
                             // send request to refresh data on connected device
-                            mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
+                            context.startService(new Intent(context, WearableDataListenerService.class)
                                     .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE)
                                     .putExtra(WearableDataListenerService.EXTRA_FORCEUPDATE, true));
                         }
@@ -202,13 +211,6 @@ public class WeatherNowFragment extends Fragment
                         loaded = true;
                     }
                 }
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        binding.swipeRefreshLayout.setRefreshing(false);
-                    }
-                });
             }
         });
     }
@@ -231,16 +233,53 @@ public class WeatherNowFragment extends Fragment
     }
 
     @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        mActivity = (FragmentActivity) context;
+        App.getInstance().getPreferences().registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        // Cancel pending actions
+        if (cts != null) cts.cancel();
+
+        super.onDestroy();
+        wLoader = null;
+        weatherView = null;
+        mActivity = null;
+        cts = null;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        App.getInstance().getPreferences().unregisterOnSharedPreferenceChangeListener(this);
+        wLoader = null;
+        weatherView = null;
+        mActivity = null;
+        cts = null;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        if (location != null) {
+            outState.putString(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class));
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Create your fragment here
-        if (getArguments() != null) {
-            location = JSONParser.deserializer(
-                    getArguments().getString(Constants.KEY_DATA, null), LocationData.class);
-
-            if (location != null && wLoader == null)
-                wLoader = new WeatherDataLoader(location);
+        if (savedInstanceState != null && savedInstanceState.containsKey(Constants.KEY_DATA)) {
+            location = JSONParser.deserializer(savedInstanceState.getString(Constants.KEY_DATA), LocationData.class);
+        } else if (requireArguments().containsKey(Constants.KEY_DATA)) {
+            location = JSONParser.deserializer(requireArguments().getString(Constants.KEY_DATA), LocationData.class);
+            requireArguments().remove(Constants.KEY_DATA);
         }
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {
@@ -398,11 +437,11 @@ public class WeatherNowFragment extends Fragment
         loaded = true;
 
         // Setup ViewModel
-        weatherView = new ViewModelProvider(this).get(WeatherNowViewModel.class);
+        weatherView = new ViewModelProvider(mActivity).get(WeatherNowViewModel.class);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_weather_now, container, false);
@@ -451,45 +490,30 @@ public class WeatherNowFragment extends Fragment
 
         loaded = true;
 
-        // Set property change listeners
-        weatherView.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
-            @Override
-            public void onPropertyChanged(Observable sender, int propertyId) {
-                if (propertyId == 0 && !WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible()) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            updateWindowColors();
-                            binding.swipeRefreshLayout.setRefreshing(false);
-                        }
-                    });
-                }
-            }
-        });
-
         return view;
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-    private void updateWindowColors() {
-        runOnUiThread(new Runnable() {
+        // Set property change listeners
+        weatherView.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
             @Override
-            public void run() {
-                if (isCtsCancelRequested())
-                    return;
-
-                int color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
-                if (weatherView != null && weatherView.getPendingBackground() != -1) {
-                    color = weatherView.getPendingBackground();
+            public void onPropertyChanged(Observable sender, int propertyId) {
+                if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible()) {
+                    if (propertyId == BR.pendingBackground) {
+                        updateWindowColors();
+                    }
                 }
-                binding.swipeRefreshLayout.setBackgroundColor(color);
             }
         });
+    }
+
+    @Override
+    public void onDestroyView() {
+        binding = null;
+        super.onDestroyView();
     }
 
     /**
@@ -511,33 +535,6 @@ public class WeatherNowFragment extends Fragment
                         mRequestingLocationUpdates = false;
                     }
                 });
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-
-        mActivity = (FragmentActivity) context;
-        mCallback = (WeatherViewLoadedListener) context;
-        App.getInstance().getPreferences().registerOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-        mActivity = null;
-        mCallback = null;
-        App.getInstance().getPreferences().unregisterOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    public void onDestroy() {
-        // Cancel pending actions
-        if (cts != null) cts.cancel();
-
-        super.onDestroy();
-        mActivity = null;
     }
 
     @Override
@@ -721,7 +718,7 @@ public class WeatherNowFragment extends Fragment
     private void dataSyncRestore() {
         if (mActivity != null) {
             // Send request to service to get weather data
-            runOnUiThread(new Runnable() {
+            binding.swipeRefreshLayout.post(new Runnable() {
                 @Override
                 public void run() {
                     binding.swipeRefreshLayout.setRefreshing(true);
@@ -772,7 +769,7 @@ public class WeatherNowFragment extends Fragment
                     if (location == null || !location.equals(Settings.getHomeData()))
                         location = Settings.getHomeData();
 
-                    runOnUiThread(new Runnable() {
+                    binding.swipeRefreshLayout.post(new Runnable() {
                         @Override
                         public void run() {
                             binding.swipeRefreshLayout.setRefreshing(true);
@@ -861,7 +858,7 @@ public class WeatherNowFragment extends Fragment
 
     private void refreshWeather(final boolean forceRefresh) {
         if (mActivity != null) {
-            runOnUiThread(new Runnable() {
+            binding.swipeRefreshLayout.post(new Runnable() {
                 @Override
                 public void run() {
                     binding.swipeRefreshLayout.setRefreshing(true);
@@ -890,6 +887,22 @@ public class WeatherNowFragment extends Fragment
                 }
             });
         }
+    }
+
+    private void updateWindowColors() {
+        binding.swipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                if (isCtsCancelRequested())
+                    return;
+
+                int color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+                if (weatherView != null && weatherView.getPendingBackground() != -1) {
+                    color = weatherView.getPendingBackground();
+                }
+                binding.swipeRefreshLayout.setBackgroundColor(color);
+            }
+        });
     }
 
     private boolean updateLocation() {

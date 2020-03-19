@@ -8,13 +8,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.ObjectsCompat;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
-import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
-import com.thewizrd.shared_resources.helpers.ListDiffUtilCallback;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
@@ -23,9 +24,10 @@ import com.thewizrd.simpleweather.databinding.DetailItemPanelBinding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 public class DetailItemAdapter extends RecyclerView.Adapter {
-    private List<DetailItemViewModel> mDataset;
+    private AsyncListDiffer<DetailItemViewModel> mDiffer;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -45,9 +47,21 @@ public class DetailItemAdapter extends RecyclerView.Adapter {
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public DetailItemAdapter(WeatherNowViewModel weatherView) {
-        mDataset = new ArrayList<>(weatherView.getWeatherDetails());
+    public DetailItemAdapter() {
+        mDiffer = new AsyncListDiffer<>(this, diffCallback);
     }
+
+    private DiffUtil.ItemCallback<DetailItemViewModel> diffCallback = new DiffUtil.ItemCallback<DetailItemViewModel>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull DetailItemViewModel oldItem, @NonNull DetailItemViewModel newItem) {
+            return oldItem.getDetailsType() == newItem.getDetailsType();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull DetailItemViewModel oldItem, @NonNull DetailItemViewModel newItem) {
+            return ObjectsCompat.equals(oldItem, newItem);
+        }
+    };
 
     @SuppressLint("NewApi")
     @NonNull
@@ -79,7 +93,7 @@ public class DetailItemAdapter extends RecyclerView.Adapter {
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
             ViewHolder vh = (ViewHolder) holder;
-            vh.bind(mDataset.get(position));
+            vh.bind(mDiffer.getCurrentList().get(position));
         }
     }
 
@@ -94,28 +108,24 @@ public class DetailItemAdapter extends RecyclerView.Adapter {
     @Override
     // Return the size of your dataset (invoked by the layout manager)
     public int getItemCount() {
-        if (mDataset.size() == 0)
+        if (getDataCount() == 0)
             return 0;
 
-        return mDataset.size() + 1;
+        return getDataCount() + 1;
     }
 
     public int getDataCount() {
-        return mDataset.size();
+        return mDiffer.getCurrentList().size();
     }
 
-    public void updateItems(WeatherNowViewModel weatherNowViewModel) {
-        List<DetailItemViewModel> oldItems = new ArrayList<>(mDataset);
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ListDiffUtilCallback<DetailItemViewModel>(oldItems, weatherNowViewModel.getWeatherDetails()) {
+    public void updateItems(final List<DetailItemViewModel> dataset) {
+        new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
-            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                return getOldList().get(oldItemPosition).getDetailsType() == getNewList().get(newItemPosition).getDetailsType();
+            public Void call() {
+                mDiffer.submitList(new ArrayList<>(dataset));
+                return null;
             }
         });
-        mDataset.clear();
-        mDataset.addAll(weatherNowViewModel.getWeatherDetails());
-        diffResult.dispatchUpdatesTo(this);
-        oldItems.clear();
     }
 
     public interface HeaderSetterInterface {
