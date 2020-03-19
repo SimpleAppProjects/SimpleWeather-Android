@@ -40,8 +40,10 @@ public class ObservableArrayList<T> extends ArrayList<T> {
     }
 
     public void move(int oldIndex, int newIndex) {
-        // This uses set on the backend
-        Collections.swap(this, oldIndex, newIndex);
+        super.set(oldIndex, super.set(newIndex, super.get(oldIndex)));
+
+        if (mListeners != null)
+            mListeners.notifyChange(this, new ListChangedArgs(ListChangedAction.MOVE, newIndex, oldIndex));
     }
 
     @Override

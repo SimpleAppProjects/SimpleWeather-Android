@@ -1797,7 +1797,7 @@ public class LocationsFragment extends ToolbarFragment
             view.setEditMode(mEditMode);
             mAdapter.notifyItemChanged(mAdapter.getViewPosition(view));
 
-            if (view.getLocationType() != LocationType.GPS.getValue() && !mEditMode && mDataChanged) {
+            if (view.getLocationType() != LocationType.GPS.getValue() && !mEditMode && (mDataChanged || mHomeChanged)) {
                 final String query = view.getLocationData().getQuery();
                 int dataPosition = mAdapter.getDataset().indexOf(view);
                 final int pos = mAdapter.hasGPSHeader() ? --dataPosition : dataPosition;
