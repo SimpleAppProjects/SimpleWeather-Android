@@ -527,6 +527,10 @@ public class WeatherNowViewModel extends ObservableViewModel {
         notifyChange();
     }
 
+    public boolean isValid() {
+        return weather != null && weather.isValid();
+    }
+
     private String getPressureStateIcon(String state) {
         switch (state) {
             // Steady

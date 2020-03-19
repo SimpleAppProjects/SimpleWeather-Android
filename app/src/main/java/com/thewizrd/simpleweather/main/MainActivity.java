@@ -78,7 +78,8 @@ public class MainActivity extends AppCompatActivity
 
         // Alerts: from weather alert notification
         if (getIntent() != null && WeatherWidgetService.ACTION_SHOWALERTS.equals(getIntent().getAction())) {
-            Fragment newFragment = WeatherNowFragment.newInstance(getIntent().getExtras());
+            LocationData locationData = Settings.getHomeData();
+            Fragment newFragment = WeatherListFragment.newInstance(locationData, WeatherListType.ALERTS);
 
             if (fragment == null) {
                 fragment = newFragment;
@@ -92,12 +93,13 @@ public class MainActivity extends AppCompatActivity
                 // Navigate to WeatherNowFragment
                 // Make sure we exit if location is not home
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, newFragment)
+                        .add(R.id.fragment_container, newFragment, Constants.FRAGTAG_NOTIFICATION)
                         .setReorderingAllowed(true)
                         .addToBackStack(null) // allow exit
                         .commitNow();
             }
         }
+
         // Check if fragment exists
         if (fragment == null) {
             if (getIntent() != null && getIntent().hasExtra(Constants.KEY_DATA))
@@ -150,6 +152,19 @@ public class MainActivity extends AppCompatActivity
 
         // If fragment doesn't handle onBackPressed event fallback to this impl
         if (fragBackPressedListener == null || !fragBackPressedListener.onBackPressed()) {
+            // Go back to WeatherNow if we started from an alert notification
+            if (current instanceof WeatherListFragment &&
+                    getSupportFragmentManager().getBackStackEntryCount() == 0) {
+                WeatherNowFragment fragment = new WeatherNowFragment();
+                fragment.requireArguments()
+                        .putBoolean(Constants.FRAGTAG_HOME, true);
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, fragment, Constants.FRAGTAG_HOME)
+                        .setReorderingAllowed(true)
+                        .commit();
+                return;
+            }
+
             // Destroy untagged fragments onbackpressed
             if (current != null) {
                 if (current.getTag() == null) {

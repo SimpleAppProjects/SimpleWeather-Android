@@ -241,6 +241,8 @@ public class WeatherNowFragment extends WindowColorFragment
 
                 if (weather != null && weather.isValid()) {
                     weatherView.updateView(weather);
+                    if (binding.imageView.getDrawable() == null)
+                        loadBackgroundImage(false);
                     binding.refreshLayout.post(new Runnable() {
                         @Override
                         public void run() {
@@ -674,7 +676,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.forecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
             @Override
             public void onClick(View view, int position) {
-                Fragment fragment = WeatherListFragment.newInstance(WeatherListType.FORECAST);
+                Fragment fragment = WeatherListFragment.newInstance(location, WeatherListType.FORECAST);
                 Bundle args = new Bundle();
                 args.putInt(Constants.KEY_POSITION, position);
                 fragment.setArguments(args);
@@ -694,7 +696,7 @@ public class WeatherNowFragment extends WindowColorFragment
             @Override
             public void onClick(View view, int position) {
                 if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
-                    Fragment fragment = WeatherListFragment.newInstance(WeatherListType.HOURLYFORECAST);
+                    Fragment fragment = WeatherListFragment.newInstance(location, WeatherListType.HOURLYFORECAST);
                     Bundle args = new Bundle();
                     args.putInt(Constants.KEY_POSITION, position);
                     fragment.setArguments(args);
@@ -733,7 +735,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 // Show Alert Fragment
                 if (mActivity != null)
                     mActivity.getSupportFragmentManager().beginTransaction()
-                            .add(R.id.fragment_container, WeatherListFragment.newInstance(WeatherListType.ALERTS))
+                            .add(R.id.fragment_container, WeatherListFragment.newInstance(location, WeatherListType.ALERTS))
                             .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_right, R.anim.slide_out_left)
                             .hide(WeatherNowFragment.this)
                             .addToBackStack(null)
@@ -1106,19 +1108,6 @@ public class WeatherNowFragment extends WindowColorFragment
             adjustConditionPanelLayout();
             adjustDetailsLayout();
 
-            // Go straight to alerts here
-            if (mActivity != null && requireArguments().getBoolean(WeatherWidgetService.ACTION_SHOWALERTS, false)) {
-                // Remove key from Arguments
-                requireArguments().remove(WeatherWidgetService.ACTION_SHOWALERTS);
-
-                // Show Alert Fragment
-                mActivity.getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container, WeatherListFragment.newInstance(WeatherListType.ALERTS))
-                        .hide(this)
-                        .addToBackStack(null)
-                        .commit();
-            }
-
             initSnackManager();
 
             if (weatherView != null) {
@@ -1281,7 +1270,8 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.scrollView.post(new Runnable() {
             @Override
             public void run() {
-                binding.scrollView.scrollTo(0, 0);
+                if (binding != null)
+                    binding.scrollView.scrollTo(0, 0);
             }
         });
     }

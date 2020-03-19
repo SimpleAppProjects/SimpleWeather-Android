@@ -17,35 +17,47 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.Fade;
 import androidx.transition.Slide;
 import androidx.transition.TransitionSet;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
+import com.thewizrd.shared_resources.utils.WeatherException;
+import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
+import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
+import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.WeatherDetailsAdapter;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding;
 import com.thewizrd.simpleweather.fragments.ToolbarFragment;
+import com.thewizrd.simpleweather.snackbar.Snackbar;
+import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 
 public class WeatherListFragment extends ToolbarFragment {
     private WeatherNowViewModel weatherView = null;
+    private LocationData location = null;
 
     private FragmentWeatherListBinding binding;
     private LinearLayoutManager layoutManager;
+    private SnackbarManager mSnackMgr;
 
-    private RecyclerView.Adapter mAdapter;
     private WeatherListType weatherType;
 
-    public static WeatherListFragment newInstance(WeatherListType type) {
+    public static WeatherListFragment newInstance(LocationData locData, WeatherListType type) {
         WeatherListFragment fragment = new WeatherListFragment();
         fragment.weatherType = type;
+        fragment.location = locData;
 
         Bundle args = new Bundle();
         args.putInt(Constants.ARGS_WEATHERLISTTYPE, type.getValue());
@@ -67,7 +79,13 @@ public class WeatherListFragment extends ToolbarFragment {
             if (savedInstanceState.containsKey(Constants.ARGS_WEATHERLISTTYPE)) {
                 weatherType = WeatherListType.valueOf(savedInstanceState.getInt(Constants.ARGS_WEATHERLISTTYPE));
             }
+            if (savedInstanceState.containsKey(Constants.KEY_DATA)) {
+                location = JSONParser.deserializer(savedInstanceState.getString(Constants.KEY_DATA), LocationData.class);
+            }
         }
+
+        if (location == null)
+            location = Settings.getHomeData();
     }
 
     @Override
@@ -137,7 +155,10 @@ public class WeatherListFragment extends ToolbarFragment {
         super.onResume();
 
         if (!isHidden()) {
+            initSnackManager();
             initialize();
+        } else {
+            dismissAllSnackbars();
         }
     }
 
@@ -145,8 +166,20 @@ public class WeatherListFragment extends ToolbarFragment {
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
 
-        if (!hidden && isVisible())
+        if (!hidden && isVisible()) {
+            initSnackManager();
             initialize();
+        } else {
+            dismissAllSnackbars();
+            mSnackMgr = null;
+        }
+    }
+
+    @Override
+    public void onPause() {
+        dismissAllSnackbars();
+        mSnackMgr = null;
+        super.onPause();
     }
 
     @Override
@@ -166,6 +199,42 @@ public class WeatherListFragment extends ToolbarFragment {
     @CallSuper
     protected void initialize() {
         updateWindowColors();
+
+        if (!weatherView.isValid()) {
+            new WeatherDataLoader(location)
+                    .loadWeatherData(new WeatherRequest.Builder()
+                            .loadAlerts()
+                            .forceLoadSavedData()
+                            .setErrorListener(new WeatherRequest.WeatherErrorListener() {
+                                @Override
+                                public void onWeatherError(WeatherException wEx) {
+                                    switch (wEx.getErrorStatus()) {
+                                        case NETWORKERROR:
+                                        case NOWEATHER:
+                                            // Show error message and prompt to refresh
+                                            showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG), null);
+                                            break;
+                                        case QUERYNOTFOUND:
+                                            if (WeatherAPI.NWS.equals(Settings.getAPI())) {
+                                                showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.LONG), null);
+                                                break;
+                                            }
+                                        default:
+                                            // Show error message
+                                            showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG), null);
+                                            break;
+                                    }
+                                }
+                            }).build())
+                    .addOnSuccessListener(requireActivity(), new OnSuccessListener<Weather>() {
+                        @Override
+                        public void onSuccess(Weather weather) {
+                            weatherView.updateView(weather);
+                            if (weatherView.isValid())
+                                initialize();
+                        }
+                    });
+        }
 
         runOnUiThread(new Runnable() {
             @Override
@@ -203,6 +272,7 @@ public class WeatherListFragment extends ToolbarFragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         // Save data
         outState.putInt(Constants.ARGS_WEATHERLISTTYPE, weatherType.getValue());
+        outState.putString(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class));
 
         super.onSaveInstanceState(outState);
     }
@@ -226,5 +296,31 @@ public class WeatherListFragment extends ToolbarFragment {
 
         binding.recyclerView.setAdapter(binding.recyclerView.getAdapter());
         updateWindowColors();
+    }
+
+    private void initSnackManager() {
+        if (mSnackMgr == null) {
+            mSnackMgr = new SnackbarManager(binding.getRoot());
+            mSnackMgr.setSwipeDismissEnabled(true);
+            mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
+        }
+    }
+
+    private void showSnackbar(final Snackbar snackbar, final com.google.android.material.snackbar.Snackbar.Callback callback) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
+            }
+        });
+    }
+
+    private void dismissAllSnackbars() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mSnackMgr != null) mSnackMgr.dismissAll();
+            }
+        });
     }
 }
