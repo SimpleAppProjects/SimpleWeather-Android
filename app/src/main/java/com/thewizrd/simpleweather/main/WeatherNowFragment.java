@@ -108,6 +108,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.App;
+import com.thewizrd.simpleweather.BuildConfig;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.ColorModeRecyclerViewAdapter;
 import com.thewizrd.simpleweather.adapters.DetailItemAdapter;
@@ -253,6 +254,9 @@ public class WeatherNowFragment extends WindowColorFragment
                             AsyncTask.run(new Runnable() {
                                 @Override
                                 public void run() {
+                                    if (BuildConfig.DEBUG) {
+                                        WeatherAlertHandler.postAlerts(location, weather.getWeatherAlerts());
+                                    }
                                     WeatherAlertHandler.setAsNotified(location, weather.getWeatherAlerts());
                                 }
                             });
