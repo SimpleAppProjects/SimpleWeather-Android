@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources.controls;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 
 import com.thewizrd.shared_resources.R;
@@ -10,6 +11,7 @@ import com.thewizrd.shared_resources.weatherdata.Beaufort;
 import com.thewizrd.shared_resources.weatherdata.MoonPhase;
 
 public class DetailItemViewModel extends ViewModel {
+    @NonNull
     private WeatherDetailsType detailsType;
     private CharSequence label;
     private CharSequence icon;
@@ -101,6 +103,7 @@ public class DetailItemViewModel extends ViewModel {
 
     public DetailItemViewModel(MoonPhase.MoonPhaseType moonPhaseType, CharSequence description) {
         Context context = SimpleLibrary.getInstance().getAppContext();
+        this.detailsType = WeatherDetailsType.MOONPHASE;
 
         this.label = context.getString(R.string.label_moonphase);
         this.value = description;
@@ -136,6 +139,7 @@ public class DetailItemViewModel extends ViewModel {
 
     public DetailItemViewModel(Beaufort.BeaufortScale beaufortScale, CharSequence description) {
         Context context = SimpleLibrary.getInstance().getAppContext();
+        this.detailsType = WeatherDetailsType.BEAUFORT;
 
         this.label = context.getString(R.string.label_beaufort);
         this.value = description;
@@ -184,11 +188,12 @@ public class DetailItemViewModel extends ViewModel {
         }
     }
 
+    @NonNull
     public WeatherDetailsType getDetailsType() {
         return detailsType;
     }
 
-    public void setDetailsType(WeatherDetailsType detailsType) {
+    public void setDetailsType(@NonNull WeatherDetailsType detailsType) {
         this.detailsType = detailsType;
     }
 

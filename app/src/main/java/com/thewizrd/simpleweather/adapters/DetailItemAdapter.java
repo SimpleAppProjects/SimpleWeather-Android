@@ -42,6 +42,7 @@ public class DetailItemAdapter extends ColorModeRecyclerViewAdapter<DetailItemAd
     // Provide a suitable constructor (depends on the kind of dataset)
     public DetailItemAdapter() {
         mDiffer = new AsyncListDiffer<>(this, diffCallback);
+        setHasStableIds(true);
     }
 
     private DiffUtil.ItemCallback<DetailItemViewModel> diffCallback = new DiffUtil.ItemCallback<DetailItemViewModel>() {
@@ -116,6 +117,11 @@ public class DetailItemAdapter extends ColorModeRecyclerViewAdapter<DetailItemAd
     // Return the size of your dataset (invoked by the layout manager)
     public int getItemCount() {
         return mDiffer.getCurrentList().size();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return mDiffer.getCurrentList().get(position).getDetailsType().getValue();
     }
 
     public void updateItems(final List<DetailItemViewModel> dataset) {

@@ -40,6 +40,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -847,37 +848,45 @@ public class WeatherNowFragment extends WindowColorFragment
                     enterTransition
                             .excludeTarget(R.id.image_view, true)
                             .excludeTarget(R.id.gradient_view, true)
-                            .excludeTarget(R.id.forecast_panel, true)
-                            .excludeTarget(R.id.hourly_forecast_panel, true)
-                            .excludeTarget(R.id.details_panel, true)
-                            .excludeTarget(R.id.sunphase_panel, true);
+                            .excludeTarget(ForecastGraphPanel.class, true)
+                            .excludeTarget(RecyclerView.class, true)
+                            .excludeTarget(SunPhaseView.class, true)
+                            .excludeTarget(ConstraintLayout.class, true)
+                            .excludeTarget(NestedScrollView.class, true)
+                            .excludeTarget(SwipeRefreshLayout.class, true);
                 }
                 if (exitTransition != null) {
                     exitTransition
                             .excludeTarget(R.id.image_view, true)
                             .excludeTarget(R.id.gradient_view, true)
-                            .excludeTarget(R.id.forecast_panel, true)
-                            .excludeTarget(R.id.hourly_forecast_panel, true)
-                            .excludeTarget(R.id.details_panel, true)
-                            .excludeTarget(R.id.sunphase_panel, true);
+                            .excludeTarget(ForecastGraphPanel.class, true)
+                            .excludeTarget(RecyclerView.class, true)
+                            .excludeTarget(SunPhaseView.class, true)
+                            .excludeTarget(ConstraintLayout.class, true)
+                            .excludeTarget(NestedScrollView.class, true)
+                            .excludeTarget(SwipeRefreshLayout.class, true);
                 }
                 if (reenterTransition != null) {
                     reenterTransition
                             .excludeTarget(R.id.image_view, true)
                             .excludeTarget(R.id.gradient_view, true)
-                            .excludeTarget(R.id.forecast_panel, true)
-                            .excludeTarget(R.id.hourly_forecast_panel, true)
-                            .excludeTarget(R.id.details_panel, true)
-                            .excludeTarget(R.id.sunphase_panel, true);
+                            .excludeTarget(ForecastGraphPanel.class, true)
+                            .excludeTarget(RecyclerView.class, true)
+                            .excludeTarget(SunPhaseView.class, true)
+                            .excludeTarget(ConstraintLayout.class, true)
+                            .excludeTarget(NestedScrollView.class, true)
+                            .excludeTarget(SwipeRefreshLayout.class, true);
                 }
                 if (returnTransition != null) {
                     returnTransition
                             .excludeTarget(R.id.image_view, true)
                             .excludeTarget(R.id.gradient_view, true)
-                            .excludeTarget(R.id.forecast_panel, true)
-                            .excludeTarget(R.id.hourly_forecast_panel, true)
-                            .excludeTarget(R.id.details_panel, true)
-                            .excludeTarget(R.id.sunphase_panel, true);
+                            .excludeTarget(ForecastGraphPanel.class, true)
+                            .excludeTarget(RecyclerView.class, true)
+                            .excludeTarget(SunPhaseView.class, true)
+                            .excludeTarget(ConstraintLayout.class, true)
+                            .excludeTarget(NestedScrollView.class, true)
+                            .excludeTarget(SwipeRefreshLayout.class, true);
                 }
             }
         });
