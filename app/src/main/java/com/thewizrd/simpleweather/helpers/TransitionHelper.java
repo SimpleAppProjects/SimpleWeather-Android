@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 
 import androidx.annotation.NonNull;
@@ -138,7 +137,7 @@ public class TransitionHelper {
         view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         view.animate()
                 .setDuration(375)
-                .setInterpolator(new AccelerateDecelerateInterpolator())
+                .setInterpolator(new FastOutSlowInInterpolator())
                 .alpha(1f)
                 .scaleX(1f)
                 .scaleY(1f)

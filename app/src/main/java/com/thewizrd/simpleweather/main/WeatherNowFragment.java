@@ -66,9 +66,12 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.transition.Transition;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.DecodeFormat;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -238,8 +241,8 @@ public class WeatherNowFragment extends WindowColorFragment
 
                 if (weather != null && weather.isValid()) {
                     weatherView.updateView(weather);
-                    if (binding.imageView.getDrawable() == null && binding.imageView.getTag() == null)
-                        loadBackgroundImage(false);
+                    if (binding.imageView.getDrawable() == null && binding.imageView.getTag(R.id.glide_custom_view_target_tag) == null)
+                        loadBackgroundImage(weatherView.getBackground(), false);
                     binding.refreshLayout.post(new Runnable() {
                         @Override
                         public void run() {
@@ -802,7 +805,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     } else if (propertyId == BR.background) {
                         // Background
                         adjustGradientView();
-                        loadBackgroundImage(false);
+                        loadBackgroundImage(weatherView.getBackground(), false);
                     } else if (propertyId == BR.pendingBackground) {
                         updateWindowColors();
                     } else if (propertyId == BR.location) {
@@ -918,38 +921,36 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
 
-        loadBackgroundImage(true);
+        loadBackgroundImage(weatherView.getBackground(), true);
     }
 
-    private void loadBackgroundImage(final boolean skipCache) {
+    private void loadBackgroundImage(final String imageURI, final boolean skipCache) {
         binding.imageView.post(new Runnable() {
             @Override
             public void run() {
                 // Reload background image
-                if (mActivity != null && weatherView != null) {
-                    Glide.with(WeatherNowFragment.this)
-                            .load(weatherView.getBackground())
-                            .apply(RequestOptions.centerCropTransform()
-                                    .format(DecodeFormat.PREFER_RGB_565)
-                                    .skipMemoryCache(skipCache))
-                            .transition(DrawableTransitionOptions.withCrossFade())
-                            .into(binding.imageView);
-                }
-            }
-        });
-    }
-
-    private void loadBackgroundImage(final String imageURI) {
-        binding.imageView.post(new Runnable() {
-            @Override
-            public void run() {
-                // Reload background image
-                if (mActivity != null && weatherView != null && !StringUtils.isNullOrWhitespace(imageURI)) {
+                if (mActivity != null && !StringUtils.isNullOrWhitespace(imageURI) && !ObjectsCompat.equals(binding.imageView.getTag(), imageURI)) {
+                    binding.imageView.setTag(imageURI);
                     Glide.with(WeatherNowFragment.this)
                             .load(imageURI)
                             .apply(RequestOptions.centerCropTransform()
-                                    .format(DecodeFormat.PREFER_RGB_565))
-                            .transition(DrawableTransitionOptions.withCrossFade())
+                                    .format(DecodeFormat.PREFER_RGB_565)
+                                    .skipMemoryCache(skipCache))
+                            .listener(new RequestListener<Drawable>() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                    // Perform manual shared element transition
+                                    TransitionHelper.performElementTransition(WeatherNowFragment.this, binding.imageView);
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                    // Perform manual shared element transition
+                                    TransitionHelper.performElementTransition(WeatherNowFragment.this, binding.imageView);
+                                    return false;
+                                }
+                            })
                             .into(binding.imageView);
                 }
             }
@@ -1132,12 +1133,9 @@ public class WeatherNowFragment extends WindowColorFragment
             initSnackManager();
 
             if (requireArguments().containsKey(Constants.ARGS_BACKGROUND)) {
-                loadBackgroundImage(requireArguments().getString(Constants.ARGS_BACKGROUND));
+                loadBackgroundImage(requireArguments().getString(Constants.ARGS_BACKGROUND), false);
                 requireArguments().remove(Constants.ARGS_BACKGROUND);
             }
-
-            // Perform manual shared element transition
-            TransitionHelper.performElementTransition(this, binding.imageView);
 
             AsyncTask.run(new Runnable() {
                 @Override
