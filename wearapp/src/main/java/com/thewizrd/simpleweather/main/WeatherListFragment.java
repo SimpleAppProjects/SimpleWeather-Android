@@ -42,7 +42,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         // Use this to return your custom view for this Fragment
         View outerView = super.onCreateView(inflater, container, savedInstanceState);
         binding = FragmentWeatherListBinding.inflate(inflater, (ViewGroup) outerView, true);

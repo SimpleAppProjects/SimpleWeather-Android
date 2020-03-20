@@ -442,7 +442,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
         }
     }
 
-    private class NavDrawerItem {
+    private static class NavDrawerItem {
         private int titleString;
         private int drawableIcon;
 

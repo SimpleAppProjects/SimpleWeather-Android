@@ -47,7 +47,7 @@ public class SwipeDismissFragment extends Fragment {
     @SuppressLint("RestrictedApi")
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         binding = ActivitySettingsBinding.inflate(inflater, container, false);
 
         binding.swipeLayout.setSwipeable(true);

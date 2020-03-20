@@ -17,18 +17,23 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/detail_icon"
-            android:layout_width="wrap_content"
+            android:layout_width="24dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
+            android:gravity="center"
+            android:paddingStart="@dimen/item_padding"
+            android:paddingEnd="@dimen/item_padding"
             android:rotation="@{viewModel.iconRotation}"
             android:text="@{viewModel.icon}"
             android:textAppearance="?android:textAppearanceLargeInverse"
             android:textColor="@android:color/white"
+            android:textSize="14sp"
+            app:autoSizeMaxTextSize="14sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeTextType="uniform"
             app:fontFamily="@font/weathericons"
             tools:fontFamily="@font/weathericons"
-            tools:text="@string/wi_moon_alt_waxing_crescent_1" />
+            tools:text="@string/wi_fog" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/detail_label"
@@ -36,6 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
+            android:gravity="start"
             android:padding="4dp"
             android:text="@{viewModel.label}"
             android:textAppearance="?android:textAppearanceSmallInverse"
@@ -48,6 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
+            android:gravity="end"
             android:padding="4dp"
             android:text="@{viewModel.value}"
             android:textAppearance="?android:textAppearanceSmallInverse"

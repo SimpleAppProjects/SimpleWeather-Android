@@ -1,8 +1,8 @@
 package com.thewizrd.simpleweather;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 
 import com.thewizrd.shared_resources.utils.Logger;
@@ -10,7 +10,7 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.main.MainActivity;
 import com.thewizrd.simpleweather.setup.SetupActivity;
 
-public class LaunchActivity extends WearableActivity {
+public class LaunchActivity extends Activity {
 
     private static final String TAG = "LaunchActivity";
 

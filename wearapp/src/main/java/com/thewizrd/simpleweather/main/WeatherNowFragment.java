@@ -188,28 +188,33 @@ public class WeatherNowFragment extends Fragment
                         }
                     });
 
-                    Context context = App.getInstance().getAppContext();
-                    // Update complications if they haven't been already
-                    WeatherComplicationIntentService.enqueueWork(context,
-                            new Intent(context, WeatherComplicationIntentService.class)
-                                    .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS));
+                    AsyncTask.run(new Runnable() {
+                        @Override
+                        public void run() {
+                            Context context = App.getInstance().getAppContext();
+                            // Update complications if they haven't been already
+                            WeatherComplicationIntentService.enqueueWork(context,
+                                    new Intent(context, WeatherComplicationIntentService.class)
+                                            .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS));
 
-                    // Update tile if it hasn't been already
-                    WeatherTileIntentService.enqueueWork(context,
-                            new Intent(context, WeatherTileIntentService.class)
-                                    .setAction(WeatherTileIntentService.ACTION_UPDATETILES));
+                            // Update tile if it hasn't been already
+                            WeatherTileIntentService.enqueueWork(context,
+                                    new Intent(context, WeatherTileIntentService.class)
+                                            .setAction(WeatherTileIntentService.ACTION_UPDATETILES));
 
-                    if (!loaded) {
-                        Duration span = Duration.between(ZonedDateTime.now(), weather.getUpdateTime()).abs();
-                        if (Settings.getDataSync() != WearableDataSync.OFF && span.toMinutes() > Settings.getRefreshInterval()) {
-                            // send request to refresh data on connected device
-                            context.startService(new Intent(context, WearableDataListenerService.class)
-                                    .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE)
-                                    .putExtra(WearableDataListenerService.EXTRA_FORCEUPDATE, true));
+                            if (!loaded) {
+                                Duration span = Duration.between(ZonedDateTime.now(), weather.getUpdateTime()).abs();
+                                if (Settings.getDataSync() != WearableDataSync.OFF && span.toMinutes() > Settings.getRefreshInterval()) {
+                                    // send request to refresh data on connected device
+                                    context.startService(new Intent(context, WearableDataListenerService.class)
+                                            .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE)
+                                            .putExtra(WearableDataListenerService.EXTRA_FORCEUPDATE, true));
+                                }
+
+                                loaded = true;
+                            }
                         }
-
-                        loaded = true;
-                    }
+                    });
                 }
             }
         });

@@ -18,5 +18,7 @@
     <dimen name="header_top_padding">16dp</dimen>
 
     <dimen name="horizontal_padding">4dp</dimen>
+    <dimen name="item_padding">4dp</dimen>
+    <dimen name="forecast_condition_size">12sp</dimen>
 
 </resources>

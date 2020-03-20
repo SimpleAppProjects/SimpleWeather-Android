@@ -29,14 +29,20 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/forecast_icon"
-            android:layout_width="wrap_content"
+            android:layout_width="32dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
+            android:gravity="center"
+            android:paddingStart="@dimen/item_padding"
+            android:paddingEnd="@dimen/item_padding"
             android:text="@{viewModel.weatherIcon}"
             android:textAppearance="?android:textAppearanceLargeInverse"
             android:textColor="@android:color/white"
+            android:textSize="14sp"
+            app:autoSizeMaxTextSize="14sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeStepGranularity=".5sp"
+            app:autoSizeTextType="uniform"
             app:fontFamily="@font/weathericons"
             tools:fontFamily="@font/weathericons"
             tools:text="@string/wi_wu_sunny" />
@@ -57,7 +63,8 @@
             android:layout_gravity="center_vertical"
             android:text="/"
             android:textAppearance="?android:textAppearanceSmallInverse"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white"
+            tools:ignore="HardcodedText" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/forecast_templo"

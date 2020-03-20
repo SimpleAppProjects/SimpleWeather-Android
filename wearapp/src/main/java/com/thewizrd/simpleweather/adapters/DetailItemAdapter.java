@@ -132,7 +132,7 @@ public class DetailItemAdapter extends RecyclerView.Adapter {
         void setHeader();
     }
 
-    public class FooterViewHolder extends RecyclerView.ViewHolder implements HeaderSetterInterface {
+    public static class FooterViewHolder extends RecyclerView.ViewHolder implements HeaderSetterInterface {
         TextView header;
 
         FooterViewHolder(View itemView) {
@@ -155,6 +155,8 @@ public class DetailItemAdapter extends RecyclerView.Adapter {
                 header.setText(String.format("%s MET Norway", creditPrefix));
             else if (WeatherAPI.HERE.equals(weatherAPI))
                 header.setText(String.format("%s HERE Weather", creditPrefix));
+            else if (WeatherAPI.NWS.equals(weatherAPI))
+                header.setText(String.format("%s U.S. National Weather Service", creditPrefix));
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.preferences;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,7 +19,6 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
-import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.ConfirmationOverlay;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -64,7 +64,7 @@ import static com.thewizrd.shared_resources.utils.Settings.KEY_FOLLOWGPS;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_USECELSIUS;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_USEPERSONALKEY;
 
-public class SettingsActivity extends WearableActivity {
+public class SettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
