@@ -105,9 +105,6 @@
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         android:textColor="@{gradientAlpha &lt;= 0.5f &amp;&amp; darkMode == DarkMode.OFF ? (!weatherView.lightBackground ? @android:color/white : @android:color/black) : @android:color/white}"
                         android:textSize="@dimen/label_location_size"
-                        app:autoSizeMaxTextSize="@dimen/label_location_size"
-                        app:autoSizeMinTextSize="12sp"
-                        app:autoSizeTextType="uniform"
                         tools:text="A Really Long String of Text, New York, United States" />
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -149,7 +146,8 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    app:layout_optimizationLevel="direct|barrier|chains|dimensions|groups">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/condition_panel"
@@ -158,6 +156,7 @@
                         android:visibility="@{!StringUtils.isNullOrWhitespace(weatherView.location) ? View.VISIBLE : View.GONE}"
                         app:layout_constraintBottom_toTopOf="@id/condition_border"
                         app:layout_constraintTop_toTopOf="parent"
+                        app:layout_optimizationLevel="direct|barrier|chains|dimensions|groups"
                         tools:layout_height="200dp">
 
                         <LinearLayout
@@ -405,13 +404,16 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/hourly_forecast_border" />
 
-                    <androidx.recyclerview.widget.RecyclerView
+                    <com.thewizrd.simpleweather.controls.ExpandingGridView
                         android:id="@+id/details_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="20dp"
                         android:background="@android:color/transparent"
-                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:columnWidth="@dimen/detail_grid_column_width"
+                        android:numColumns="auto_fit"
+                        android:stretchMode="columnWidth"
                         android:paddingStart="@dimen/activity_horizontal_margin"
                         android:paddingLeft="@dimen/activity_horizontal_margin"
                         android:paddingEnd="@dimen/activity_horizontal_margin"
@@ -420,16 +422,11 @@
                         app:darkMode="@{darkMode}"
                         app:details_data="@{weatherView.weatherDetails}"
                         app:itemColor="@{weatherView.pendingBackground}"
-                        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                         app:layout_constraintBottom_toTopOf="@+id/details_border"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/details_label"
-                        app:spanCount="4"
-                        tools:layout_width="match_parent"
                         tools:layout_height="300dp"
-                        tools:itemCount="10"
-                        tools:spanCount="3"
                         tools:listitem="@layout/card_weather_detail"
                         tools:visibility="visible" />
 

@@ -208,298 +208,303 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
     public void updateView(final Weather weather) {
         if (weather != null && weather.isValid() && !ObjectsCompat.equals(this.weather, weather)) {
-            Context context = SimpleLibrary.getInstance().getApp().getAppContext();
-            boolean isPhone = SimpleLibrary.getInstance().getApp().isPhone();
-
+            final Context context = SimpleLibrary.getInstance().getApp().getAppContext();
+            final boolean isPhone = SimpleLibrary.getInstance().getApp().isPhone();
             this.weather = weather;
 
-            // Update backgrounds
-            String newBg = wm.getWeatherBackgroundURI(weather);
-            if (!ObjectsCompat.equals(newBg, background)) {
-                background = newBg;
-                notifyPropertyChanged(BR.background);
-            }
-
-            origPendingBackground = wm.getWeatherBackgroundColor(weather);
-            updatePendingBackground(context, isPhone);
-            notifyPropertyChanged(BR.pendingBackground);
-
-            // Location
-            if (!ObjectsCompat.equals(location, weather.getLocation().getName())) {
-                location = weather.getLocation().getName();
-                notifyPropertyChanged(BR.location);
-            }
-
-            // Date Updated
-            if (!ObjectsCompat.equals(updateDate, WeatherUtils.getLastBuildDate(weather))) {
-                updateDate = WeatherUtils.getLastBuildDate(weather);
-                notifyPropertyChanged(BR.updateDate);
-            }
-
-            // Update current condition
-            SpannableStringBuilder curTempSSBuilder = new SpannableStringBuilder();
-            if (weather.getCondition().getTempF() != weather.getCondition().getTempC()) {
-                int temp = (int) (Settings.isFahrenheit() ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC()));
-                curTempSSBuilder.append(Integer.toString(temp));
-            } else {
-                curTempSSBuilder.append("---");
-            }
-            String unitTemp = Settings.isFahrenheit() ? WeatherIcons.FAHRENHEIT : WeatherIcons.CELSIUS;
-            curTempSSBuilder.append(unitTemp)
-                    .setSpan(new WeatherIconTextSpan(context), curTempSSBuilder.length() - unitTemp.length(), curTempSSBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-            if (!ObjectsCompat.equals(curTemp, curTempSSBuilder)) {
-                curTemp = curTempSSBuilder;
-                notifyPropertyChanged(BR.curTemp);
-            }
-            String newCondition = (StringUtils.isNullOrWhitespace(weather.getCondition().getWeather()) ? "---" : weather.getCondition().getWeather());
-            if (!ObjectsCompat.equals(curCondition, newCondition)) {
-                curCondition = newCondition;
-                notifyPropertyChanged(BR.curCondition);
-            }
-            if (!ObjectsCompat.equals(weatherIcon, weather.getCondition().getIcon())) {
-                weatherIcon = weather.getCondition().getIcon();
-                notifyPropertyChanged(BR.weatherIcon);
-            }
-
-            // WeatherDetails
-            weatherDetails.clear();
-            // Precipitation
-            if (weather.getPrecipitation() != null) {
-                String chance = weather.getPrecipitation().getPop() + "%";
-                String qpfRain = Settings.isFahrenheit() ?
-                        String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfRainIn()) :
-                        String.format(Locale.getDefault(), "%.2f mm", weather.getPrecipitation().getQpfRainMm());
-                String qpfSnow = Settings.isFahrenheit() ?
-                        String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfSnowIn()) :
-                        String.format(Locale.getDefault(), "%.2f cm", weather.getPrecipitation().getQpfSnowCm());
-
-                if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, chance));
-                } else {
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, chance));
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
-                }
-            }
-
-            // Atmosphere
-            if (!StringUtils.isNullOrWhitespace(weather.getAtmosphere().getPressureMb())) {
-                String pressureVal = Settings.isFahrenheit() ?
-                        weather.getAtmosphere().getPressureIn() :
-                        weather.getAtmosphere().getPressureMb();
-
-                String pressureUnit = Settings.isFahrenheit() ? "in" : "mb";
-
-                try {
-                    CharSequence pressureStateIcon = getPressureStateIcon(weather.getAtmosphere().getPressureTrend());
-
-                    SpannableStringBuilder ssBuilder = new SpannableStringBuilder();
-                    ssBuilder.append(pressureStateIcon)
-                            .append(" ")
-                            .append(pressureVal)
-                            .append(" ")
-                            .append(pressureUnit);
-
-                    if (pressureStateIcon.length() > 0) {
-                        TypefaceSpan span = new WeatherIconTextSpan(context);
-                        ssBuilder.setSpan(span, 0, pressureStateIcon.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            new AsyncTask<Void>().await(new Callable<Void>() {
+                @Override
+                public Void call() {
+                    // Update backgrounds
+                    String newBg = wm.getWeatherBackgroundURI(weather);
+                    if (!ObjectsCompat.equals(newBg, background)) {
+                        background = newBg;
+                        notifyPropertyChanged(BR.background);
                     }
 
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.PRESSURE, ssBuilder));
-                } catch (Exception e) {
-                    Logger.writeLine(Log.DEBUG, e);
-                }
-            }
+                    origPendingBackground = wm.getWeatherBackgroundColor(weather);
+                    updatePendingBackground(context, isPhone);
+                    notifyPropertyChanged(BR.pendingBackground);
 
-            if (!StringUtils.isNullOrWhitespace(weather.getAtmosphere().getHumidity())) {
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.HUMIDITY,
-                        weather.getAtmosphere().getHumidity().endsWith("%") ?
-                                weather.getAtmosphere().getHumidity() :
-                                weather.getAtmosphere().getHumidity() + "%"));
-            }
+                    // Location
+                    if (!ObjectsCompat.equals(location, weather.getLocation().getName())) {
+                        location = weather.getLocation().getName();
+                        notifyPropertyChanged(BR.location);
+                    }
 
-            if (!StringUtils.isNullOrWhitespace(weather.getAtmosphere().getDewpointF())) {
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.DEWPOINT,
-                        Settings.isFahrenheit() ?
-                                String.format(Locale.getDefault(), "%dº", Math.round(Float.parseFloat(weather.getAtmosphere().getDewpointF()))) :
-                                String.format(Locale.getDefault(), "%dº", Math.round(Float.parseFloat(weather.getAtmosphere().getDewpointC())))));
-            }
+                    // Date Updated
+                    if (!ObjectsCompat.equals(updateDate, WeatherUtils.getLastBuildDate(weather))) {
+                        updateDate = WeatherUtils.getLastBuildDate(weather);
+                        notifyPropertyChanged(BR.updateDate);
+                    }
 
-            if (!StringUtils.isNullOrWhitespace(weather.getAtmosphere().getVisibilityMi())) {
-                String visibilityVal = Settings.isFahrenheit() ?
-                        weather.getAtmosphere().getVisibilityMi() :
-                        weather.getAtmosphere().getVisibilityKm();
-
-                String visibilityUnit = Settings.isFahrenheit() ? "mi" : "km";
-
-                try {
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.VISIBILITY,
-                            String.format(Locale.getDefault(), "%s %s", visibilityVal, visibilityUnit)));
-                } catch (Exception e) {
-                    Logger.writeLine(Log.DEBUG, e);
-                }
-            }
-
-            if (weather.getCondition().getUv() != null) {
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.UV,
-                        String.format(Locale.ROOT, "%s, %s",
-                                weather.getCondition().getUv().getIndex(), weather.getCondition().getUv().getDescription())));
-            }
-
-            if (weather.getCondition().getFeelslikeF() != weather.getCondition().getFeelslikeC()) {
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
-                        Settings.isFahrenheit() ?
-                                String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getFeelslikeF())) :
-                                String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getFeelslikeC()))));
-            }
-
-            // Wind
-            if (weather.getCondition().getWindMph() != weather.getCondition().getWindKph()) {
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
-                        Settings.isFahrenheit() ?
-                                String.format(Locale.getDefault(), "%d mph, %s", Math.round(weather.getCondition().getWindMph()), WeatherUtils.getWindDirection(weather.getCondition().getWindDegrees())) :
-                                String.format(Locale.getDefault(), "%d kph, %s", Math.round(weather.getCondition().getWindKph()), WeatherUtils.getWindDirection(weather.getCondition().getWindDegrees())),
-                        weather.getCondition().getWindDegrees()));
-            }
-
-            if (weather.getCondition().getBeaufort() != null) {
-                weatherDetails.add(new DetailItemViewModel(weather.getCondition().getBeaufort().getScale(),
-                        weather.getCondition().getBeaufort().getDescription()));
-            }
-
-            // Astronomy
-            if (weather.getAstronomy() != null) {
-                if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
-                    sunrise = weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("HH:mm"));
-                    sunset = weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("HH:mm"));
-
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE, sunrise));
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET, sunset));
-                } else {
-                    sunrise = weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("h:mm a"));
-                    sunset = weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("h:mm a"));
-
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE, sunrise));
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET, sunset));
-                }
-
-                if (weather.getAstronomy().getMoonrise() != null && weather.getAstronomy().getMoonset() != null
-                        && weather.getAstronomy().getMoonrise().compareTo(DateTimeUtils.getLocalDateTimeMIN()) > 0
-                        && weather.getAstronomy().getMoonset().compareTo(DateTimeUtils.getLocalDateTimeMIN()) > 0) {
-                    if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
-                        weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONRISE,
-                                weather.getAstronomy().getMoonrise().format(DateTimeFormatter.ofPattern("HH:mm"))));
-                        weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONSET,
-                                weather.getAstronomy().getMoonset().format(DateTimeFormatter.ofPattern("HH:mm"))));
+                    // Update current condition
+                    SpannableStringBuilder curTempSSBuilder = new SpannableStringBuilder();
+                    if (weather.getCondition().getTempF() != weather.getCondition().getTempC()) {
+                        int temp = (int) (Settings.isFahrenheit() ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC()));
+                        curTempSSBuilder.append(Integer.toString(temp));
                     } else {
-                        weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONRISE,
-                                weather.getAstronomy().getMoonrise().format(DateTimeFormatter.ofPattern("h:mm a"))));
-                        weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONSET,
-                                weather.getAstronomy().getMoonset().format(DateTimeFormatter.ofPattern("h:mm a"))));
+                        curTempSSBuilder.append("---");
                     }
-                }
+                    String unitTemp = Settings.isFahrenheit() ? WeatherIcons.FAHRENHEIT : WeatherIcons.CELSIUS;
+                    curTempSSBuilder.append(unitTemp)
+                            .setSpan(new WeatherIconTextSpan(context), curTempSSBuilder.length() - unitTemp.length(), curTempSSBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-                if (weather.getAstronomy().getMoonPhase() != null) {
-                    weatherDetails.add(new DetailItemViewModel(weather.getAstronomy().getMoonPhase().getPhase(),
-                            weather.getAstronomy().getMoonPhase().getDescription()));
-                }
-            } else {
-                sunrise = null;
-                sunset = null;
-            }
-            notifyPropertyChanged(BR.sunrise);
-            notifyPropertyChanged(BR.sunset);
-            notifyPropertyChanged(BR.weatherDetails);
-
-            // Add UI elements
-            if (weather.getForecast() != null && weather.getForecast().size() > 0) {
-                forecasts.clear();
-
-                int textForecastSize = weather.getTxtForecast() != null ? weather.getTxtForecast().size() : 0;
-
-                boolean isDayAndNt = textForecastSize == weather.getForecast().size() * 2;
-                boolean addTextFct = isDayAndNt || textForecastSize == weather.getForecast().size();
-                for (int i = 0; i < weather.getForecast().size(); i++) {
-                    Forecast forecast = weather.getForecast().get(i);
-                    ForecastItemViewModel forecastView;
-
-                    if (addTextFct) {
-                        if (isDayAndNt)
-                            forecastView = new ForecastItemViewModel(forecast, weather.getTxtForecast().get(i * 2), weather.getTxtForecast().get((i * 2) + 1));
-                        else
-                            forecastView = new ForecastItemViewModel(forecast, weather.getTxtForecast().get(i));
-                    } else {
-                        forecastView = new ForecastItemViewModel(forecast);
+                    if (!ObjectsCompat.equals(curTemp, curTempSSBuilder)) {
+                        curTemp = curTempSSBuilder;
+                        notifyPropertyChanged(BR.curTemp);
+                    }
+                    String newCondition = (StringUtils.isNullOrWhitespace(weather.getCondition().getWeather()) ? "---" : weather.getCondition().getWeather());
+                    if (!ObjectsCompat.equals(curCondition, newCondition)) {
+                        curCondition = newCondition;
+                        notifyPropertyChanged(BR.curCondition);
+                    }
+                    if (!ObjectsCompat.equals(weatherIcon, weather.getCondition().getIcon())) {
+                        weatherIcon = weather.getCondition().getIcon();
+                        notifyPropertyChanged(BR.weatherIcon);
                     }
 
-                    forecasts.add(forecastView);
-                }
-            } else {
-                // Let collection handle changes (clearing, etc.)
-                forecasts.setWeather(weather);
-            }
-            notifyPropertyChanged(BR.forecasts);
+                    // WeatherDetails
+                    weatherDetails.clear();
+                    // Precipitation
+                    if (weather.getPrecipitation() != null) {
+                        String chance = weather.getPrecipitation().getPop() + "%";
+                        String qpfRain = Settings.isFahrenheit() ?
+                                String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfRainIn()) :
+                                String.format(Locale.getDefault(), "%.2f mm", weather.getPrecipitation().getQpfRainMm());
+                        String qpfSnow = Settings.isFahrenheit() ?
+                                String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfSnowIn()) :
+                                String.format(Locale.getDefault(), "%.2f cm", weather.getPrecipitation().getQpfSnowCm());
 
-            // Update extras
-            if (weather.getHrForecast() != null && weather.getHrForecast().size() > 0) {
-                hourlyForecasts.clear();
-
-                for (final HourlyForecast hr_forecast : weather.getHrForecast()) {
-                    HourlyForecastItemViewModel hrforecastView;
-                    hrforecastView = new AsyncTask<HourlyForecastItemViewModel>().await(new Callable<HourlyForecastItemViewModel>() {
-                        @Override
-                        public HourlyForecastItemViewModel call() {
-                            return new HourlyForecastItemViewModel(hr_forecast);
+                        if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
+                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
+                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
+                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, chance));
+                        } else {
+                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, chance));
+                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
+                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
                         }
-                    });
-                    hourlyForecasts.add(hrforecastView);
+                    }
+
+                    // Atmosphere
+                    if (!StringUtils.isNullOrWhitespace(weather.getAtmosphere().getPressureMb())) {
+                        String pressureVal = Settings.isFahrenheit() ?
+                                weather.getAtmosphere().getPressureIn() :
+                                weather.getAtmosphere().getPressureMb();
+
+                        String pressureUnit = Settings.isFahrenheit() ? "in" : "mb";
+
+                        try {
+                            CharSequence pressureStateIcon = getPressureStateIcon(weather.getAtmosphere().getPressureTrend());
+
+                            SpannableStringBuilder ssBuilder = new SpannableStringBuilder();
+                            ssBuilder.append(pressureStateIcon)
+                                    .append(" ")
+                                    .append(pressureVal)
+                                    .append(" ")
+                                    .append(pressureUnit);
+
+                            if (pressureStateIcon.length() > 0) {
+                                TypefaceSpan span = new WeatherIconTextSpan(context);
+                                ssBuilder.setSpan(span, 0, pressureStateIcon.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            }
+
+                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.PRESSURE, ssBuilder));
+                        } catch (Exception e) {
+                            Logger.writeLine(Log.DEBUG, e);
+                        }
+                    }
+
+                    if (!StringUtils.isNullOrWhitespace(weather.getAtmosphere().getHumidity())) {
+                        weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.HUMIDITY,
+                                weather.getAtmosphere().getHumidity().endsWith("%") ?
+                                        weather.getAtmosphere().getHumidity() :
+                                        weather.getAtmosphere().getHumidity() + "%"));
+                    }
+
+                    if (!StringUtils.isNullOrWhitespace(weather.getAtmosphere().getDewpointF())) {
+                        weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.DEWPOINT,
+                                Settings.isFahrenheit() ?
+                                        String.format(Locale.getDefault(), "%dº", Math.round(Float.parseFloat(weather.getAtmosphere().getDewpointF()))) :
+                                        String.format(Locale.getDefault(), "%dº", Math.round(Float.parseFloat(weather.getAtmosphere().getDewpointC())))));
+                    }
+
+                    if (!StringUtils.isNullOrWhitespace(weather.getAtmosphere().getVisibilityMi())) {
+                        String visibilityVal = Settings.isFahrenheit() ?
+                                weather.getAtmosphere().getVisibilityMi() :
+                                weather.getAtmosphere().getVisibilityKm();
+
+                        String visibilityUnit = Settings.isFahrenheit() ? "mi" : "km";
+
+                        try {
+                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.VISIBILITY,
+                                    String.format(Locale.getDefault(), "%s %s", visibilityVal, visibilityUnit)));
+                        } catch (Exception e) {
+                            Logger.writeLine(Log.DEBUG, e);
+                        }
+                    }
+
+                    if (weather.getCondition().getUv() != null) {
+                        weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.UV,
+                                String.format(Locale.ROOT, "%s, %s",
+                                        weather.getCondition().getUv().getIndex(), weather.getCondition().getUv().getDescription())));
+                    }
+
+                    if (weather.getCondition().getFeelslikeF() != weather.getCondition().getFeelslikeC()) {
+                        weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
+                                Settings.isFahrenheit() ?
+                                        String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getFeelslikeF())) :
+                                        String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getFeelslikeC()))));
+                    }
+
+                    // Wind
+                    if (weather.getCondition().getWindMph() != weather.getCondition().getWindKph()) {
+                        weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
+                                Settings.isFahrenheit() ?
+                                        String.format(Locale.getDefault(), "%d mph, %s", Math.round(weather.getCondition().getWindMph()), WeatherUtils.getWindDirection(weather.getCondition().getWindDegrees())) :
+                                        String.format(Locale.getDefault(), "%d kph, %s", Math.round(weather.getCondition().getWindKph()), WeatherUtils.getWindDirection(weather.getCondition().getWindDegrees())),
+                                weather.getCondition().getWindDegrees()));
+                    }
+
+                    if (weather.getCondition().getBeaufort() != null) {
+                        weatherDetails.add(new DetailItemViewModel(weather.getCondition().getBeaufort().getScale(),
+                                weather.getCondition().getBeaufort().getDescription()));
+                    }
+
+                    // Astronomy
+                    if (weather.getAstronomy() != null) {
+                        if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
+                            sunrise = weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("HH:mm"));
+                            sunset = weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("HH:mm"));
+
+                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE, sunrise));
+                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET, sunset));
+                        } else {
+                            sunrise = weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("h:mm a"));
+                            sunset = weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("h:mm a"));
+
+                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE, sunrise));
+                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET, sunset));
+                        }
+
+                        if (weather.getAstronomy().getMoonrise() != null && weather.getAstronomy().getMoonset() != null
+                                && weather.getAstronomy().getMoonrise().compareTo(DateTimeUtils.getLocalDateTimeMIN()) > 0
+                                && weather.getAstronomy().getMoonset().compareTo(DateTimeUtils.getLocalDateTimeMIN()) > 0) {
+                            if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
+                                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONRISE,
+                                        weather.getAstronomy().getMoonrise().format(DateTimeFormatter.ofPattern("HH:mm"))));
+                                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONSET,
+                                        weather.getAstronomy().getMoonset().format(DateTimeFormatter.ofPattern("HH:mm"))));
+                            } else {
+                                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONRISE,
+                                        weather.getAstronomy().getMoonrise().format(DateTimeFormatter.ofPattern("h:mm a"))));
+                                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONSET,
+                                        weather.getAstronomy().getMoonset().format(DateTimeFormatter.ofPattern("h:mm a"))));
+                            }
+                        }
+
+                        if (weather.getAstronomy().getMoonPhase() != null) {
+                            weatherDetails.add(new DetailItemViewModel(weather.getAstronomy().getMoonPhase().getPhase(),
+                                    weather.getAstronomy().getMoonPhase().getDescription()));
+                        }
+                    } else {
+                        sunrise = null;
+                        sunset = null;
+                    }
+                    notifyPropertyChanged(BR.sunrise);
+                    notifyPropertyChanged(BR.sunset);
+                    notifyPropertyChanged(BR.weatherDetails);
+
+                    // Add UI elements
+                    if (weather.getForecast() != null && weather.getForecast().size() > 0) {
+                        forecasts.clear();
+
+                        int textForecastSize = weather.getTxtForecast() != null ? weather.getTxtForecast().size() : 0;
+
+                        boolean isDayAndNt = textForecastSize == weather.getForecast().size() * 2;
+                        boolean addTextFct = isDayAndNt || textForecastSize == weather.getForecast().size();
+                        for (int i = 0; i < weather.getForecast().size(); i++) {
+                            Forecast forecast = weather.getForecast().get(i);
+                            ForecastItemViewModel forecastView;
+
+                            if (addTextFct) {
+                                if (isDayAndNt)
+                                    forecastView = new ForecastItemViewModel(forecast, weather.getTxtForecast().get(i * 2), weather.getTxtForecast().get((i * 2) + 1));
+                                else
+                                    forecastView = new ForecastItemViewModel(forecast, weather.getTxtForecast().get(i));
+                            } else {
+                                forecastView = new ForecastItemViewModel(forecast);
+                            }
+
+                            forecasts.add(forecastView);
+                        }
+                    } else {
+                        // Let collection handle changes (clearing, etc.)
+                        forecasts.setWeather(weather);
+                    }
+                    notifyPropertyChanged(BR.forecasts);
+
+                    // Update extras
+                    if (weather.getHrForecast() != null && weather.getHrForecast().size() > 0) {
+                        hourlyForecasts.clear();
+
+                        for (final HourlyForecast hr_forecast : weather.getHrForecast()) {
+                            HourlyForecastItemViewModel hrforecastView;
+                            hrforecastView = new AsyncTask<HourlyForecastItemViewModel>().await(new Callable<HourlyForecastItemViewModel>() {
+                                @Override
+                                public HourlyForecastItemViewModel call() {
+                                    return new HourlyForecastItemViewModel(hr_forecast);
+                                }
+                            });
+                            hourlyForecasts.add(hrforecastView);
+                        }
+                    } else {
+                        // Let collection handle changes (clearing, etc.)
+                        hourlyForecasts.setWeather(weather);
+                    }
+                    notifyPropertyChanged(BR.hourlyForecasts);
+
+                    alerts.clear();
+                    if (weather.getWeatherAlerts() != null && weather.getWeatherAlerts().size() > 0) {
+                        for (WeatherAlert alert : weather.getWeatherAlerts()) {
+                            // Skip if alert has expired
+                            if (alert.getExpiresDate().compareTo(ZonedDateTime.now()) <= 0)
+                                continue;
+
+                            WeatherAlertViewModel alertView = new WeatherAlertViewModel(alert);
+                            alerts.add(alertView);
+                        }
+                    }
+                    notifyPropertyChanged(BR.alerts);
+
+                    // Additional Details
+                    if (!ObjectsCompat.equals(weatherSource, weather.getSource())) {
+                        weatherSource = weather.getSource();
+                        notifyPropertyChanged(BR.weatherSource);
+                    }
+
+                    String creditPrefix = context.getString(R.string.credit_prefix);
+                    if (WeatherAPI.WEATHERUNDERGROUND.equals(weather.getSource()))
+                        weatherCredit = String.format("%s WeatherUnderground", creditPrefix);
+                    else if (WeatherAPI.YAHOO.equals(weather.getSource()))
+                        weatherCredit = String.format("%s Yahoo!", creditPrefix);
+                    else if (WeatherAPI.OPENWEATHERMAP.equals(weather.getSource()))
+                        weatherCredit = String.format("%s OpenWeatherMap", creditPrefix);
+                    else if (WeatherAPI.METNO.equals(weather.getSource()))
+                        weatherCredit = String.format("%s MET Norway", creditPrefix);
+                    else if (WeatherAPI.HERE.equals(weather.getSource()))
+                        weatherCredit = String.format("%s HERE Weather", creditPrefix);
+                    else if (WeatherAPI.NWS.equals(weather.getSource()))
+                        weatherCredit = String.format("%s U.S. National Weather Service", creditPrefix);
+                    notifyPropertyChanged(BR.weatherCredit);
+
+                    // Language
+                    weatherLocale = weather.getLocale();
+                    notifyPropertyChanged(BR.weatherLocale);
+                    return null;
                 }
-            } else {
-                // Let collection handle changes (clearing, etc.)
-                hourlyForecasts.setWeather(weather);
-            }
-            notifyPropertyChanged(BR.hourlyForecasts);
-
-            alerts.clear();
-            if (weather.getWeatherAlerts() != null && weather.getWeatherAlerts().size() > 0) {
-                for (WeatherAlert alert : weather.getWeatherAlerts()) {
-                    // Skip if alert has expired
-                    if (alert.getExpiresDate().compareTo(ZonedDateTime.now()) <= 0)
-                        continue;
-
-                    WeatherAlertViewModel alertView = new WeatherAlertViewModel(alert);
-                    alerts.add(alertView);
-                }
-            }
-            notifyPropertyChanged(BR.alerts);
-
-            // Additional Details
-            if (!ObjectsCompat.equals(weatherSource, weather.getSource())) {
-                weatherSource = weather.getSource();
-                notifyPropertyChanged(BR.weatherSource);
-            }
-
-            String creditPrefix = context.getString(R.string.credit_prefix);
-            if (WeatherAPI.WEATHERUNDERGROUND.equals(weather.getSource()))
-                weatherCredit = String.format("%s WeatherUnderground", creditPrefix);
-            else if (WeatherAPI.YAHOO.equals(weather.getSource()))
-                weatherCredit = String.format("%s Yahoo!", creditPrefix);
-            else if (WeatherAPI.OPENWEATHERMAP.equals(weather.getSource()))
-                weatherCredit = String.format("%s OpenWeatherMap", creditPrefix);
-            else if (WeatherAPI.METNO.equals(weather.getSource()))
-                weatherCredit = String.format("%s MET Norway", creditPrefix);
-            else if (WeatherAPI.HERE.equals(weather.getSource()))
-                weatherCredit = String.format("%s HERE Weather", creditPrefix);
-            else if (WeatherAPI.NWS.equals(weather.getSource()))
-                weatherCredit = String.format("%s U.S. National Weather Service", creditPrefix);
-            notifyPropertyChanged(BR.weatherCredit);
-
-            // Language
-            weatherLocale = weather.getLocale();
-            notifyPropertyChanged(BR.weatherLocale);
+            });
         }
     }
 

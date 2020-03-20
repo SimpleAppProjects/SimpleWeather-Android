@@ -27,12 +27,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.ViewTreeObserver;
+import android.widget.GridView;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
@@ -40,7 +40,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -62,7 +61,6 @@ import androidx.databinding.library.baseAdapters.BR;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.transition.Transition;
@@ -111,15 +109,13 @@ import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.BuildConfig;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.adapters.ColorModeRecyclerViewAdapter;
-import com.thewizrd.simpleweather.adapters.DetailItemAdapter;
+import com.thewizrd.simpleweather.adapters.DetailsItemGridAdapter;
 import com.thewizrd.simpleweather.controls.ForecastGraphPanel;
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView;
 import com.thewizrd.simpleweather.controls.SunPhaseView;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding;
 import com.thewizrd.simpleweather.fragments.WindowColorFragment;
 import com.thewizrd.simpleweather.helpers.DarkMode;
-import com.thewizrd.simpleweather.helpers.LocationPanelOffsetDecoration;
 import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
 import com.thewizrd.simpleweather.helpers.TransitionHelper;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
@@ -242,7 +238,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
                 if (weather != null && weather.isValid()) {
                     weatherView.updateView(weather);
-                    if (binding.imageView.getDrawable() == null)
+                    if (binding.imageView.getDrawable() == null && binding.imageView.getTag() == null)
                         loadBackgroundImage(false);
                     binding.refreshLayout.post(new Runnable() {
                         @Override
@@ -745,31 +741,11 @@ public class WeatherNowFragment extends WindowColorFragment
         });
 
         // Details
-        binding.detailsContainer.setHasFixedSize(false);
-        binding.detailsContainer.setLayoutManager(new GridLayoutManager(mActivity, 4, RecyclerView.VERTICAL, false) {
-            @Override
-            // View should not scroll
-            public boolean canScrollVertically() {
-                return false;
-            }
-        });
-
+        binding.detailsContainer.setAdapter(new DetailsItemGridAdapter());
         int horizMargin = 16;
         if (ActivityUtils.isLargeTablet(mActivity)) horizMargin = 24;
-
-        binding.detailsContainer.addItemDecoration(new LocationPanelOffsetDecoration(mActivity, horizMargin / 2f));
-        binding.detailsContainer.setAdapter(new DetailItemAdapter());
-
-        // Disable touch events on container
-        // View does not scroll
-        binding.detailsContainer.setFocusable(false);
-        binding.detailsContainer.setFocusableInTouchMode(false);
-        binding.detailsContainer.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return true;
-            }
-        });
+        binding.detailsContainer.setHorizontalSpacing(horizMargin * 4);
+        binding.detailsContainer.setVerticalSpacing(horizMargin * 4);
 
         // SwipeRefresh
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(mActivity, R.color.invButtonColor));
@@ -849,9 +825,12 @@ public class WeatherNowFragment extends WindowColorFragment
                             .excludeTarget(R.id.image_view, true)
                             .excludeTarget(R.id.gradient_view, true)
                             .excludeTarget(ForecastGraphPanel.class, true)
+                            .excludeChildren(ForecastGraphPanel.class, true)
+                            .excludeTarget(GridView.class, true)
+                            .excludeChildren(GridView.class, true)
                             .excludeTarget(RecyclerView.class, true)
+                            .excludeChildren(RecyclerView.class, true)
                             .excludeTarget(SunPhaseView.class, true)
-                            .excludeTarget(ConstraintLayout.class, true)
                             .excludeTarget(NestedScrollView.class, true)
                             .excludeTarget(SwipeRefreshLayout.class, true);
                 }
@@ -860,9 +839,12 @@ public class WeatherNowFragment extends WindowColorFragment
                             .excludeTarget(R.id.image_view, true)
                             .excludeTarget(R.id.gradient_view, true)
                             .excludeTarget(ForecastGraphPanel.class, true)
+                            .excludeChildren(ForecastGraphPanel.class, true)
+                            .excludeTarget(GridView.class, true)
+                            .excludeChildren(GridView.class, true)
                             .excludeTarget(RecyclerView.class, true)
+                            .excludeChildren(RecyclerView.class, true)
                             .excludeTarget(SunPhaseView.class, true)
-                            .excludeTarget(ConstraintLayout.class, true)
                             .excludeTarget(NestedScrollView.class, true)
                             .excludeTarget(SwipeRefreshLayout.class, true);
                 }
@@ -871,9 +853,12 @@ public class WeatherNowFragment extends WindowColorFragment
                             .excludeTarget(R.id.image_view, true)
                             .excludeTarget(R.id.gradient_view, true)
                             .excludeTarget(ForecastGraphPanel.class, true)
+                            .excludeChildren(ForecastGraphPanel.class, true)
+                            .excludeTarget(GridView.class, true)
+                            .excludeChildren(GridView.class, true)
                             .excludeTarget(RecyclerView.class, true)
+                            .excludeChildren(RecyclerView.class, true)
                             .excludeTarget(SunPhaseView.class, true)
-                            .excludeTarget(ConstraintLayout.class, true)
                             .excludeTarget(NestedScrollView.class, true)
                             .excludeTarget(SwipeRefreshLayout.class, true);
                 }
@@ -882,9 +867,12 @@ public class WeatherNowFragment extends WindowColorFragment
                             .excludeTarget(R.id.image_view, true)
                             .excludeTarget(R.id.gradient_view, true)
                             .excludeTarget(ForecastGraphPanel.class, true)
+                            .excludeChildren(ForecastGraphPanel.class, true)
+                            .excludeTarget(GridView.class, true)
+                            .excludeChildren(GridView.class, true)
                             .excludeTarget(RecyclerView.class, true)
+                            .excludeChildren(RecyclerView.class, true)
                             .excludeTarget(SunPhaseView.class, true)
-                            .excludeTarget(ConstraintLayout.class, true)
                             .excludeTarget(NestedScrollView.class, true)
                             .excludeTarget(SwipeRefreshLayout.class, true);
                 }
@@ -961,6 +949,7 @@ public class WeatherNowFragment extends WindowColorFragment
                             .load(imageURI)
                             .apply(RequestOptions.centerCropTransform()
                                     .format(DecodeFormat.PREFER_RGB_565))
+                            .transition(DrawableTransitionOptions.withCrossFade())
                             .into(binding.imageView);
                 }
             }
@@ -1116,7 +1105,6 @@ public class WeatherNowFragment extends WindowColorFragment
         if (!this.isHidden()) {
             adjustConditionPanelLayout();
             adjustDetailsLayout();
-
             initSnackManager();
 
             if (weatherView != null) {
@@ -1290,29 +1278,22 @@ public class WeatherNowFragment extends WindowColorFragment
             binding.detailsContainer.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (binding.detailsContainer.getLayoutManager() instanceof GridLayoutManager) {
-                        View mainView = WeatherNowFragment.this.getView();
+                    View mainView = WeatherNowFragment.this.getView();
 
-                        if (mainView == null)
-                            return;
+                    if (mainView == null)
+                        return;
 
-                        DisplayMetrics displayMetrics = mActivity.getResources().getDisplayMetrics();
-                        float pxWidth = displayMetrics.widthPixels;
+                    DisplayMetrics displayMetrics = mActivity.getResources().getDisplayMetrics();
+                    float pxWidth = displayMetrics.widthPixels;
 
-                        boolean isLargeTablet = ActivityUtils.isLargeTablet(mActivity);
+                    int minColumns = ActivityUtils.isLargeTablet(mActivity) ? 3 : 2;
 
-                        int minColumns = isLargeTablet ? 3 : 2;
-                        int minWidthDp = 125; // Default: 125f
-                        if (isLargeTablet) minWidthDp *= 1.5f;
+                    // Minimum width for ea. card
+                    int minWidth = mActivity.getResources().getDimensionPixelSize(R.dimen.detail_grid_column_width);
+                    // Available columns based on min card width
+                    int availColumns = ((int) (pxWidth / minWidth)) <= 1 ? minColumns : (int) (pxWidth / minWidth);
 
-                        // Minimum width for ea. card
-                        int minWidth = (int) ActivityUtils.dpToPx(mActivity, minWidthDp);
-                        // Available columns based on min card width
-                        int availColumns = ((int) (pxWidth / minWidth)) <= 1 ? minColumns : (int) (pxWidth / minWidth);
-
-                        GridLayoutManager mLayoutMgr = (GridLayoutManager) binding.detailsContainer.getLayoutManager();
-                        mLayoutMgr.setSpanCount(availColumns);
-                    }
+                    binding.detailsContainer.setNumColumns(availColumns);
                 }
             });
         }
@@ -1599,9 +1580,9 @@ public class WeatherNowFragment extends WindowColorFragment
         }
 
         @BindingAdapter("details_data")
-        public void updateDetailsContainer(final RecyclerView view, final List<DetailItemViewModel> models) {
-            if (view.getAdapter() instanceof DetailItemAdapter) {
-                ((DetailItemAdapter) view.getAdapter()).updateItems(models);
+        public void updateDetailsContainer(final GridView view, final List<DetailItemViewModel> models) {
+            if (view.getAdapter() instanceof DetailsItemGridAdapter) {
+                ((DetailsItemGridAdapter) view.getAdapter()).updateItems(models);
             }
         }
 
@@ -1640,16 +1621,16 @@ public class WeatherNowFragment extends WindowColorFragment
         }
 
         @BindingAdapter("darkMode")
-        public void updateRecyclerViewColors(RecyclerView view, DarkMode mode) {
-            if (view.getAdapter() instanceof ColorModeRecyclerViewAdapter) {
-                ((ColorModeRecyclerViewAdapter) view.getAdapter()).setDarkThemeMode(mode);
+        public void updateRecyclerViewColors(GridView view, DarkMode mode) {
+            if (view.getAdapter() instanceof DetailsItemGridAdapter) {
+                ((DetailsItemGridAdapter) view.getAdapter()).setDarkThemeMode(mode);
             }
         }
 
         @BindingAdapter("itemColor")
-        public void updateRecyclerViewColors(RecyclerView view, @ColorInt int color) {
-            if (view.getAdapter() instanceof ColorModeRecyclerViewAdapter) {
-                ((ColorModeRecyclerViewAdapter) view.getAdapter()).setItemColor(color);
+        public void updateRecyclerViewColors(GridView view, @ColorInt int color) {
+            if (view.getAdapter() instanceof DetailsItemGridAdapter) {
+                ((DetailsItemGridAdapter) view.getAdapter()).setItemColor(color);
             }
         }
 

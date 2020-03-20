@@ -38,7 +38,6 @@ import com.thewizrd.shared_resources.utils.ObservableLoadingArrayList;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
-import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.lineview.LineDataSeries;
 import com.thewizrd.simpleweather.controls.lineview.LineView;
@@ -58,8 +57,7 @@ public class ForecastGraphPanel extends LinearLayout {
     private List<BaseForecastItemViewModel> forecasts;
 
     private boolean isDarkMode;
-    private final int MAX_FETCH_SIZE = (int) (5 * App.getInstance().getAppContext().getResources().getDisplayMetrics().scaledDensity);
-    private int dataFetchSize = 1;
+    private static final int MAX_FETCH_SIZE = 24; // 24hrs
 
     private enum GraphType {
         FORECASTS,
@@ -111,11 +109,12 @@ public class ForecastGraphPanel extends LinearLayout {
 
             if (distanceToEnd <= lv.getViewportWidth() && forecasts instanceof ILoadingCollection) {
                 final ILoadingCollection collection = ((ILoadingCollection) forecasts);
-                if (collection.hasMoreItems() && !collection.isLoading()) {
+                final int desiredFetchSize = MAX_FETCH_SIZE - forecasts.size();
+                if (desiredFetchSize > 0 && collection.hasMoreItems() && !collection.isLoading()) {
                     AsyncTask.run(new Runnable() {
                         @Override
                         public void run() {
-                            collection.loadMoreItems(dataFetchSize);
+                            collection.loadMoreItems(desiredFetchSize);
                         }
                     });
                 }
@@ -130,11 +129,12 @@ public class ForecastGraphPanel extends LinearLayout {
 
             if (distanceToEnd <= 2 * v.getViewportWidth() && forecasts instanceof ILoadingCollection) {
                 final ILoadingCollection collection = ((ILoadingCollection) forecasts);
-                if (collection.hasMoreItems() && !collection.isLoading()) {
+                final int desiredFetchSize = MAX_FETCH_SIZE - forecasts.size();
+                if (desiredFetchSize > 0 && collection.hasMoreItems() && !collection.isLoading()) {
                     AsyncTask.run(new Runnable() {
                         @Override
                         public void run() {
-                            collection.loadMoreItems(dataFetchSize);
+                            collection.loadMoreItems(desiredFetchSize);
                         }
                     });
                 }
@@ -146,19 +146,14 @@ public class ForecastGraphPanel extends LinearLayout {
         @Override
         public void onSizeChanged(LineView v, int canvasWidth) {
             if (v.getViewportWidth() > 0 && canvasWidth > 0) {
-                int desiredFetchSize = Math.round((float) v.getViewportWidth() / canvasWidth);
-                if (desiredFetchSize > MAX_FETCH_SIZE || desiredFetchSize <= 1)
-                    dataFetchSize = MAX_FETCH_SIZE;
-                else
-                    dataFetchSize = desiredFetchSize;
-
                 if (canvasWidth <= v.getViewportWidth() && forecasts instanceof ILoadingCollection) {
                     final ILoadingCollection collection = ((ILoadingCollection) forecasts);
-                    if (collection.hasMoreItems() && !collection.isLoading()) {
+                    final int desiredFetchSize = MAX_FETCH_SIZE - forecasts.size();
+                    if (desiredFetchSize > 0 && collection.hasMoreItems() && !collection.isLoading()) {
                         AsyncTask.run(new Runnable() {
                             @Override
                             public void run() {
-                                collection.loadMoreItems(dataFetchSize);
+                                collection.loadMoreItems(desiredFetchSize);
                             }
                         });
                     }

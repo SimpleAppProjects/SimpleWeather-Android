@@ -135,6 +135,7 @@ public class TransitionHelper {
         view.setVisibility(View.VISIBLE);
 
         // finally, run the animation
+        view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         view.animate()
                 .setDuration(375)
                 .setInterpolator(new AccelerateDecelerateInterpolator())
@@ -144,6 +145,7 @@ public class TransitionHelper {
                 .translationX(0)
                 .translationY(0)
                 .start();
+        view.setLayerType(View.LAYER_TYPE_NONE, null);
     }
 
     /**

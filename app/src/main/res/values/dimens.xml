@@ -27,6 +27,7 @@
     <dimen name="label_updatetime_size">12sp</dimen>
     <dimen name="forecast_panel_height">225dp</dimen>
     <dimen name="detail_card_height">100dp</dimen>
+    <dimen name="detail_grid_column_width">125dp</dimen>
     <!-- Locations -->
     <dimen name="location_panel_height">72dp</dimen>
     <dimen name="location_panel_text_size">16sp</dimen>

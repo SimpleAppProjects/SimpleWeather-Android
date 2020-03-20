@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.controls;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -9,20 +10,24 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.ColorInt;
+import androidx.constraintlayout.solver.widgets.Optimizer;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.ColorUtils;
 
-import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.shape.MaterialShapeDrawable;
+import com.google.android.material.shape.ShapeAppearanceModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.CardWeatherDetailBinding;
 
-public class DetailCard extends MaterialCardView {
+public class DetailCard extends ConstraintLayout {
     private CardWeatherDetailBinding binding;
     private float mShadowRadius;
     private float mShadowDx;
     private float mShadowDy;
     private @ColorInt
     int mShadowColor;
+    private MaterialShapeDrawable bgDrawable;
 
     public float getShadowRadius() {
         return mShadowRadius;
@@ -59,12 +64,15 @@ public class DetailCard extends MaterialCardView {
     private void initialize(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
         binding = CardWeatherDetailBinding.inflate(inflater, this, true);
+        bgDrawable = new MaterialShapeDrawable(
+                ShapeAppearanceModel.builder(context, R.style.ShapeAppearance_Material_MediumComponent, 0)
+                        .build());
 
         int height = context.getResources().getDimensionPixelSize(R.dimen.detail_card_height);
         this.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
-        this.setCardBackgroundColor(0xB3FFFFFF);
-        this.setCardElevation(0);
-        this.setUseCompatPadding(false);
+        this.setBackground(bgDrawable);
+        this.setBackgroundColor(0xB3FFFFFF);
+        this.setOptimizationLevel(Optimizer.OPTIMIZATION_DIRECT | Optimizer.OPTIMIZATION_BARRIER | Optimizer.OPTIMIZATION_CHAIN | Optimizer.OPTIMIZATION_DIMENSIONS);
 
         Resources.Theme currentTheme = context.getTheme();
         TypedArray array;
@@ -98,7 +106,15 @@ public class DetailCard extends MaterialCardView {
 
     @Override
     public void setBackgroundColor(@ColorInt int color) {
-        setCardBackgroundColor(ColorUtils.setAlphaComponent(color, 0xB3));
+        bgDrawable.setFillColor(ColorStateList.valueOf(ColorUtils.setAlphaComponent(color, 0xB3)));
+    }
+
+    public void setStrokeColor(@ColorInt int color) {
+        bgDrawable.setStrokeColor(ColorStateList.valueOf(color));
+    }
+
+    public void setStrokeWidth(float strokeWidth) {
+        bgDrawable.setStrokeWidth(strokeWidth);
     }
 
     public void setTextColor(@ColorInt int color) {
