@@ -548,6 +548,8 @@ public class WeatherNowFragment extends Fragment
 
         // Don't resume if fragment is hidden
         if (!this.isHidden()) {
+            binding.scrollView.requestFocus();
+
             AsyncTask.run(new Runnable() {
                 @Override
                 public void run() {
@@ -575,6 +577,8 @@ public class WeatherNowFragment extends Fragment
         }
 
         if (!hidden && weatherView != null && this.isVisible()) {
+            binding.scrollView.requestFocus();
+
             AsyncTask.run(new Runnable() {
                 @Override
                 public void run() {

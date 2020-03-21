@@ -124,9 +124,9 @@ public class WeatherListFragment extends SwipeDismissFragment {
     };
 
     public void initialize() {
-        if (weatherView != null && mActivity != null) {
-            if (getView() != null)
-                getView().setBackgroundColor(weatherView.getPendingBackground());
+        if (weatherView != null && mActivity != null && getView() != null) {
+            getView().setBackgroundColor(weatherView.getPendingBackground());
+            binding.recyclerView.requestFocus();
 
             WeatherListType newWeatherListType = WeatherListType.FORECAST;
 

@@ -107,9 +107,9 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
     };
 
     public void initialize() {
-        if (weatherView != null && mActivity != null) {
-            if (getView() != null)
-                getView().setBackgroundColor(weatherView.getPendingBackground());
+        if (weatherView != null && mActivity != null && getView() != null) {
+            getView().setBackgroundColor(weatherView.getPendingBackground());
+            binding.recyclerView.requestFocus();
 
             // specify an adapter (see also next example)
             if (mAdapter == null) {
