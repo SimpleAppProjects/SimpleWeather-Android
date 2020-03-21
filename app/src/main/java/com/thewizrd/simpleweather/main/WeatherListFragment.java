@@ -1,7 +1,11 @@
 package com.thewizrd.simpleweather.main;
 
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
+import android.transition.Fade;
+import android.transition.Slide;
+import android.transition.TransitionSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,9 +21,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.transition.Fade;
-import androidx.transition.Slide;
-import androidx.transition.TransitionSet;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -69,7 +70,7 @@ public class WeatherListFragment extends ToolbarFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (weatherType == WeatherListType.ALERTS) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && weatherType == WeatherListType.ALERTS) {
             setEnterTransition(new TransitionSet()
                     .addTransition(new Slide(Gravity.START).setDuration(200))
                     .addTransition(new Fade(Fade.IN).setDuration(200)));

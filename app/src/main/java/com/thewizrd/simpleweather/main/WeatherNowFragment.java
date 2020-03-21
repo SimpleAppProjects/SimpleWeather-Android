@@ -22,11 +22,13 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
+import android.transition.Transition;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
@@ -63,7 +65,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.transition.Transition;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -399,7 +400,9 @@ public class WeatherNowFragment extends WindowColorFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TransitionHelper.onCreate(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            TransitionHelper.onCreate(this);
+        }
 
         if (savedInstanceState != null && savedInstanceState.containsKey(Constants.KEY_DATA)) {
             location = JSONParser.deserializer(savedInstanceState.getString(Constants.KEY_DATA), LocationData.class);
@@ -815,72 +818,74 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
 
-        ViewGroupCompat.setTransitionGroup((ViewGroup) binding.getRoot(), false);
-        ViewGroupCompat.setTransitionGroup(binding.appBar, false);
-        ViewGroupCompat.setTransitionGroup(binding.toolbar, false);
-        ViewGroupCompat.setTransitionGroup(binding.alertButton, true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ViewGroupCompat.setTransitionGroup((ViewGroup) binding.getRoot(), false);
+            ViewGroupCompat.setTransitionGroup(binding.appBar, false);
+            ViewGroupCompat.setTransitionGroup(binding.toolbar, false);
+            ViewGroupCompat.setTransitionGroup(binding.alertButton, true);
 
-        TransitionHelper.onViewCreated(this, (ViewGroup) view.getParent(), new TransitionHelper.OnPrepareTransitionListener() {
-            @Override
-            public void prepareTransitions(@Nullable Transition enterTransition, @Nullable Transition exitTransition, @Nullable Transition reenterTransition, @Nullable Transition returnTransition) {
-                if (enterTransition != null) {
-                    enterTransition
-                            .excludeTarget(R.id.image_view, true)
-                            .excludeTarget(R.id.gradient_view, true)
-                            .excludeTarget(ForecastGraphPanel.class, true)
-                            .excludeChildren(ForecastGraphPanel.class, true)
-                            .excludeTarget(GridView.class, true)
-                            .excludeChildren(GridView.class, true)
-                            .excludeTarget(RecyclerView.class, true)
-                            .excludeChildren(RecyclerView.class, true)
-                            .excludeTarget(SunPhaseView.class, true)
-                            .excludeTarget(NestedScrollView.class, true)
-                            .excludeTarget(SwipeRefreshLayout.class, true);
+            TransitionHelper.onViewCreated(this, (ViewGroup) view.getParent(), new TransitionHelper.OnPrepareTransitionListener() {
+                @Override
+                public void prepareTransitions(@Nullable Transition enterTransition, @Nullable Transition exitTransition, @Nullable Transition reenterTransition, @Nullable Transition returnTransition) {
+                    if (enterTransition != null) {
+                        enterTransition
+                                .excludeTarget(R.id.image_view, true)
+                                .excludeTarget(R.id.gradient_view, true)
+                                .excludeTarget(ForecastGraphPanel.class, true)
+                                .excludeChildren(ForecastGraphPanel.class, true)
+                                .excludeTarget(GridView.class, true)
+                                .excludeChildren(GridView.class, true)
+                                .excludeTarget(RecyclerView.class, true)
+                                .excludeChildren(RecyclerView.class, true)
+                                .excludeTarget(SunPhaseView.class, true)
+                                .excludeTarget(NestedScrollView.class, true)
+                                .excludeTarget(SwipeRefreshLayout.class, true);
+                    }
+                    if (exitTransition != null) {
+                        exitTransition
+                                .excludeTarget(R.id.image_view, true)
+                                .excludeTarget(R.id.gradient_view, true)
+                                .excludeTarget(ForecastGraphPanel.class, true)
+                                .excludeChildren(ForecastGraphPanel.class, true)
+                                .excludeTarget(GridView.class, true)
+                                .excludeChildren(GridView.class, true)
+                                .excludeTarget(RecyclerView.class, true)
+                                .excludeChildren(RecyclerView.class, true)
+                                .excludeTarget(SunPhaseView.class, true)
+                                .excludeTarget(NestedScrollView.class, true)
+                                .excludeTarget(SwipeRefreshLayout.class, true);
+                    }
+                    if (reenterTransition != null) {
+                        reenterTransition
+                                .excludeTarget(R.id.image_view, true)
+                                .excludeTarget(R.id.gradient_view, true)
+                                .excludeTarget(ForecastGraphPanel.class, true)
+                                .excludeChildren(ForecastGraphPanel.class, true)
+                                .excludeTarget(GridView.class, true)
+                                .excludeChildren(GridView.class, true)
+                                .excludeTarget(RecyclerView.class, true)
+                                .excludeChildren(RecyclerView.class, true)
+                                .excludeTarget(SunPhaseView.class, true)
+                                .excludeTarget(NestedScrollView.class, true)
+                                .excludeTarget(SwipeRefreshLayout.class, true);
+                    }
+                    if (returnTransition != null) {
+                        returnTransition
+                                .excludeTarget(R.id.image_view, true)
+                                .excludeTarget(R.id.gradient_view, true)
+                                .excludeTarget(ForecastGraphPanel.class, true)
+                                .excludeChildren(ForecastGraphPanel.class, true)
+                                .excludeTarget(GridView.class, true)
+                                .excludeChildren(GridView.class, true)
+                                .excludeTarget(RecyclerView.class, true)
+                                .excludeChildren(RecyclerView.class, true)
+                                .excludeTarget(SunPhaseView.class, true)
+                                .excludeTarget(NestedScrollView.class, true)
+                                .excludeTarget(SwipeRefreshLayout.class, true);
+                    }
                 }
-                if (exitTransition != null) {
-                    exitTransition
-                            .excludeTarget(R.id.image_view, true)
-                            .excludeTarget(R.id.gradient_view, true)
-                            .excludeTarget(ForecastGraphPanel.class, true)
-                            .excludeChildren(ForecastGraphPanel.class, true)
-                            .excludeTarget(GridView.class, true)
-                            .excludeChildren(GridView.class, true)
-                            .excludeTarget(RecyclerView.class, true)
-                            .excludeChildren(RecyclerView.class, true)
-                            .excludeTarget(SunPhaseView.class, true)
-                            .excludeTarget(NestedScrollView.class, true)
-                            .excludeTarget(SwipeRefreshLayout.class, true);
-                }
-                if (reenterTransition != null) {
-                    reenterTransition
-                            .excludeTarget(R.id.image_view, true)
-                            .excludeTarget(R.id.gradient_view, true)
-                            .excludeTarget(ForecastGraphPanel.class, true)
-                            .excludeChildren(ForecastGraphPanel.class, true)
-                            .excludeTarget(GridView.class, true)
-                            .excludeChildren(GridView.class, true)
-                            .excludeTarget(RecyclerView.class, true)
-                            .excludeChildren(RecyclerView.class, true)
-                            .excludeTarget(SunPhaseView.class, true)
-                            .excludeTarget(NestedScrollView.class, true)
-                            .excludeTarget(SwipeRefreshLayout.class, true);
-                }
-                if (returnTransition != null) {
-                    returnTransition
-                            .excludeTarget(R.id.image_view, true)
-                            .excludeTarget(R.id.gradient_view, true)
-                            .excludeTarget(ForecastGraphPanel.class, true)
-                            .excludeChildren(ForecastGraphPanel.class, true)
-                            .excludeTarget(GridView.class, true)
-                            .excludeChildren(GridView.class, true)
-                            .excludeTarget(RecyclerView.class, true)
-                            .excludeChildren(RecyclerView.class, true)
-                            .excludeTarget(SunPhaseView.class, true)
-                            .excludeTarget(NestedScrollView.class, true)
-                            .excludeTarget(SwipeRefreshLayout.class, true);
-                }
-            }
-        });
+            });
+        }
     }
 
     @Override
@@ -940,14 +945,18 @@ public class WeatherNowFragment extends WindowColorFragment
                                 @Override
                                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                                     // Perform manual shared element transition
-                                    TransitionHelper.performElementTransition(WeatherNowFragment.this, binding.imageView);
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                        TransitionHelper.performElementTransition(WeatherNowFragment.this, binding.imageView);
+                                    }
                                     return false;
                                 }
 
                                 @Override
                                 public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
                                     // Perform manual shared element transition
-                                    TransitionHelper.performElementTransition(WeatherNowFragment.this, binding.imageView);
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                        TransitionHelper.performElementTransition(WeatherNowFragment.this, binding.imageView);
+                                    }
                                     return false;
                                 }
                             })

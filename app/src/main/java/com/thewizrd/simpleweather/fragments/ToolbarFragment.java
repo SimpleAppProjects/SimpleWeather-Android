@@ -2,7 +2,9 @@ package com.thewizrd.simpleweather.fragments;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
+import android.transition.Transition;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +22,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewGroupCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.transition.Transition;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -101,7 +102,9 @@ public abstract class ToolbarFragment extends WindowColorFragment
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TransitionHelper.onCreate(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            TransitionHelper.onCreate(this);
+        }
     }
 
     @Override
@@ -136,31 +139,33 @@ public abstract class ToolbarFragment extends WindowColorFragment
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ViewGroupCompat.setTransitionGroup(getRootView(), false);
-        ViewGroupCompat.setTransitionGroup(getAppBarLayout(), false);
-        ViewGroupCompat.setTransitionGroup(getToolbar(), false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ViewGroupCompat.setTransitionGroup(getRootView(), false);
+            ViewGroupCompat.setTransitionGroup(getAppBarLayout(), false);
+            ViewGroupCompat.setTransitionGroup(getToolbar(), false);
 
-        TransitionHelper.onViewCreated(this, (ViewGroup) view.getParent(), new TransitionHelper.OnPrepareTransitionListener() {
-            @Override
-            public void prepareTransitions(@Nullable Transition enterTransition, @Nullable Transition exitTransition, @Nullable Transition reenterTransition, @Nullable Transition returnTransition) {
-                if (enterTransition != null) {
-                    enterTransition
-                            .addTarget(RecyclerView.class);
+            TransitionHelper.onViewCreated(this, (ViewGroup) view.getParent(), new TransitionHelper.OnPrepareTransitionListener() {
+                @Override
+                public void prepareTransitions(@Nullable Transition enterTransition, @Nullable Transition exitTransition, @Nullable Transition reenterTransition, @Nullable Transition returnTransition) {
+                    if (enterTransition != null) {
+                        enterTransition
+                                .addTarget(RecyclerView.class);
+                    }
+                    if (exitTransition != null) {
+                        exitTransition
+                                .addTarget(RecyclerView.class);
+                    }
+                    if (reenterTransition != null) {
+                        reenterTransition
+                                .addTarget(RecyclerView.class);
+                    }
+                    if (returnTransition != null) {
+                        returnTransition
+                                .addTarget(RecyclerView.class);
+                    }
                 }
-                if (exitTransition != null) {
-                    exitTransition
-                            .addTarget(RecyclerView.class);
-                }
-                if (reenterTransition != null) {
-                    reenterTransition
-                            .addTarget(RecyclerView.class);
-                }
-                if (returnTransition != null) {
-                    returnTransition
-                            .addTarget(RecyclerView.class);
-                }
-            }
-        });
+            });
+        }
     }
 
     @Override

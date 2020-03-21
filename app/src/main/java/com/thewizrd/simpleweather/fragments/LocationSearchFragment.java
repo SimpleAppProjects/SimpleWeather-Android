@@ -13,11 +13,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
@@ -74,8 +69,6 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
     private CancellationTokenSource cts;
 
     private WeatherManager wm;
-
-    private static final int ANIMATION_DURATION = 240;
 
     private static final String KEY_SEARCHTEXT = "search_text";
 
@@ -468,31 +461,7 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
         final View root = getView();
         if (root != null) {
             final View searchBarContainer = searchBarBinding.getRoot();
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                searchBarContainer.postOnAnimation(new Runnable() {
-                    @Override
-                    public void run() {
-                        // SearchActionBarContainer fade/translation animation
-                        AnimationSet searchBarAniSet = new AnimationSet(true);
-                        searchBarAniSet.setInterpolator(new DecelerateInterpolator());
-                        AlphaAnimation searchBarFadeAni = new AlphaAnimation(0.0f, 1.0f);
-                        TranslateAnimation searchBarAnimation = new TranslateAnimation(
-                                Animation.RELATIVE_TO_SELF, 0,
-                                Animation.RELATIVE_TO_SELF, 0,
-                                Animation.ABSOLUTE, searchBarContainer.getLayoutParams().height,
-                                Animation.ABSOLUTE, 0);
-                        searchBarAniSet.setDuration((long) (ANIMATION_DURATION * 1.5));
-                        searchBarAniSet.setFillEnabled(false);
-                        searchBarAniSet.addAnimation(searchBarFadeAni);
-                        searchBarAniSet.addAnimation(searchBarAnimation);
-
-                        searchBarContainer.setVisibility(View.VISIBLE);
-                        searchBarContainer.startAnimation(searchBarAniSet);
-                    }
-                });
-            } else {
-                searchBarContainer.setVisibility(View.VISIBLE);
-            }
+            searchBarContainer.setVisibility(View.VISIBLE);
         }
     }
 

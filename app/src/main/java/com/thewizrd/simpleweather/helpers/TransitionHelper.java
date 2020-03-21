@@ -1,6 +1,10 @@
 package com.thewizrd.simpleweather.helpers;
 
+import android.os.Build;
 import android.os.Bundle;
+import android.transition.Fade;
+import android.transition.Transition;
+import android.transition.TransitionSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -8,26 +12,32 @@ import android.view.animation.LinearInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
-import androidx.transition.Fade;
-import androidx.transition.Transition;
-import androidx.transition.TransitionSet;
 
+import com.google.android.material.transition.Scale;
+
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class TransitionHelper {
     private static final float SCALE_OPEN_ENTER = 0.85f;
     private static final float SCALE_OPEN_EXIT = 1.15f;
     private static final float SCALE_CLOSE_ENTER = 1.1f;
     private static final float SCALE_CLOSE_EXIT = 0.9f;
 
-
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public static void onCreate(@NonNull Fragment f) {
-        Transition enterTransition = new TransitionSet()
-                .addTransition(new Fade(Fade.IN).setStartDelay(35).setDuration(50).setInterpolator(new LinearInterpolator()))
-                .addTransition(new Scale(SCALE_OPEN_ENTER, SCALE_OPEN_ENTER).setDuration(300).setInterpolator(new FastOutSlowInInterpolator()));
-        Transition returnTransition = new TransitionSet()
-                .addTransition(new Fade(Fade.IN).setStartDelay(66).setDuration(50).setInterpolator(new LinearInterpolator()))
-                .addTransition(new Scale(SCALE_CLOSE_ENTER, SCALE_CLOSE_ENTER).setDuration(300).setInterpolator(new FastOutSlowInInterpolator()));
+        TransitionSet enterTransition = new TransitionSet()
+                .addTransition(new Fade(Fade.IN).setStartDelay(35).setDuration(50).setInterpolator(new LinearInterpolator()));
+        Scale scaleIn = (Scale) new Scale().setDuration(300).setInterpolator(new FastOutSlowInInterpolator());
+        scaleIn.setEntering(true);
+        enterTransition.addTransition(scaleIn);
+
+        TransitionSet returnTransition = new TransitionSet()
+                .addTransition(new Fade(Fade.IN).setStartDelay(66).setDuration(50).setInterpolator(new LinearInterpolator()));
+        Scale scaleOut = (Scale) new Scale().setDuration(300).setInterpolator(new FastOutSlowInInterpolator());
+        scaleOut.setEntering(false);
+        returnTransition.addTransition(scaleOut);
 
         f.setEnterTransition(enterTransition);
         f.setExitTransition(null);
@@ -37,6 +47,7 @@ public class TransitionHelper {
         f.postponeEnterTransition();
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public static void onViewCreated(@NonNull final Fragment f, @NonNull final ViewGroup view, @Nullable final OnPrepareTransitionListener listener) {
         view.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
@@ -62,6 +73,7 @@ public class TransitionHelper {
      **/
     public static final String ARGS_TRANSITION = "extra_ani";
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public static void performElementTransition(@NonNull Fragment f, @NonNull View sharedView) {
         if (f.requireArguments().containsKey(ARGS_TRANSITION)) {
             Bundle mStartValues = f.requireArguments().getBundle(ARGS_TRANSITION);
