@@ -748,10 +748,17 @@ public class WeatherNowFragment extends WindowColorFragment
 
         // Details
         binding.detailsContainer.setAdapter(new DetailsItemGridAdapter());
-        int horizMargin = 16;
-        if (ActivityUtils.isLargeTablet(mActivity)) horizMargin = 24;
-        binding.detailsContainer.setHorizontalSpacing(horizMargin * 4);
-        binding.detailsContainer.setVerticalSpacing(horizMargin * 4);
+
+        // Disable touch events on container
+        // View does not scroll
+        binding.detailsContainer.setFocusable(false);
+        binding.detailsContainer.setFocusableInTouchMode(false);
+        binding.detailsContainer.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
 
         // SwipeRefresh
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(mActivity, R.color.invButtonColor));
@@ -1301,6 +1308,12 @@ public class WeatherNowFragment extends WindowColorFragment
                     int availColumns = ((int) (pxWidth / minWidth)) <= 1 ? minColumns : (int) (pxWidth / minWidth);
 
                     binding.detailsContainer.setNumColumns(availColumns);
+
+                    int horizMargin = 16;
+                    if (ActivityUtils.isLargeTablet(mActivity)) horizMargin = 24;
+                    int itemSpacing = availColumns < 3 ? horizMargin * (availColumns - 1) : horizMargin * 4;
+                    binding.detailsContainer.setHorizontalSpacing(itemSpacing);
+                    binding.detailsContainer.setVerticalSpacing(itemSpacing);
                 }
             });
         }
