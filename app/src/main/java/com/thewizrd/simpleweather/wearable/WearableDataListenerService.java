@@ -33,6 +33,8 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.wearable.WearableSettings;
+import com.thewizrd.shared_resources.weatherdata.Forecasts;
+import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.simpleweather.App;
@@ -336,8 +338,13 @@ public class WearableDataListenerService extends WearableListenerService {
         LocationData homeData = Settings.getHomeData();
         Weather weatherData = Settings.getWeatherData(homeData.getQuery());
         Collection<WeatherAlert> alertData = Settings.getWeatherAlertData(homeData.getQuery());
+        Forecasts forecasts = Settings.getWeatherForecastData(homeData.getQuery());
+        List<HourlyForecast> hrForecasts = Settings.getHourlyWeatherForecastData(homeData.getQuery());
 
         if (weatherData != null) {
+            weatherData.setForecast(forecasts.getForecast());
+            weatherData.setHrForecast(hrForecasts);
+            weatherData.setTxtForecast(forecasts.getTxtForecast());
             weatherData.setWeatherAlerts(alertData);
             mapRequest.getDataMap().putAsset(WearableSettings.KEY_WEATHERDATA, Asset.createFromBytes(JSONParser.serializer(weatherData, Weather.class).getBytes(Charset.forName("UTF-8"))));
         }
