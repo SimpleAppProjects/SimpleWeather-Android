@@ -1,7 +1,6 @@
 package com.thewizrd.simpleweather.adapters;
 
 import android.annotation.SuppressLint;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -107,14 +106,12 @@ public class ForecastItemAdapter<T extends BaseForecastItemViewModel> extends Re
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         ViewGroup.LayoutParams layoutParams = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        int paddingHoriz = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, parent.getContext().getResources().getDisplayMetrics());
 
         if (viewType == ItemType.HOURLYFORECAST) {
             WeatherHrforecastPanelBinding binding = WeatherHrforecastPanelBinding.inflate(inflater);
             // FOR WEAR ONLY
             // set the view's size, margins, paddings and layout parameters
             binding.getRoot().setLayoutParams(layoutParams);
-            binding.getRoot().setPaddingRelative(paddingHoriz, 0, paddingHoriz, 0);
             return new HourlyForecastViewHolder(binding);
         } else {
             // create a new view
@@ -122,7 +119,6 @@ public class ForecastItemAdapter<T extends BaseForecastItemViewModel> extends Re
             // FOR WEAR ONLY
             // set the view's size, margins, paddings and layout parameters
             binding.getRoot().setLayoutParams(layoutParams);
-            binding.getRoot().setPaddingRelative(paddingHoriz, 0, paddingHoriz, 0);
             return new ForecastViewHolder(binding);
         }
     }

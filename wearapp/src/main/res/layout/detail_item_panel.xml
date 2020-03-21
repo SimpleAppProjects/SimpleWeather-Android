@@ -13,11 +13,13 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/item_padding"
+        android:paddingEnd="@dimen/list_item_padding">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/detail_icon"
-            android:layout_width="24dp"
+            android:layout_width="36dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:gravity="center"
@@ -46,6 +48,7 @@
             android:text="@{viewModel.label}"
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white"
+            android:textSize="12sp"
             tools:text="Moon Phase" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -59,6 +62,7 @@
             android:text="@{viewModel.value}"
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white"
+            android:textSize="12sp"
             app:fontFamily="@font/weathericons"
             tools:fontFamily="@font/weathericons"
             tools:text="Waxing Cresent" />

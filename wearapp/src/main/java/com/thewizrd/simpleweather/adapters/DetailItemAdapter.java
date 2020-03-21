@@ -1,7 +1,6 @@
 package com.thewizrd.simpleweather.adapters;
 
 import android.annotation.SuppressLint;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,11 +74,8 @@ public class DetailItemAdapter extends RecyclerView.Adapter {
                 // create a new view
                 LayoutInflater inflater = LayoutInflater.from(parent.getContext());
                 DetailItemPanelBinding binding = DetailItemPanelBinding.inflate(inflater);
-                // FOR WEAR ONLY
                 // set the view's size, margins, paddings and layout parameters
                 binding.getRoot().setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                int paddingHoriz = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, parent.getContext().getResources().getDisplayMetrics());
-                binding.getRoot().setPaddingRelative(paddingHoriz, 0, paddingHoriz, 0);
                 return new ViewHolder(binding);
         }
     }
