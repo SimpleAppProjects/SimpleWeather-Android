@@ -1,6 +1,10 @@
 package com.thewizrd.shared_resources;
 
 import android.content.Context;
+import android.util.Log;
+
+import com.google.android.gms.security.ProviderInstaller;
+import com.thewizrd.shared_resources.utils.Logger;
 
 public final class SimpleLibrary {
     private ApplicationLib mApp;
@@ -27,6 +31,11 @@ public final class SimpleLibrary {
     public static void init(ApplicationLib app) {
         if (sSimpleLib == null || sSimpleLib.mApp == null || sSimpleLib.mContext == null)
             sSimpleLib = new SimpleLibrary(app);
+        try {
+            ProviderInstaller.installIfNeeded(sSimpleLib.getAppContext());
+        } catch (Exception e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
     }
 
     public static void unRegister() {
