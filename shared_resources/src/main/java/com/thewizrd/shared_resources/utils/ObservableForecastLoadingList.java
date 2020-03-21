@@ -10,7 +10,6 @@ import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.database.WeatherDAO;
-import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
@@ -57,26 +56,21 @@ public class ObservableForecastLoadingList<T extends BaseForecastItemViewModel> 
                     int dataCount = fcast.getForecast().size();
 
                     if (dataCount > 0 && dataCount != currentCount) {
-                        Iterable<Forecast> loadedData =
-                                Iterables.limit(
-                                        Iterables.skip(fcast.getForecast(), currentCount),
-                                        (int) count);
-
                         int textForecastSize = fcast.getTxtForecast() != null ? fcast.getTxtForecast().size() : 0;
 
                         boolean isDayAndNt = textForecastSize == fcast.getForecast().size() * 2;
                         boolean addTextFct = isDayAndNt || textForecastSize == fcast.getForecast().size();
 
-                        for (Forecast dataItem : loadedData) {
+                        for (int i = currentCount; i < fcast.getForecast().size(); i++) {
                             final Object f;
                             if (addTextFct) {
                                 if (isDayAndNt) {
-                                    f = new ForecastItemViewModel(dataItem, fcast.getTxtForecast().get((int) (resultCount * 2)), fcast.getTxtForecast().get((int) (resultCount * 2) + 1));
+                                    f = new ForecastItemViewModel(fcast.getForecast().get(i), fcast.getTxtForecast().get(i * 2), fcast.getTxtForecast().get((i * 2) + 1));
                                 } else {
-                                    f = new ForecastItemViewModel(dataItem, fcast.getTxtForecast().get((int) (resultCount)));
+                                    f = new ForecastItemViewModel(fcast.getForecast().get(i), fcast.getTxtForecast().get(i));
                                 }
                             } else {
-                                f = new ForecastItemViewModel(dataItem);
+                                f = new ForecastItemViewModel(fcast.getForecast().get(i));
                             }
 
                             synchronized (this) {
