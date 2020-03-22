@@ -398,8 +398,10 @@ public class LocationsFragment extends ToolbarFragment
                             .setReorderingAllowed(true)
                             .commit();
                 } else {
-                    home.requireArguments()
-                            .putBundle(TransitionHelper.ARGS_TRANSITION, TransitionHelper.captureElementValues(view));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        home.requireArguments()
+                                .putBundle(TransitionHelper.ARGS_TRANSITION, TransitionHelper.captureElementValues(view));
+                    }
                     home.requireArguments()
                             .putString(Constants.ARGS_BACKGROUND, vm.getBackground());
                     home.requireArguments()

@@ -1333,7 +1333,9 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                             minHeight *= 2.5f;
                         }
 
-                        TransitionManager.beginDelayedTransition(mScrollView, new AutoTransition());
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            TransitionManager.beginDelayedTransition(mScrollView, new AutoTransition());
+                        }
 
                         ViewGroup.LayoutParams layoutParams = widgetFrameContainer.getLayoutParams();
 
