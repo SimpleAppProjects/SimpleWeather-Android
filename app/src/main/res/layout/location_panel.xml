@@ -79,6 +79,7 @@
                 android:layout_margin="10dp"
                 android:gravity="center"
                 style="@style/ShadowText"
+                android:scrollbars="none"
                 android:text="@{viewModel.weatherIcon}"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Inverse"

@@ -33,6 +33,7 @@
                     android:includeFontPadding="false"
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp"
+                    android:scrollbars="none"
                     android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
                     android:textColor="@color/invColorText"
                     android:textSize="36sp"
