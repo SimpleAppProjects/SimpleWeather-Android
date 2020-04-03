@@ -33,8 +33,10 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
+import android.view.ViewStub;
 import android.view.ViewTreeObserver;
 import android.widget.GridView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
@@ -118,6 +120,10 @@ import com.thewizrd.simpleweather.controls.ForecastGraphPanel;
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView;
 import com.thewizrd.simpleweather.controls.SunPhaseView;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding;
+import com.thewizrd.simpleweather.databinding.WeathernowAqicontrolBinding;
+import com.thewizrd.simpleweather.databinding.WeathernowBeaufortcontrolBinding;
+import com.thewizrd.simpleweather.databinding.WeathernowMoonphasecontrolBinding;
+import com.thewizrd.simpleweather.databinding.WeathernowUvcontrolBinding;
 import com.thewizrd.simpleweather.fragments.WindowColorFragment;
 import com.thewizrd.simpleweather.helpers.DarkMode;
 import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
@@ -776,6 +782,46 @@ public class WeatherNowFragment extends WindowColorFragment
                         refreshWeather(true);
                     }
                 });
+            }
+        });
+
+        // UV
+        binding.uvControl.setOnInflateListener(new ViewStub.OnInflateListener() {
+            @Override
+            public void onInflate(ViewStub stub, View inflated) {
+                WeathernowUvcontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
+                binding.setWeatherView(weatherView);
+                binding.setLifecycleOwner(WeatherNowFragment.this);
+            }
+        });
+
+        // Beaufort
+        binding.beaufortControl.setOnInflateListener(new ViewStub.OnInflateListener() {
+            @Override
+            public void onInflate(ViewStub stub, View inflated) {
+                WeathernowBeaufortcontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
+                binding.setWeatherView(weatherView);
+                binding.setLifecycleOwner(WeatherNowFragment.this);
+            }
+        });
+
+        // Air Quality
+        binding.aqiControl.setOnInflateListener(new ViewStub.OnInflateListener() {
+            @Override
+            public void onInflate(ViewStub stub, View inflated) {
+                WeathernowAqicontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
+                binding.setWeatherView(weatherView);
+                binding.setLifecycleOwner(WeatherNowFragment.this);
+            }
+        });
+
+        // Moon Phase
+        binding.moonphaseControl.setOnInflateListener(new ViewStub.OnInflateListener() {
+            @Override
+            public void onInflate(ViewStub stub, View inflated) {
+                WeathernowMoonphasecontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
+                binding.setWeatherView(weatherView);
+                binding.setLifecycleOwner(WeatherNowFragment.this);
             }
         });
 
@@ -1712,6 +1758,22 @@ public class WeatherNowFragment extends WindowColorFragment
                 view.setSunriseSetTimes(LocalTime.parse(sunrise, fmt),
                         LocalTime.parse(sunset, fmt),
                         fragment.location.getTzOffset());
+            }
+        }
+
+        @BindingAdapter("progressColor")
+        public void updateProgressColor(ProgressBar progressBar, @ColorInt int progressColor) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                progressBar.setProgressTintList(ColorStateList.valueOf(progressColor));
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Drawable drawable = progressBar.getProgressDrawable().mutate();
+                drawable.setColorFilter(progressColor, PorterDuff.Mode.SRC_IN);
+                progressBar.setProgressDrawable(drawable);
+            } else {
+                Drawable origDrawable = progressBar.getProgressDrawable().mutate();
+                Drawable compatDrawable = DrawableCompat.wrap(origDrawable);
+                DrawableCompat.setTint(compatDrawable, progressColor);
+                progressBar.setProgressDrawable(compatDrawable);
             }
         }
     }

@@ -13,6 +13,7 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNProvider;
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider;
 
 import java.util.Collection;
@@ -110,8 +111,11 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
         weather.getLocation().setTzShort(location.getTzShort());
         weather.getLocation().setTzOffset(location.getTzOffset());
 
+        // Additional external data
         if (supportsAlerts() && needsExternalAlertData())
             weather.setWeatherAlerts(getAlerts(location));
+
+        weather.getCondition().setAirQuality(new AQICNProvider().getAirQualityData(location));
 
         return weather;
     }

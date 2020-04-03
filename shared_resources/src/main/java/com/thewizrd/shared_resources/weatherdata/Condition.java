@@ -52,6 +52,21 @@ public class Condition extends CustomJsonObject {
     @SerializedName("uv")
     private UV uv;
 
+    @SerializedName("high_f")
+    private double highF;
+
+    @SerializedName("high_c")
+    private double highC;
+
+    @SerializedName("low_f")
+    private double lowF;
+
+    @SerializedName("low_c")
+    private double lowC;
+
+    @SerializedName("airQuality")
+    private AirQuality airQuality;
+
     @RestrictTo({RestrictTo.Scope.LIBRARY})
     public Condition() {
         // Needed for deserialization
@@ -92,6 +107,10 @@ public class Condition extends CustomJsonObject {
         weather = StringUtils.toUpperCase(root.getWeather().get(0).getDescription());
         tempF = Float.parseFloat(ConversionMethods.KtoF(Float.toString(root.getMain().getTemp())));
         tempC = Float.parseFloat(ConversionMethods.KtoC(Float.toString(root.getMain().getTemp())));
+        highF = Float.parseFloat(ConversionMethods.KtoF(Float.toString(root.getMain().getTempMax())));
+        highC = Float.parseFloat(ConversionMethods.KtoC(Float.toString(root.getMain().getTempMax())));
+        lowF = Float.parseFloat(ConversionMethods.KtoF(Float.toString(root.getMain().getTempMin())));
+        lowC = Float.parseFloat(ConversionMethods.KtoC(Float.toString(root.getMain().getTempMin())));
         windDegrees = (int) root.getWind().getDeg();
         windMph = Float.parseFloat(ConversionMethods.msecToMph(Float.toString(root.getWind().getSpeed())));
         windKph = Float.parseFloat(ConversionMethods.msecToKph(Float.toString(root.getWind().getSpeed())));
@@ -137,6 +156,36 @@ public class Condition extends CustomJsonObject {
         } catch (NumberFormatException ex) {
             this.tempF = 0.00f;
             tempC = 0.00f;
+        }
+
+        try {
+            Float highTempF = Float.valueOf(observation.getHighTemperature());
+            Float lowTempF = Float.valueOf(observation.getLowTemperature());
+            this.highF = highTempF;
+            this.highC = Float.parseFloat(ConversionMethods.FtoC(highTempF.toString()));
+            this.lowF = lowTempF;
+            this.lowC = Float.parseFloat(ConversionMethods.FtoC(lowTempF.toString()));
+        } catch (NumberFormatException ignored) {
+            this.highF = 0.00f;
+            this.highC = 0.00f;
+            this.lowF = 0.00f;
+            this.lowC = 0.00f;
+        }
+
+        if (highF == 0 && highF == highC && lowF == 0 && lowF == lowC) {
+            try {
+                Float highTempF = Float.valueOf(forecastItem.getHighTemperature());
+                Float lowTempF = Float.valueOf(forecastItem.getLowTemperature());
+                this.highF = highTempF;
+                this.highC = Float.parseFloat(ConversionMethods.FtoC(highTempF.toString()));
+                this.lowF = lowTempF;
+                this.lowC = Float.parseFloat(ConversionMethods.FtoC(lowTempF.toString()));
+            } catch (NumberFormatException ignored) {
+                this.highF = 0.00f;
+                this.highC = 0.00f;
+                this.lowF = 0.00f;
+                this.lowC = 0.00f;
+            }
         }
 
         try {
@@ -307,6 +356,46 @@ public class Condition extends CustomJsonObject {
         this.uv = uv;
     }
 
+    public double getHighF() {
+        return highF;
+    }
+
+    public void setHighF(double highF) {
+        this.highF = highF;
+    }
+
+    public double getHighC() {
+        return highC;
+    }
+
+    public void setHighC(double highC) {
+        this.highC = highC;
+    }
+
+    public double getLowF() {
+        return lowF;
+    }
+
+    public void setLowF(double lowF) {
+        this.lowF = lowF;
+    }
+
+    public double getLowC() {
+        return lowC;
+    }
+
+    public void setLowC(double lowC) {
+        this.lowC = lowC;
+    }
+
+    public AirQuality getAirQuality() {
+        return airQuality;
+    }
+
+    public void setAirQuality(AirQuality airQuality) {
+        this.airQuality = airQuality;
+    }
+
     @Override
     public void fromJson(JsonReader extReader) {
         try {
@@ -372,6 +461,22 @@ public class Condition extends CustomJsonObject {
                     case "uv":
                         this.uv = new UV();
                         this.uv.fromJson(reader);
+                        break;
+                    case "high_f":
+                        this.highF = Float.parseFloat(reader.nextString());
+                        break;
+                    case "high_c":
+                        this.highC = Float.parseFloat(reader.nextString());
+                        break;
+                    case "low_f":
+                        this.lowF = Float.parseFloat(reader.nextString());
+                        break;
+                    case "low_c":
+                        this.lowC = Float.parseFloat(reader.nextString());
+                        break;
+                    case "airQuality":
+                        this.airQuality = new AirQuality();
+                        this.airQuality.fromJson(reader);
                         break;
                     default:
                         break;
@@ -443,6 +548,31 @@ public class Condition extends CustomJsonObject {
                     writer.nullValue();
                 else
                     uv.toJson(writer);
+            }
+
+            // "high_f" : ""
+            writer.name("high_f");
+            writer.value(highF);
+
+            // "high_c" : ""
+            writer.name("high_c");
+            writer.value(highC);
+
+            // "low_f" : ""
+            writer.name("low_f");
+            writer.value(lowF);
+
+            // "low_c" : ""
+            writer.name("low_c");
+            writer.value(lowC);
+
+            // "airQuality" : ""
+            if (airQuality != null) {
+                writer.name("airQuality");
+                if (airQuality == null)
+                    writer.nullValue();
+                else
+                    airQuality.toJson(writer);
             }
 
             // }

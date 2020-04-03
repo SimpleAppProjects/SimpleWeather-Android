@@ -156,6 +156,8 @@
                         android:visibility="@{!StringUtils.isNullOrWhitespace(weatherView.location) ? View.VISIBLE : View.GONE}"
                         app:layout_constraintBottom_toTopOf="@id/condition_border"
                         app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_optimizationLevel="direct|barrier|chains|dimensions|groups"
                         tools:layout_height="200dp">
 
@@ -270,6 +272,25 @@
                             app:layout_constraintVertical_bias="0.0"
                             tools:fontFamily="@font/weathericons"
                             tools:text="70&#xF045;" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/weather_hilo"
+                            style="@style/ShadowTextHeavy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="4dp"
+                            android:text="@{weatherView.hiLoTemp}"
+                            android:textColor="@android:color/white"
+                            android:textSize="@dimen/weather_condition_size"
+                            android:textStyle="bold"
+                            android:visibility="@{!StringUtils.isNullOrWhitespace(weatherView.hiTemp) &amp;&amp; !StringUtils.isNullOrWhitespace(weatherView.loTemp) ? View.VISIBLE : View.GONE}"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/weather_temp"
+                            app:layout_constraintVertical_bias="0.0"
+                            tools:fontFamily="@font/weathericons"
+                            tools:text="75*F &#xf058; | 65*F &#xf044;" />
 
                         <TextView
                             android:id="@+id/bg_attribution"
@@ -438,10 +459,58 @@
                         android:background="@android:color/white"
                         android:visibility="@{weatherView.weatherDetails.size() > 0 ? View.VISIBLE : View.GONE}"
                         app:darkModeEnabled="@{!weatherView.lightBackground}"
-                        app:layout_constraintBottom_toTopOf="@id/sunriseset_label"
+                        app:layout_constraintBottom_toTopOf="@id/uv_control"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/details_container" />
+
+                    <ViewStub
+                        android:id="@+id/uv_control"
+                        android:inflatedId="@id/uv_control"
+                        android:layout="@layout/weathernow_uvcontrol"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="@{weatherView.uvIndex != null ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintBottom_toTopOf="@id/beaufort_control"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/details_border" />
+
+                    <ViewStub
+                        android:id="@+id/beaufort_control"
+                        android:inflatedId="@id/beaufort_control"
+                        android:layout="@layout/weathernow_beaufortcontrol"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="@{weatherView.beaufort != null ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintBottom_toTopOf="@id/aqi_control"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/uv_control" />
+
+                    <ViewStub
+                        android:id="@+id/aqi_control"
+                        android:inflatedId="@id/aqi_control"
+                        android:layout="@layout/weathernow_aqicontrol"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="@{weatherView.airQuality != null ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintBottom_toTopOf="@id/moonphase_control"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/beaufort_control" />
+
+                    <ViewStub
+                        android:id="@+id/moonphase_control"
+                        android:inflatedId="@id/moonphase_control"
+                        android:layout="@layout/weathernow_moonphasecontrol"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="@{weatherView.moonPhase != null ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintBottom_toTopOf="@id/sunriseset_label"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/aqi_control" />
 
                     <TextView
                         android:id="@+id/sunriseset_label"
@@ -458,20 +527,7 @@
                         app:layout_constraintBottom_toTopOf="@id/sun_phase_view"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/details_border" />
-
-                    <View
-                        android:id="@+id/sunriseset_border"
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:alpha="0.2"
-                        android:background="@android:color/white"
-                        android:visibility="@{StringUtils.isNullOrWhitespace(weatherView.sunrise) &amp;&amp; StringUtils.isNullOrWhitespace(weatherView.sunrise) ? View.GONE : View.VISIBLE}"
-                        app:darkModeEnabled="@{!weatherView.lightBackground}"
-                        app:layout_constraintBottom_toTopOf="@id/weather_credit"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/sun_phase_view" />
+                        app:layout_constraintTop_toBottomOf="@+id/moonphase_control" />
 
                     <com.thewizrd.simpleweather.controls.SunPhaseView
                         android:id="@+id/sun_phase_view"
@@ -487,6 +543,19 @@
                         app:layout_constraintTop_toBottomOf="@id/sunriseset_label"
                         app:sunrise="@{weatherView.sunrise}"
                         app:sunset="@{weatherView.sunset}" />
+
+                    <View
+                        android:id="@+id/sunriseset_border"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:alpha="0.2"
+                        android:background="@android:color/white"
+                        android:visibility="@{StringUtils.isNullOrWhitespace(weatherView.sunrise) &amp;&amp; StringUtils.isNullOrWhitespace(weatherView.sunrise) ? View.GONE : View.VISIBLE}"
+                        app:darkModeEnabled="@{!weatherView.lightBackground}"
+                        app:layout_constraintBottom_toTopOf="@id/weather_credit"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/sun_phase_view" />
 
                     <TextView
                         android:id="@+id/weather_credit"

@@ -89,6 +89,13 @@ public class Weather extends CustomJsonObject {
             condition.setFeelslikeC(Double.parseDouble(ConversionMethods.FtoC(Double.toString(condition.getFeelslikeF()))));
         }
 
+        if (condition.getHighF() == condition.getHighC() && forecast.size() > 0) {
+            condition.setHighF(Float.parseFloat(forecast.get(0).getHighF()));
+            condition.setHighC(Float.parseFloat(forecast.get(0).getHighC()));
+            condition.setLowF(Float.parseFloat(forecast.get(0).getLowF()));
+            condition.setLowC(Float.parseFloat(forecast.get(0).getLowC()));
+        }
+
         source = WeatherAPI.YAHOO;
     }
 
@@ -131,6 +138,13 @@ public class Weather extends CustomJsonObject {
         astronomy = new Astronomy(root.getSunPhase(), root.getMoonPhase());
         precipitation = new Precipitation(root.getForecast().getSimpleforecast().getForecastday().get(0));
         ttl = "60";
+
+        if (condition.getHighF() == condition.getHighC() && forecast.size() > 0) {
+            condition.setHighF(Float.parseFloat(forecast.get(0).getHighF()));
+            condition.setHighC(Float.parseFloat(forecast.get(0).getHighC()));
+            condition.setLowF(Float.parseFloat(forecast.get(0).getLowF()));
+            condition.setLowC(Float.parseFloat(forecast.get(0).getLowC()));
+        }
 
         source = WeatherAPI.WEATHERUNDERGROUND;
     }
@@ -197,6 +211,13 @@ public class Weather extends CustomJsonObject {
         // Set feelslike temp
         condition.setFeelslikeF(Float.parseFloat(WeatherUtils.getFeelsLikeTemp(Double.toString(condition.getTempF()), Double.toString(condition.getWindMph()), atmosphere.getHumidity())));
         condition.setFeelslikeC(Float.parseFloat(ConversionMethods.FtoC(Double.toString(condition.getFeelslikeF()))));
+
+        if (condition.getHighF() == condition.getHighC() && forecast.size() > 0) {
+            condition.setHighF(Float.parseFloat(forecast.get(0).getHighF()));
+            condition.setHighC(Float.parseFloat(forecast.get(0).getHighC()));
+            condition.setLowF(Float.parseFloat(forecast.get(0).getLowF()));
+            condition.setLowC(Float.parseFloat(forecast.get(0).getLowC()));
+        }
 
         source = WeatherAPI.OPENWEATHERMAP;
     }
@@ -357,6 +378,14 @@ public class Weather extends CustomJsonObject {
                 if (time.getLocation().getSymbol() != null) {
                     condition.setIcon(Byte.toString(time.getLocation().getSymbol().getNumber()));
                     condition.setWeather(time.getLocation().getSymbol().getId());
+
+                    if (time.getLocation().getMaxTemperature() != null && time.getLocation().getMaxTemperature().getValue() != null &&
+                            time.getLocation().getMinTemperature() != null && time.getLocation().getMinTemperature().getValue() != null) {
+                        condition.setHighF(Float.parseFloat(ConversionMethods.CtoF(time.getLocation().getMaxTemperature().getValue().toString())));
+                        condition.setHighC(Math.round(time.getLocation().getMaxTemperature().getValue().floatValue()));
+                        condition.setLowF(Float.parseFloat(ConversionMethods.CtoF(time.getLocation().getMinTemperature().getValue().toString())));
+                        condition.setLowC(Math.round(time.getLocation().getMinTemperature().getValue().floatValue()));
+                    }
                 }
 
                 conditionSet = true;
@@ -376,6 +405,13 @@ public class Weather extends CustomJsonObject {
         // Set feelslike temp
         condition.setFeelslikeF(Float.parseFloat(WeatherUtils.getFeelsLikeTemp(Double.toString(condition.getTempF()), Double.toString(condition.getWindMph()), atmosphere.getHumidity())));
         condition.setFeelslikeC(Float.parseFloat(ConversionMethods.FtoC(Double.toString(condition.getFeelslikeF()))));
+
+        if (condition.getHighF() == condition.getHighC() && forecast.size() > 0) {
+            condition.setHighF(Float.parseFloat(forecast.get(0).getHighF()));
+            condition.setHighC(Float.parseFloat(forecast.get(0).getHighC()));
+            condition.setLowF(Float.parseFloat(forecast.get(0).getLowF()));
+            condition.setLowC(Float.parseFloat(forecast.get(0).getLowC()));
+        }
 
         source = WeatherAPI.METNO;
     }
@@ -443,6 +479,13 @@ public class Weather extends CustomJsonObject {
         //astronomy = new Astronomy(obsCurrentResponse);
         //precipitation = new Precipitation(obsCurrentResponse);
         ttl = "180";
+
+        if (condition.getHighF() == condition.getHighC() && forecast.size() > 0) {
+            condition.setHighF(Float.parseFloat(forecast.get(0).getHighF()));
+            condition.setHighC(Float.parseFloat(forecast.get(0).getHighC()));
+            condition.setLowF(Float.parseFloat(forecast.get(0).getLowF()));
+            condition.setLowC(Float.parseFloat(forecast.get(0).getLowC()));
+        }
 
         source = WeatherAPI.NWS;
     }

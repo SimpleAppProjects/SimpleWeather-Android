@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="weatherView"
+            type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="@{weatherView.beaufort != null ? View.VISIBLE : View.GONE}">
+
+        <TextView
+            android:id="@+id/beaufort_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="@string/label_beaufort"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            style="@style/ShadowText"
+            app:darkModeEnabled="@{!weatherView.lightBackground}"
+            app:layout_constraintBottom_toTopOf="@id/beaufort_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/beaufort_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:textColor="@android:color/white"
+            android:textSize="36sp"
+            android:text="@{weatherView.beaufort != null ? weatherView.beaufort.beaufort.icon : null}"
+            style="@style/ShadowText"
+            app:fontFamily="@font/weathericons"
+            app:layout_constraintBottom_toTopOf="@+id/beaufort_progressBar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/beaufort_label"
+            tools:text="@string/wi_wind_beaufort_11" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/beaufort_description"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:text="@{weatherView.beaufort != null ? weatherView.beaufort.beaufort.value : null}"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
+            android:textColor="@android:color/white"
+            style="@style/ShadowText"
+            app:layout_constraintBottom_toBottomOf="@id/beaufort_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@id/beaufort_icon"
+            app:layout_constraintTop_toBottomOf="@id/beaufort_label"
+            tools:text="11, Extreme" />
+
+        <ProgressBar
+            android:id="@+id/beaufort_progressBar"
+            style="@style/ShadowProgressBarHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginRight="12dp"
+            android:layout_marginBottom="12dp"
+            android:max="@{weatherView.beaufort != null ? weatherView.beaufort.progressMax : 1}"
+            android:progress="@{weatherView.beaufort != null ? weatherView.beaufort.progress : 0}"
+            android:progressDrawable="@drawable/rounded_progress_horizontal_material"
+            app:progressColor="@{weatherView.beaufort != null ? weatherView.beaufort.progressColor : 0}"
+            app:layout_constraintBottom_toTopOf="@+id/border"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/beaufort_icon"
+            tools:progress="11"
+            tools:max="12" />
+
+        <View
+            android:id="@+id/border"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:alpha="0.2"
+            android:background="@android:color/white"
+            app:darkModeEnabled="@{!weatherView.lightBackground}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/beaufort_progressBar" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

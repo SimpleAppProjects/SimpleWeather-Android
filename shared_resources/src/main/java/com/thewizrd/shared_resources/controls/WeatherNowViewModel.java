@@ -52,11 +52,18 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private CharSequence curTemp;
     private String curCondition;
     private String weatherIcon;
+    private String hiTemp;
+    private String loTemp;
+    private CharSequence hiLoTemp;
 
     // Weather Details
     private String sunrise;
     private String sunset;
     private List<DetailItemViewModel> weatherDetails;
+    private UVIndexViewModel uvIndex;
+    private BeaufortViewModel beaufort;
+    private MoonPhaseViewModel moonPhase;
+    private AirQualityViewModel airQuality;
 
     // Forecast
     private ObservableForecastLoadingList<ForecastItemViewModel> forecasts;
@@ -99,6 +106,41 @@ public class WeatherNowViewModel extends ObservableViewModel {
     @Bindable
     public String getWeatherIcon() {
         return weatherIcon;
+    }
+
+    @Bindable
+    public String getHiTemp() {
+        return hiTemp;
+    }
+
+    @Bindable
+    public String getLoTemp() {
+        return loTemp;
+    }
+
+    @Bindable
+    public CharSequence getHiLoTemp() {
+        return hiLoTemp;
+    }
+
+    @Bindable
+    public UVIndexViewModel getUvIndex() {
+        return uvIndex;
+    }
+
+    @Bindable
+    public BeaufortViewModel getBeaufort() {
+        return beaufort;
+    }
+
+    @Bindable
+    public MoonPhaseViewModel getMoonPhase() {
+        return moonPhase;
+    }
+
+    @Bindable
+    public AirQualityViewModel getAirQuality() {
+        return airQuality;
     }
 
     @Bindable
@@ -264,6 +306,39 @@ public class WeatherNowViewModel extends ObservableViewModel {
                         notifyPropertyChanged(BR.weatherIcon);
                     }
 
+                    String newHiTemp = (Settings.isFahrenheit() ? Math.round(weather.getCondition().getHighF()) : Math.round(weather.getCondition().getHighC())) + "°";
+                    String newLoTemp = (Settings.isFahrenheit() ? Math.round(weather.getCondition().getLowF()) : Math.round(weather.getCondition().getLowC())) + "°";
+                    if (!ObjectsCompat.equals(hiTemp, newHiTemp) && !ObjectsCompat.equals(loTemp, newLoTemp)) {
+                        if (weather.getCondition().getHighF() != weather.getCondition().getHighC() && weather.getCondition().getLowF() != weather.getCondition().getLowC()) {
+                            SpannableStringBuilder hiLoTempBuilder = new SpannableStringBuilder();
+
+                            hiLoTempBuilder.append(newHiTemp)
+                                    .append(' ');
+
+                            int firstIdx = hiLoTempBuilder.length();
+
+                            hiLoTempBuilder.append("\uf058")
+                                    .append(" | ")
+                                    .append(newLoTemp)
+                                    .append(' ')
+                                    .append("\uf044");
+
+                            hiLoTempBuilder.setSpan(new WeatherIconTextSpan(context), firstIdx, firstIdx + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            hiLoTempBuilder.setSpan(new WeatherIconTextSpan(context), hiLoTempBuilder.length() - 1, hiLoTempBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                            hiTemp = newHiTemp;
+                            loTemp = newLoTemp;
+                            hiLoTemp = hiLoTempBuilder;
+                        } else {
+                            hiTemp = null;
+                            loTemp = null;
+                            hiLoTemp = null;
+                        }
+                        notifyPropertyChanged(BR.hiTemp);
+                        notifyPropertyChanged(BR.loTemp);
+                        notifyPropertyChanged(BR.hiLoTemp);
+                    }
+
                     // WeatherDetails
                     weatherDetails.clear();
                     // Precipitation
@@ -346,10 +421,29 @@ public class WeatherNowViewModel extends ObservableViewModel {
                     }
 
                     if (weather.getCondition().getUv() != null) {
-                        weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.UV,
-                                String.format(Locale.ROOT, "%s, %s",
-                                        weather.getCondition().getUv().getIndex(), weather.getCondition().getUv().getDescription())));
+                        if (isPhone) {
+                            uvIndex = new UVIndexViewModel(weather.getCondition().getUv());
+                        } else {
+                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.UV,
+                                    String.format(Locale.ROOT, "%s, %s",
+                                            weather.getCondition().getUv().getIndex(), weather.getCondition().getUv().getDescription())));
+                        }
+                    } else {
+                        uvIndex = null;
                     }
+                    notifyPropertyChanged(BR.uvIndex);
+
+                    // Additional Details
+                    if (weather.getCondition().getAirQuality() != null) {
+                        if (isPhone) {
+                            airQuality = new AirQualityViewModel(weather.getCondition().getAirQuality());
+                        } else {
+                            weatherDetails.add(new DetailItemViewModel(weather.getCondition().getAirQuality()));
+                        }
+                    } else {
+                        airQuality = null;
+                    }
+                    notifyPropertyChanged(BR.airQuality);
 
                     if (weather.getCondition().getFeelslikeF() != weather.getCondition().getFeelslikeC()) {
                         weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
@@ -368,9 +462,16 @@ public class WeatherNowViewModel extends ObservableViewModel {
                     }
 
                     if (weather.getCondition().getBeaufort() != null) {
-                        weatherDetails.add(new DetailItemViewModel(weather.getCondition().getBeaufort().getScale(),
-                                weather.getCondition().getBeaufort().getDescription()));
+                        if (isPhone) {
+                            beaufort = new BeaufortViewModel(weather.getCondition().getBeaufort());
+                        } else {
+                            weatherDetails.add(new DetailItemViewModel(weather.getCondition().getBeaufort().getScale(),
+                                    weather.getCondition().getBeaufort().getDescription()));
+                        }
+                    } else {
+                        beaufort = null;
                     }
+                    notifyPropertyChanged(BR.beaufort);
 
                     // Astronomy
                     if (weather.getAstronomy() != null) {
@@ -378,14 +479,18 @@ public class WeatherNowViewModel extends ObservableViewModel {
                             sunrise = weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("HH:mm"));
                             sunset = weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("HH:mm"));
 
-                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE, sunrise));
-                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET, sunset));
+                            if (!isPhone) {
+                                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE, sunrise));
+                                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET, sunset));
+                            }
                         } else {
                             sunrise = weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("h:mm a"));
                             sunset = weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("h:mm a"));
 
-                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE, sunrise));
-                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET, sunset));
+                            if (!isPhone) {
+                                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE, sunrise));
+                                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET, sunset));
+                            }
                         }
 
                         if (weather.getAstronomy().getMoonrise() != null && weather.getAstronomy().getMoonset() != null
@@ -405,15 +510,23 @@ public class WeatherNowViewModel extends ObservableViewModel {
                         }
 
                         if (weather.getAstronomy().getMoonPhase() != null) {
-                            weatherDetails.add(new DetailItemViewModel(weather.getAstronomy().getMoonPhase().getPhase(),
-                                    weather.getAstronomy().getMoonPhase().getDescription()));
+                            if (isPhone) {
+                                moonPhase = new MoonPhaseViewModel(weather.getAstronomy().getMoonPhase());
+                            } else {
+                                weatherDetails.add(new DetailItemViewModel(weather.getAstronomy().getMoonPhase().getPhase(),
+                                        weather.getAstronomy().getMoonPhase().getDescription()));
+                            }
+                        } else {
+                            moonPhase = null;
                         }
                     } else {
                         sunrise = null;
                         sunset = null;
+                        moonPhase = null;
                     }
                     notifyPropertyChanged(BR.sunrise);
                     notifyPropertyChanged(BR.sunset);
+                    notifyPropertyChanged(BR.moonPhase);
                     notifyPropertyChanged(BR.weatherDetails);
 
                     // Add UI elements

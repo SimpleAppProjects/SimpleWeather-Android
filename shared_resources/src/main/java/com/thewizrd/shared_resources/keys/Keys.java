@@ -32,4 +32,8 @@ public class Keys {
     public static String getLocIQKey() {
         return null;
     }
+
+    public static String getAQICNKey() {
+        return null;
+    }
 }

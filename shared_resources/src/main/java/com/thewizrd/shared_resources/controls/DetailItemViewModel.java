@@ -7,8 +7,11 @@ import androidx.lifecycle.ViewModel;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.weatherdata.AirQuality;
 import com.thewizrd.shared_resources.weatherdata.Beaufort;
 import com.thewizrd.shared_resources.weatherdata.MoonPhase;
+
+import java.util.Locale;
 
 public class DetailItemViewModel extends ViewModel {
     @NonNull
@@ -94,6 +97,10 @@ public class DetailItemViewModel extends ViewModel {
             case UV:
                 this.label = context.getString(R.string.label_uv);
                 this.icon = context.getString(R.string.wi_day_sunny);
+                break;
+            case AIRQUALITY:
+                this.label = context.getString(R.string.label_airquality);
+                this.icon = context.getString(R.string.wi_cloudy_gusts);
                 break;
         }
 
@@ -185,6 +192,27 @@ public class DetailItemViewModel extends ViewModel {
             case B12:
                 this.icon = context.getString(R.string.wi_wind_beaufort_12);
                 break;
+        }
+    }
+
+    public DetailItemViewModel(AirQuality aqi) {
+        Context context = SimpleLibrary.getInstance().getAppContext();
+        this.detailsType = WeatherDetailsType.AIRQUALITY;
+        this.label = context.getString(R.string.label_airquality_short);
+        this.iconRotation = 0;
+
+        if (aqi.getIndex() < 51) {
+            this.value = String.format(Locale.ROOT, "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_0_50));
+        } else if (aqi.getIndex() < 101) {
+            this.value = String.format(Locale.ROOT, "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_51_100));
+        } else if (aqi.getIndex() < 151) {
+            this.value = String.format(Locale.ROOT, "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_101_150));
+        } else if (aqi.getIndex() < 201) {
+            this.value = String.format(Locale.ROOT, "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_151_200));
+        } else if (aqi.getIndex() < 301) {
+            this.value = String.format(Locale.ROOT, "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_201_300));
+        } else if (aqi.getIndex() >= 301) {
+            this.value = String.format(Locale.ROOT, "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_300));
         }
     }
 

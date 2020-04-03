@@ -19,7 +19,8 @@ public enum WeatherDetailsType {
     MOONSET(13),
     MOONPHASE(14),
     BEAUFORT(15),
-    UV(16);
+    UV(16),
+    AIRQUALITY(17);
 
     private final int value;
 
