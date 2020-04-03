@@ -64,6 +64,8 @@
             @style/TextAppearance.OpenSans.ListItemSecondary
         </item>
 
+        <item name="titleTextAppearance">@style/TextAppearance.OpenSans.Title</item>
+
         <!-- AlertDialog attributes -->
         <item name="dialogCornerRadius">@dimen/dialog_corner_radius</item>
         <item name="android:alertDialogTheme">@style/AlertDialogTheme</item>
@@ -335,6 +337,12 @@
         <item name="android:fontFamily">@font/open_sans</item>
         <item name="fontFamily">@font/open_sans</item>
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextAppearance.OpenSans.Title" parent="TextAppearance.AppCompat.Title">
+        <item name="android:fontFamily">@font/open_sans_semibold</item>
+        <item name="fontFamily">@font/open_sans_semibold</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="ShapeAppearance.Material.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
