@@ -386,6 +386,9 @@ public class ForecastGraphPanel extends LinearLayout {
             }
 
             for (int i = 0; i < dataset.size(); i++) {
+                if (view.getDataLabels().size() + i + 1 > MAX_FETCH_SIZE)
+                    break;
+
                 BaseForecastItemViewModel forecastItemViewModel = dataset.get(i);
 
                 try {
@@ -460,6 +463,9 @@ public class ForecastGraphPanel extends LinearLayout {
             List<YEntryData> windDataSet = new ArrayList<>();
 
             for (int i = 0; i < dataset.size(); i++) {
+                if (view.getDataLabels().size() + i + 1 > MAX_FETCH_SIZE)
+                    break;
+
                 BaseForecastItemViewModel forecastItemViewModel = dataset.get(i);
 
                 try {
@@ -500,6 +506,9 @@ public class ForecastGraphPanel extends LinearLayout {
             List<YEntryData> popDataSet = new ArrayList<>();
 
             for (int i = 0; i < dataset.size(); i++) {
+                if (view.getDataLabels().size() + i + 1 > MAX_FETCH_SIZE)
+                    break;
+
                 BaseForecastItemViewModel forecastItemViewModel = dataset.get(i);
 
                 try {
