@@ -12,6 +12,7 @@
     <string name="api_lociq">LocationIQ</string>
     <string name="api_nws">U.S. National Weather Service</string>
     <string name="api_waqi"> World Air Quality Index Project</string>
+    <string name="radar_earthnullschool">EarthWindMap Project</string>
     <string name="label_gpsfollow">Current Location</string>
     <string name="label_getstarted">Get Started</string>
     <string name="setup_welcome_prompt">Welcome to SimpleWeather</string>
@@ -52,6 +53,7 @@
     <string name="label_uv">UV Index</string>
     <string name="label_airquality">Air Quality Index</string>
     <string name="label_airquality_short">Air Quality</string>
+    <string name="label_radar">Radar</string>
     <!-- NavBar -->
     <string name="label_nav_weathernow">Weather</string>
     <string name="label_nav_locations">Locations</string>

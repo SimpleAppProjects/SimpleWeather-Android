@@ -35,6 +35,7 @@ import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.ViewStub;
 import android.view.ViewTreeObserver;
+import android.webkit.WebView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -123,11 +124,14 @@ import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowAqicontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowBeaufortcontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowMoonphasecontrolBinding;
+import com.thewizrd.simpleweather.databinding.WeathernowRadarcontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowUvcontrolBinding;
 import com.thewizrd.simpleweather.fragments.WindowColorFragment;
 import com.thewizrd.simpleweather.helpers.DarkMode;
+import com.thewizrd.simpleweather.helpers.RadarWebClient;
 import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
 import com.thewizrd.simpleweather.helpers.TransitionHelper;
+import com.thewizrd.simpleweather.helpers.WebViewHelper;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
@@ -826,6 +830,36 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
 
+        // Radar
+        binding.radarControl.setOnInflateListener(new ViewStub.OnInflateListener() {
+            @Override
+            public void onInflate(ViewStub stub, View inflated) {
+                WeathernowRadarcontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
+
+                WebViewHelper.disableInteractions(binding.radarWebview);
+                WebViewHelper.restrictWebView(binding.radarWebview);
+                WebViewHelper.enableJS(binding.radarWebview, true);
+
+                binding.radarWebview.setWebViewClient(new RadarWebClient(true));
+                binding.radarWebviewCover.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mActivity != null) {
+                            mActivity.getSupportFragmentManager().beginTransaction()
+                                    .add(R.id.fragment_container, new WeatherRadarFragment())
+                                    .hide(WeatherNowFragment.this)
+                                    .addToBackStack(null)
+                                    .commit();
+                        }
+                    }
+                });
+                binding.radarWebview.setBackgroundColor(Colors.BLACK);
+
+                binding.setWeatherView(weatherView);
+                binding.setLifecycleOwner(WeatherNowFragment.this);
+            }
+        });
+
         loaded = true;
         binding.refreshLayout.setRefreshing(true);
 
@@ -981,6 +1015,12 @@ public class WeatherNowFragment extends WindowColorFragment
         });
 
         loadBackgroundImage(weatherView.getBackground(), true);
+
+        // Reload Webview
+        if (binding.radarControl.getBinding() != null) {
+            final WeathernowRadarcontrolBinding radarcontrolBinding = (WeathernowRadarcontrolBinding) binding.radarControl.getBinding();
+            WebViewHelper.forceReload(radarcontrolBinding.radarWebview, weatherView.getRadarURL());
+        }
     }
 
     private void loadBackgroundImage(final String imageURI, final boolean skipCache) {
@@ -1776,6 +1816,22 @@ public class WeatherNowFragment extends WindowColorFragment
                 DrawableCompat.setTint(compatDrawable, progressColor);
                 progressBar.setProgressDrawable(compatDrawable);
             }
+        }
+
+        @BindingAdapter("navigateUrl")
+        public void updateNavigateUri(final WebView webView, final String url) {
+            webView.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (!StringUtils.isNullOrWhitespace(url)) {
+                        webView.loadUrl(url);
+                    } else {
+                        webView.stopLoading();
+                        WebViewHelper.loadBlank(webView);
+                        webView.freeMemory();
+                    }
+                }
+            });
         }
     }
 }

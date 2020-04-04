@@ -72,6 +72,10 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private ObservableForecastLoadingList<HourlyForecastItemViewModel> hourlyForecasts;
     private List<WeatherAlertViewModel> alerts;
 
+    // Radar
+    private static final String radarUrlFormat = "https://earth.nullschool.net/#current/wind/surface/level/overlay=precip_3hr/orthographic=%s,%s,3000";
+    private String radarURL;
+
     // Background
     private String background;
     private int pendingBackground = -1;
@@ -173,6 +177,11 @@ public class WeatherNowViewModel extends ObservableViewModel {
     @Bindable
     public String getSunset() {
         return sunset;
+    }
+
+    @Bindable
+    public String getRadarURL() {
+        return radarURL;
     }
 
     @Bindable
@@ -604,6 +613,17 @@ public class WeatherNowViewModel extends ObservableViewModel {
                         }
                     }
                     notifyPropertyChanged(BR.alerts);
+
+                    // Additional Details
+                    if (!StringUtils.isNullOrWhitespace(weather.getLocation().getLatitude()) && !StringUtils.isNullOrWhitespace(weather.getLocation().getLongitude())) {
+                        String newUrl = String.format(Locale.ROOT, radarUrlFormat, weather.getLocation().getLongitude(), weather.getLocation().getLatitude());
+                        if (!ObjectsCompat.equals(radarURL, newUrl)) {
+                            radarURL = newUrl;
+                            notifyPropertyChanged(BR.radarURL);
+                        }
+                    } else {
+                        radarURL = null;
+                    }
 
                     // Additional Details
                     if (!ObjectsCompat.equals(weatherSource, weather.getSource())) {

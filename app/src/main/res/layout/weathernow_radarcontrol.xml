@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="weatherView"
+            type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="@{weatherView.radarURL != null ? View.VISIBLE : View.GONE}"
+        app:layout_constraintWidth_max="640dp">
+
+        <TextView
+            android:id="@+id/radar_label"
+            style="@style/ShadowText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="@string/label_radar"
+            android:textAppearance="?android:textAppearanceMediumInverse"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:darkModeEnabled="@{!weatherView.lightBackground}"
+            app:layout_constraintBottom_toTopOf="@id/radar_webview"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <View
+            android:id="@+id/radar_webview_cover"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:alpha="0"
+            android:translationZ="16dp"
+            app:layout_constraintTop_toTopOf="@id/radar_webview"
+            app:layout_constraintBottom_toBottomOf="@id/radar_webview"
+            app:layout_constraintStart_toStartOf="@id/radar_webview"
+            app:layout_constraintEnd_toEndOf="@id/radar_webview" />
+
+        <WebView
+            android:id="@+id/radar_webview"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            app:navigateUrl="@{weatherView.radarURL}"
+            app:layout_constraintBottom_toTopOf="@id/radar_attribution"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/radar_label"
+            tools:ignore="WebViewLayout" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/radar_attribution"
+            style="@style/ShadowText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingStart="12dp"
+            android:paddingLeft="12dp"
+            android:paddingTop="0dp"
+            android:paddingEnd="12dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="12dp"
+            android:text="@{@string/credit_prefix + ` ` + @string/radar_earthnullschool}"
+            android:textAppearance="?android:textAppearanceMediumInverse"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toTopOf="@id/border"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/radar_webview" />
+
+        <View
+            android:id="@+id/border"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:alpha="0.2"
+            android:background="@android:color/white"
+            app:darkModeEnabled="@{!weatherView.lightBackground}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/radar_attribution" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
