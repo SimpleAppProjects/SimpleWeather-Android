@@ -483,6 +483,7 @@ public class WeatherNowFragment extends WindowColorFragment
         final int systemNightMode = mActivity.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         // Setup ViewModel
         weatherView = new ViewModelProvider(mActivity).get(WeatherNowViewModel.class);
+        weatherView.setObserved(true);
         backgroundAlpha = new ObservableInt(0xFF); // int: 255
         gradientAlpha = new ObservableFloat(1.0f);
         // Dark Mode fields

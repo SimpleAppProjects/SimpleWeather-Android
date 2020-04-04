@@ -83,6 +83,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
     private String weatherLocale;
 
+    private boolean isObserved;
+
     @Bindable
     public String getLocation() {
         return location;
@@ -201,6 +203,14 @@ public class WeatherNowViewModel extends ObservableViewModel {
     @Bindable
     public String getWeatherLocale() {
         return weatherLocale;
+    }
+
+    public boolean isObserved() {
+        return isObserved;
+    }
+
+    public void setObserved(boolean observed) {
+        isObserved = observed;
     }
 
     private WeatherManager wm;
@@ -529,8 +539,9 @@ public class WeatherNowViewModel extends ObservableViewModel {
                     notifyPropertyChanged(BR.moonPhase);
                     notifyPropertyChanged(BR.weatherDetails);
 
-                    // Add UI elements
-                    if (weather.getForecast() != null && weather.getForecast().size() > 0) {
+                    // Load forecasts
+                    // TODO: Move forecasts out and use LiveData or PagedList
+                    if (!isObserved && weather.getForecast() != null && weather.getForecast().size() > 0) {
                         forecasts.clear();
 
                         int textForecastSize = weather.getTxtForecast() != null ? weather.getTxtForecast().size() : 0;
@@ -558,8 +569,9 @@ public class WeatherNowViewModel extends ObservableViewModel {
                     }
                     notifyPropertyChanged(BR.forecasts);
 
-                    // Update extras
-                    if (weather.getHrForecast() != null && weather.getHrForecast().size() > 0) {
+                    // Load hourly forecasts
+                    // TODO: Move forecasts out and use LiveData or PagedList
+                    if (!isObserved && weather.getHrForecast() != null && weather.getHrForecast().size() > 0) {
                         hourlyForecasts.clear();
 
                         for (final HourlyForecast hr_forecast : weather.getHrForecast()) {
@@ -578,6 +590,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
                     }
                     notifyPropertyChanged(BR.hourlyForecasts);
 
+                    // Load alerts
+                    // TODO: Move alerts out and use LiveData or PagedList
                     alerts.clear();
                     if (weather.getWeatherAlerts() != null && weather.getWeatherAlerts().size() > 0) {
                         for (WeatherAlert alert : weather.getWeatherAlerts()) {
