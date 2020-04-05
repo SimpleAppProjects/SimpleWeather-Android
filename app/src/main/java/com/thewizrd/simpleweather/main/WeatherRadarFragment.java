@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.RenderProcessGoneDetail;
+import android.webkit.WebView;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
@@ -55,21 +57,6 @@ public class WeatherRadarFragment extends ToolbarFragment {
             }
         });
 
-        // WebView
-        WebViewHelper.restrictWebView(binding.radarWebview);
-        WebViewHelper.enableJS(binding.radarWebview, true);
-        binding.radarWebview.setWebViewClient(new RadarWebClient(false));
-        binding.radarWebview.setBackgroundColor(Colors.BLACK);
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.radarWebview, new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-                layoutParams.setMargins(insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), 0);
-                return insets;
-            }
-        });
-
         return root;
     }
 
@@ -77,10 +64,15 @@ public class WeatherRadarFragment extends ToolbarFragment {
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        if (!StringUtils.isNullOrWhitespace(weatherView.getRadarURL())) {
-            WebViewHelper.forceReload(binding.radarWebview, weatherView.getRadarURL());
-        } else {
-            WebViewHelper.forceReload(binding.radarWebview, DEFAULT_URL);
+        if (binding != null) {
+            WebView webView = getRadarWebView();
+            if (webView != null) {
+                if (!StringUtils.isNullOrWhitespace(weatherView.getRadarURL())) {
+                    WebViewHelper.forceReload(webView, weatherView.getRadarURL());
+                } else {
+                    WebViewHelper.forceReload(webView, DEFAULT_URL);
+                }
+            }
         }
     }
 
@@ -92,6 +84,14 @@ public class WeatherRadarFragment extends ToolbarFragment {
 
     @Override
     public void onDestroyView() {
+        if (binding != null) {
+            WebView webView = getRadarWebView();
+            if (webView != null) {
+                WebViewHelper.loadBlank(webView);
+                binding.radarWebviewContainer.removeAllViews();
+                webView.destroy();
+            }
+        }
         super.onDestroyView();
         binding = null;
     }
@@ -101,15 +101,50 @@ public class WeatherRadarFragment extends ToolbarFragment {
         super.onResume();
 
         if (!isHidden()) {
+            if (binding != null) {
+                WebView webView = getRadarWebView();
+                if (webView != null) {
+                    webView.resumeTimers();
+                }
+            }
+
             initialize();
         }
+    }
+
+    @Override
+    public void onPause() {
+        if (binding != null) {
+            WebView webView = getRadarWebView();
+            if (webView != null) {
+                webView.pauseTimers();
+            }
+        }
+
+        super.onPause();
     }
 
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
 
+        if (hidden) {
+            if (binding != null) {
+                WebView webView = getRadarWebView();
+                if (webView != null) {
+                    webView.pauseTimers();
+                }
+            }
+        }
+
         if (!hidden && isVisible()) {
+            if (binding != null) {
+                WebView webView = getRadarWebView();
+                if (webView != null) {
+                    webView.resumeTimers();
+                }
+            }
+
             initialize();
         }
     }
@@ -123,21 +158,79 @@ public class WeatherRadarFragment extends ToolbarFragment {
     @CallSuper
     protected void initialize() {
         updateWindowColors();
+        navigateToRadarURL();
+    }
 
-        binding.radarWebview.post(new Runnable() {
+    private void navigateToRadarURL() {
+        if (weatherView == null || binding == null)
+            return;
+
+        WebView webView = getRadarWebView();
+
+        if (webView == null) {
+            binding.radarWebviewContainer.addView(webView = createWebView());
+        }
+
+        String url = null;
+        if (weatherView.isValid()) {
+            url = weatherView.getRadarURL();
+        }
+
+        if (!StringUtils.isNullOrWhitespace(url)) {
+            WebViewHelper.loadUrl(webView, url);
+        } else {
+            WebViewHelper.loadUrl(webView, DEFAULT_URL);
+        }
+    }
+
+    @NonNull
+    private WebView createWebView() {
+        WebView webView = new WebView(this.getContext());
+
+        // WebView
+        WebViewHelper.restrictWebView(webView);
+        WebViewHelper.enableJS(webView, true);
+
+        ViewCompat.setOnApplyWindowInsetsListener(webView, new OnApplyWindowInsetsListener() {
             @Override
-            public void run() {
-                String url = null;
-                if (weatherView.isValid()) {
-                    url = weatherView.getRadarURL();
-                }
-
-                if (!StringUtils.isNullOrWhitespace(url)) {
-                    binding.radarWebview.loadUrl(url);
-                } else {
-                    binding.radarWebview.loadUrl(DEFAULT_URL);
-                }
+            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                layoutParams.setMargins(insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), 0);
+                return insets;
             }
         });
+
+        webView.setWebViewClient(new RadarWebClient(false) {
+            @Override
+            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                if (binding != null) {
+                    WebView wv = getRadarWebView();
+
+                    if (wv == view) {
+                        binding.radarWebviewContainer.removeAllViews();
+                        wv = null;
+                        view.loadUrl("about:blank");
+                        view.pauseTimers();
+                        view.destroy();
+                        navigateToRadarURL();
+                        return true;
+                    }
+                }
+
+                return super.onRenderProcessGone(view, detail);
+            }
+        });
+        webView.setBackgroundColor(Colors.BLACK);
+        webView.resumeTimers();
+
+        return webView;
+    }
+
+    private WebView getRadarWebView() {
+        if (binding != null) {
+            return (WebView) binding.radarWebviewContainer.getChildAt(0);
+        }
+
+        return null;
     }
 }

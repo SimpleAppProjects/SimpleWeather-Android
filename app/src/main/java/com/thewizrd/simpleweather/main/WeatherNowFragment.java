@@ -35,6 +35,7 @@ import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.ViewStub;
 import android.view.ViewTreeObserver;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebView;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -844,11 +845,6 @@ public class WeatherNowFragment extends WindowColorFragment
             public void onInflate(ViewStub stub, View inflated) {
                 WeathernowRadarcontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
 
-                WebViewHelper.disableInteractions(binding.radarWebview);
-                WebViewHelper.restrictWebView(binding.radarWebview);
-                WebViewHelper.enableJS(binding.radarWebview, true);
-
-                binding.radarWebview.setWebViewClient(new RadarWebClient(true));
                 binding.radarWebviewCover.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -861,10 +857,11 @@ public class WeatherNowFragment extends WindowColorFragment
                         }
                     }
                 });
-                binding.radarWebview.setBackgroundColor(Colors.BLACK);
 
                 binding.setWeatherView(weatherView);
                 binding.setLifecycleOwner(WeatherNowFragment.this);
+
+                navigateToRadarURL();
             }
         });
 
@@ -948,6 +945,20 @@ public class WeatherNowFragment extends WindowColorFragment
                                 }
                             });
                         }
+                    } else if (propertyId == BR.radarURL) {
+                        if (weatherView.getRadarURL() != null) {
+                            if (binding.radarControl.getViewStub() != null) {
+                                binding.radarControl.getViewStub().post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (binding != null)
+                                            binding.radarControl.getViewStub().inflate();
+                                    }
+                                });
+                            } else {
+                                navigateToRadarURL();
+                            }
+                        }
                     }
                 }
             }
@@ -1025,8 +1036,18 @@ public class WeatherNowFragment extends WindowColorFragment
 
     @Override
     public void onDestroyView() {
-        binding = null;
+        if (binding != null) {
+            WebView webView = getRadarWebView();
+            if (webView != null) {
+                WebViewHelper.loadBlank(webView);
+                if (binding.radarControl.getBinding() instanceof WeathernowRadarcontrolBinding) {
+                    ((WeathernowRadarcontrolBinding) binding.radarControl.getBinding()).radarWebviewContainer.removeAllViews();
+                }
+                webView.destroy();
+            }
+        }
         super.onDestroyView();
+        binding = null;
     }
 
     @Override
@@ -1066,8 +1087,10 @@ public class WeatherNowFragment extends WindowColorFragment
 
         // Reload Webview
         if (binding.radarControl.getBinding() != null) {
-            final WeathernowRadarcontrolBinding radarcontrolBinding = (WeathernowRadarcontrolBinding) binding.radarControl.getBinding();
-            WebViewHelper.forceReload(radarcontrolBinding.radarWebview, weatherView.getRadarURL());
+            WebView radarWebview = getRadarWebView();
+            if (radarWebview != null) {
+                WebViewHelper.forceReload(radarWebview, weatherView.getRadarURL());
+            }
         }
     }
 
@@ -1264,6 +1287,18 @@ public class WeatherNowFragment extends WindowColorFragment
             adjustDetailsLayout();
             initSnackManager();
 
+            if (binding != null) {
+                final WebView webView = getRadarWebView();
+                if (webView != null) {
+                    webView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            webView.resumeTimers();
+                        }
+                    });
+                }
+            }
+
             if (weatherView != null) {
                 resume();
             }
@@ -1280,6 +1315,13 @@ public class WeatherNowFragment extends WindowColorFragment
                 cts.cancel();
                 binding.refreshLayout.setRefreshing(false);
             }
+
+            if (binding != null) {
+                WebView webView = getRadarWebView();
+                if (webView != null) {
+                    webView.pauseTimers();
+                }
+            }
         }
 
         if (!hidden && weatherView != null && this.isVisible()) {
@@ -1291,6 +1333,18 @@ public class WeatherNowFragment extends WindowColorFragment
             if (requireArguments().containsKey(Constants.ARGS_BACKGROUND)) {
                 loadBackgroundImage(requireArguments().getString(Constants.ARGS_BACKGROUND), false);
                 requireArguments().remove(Constants.ARGS_BACKGROUND);
+            }
+
+            if (binding != null) {
+                final WebView webView = getRadarWebView();
+                if (webView != null) {
+                    webView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            webView.resumeTimers();
+                        }
+                    });
+                }
             }
 
             AsyncTask.run(new Runnable() {
@@ -1312,6 +1366,13 @@ public class WeatherNowFragment extends WindowColorFragment
         if (cts != null) {
             cts.cancel();
             binding.refreshLayout.setRefreshing(false);
+        }
+
+        if (binding != null) {
+            WebView webView = getRadarWebView();
+            if (webView != null) {
+                webView.pauseTimers();
+            }
         }
 
         dismissAllSnackbars();
@@ -1720,6 +1781,76 @@ public class WeatherNowFragment extends WindowColorFragment
         }
     }
 
+    private void navigateToRadarURL() {
+        if (weatherView == null || weatherView.getRadarURL() == null ||
+                binding == null || binding.radarControl.getBinding() == null)
+            return;
+
+        WeathernowRadarcontrolBinding radarcontrolBinding = (WeathernowRadarcontrolBinding) binding.radarControl.getBinding();
+        WebView webView = (WebView) radarcontrolBinding.radarWebviewContainer.getChildAt(0);
+
+        if (webView == null) {
+            radarcontrolBinding.radarWebviewContainer.addView(webView = createWebView());
+        }
+
+        if (!StringUtils.isNullOrWhitespace(weatherView.getRadarURL())) {
+            WebViewHelper.loadUrl(webView, weatherView.getRadarURL());
+        } else {
+            webView.stopLoading();
+            WebViewHelper.loadBlank(webView);
+            webView.freeMemory();
+        }
+    }
+
+    @NonNull
+    private WebView createWebView() {
+        WebView webView = new WebView(this.getContext());
+
+        WebViewHelper.disableInteractions(webView);
+        WebViewHelper.restrictWebView(webView);
+        WebViewHelper.enableJS(webView, true);
+
+        webView.setWebViewClient(new RadarWebClient(true) {
+            @Override
+            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                if (binding != null) {
+                    WeathernowRadarcontrolBinding radarcontrolBinding = (WeathernowRadarcontrolBinding) binding.radarControl.getBinding();
+
+                    if (radarcontrolBinding != null) {
+                        WebView wv = getRadarWebView();
+
+                        if (wv == view) {
+                            radarcontrolBinding.radarWebviewContainer.removeAllViews();
+                            wv = null;
+                            view.loadUrl("about:blank");
+                            view.pauseTimers();
+                            view.destroy();
+                            navigateToRadarURL();
+                            return true;
+                        }
+                    }
+                }
+
+                return super.onRenderProcessGone(view, detail);
+            }
+        });
+        webView.setBackgroundColor(Colors.BLACK);
+        webView.resumeTimers();
+
+        return webView;
+    }
+
+    private WebView getRadarWebView() {
+        if (binding != null && binding.radarControl.getBinding() != null) {
+            WeathernowRadarcontrolBinding radarcontrolBinding = (WeathernowRadarcontrolBinding) binding.radarControl.getBinding();
+
+            if (radarcontrolBinding != null)
+                return (WebView) radarcontrolBinding.radarWebviewContainer.getChildAt(0);
+        }
+
+        return null;
+    }
+
     public class WeatherFragmentDataBindingComponent implements androidx.databinding.DataBindingComponent {
         private final WeatherFragmentBindingAdapter mAdapter;
 
@@ -1832,22 +1963,6 @@ public class WeatherNowFragment extends WindowColorFragment
                 DrawableCompat.setTint(compatDrawable, progressColor);
                 progressBar.setProgressDrawable(compatDrawable);
             }
-        }
-
-        @BindingAdapter("navigateUrl")
-        public void updateNavigateUri(final WebView webView, final String url) {
-            webView.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (!StringUtils.isNullOrWhitespace(url)) {
-                        webView.loadUrl(url);
-                    } else {
-                        webView.stopLoading();
-                        WebViewHelper.loadBlank(webView);
-                        webView.freeMemory();
-                    }
-                }
-            });
         }
 
         @BindingAdapter("imageData")

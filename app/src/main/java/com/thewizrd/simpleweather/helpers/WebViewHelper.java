@@ -8,6 +8,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.ObjectsCompat;
 
 public class WebViewHelper {
     @SuppressLint("ClickableViewAccessibility")
@@ -40,7 +41,7 @@ public class WebViewHelper {
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    public static void enableJS(WebView webView, boolean enabled) {
+    public static void enableJS(@NonNull WebView webView, boolean enabled) {
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(enabled);
     }
@@ -60,11 +61,35 @@ public class WebViewHelper {
         }, 1000);
     }
 
+    public static void reload(final WebView webView) {
+        if (webView != null) {
+            webView.post(new Runnable() {
+                @Override
+                public void run() {
+                    webView.reload();
+                }
+            });
+        }
+    }
+
     public static void loadBlank(@NonNull final WebView webView) {
         webView.post(new Runnable() {
             @Override
             public void run() {
                 webView.loadData("<html><body style=\"background-color: black;\"></body></html>", "text/html", "UTF-8");
+            }
+        });
+    }
+
+    public static void loadUrl(@NonNull final WebView webView, @NonNull final String url) {
+        webView.post(new Runnable() {
+            @Override
+            public void run() {
+                String currentUrl = webView.getOriginalUrl();
+
+                if (!ObjectsCompat.equals(currentUrl, url)) {
+                    webView.loadUrl(url);
+                }
             }
         });
     }

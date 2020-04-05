@@ -8,10 +8,11 @@
         tools:showIn="@layout/fragment_toolbar_layout"
         tools:context=".main.WeatherRadarFragment">
 
-        <WebView
-            android:id="@+id/radar_webview"
+        <FrameLayout
+            android:id="@+id/radar_webview_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@android:color/black"
             app:layout_anchor="@id/app_bar"
             app:layout_anchorGravity="bottom"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
