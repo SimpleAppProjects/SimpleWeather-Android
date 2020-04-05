@@ -199,6 +199,7 @@ public class DetailItemViewModel extends ViewModel {
         Context context = SimpleLibrary.getInstance().getAppContext();
         this.detailsType = WeatherDetailsType.AIRQUALITY;
         this.label = context.getString(R.string.label_airquality_short);
+        this.icon = context.getString(R.string.wi_cloudy_gusts);
         this.iconRotation = 0;
 
         if (aqi.getIndex() < 51) {
