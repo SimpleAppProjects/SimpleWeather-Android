@@ -68,9 +68,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.transition.MaterialContainerTransform;
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
@@ -375,19 +373,7 @@ public class LocationsFragment extends ToolbarFragment
                         .commit();
 
                 if (home == null) {
-                    Fragment newFragment = Iterables.find(fragMgr.getFragments(), new Predicate<Fragment>() {
-                        @Override
-                        public boolean apply(@NullableDecl Fragment input) {
-                            return input instanceof WeatherNowFragment;
-                        }
-                    });
-
-                    if (newFragment == null) {
-                        newFragment = WeatherNowFragment.newInstance(locData);
-                    } else {
-                        newFragment.requireArguments()
-                                .putString(Constants.KEY_DATA, JSONParser.serializer(locData, LocationData.class));
-                    }
+                    Fragment newFragment = WeatherNowFragment.newInstance(locData);
 
                     newFragment.requireArguments()
                             .putBoolean(Constants.FRAGTAG_HOME, isHome);
