@@ -20,7 +20,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="@{weatherView.moonPhase != null ? View.VISIBLE : View.GONE}">
+        app:hideIfNull="@{weatherView.moonPhase}">
 
         <TextView
             android:id="@+id/moonphase_label"

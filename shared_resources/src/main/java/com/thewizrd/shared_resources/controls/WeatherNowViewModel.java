@@ -57,8 +57,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private CharSequence hiLoTemp;
 
     // Weather Details
-    private String sunrise;
-    private String sunset;
+    private SunPhaseViewModel sunPhase;
     private List<DetailItemViewModel> weatherDetails;
     private UVIndexViewModel uvIndex;
     private BeaufortViewModel beaufort;
@@ -171,13 +170,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
     }
 
     @Bindable
-    public String getSunrise() {
-        return sunrise;
-    }
-
-    @Bindable
-    public String getSunset() {
-        return sunset;
+    public SunPhaseViewModel getSunPhase() {
+        return sunPhase;
     }
 
     @Bindable
@@ -494,22 +488,11 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
                     // Astronomy
                     if (weather.getAstronomy() != null) {
-                        if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
-                            sunrise = weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("HH:mm"));
-                            sunset = weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("HH:mm"));
+                        sunPhase = new SunPhaseViewModel(weather.getAstronomy());
 
-                            if (!isPhone) {
-                                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE, sunrise));
-                                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET, sunset));
-                            }
-                        } else {
-                            sunrise = weather.getAstronomy().getSunrise().format(DateTimeFormatter.ofPattern("h:mm a"));
-                            sunset = weather.getAstronomy().getSunset().format(DateTimeFormatter.ofPattern("h:mm a"));
-
-                            if (!isPhone) {
-                                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE, sunrise));
-                                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET, sunset));
-                            }
+                        if (!isPhone) {
+                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE, sunPhase.getSunrise()));
+                            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET, sunPhase.getSunset()));
                         }
 
                         if (weather.getAstronomy().getMoonrise() != null && weather.getAstronomy().getMoonset() != null
@@ -539,12 +522,10 @@ public class WeatherNowViewModel extends ObservableViewModel {
                             moonPhase = null;
                         }
                     } else {
-                        sunrise = null;
-                        sunset = null;
+                        sunPhase = null;
                         moonPhase = null;
                     }
-                    notifyPropertyChanged(BR.sunrise);
-                    notifyPropertyChanged(BR.sunset);
+                    notifyPropertyChanged(BR.sunPhase);
                     notifyPropertyChanged(BR.moonPhase);
                     notifyPropertyChanged(BR.weatherDetails);
 
@@ -623,6 +604,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                         }
                     } else {
                         radarURL = null;
+                        notifyPropertyChanged(BR.radarURL);
                     }
 
                     // Additional Details
@@ -659,8 +641,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         curTemp = null;
         curCondition = null;
         weatherIcon = null;
-        sunrise = null;
-        sunset = null;
+        sunPhase = null;
         weatherDetails.clear();
         forecasts.clear();
         hourlyForecasts.clear();

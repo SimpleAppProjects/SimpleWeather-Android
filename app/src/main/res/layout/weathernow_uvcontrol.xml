@@ -16,7 +16,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="@{weatherView.uvIndex != null ? View.VISIBLE : View.GONE}">
+        app:hideIfNull="@{weatherView.uvIndex}">
 
         <TextView
             android:id="@+id/uv_label"

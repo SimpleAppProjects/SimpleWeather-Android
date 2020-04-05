@@ -16,7 +16,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="@{weatherView.airQuality != null ? View.VISIBLE : View.GONE}">
+        app:hideIfNull="@{weatherView.airQuality}">
 
         <TextView
             android:id="@+id/aqi_label"

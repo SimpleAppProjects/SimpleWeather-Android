@@ -96,6 +96,7 @@ import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ImageDataViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.controls.SunPhaseViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
@@ -147,6 +148,7 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
@@ -906,6 +908,46 @@ public class WeatherNowFragment extends WindowColorFragment
                         updateWindowColors();
                     } else if (propertyId == BR.location) {
                         adjustConditionPanelLayout();
+                    } else if (propertyId == BR.uvIndex) {
+                        if (weatherView.getUvIndex() != null && binding.uvControl.getViewStub() != null) {
+                            binding.uvControl.getViewStub().post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (binding != null)
+                                        binding.uvControl.getViewStub().inflate();
+                                }
+                            });
+                        }
+                    } else if (propertyId == BR.beaufort) {
+                        if (weatherView.getBeaufort() != null && binding.beaufortControl.getViewStub() != null) {
+                            binding.beaufortControl.getViewStub().post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (binding != null)
+                                        binding.beaufortControl.getViewStub().inflate();
+                                }
+                            });
+                        }
+                    } else if (propertyId == BR.airQuality) {
+                        if (weatherView.getAirQuality() != null && binding.aqiControl.getViewStub() != null) {
+                            binding.aqiControl.getViewStub().post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (binding != null)
+                                        binding.aqiControl.getViewStub().inflate();
+                                }
+                            });
+                        }
+                    } else if (propertyId == BR.moonPhase) {
+                        if (weatherView.getMoonPhase() != null && binding.moonphaseControl.getViewStub() != null) {
+                            binding.moonphaseControl.getViewStub().post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (binding != null)
+                                        binding.moonphaseControl.getViewStub().inflate();
+                                }
+                            });
+                        }
                     }
                 }
             }
@@ -1761,17 +1803,17 @@ public class WeatherNowFragment extends WindowColorFragment
         }
         /* End of BindingAdapters for dark mode */
 
-        @BindingAdapter(value = {"sunrise", "sunset"}, requireAll = true)
-        public void updateSunPhasePanel(SunPhaseView view, String sunrise, String sunset) {
-            if (!StringUtils.isNullOrWhitespace(sunrise) && !StringUtils.isNullOrWhitespace(sunset) && fragment.location != null) {
+        @BindingAdapter("sunPhase")
+        public void updateSunPhasePanel(SunPhaseView view, SunPhaseViewModel sunPhase) {
+            if (sunPhase != null && !StringUtils.isNullOrWhitespace(sunPhase.getSunrise()) && !StringUtils.isNullOrWhitespace(sunPhase.getSunset()) && fragment.location != null) {
                 DateTimeFormatter fmt;
                 if (DateFormat.is24HourFormat(view.getContext())) {
                     fmt = DateTimeFormatter.ofPattern("HH:mm");
                 } else {
                     fmt = DateTimeFormatter.ofPattern("h:mm a");
                 }
-                view.setSunriseSetTimes(LocalTime.parse(sunrise, fmt),
-                        LocalTime.parse(sunset, fmt),
+                view.setSunriseSetTimes(LocalTime.parse(sunPhase.getSunrise(), fmt),
+                        LocalTime.parse(sunPhase.getSunset(), fmt),
                         fragment.location.getTzOffset());
             }
         }
@@ -1825,6 +1867,26 @@ public class WeatherNowFragment extends WindowColorFragment
         public void loadBackground(ImageView view, ImageDataViewModel imageData) {
             String backgroundUri = imageData != null ? imageData.getImageURI() : null;
             loadBackgroundImage(backgroundUri, false);
+        }
+
+        @BindingAdapter("hideIfNull")
+        public void hideIfNull(View view, Object object) {
+            view.setVisibility(object == null ? View.GONE : View.VISIBLE);
+        }
+
+        @BindingAdapter("hideIfNullOrWhitespace")
+        public void hideIfNullOrWhitespace(View view, String s) {
+            view.setVisibility(StringUtils.isNullOrWhitespace(s) ? View.GONE : View.VISIBLE);
+        }
+
+        @BindingAdapter("hideIfEmpty")
+        public <T extends Object> void hideIfEmpty(View view, Collection<T> c) {
+            view.setVisibility(c.isEmpty() ? View.GONE : View.VISIBLE);
+        }
+
+        @BindingAdapter("invisibleIfEmpty")
+        public <T extends Object> void invisibleIfEmpty(View view, Collection<T> c) {
+            view.setVisibility(c.isEmpty() ? View.INVISIBLE : View.VISIBLE);
         }
     }
 }
