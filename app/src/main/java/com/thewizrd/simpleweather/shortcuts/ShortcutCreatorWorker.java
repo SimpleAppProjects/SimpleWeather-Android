@@ -24,6 +24,7 @@ import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
@@ -119,7 +120,7 @@ public class ShortcutCreatorWorker extends Worker {
             Bitmap bmp = new AsyncTask<Bitmap>().await(new Callable<Bitmap>() {
                 @Override
                 public Bitmap call() {
-                    return ImageUtils.tintedBitmapFromDrawable(mContext, wm.getWeatherIconResource(weather.getCondition().getIcon()),
+                    return ImageUtils.tintedBitmapFromDrawable(mContext, WeatherUtils.getWeatherIconResource(weather.getCondition().getIcon()),
                             mContext.getColor(R.color.colorPrimaryDark));
                 }
             });

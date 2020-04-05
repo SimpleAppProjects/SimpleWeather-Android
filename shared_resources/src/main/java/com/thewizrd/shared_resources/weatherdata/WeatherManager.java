@@ -247,21 +247,6 @@ public class WeatherManager implements WeatherProviderImplInterface {
     }
 
     @Override
-    public String getWeatherBackgroundURI(Weather weather) {
-        return weatherProvider.getWeatherBackgroundURI(weather);
-    }
-
-    @Override
-    public int getWeatherBackgroundColor(Weather weather) {
-        return weatherProvider.getWeatherBackgroundColor(weather);
-    }
-
-    @Override
-    public int getWeatherIconResource(String icon) {
-        return weatherProvider.getWeatherIconResource(icon);
-    }
-
-    @Override
     public LocationProviderImpl getLocationProvider() {
         return weatherProvider.getLocationProvider();
     }

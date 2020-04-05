@@ -48,12 +48,6 @@ public interface WeatherProviderImplInterface {
 
     String updateLocationQuery(LocationData location);
 
-    String getWeatherBackgroundURI(Weather weather);
-
-    int getWeatherBackgroundColor(Weather weather);
-
-    int getWeatherIconResource(String icon);
-
     LocationProviderImpl getLocationProvider();
 
 }

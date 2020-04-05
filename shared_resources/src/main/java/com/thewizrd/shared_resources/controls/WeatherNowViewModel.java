@@ -77,7 +77,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private String radarURL;
 
     // Background
-    private String background;
+    private ImageDataViewModel imageData;
+    private static final int DEFAULT_COLOR = Colors.SIMPLEBLUE;
     private int pendingBackground = -1;
     private int origPendingBackground = -1;
     private boolean isDark = true;
@@ -185,8 +186,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
     }
 
     @Bindable
-    public String getBackground() {
-        return background;
+    public ImageDataViewModel getImageData() {
+        return imageData;
     }
 
     @Bindable
@@ -277,15 +278,14 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 @Override
                 public Void call() {
                     // Update backgrounds
-                    String newBg = wm.getWeatherBackgroundURI(weather);
-                    if (!ObjectsCompat.equals(newBg, background)) {
-                        background = newBg;
-                        notifyPropertyChanged(BR.background);
+                    if (imageData != null) {
+                        imageData = null;
+                        notifyPropertyChanged(BR.imageData);
                     }
-
-                    origPendingBackground = wm.getWeatherBackgroundColor(weather);
-                    updatePendingBackground(context, isPhone);
-                    notifyPropertyChanged(BR.pendingBackground);
+                    if (origPendingBackground != DEFAULT_COLOR) {
+                        origPendingBackground = pendingBackground = DEFAULT_COLOR;
+                        notifyPropertyChanged(BR.pendingBackground);
+                    }
 
                     // Location
                     if (!ObjectsCompat.equals(location, weather.getLocation().getName())) {
@@ -667,7 +667,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         forecasts.clear();
         hourlyForecasts.clear();
         alerts.clear();
-        background = null;
+        imageData = null;
         pendingBackground = -1;
         origPendingBackground = -1;
         isDark = true;
@@ -677,6 +677,42 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
         weather = null;
         notifyChange();
+    }
+
+    public void updateBackground() {
+        new AsyncTask<Void>().await(new Callable<Void>() {
+            @Override
+            public Void call() {
+                ImageDataViewModel imageVM = WeatherUtils.getImageData(weather);
+                final Context context = SimpleLibrary.getInstance().getApp().getAppContext();
+                final boolean isPhone = SimpleLibrary.getInstance().getApp().isPhone();
+
+                if (imageVM != null) {
+                    imageData = imageVM;
+                    origPendingBackground = imageVM.getColor();
+                    updatePendingBackground(context, isPhone);
+                } else {
+                    imageData = null;
+                }
+
+                notifyPropertyChanged(BR.imageData);
+                notifyPropertyChanged(BR.pendingBackground);
+
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void notifyChange() {
+        if (!isObserved) return;
+        super.notifyChange();
+    }
+
+    @Override
+    public void notifyPropertyChanged(int fieldID) {
+        if (!isObserved) return;
+        super.notifyPropertyChanged(fieldID);
     }
 
     public boolean isValid() {

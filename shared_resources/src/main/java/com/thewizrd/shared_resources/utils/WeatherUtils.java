@@ -7,10 +7,17 @@ import android.util.SparseArray;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.controls.ImageDataViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertSeverity;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertType;
+import com.thewizrd.shared_resources.weatherdata.WeatherBackground;
+import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
+import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.shared_resources.weatherdata.images.ImageDataHelper;
+import com.thewizrd.shared_resources.weatherdata.images.ImageDataHelperImpl;
+import com.thewizrd.shared_resources.weatherdata.images.model.ImageData;
 
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZonedDateTime;
@@ -287,6 +294,383 @@ public class WeatherUtils {
         }
 
         return color;
+    }
+
+    public static int getWeatherIconResource(String icon) {
+        int weatherIcon = -1;
+
+        switch (icon) {
+            case WeatherIcons.DAY_SUNNY:
+                weatherIcon = R.drawable.day_sunny;
+                break;
+            case WeatherIcons.DAY_CLOUDY:
+                weatherIcon = R.drawable.day_cloudy;
+                break;
+            case WeatherIcons.DAY_CLOUDY_GUSTS:
+                weatherIcon = R.drawable.day_cloudy_gusts;
+                break;
+            case WeatherIcons.DAY_CLOUDY_WINDY:
+                weatherIcon = R.drawable.day_cloudy_windy;
+                break;
+            case WeatherIcons.DAY_FOG:
+                weatherIcon = R.drawable.day_fog;
+                break;
+            case WeatherIcons.DAY_HAIL:
+                weatherIcon = R.drawable.day_hail;
+                break;
+            case WeatherIcons.DAY_HAZE:
+                weatherIcon = R.drawable.day_haze;
+                break;
+            case WeatherIcons.DAY_LIGHTNING:
+                weatherIcon = R.drawable.day_lightning;
+                break;
+            case WeatherIcons.DAY_RAIN:
+                weatherIcon = R.drawable.day_rain;
+                break;
+            case WeatherIcons.DAY_RAIN_MIX:
+                weatherIcon = R.drawable.day_rain_mix;
+                break;
+            case WeatherIcons.DAY_RAIN_WIND:
+                weatherIcon = R.drawable.day_rain_wind;
+                break;
+            case WeatherIcons.DAY_SHOWERS:
+                weatherIcon = R.drawable.day_showers;
+                break;
+            case WeatherIcons.DAY_SLEET:
+                weatherIcon = R.drawable.day_sleet;
+                break;
+            case WeatherIcons.DAY_SLEET_STORM:
+                weatherIcon = R.drawable.day_sleet_storm;
+                break;
+            case WeatherIcons.DAY_SNOW:
+                weatherIcon = R.drawable.day_snow;
+                break;
+            case WeatherIcons.DAY_SNOW_THUNDERSTORM:
+                weatherIcon = R.drawable.day_snow_thunderstorm;
+                break;
+            case WeatherIcons.DAY_SNOW_WIND:
+                weatherIcon = R.drawable.day_snow_wind;
+                break;
+            case WeatherIcons.DAY_SPRINKLE:
+                weatherIcon = R.drawable.day_sprinkle;
+                break;
+            case WeatherIcons.DAY_STORM_SHOWERS:
+                weatherIcon = R.drawable.day_storm_showers;
+                break;
+            case WeatherIcons.DAY_SUNNY_OVERCAST:
+                weatherIcon = R.drawable.day_sunny_overcast;
+                break;
+            case WeatherIcons.DAY_THUNDERSTORM:
+                weatherIcon = R.drawable.day_thunderstorm;
+                break;
+            case WeatherIcons.DAY_WINDY:
+                weatherIcon = R.drawable.day_windy;
+                break;
+            case WeatherIcons.DAY_HOT:
+                weatherIcon = R.drawable.hot;
+                break;
+            case WeatherIcons.DAY_CLOUDY_HIGH:
+                weatherIcon = R.drawable.day_cloudy_high;
+                break;
+            case WeatherIcons.DAY_LIGHT_WIND:
+                weatherIcon = R.drawable.day_light_wind;
+                break;
+            case WeatherIcons.NIGHT_CLEAR:
+                weatherIcon = R.drawable.night_clear;
+                break;
+            case WeatherIcons.NIGHT_ALT_CLOUDY:
+                weatherIcon = R.drawable.night_alt_cloudy;
+                break;
+            case WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS:
+                weatherIcon = R.drawable.night_alt_cloudy_gusts;
+                break;
+            case WeatherIcons.NIGHT_ALT_CLOUDY_WINDY:
+                weatherIcon = R.drawable.night_alt_cloudy_windy;
+                break;
+            case WeatherIcons.NIGHT_ALT_HAIL:
+                weatherIcon = R.drawable.night_alt_hail;
+                break;
+            case WeatherIcons.NIGHT_ALT_LIGHTNING:
+                weatherIcon = R.drawable.night_alt_lightning;
+                break;
+            case WeatherIcons.NIGHT_ALT_RAIN:
+                weatherIcon = R.drawable.night_alt_rain;
+                break;
+            case WeatherIcons.NIGHT_ALT_RAIN_MIX:
+                weatherIcon = R.drawable.night_alt_rain_mix;
+                break;
+            case WeatherIcons.NIGHT_ALT_RAIN_WIND:
+                weatherIcon = R.drawable.night_alt_rain_wind;
+                break;
+            case WeatherIcons.NIGHT_ALT_SHOWERS:
+                weatherIcon = R.drawable.night_alt_showers;
+                break;
+            case WeatherIcons.NIGHT_ALT_SLEET:
+                weatherIcon = R.drawable.night_alt_sleet;
+                break;
+            case WeatherIcons.NIGHT_ALT_SLEET_STORM:
+                weatherIcon = R.drawable.night_alt_sleet_storm;
+                break;
+            case WeatherIcons.NIGHT_ALT_SNOW:
+                weatherIcon = R.drawable.night_alt_snow;
+                break;
+            case WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM:
+                weatherIcon = R.drawable.night_alt_snow_thunderstorm;
+                break;
+            case WeatherIcons.NIGHT_ALT_SNOW_WIND:
+                weatherIcon = R.drawable.night_alt_snow_wind;
+                break;
+            case WeatherIcons.NIGHT_ALT_SPRINKLE:
+                weatherIcon = R.drawable.night_alt_sprinkle;
+                break;
+            case WeatherIcons.NIGHT_ALT_STORM_SHOWERS:
+                weatherIcon = R.drawable.night_alt_storm_showers;
+                break;
+            case WeatherIcons.NIGHT_ALT_THUNDERSTORM:
+                weatherIcon = R.drawable.night_alt_thunderstorm;
+                break;
+            case WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY:
+                weatherIcon = R.drawable.night_alt_partly_cloudy;
+                break;
+            case WeatherIcons.NIGHT_ALT_CLOUDY_HIGH:
+                weatherIcon = R.drawable.night_alt_cloudy_high;
+                break;
+            case WeatherIcons.NIGHT_FOG:
+                weatherIcon = R.drawable.night_fog;
+                break;
+            case WeatherIcons.CLOUD:
+                weatherIcon = R.drawable.cloud;
+                break;
+            case WeatherIcons.CLOUDY:
+                weatherIcon = R.drawable.cloudy;
+                break;
+            case WeatherIcons.CLOUDY_GUSTS:
+                weatherIcon = R.drawable.cloudy_gusts;
+                break;
+            case WeatherIcons.CLOUDY_WINDY:
+                weatherIcon = R.drawable.cloudy_windy;
+                break;
+            case WeatherIcons.FOG:
+                weatherIcon = R.drawable.fog;
+                break;
+            case WeatherIcons.HAIL:
+                weatherIcon = R.drawable.hail;
+                break;
+            case WeatherIcons.RAIN:
+                weatherIcon = R.drawable.rain;
+                break;
+            case WeatherIcons.RAIN_MIX:
+                weatherIcon = R.drawable.rain_mix;
+                break;
+            case WeatherIcons.RAIN_WIND:
+                weatherIcon = R.drawable.rain_wind;
+                break;
+            case WeatherIcons.SHOWERS:
+                weatherIcon = R.drawable.showers;
+                break;
+            case WeatherIcons.SLEET:
+                weatherIcon = R.drawable.sleet;
+                break;
+            case WeatherIcons.SNOW:
+                weatherIcon = R.drawable.snow;
+                break;
+            case WeatherIcons.SPRINKLE:
+                weatherIcon = R.drawable.sprinkle;
+                break;
+            case WeatherIcons.STORM_SHOWERS:
+                weatherIcon = R.drawable.storm_showers;
+                break;
+            case WeatherIcons.THUNDERSTORM:
+                weatherIcon = R.drawable.thunderstorm;
+                break;
+            case WeatherIcons.SNOW_WIND:
+                weatherIcon = R.drawable.snow_wind;
+                break;
+            case WeatherIcons.SMOG:
+                weatherIcon = R.drawable.smog;
+                break;
+            case WeatherIcons.SMOKE:
+                weatherIcon = R.drawable.smoke;
+                break;
+            case WeatherIcons.LIGHTNING:
+                weatherIcon = R.drawable.lightning;
+                break;
+            case WeatherIcons.DUST:
+                weatherIcon = R.drawable.dust;
+                break;
+            case WeatherIcons.SNOWFLAKE_COLD:
+                weatherIcon = R.drawable.snowflake_cold;
+                break;
+            case WeatherIcons.WINDY:
+                weatherIcon = R.drawable.windy;
+                break;
+            case WeatherIcons.STRONG_WIND:
+                weatherIcon = R.drawable.strong_wind;
+                break;
+            case WeatherIcons.SANDSTORM:
+                weatherIcon = R.drawable.sandstorm;
+                break;
+            case WeatherIcons.HURRICANE:
+                weatherIcon = R.drawable.hurricane;
+                break;
+            case WeatherIcons.TORNADO:
+                weatherIcon = R.drawable.tornado;
+                break;
+        }
+
+        if (weatherIcon == -1) {
+            // Not Available
+            weatherIcon = R.drawable.na;
+        }
+
+        return weatherIcon;
+    }
+
+    public static ImageDataViewModel getImageData(Weather weather) {
+        String icon = weather.getCondition().getIcon();
+        String backgroundCode = null;
+        WeatherManager wm = WeatherManager.getInstance();
+
+        // Apply background based on weather condition
+        switch (icon) {
+            // Rain
+            case WeatherIcons.DAY_RAIN:
+            case WeatherIcons.DAY_RAIN_MIX:
+            case WeatherIcons.DAY_RAIN_WIND:
+            case WeatherIcons.DAY_SHOWERS:
+            case WeatherIcons.DAY_SLEET:
+            case WeatherIcons.DAY_SPRINKLE:
+                backgroundCode = WeatherBackground.RAIN;
+                break;
+
+            case WeatherIcons.NIGHT_ALT_HAIL:
+            case WeatherIcons.NIGHT_ALT_RAIN:
+            case WeatherIcons.NIGHT_ALT_RAIN_MIX:
+            case WeatherIcons.NIGHT_ALT_RAIN_WIND:
+            case WeatherIcons.NIGHT_ALT_SHOWERS:
+            case WeatherIcons.NIGHT_ALT_SLEET:
+            case WeatherIcons.NIGHT_ALT_SPRINKLE:
+            case WeatherIcons.RAIN:
+            case WeatherIcons.RAIN_MIX:
+            case WeatherIcons.RAIN_WIND:
+            case WeatherIcons.SHOWERS:
+            case WeatherIcons.SLEET:
+            case WeatherIcons.SPRINKLE:
+                backgroundCode = WeatherBackground.RAIN_NIGHT;
+                break;
+            // Tornado / Hurricane / Thunderstorm / Tropical Storm
+            case WeatherIcons.DAY_LIGHTNING:
+            case WeatherIcons.DAY_THUNDERSTORM:
+                backgroundCode = WeatherBackground.TSTORMS_DAY;
+                break;
+
+            case WeatherIcons.NIGHT_ALT_LIGHTNING:
+            case WeatherIcons.NIGHT_ALT_THUNDERSTORM:
+            case WeatherIcons.LIGHTNING:
+            case WeatherIcons.THUNDERSTORM:
+                backgroundCode = WeatherBackground.TSTORMS_NIGHT;
+                break;
+
+            case WeatherIcons.DAY_STORM_SHOWERS:
+            case WeatherIcons.DAY_SLEET_STORM:
+            case WeatherIcons.STORM_SHOWERS:
+            case WeatherIcons.NIGHT_ALT_STORM_SHOWERS:
+            case WeatherIcons.NIGHT_ALT_SLEET_STORM:
+            case WeatherIcons.HAIL:
+            case WeatherIcons.HURRICANE:
+            case WeatherIcons.TORNADO:
+                backgroundCode = WeatherBackground.STORMS;
+                break;
+            // Dust
+            case WeatherIcons.DUST:
+            case WeatherIcons.SANDSTORM:
+                backgroundCode = WeatherBackground.DUST;
+                break;
+            // Foggy / Haze
+            case WeatherIcons.DAY_FOG:
+            case WeatherIcons.DAY_HAZE:
+            case WeatherIcons.FOG:
+            case WeatherIcons.NIGHT_FOG:
+            case WeatherIcons.SMOG:
+            case WeatherIcons.SMOKE:
+                backgroundCode = WeatherBackground.FOG;
+                break;
+            // Snow / Snow Showers/Storm
+            case WeatherIcons.DAY_SNOW:
+            case WeatherIcons.DAY_SNOW_THUNDERSTORM:
+            case WeatherIcons.NIGHT_ALT_SNOW:
+            case WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM:
+            case WeatherIcons.SNOW:
+                backgroundCode = WeatherBackground.SNOW;
+                break;
+
+            case WeatherIcons.SNOW_WIND:
+            case WeatherIcons.DAY_SNOW_WIND:
+            case WeatherIcons.NIGHT_ALT_SNOW_WIND:
+                backgroundCode = WeatherBackground.SNOW_WINDY;
+                break;
+            /* Ambigious weather conditions */
+            // (Mostly) Cloudy
+            case WeatherIcons.CLOUD:
+            case WeatherIcons.CLOUDY:
+            case WeatherIcons.CLOUDY_GUSTS:
+            case WeatherIcons.CLOUDY_WINDY:
+            case WeatherIcons.DAY_CLOUDY:
+            case WeatherIcons.DAY_CLOUDY_GUSTS:
+            case WeatherIcons.DAY_CLOUDY_HIGH:
+            case WeatherIcons.DAY_CLOUDY_WINDY:
+            case WeatherIcons.NIGHT_ALT_CLOUDY:
+            case WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS:
+            case WeatherIcons.NIGHT_ALT_CLOUDY_HIGH:
+            case WeatherIcons.NIGHT_ALT_CLOUDY_WINDY:
+                if (wm.isNight(weather))
+                    backgroundCode = WeatherBackground.MOSTLYCLOUDY_NIGHT;
+                else
+                    backgroundCode = WeatherBackground.MOSTLYCLOUDY_DAY;
+                break;
+            // Partly Cloudy
+            case WeatherIcons.DAY_SUNNY_OVERCAST:
+            case WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY:
+                if (wm.isNight(weather))
+                    backgroundCode = WeatherBackground.PARTLYCLOUDY_NIGHT;
+                else
+                    backgroundCode = WeatherBackground.PARTLYCLOUDY_DAY;
+                break;
+
+            case WeatherIcons.DAY_SUNNY:
+            case WeatherIcons.NA:
+            case WeatherIcons.NIGHT_CLEAR:
+            case WeatherIcons.SNOWFLAKE_COLD:
+            case WeatherIcons.DAY_HOT:
+            case WeatherIcons.WINDY:
+            case WeatherIcons.STRONG_WIND:
+            default:
+                // Set background based using sunset/rise times
+                if (wm.isNight(weather))
+                    backgroundCode = WeatherBackground.NIGHT;
+                else
+                    backgroundCode = WeatherBackground.DAY;
+                break;
+        }
+
+        // Check cache for image data
+        ImageDataHelperImpl imageHelper = ImageDataHelper.getImageDataHelper();
+        ImageData imageData = imageHelper.getCachedImageData(backgroundCode);
+        // Check if cache is available and valid
+        if (imageData != null && imageData.isValid()) {
+            return new ImageDataViewModel(imageData);
+        } else {
+            imageData = imageHelper.getRemoteImageData(backgroundCode);
+            if (imageData != null && imageData.isValid()) {
+                return new ImageDataViewModel(imageData);
+            } else {
+                imageData = imageHelper.getDefaultImageData(backgroundCode, weather);
+                if (imageData != null && imageData.isValid())
+                    return new ImageDataViewModel(imageData);
+            }
+        }
+
+        return null;
     }
 
     public static class Coordinate {

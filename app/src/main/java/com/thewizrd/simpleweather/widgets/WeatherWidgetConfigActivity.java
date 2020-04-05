@@ -759,7 +759,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                             pandaBG.setColorFilter(isNightMode ? Colors.BLACK : Colors.WHITE);
                             pandaBG.setImageResource(R.drawable.widget_background_bottom_corners);
                         } else if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.PENDINGCOLOR) {
-                            pandaBG.setColorFilter(0xFF20A8D8);
+                            pandaBG.setColorFilter(0xff88b0c8);
                             pandaBG.setImageResource(R.drawable.widget_background_bottom_corners);
                         } else if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.LIGHT) {
                             pandaBG.setColorFilter(Colors.WHITE);
@@ -776,7 +776,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                     widgetBG.setImageAlpha(0xFF);
 
                     Glide.with(mActivity)
-                            .load("file:///android_asset/backgrounds/DaySky.jpg")
+                            .load("file:///android_asset/backgrounds/day.jpg")
                             .apply(RequestOptions.formatOf(DecodeFormat.PREFER_RGB_565)
                                     .transforms(new CenterCrop(), new TransparentOverlay(0x33)))
                             .into(widgetBG);

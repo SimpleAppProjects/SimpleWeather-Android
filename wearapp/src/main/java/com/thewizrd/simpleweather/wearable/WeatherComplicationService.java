@@ -31,6 +31,7 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.Weather;
@@ -136,7 +137,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
             String temp = Settings.isFahrenheit() ?
                     Math.round(weather.getCondition().getTempF()) + "º" : Math.round(weather.getCondition().getTempC()) + "º";
             // Weather Icon
-            int weatherIcon = wm.getWeatherIconResource(weather.getCondition().getIcon());
+            int weatherIcon = WeatherUtils.getWeatherIconResource(weather.getCondition().getIcon());
             // Condition text
             String condition = weather.getCondition().getWeather();
 

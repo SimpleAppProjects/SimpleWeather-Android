@@ -42,7 +42,7 @@ public class WeatherNotificationBuilder {
 
         // Weather icon
         updateViews.setImageViewResource(R.id.weather_icon,
-                wm.getWeatherIconResource(viewModel.getWeatherIcon()));
+                WeatherUtils.getWeatherIconResource(viewModel.getWeatherIcon()));
 
         // Location Name
         updateViews.setTextViewText(R.id.location_name, viewModel.getLocation());
@@ -90,7 +90,7 @@ public class WeatherNotificationBuilder {
         if (Settings.getNotificationIcon().equals(Settings.TEMPERATURE_ICON))
             mBuilder.setSmallIcon(resId, Math.abs(level));
         else if (Settings.getNotificationIcon().equals(Settings.CONDITION_ICON))
-            mBuilder.setSmallIcon(wm.getWeatherIconResource(viewModel.getWeatherIcon()));
+            mBuilder.setSmallIcon(WeatherUtils.getWeatherIconResource(viewModel.getWeatherIcon()));
 
         Intent onClickIntent = new Intent(context, MainActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

@@ -250,6 +250,7 @@ public class LocationsFragment extends ToolbarFragment
 
                     if (panel != null) {
                         panel.setWeather(weather);
+                        panel.updateBackground();
                         final LocationPanelViewModel finalPanel = panel;
                         binding.recyclerView.post(new Runnable() {
                             @Override
@@ -391,7 +392,7 @@ public class LocationsFragment extends ToolbarFragment
                     newFragment.requireArguments()
                             .putBoolean(Constants.FRAGTAG_HOME, isHome);
                     newFragment.requireArguments()
-                            .putString(Constants.ARGS_BACKGROUND, vm.getBackground());
+                            .putString(Constants.ARGS_BACKGROUND, vm.getImageData() != null ? vm.getImageData().getImageURI() : null);
 
                     fragMgr.beginTransaction()
                             .replace(R.id.fragment_container, newFragment, Constants.FRAGTAG_HOME)
@@ -403,7 +404,7 @@ public class LocationsFragment extends ToolbarFragment
                                 .putBundle(TransitionHelper.ARGS_TRANSITION, TransitionHelper.captureElementValues(view));
                     }
                     home.requireArguments()
-                            .putString(Constants.ARGS_BACKGROUND, vm.getBackground());
+                            .putString(Constants.ARGS_BACKGROUND, vm.getImageData() != null ? vm.getImageData().getImageURI() : null);
                     home.requireArguments()
                             .putBoolean(Constants.FRAGTAG_HOME, isHome);
                     home.requireArguments()

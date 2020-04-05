@@ -37,6 +37,7 @@ import android.view.ViewStub;
 import android.view.ViewTreeObserver;
 import android.webkit.WebView;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -49,6 +50,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.location.LocationManagerCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
@@ -92,6 +94,7 @@ import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
+import com.thewizrd.shared_resources.controls.ImageDataViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -252,8 +255,11 @@ public class WeatherNowFragment extends WindowColorFragment
 
                 if (weather != null && weather.isValid()) {
                     weatherView.updateView(weather);
-                    if (binding.imageView.getDrawable() == null && binding.imageView.getTag(R.id.glide_custom_view_target_tag) == null)
-                        loadBackgroundImage(weatherView.getBackground(), false);
+                    weatherView.updateBackground();
+                    if (binding.imageView.getDrawable() == null && binding.imageView.getTag(R.id.glide_custom_view_target_tag) == null) {
+                        String backgroundUri = weatherView.getImageData() != null ? weatherView.getImageData().getImageURI() : null;
+                        loadBackgroundImage(backgroundUri, false);
+                    }
                     binding.refreshLayout.post(new Runnable() {
                         @Override
                         public void run() {
@@ -893,10 +899,9 @@ public class WeatherNowFragment extends WindowColorFragment
                 if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible()) {
                     if (propertyId == 0) {
                         updateView();
-                    } else if (propertyId == BR.background) {
+                    } else if (propertyId == BR.imageData) {
                         // Background
                         adjustGradientView();
-                        loadBackgroundImage(weatherView.getBackground(), false);
                     } else if (propertyId == BR.pendingBackground) {
                         updateWindowColors();
                     } else if (propertyId == BR.location) {
@@ -1014,7 +1019,8 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
 
-        loadBackgroundImage(weatherView.getBackground(), true);
+        String backgroundUri = weatherView.getImageData() != null ? weatherView.getImageData().getImageURI() : null;
+        loadBackgroundImage(backgroundUri, true);
 
         // Reload Webview
         if (binding.radarControl.getBinding() != null) {
@@ -1028,33 +1034,38 @@ public class WeatherNowFragment extends WindowColorFragment
             @Override
             public void run() {
                 // Reload background image
-                if (mActivity != null && !StringUtils.isNullOrWhitespace(imageURI) && !ObjectsCompat.equals(binding.imageView.getTag(), imageURI)) {
+                if (mActivity != null && !ObjectsCompat.equals(binding.imageView.getTag(), imageURI)) {
                     binding.imageView.setTag(imageURI);
-                    Glide.with(WeatherNowFragment.this)
-                            .load(imageURI)
-                            .apply(RequestOptions.centerCropTransform()
-                                    .format(DecodeFormat.PREFER_RGB_565)
-                                    .skipMemoryCache(skipCache))
-                            .listener(new RequestListener<Drawable>() {
-                                @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                    // Perform manual shared element transition
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                        TransitionHelper.performElementTransition(WeatherNowFragment.this, binding.imageView);
+                    if (!StringUtils.isNullOrWhitespace(imageURI)) {
+                        Glide.with(WeatherNowFragment.this)
+                                .load(imageURI)
+                                .apply(RequestOptions.centerCropTransform()
+                                        .format(DecodeFormat.PREFER_RGB_565)
+                                        .skipMemoryCache(skipCache))
+                                .listener(new RequestListener<Drawable>() {
+                                    @Override
+                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                        // Perform manual shared element transition
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                            TransitionHelper.performElementTransition(WeatherNowFragment.this, binding.imageView);
+                                        }
+                                        return false;
                                     }
-                                    return false;
-                                }
 
-                                @Override
-                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                    // Perform manual shared element transition
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                        TransitionHelper.performElementTransition(WeatherNowFragment.this, binding.imageView);
+                                    @Override
+                                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                        // Perform manual shared element transition
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                            TransitionHelper.performElementTransition(WeatherNowFragment.this, binding.imageView);
+                                        }
+                                        return false;
                                     }
-                                    return false;
-                                }
-                            })
-                            .into(binding.imageView);
+                                })
+                                .into(binding.imageView);
+                    } else {
+                        Glide.with(WeatherNowFragment.this)
+                                .clear(binding.imageView);
+                    }
                 }
             }
         });
@@ -1750,43 +1761,6 @@ public class WeatherNowFragment extends WindowColorFragment
         }
         /* End of BindingAdapters for dark mode */
 
-        @BindingAdapter("backgroundURI")
-        public void getBackgroundAttribution(TextView view, String backgroundURI) {
-            if (!StringUtils.isNullOrWhitespace(backgroundURI)) {
-                if (backgroundURI.contains("DaySky")) {
-                    view.setText(R.string.attrib_daysky);
-                } else if (backgroundURI.contains("Dust")) {
-                    view.setText(R.string.attrib_dust);
-                } else if (backgroundURI.contains("FoggySky")) {
-                    view.setText(R.string.attrib_foggysky);
-                } else if (backgroundURI.contains("MostlyCloudy-Night")) {
-                    view.setText(R.string.attrib_mcloudynt);
-                } else if (backgroundURI.contains("NightSky")) {
-                    view.setText(R.string.attrib_nightsky);
-                } else if (backgroundURI.contains("PartlyCloudy-Day")) {
-                    view.setText(R.string.attrib_ptcloudyday);
-                } else if (backgroundURI.contains("PartlyCloudy-Night")) {
-                    view.setText(R.string.attrib_ptcloudynt);
-                } else if (backgroundURI.contains("RainyDay")) {
-                    view.setText(R.string.attrib_rainyday);
-                } else if (backgroundURI.contains("RainyNight")) {
-                    view.setText(R.string.attrib_rainynt);
-                } else if (backgroundURI.contains("Snow-Windy")) {
-                    view.setText(R.string.attrib_snowwindy);
-                } else if (backgroundURI.contains("Snow")) {
-                    view.setText(R.string.attrib_snow);
-                } else if (backgroundURI.contains("StormySky")) {
-                    view.setText(R.string.attrib_stormy);
-                } else if (backgroundURI.contains("Thunderstorm-Day")) {
-                    view.setText(R.string.attrib_tstormday);
-                } else if (backgroundURI.contains("Thunderstorm-Night")) {
-                    view.setText(R.string.attrib_tstormnt);
-                } else {
-                    view.setText("");
-                }
-            }
-        }
-
         @BindingAdapter(value = {"sunrise", "sunset"}, requireAll = true)
         public void updateSunPhasePanel(SunPhaseView view, String sunrise, String sunset) {
             if (!StringUtils.isNullOrWhitespace(sunrise) && !StringUtils.isNullOrWhitespace(sunset) && fragment.location != null) {
@@ -1832,6 +1806,25 @@ public class WeatherNowFragment extends WindowColorFragment
                     }
                 }
             });
+        }
+
+        @BindingAdapter("imageData")
+        public void getBackgroundAttribution(TextView view, ImageDataViewModel imageData) {
+            if (imageData != null && !StringUtils.isNullOrWhitespace(imageData.getOriginalLink())) {
+                view.setText(HtmlCompat.fromHtml(String.format("<a href=\"%s\">%s %s (%s)</a>",
+                        imageData.getOriginalLink(), view.getContext().getString(R.string.attrib_prefix), imageData.getArtistName(), imageData.getSiteName()),
+                        HtmlCompat.FROM_HTML_MODE_COMPACT));
+                view.setVisibility(View.VISIBLE);
+            } else {
+                view.setText("");
+                view.setVisibility(View.GONE);
+            }
+        }
+
+        @BindingAdapter("imageData")
+        public void loadBackground(ImageView view, ImageDataViewModel imageData) {
+            String backgroundUri = imageData != null ? imageData.getImageURI() : null;
+            loadBackgroundImage(backgroundUri, false);
         }
     }
 }

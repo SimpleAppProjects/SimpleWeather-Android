@@ -43,6 +43,7 @@
     <string name="label_qpf_rain">Rain</string>
     <string name="label_qpf_snow">Snow</string>
     <string name="credit_prefix">Data from</string>
+    <string name="attrib_prefix">Photo by</string>
     <string name="label_high">High</string>
     <string name="label_low">Low</string>
     <string name="label_dewpoint">Dew Point</string>

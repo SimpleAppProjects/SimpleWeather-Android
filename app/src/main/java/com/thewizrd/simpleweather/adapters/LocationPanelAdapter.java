@@ -24,7 +24,6 @@ import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Settings;
-import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.BuildConfig;
@@ -242,7 +241,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     private void updatePanelBackground(final LocationPanelViewHolder vHolder, final LocationPanelViewModel panelView, boolean skipCache) {
-        if (panelView != null && !StringUtils.isNullOrWhitespace(panelView.getBackground())) {
+        if (panelView != null && panelView.getImageData() != null) {
             vHolder.mLocView.setWeatherBackground(panelView, skipCache);
         } else {
             vHolder.mLocView.clearBackground();

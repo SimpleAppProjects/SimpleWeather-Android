@@ -48,6 +48,7 @@ import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
+import com.thewizrd.shared_resources.controls.ImageDataViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -58,6 +59,7 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.TransparentOverlay;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
@@ -865,6 +867,9 @@ public class WeatherWidgetService extends JobIntentService {
             if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
                 style = WidgetUtils.getBackgroundStyle(appWidgetId);
 
+                if (weather.getImageData() == null)
+                    weather.updateBackground();
+
                 if (style == WidgetUtils.WidgetBackgroundStyle.PANDA) {
                     updateViews.setInt(R.id.panda_background, "setColorFilter", isNightMode ? Colors.BLACK : Colors.WHITE);
                     updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background_bottom_corners);
@@ -883,7 +888,8 @@ public class WeatherWidgetService extends JobIntentService {
 
                 updateViews.setInt(R.id.widgetBackground, "setColorFilter", backgroundColor);
                 updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
-                loadBackgroundImage(provider, appWidgetId, weather.getBackground(), cellWidth, cellHeight);
+                String backgroundUri = weather.getImageData() != null ? weather.getImageData().getImageURI() : null;
+                loadBackgroundImage(provider, appWidgetId, backgroundUri, cellWidth, cellHeight);
             } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
                 updateViews.setImageViewResource(R.id.widgetBackground, R.drawable.widget_background);
                 updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.BLACK);
@@ -1275,8 +1281,9 @@ public class WeatherWidgetService extends JobIntentService {
                 if (isBackgroundOptionalWidget(provider.getWidgetType())) {
                     final WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
                     if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
-                        final String backgroundURI = wm.getWeatherBackgroundURI(weather);
-                        loadBackgroundImage(provider, appWidgetId, backgroundURI, cellWidth, cellHeight);
+                        final ImageDataViewModel imageData = WeatherUtils.getImageData(weather);
+                        String backgroundUri = imageData != null ? imageData.getImageURI() : null;
+                        loadBackgroundImage(provider, appWidgetId, backgroundUri, cellWidth, cellHeight);
                     }
                 }
 

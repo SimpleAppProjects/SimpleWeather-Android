@@ -48,7 +48,8 @@
             android:scaleType="centerCrop"
             android:fitsSystemWindows="true"
             android:alpha="@{backgroundAlpha}"
-            android:visibility="@{!StringUtils.isNullOrWhitespace(weatherView.background) ? View.VISIBLE : View.GONE}"
+            android:visibility="@{weatherView.imageData != null ? View.VISIBLE : View.GONE}"
+            app:imageData="@{weatherView.imageData}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -61,7 +62,7 @@
             android:fitsSystemWindows="true"
             android:alpha="@{gradientAlpha}"
             android:background="@drawable/background_overlay_radial"
-            android:visibility="@{!StringUtils.isNullOrWhitespace(weatherView.background) ? View.VISIBLE : View.GONE}"
+            android:visibility="@{weatherView.imageData != null ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -310,7 +311,7 @@
                             app:darkModeEnabled="@{!weatherView.lightBackground}"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:backgroundURI="@{weatherView.background}"
+                            app:imageData="@{weatherView.imageData}"
                             tools:text="Attribution text goes here" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>

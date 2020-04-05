@@ -85,52 +85,62 @@ public class LocationPanel extends MaterialCardView {
     }
 
     public void setWeatherBackground(LocationPanelViewModel panelView, boolean skipCache) {
+        if (panelView.getImageData() == null)
+            panelView.updateBackground();
+
+        String backgroundUri = panelView.getImageData() != null ?
+                panelView.getImageData().getImageURI() : null;
+
         // Background
-        mGlide.asBitmap()
-                .load(panelView.getBackground())
-                .apply(RequestOptions
-                        .centerCropTransform()
-                        .format(DecodeFormat.PREFER_RGB_565)
-                        .error(colorDrawable)
-                        .placeholder(colorDrawable)
-                        .skipMemoryCache(skipCache))
-                .transition(BitmapTransitionOptions.withCrossFade())
-                .into(new BitmapImageViewTarget(binding.imageView) {
-                    @Override
-                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                        super.onResourceReady(resource, transition);
-                        Palette p = Palette.from(resource).generate();
-                        int textColor = Colors.WHITE;
-                        int shadowColor = Colors.BLACK;
-                        if (ColorsUtils.isSuperLight(p)) {
-                            textColor = Colors.BLACK;
-                            shadowColor = Colors.GRAY;
+        if (backgroundUri != null) {
+            mGlide.asBitmap()
+                    .load(backgroundUri)
+                    .apply(RequestOptions
+                            .centerCropTransform()
+                            .format(DecodeFormat.PREFER_RGB_565)
+                            .error(colorDrawable)
+                            .placeholder(colorDrawable)
+                            .skipMemoryCache(skipCache))
+                    .transition(BitmapTransitionOptions.withCrossFade())
+                    .into(new BitmapImageViewTarget(binding.imageView) {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            super.onResourceReady(resource, transition);
+                            Palette p = Palette.from(resource).generate();
+                            int textColor = Colors.WHITE;
+                            int shadowColor = Colors.BLACK;
+                            if (ColorsUtils.isSuperLight(p)) {
+                                textColor = Colors.BLACK;
+                                shadowColor = Colors.GRAY;
+                            }
+
+                            binding.imageOverlay.setBackground(overlayDrawable);
+
+                            setTextColor(textColor);
+                            setTextShadowColor(shadowColor);
                         }
 
-                        binding.imageOverlay.setBackground(overlayDrawable);
+                        @Override
+                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                            super.onLoadFailed(errorDrawable);
+                            binding.imageOverlay.setBackground(null);
+                        }
 
-                        setTextColor(textColor);
-                        setTextShadowColor(shadowColor);
-                    }
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                            super.onLoadCleared(placeholder);
+                            binding.imageOverlay.setBackground(null);
+                        }
 
-                    @Override
-                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                        super.onLoadFailed(errorDrawable);
-                        binding.imageOverlay.setBackground(null);
-                    }
-
-                    @Override
-                    public void onLoadCleared(@Nullable Drawable placeholder) {
-                        super.onLoadCleared(placeholder);
-                        binding.imageOverlay.setBackground(null);
-                    }
-
-                    @Override
-                    public void onLoadStarted(@Nullable Drawable placeholder) {
-                        super.onLoadStarted(placeholder);
-                        binding.imageOverlay.setBackground(null);
-                    }
-                });
+                        @Override
+                        public void onLoadStarted(@Nullable Drawable placeholder) {
+                            super.onLoadStarted(placeholder);
+                            binding.imageOverlay.setBackground(null);
+                        }
+                    });
+        } else {
+            clearBackground();
+        }
     }
 
     public void clearBackground() {
