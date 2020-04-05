@@ -10,6 +10,7 @@ import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.oauth.OAuthRequest;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 
@@ -36,7 +37,7 @@ public class HEREOAuthUtils {
                     return getTokenFromStorage();
                 }
             });
-            if (token != null)
+            if (!StringUtils.isNullOrWhitespace(token))
                 return token;
             else
                 forceRefresh = true;

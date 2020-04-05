@@ -71,7 +71,11 @@ public final class HERELocationProvider extends LocationProviderImpl {
                     return HEREOAuthUtils.getBearerToken(false);
                 }
             });
-            client.addRequestProperty("Authorization", authorization);
+            if (!StringUtils.isNullOrWhitespace(authorization)) {
+                client.addRequestProperty("Authorization", authorization);
+            } else {
+                throw new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
+            }
 
             // Connect to webstream
             InputStream stream = client.getInputStream();
@@ -149,7 +153,11 @@ public final class HERELocationProvider extends LocationProviderImpl {
                     return HEREOAuthUtils.getBearerToken(false);
                 }
             });
-            client.addRequestProperty("Authorization", authorization);
+            if (!StringUtils.isNullOrWhitespace(authorization)) {
+                client.addRequestProperty("Authorization", authorization);
+            } else {
+                throw new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
+            }
 
             // Connect to webstream
             InputStream stream = client.getInputStream();
@@ -211,7 +219,11 @@ public final class HERELocationProvider extends LocationProviderImpl {
                     return HEREOAuthUtils.getBearerToken(false);
                 }
             });
-            client.addRequestProperty("Authorization", authorization);
+            if (!StringUtils.isNullOrWhitespace(authorization)) {
+                client.addRequestProperty("Authorization", authorization);
+            } else {
+                throw new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
+            }
 
             // Connect to webstream
             InputStream stream = client.getInputStream();
