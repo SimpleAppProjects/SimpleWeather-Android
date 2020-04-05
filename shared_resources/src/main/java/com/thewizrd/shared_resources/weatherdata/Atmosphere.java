@@ -46,23 +46,6 @@ public class Atmosphere extends CustomJsonObject {
         // Needed for deserialization
     }
 
-    public Atmosphere(com.thewizrd.shared_resources.weatherdata.weatherunderground.CurrentObservation condition) {
-        humidity = condition.getRelativeHumidity();
-        pressureMb = condition.getPressureMb();
-        pressureIn = condition.getPressureIn();
-        pressureTrend = condition.getPressureTrend();
-        visibilityMi = condition.getVisibilityMi();
-        visibilityKm = condition.getVisibilityKm();
-
-        try {
-            dewpointF = condition.getDewpointF();
-            dewpointC = condition.getDewpointC();
-        } catch (NumberFormatException ex) {
-            dewpointF = null;
-            dewpointC = null;
-        }
-    }
-
     public Atmosphere(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Atmosphere atmosphere) {
         humidity = atmosphere.getHumidity();
         pressureIn = atmosphere.getPressure();

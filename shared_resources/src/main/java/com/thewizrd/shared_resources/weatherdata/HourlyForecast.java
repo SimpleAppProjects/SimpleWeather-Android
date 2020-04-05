@@ -16,14 +16,12 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
 import org.threeten.bp.Instant;
-import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Locale;
 
 public class HourlyForecast extends CustomJsonObject {
 
@@ -68,42 +66,6 @@ public class HourlyForecast extends CustomJsonObject {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public HourlyForecast() {
 
-    }
-
-    public HourlyForecast(com.thewizrd.shared_resources.weatherdata.weatherunderground.HourlyForecastItem hr_forecast) {
-        String dateformat = String.format("%s/%s/%s %s", hr_forecast.getFCTTIME().getMon(),
-                hr_forecast.getFCTTIME().getMday(), hr_forecast.getFCTTIME().getYear(), hr_forecast.getFCTTIME().getCivil());
-        setDate(LocalDateTime.parse(dateformat, DateTimeFormatter.ofPattern("M/d/yyyy h:mm a", Locale.ROOT)).atZone(ZoneOffset.UTC));
-        highF = hr_forecast.getTemp().getEnglish();
-        highC = hr_forecast.getTemp().getMetric();
-        condition = hr_forecast.getCondition();
-
-        icon = WeatherManager.getProvider(WeatherAPI.WEATHERUNDERGROUND)
-                .getWeatherIcon(hr_forecast.getIconUrl().replace("http://icons.wxug.com/i/c/k/", "").replace(".gif", ""));
-
-        pop = hr_forecast.getPop();
-        windDegrees = Integer.parseInt(hr_forecast.getWdir().getDegrees());
-        windMph = Float.parseFloat(hr_forecast.getWspd().getEnglish());
-        windKph = Float.parseFloat(hr_forecast.getWspd().getMetric());
-
-        // Extras
-        extras = new ForecastExtras();
-        extras.setFeelslikeF(Float.parseFloat(hr_forecast.getFeelslike().getEnglish()));
-        extras.setFeelslikeC(Float.parseFloat(hr_forecast.getFeelslike().getMetric()));
-        extras.setHumidity(hr_forecast.getHumidity());
-        extras.setDewpointF(hr_forecast.getDewpoint().getEnglish());
-        extras.setDewpointC(hr_forecast.getDewpoint().getMetric());
-        extras.setUvIndex(Float.parseFloat(hr_forecast.getUvi()));
-        extras.setPop(hr_forecast.getPop());
-        extras.setQpfRainIn(Float.parseFloat(hr_forecast.getQpf().getEnglish()));
-        extras.setQpfRainMm(Float.parseFloat(hr_forecast.getQpf().getMetric()));
-        extras.setQpfSnowIn(Float.parseFloat(hr_forecast.getSnow().getEnglish()));
-        extras.setQpfSnowCm(Float.parseFloat(hr_forecast.getSnow().getMetric()));
-        extras.setPressureIn(hr_forecast.getMslp().getEnglish());
-        extras.setPressureMb(hr_forecast.getMslp().getMetric());
-        extras.setWindDegrees(Integer.parseInt(hr_forecast.getWdir().getDegrees()));
-        extras.setWindMph(Float.parseFloat(hr_forecast.getWspd().getEnglish()));
-        extras.setWindKph(Float.parseFloat(hr_forecast.getWspd().getMetric()));
     }
 
     public HourlyForecast(com.thewizrd.shared_resources.weatherdata.openweather.ListItem hr_forecast) {

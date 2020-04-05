@@ -43,18 +43,6 @@ public class Location extends CustomJsonObject {
         tzOffset = ZoneOffset.UTC;
     }
 
-    public Location(com.thewizrd.shared_resources.weatherdata.weatherunderground.CurrentObservation condition) {
-        name = condition.getDisplayLocation().getFull();
-        latitude = condition.getDisplayLocation().getLatitude();
-        longitude = condition.getDisplayLocation().getLongitude();
-        //if (condition.getLocalTzOffset().startsWith("-"))
-        tzOffset = ZoneOffset.of(condition.getLocalTzOffset());
-        //else
-        //tzOffset = ZoneOffset.of(condition.getLocalTzOffset());
-        tzShort = condition.getLocalTzShort();
-        tzLong = condition.getLocalTzLong();
-    }
-
     public Location(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Location location) {
         // Use location name from location provider
         name = null;

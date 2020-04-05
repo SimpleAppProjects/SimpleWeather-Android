@@ -41,9 +41,6 @@
 -dontwarn android.support.design.internal.**
 
 # SimpleXML
--keepclassmembers class com.thewizrd.shared_resources.locationdata.weatherunderground.Location$** {
-   <init>(...);
-}
 -keepclassmembers class com.thewizrd.shared_resources.locationdata.here.AutoCompleteQuery$** {
    <init>(...);
 }

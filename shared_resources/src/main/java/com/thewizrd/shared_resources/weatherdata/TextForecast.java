@@ -41,17 +41,6 @@ public class TextForecast extends CustomJsonObject {
         // Needed for deserialization
     }
 
-    public TextForecast(com.thewizrd.shared_resources.weatherdata.weatherunderground.ForecastdayItem txt_forecast) {
-        title = txt_forecast.getTitle();
-        fcttext = txt_forecast.getFcttext();
-        fcttextMetric = txt_forecast.getFcttextMetric();
-
-        icon = WeatherManager.getProvider(WeatherAPI.WEATHERUNDERGROUND)
-                .getWeatherIcon(txt_forecast.getIconUrl().replace("http://icons.wxug.com/i/c/k/", "").replace(".gif", ""));
-
-        pop = txt_forecast.getPop();
-    }
-
     public TextForecast(com.thewizrd.shared_resources.weatherdata.here.ForecastItem forecast) {
         Context context = SimpleLibrary.getInstance().getApp().getAppContext();
 

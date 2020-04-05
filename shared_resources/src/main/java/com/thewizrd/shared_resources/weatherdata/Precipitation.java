@@ -37,14 +37,6 @@ public class Precipitation extends CustomJsonObject {
         // Needed for deserialization
     }
 
-    public Precipitation(com.thewizrd.shared_resources.weatherdata.weatherunderground.Forecastday1 forecast) {
-        pop = Integer.toString(forecast.getPop());
-        qpfRainIn = (float) forecast.getQpf_allday().getIn();
-        qpfRainMm = (float) forecast.getQpf_allday().getMm();
-        qpfSnowIn = forecast.getSnow_allday().getIn();
-        qpfSnowCm = forecast.getSnow_allday().getCm();
-    }
-
     public Precipitation(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
         // Use cloudiness value here
         pop = Integer.toString(root.getClouds().getAll());

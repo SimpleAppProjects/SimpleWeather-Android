@@ -7,8 +7,6 @@ import com.thewizrd.shared_resources.locationdata.here.ResultItem;
 import com.thewizrd.shared_resources.locationdata.here.SuggestionsItem;
 import com.thewizrd.shared_resources.locationdata.locationiq.AutoCompleteQuery;
 import com.thewizrd.shared_resources.locationdata.locationiq.GeoLocation;
-import com.thewizrd.shared_resources.locationdata.weatherunderground.AC_RESULTS;
-import com.thewizrd.shared_resources.locationdata.weatherunderground.Location;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 
@@ -31,50 +29,6 @@ public class LocationQueryViewModel {
         locationName = SimpleLibrary.getInstance().getAppContext().getString(R.string.error_noresults);
         locationCountry = "";
         locationQuery = "";
-    }
-
-    public LocationQueryViewModel(AC_RESULTS location, String weatherAPI) {
-        setLocation(location, weatherAPI);
-    }
-
-    public void setLocation(AC_RESULTS location, String weatherAPI) {
-        if (location == null)
-            return;
-
-        locationName = location.getName();
-        locationCountry = location.getC();
-
-        locationLat = Double.parseDouble(location.getLat());
-        locationLong = Double.parseDouble(location.getLon());
-
-        locationTZLong = location.getTz();
-
-        locationSource = WeatherAPI.WEATHERUNDERGROUND;
-        weatherSource = weatherAPI;
-
-        updateLocationQuery();
-    }
-
-    public LocationQueryViewModel(Location location, String weatherAPI) {
-        setLocation(location, weatherAPI);
-    }
-
-    public void setLocation(Location location, String weatherAPI) {
-        if (location == null)
-            return;
-
-        locationName = String.format("%s, %s", location.getCity(), location.getState());
-        locationCountry = location.getCountry();
-
-        locationLat = Double.parseDouble(location.getLat());
-        locationLong = Double.parseDouble(location.getLon());
-
-        locationTZLong = location.getTzUnix();
-
-        locationSource = WeatherAPI.WEATHERUNDERGROUND;
-        weatherSource = weatherAPI;
-
-        updateLocationQuery();
     }
 
     public LocationQueryViewModel(SuggestionsItem location, String weatherAPI) {
@@ -291,9 +245,7 @@ public class LocationQueryViewModel {
     }
 
     private void updateLocationQuery() {
-        if (WeatherAPI.WEATHERUNDERGROUND.equals(weatherSource)) {
-            locationQuery = String.format(Locale.ROOT, "/q/%s,%s", Double.toString(locationLat), Double.toString(locationLong));
-        } else if (WeatherAPI.HERE.equals(weatherSource)) {
+        if (WeatherAPI.HERE.equals(weatherSource)) {
             locationQuery = String.format(Locale.ROOT, "latitude=%s&longitude=%s", Double.toString(locationLat), Double.toString(locationLong));
         } else if (WeatherAPI.NWS.equals(weatherSource)) {
             locationQuery = String.format(Locale.ROOT, "%s,%s", Double.toString(locationLat), Double.toString(locationLong));

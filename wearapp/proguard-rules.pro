@@ -71,9 +71,6 @@
 -dontwarn com.thewizrd.shared_resources.R$*
 
 # SimpleXML
--keepclassmembers class com.thewizrd.shared_resources.locationdata.weatherunderground.Location$** {
-   <init>(...);
-}
 -keepclassmembers class com.thewizrd.shared_resources.locationdata.here.AutoCompleteQuery$** {
    <init>(...);
 }

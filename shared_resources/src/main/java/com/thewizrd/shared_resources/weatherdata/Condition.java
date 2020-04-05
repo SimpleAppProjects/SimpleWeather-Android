@@ -72,24 +72,6 @@ public class Condition extends CustomJsonObject {
         // Needed for deserialization
     }
 
-    public Condition(com.thewizrd.shared_resources.weatherdata.weatherunderground.CurrentObservation condition) {
-        weather = condition.getWeather();
-        tempF = condition.getTempF();
-        tempC = condition.getTempC();
-        windDegrees = condition.getWindDegrees();
-        windMph = condition.getWindMph();
-        windKph = condition.getWindKph();
-        feelslikeF = condition.getFeelslikeF();
-        feelslikeC = condition.getFeelslikeC();
-        icon = WeatherManager.getProvider(WeatherAPI.WEATHERUNDERGROUND)
-                .getWeatherIcon(condition.getIconUrl().replace("http://icons.wxug.com/i/c/k/", "").replace(".gif", ""));
-        try {
-            uv = new UV(Float.parseFloat(condition.getUV()));
-        } catch (NumberFormatException ex) {
-            uv = null;
-        }
-    }
-
     public Condition(com.thewizrd.shared_resources.weatherdata.weatheryahoo.CurrentObservation observation) {
         weather = observation.getCondition().getText();
         tempF = Float.parseFloat(observation.getCondition().getTemperature());

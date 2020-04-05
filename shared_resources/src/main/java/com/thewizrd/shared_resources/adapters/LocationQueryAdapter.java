@@ -134,9 +134,7 @@ public class LocationQueryAdapter extends RecyclerView.Adapter {
             String creditPrefix = SimpleLibrary.getInstance().getAppContext().getString(R.string.credit_prefix);
             String locationAPI = WeatherManager.getInstance().getLocationProvider().getLocationAPI();
 
-            if (WeatherAPI.WEATHERUNDERGROUND.equals(locationAPI))
-                header.setText(String.format("%s WeatherUnderground", creditPrefix));
-            else if (WeatherAPI.HERE.equals(locationAPI))
+            if (WeatherAPI.HERE.equals(locationAPI))
                 header.setText(String.format("%s HERE Maps", creditPrefix));
             else if (WeatherAPI.LOCATIONIQ.equals(locationAPI))
                 header.setText(String.format("%s LocationIQ", creditPrefix));

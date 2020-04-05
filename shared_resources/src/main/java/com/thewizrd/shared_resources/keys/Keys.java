@@ -1,10 +1,6 @@
 package com.thewizrd.shared_resources.keys;
 
 public class Keys {
-    public static String getWUndergroundKey() {
-        return null;
-    }
-
     public static String getHERECliID() {
         return null;
     }

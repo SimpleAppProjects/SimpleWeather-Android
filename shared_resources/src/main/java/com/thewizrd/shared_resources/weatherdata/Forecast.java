@@ -12,11 +12,9 @@ import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
-import com.thewizrd.shared_resources.utils.WeatherUtils;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -64,50 +62,6 @@ public class Forecast extends CustomJsonObject {
         condition = forecast.getText();
         icon = WeatherManager.getProvider(WeatherAPI.YAHOO)
                 .getWeatherIcon(forecast.getCode());
-    }
-
-    public Forecast(com.thewizrd.shared_resources.weatherdata.weatherunderground.Forecastday1 forecast) {
-        date = ConversionMethods.toEpochDateTime(forecast.getDate().getEpoch())
-                .withZoneSameInstant(ZoneId.of(forecast.getDate().getTzLong())).toLocalDateTime();
-        highF = forecast.getHigh().getFahrenheit();
-        highC = forecast.getHigh().getCelsius();
-        lowF = forecast.getLow().getFahrenheit();
-        lowC = forecast.getLow().getCelsius();
-        condition = forecast.getConditions();
-        icon = WeatherManager.getProvider(WeatherAPI.WEATHERUNDERGROUND)
-                .getWeatherIcon(forecast.getIcon_url().replace("http://icons.wxug.com/i/c/k/", "").replace(".gif", ""));
-
-        // Extras
-        extras = new ForecastExtras();
-        try {
-            extras.setFeelslikeF(Float.parseFloat(WeatherUtils.getFeelsLikeTemp(highF, Integer.toString(forecast.getAvewind().getMph()), Integer.toString(forecast.getAvehumidity()))));
-            extras.setFeelslikeC(Float.parseFloat(ConversionMethods.FtoC(Double.toString(extras.getFeelslikeF()))));
-        } catch (NumberFormatException ignored) {
-        }
-        try {
-            extras.setHumidity(Integer.toString(forecast.getAvehumidity()));
-        } catch (NumberFormatException ignored) {
-        }
-        try {
-            extras.setPop(Integer.toString(forecast.getPop()));
-        } catch (NumberFormatException ignored) {
-        }
-        try {
-            extras.setQpfRainIn((float) forecast.getQpf_allday().getIn());
-            extras.setQpfRainMm((float) forecast.getQpf_allday().getMm());
-        } catch (NumberFormatException ignored) {
-        }
-        try {
-            extras.setQpfSnowIn(forecast.getSnow_allday().getIn());
-            extras.setQpfSnowCm(forecast.getSnow_allday().getCm());
-        } catch (NumberFormatException ignored) {
-        }
-        try {
-            extras.setWindDegrees(forecast.getAvewind().getDegrees());
-            extras.setWindMph((float) forecast.getAvewind().getMph());
-            extras.setWindKph((float) forecast.getAvewind().getKph());
-        } catch (NumberFormatException ignored) {
-        }
     }
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.openweather.ListItem forecast) {

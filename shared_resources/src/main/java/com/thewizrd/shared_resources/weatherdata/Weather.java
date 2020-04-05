@@ -17,7 +17,6 @@ import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
-import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
 import org.threeten.bp.Duration;
@@ -31,7 +30,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 
 @Entity(tableName = "weatherdata")
 public class Weather extends CustomJsonObject {
@@ -97,56 +95,6 @@ public class Weather extends CustomJsonObject {
         }
 
         source = WeatherAPI.YAHOO;
-    }
-
-    public Weather(com.thewizrd.shared_resources.weatherdata.weatherunderground.Rootobject root) throws WeatherException {
-        location = new Location(root.getCurrentObservation());
-        updateTime = ZonedDateTime.parse(root.getCurrentObservation().getLocalTimeRfc822(), DateTimeFormatter.ofPattern("EEE, d MMM yyyy HH:mm:ss Z", Locale.ENGLISH));
-        forecast = new ArrayList<>(root.getForecast().getSimpleforecast().getForecastday().size());
-        for (int i = 0; i < root.getForecast().getSimpleforecast().getForecastday().size(); i++) {
-            forecast.add(new Forecast(root.getForecast().getSimpleforecast().getForecastday().get(i)));
-
-            if (i == 0) {
-                // Note: WUnderground API bug
-                // Data sometimes returns forecast from some date in the past
-                // If we come across this invalidate the data
-                LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
-                LocalDateTime curr = forecast.get(i).getDate().atOffset(ZoneOffset.UTC).toLocalDateTime();
-                Duration diffSpan = Duration.between(now, curr).abs();
-                if (curr.compareTo(now) < 0 && diffSpan.toDays() > 2)
-                    throw new WeatherException(WeatherUtils.ErrorStatus.UNKNOWN);
-            }
-        }
-        hrForecast = new ArrayList<>(root.getHourlyForecast().size());
-        for (int i = 0; i < root.getHourlyForecast().size(); i++) {
-            hrForecast.add(new HourlyForecast(root.getHourlyForecast().get(i)));
-        }
-        txtForecast = new ArrayList<>(root.getForecast().getTxtForecast().getForecastday().size());
-        for (int i = 0; i < root.getForecast().getTxtForecast().getForecastday().size(); i++) {
-            txtForecast.add(new TextForecast(root.getForecast().getTxtForecast().getForecastday().get(i)));
-
-            // Note: WUnderground API bug
-            // If array is not null and we're expecting data
-            // and that data is invalid, invalidate weather data
-            if (StringUtils.isNullOrWhitespace(txtForecast.get(i).getTitle()) &&
-                    StringUtils.isNullOrWhitespace(txtForecast.get(i).getFcttext()) &&
-                    StringUtils.isNullOrWhitespace(txtForecast.get(i).getFcttextMetric()))
-                throw new WeatherException(WeatherUtils.ErrorStatus.UNKNOWN);
-        }
-        condition = new Condition(root.getCurrentObservation());
-        atmosphere = new Atmosphere(root.getCurrentObservation());
-        astronomy = new Astronomy(root.getSunPhase(), root.getMoonPhase());
-        precipitation = new Precipitation(root.getForecast().getSimpleforecast().getForecastday().get(0));
-        ttl = "60";
-
-        if (condition.getHighF() == condition.getHighC() && forecast.size() > 0) {
-            condition.setHighF(Float.parseFloat(forecast.get(0).getHighF()));
-            condition.setHighC(Float.parseFloat(forecast.get(0).getHighC()));
-            condition.setLowF(Float.parseFloat(forecast.get(0).getLowF()));
-            condition.setLowC(Float.parseFloat(forecast.get(0).getLowC()));
-        }
-
-        source = WeatherAPI.WEATHERUNDERGROUND;
     }
 
     public Weather(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject currRoot,

@@ -141,9 +141,7 @@ public class DetailItemAdapter extends RecyclerView.Adapter {
             String creditPrefix = SimpleLibrary.getInstance().getAppContext().getString(R.string.credit_prefix);
             String weatherAPI = WeatherManager.getInstance().getWeatherAPI();
 
-            if (WeatherAPI.WEATHERUNDERGROUND.equals(weatherAPI))
-                header.setText(String.format("%s WeatherUnderground", creditPrefix));
-            else if (WeatherAPI.YAHOO.equals(weatherAPI))
+            if (WeatherAPI.YAHOO.equals(weatherAPI))
                 header.setText(String.format("%s Yahoo!", creditPrefix));
             else if (WeatherAPI.OPENWEATHERMAP.equals(weatherAPI))
                 header.setText(String.format("%s OpenWeatherMap", creditPrefix));

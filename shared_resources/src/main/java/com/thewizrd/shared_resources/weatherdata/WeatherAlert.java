@@ -11,14 +11,11 @@ import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.here.AlertsItem;
 import com.thewizrd.shared_resources.weatherdata.here.TimeSegmentItem;
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.GraphItem;
-import com.thewizrd.shared_resources.weatherdata.weatherunderground.Alert;
 
 import org.threeten.bp.DayOfWeek;
-import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
@@ -49,110 +46,6 @@ public class WeatherAlert extends CustomJsonObject {
     @RestrictTo({RestrictTo.Scope.LIBRARY, RestrictTo.Scope.TESTS})
     public WeatherAlert() {
 
-    }
-
-    public WeatherAlert(Alert alert) {
-        // Alert Type
-        switch (alert.getType()) {
-            case "HUR": // Hurricane Local Statement
-                type = WeatherAlertType.HURRICANELOCALSTATEMENT;
-                severity = WeatherAlertSeverity.MODERATE;
-                break;
-            case "HWW": // Hurricane Wind Warning
-                type = WeatherAlertType.HURRICANEWINDWARNING;
-                severity = WeatherAlertSeverity.EXTREME;
-                break;
-            case "TOR": // Tornado Warning
-                type = WeatherAlertType.TORNADOWARNING;
-                severity = WeatherAlertSeverity.EXTREME;
-                break;
-            case "TOW": // Tornado Watch
-                type = WeatherAlertType.TORNADOWATCH;
-                severity = WeatherAlertSeverity.MODERATE;
-                break;
-            case "WRN": // Severe Thunderstorm Warning
-                type = WeatherAlertType.SEVERETHUNDERSTORMWARNING;
-                severity = WeatherAlertSeverity.EXTREME;
-                break;
-            case "SEW": // Severe Thunderstorm Watch
-                type = WeatherAlertType.SEVERETHUNDERSTORMWATCH;
-                severity = WeatherAlertSeverity.MODERATE;
-                break;
-            case "WIN": // Winter Weather Advisory
-                type = WeatherAlertType.WINTERWEATHER;
-                severity = WeatherAlertSeverity.SEVERE;
-                break;
-            case "FLO": // Flood Warning
-                type = WeatherAlertType.FLOODWARNING;
-                severity = WeatherAlertSeverity.EXTREME;
-                break;
-            case "WAT": // Flood Watch
-                type = WeatherAlertType.FLOODWATCH;
-                severity = WeatherAlertSeverity.SEVERE;
-                break;
-            case "WND": // High Wind Advisory
-                type = WeatherAlertType.HIGHWIND;
-                severity = WeatherAlertSeverity.MODERATE;
-                break;
-            case "HEA": // Heat Advisory
-                type = WeatherAlertType.HEAT;
-                severity = WeatherAlertSeverity.MODERATE;
-                break;
-            case "FOG": // Dense Fog Advisory
-                type = WeatherAlertType.DENSEFOG;
-                severity = WeatherAlertSeverity.SEVERE;
-                break;
-            case "FIR": // Fire Weather Advisory
-                type = WeatherAlertType.FIRE;
-                severity = WeatherAlertSeverity.MODERATE;
-                break;
-            case "VOL": // Volcanic Activity Statement
-                type = WeatherAlertType.VOLCANO;
-                severity = WeatherAlertSeverity.SEVERE;
-                break;
-            case "SVR": // Severe Weather Statement
-                type = WeatherAlertType.SEVEREWEATHER;
-                severity = WeatherAlertSeverity.SEVERE;
-                break;
-            case "SPE": // Special Weather Statement
-                type = WeatherAlertType.SPECIALWEATHERALERT;
-                severity = WeatherAlertSeverity.SEVERE;
-                break;
-            default:
-                type = WeatherAlertType.SPECIALWEATHERALERT;
-                severity = WeatherAlertSeverity.SEVERE;
-                break;
-        }
-
-        if (StringUtils.isNullOrWhitespace(alert.getWtype_meteoalarm_name())) {
-            // NWS Alerts
-            title = alert.getDescription();
-            message = alert.getMessage();
-
-            date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(Long.parseLong(alert.getDate_epoch())), ZoneOffset.UTC);
-            expiresDate = ZonedDateTime.ofInstant(Instant.ofEpochSecond(Long.parseLong(alert.getExpires_epoch())), ZoneOffset.UTC);
-
-            attribution = "Information provided by the U.S. National Weather Service";
-        } else {
-            // Meteoalarm.eu Alerts
-            title = alert.getWtype_meteoalarm_name();
-            message = alert.getDescription();
-            attribution = alert.getAttribution();
-
-            try {
-                long date_epoch = Long.parseLong(alert.getDate_epoch());
-                date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(date_epoch), ZoneOffset.UTC);
-            } catch (NumberFormatException ex) {
-                date = ZonedDateTime.parse(alert.getDate());
-            }
-
-            try {
-                long expires_epoch = Long.parseLong(alert.getDate_epoch());
-                date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(expires_epoch), ZoneOffset.UTC);
-            } catch (NumberFormatException ex) {
-                date = ZonedDateTime.parse(alert.getExpires());
-            }
-        }
     }
 
     public WeatherAlert(GraphItem alert) {
