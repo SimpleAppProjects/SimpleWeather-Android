@@ -36,6 +36,7 @@ import android.view.ViewOutlineProvider;
 import android.view.ViewStub;
 import android.view.ViewTreeObserver;
 import android.webkit.RenderProcessGoneDetail;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -948,13 +949,13 @@ public class WeatherNowFragment extends WindowColorFragment
                     } else if (propertyId == BR.radarURL) {
                         if (weatherView.getRadarURL() != null) {
                             if (binding.radarControl.getViewStub() != null) {
-                                binding.radarControl.getViewStub().post(new Runnable() {
+                                binding.radarControl.getViewStub().postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
                                         if (binding != null)
                                             binding.radarControl.getViewStub().inflate();
                                     }
-                                });
+                                }, 1000);
                             } else {
                                 navigateToRadarURL();
                             }
@@ -1809,6 +1810,11 @@ public class WeatherNowFragment extends WindowColorFragment
         WebViewHelper.disableInteractions(webView);
         WebViewHelper.restrictWebView(webView);
         WebViewHelper.enableJS(webView, true);
+
+        webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            webView.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, true);
+        }
 
         webView.setWebViewClient(new RadarWebClient(true) {
             @Override

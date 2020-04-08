@@ -1,11 +1,13 @@
 package com.thewizrd.simpleweather.main;
 
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.RenderProcessGoneDetail;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import androidx.annotation.CallSuper;
@@ -190,6 +192,10 @@ public class WeatherRadarFragment extends ToolbarFragment {
         // WebView
         WebViewHelper.restrictWebView(webView);
         WebViewHelper.enableJS(webView, true);
+        webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            webView.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, true);
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(webView, new OnApplyWindowInsetsListener() {
             @Override
