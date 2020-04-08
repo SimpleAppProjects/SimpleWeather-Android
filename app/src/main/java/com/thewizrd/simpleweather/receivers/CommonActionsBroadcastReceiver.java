@@ -12,6 +12,7 @@ import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.simpleweather.services.ImageDatabaseWorker;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
@@ -91,6 +92,8 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
             } else if (CommonActions.ACTION_WIDGET_REFRESHWIDGETS.equals(intent.getAction())) {
                 WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
                         .setAction(WeatherWidgetService.ACTION_REFRESHGPSWIDGETS));
+            } else if (CommonActions.ACTION_IMAGES_UPDATEWORKER.equals(intent.getAction())) {
+                ImageDatabaseWorker.enqueueAction(context, ImageDatabaseWorker.ACTION_UPDATEALARM);
             }
 
             Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent.getAction());

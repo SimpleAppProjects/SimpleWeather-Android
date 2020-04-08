@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.multidex.MultiDex;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.ApplicationLib;
@@ -139,6 +140,12 @@ public class App extends Application implements ApplicationLib, Application.Acti
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 break;
         }
+
+        // Receive Firebase messages
+        FirebaseMessaging.getInstance().subscribeToTopic("all");
+        if (BuildConfig.DEBUG) {
+            FirebaseMessaging.getInstance().subscribeToTopic("debug_all");
+        }
     }
 
     @Override
@@ -160,6 +167,7 @@ public class App extends Application implements ApplicationLib, Application.Acti
         filter.addAction(CommonActions.ACTION_WEATHER_UPDATEWIDGETWEATHER);
         filter.addAction(CommonActions.ACTION_WIDGET_REFRESHWIDGETS);
         filter.addAction(CommonActions.ACTION_WIDGET_RESETWIDGETS);
+        filter.addAction(CommonActions.ACTION_IMAGES_UPDATEWORKER);
 
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mCommonReceiver, filter);

@@ -37,4 +37,6 @@ public abstract class ImageDataHelperImpl {
     public abstract void clearCachedImageData();
 
     public abstract ImageData getDefaultImageData(String backgroundCode, Weather weather);
+
+    public abstract boolean isEmpty();
 }

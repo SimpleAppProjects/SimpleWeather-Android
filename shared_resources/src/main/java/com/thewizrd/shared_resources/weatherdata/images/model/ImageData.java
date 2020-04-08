@@ -6,9 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.thewizrd.shared_resources.utils.FileUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
-
-import java.io.File;
 
 @Entity(tableName = "imagedata")
 public class ImageData {
@@ -28,7 +27,7 @@ public class ImageData {
             Uri uri = Uri.parse(imageURL);
 
             if ("file".equals(uri.getScheme())) {
-                return uri.getPath() != null && new File(uri.getPath()).exists();
+                return uri.getPath() != null && FileUtils.isValid(uri);
             } else {
                 return uri.isAbsolute();
             }

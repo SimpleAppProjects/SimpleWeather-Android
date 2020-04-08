@@ -128,4 +128,9 @@ public class ImageDataHelperImplApp extends ImageDataHelperImpl {
 
         return imageData;
     }
+
+    @Override
+    public boolean isEmpty() {
+        return imageDataPrefs.getAll().isEmpty();
+    }
 }

@@ -1,10 +1,14 @@
 package com.thewizrd.shared_resources.utils;
 
+import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.core.util.AtomicFile;
+import androidx.core.util.ObjectsCompat;
 
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.SimpleLibrary;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.concurrent.Callable;
@@ -21,6 +26,35 @@ public class FileUtils {
         File file = new File(filePath);
 
         return file.exists() && file.length() > 0;
+    }
+
+    public static boolean isValid(Uri assetUri) {
+        if (assetUri != null && ObjectsCompat.equals(assetUri.getScheme(), "file")) {
+            String path = assetUri.getPath();
+            if (path != null && path.startsWith("/android_asset")) {
+                int startAsset = path.indexOf("/android_asset/");
+                path = path.substring(startAsset + 15);
+
+                InputStream stream = null;
+                try {
+                    Context context = SimpleLibrary.getInstance().getAppContext();
+                    stream = context.getResources().getAssets().open(path);
+                    return true;
+                } catch (IOException ignored) {
+                } finally {
+                    if (stream != null) {
+                        try {
+                            stream.close();
+                        } catch (IOException ignored) {
+                        }
+                    }
+                }
+            } else if (path != null) {
+                return new File(path).exists();
+            }
+        }
+
+        return false;
     }
 
     public static String readFile(final File file) {

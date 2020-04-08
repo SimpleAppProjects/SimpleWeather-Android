@@ -1,17 +1,23 @@
 package com.thewizrd.shared_resources.weatherdata.images;
 
+import android.content.Intent;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Source;
+import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.FirebaseHelper;
+import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.weatherdata.images.model.ImageData;
 
@@ -32,10 +38,12 @@ public class ImageDatabase {
                 Query query = db.collection("background_images")
                         .whereEqualTo("condition", backgroundCode);
 
-                QuerySnapshot querySnapshot;
+                QuerySnapshot querySnapshot = null;
                 try {
                     // Try to retrieve from cache first
-                    querySnapshot = Tasks.await(query.get(Source.CACHE));
+                    if (!ImageDataHelper.shouldInvalidateCache()) {
+                        querySnapshot = Tasks.await(query.get(Source.CACHE));
+                    }
                 } catch (ExecutionException | InterruptedException e) {
                     querySnapshot = null;
                 }
@@ -74,10 +82,12 @@ public class ImageDatabase {
                 Query query = db.collection("background_images")
                         .whereEqualTo("condition", backgroundCode);
 
-                QuerySnapshot querySnapshot;
+                QuerySnapshot querySnapshot = null;
                 try {
                     // Try to retrieve from cache first
-                    querySnapshot = Tasks.await(query.get(Source.CACHE));
+                    if (!ImageDataHelper.shouldInvalidateCache()) {
+                        querySnapshot = Tasks.await(query.get(Source.CACHE));
+                    }
                 } catch (ExecutionException | InterruptedException e) {
                     querySnapshot = null;
                 }
@@ -127,7 +137,36 @@ public class ImageDatabase {
                 } catch (ExecutionException | InterruptedException e) {
                     Logger.writeLine(Log.ERROR, e);
                 }
+
+                // Register worker
+                ApplicationLib app = SimpleLibrary.getInstance().getApp();
+                if (app.isPhone()) {
+                    LocalBroadcastManager.getInstance(app.getAppContext())
+                            .sendBroadcast(new Intent(CommonActions.ACTION_IMAGES_UPDATEWORKER));
+                }
                 return null;
+            }
+        });
+    }
+
+    public static long getLastUpdateTime() {
+        return new AsyncTask<Long>().await(new Callable<Long>() {
+            @Override
+            public Long call() {
+                FirebaseFirestore db = FirebaseHelper.getFirestoreDB();
+                DocumentReference docRef = db.collection("background_images_info")
+                        .document("collection_info");
+                try {
+                    DocumentSnapshot snapshot = Tasks.await(docRef.get(Source.DEFAULT));
+                    Long updateTime = snapshot.getLong("last_updated");
+                    if (updateTime != null) {
+                        return updateTime;
+                    }
+                } catch (ExecutionException | InterruptedException e) {
+                    Logger.writeLine(Log.ERROR, e);
+                }
+
+                return 0L;
             }
         });
     }
