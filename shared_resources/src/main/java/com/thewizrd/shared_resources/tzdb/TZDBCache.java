@@ -7,7 +7,6 @@ import androidx.room.Room;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import com.skedgo.converter.TimezoneMapper;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.database.TZDatabase;
@@ -52,7 +51,7 @@ public class TZDBCache {
             final String result = new AsyncTask<String>().await(new Callable<String>() {
                 @Override
                 public String call() {
-                    return TimezoneMapper.latLngToTimezoneString(latitude, longitude);
+                    return new TimeZoneProvider().getTimeZone(latitude, longitude);
                 }
             });
 

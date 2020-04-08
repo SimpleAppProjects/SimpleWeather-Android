@@ -29,6 +29,27 @@ public class FirebaseHelper {
         return FirebaseStorage.getInstance();
     }
 
+    public static String getAccessToken() {
+        checkSignIn();
+        final FirebaseAuth auth = FirebaseAuth.getInstance();
+        return new AsyncTask<String>().await(new Callable<String>() {
+            @Override
+            public String call() {
+                if (auth.getCurrentUser() != null) {
+                    String token = null;
+                    try {
+                        token = Tasks.await(auth.getCurrentUser().getIdToken(true)).getToken();
+                    } catch (Exception e) {
+                        Logger.writeLine(Log.DEBUG, "Error getting user token");
+                    }
+
+                    return token;
+                }
+                return null;
+            }
+        });
+    }
+
     private static void checkSignIn() {
         final FirebaseAuth auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() == null) {

@@ -16,6 +16,7 @@ import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tzdb.TimeZoneProvider;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -128,6 +129,13 @@ public class WeatherUnitTest {
             }
         });
         Assert.assertTrue(!StringUtils.isNullOrWhitespace(token));
+    }
+
+    @Test
+    public void getTimeZone() {
+        String tz = new TimeZoneProvider().getTimeZone(0, 0);
+        Log.d("TZTest", "tz = " + tz);
+        Assert.assertTrue(!StringUtils.isNullOrWhitespace(tz));
     }
 
     @Test
