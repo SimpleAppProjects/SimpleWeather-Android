@@ -5,6 +5,8 @@ import android.location.Location;
 import android.text.format.DateFormat;
 import android.util.SparseArray;
 
+import androidx.annotation.ColorInt;
+
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.ImageDataViewModel;
@@ -671,6 +673,132 @@ public class WeatherUtils {
         }
 
         return null;
+    }
+
+    @ColorInt
+    public static int getWeatherBackgroundColor(Weather weather) {
+        int rgb = -1;
+        String icon = weather.getCondition().getIcon();
+        WeatherManager wm = WeatherManager.getInstance();
+
+        // Apply background based on weather condition
+        switch (icon) {
+            // Rain
+            case WeatherIcons.DAY_RAIN:
+            case WeatherIcons.DAY_RAIN_MIX:
+            case WeatherIcons.DAY_RAIN_WIND:
+            case WeatherIcons.DAY_SHOWERS:
+            case WeatherIcons.DAY_SLEET:
+            case WeatherIcons.DAY_SPRINKLE:
+                rgb = 0xFF475374;
+                break;
+            case WeatherIcons.NIGHT_ALT_HAIL:
+            case WeatherIcons.NIGHT_ALT_RAIN:
+            case WeatherIcons.NIGHT_ALT_RAIN_MIX:
+            case WeatherIcons.NIGHT_ALT_RAIN_WIND:
+            case WeatherIcons.NIGHT_ALT_SHOWERS:
+            case WeatherIcons.NIGHT_ALT_SLEET:
+            case WeatherIcons.NIGHT_ALT_SPRINKLE:
+            case WeatherIcons.RAIN:
+            case WeatherIcons.RAIN_MIX:
+            case WeatherIcons.RAIN_WIND:
+            case WeatherIcons.SHOWERS:
+            case WeatherIcons.SLEET:
+            case WeatherIcons.SPRINKLE:
+                rgb = 0xFF181010;
+                break;
+            // Tornado / Hurricane / Thunderstorm / Tropical Storm
+            case WeatherIcons.DAY_LIGHTNING:
+            case WeatherIcons.DAY_THUNDERSTORM:
+                rgb = 0xFF283848;
+                break;
+            case WeatherIcons.NIGHT_ALT_LIGHTNING:
+            case WeatherIcons.NIGHT_ALT_THUNDERSTORM:
+            case WeatherIcons.LIGHTNING:
+            case WeatherIcons.THUNDERSTORM:
+                rgb = 0xFF181830;
+                break;
+            case WeatherIcons.DAY_STORM_SHOWERS:
+            case WeatherIcons.DAY_SLEET_STORM:
+            case WeatherIcons.STORM_SHOWERS:
+            case WeatherIcons.NIGHT_ALT_STORM_SHOWERS:
+            case WeatherIcons.NIGHT_ALT_SLEET_STORM:
+            case WeatherIcons.HAIL:
+            case WeatherIcons.HURRICANE:
+            case WeatherIcons.TORNADO:
+                rgb = 0xFF182830;
+                break;
+            // Dust
+            case WeatherIcons.DUST:
+            case WeatherIcons.SANDSTORM:
+                rgb = 0xFFB06810;
+                break;
+            // Foggy / Haze
+            case WeatherIcons.DAY_FOG:
+            case WeatherIcons.DAY_HAZE:
+            case WeatherIcons.FOG:
+            case WeatherIcons.NIGHT_FOG:
+            case WeatherIcons.SMOG:
+            case WeatherIcons.SMOKE:
+                rgb = 0xFF252524;
+                break;
+            // Snow / Snow Showers/Storm
+            case WeatherIcons.DAY_SNOW:
+            case WeatherIcons.DAY_SNOW_THUNDERSTORM:
+            case WeatherIcons.NIGHT_ALT_SNOW:
+            case WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM:
+            case WeatherIcons.SNOW:
+                rgb = 0xFF646464;
+                break;
+            case WeatherIcons.SNOW_WIND:
+            case WeatherIcons.DAY_SNOW_WIND:
+            case WeatherIcons.NIGHT_ALT_SNOW_WIND:
+                rgb = 0xFF545454;
+                break;
+            /* Ambigious weather conditions */
+            // (Mostly) Cloudy
+            case WeatherIcons.CLOUD:
+            case WeatherIcons.CLOUDY:
+            case WeatherIcons.CLOUDY_GUSTS:
+            case WeatherIcons.CLOUDY_WINDY:
+            case WeatherIcons.DAY_CLOUDY:
+            case WeatherIcons.DAY_CLOUDY_GUSTS:
+            case WeatherIcons.DAY_CLOUDY_HIGH:
+            case WeatherIcons.DAY_CLOUDY_WINDY:
+            case WeatherIcons.NIGHT_ALT_CLOUDY:
+            case WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS:
+            case WeatherIcons.NIGHT_ALT_CLOUDY_HIGH:
+            case WeatherIcons.NIGHT_ALT_CLOUDY_WINDY:
+                if (wm.isNight(weather))
+                    rgb = 0xFF182020;
+                else
+                    rgb = 0xFF5080A8;
+                break;
+            // Partly Cloudy
+            case WeatherIcons.DAY_SUNNY_OVERCAST:
+            case WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY:
+                if (wm.isNight(weather))
+                    rgb = 0xFF181820;
+                else
+                    rgb = 0xFF256AAD;
+                break;
+            case WeatherIcons.DAY_SUNNY:
+            case WeatherIcons.NA:
+            case WeatherIcons.NIGHT_CLEAR:
+            case WeatherIcons.SNOWFLAKE_COLD:
+            case WeatherIcons.DAY_HOT:
+            case WeatherIcons.WINDY:
+            case WeatherIcons.STRONG_WIND:
+            default:
+                // Set background based using sunset/rise times
+                if (wm.isNight(weather))
+                    rgb = 0xFF181018;
+                else
+                    rgb = 0xFF20A8D8;
+                break;
+        }
+
+        return rgb;
     }
 
     public static class Coordinate {

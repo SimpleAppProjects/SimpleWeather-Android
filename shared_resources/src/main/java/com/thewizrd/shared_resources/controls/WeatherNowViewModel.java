@@ -216,9 +216,17 @@ public class WeatherNowViewModel extends ObservableViewModel {
                         imageData = null;
                         notifyPropertyChanged(BR.imageData);
                     }
-                    if (origPendingBackground != DEFAULT_COLOR) {
-                        origPendingBackground = pendingBackground = DEFAULT_COLOR;
-                        notifyPropertyChanged(BR.pendingBackground);
+                    if (!isPhone) {
+                        origPendingBackground = WeatherUtils.getWeatherBackgroundColor(weather);
+                        if (origPendingBackground != pendingBackground) {
+                            pendingBackground = origPendingBackground;
+                            notifyPropertyChanged(BR.pendingBackground);
+                        }
+                    } else {
+                        if (origPendingBackground != DEFAULT_COLOR) {
+                            origPendingBackground = pendingBackground = DEFAULT_COLOR;
+                            notifyPropertyChanged(BR.pendingBackground);
+                        }
                     }
 
                     // Location
