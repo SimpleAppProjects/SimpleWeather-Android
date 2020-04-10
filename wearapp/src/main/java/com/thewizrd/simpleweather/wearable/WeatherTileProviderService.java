@@ -38,6 +38,8 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
+import com.thewizrd.shared_resources.weatherdata.Forecasts;
+import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
@@ -50,6 +52,9 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -167,16 +172,19 @@ public class WeatherTileProviderService extends TileProviderService {
         RemoteViews forecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.tile_forecast_layout_container);
         RemoteViews hrForecastPanel = null;
 
-        if (viewModel.getHourlyForecasts().size() > 0) {
+        List<ForecastItemViewModel> forecasts = getForecasts(FORECAST_LENGTH);
+        List<HourlyForecastItemViewModel> hrforecasts = getHourlyForecasts(FORECAST_LENGTH);
+
+        if (hrforecasts.size() > 0) {
             hrForecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.tile_forecast_layout_container);
         }
 
         for (int i = 0; i < FORECAST_LENGTH; i++) {
-            ForecastItemViewModel forecast = viewModel.getForecasts().get(i);
+            ForecastItemViewModel forecast = forecasts.get(i);
             addForecastItem(forecastPanel, forecast);
 
             if (hrForecastPanel != null) {
-                addForecastItem(hrForecastPanel, viewModel.getHourlyForecasts().get(i));
+                addForecastItem(hrForecastPanel, hrforecasts.get(i));
             }
         }
 
@@ -186,6 +194,46 @@ public class WeatherTileProviderService extends TileProviderService {
         }
 
         return updateViews;
+    }
+
+    private List<ForecastItemViewModel> getForecasts(int forecastLength) {
+        LocationData locationData = Settings.getHomeData();
+
+        if (locationData != null && locationData.isValid()) {
+            Forecasts forecasts = Settings.getWeatherForecastData(locationData.getQuery());
+
+            if (forecasts.getForecast() != null && forecasts.getForecast().size() >= forecastLength) {
+                List<ForecastItemViewModel> fcasts = new ArrayList<>();
+
+                for (int i = 0; i < Math.min(forecastLength, forecasts.getForecast().size()); i++) {
+                    fcasts.add(new ForecastItemViewModel(forecasts.getForecast().get(i)));
+                }
+
+                return fcasts;
+            }
+        }
+
+        return Collections.emptyList();
+    }
+
+    private List<HourlyForecastItemViewModel> getHourlyForecasts(int forecastLength) {
+        LocationData locationData = Settings.getHomeData();
+
+        if (locationData != null && locationData.isValid()) {
+            List<HourlyForecast> forecasts = Settings.getHourlyWeatherForecastDataByLimit(locationData.getQuery(), forecastLength);
+
+            if (forecasts != null && forecasts.size() > 0) {
+                List<HourlyForecastItemViewModel> fcasts = new ArrayList<>();
+
+                for (HourlyForecast fcast : forecasts) {
+                    fcasts.add(new HourlyForecastItemViewModel(fcast));
+                }
+
+                return fcasts;
+            }
+        }
+
+        return Collections.emptyList();
     }
 
     private void addForecastItem(RemoteViews forecastPanel, BaseForecastItemViewModel forecast) {
@@ -225,7 +273,7 @@ public class WeatherTileProviderService extends TileProviderService {
 
                     WeatherDataLoader wloader = new WeatherDataLoader(Settings.getHomeData());
 
-                    WeatherRequest.Builder request = new WeatherRequest.Builder().loadForecasts();
+                    WeatherRequest.Builder request = new WeatherRequest.Builder();
                     if (Settings.getDataSync() == WearableDataSync.OFF) {
                         request.forceRefresh(false);
                     } else {

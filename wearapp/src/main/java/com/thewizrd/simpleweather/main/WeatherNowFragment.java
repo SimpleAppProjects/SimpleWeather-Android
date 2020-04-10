@@ -48,7 +48,9 @@ import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.BR;
 import com.thewizrd.shared_resources.Constants;
+import com.thewizrd.shared_resources.controls.ForecastsViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -93,6 +95,8 @@ public class WeatherNowFragment extends Fragment
     private WeatherManager wm;
     private WeatherDataLoader wLoader = null;
     private WeatherNowViewModel weatherView = null;
+    private ForecastsViewModel forecastsView = null;
+    private WeatherAlertsViewModel alertsView = null;
 
     private FragmentActivity mActivity;
     private CancellationTokenSource cts;
@@ -181,6 +185,8 @@ public class WeatherNowFragment extends Fragment
 
                 if (weather != null && weather.isValid()) {
                     weatherView.updateView(weather);
+                    forecastsView.updateForecasts(location);
+                    alertsView.updateAlerts(location);
                     binding.swipeRefreshLayout.post(new Runnable() {
                         @Override
                         public void run() {
@@ -253,6 +259,8 @@ public class WeatherNowFragment extends Fragment
         super.onDestroy();
         wLoader = null;
         weatherView = null;
+        forecastsView = null;
+        alertsView = null;
         mActivity = null;
         cts = null;
     }
@@ -264,6 +272,8 @@ public class WeatherNowFragment extends Fragment
         App.getInstance().getPreferences().unregisterOnSharedPreferenceChangeListener(this);
         wLoader = null;
         weatherView = null;
+        forecastsView = null;
+        alertsView = null;
         mActivity = null;
         cts = null;
     }
@@ -442,7 +452,10 @@ public class WeatherNowFragment extends Fragment
         loaded = true;
 
         // Setup ViewModel
-        weatherView = new ViewModelProvider(mActivity).get(WeatherNowViewModel.class);
+        ViewModelProvider vmProvider = new ViewModelProvider(mActivity);
+        weatherView = vmProvider.get(WeatherNowViewModel.class);
+        forecastsView = vmProvider.get(ForecastsViewModel.class);
+        alertsView = vmProvider.get(WeatherAlertsViewModel.class);
     }
 
     @Override

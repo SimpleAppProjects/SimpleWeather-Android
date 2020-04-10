@@ -1,20 +1,19 @@
 package com.thewizrd.shared_resources.database;
 
+import androidx.lifecycle.LiveData;
+import androidx.paging.DataSource;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Transaction;
-import androidx.room.TypeConverters;
 
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecasts;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlerts;
-
-import org.threeten.bp.ZonedDateTime;
 
 import java.util.List;
 
@@ -66,6 +65,9 @@ public interface WeatherDAO {
     @Query("SELECT * FROM weatheralerts WHERE `query` = :query")
     public WeatherAlerts getWeatherAlertData(String query);
 
+    @Query("SELECT * FROM weatheralerts WHERE `query` = :query")
+    public LiveData<WeatherAlerts> getLiveWeatherAlertData(String query);
+
     @Query("SELECT COUNT(*) FROM weatheralerts")
     public int getWeatherAlertDataCount();
 
@@ -89,6 +91,9 @@ public interface WeatherDAO {
     @Query("SELECT * FROM forecasts WHERE `query` = :query")
     public Forecasts getForecastData(String query);
 
+    @Query("SELECT * FROM forecasts WHERE `query` = :query")
+    public LiveData<Forecasts> getLiveForecastData(String query);
+
     @Query("SELECT COUNT(*) FROM forecasts GROUP BY `query`")
     public int getForecastDataCountGroupedByQuery();
 
@@ -108,15 +113,19 @@ public interface WeatherDAO {
 
     @Transaction
     @Query("SELECT `hrforecastblob` FROM hr_forecasts WHERE `query` = :key ORDER BY `dateblob`")
-    public List<HourlyForecast> loadHourlyForecastsByQueryOrderByDate(String key);
+    public List<HourlyForecast> getHourlyForecastsByQueryOrderByDate(String key);
 
     @Transaction
-    @Query("SELECT `hrforecastblob` FROM hr_forecasts WHERE `query` = :key AND `dateblob` > :date ORDER BY `dateblob` LIMIT :count")
-    public List<HourlyForecast> loadHourlyForecastsByQueryAndDateByCount(String key, @TypeConverters(SortableDateTimeConverters.class) ZonedDateTime date, int count);
+    @Query("SELECT `hrforecastblob` FROM hr_forecasts WHERE `query` = :key ORDER BY `dateblob` LIMIT :loadSize")
+    public List<HourlyForecast> getHourlyForecastsByQueryOrderByDateByLimit(String key, int loadSize);
 
     @Transaction
-    @Query("SELECT `hrforecastblob` FROM hr_forecasts WHERE `query` = :key ORDER BY `dateblob` LIMIT :count")
-    public List<HourlyForecast> loadHourlyForecastsByQueryByCount(String key, int count);
+    @Query("SELECT `hrforecastblob` FROM hr_forecasts WHERE `query` = :key ORDER BY `dateblob` LIMIT :loadSize")
+    public LiveData<List<HourlyForecast>> getLiveHourlyForecastsByQueryOrderByDateByLimit(String key, int loadSize);
+
+    @Transaction
+    @Query("SELECT `hrforecastblob` FROM hr_forecasts WHERE `query` = :key ORDER BY `dateblob`")
+    public DataSource.Factory<Integer, HourlyForecast> loadHourlyForecastsByQueryOrderByDate(String key);
 
     @Query("SELECT COUNT(*) FROM hr_forecasts WHERE `query` = :key")
     public int getHourlyForecastCountByQuery(String key);

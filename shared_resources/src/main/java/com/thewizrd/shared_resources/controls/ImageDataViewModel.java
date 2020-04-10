@@ -4,11 +4,10 @@ import android.graphics.Color;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.RestrictTo;
-import androidx.lifecycle.ViewModel;
 
 import com.thewizrd.shared_resources.weatherdata.images.model.ImageData;
 
-public class ImageDataViewModel extends ViewModel {
+public class ImageDataViewModel {
     private String artistName;
     private @ColorInt
     int color;

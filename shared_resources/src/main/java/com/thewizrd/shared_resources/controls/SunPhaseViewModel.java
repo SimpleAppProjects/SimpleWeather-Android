@@ -2,14 +2,12 @@ package com.thewizrd.shared_resources.controls;
 
 import android.text.format.DateFormat;
 
-import androidx.lifecycle.ViewModel;
-
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.weatherdata.Astronomy;
 
 import org.threeten.bp.format.DateTimeFormatter;
 
-public class SunPhaseViewModel extends ViewModel {
+public class SunPhaseViewModel {
     private String sunrise;
     private String sunset;
 

@@ -34,8 +34,8 @@ public class WeatherAlertPanelAdapter extends RecyclerView.Adapter {
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public WeatherAlertPanelAdapter(List<WeatherAlertViewModel> myDataset) {
-        mDataset = myDataset;
+    public WeatherAlertPanelAdapter() {
+        mDataset = new ArrayList<>();
     }
 
     @SuppressLint("NewApi")
@@ -66,19 +66,24 @@ public class WeatherAlertPanelAdapter extends RecyclerView.Adapter {
     }
 
     public void updateItems(List<WeatherAlertViewModel> items) {
-        List<WeatherAlertViewModel> oldItems = new ArrayList<>(mDataset);
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ListDiffUtilCallback<WeatherAlertViewModel>(oldItems, items) {
-            @Override
-            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                WeatherAlertViewModel oldItem = getOldList().get(oldItemPosition);
-                WeatherAlertViewModel newItem = getNewList().get(newItemPosition);
+        if (items != null) {
+            List<WeatherAlertViewModel> oldItems = new ArrayList<>(mDataset);
+            DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ListDiffUtilCallback<WeatherAlertViewModel>(oldItems, items) {
+                @Override
+                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                    WeatherAlertViewModel oldItem = getOldList().get(oldItemPosition);
+                    WeatherAlertViewModel newItem = getNewList().get(newItemPosition);
 
-                return oldItem.getAlertType() == newItem.getAlertType() && oldItem.getAlertSeverity() == newItem.getAlertSeverity();
-            }
-        });
-        mDataset.clear();
-        mDataset.addAll(items);
-        diffResult.dispatchUpdatesTo(this);
-        oldItems.clear();
+                    return oldItem.getAlertType() == newItem.getAlertType() && oldItem.getAlertSeverity() == newItem.getAlertSeverity();
+                }
+            });
+            mDataset.clear();
+            mDataset.addAll(items);
+            diffResult.dispatchUpdatesTo(this);
+            oldItems.clear();
+        } else {
+            mDataset.clear();
+            notifyDataSetChanged();
+        }
     }
 }

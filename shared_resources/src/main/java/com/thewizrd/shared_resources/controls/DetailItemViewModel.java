@@ -3,7 +3,6 @@ package com.thewizrd.shared_resources.controls;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.ViewModel;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
@@ -13,7 +12,7 @@ import com.thewizrd.shared_resources.weatherdata.MoonPhase;
 
 import java.util.Locale;
 
-public class DetailItemViewModel extends ViewModel {
+public class DetailItemViewModel {
     @NonNull
     private WeatherDetailsType detailsType;
     private CharSequence label;

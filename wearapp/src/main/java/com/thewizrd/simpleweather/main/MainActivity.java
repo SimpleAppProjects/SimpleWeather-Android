@@ -18,8 +18,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.paging.PagedList;
 import androidx.viewpager.widget.ViewPager;
 import androidx.wear.widget.drawer.WearableDrawerLayout;
 import androidx.wear.widget.drawer.WearableDrawerView;
@@ -29,6 +31,11 @@ import com.google.android.wearable.intent.RemoteIntent;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.BR;
 import com.thewizrd.shared_resources.Constants;
+import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
+import com.thewizrd.shared_resources.controls.ForecastsViewModel;
+import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
+import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
+import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
@@ -56,6 +63,8 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
     private Runnable mItemSelectedRunnable;
 
     private WeatherNowViewModel weatherNowView;
+    private ForecastsViewModel forecastsView;
+    private WeatherAlertsViewModel alertsView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,7 +180,10 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, filter);
 
         // Create your application here
-        this.weatherNowView = new ViewModelProvider(this).get(WeatherNowViewModel.class);
+        final ViewModelProvider vmProvider = new ViewModelProvider(this);
+        this.weatherNowView = vmProvider.get(WeatherNowViewModel.class);
+        this.forecastsView = vmProvider.get(ForecastsViewModel.class);
+        this.alertsView = vmProvider.get(WeatherAlertsViewModel.class);
         weatherNowView.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
             @Override
             public void onPropertyChanged(Observable sender, final int propertyId) {
@@ -181,11 +193,27 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
                         if (propertyId == BR.pendingBackground) {
                             binding.bottomActionDrawer.setBackgroundColor(weatherNowView.getPendingBackground());
                             binding.topNavDrawer.setBackgroundColor(weatherNowView.getPendingBackground());
-                        } else if (propertyId == BR.forecasts || propertyId == BR.hourlyForecasts || propertyId == BR.alerts) {
-                            mNavDrawerAdapter.updateNavDrawerItems();
                         }
                     }
                 });
+            }
+        });
+        forecastsView.getForecasts().observe(this, new Observer<PagedList<ForecastItemViewModel>>() {
+            @Override
+            public void onChanged(PagedList<ForecastItemViewModel> forecastItemViewModels) {
+                mNavDrawerAdapter.updateNavDrawerItems();
+            }
+        });
+        forecastsView.getHourlyForecasts().observe(this, new Observer<PagedList<HourlyForecastItemViewModel>>() {
+            @Override
+            public void onChanged(PagedList<HourlyForecastItemViewModel> forecastItemViewModels) {
+                mNavDrawerAdapter.updateNavDrawerItems();
+            }
+        });
+        alertsView.getAlerts().observe(this, new Observer<List<WeatherAlertViewModel>>() {
+            @Override
+            public void onChanged(List<WeatherAlertViewModel> alertViewModels) {
+                mNavDrawerAdapter.updateNavDrawerItems();
             }
         });
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
@@ -418,21 +446,19 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
                 @Override
                 public List<NavDrawerItem> call() {
                     List<NavDrawerItem> items = new ArrayList<>(navDrawerItems);
-                    if (weatherNowView.getAlerts().size() == 0) {
-                        List<NavDrawerItem> tmp = new ArrayList<>();
-                        for (NavDrawerItem item : items) {
-                            if (item.titleString != R.string.title_fragment_alerts)
-                                tmp.add(item);
+                    for (NavDrawerItem item : navDrawerItems) {
+                        if (item.titleString == R.string.title_fragment_alerts &&
+                                (alertsView.getAlerts().getValue() == null || alertsView.getAlerts().getValue().size() == 0)) {
+                            items.remove(item);
                         }
-                        items = tmp;
-                    }
-                    if (weatherNowView.getHourlyForecasts().size() == 0) {
-                        List<NavDrawerItem> tmp = new ArrayList<>();
-                        for (NavDrawerItem item : items) {
-                            if (item.titleString != R.string.label_hourlyforecast)
-                                tmp.add(item);
+                        if (item.titleString == R.string.label_forecast &&
+                                (forecastsView.getForecasts().getValue() == null || forecastsView.getForecasts().getValue().size() == 0)) {
+                            items.remove(item);
                         }
-                        items = tmp;
+                        if (item.titleString == R.string.label_hourlyforecast &&
+                                (forecastsView.getHourlyForecasts().getValue() == null || forecastsView.getHourlyForecasts().getValue().size() == 0)) {
+                            items.remove(item);
+                        }
                     }
 
                     return items;

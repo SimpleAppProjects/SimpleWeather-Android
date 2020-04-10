@@ -18,25 +18,17 @@ import com.thewizrd.shared_resources.BR;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
-import com.thewizrd.shared_resources.helpers.ListChangedArgs;
-import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.WeatherIconTextSpan;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.ObservableForecastLoadingList;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
-import com.thewizrd.shared_resources.weatherdata.Forecast;
-import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
-import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
-import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
-import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.util.ArrayList;
@@ -64,13 +56,6 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private MoonPhaseViewModel moonPhase;
     private AirQualityViewModel airQuality;
 
-    // Forecast
-    private ObservableForecastLoadingList<ForecastItemViewModel> forecasts;
-
-    // Additional Details
-    private ObservableForecastLoadingList<HourlyForecastItemViewModel> hourlyForecasts;
-    private List<WeatherAlertViewModel> alerts;
-
     // Radar
     private static final String radarUrlFormat = "https://earth.nullschool.net/#current/wind/surface/level/overlay=precip_3hr/orthographic=%s,%s,3000";
     private String radarURL;
@@ -86,8 +71,6 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private String weatherSource;
 
     private String weatherLocale;
-
-    private boolean isObserved;
 
     @Bindable
     public String getLocation() {
@@ -150,23 +133,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
     }
 
     @Bindable
-    public List<ForecastItemViewModel> getForecasts() {
-        return forecasts;
-    }
-
-    @Bindable
-    public List<HourlyForecastItemViewModel> getHourlyForecasts() {
-        return hourlyForecasts;
-    }
-
-    @Bindable
     public List<DetailItemViewModel> getWeatherDetails() {
         return weatherDetails;
-    }
-
-    @Bindable
-    public List<WeatherAlertViewModel> getAlerts() {
-        return alerts;
     }
 
     @Bindable
@@ -209,38 +177,10 @@ public class WeatherNowViewModel extends ObservableViewModel {
         return weatherLocale;
     }
 
-    public boolean isObserved() {
-        return isObserved;
-    }
-
-    public void setObserved(boolean observed) {
-        isObserved = observed;
-    }
-
-    private WeatherManager wm;
     private Weather weather;
 
     public WeatherNowViewModel() {
-        wm = WeatherManager.getInstance();
-
-        forecasts = new ObservableForecastLoadingList<>(ForecastItemViewModel.class);
-        forecasts.addOnListChangedCallback(new OnListChangedListener<ForecastItemViewModel>() {
-            @Override
-            public void onChanged(ArrayList<ForecastItemViewModel> sender, ListChangedArgs<ForecastItemViewModel> args) {
-                notifyPropertyChanged(BR.forecasts);
-            }
-        });
-
-        hourlyForecasts = new ObservableForecastLoadingList<>(HourlyForecastItemViewModel.class);
-        hourlyForecasts.addOnListChangedCallback(new OnListChangedListener<HourlyForecastItemViewModel>() {
-            @Override
-            public void onChanged(ArrayList<HourlyForecastItemViewModel> sender, ListChangedArgs<HourlyForecastItemViewModel> args) {
-                notifyPropertyChanged(BR.hourlyForecasts);
-            }
-        });
-
         weatherDetails = new ArrayList<>(WeatherDetailsType.values().length);
-        alerts = new ArrayList<>();
     }
 
     public WeatherNowViewModel(Weather weather) {
@@ -529,72 +469,6 @@ public class WeatherNowViewModel extends ObservableViewModel {
                     notifyPropertyChanged(BR.moonPhase);
                     notifyPropertyChanged(BR.weatherDetails);
 
-                    // Load forecasts
-                    // TODO: Move forecasts out and use LiveData or PagedList
-                    if (!isObserved && weather.getForecast() != null && weather.getForecast().size() > 0) {
-                        forecasts.clear();
-
-                        int textForecastSize = weather.getTxtForecast() != null ? weather.getTxtForecast().size() : 0;
-
-                        boolean isDayAndNt = textForecastSize == weather.getForecast().size() * 2;
-                        boolean addTextFct = isDayAndNt || textForecastSize == weather.getForecast().size();
-                        for (int i = 0; i < weather.getForecast().size(); i++) {
-                            Forecast forecast = weather.getForecast().get(i);
-                            ForecastItemViewModel forecastView;
-
-                            if (addTextFct) {
-                                if (isDayAndNt)
-                                    forecastView = new ForecastItemViewModel(forecast, weather.getTxtForecast().get(i * 2), weather.getTxtForecast().get((i * 2) + 1));
-                                else
-                                    forecastView = new ForecastItemViewModel(forecast, weather.getTxtForecast().get(i));
-                            } else {
-                                forecastView = new ForecastItemViewModel(forecast);
-                            }
-
-                            forecasts.add(forecastView);
-                        }
-                    } else {
-                        // Let collection handle changes (clearing, etc.)
-                        forecasts.setWeather(weather);
-                    }
-                    notifyPropertyChanged(BR.forecasts);
-
-                    // Load hourly forecasts
-                    // TODO: Move forecasts out and use LiveData or PagedList
-                    if (!isObserved && weather.getHrForecast() != null && weather.getHrForecast().size() > 0) {
-                        hourlyForecasts.clear();
-
-                        for (final HourlyForecast hr_forecast : weather.getHrForecast()) {
-                            HourlyForecastItemViewModel hrforecastView;
-                            hrforecastView = new AsyncTask<HourlyForecastItemViewModel>().await(new Callable<HourlyForecastItemViewModel>() {
-                                @Override
-                                public HourlyForecastItemViewModel call() {
-                                    return new HourlyForecastItemViewModel(hr_forecast);
-                                }
-                            });
-                            hourlyForecasts.add(hrforecastView);
-                        }
-                    } else {
-                        // Let collection handle changes (clearing, etc.)
-                        hourlyForecasts.setWeather(weather);
-                    }
-                    notifyPropertyChanged(BR.hourlyForecasts);
-
-                    // Load alerts
-                    // TODO: Move alerts out and use LiveData or PagedList
-                    alerts.clear();
-                    if (weather.getWeatherAlerts() != null && weather.getWeatherAlerts().size() > 0) {
-                        for (WeatherAlert alert : weather.getWeatherAlerts()) {
-                            // Skip if alert has expired
-                            if (alert.getExpiresDate().compareTo(ZonedDateTime.now()) <= 0)
-                                continue;
-
-                            WeatherAlertViewModel alertView = new WeatherAlertViewModel(alert);
-                            alerts.add(alertView);
-                        }
-                    }
-                    notifyPropertyChanged(BR.alerts);
-
                     // Additional Details
                     if (!StringUtils.isNullOrWhitespace(weather.getLocation().getLatitude()) && !StringUtils.isNullOrWhitespace(weather.getLocation().getLongitude())) {
                         String newUrl = String.format(Locale.ROOT, radarUrlFormat, weather.getLocation().getLongitude(), weather.getLocation().getLatitude());
@@ -643,9 +517,6 @@ public class WeatherNowViewModel extends ObservableViewModel {
         weatherIcon = null;
         sunPhase = null;
         weatherDetails.clear();
-        forecasts.clear();
-        hourlyForecasts.clear();
-        alerts.clear();
         imageData = null;
         pendingBackground = -1;
         origPendingBackground = -1;
@@ -680,18 +551,6 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 return null;
             }
         });
-    }
-
-    @Override
-    public void notifyChange() {
-        if (!isObserved) return;
-        super.notifyChange();
-    }
-
-    @Override
-    public void notifyPropertyChanged(int fieldID) {
-        if (!isObserved) return;
-        super.notifyPropertyChanged(fieldID);
     }
 
     public boolean isValid() {

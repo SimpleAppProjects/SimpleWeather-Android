@@ -60,6 +60,8 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.TransparentOverlay;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.weatherdata.Forecasts;
+import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
@@ -73,6 +75,7 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
@@ -930,10 +933,8 @@ public class WeatherWidgetService extends JobIntentService {
             updateViews.setTextViewText(R.id.condition_weather,
                     String.format(Locale.ROOT, "%sº - %s", StringUtils.removeNonDigitChars(temp.toString()), weather.getCurCondition()));
 
-            ForecastItemViewModel todaysForecast = weather.getForecasts().get(0);
-
             updateViews.setTextViewText(R.id.condition_details,
-                    String.format(Locale.ROOT, "%s | %s", todaysForecast.getHiTemp(), todaysForecast.getLoTemp()));
+                    String.format(Locale.ROOT, "%s | %s", weather.getHiTemp(), weather.getLoTemp()));
         } else if (provider.getWidgetType() == WidgetType.Widget4x2) {
             // Condition text
             updateViews.setTextViewText(R.id.condition_weather, weather.getCurCondition());
@@ -1328,8 +1329,6 @@ public class WeatherWidgetService extends JobIntentService {
 
         // Determine forecast size
         int forecastLength = getForecastLength(provider.getWidgetType(), cellWidth);
-        if (weather.getForecasts().size() < forecastLength)
-            forecastLength = weather.getForecasts().size();
 
         if (provider.getWidgetType() == WidgetType.Widget4x2 || provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x1Google) {
             WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
@@ -1359,7 +1358,10 @@ public class WeatherWidgetService extends JobIntentService {
             RemoteViews forecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_layout_container);
             RemoteViews hrForecastPanel = null;
 
-            if (weather.getHourlyForecasts().size() > 0) {
+            List<ForecastItemViewModel> forecasts = getForecasts(appWidgetId, forecastLength);
+            List<HourlyForecastItemViewModel> hourlyForecasts = getHourlyForecasts(appWidgetId, forecastLength);
+
+            if (hourlyForecasts.size() > 0) {
                 updateViews.setViewVisibility(R.id.showPrevious, tap2SwitchEnabled ? View.GONE : View.VISIBLE);
                 updateViews.setViewVisibility(R.id.showNext, tap2SwitchEnabled ? View.GONE : View.VISIBLE);
                 hrForecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_layout_container);
@@ -1369,11 +1371,11 @@ public class WeatherWidgetService extends JobIntentService {
             }
 
             for (int i = 0; i < forecastLength; i++) {
-                ForecastItemViewModel forecast = weather.getForecasts().get(i);
+                ForecastItemViewModel forecast = forecasts.get(i);
                 addForecastItem(forecastPanel, provider, forecast, newOptions, textColor, tempTextSize);
 
                 if (hrForecastPanel != null) {
-                    addForecastItem(hrForecastPanel, provider, weather.getHourlyForecasts().get(i), newOptions, textColor, tempTextSize);
+                    addForecastItem(hrForecastPanel, provider, hourlyForecasts.get(i), newOptions, textColor, tempTextSize);
                 }
             }
 
@@ -1393,6 +1395,46 @@ public class WeatherWidgetService extends JobIntentService {
                 updateViews.setOnClickPendingIntent(R.id.forecast_layout, null);
             }
         }
+    }
+
+    private List<ForecastItemViewModel> getForecasts(int appWidgetId, int forecastLength) {
+        LocationData locationData = WidgetUtils.getLocationData(appWidgetId);
+
+        if (locationData != null && locationData.isValid()) {
+            Forecasts forecasts = Settings.getWeatherForecastData(locationData.getQuery());
+
+            if (forecasts.getForecast() != null && forecasts.getForecast().size() >= forecastLength) {
+                List<ForecastItemViewModel> fcasts = new ArrayList<>();
+
+                for (int i = 0; i < Math.min(forecastLength, forecasts.getForecast().size()); i++) {
+                    fcasts.add(new ForecastItemViewModel(forecasts.getForecast().get(i)));
+                }
+
+                return fcasts;
+            }
+        }
+
+        return Collections.emptyList();
+    }
+
+    private List<HourlyForecastItemViewModel> getHourlyForecasts(int appWidgetId, int forecastLength) {
+        LocationData locationData = WidgetUtils.getLocationData(appWidgetId);
+
+        if (locationData != null && locationData.isValid()) {
+            List<HourlyForecast> forecasts = Settings.getHourlyWeatherForecastDataByLimit(locationData.getQuery(), forecastLength);
+
+            if (forecasts != null && forecasts.size() > 0) {
+                List<HourlyForecastItemViewModel> fcasts = new ArrayList<>();
+
+                for (HourlyForecast fcast : forecasts) {
+                    fcasts.add(new HourlyForecastItemViewModel(fcast));
+                }
+
+                return fcasts;
+            }
+        }
+
+        return Collections.emptyList();
     }
 
     private static PendingIntent getShowPreviousIntent(Context context, WeatherWidgetProvider provider, int appWidgetId) {

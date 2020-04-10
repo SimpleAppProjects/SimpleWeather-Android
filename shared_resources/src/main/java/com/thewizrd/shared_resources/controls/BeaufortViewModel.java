@@ -1,12 +1,11 @@
 package com.thewizrd.shared_resources.controls;
 
 import androidx.annotation.ColorInt;
-import androidx.lifecycle.ViewModel;
 
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.weatherdata.Beaufort;
 
-public class BeaufortViewModel extends ViewModel {
+public class BeaufortViewModel {
     private DetailItemViewModel beaufort;
     private int progress;
     private int progressMax;

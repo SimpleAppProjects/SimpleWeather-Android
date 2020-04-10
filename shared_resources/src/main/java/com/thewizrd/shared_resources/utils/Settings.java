@@ -376,13 +376,24 @@ public class Settings {
         });
     }
 
+    public static List<HourlyForecast> getHourlyWeatherForecastDataByLimit(final String key, final int loadSize) {
+        return new AsyncTask<List<HourlyForecast>>().await(new Callable<List<HourlyForecast>>() {
+            @Override
+            public List<HourlyForecast> call() {
+                loadIfNeeded();
+
+                return weatherDB.weatherDAO().getHourlyForecastsByQueryOrderByDateByLimit(key, loadSize);
+            }
+        });
+    }
+
     public static List<HourlyForecast> getHourlyWeatherForecastData(final String key) {
         return new AsyncTask<List<HourlyForecast>>().await(new Callable<List<HourlyForecast>>() {
             @Override
             public List<HourlyForecast> call() {
                 loadIfNeeded();
 
-                return weatherDB.weatherDAO().loadHourlyForecastsByQueryOrderByDate(key);
+                return weatherDB.weatherDAO().getHourlyForecastsByQueryOrderByDate(key);
             }
         });
     }

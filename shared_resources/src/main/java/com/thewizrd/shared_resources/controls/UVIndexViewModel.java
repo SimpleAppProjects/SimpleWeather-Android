@@ -1,13 +1,12 @@
 package com.thewizrd.shared_resources.controls;
 
 import androidx.annotation.ColorInt;
-import androidx.lifecycle.ViewModel;
 
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.weatherdata.UV;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 
-public class UVIndexViewModel extends ViewModel {
+public class UVIndexViewModel {
     private CharSequence icon;
     private int index;
     private CharSequence description;

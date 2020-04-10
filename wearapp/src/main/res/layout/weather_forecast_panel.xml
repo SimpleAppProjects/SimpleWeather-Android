@@ -5,6 +5,10 @@
 
     <data>
 
+        <import type="android.view.View" />
+
+        <import type="com.thewizrd.shared_resources.utils.StringUtils" />
+
         <variable
             name="viewModel"
             type="com.thewizrd.shared_resources.controls.ForecastItemViewModel" />
@@ -66,6 +70,7 @@
             android:text="/"
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white"
+            android:visibility="@{!StringUtils.isNullOrWhitespace(viewModel.loTemp) ? View.VISIBLE : View.GONE}"
             tools:ignore="HardcodedText" />
 
         <androidx.appcompat.widget.AppCompatTextView

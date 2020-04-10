@@ -36,8 +36,8 @@ public class WeatherNotificationBuilder {
         RemoteViews updateViews = new RemoteViews(context.getPackageName(), R.layout.weather_notification_layout);
 
         String condition = viewModel.getCurCondition();
-        String hiTemp = viewModel.getForecasts().get(0).getHiTemp();
-        String loTemp = viewModel.getForecasts().get(0).getLoTemp();
+        String hiTemp = viewModel.getHiTemp();
+        String loTemp = viewModel.getLoTemp();
         String temp = StringUtils.removeNonDigitChars(viewModel.getCurTemp().toString());
 
         // Weather icon

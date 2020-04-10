@@ -4,14 +4,13 @@ import android.content.Context;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
-import androidx.lifecycle.ViewModel;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.weatherdata.AirQuality;
 
-public class AirQualityViewModel extends ViewModel {
+public class AirQualityViewModel {
     @NonNull
     private DetailItemViewModel airQuality;
     private int index;

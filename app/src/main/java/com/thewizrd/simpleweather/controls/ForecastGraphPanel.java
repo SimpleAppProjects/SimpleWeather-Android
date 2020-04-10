@@ -27,14 +27,9 @@ import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
-import com.thewizrd.shared_resources.helpers.ListChangedArgs;
-import com.thewizrd.shared_resources.helpers.ObservableArrayList;
-import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.utils.Colors;
-import com.thewizrd.shared_resources.utils.ILoadingCollection;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.ObservableLoadingArrayList;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
@@ -101,67 +96,6 @@ public class ForecastGraphPanel extends LinearLayout {
         view.invalidate();
     }
 
-    private LineView.OnLayoutChangeListener onLayoutChangeListener = new LineView.OnLayoutChangeListener() {
-        @Override
-        public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-            LineView lv = (LineView) v;
-            int distanceToEnd = lv.getExtentWidth() - (lv.getScrollX() + lv.getViewportWidth());
-
-            if (distanceToEnd <= lv.getViewportWidth() && forecasts instanceof ILoadingCollection) {
-                final ILoadingCollection collection = ((ILoadingCollection) forecasts);
-                final int desiredFetchSize = MAX_FETCH_SIZE - forecasts.size();
-                if (desiredFetchSize > 0 && collection.hasMoreItems() && !collection.isLoading()) {
-                    AsyncTask.run(new Runnable() {
-                        @Override
-                        public void run() {
-                            collection.loadMoreItems(desiredFetchSize);
-                        }
-                    });
-                }
-            }
-        }
-    };
-
-    private LineView.OnScrollChangeListener onScrollChangeListener = new LineView.OnScrollChangeListener() {
-        @Override
-        public void onScrollChange(LineView v, int scrollX, int oldScrollX) {
-            int distanceToEnd = v.getExtentWidth() - (scrollX + v.getViewportWidth());
-
-            if (distanceToEnd <= 2 * v.getViewportWidth() && forecasts instanceof ILoadingCollection) {
-                final ILoadingCollection collection = ((ILoadingCollection) forecasts);
-                final int desiredFetchSize = MAX_FETCH_SIZE - forecasts.size();
-                if (desiredFetchSize > 0 && collection.hasMoreItems() && !collection.isLoading()) {
-                    AsyncTask.run(new Runnable() {
-                        @Override
-                        public void run() {
-                            collection.loadMoreItems(desiredFetchSize);
-                        }
-                    });
-                }
-            }
-        }
-    };
-
-    private LineView.OnSizeChangedListener onSizeChangedListener = new LineView.OnSizeChangedListener() {
-        @Override
-        public void onSizeChanged(LineView v, int canvasWidth) {
-            if (v.getViewportWidth() > 0 && canvasWidth > 0) {
-                if (canvasWidth <= v.getViewportWidth() && forecasts instanceof ILoadingCollection) {
-                    final ILoadingCollection collection = ((ILoadingCollection) forecasts);
-                    final int desiredFetchSize = MAX_FETCH_SIZE - forecasts.size();
-                    if (desiredFetchSize > 0 && collection.hasMoreItems() && !collection.isLoading()) {
-                        AsyncTask.run(new Runnable() {
-                            @Override
-                            public void run() {
-                                collection.loadMoreItems(desiredFetchSize);
-                            }
-                        });
-                    }
-                }
-            }
-        }
-    };
-
     @SuppressLint("ClickableViewAccessibility")
     private void initialize(Context context) {
         this.context = context;
@@ -182,9 +116,6 @@ public class ForecastGraphPanel extends LinearLayout {
                 return false;
             }
         });
-        view.addOnLayoutChangeListener(onLayoutChangeListener);
-        view.setOnScrollChangedListener(onScrollChangeListener);
-        view.setOnSizeChangedListener(onSizeChangedListener);
 
         int tabHeight = (int) ActivityUtils.dpToPx(context, 48.f);
         int tabLayoutPadding = (int) ActivityUtils.dpToPx(context, 12.f);
@@ -319,17 +250,17 @@ public class ForecastGraphPanel extends LinearLayout {
 
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 switch (mGraphType) {
                     case FORECASTS:
                     default: // Temp
-                        updateForecastGraph(forecasts);
+                        updateForecastGraph();
                         break;
                     case WIND: // Wind
-                        updateWindForecastGraph(forecasts);
+                        updateWindForecastGraph();
                         break;
                     case PRECIPITATION: // PoP
-                        updatePrecipicationGraph(forecasts);
+                        updatePrecipicationGraph();
                         break;
                 }
                 return null;
@@ -339,34 +270,8 @@ public class ForecastGraphPanel extends LinearLayout {
         if (resetOffset) view.smoothScrollTo(0, 0);
     }
 
-    private void updateLineView(final List<BaseForecastItemViewModel> dataset, boolean resetOffset) {
-        updateLineViewColors();
-        updateTabs();
-
-        new AsyncTask<Void>().await(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                switch (mGraphType) {
-                    case FORECASTS:
-                    default: // Temp
-                        updateForecastGraph(dataset);
-                        break;
-                    case WIND: // Wind
-                        updateWindForecastGraph(dataset);
-                        break;
-                    case PRECIPITATION: // PoP
-                        updatePrecipicationGraph(dataset);
-                        break;
-                }
-                return null;
-            }
-        });
-
-        if (resetOffset) view.smoothScrollTo(0, 0);
-    }
-
-    private void updateForecastGraph(List<BaseForecastItemViewModel> dataset) {
-        if (dataset != null && dataset.size() > 0) {
+    private void updateForecastGraph() {
+        if (forecasts != null && forecasts.size() > 0) {
             view.setDrawGridLines(false);
             view.setDrawDotLine(false);
             view.setDrawDataLabels(true);
@@ -378,18 +283,15 @@ public class ForecastGraphPanel extends LinearLayout {
             List<YEntryData> hiTempDataset = new ArrayList<>();
             List<YEntryData> loTempDataset = null;
 
-            if (dataset.get(0) instanceof ForecastItemViewModel) {
+            if (forecasts.get(0) instanceof ForecastItemViewModel) {
                 loTempDataset = new ArrayList<>();
                 view.setDrawSeriesLabels(true);
             } else {
                 view.setDrawSeriesLabels(false);
             }
 
-            for (int i = 0; i < dataset.size(); i++) {
-                if (view.getDataLabels().size() + i + 1 > MAX_FETCH_SIZE)
-                    break;
-
-                BaseForecastItemViewModel forecastItemViewModel = dataset.get(i);
+            for (int i = 0; i < forecasts.size(); i++) {
+                BaseForecastItemViewModel forecastItemViewModel = forecasts.get(i);
 
                 try {
                     float hiTemp = Float.parseFloat(StringUtils.removeNonDigitChars(forecastItemViewModel.getHiTemp()));
@@ -449,8 +351,8 @@ public class ForecastGraphPanel extends LinearLayout {
         }
     }
 
-    private void updateWindForecastGraph(List<BaseForecastItemViewModel> dataset) {
-        if (dataset != null && dataset.size() > 0) {
+    private void updateWindForecastGraph() {
+        if (forecasts != null && forecasts.size() > 0) {
             view.setDrawGridLines(false);
             view.setDrawDotLine(false);
             view.setDrawDataLabels(true);
@@ -462,11 +364,8 @@ public class ForecastGraphPanel extends LinearLayout {
             List<XLabelData> labelData = new ArrayList<>();
             List<YEntryData> windDataSet = new ArrayList<>();
 
-            for (int i = 0; i < dataset.size(); i++) {
-                if (view.getDataLabels().size() + i + 1 > MAX_FETCH_SIZE)
-                    break;
-
-                BaseForecastItemViewModel forecastItemViewModel = dataset.get(i);
+            for (int i = 0; i < forecasts.size(); i++) {
+                BaseForecastItemViewModel forecastItemViewModel = forecasts.get(i);
 
                 try {
                     float wind = Float.parseFloat(StringUtils.removeNonDigitChars(forecastItemViewModel.getWindSpeed()));
@@ -492,8 +391,8 @@ public class ForecastGraphPanel extends LinearLayout {
         }
     }
 
-    private void updatePrecipicationGraph(List<BaseForecastItemViewModel> dataset) {
-        if (dataset != null && dataset.size() > 0) {
+    private void updatePrecipicationGraph() {
+        if (forecasts != null && forecasts.size() > 0) {
             view.setDrawGridLines(false);
             view.setDrawDotLine(false);
             view.setDrawDataLabels(true);
@@ -505,11 +404,8 @@ public class ForecastGraphPanel extends LinearLayout {
             List<XLabelData> labelData = new ArrayList<>();
             List<YEntryData> popDataSet = new ArrayList<>();
 
-            for (int i = 0; i < dataset.size(); i++) {
-                if (view.getDataLabels().size() + i + 1 > MAX_FETCH_SIZE)
-                    break;
-
-                BaseForecastItemViewModel forecastItemViewModel = dataset.get(i);
+            for (int i = 0; i < forecasts.size(); i++) {
+                BaseForecastItemViewModel forecastItemViewModel = forecasts.get(i);
 
                 try {
                     float pop = Float.parseFloat(StringUtils.removeNonDigitChars(forecastItemViewModel.getPop()));
@@ -535,30 +431,6 @@ public class ForecastGraphPanel extends LinearLayout {
         }
     }
 
-    private OnListChangedListener<BaseForecastItemViewModel> onListChangedListener = new OnListChangedListener<BaseForecastItemViewModel>() {
-        @Override
-        public void onChanged(final ArrayList<BaseForecastItemViewModel> sender, final ListChangedArgs<BaseForecastItemViewModel> args) {
-            if (forecasts instanceof ILoadingCollection) {
-                post(new Runnable() {
-                    @Override
-                    public void run() {
-                        switch (args.action) {
-                            case ADD:
-                                updateLineView(args.newItems, false);
-                                break;
-                            case MOVE:
-                            case REMOVE:
-                            case REPLACE:
-                            case RESET:
-                                resetLineView(false);
-                                break;
-                        }
-                    }
-                });
-            }
-        }
-    };
-
     public void updateColors(boolean isDark) {
         isDarkMode = isDark;
         updateLineViewColors();
@@ -566,19 +438,8 @@ public class ForecastGraphPanel extends LinearLayout {
 
     public void updateForecasts(@NonNull final List<BaseForecastItemViewModel> dataset) {
         if (forecasts != dataset) {
-            // Remove handler
-            if (forecasts instanceof ObservableLoadingArrayList) {
-                ((ObservableArrayList) forecasts).removeOnListChangedCallback(onListChangedListener);
-            }
-
             forecasts = dataset;
-
-            // Add new handler
-            if (forecasts instanceof ObservableLoadingArrayList) {
-                ((ObservableArrayList) forecasts).addOnListChangedCallback(onListChangedListener);
-            }
-
-            resetLineView(false);
+            resetLineView(true);
         }
     }
 }

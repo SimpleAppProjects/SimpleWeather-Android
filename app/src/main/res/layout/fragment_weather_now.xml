@@ -26,6 +26,14 @@
             type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
 
         <variable
+            name="alertsView"
+            type="com.thewizrd.shared_resources.controls.WeatherAlertsViewModel" />
+
+        <variable
+            name="forecastsView"
+            type="com.thewizrd.simpleweather.controls.ForecastGraphViewModel" />
+
+        <variable
             name="backgroundAlpha"
             type="ObservableInt" />
 
@@ -174,7 +182,7 @@
                             android:paddingLeft="4dp"
                             android:paddingEnd="4dp"
                             android:paddingRight="4dp"
-                            app:invisibleIfEmpty="@{weatherView.alerts}"
+                            app:invisibleIfEmpty="@{alertsView.alerts}"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
@@ -341,7 +349,7 @@
                         android:textColor="@android:color/white"
                         android:textStyle="bold"
                         app:darkModeEnabled="@{!weatherView.lightBackground}"
-                        app:hideIfEmpty="@{weatherView.forecasts}"
+                        app:hideIfEmpty="@{forecastsView.forecasts}"
                         app:layout_constraintBottom_toTopOf="@id/forecast_graph_panel"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -352,8 +360,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:darkModeEnabled="@{!weatherView.lightBackground}"
-                        app:forecast_data="@{weatherView.forecasts}"
-                        app:hideIfEmpty="@{weatherView.forecasts}"
+                        app:forecast_data="@{forecastsView.forecasts}"
+                        app:hideIfEmpty="@{forecastsView.forecasts}"
                         app:layout_constraintTop_toBottomOf="@id/forecast_label"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -367,7 +375,7 @@
                         android:alpha="0.2"
                         android:background="@android:color/white"
                         app:darkModeEnabled="@{!weatherView.lightBackground}"
-                        app:hideIfEmpty="@{weatherView.forecasts}"
+                        app:hideIfEmpty="@{forecastsView.forecasts}"
                         app:layout_constraintBottom_toTopOf="@id/hourly_forecast_label"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -384,7 +392,7 @@
                         android:textColor="@android:color/white"
                         android:textStyle="bold"
                         app:darkModeEnabled="@{!weatherView.lightBackground}"
-                        app:hideIfEmpty="@{weatherView.hourlyForecasts}"
+                        app:hideIfEmpty="@{forecastsView.hourlyForecasts}"
                         app:layout_constraintBottom_toTopOf="@id/hourly_forecast_graph_panel"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -395,8 +403,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:darkModeEnabled="@{!weatherView.lightBackground}"
-                        app:forecast_data="@{weatherView.hourlyForecasts}"
-                        app:hideIfEmpty="@{weatherView.hourlyForecasts}"
+                        app:forecast_data="@{forecastsView.hourlyForecasts}"
+                        app:hideIfEmpty="@{forecastsView.hourlyForecasts}"
                         app:layout_constraintTop_toBottomOf="@id/hourly_forecast_label"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -410,7 +418,7 @@
                         android:alpha="0.2"
                         android:background="@android:color/white"
                         app:darkModeEnabled="@{!weatherView.lightBackground}"
-                        app:hideIfEmpty="@{weatherView.hourlyForecasts}"
+                        app:hideIfEmpty="@{forecastsView.hourlyForecasts}"
                         app:layout_constraintBottom_toTopOf="@id/details_label"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"

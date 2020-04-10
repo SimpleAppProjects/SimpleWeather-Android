@@ -69,6 +69,16 @@ public class WeatherDetailItem extends ConstraintLayout {
             bindModel((ForecastItemViewModel) model);
         } else if (model instanceof HourlyForecastItemViewModel) {
             bindModel((HourlyForecastItemViewModel) model);
+        } else {
+            binding.forecastDate.setText("");
+            binding.forecastIcon.setText("");
+            binding.forecastCondition.setText("");
+            binding.forecastExtra.setVisibility(GONE);
+            binding.bodyCard.setVisibility(GONE);
+            binding.headerCard.setOnClickListener(null);
+            binding.bodyTextview.setText("");
+            binding.forecastExtra.setVisibility(GONE);
+            binding.forecastExtra.setText("");
         }
         binding.executePendingBindings();
     }

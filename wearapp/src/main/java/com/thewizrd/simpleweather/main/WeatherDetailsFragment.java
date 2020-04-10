@@ -95,7 +95,7 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
                             getView().setBackgroundColor(weatherView.getPendingBackground());
                     }
                 });
-            } else if (propertyId == BR.alerts || propertyId == BR.forecasts || propertyId == BR.hourlyForecasts) {
+            } else if (propertyId == BR.weatherDetails) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

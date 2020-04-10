@@ -1,10 +1,8 @@
 package com.thewizrd.shared_resources.controls;
 
-import androidx.lifecycle.ViewModel;
-
 import com.thewizrd.shared_resources.weatherdata.MoonPhase;
 
-public class MoonPhaseViewModel extends ViewModel {
+public class MoonPhaseViewModel {
     private DetailItemViewModel moonPhase;
     private MoonPhase.MoonPhaseType phaseType;
 

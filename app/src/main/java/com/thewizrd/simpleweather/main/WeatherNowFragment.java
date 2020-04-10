@@ -99,6 +99,7 @@ import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ImageDataViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.controls.SunPhaseViewModel;
+import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
@@ -124,6 +125,7 @@ import com.thewizrd.simpleweather.BuildConfig;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.DetailsItemGridAdapter;
 import com.thewizrd.simpleweather.controls.ForecastGraphPanel;
+import com.thewizrd.simpleweather.controls.ForecastGraphViewModel;
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView;
 import com.thewizrd.simpleweather.controls.SunPhaseView;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding;
@@ -171,6 +173,8 @@ public class WeatherNowFragment extends WindowColorFragment
     private WeatherManager wm;
     private WeatherDataLoader wLoader = null;
     private WeatherNowViewModel weatherView = null;
+    private ForecastGraphViewModel forecastsView = null;
+    private WeatherAlertsViewModel alertsView = null;
     private DataBindingComponent dataBindingComponent =
             new WeatherFragmentDataBindingComponent(this);
 
@@ -260,6 +264,9 @@ public class WeatherNowFragment extends WindowColorFragment
                 if (weather != null && weather.isValid()) {
                     weatherView.updateView(weather);
                     weatherView.updateBackground();
+                    forecastsView.updateForecasts(location);
+                    alertsView.updateAlerts(location);
+
                     if (binding.imageView.getDrawable() == null && binding.imageView.getTag(R.id.glide_custom_view_target_tag) == null) {
                         String backgroundUri = weatherView.getImageData() != null ? weatherView.getImageData().getImageURI() : null;
                         loadBackgroundImage(backgroundUri, false);
@@ -496,8 +503,10 @@ public class WeatherNowFragment extends WindowColorFragment
 
         final int systemNightMode = mActivity.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         // Setup ViewModel
-        weatherView = new ViewModelProvider(mActivity).get(WeatherNowViewModel.class);
-        weatherView.setObserved(true);
+        ViewModelProvider vmProvider = new ViewModelProvider(mActivity);
+        weatherView = vmProvider.get(WeatherNowViewModel.class);
+        forecastsView = vmProvider.get(ForecastGraphViewModel.class);
+        alertsView = vmProvider.get(WeatherAlertsViewModel.class);
         backgroundAlpha = new ObservableInt(0xFF); // int: 255
         gradientAlpha = new ObservableFloat(1.0f);
         // Dark Mode fields
@@ -517,6 +526,8 @@ public class WeatherNowFragment extends WindowColorFragment
                 dataBindingComponent);
 
         binding.setWeatherView(weatherView);
+        binding.setForecastsView(forecastsView);
+        binding.setAlertsView(alertsView);
         binding.setBackgroundAlpha(backgroundAlpha);
         binding.setGradientAlpha(gradientAlpha);
         binding.setDarkMode(mDarkThemeMode);
@@ -1444,7 +1455,6 @@ public class WeatherNowFragment extends WindowColorFragment
                     if (wLoader != null && !isCtsCancelRequested())
                         wLoader.loadWeatherData(new WeatherRequest.Builder()
                                 .forceRefresh(forceRefresh)
-                                .loadAlerts()
                                 .setErrorListener(WeatherNowFragment.this)
                                 .build())
                                 .addOnSuccessListener(mActivity, new OnSuccessListener<Weather>() {
@@ -2002,12 +2012,12 @@ public class WeatherNowFragment extends WindowColorFragment
 
         @BindingAdapter("hideIfEmpty")
         public <T extends Object> void hideIfEmpty(View view, Collection<T> c) {
-            view.setVisibility(c.isEmpty() ? View.GONE : View.VISIBLE);
+            view.setVisibility(c == null || c.isEmpty() ? View.GONE : View.VISIBLE);
         }
 
         @BindingAdapter("invisibleIfEmpty")
         public <T extends Object> void invisibleIfEmpty(View view, Collection<T> c) {
-            view.setVisibility(c.isEmpty() ? View.INVISIBLE : View.VISIBLE);
+            view.setVisibility(c == null || c.isEmpty() ? View.INVISIBLE : View.VISIBLE);
         }
     }
 }
