@@ -23,6 +23,7 @@ import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
+import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.WeatherDetailPanelBinding;
 
 import java.util.Locale;
@@ -70,15 +71,14 @@ public class WeatherDetailItem extends ConstraintLayout {
         } else if (model instanceof HourlyForecastItemViewModel) {
             bindModel((HourlyForecastItemViewModel) model);
         } else {
-            binding.forecastDate.setText("");
-            binding.forecastIcon.setText("");
-            binding.forecastCondition.setText("");
+            binding.forecastDate.setText(R.string.placeholder_text);
+            binding.forecastIcon.setText(WeatherIcons.NA);
+            binding.forecastCondition.setText(R.string.placeholder_text);
             binding.forecastExtra.setVisibility(GONE);
+            binding.forecastExtra.setText(R.string.placeholder_text);
             binding.bodyCard.setVisibility(GONE);
             binding.headerCard.setOnClickListener(null);
             binding.bodyTextview.setText("");
-            binding.forecastExtra.setVisibility(GONE);
-            binding.forecastExtra.setText("");
         }
         binding.executePendingBindings();
     }

@@ -247,7 +247,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                         int temp = (int) (Settings.isFahrenheit() ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC()));
                         curTempSSBuilder.append(Integer.toString(temp));
                     } else {
-                        curTempSSBuilder.append("---");
+                        curTempSSBuilder.append("--");
                     }
                     String unitTemp = Settings.isFahrenheit() ? WeatherIcons.FAHRENHEIT : WeatherIcons.CELSIUS;
                     curTempSSBuilder.append(unitTemp)
@@ -257,7 +257,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                         curTemp = curTempSSBuilder;
                         notifyPropertyChanged(BR.curTemp);
                     }
-                    String newCondition = (StringUtils.isNullOrWhitespace(weather.getCondition().getWeather()) ? "---" : weather.getCondition().getWeather());
+                    String newCondition = (StringUtils.isNullOrWhitespace(weather.getCondition().getWeather()) ? "--" : weather.getCondition().getWeather());
                     if (!ObjectsCompat.equals(curCondition, newCondition)) {
                         curCondition = newCondition;
                         notifyPropertyChanged(BR.curCondition);

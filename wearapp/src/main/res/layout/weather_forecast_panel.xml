@@ -28,7 +28,7 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:padding="4dp"
-            android:text="@{viewModel.date}"
+            android:text="@{viewModel != null ? viewModel.date : @string/placeholder_text}"
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white"
             tools:text="Thu 08" />
@@ -41,7 +41,7 @@
             android:gravity="center"
             android:paddingStart="@dimen/item_padding"
             android:paddingEnd="@dimen/item_padding"
-            android:text="@{viewModel.weatherIcon}"
+            android:text="@{viewModel != null ? viewModel.weatherIcon : @string/placeholder_text}"
             android:textAppearance="?android:textAppearanceLargeInverse"
             android:textColor="@android:color/white"
             android:textSize="14sp"
@@ -58,7 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="@{viewModel.hiTemp}"
+            android:text="@{viewModel != null ? viewModel.hiTemp : @string/placeholder_text}"
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white"
             tools:text="77º" />
@@ -70,7 +70,7 @@
             android:text="/"
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white"
-            android:visibility="@{!StringUtils.isNullOrWhitespace(viewModel.loTemp) ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel != null &amp;&amp; !StringUtils.isNullOrWhitespace(viewModel.loTemp) ? View.VISIBLE : View.GONE}"
             tools:ignore="HardcodedText" />
 
         <androidx.appcompat.widget.AppCompatTextView

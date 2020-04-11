@@ -240,7 +240,8 @@ public class WeatherListFragment extends ToolbarFragment {
                                             break;
                                     }
                                 }
-                            }).build())
+                            })
+                            .build())
                     .addOnSuccessListener(requireActivity(), new OnSuccessListener<Weather>() {
                         @Override
                         public void onSuccess(Weather weather) {
