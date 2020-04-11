@@ -165,7 +165,7 @@ public class WeatherWidgetService extends JobIntentService {
          * ie. (screen width x screen height x 4 x 1.5) bytes.
          */
         DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
-        maxBitmapSize = metrics.heightPixels * metrics.widthPixels * 4 * 1.5f;
+        maxBitmapSize = metrics.heightPixels * metrics.widthPixels * 4 * 1.0f;
     }
 
     @Override
