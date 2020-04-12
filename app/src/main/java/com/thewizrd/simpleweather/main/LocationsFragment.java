@@ -1715,6 +1715,7 @@ public class LocationsFragment extends ToolbarFragment
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    if (binding == null) return;
                     boolean dataMoved = (e.action == ListChangedAction.REMOVE || e.action == ListChangedAction.MOVE);
                     boolean onlyHomeIsLeft = (mAdapter.getFavoritesCount() == 1);
 

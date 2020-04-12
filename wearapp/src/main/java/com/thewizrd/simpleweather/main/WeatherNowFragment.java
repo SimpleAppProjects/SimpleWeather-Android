@@ -743,6 +743,7 @@ public class WeatherNowFragment extends Fragment
             binding.swipeRefreshLayout.post(new Runnable() {
                 @Override
                 public void run() {
+                    if (binding == null) return;
                     binding.swipeRefreshLayout.setRefreshing(true);
                 }
             });
@@ -794,6 +795,7 @@ public class WeatherNowFragment extends Fragment
                     binding.swipeRefreshLayout.post(new Runnable() {
                         @Override
                         public void run() {
+                            if (binding == null) return;
                             binding.swipeRefreshLayout.setRefreshing(true);
                         }
                     });
@@ -883,6 +885,7 @@ public class WeatherNowFragment extends Fragment
             binding.swipeRefreshLayout.post(new Runnable() {
                 @Override
                 public void run() {
+                    if (binding == null) return;
                     binding.swipeRefreshLayout.setRefreshing(true);
                 }
             });
@@ -915,7 +918,7 @@ public class WeatherNowFragment extends Fragment
         binding.swipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
-                if (isCtsCancelRequested())
+                if (isCtsCancelRequested() || binding == null)
                     return;
 
                 int color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);

@@ -273,6 +273,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     binding.refreshLayout.post(new Runnable() {
                         @Override
                         public void run() {
+                            if (binding == null) return;
                             binding.refreshLayout.setRefreshing(false);
                         }
                     });
@@ -919,7 +920,7 @@ public class WeatherNowFragment extends WindowColorFragment
                             binding.uvControl.getViewStub().post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (binding != null)
+                                    if (binding != null && binding.uvControl.getViewStub() != null)
                                         binding.uvControl.getViewStub().inflate();
                                 }
                             });
@@ -929,7 +930,7 @@ public class WeatherNowFragment extends WindowColorFragment
                             binding.beaufortControl.getViewStub().post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (binding != null)
+                                    if (binding != null && binding.beaufortControl.getViewStub() != null)
                                         binding.beaufortControl.getViewStub().inflate();
                                 }
                             });
@@ -939,7 +940,7 @@ public class WeatherNowFragment extends WindowColorFragment
                             binding.aqiControl.getViewStub().post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (binding != null)
+                                    if (binding != null && binding.aqiControl.getViewStub() != null)
                                         binding.aqiControl.getViewStub().inflate();
                                 }
                             });
@@ -949,7 +950,7 @@ public class WeatherNowFragment extends WindowColorFragment
                             binding.moonphaseControl.getViewStub().post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (binding != null)
+                                    if (binding != null && binding.moonphaseControl.getViewStub() != null)
                                         binding.moonphaseControl.getViewStub().inflate();
                                 }
                             });
@@ -960,7 +961,7 @@ public class WeatherNowFragment extends WindowColorFragment
                                 binding.radarControl.getViewStub().postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
-                                        if (binding != null)
+                                        if (binding != null && binding.radarControl.getViewStub() != null)
                                             binding.radarControl.getViewStub().inflate();
                                     }
                                 }, 1000);
@@ -1105,6 +1106,7 @@ public class WeatherNowFragment extends WindowColorFragment
             @Override
             public void run() {
                 // Reload background image
+                if (binding == null) return;
                 if (mActivity != null && !ObjectsCompat.equals(binding.imageView.getTag(), imageURI)) {
                     binding.imageView.setTag(imageURI);
                     if (!StringUtils.isNullOrWhitespace(imageURI)) {
@@ -1392,6 +1394,7 @@ public class WeatherNowFragment extends WindowColorFragment
             binding.refreshLayout.post(new Runnable() {
                 @Override
                 public void run() {
+                    if (binding == null) return;
                     binding.refreshLayout.setRefreshing(true);
                 }
             });
@@ -1432,6 +1435,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.weatherIcon.post(new Runnable() {
             @Override
             public void run() {
+                if (binding == null) return;
                 binding.weatherIcon.setLayoutParams(binding.weatherIcon.getLayoutParams());
             }
         });
@@ -1467,7 +1471,7 @@ public class WeatherNowFragment extends WindowColorFragment
             binding.detailsContainer.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (binding.scrollView.getChildCount() != 1) return;
+                    if (binding == null || binding.scrollView.getChildCount() != 1) return;
 
                     float pxWidth = binding.scrollView.getChildAt(0).getWidth();
 
@@ -1500,6 +1504,7 @@ public class WeatherNowFragment extends WindowColorFragment
             binding.gradientView.post(new Runnable() {
                 @Override
                 public void run() {
+                    if (binding == null) return;
                     int height = binding.getRoot().getHeight();
                     int width = binding.getRoot().getWidth();
 
@@ -1519,7 +1524,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.getRoot().post(new Runnable() {
             @Override
             public void run() {
-                if (isCtsCancelRequested())
+                if (isCtsCancelRequested() || binding == null)
                     return;
 
                 Configuration config = mActivity.getResources().getConfiguration();

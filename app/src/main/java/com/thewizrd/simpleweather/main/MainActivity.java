@@ -381,6 +381,7 @@ public class MainActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (binding == null) return;
                 // Actionbar, BottomNavBar & StatusBar
                 Configuration config = getResources().getConfiguration();
                 final boolean isLandscapeMode = config.orientation != Configuration.ORIENTATION_PORTRAIT && !ActivityUtils.isLargeTablet(MainActivity.this);

@@ -190,6 +190,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        if (binding == null) return;
                         if (propertyId == BR.pendingBackground) {
                             binding.bottomActionDrawer.setBackgroundColor(weatherNowView.getPendingBackground());
                             binding.topNavDrawer.setBackgroundColor(weatherNowView.getPendingBackground());

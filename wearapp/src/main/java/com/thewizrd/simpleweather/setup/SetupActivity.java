@@ -343,6 +343,7 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (binding == null) return;
                 binding.searchButton.setEnabled(enable);
                 binding.locationButton.setEnabled(enable);
                 if (enable) {

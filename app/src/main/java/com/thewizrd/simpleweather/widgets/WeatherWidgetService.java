@@ -1370,7 +1370,7 @@ public class WeatherWidgetService extends JobIntentService {
                 updateViews.setViewVisibility(R.id.showNext, View.GONE);
             }
 
-            for (int i = 0; i < forecastLength; i++) {
+            for (int i = 0; i < Math.min(forecastLength, forecasts.size()); i++) {
                 ForecastItemViewModel forecast = forecasts.get(i);
                 addForecastItem(forecastPanel, provider, forecast, newOptions, textColor, tempTextSize);
 
@@ -1403,7 +1403,7 @@ public class WeatherWidgetService extends JobIntentService {
         if (locationData != null && locationData.isValid()) {
             Forecasts forecasts = Settings.getWeatherForecastData(locationData.getQuery());
 
-            if (forecasts.getForecast() != null && forecasts.getForecast().size() >= forecastLength) {
+            if (forecasts.getForecast() != null && forecasts.getForecast().size() > 0) {
                 List<ForecastItemViewModel> fcasts = new ArrayList<>();
 
                 for (int i = 0; i < Math.min(forecastLength, forecasts.getForecast().size()); i++) {

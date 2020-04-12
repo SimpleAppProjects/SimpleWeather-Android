@@ -241,7 +241,8 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                             public void run() {
                                 mAdapter.getDataset().clear();
                                 mAdapter.notifyDataSetChanged();
-                                binding.recyclerView.setEnabled(false);
+                                if (binding != null)
+                                    binding.recyclerView.setEnabled(false);
                             }
                         });
 
@@ -435,7 +436,8 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                         @Override
                         public void run() {
                             mAdapter.setLocations(new ArrayList<>(results));
-                            binding.progressBar.setVisibility(View.GONE);
+                            if (binding != null)
+                                binding.progressBar.setVisibility(View.GONE);
                         }
                     });
                 }
@@ -456,7 +458,8 @@ public class LocationSearchFragment extends SwipeDismissFragment {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                binding.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+                if (binding != null)
+                    binding.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
             }
         });
     }

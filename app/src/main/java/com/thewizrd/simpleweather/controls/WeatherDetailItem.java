@@ -217,6 +217,7 @@ public class WeatherDetailItem extends ConstraintLayout {
             binding.forecastCondition.post(new Runnable() {
                 @Override
                 public void run() {
+                    if (binding == null) return;
                     TextPaint paint = binding.forecastCondition.getPaint();
                     float textWidth = paint.measureText(forecastView.getCondition());
 

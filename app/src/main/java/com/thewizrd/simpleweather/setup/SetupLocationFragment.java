@@ -424,6 +424,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (binding == null) return;
                 binding.searchBar.searchViewContainer.setEnabled(enable);
                 binding.gpsFollow.setEnabled(enable);
                 binding.progressBar.setVisibility(enable ? View.GONE : View.VISIBLE);
@@ -609,7 +610,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
 
                         // Setup complete
                         mDataManager.getArguments().putString(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class));
-                        runOnUiThread(new Runnable() {
+                        mStepperLayout.post(new Runnable() {
                             @Override
                             public void run() {
                                 mStepperLayout.proceed();
@@ -625,9 +626,10 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
         binding.gpsFollow.setEnabled(false);
 
         // Show loading bar
-        runOnUiThread(new Runnable() {
+        binding.progressBar.post(new Runnable() {
             @Override
             public void run() {
+                if (binding == null) return;
                 binding.progressBar.setVisibility(View.VISIBLE);
             }
         });
@@ -646,9 +648,10 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                         if (ctsToken.isCancellationRequested()) throw new InterruptedException();
 
                         // Show loading bar
-                        runOnUiThread(new Runnable() {
+                        binding.progressBar.post(new Runnable() {
                             @Override
                             public void run() {
+                                if (binding == null) return;
                                 binding.progressBar.setVisibility(View.VISIBLE);
                             }
                         });
@@ -775,7 +778,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
 
                         // Setup complete
                         mDataManager.getArguments().putString(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class));
-                        runOnUiThread(new Runnable() {
+                        mStepperLayout.post(new Runnable() {
                             @Override
                             public void run() {
                                 mStepperLayout.proceed();

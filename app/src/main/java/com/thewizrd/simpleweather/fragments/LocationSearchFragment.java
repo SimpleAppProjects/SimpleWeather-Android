@@ -183,18 +183,20 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                searchBarBinding.searchProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+                if (searchBarBinding != null) {
+                    searchBarBinding.searchProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
 
-                if (show || StringUtils.isNullOrEmpty(searchBarBinding.searchView.getText().toString()))
-                    searchBarBinding.searchCloseButton.setVisibility(View.GONE);
-                else
-                    searchBarBinding.searchCloseButton.setVisibility(View.VISIBLE);
+                    if (show || StringUtils.isNullOrEmpty(searchBarBinding.searchView.getText().toString()))
+                        searchBarBinding.searchCloseButton.setVisibility(View.GONE);
+                    else
+                        searchBarBinding.searchCloseButton.setVisibility(View.VISIBLE);
+                }
             }
         });
     }
 
     public void disableRecyclerView() {
-        runOnUiThread(new Runnable() {
+        binding.recyclerView.post(new Runnable() {
             @Override
             public void run() {
                 binding.recyclerView.setEnabled(false);
@@ -268,8 +270,10 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
                     public void run() {
                         final String newText = e.toString();
 
-                        searchBarBinding.searchCloseButton.setVisibility(StringUtils.isNullOrEmpty(newText) ? View.GONE : View.VISIBLE);
-                        fetchLocations(newText);
+                        if (searchBarBinding != null) {
+                            searchBarBinding.searchCloseButton.setVisibility(StringUtils.isNullOrEmpty(newText) ? View.GONE : View.VISIBLE);
+                            fetchLocations(newText);
+                        }
                     }
                 });
             }

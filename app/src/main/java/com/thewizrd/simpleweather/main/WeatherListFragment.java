@@ -120,6 +120,7 @@ public class WeatherListFragment extends ToolbarFragment {
         binding.locationHeader.post(new Runnable() {
             @Override
             public void run() {
+                if (binding == null) return;
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.recyclerView.getLayoutParams();
                 layoutParams.topMargin = binding.locationHeader.getHeight();
                 binding.recyclerView.setLayoutParams(layoutParams);
@@ -257,6 +258,7 @@ public class WeatherListFragment extends ToolbarFragment {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (binding == null) return;
                 binding.locationName.setText(weatherView.getLocation());
 
                 // specify an adapter (see also next example)

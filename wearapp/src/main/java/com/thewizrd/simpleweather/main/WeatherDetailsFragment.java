@@ -88,11 +88,12 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
         @Override
         public void onPropertyChanged(Observable sender, int propertyId) {
             if (propertyId == BR.pendingBackground) {
-                runOnUiThread(new Runnable() {
+                binding.getRoot().post(new Runnable() {
                     @Override
                     public void run() {
-                        if (getView() != null)
-                            getView().setBackgroundColor(weatherView.getPendingBackground());
+                        if (binding != null) {
+                            binding.getRoot().setBackgroundColor(weatherView.getPendingBackground());
+                        }
                     }
                 });
             } else if (propertyId == BR.weatherDetails) {
