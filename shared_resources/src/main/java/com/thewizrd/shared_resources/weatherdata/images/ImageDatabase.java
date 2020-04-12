@@ -61,12 +61,16 @@ public class ImageDatabase {
                 }
 
                 List<ImageData> list = new ArrayList<>();
-                if (querySnapshot != null) {
-                    for (DocumentSnapshot docSnapshot : querySnapshot.getDocuments()) {
-                        if (docSnapshot.exists()) {
-                            list.add(docSnapshot.toObject(ImageData.class));
+                try {
+                    if (querySnapshot != null) {
+                        for (DocumentSnapshot docSnapshot : querySnapshot.getDocuments()) {
+                            if (docSnapshot.exists()) {
+                                list.add(docSnapshot.toObject(ImageData.class));
+                            }
                         }
                     }
+                } catch (Exception e) {
+                    Logger.writeLine(Log.ERROR, e);
                 }
 
                 return list;
@@ -116,7 +120,12 @@ public class ImageDatabase {
 
                     if (collection.size() > 0) {
                         DocumentSnapshot docSnapshot = collection.get(0);
-                        ImageData imageData = docSnapshot.toObject(ImageData.class);
+                        ImageData imageData = null;
+                        try {
+                            imageData = docSnapshot.toObject(ImageData.class);
+                        } catch (Exception e) {
+                            Logger.writeLine(Log.ERROR, e);
+                        }
                         return imageData;
                     }
                 }
