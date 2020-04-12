@@ -29,7 +29,7 @@ import java.util.concurrent.Callable;
 
 public class ForecastsViewModel extends ViewModel {
     private Handler mMainHandler;
-    private LocationData location;
+    private String locationKey;
 
     private MutableLiveData<PagedList<ForecastItemViewModel>> forecasts;
     private MutableLiveData<PagedList<HourlyForecastItemViewModel>> hourlyForecasts;
@@ -53,50 +53,53 @@ public class ForecastsViewModel extends ViewModel {
     }
 
     public void updateForecasts(@NonNull LocationData location) {
-        if (!ObjectsCompat.equals(this.location, location)) {
-            this.location = location;
+        if (!ObjectsCompat.equals(this.locationKey, location.getQuery())) {
+            this.locationKey = location.getQuery();
 
-            currentForecastsData = new LivePagedListBuilder<>(
-                    new ForecastDataSourceFactory(location, Settings.getWeatherDAO()),
-                    new PagedList.Config.Builder()
-                            .setEnablePlaceholders(true)
-                            .setPageSize(7)
-                            .build())
-                    .build();
             mMainHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    currentForecastsData.removeObserver(forecastObserver);
+                    if (currentForecastsData != null) {
+                        currentForecastsData.removeObserver(forecastObserver);
+                    }
+
+                    currentForecastsData = new LivePagedListBuilder<>(
+                            new ForecastDataSourceFactory(locationKey, Settings.getWeatherDAO()),
+                            new PagedList.Config.Builder()
+                                    .setEnablePlaceholders(true)
+                                    .setPageSize(7)
+                                    .build())
+                            .build();
+
                     currentForecastsData.observeForever(forecastObserver);
-                }
-            });
-            forecasts.postValue(currentForecastsData.getValue());
+                    if (forecasts != null)
+                        forecasts.setValue(currentForecastsData.getValue());
 
-            DataSource.Factory<Integer, HourlyForecastItemViewModel> hrFactory = Settings.getWeatherDAO().loadHourlyForecastsByQueryOrderByDate(location.getQuery())
-                    .map(new Function<HourlyForecast, HourlyForecastItemViewModel>() {
-                        @Override
-                        public HourlyForecastItemViewModel apply(HourlyForecast input) {
-                            return new HourlyForecastItemViewModel(input);
-                        }
-                    });
+                    DataSource.Factory<Integer, HourlyForecastItemViewModel> hrFactory = Settings.getWeatherDAO().loadHourlyForecastsByQueryOrderByDate(locationKey)
+                            .map(new Function<HourlyForecast, HourlyForecastItemViewModel>() {
+                                @Override
+                                public HourlyForecastItemViewModel apply(HourlyForecast input) {
+                                    return new HourlyForecastItemViewModel(input);
+                                }
+                            });
 
-            currentHrForecastsData = new LivePagedListBuilder<>(
-                    hrFactory,
-                    new PagedList.Config.Builder()
-                            .setEnablePlaceholders(true)
-                            .setPrefetchDistance(12)
-                            .setPageSize(24)
-                            .setMaxSize(48)
-                            .build())
-                    .build();
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    currentHrForecastsData.removeObserver(hrforecastObserver);
+                    if (currentHrForecastsData != null) {
+                        currentHrForecastsData.removeObserver(hrforecastObserver);
+                    }
+                    currentHrForecastsData = new LivePagedListBuilder<>(
+                            hrFactory,
+                            new PagedList.Config.Builder()
+                                    .setEnablePlaceholders(true)
+                                    .setPrefetchDistance(12)
+                                    .setPageSize(24)
+                                    .setMaxSize(48)
+                                    .build())
+                            .build();
                     currentHrForecastsData.observeForever(hrforecastObserver);
+                    if (hourlyForecasts != null)
+                        hourlyForecasts.setValue(currentHrForecastsData.getValue());
                 }
             });
-            hourlyForecasts.postValue(currentHrForecastsData.getValue());
         }
     }
 
@@ -118,7 +121,7 @@ public class ForecastsViewModel extends ViewModel {
     protected void onCleared() {
         super.onCleared();
 
-        location = null;
+        locationKey = null;
 
         if (currentForecastsData != null)
             currentForecastsData.removeObserver(forecastObserver);
@@ -133,27 +136,27 @@ public class ForecastsViewModel extends ViewModel {
     }
 
     private static class ForecastDataSourceFactory extends DataSource.Factory<Integer, ForecastItemViewModel> {
-        private final LocationData location;
+        private final String locationKey;
         private final WeatherDAO dao;
 
-        ForecastDataSourceFactory(@NonNull LocationData location, @NonNull WeatherDAO dao) {
-            this.location = location;
+        ForecastDataSourceFactory(@NonNull String locationKey, @NonNull WeatherDAO dao) {
+            this.locationKey = locationKey;
             this.dao = dao;
         }
 
         @NonNull
         @Override
         public DataSource<Integer, ForecastItemViewModel> create() {
-            return new ForecastDataSource(location, dao);
+            return new ForecastDataSource(locationKey, dao);
         }
     }
 
     private static class ForecastDataSource extends PositionalDataSource<ForecastItemViewModel> {
-        private final LocationData location;
+        private final String locationKey;
         private final WeatherDAO dao;
 
-        ForecastDataSource(@NonNull LocationData location, @NonNull WeatherDAO dao) {
-            this.location = location;
+        ForecastDataSource(@NonNull String locationKey, @NonNull WeatherDAO dao) {
+            this.locationKey = locationKey;
             this.dao = dao;
         }
 
@@ -162,7 +165,7 @@ public class ForecastsViewModel extends ViewModel {
             Forecasts forecasts = new AsyncTask<Forecasts>().await(new Callable<Forecasts>() {
                 @Override
                 public Forecasts call() {
-                    return dao.getForecastData(location.getQuery());
+                    return dao.getForecastData(locationKey);
                 }
             });
 
@@ -183,7 +186,7 @@ public class ForecastsViewModel extends ViewModel {
             Forecasts forecasts = new AsyncTask<Forecasts>().await(new Callable<Forecasts>() {
                 @Override
                 public Forecasts call() {
-                    return dao.getForecastData(location.getQuery());
+                    return dao.getForecastData(locationKey);
                 }
             });
 

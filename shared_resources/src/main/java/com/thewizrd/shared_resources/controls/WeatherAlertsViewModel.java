@@ -24,7 +24,7 @@ import java.util.List;
 
 public class WeatherAlertsViewModel extends ObservableViewModel {
     private Handler mMainHandler;
-    private LocationData location;
+    private String locationKey;
 
     private MutableLiveData<List<WeatherAlertViewModel>> alerts;
 
@@ -41,41 +41,44 @@ public class WeatherAlertsViewModel extends ObservableViewModel {
     }
 
     public void updateAlerts(@NonNull LocationData location) {
-        if (!ObjectsCompat.equals(this.location, location)) {
-            this.location = location;
+        if (!ObjectsCompat.equals(this.locationKey, location.getQuery())) {
+            this.locationKey = location.getQuery();
 
-            currentAlertsData = Transformations.map(Settings.getWeatherDAO().getLiveWeatherAlertData(location.getQuery()),
-                    new Function<WeatherAlerts, List<WeatherAlertViewModel>>() {
-                        @Override
-                        public List<WeatherAlertViewModel> apply(WeatherAlerts weatherAlerts) {
-                            List<WeatherAlertViewModel> alerts;
-
-                            if (weatherAlerts != null && weatherAlerts.getAlerts() != null && weatherAlerts.getAlerts().size() > 0) {
-                                alerts = new ArrayList<>(weatherAlerts.getAlerts().size());
-
-                                for (WeatherAlert alert : weatherAlerts.getAlerts()) {
-                                    // Skip if alert has expired
-                                    if (alert.getExpiresDate().compareTo(ZonedDateTime.now()) <= 0)
-                                        continue;
-
-                                    WeatherAlertViewModel alertView = new WeatherAlertViewModel(alert);
-                                    alerts.add(alertView);
-                                }
-
-                                return alerts;
-                            }
-
-                            return Collections.emptyList();
-                        }
-                    });
             mMainHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    currentAlertsData.removeObserver(alertObserver);
+                    if (currentAlertsData != null) {
+                        currentAlertsData.removeObserver(alertObserver);
+                    }
+                    currentAlertsData = Transformations.map(Settings.getWeatherDAO().getLiveWeatherAlertData(locationKey),
+                            new Function<WeatherAlerts, List<WeatherAlertViewModel>>() {
+                                @Override
+                                public List<WeatherAlertViewModel> apply(WeatherAlerts weatherAlerts) {
+                                    List<WeatherAlertViewModel> alerts;
+
+                                    if (weatherAlerts != null && weatherAlerts.getAlerts() != null && weatherAlerts.getAlerts().size() > 0) {
+                                        alerts = new ArrayList<>(weatherAlerts.getAlerts().size());
+
+                                        for (WeatherAlert alert : weatherAlerts.getAlerts()) {
+                                            // Skip if alert has expired
+                                            if (alert.getExpiresDate().compareTo(ZonedDateTime.now()) <= 0)
+                                                continue;
+
+                                            WeatherAlertViewModel alertView = new WeatherAlertViewModel(alert);
+                                            alerts.add(alertView);
+                                        }
+
+                                        return alerts;
+                                    }
+
+                                    return Collections.emptyList();
+                                }
+                            });
                     currentAlertsData.observeForever(alertObserver);
+                    if (alerts != null)
+                        alerts.setValue(currentAlertsData.getValue());
                 }
             });
-            alerts.postValue(currentAlertsData.getValue());
         }
     }
 
@@ -90,7 +93,7 @@ public class WeatherAlertsViewModel extends ObservableViewModel {
     protected void onCleared() {
         super.onCleared();
 
-        location = null;
+        locationKey = null;
 
         if (currentAlertsData != null)
             currentAlertsData.removeObserver(alertObserver);
