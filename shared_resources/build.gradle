@@ -24,7 +24,8 @@ android {
             debuggable true
         }
         release {
-            minifyEnabled false
+            minifyEnabled true
+            crunchPngs true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

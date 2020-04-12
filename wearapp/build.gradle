@@ -12,7 +12,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 29
         // NOTE: Version Code Format (TargetSDK, Version Name, Build Number, Variant Code (Android: 00, WearOS: 01)
-        versionCode 293200001
+        versionCode 293200101
         versionName "3.2.0"
 
         vectorDrawables.useSupportLibrary = true
@@ -29,6 +29,7 @@ android {
         release {
             minifyEnabled true
             shrinkResources true
+            crunchPngs true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             manifestPlaceholders = [allowBackup: true]
         }

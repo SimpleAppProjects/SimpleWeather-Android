@@ -19,27 +19,6 @@
 -keep class com.google.android.gms.** { *; }
 -dontwarn com.google.android.gms.**
 
--keep class android.support.v7.widget.** { *; }
--dontwarn android.support.v7.widget.**
-
--keep class android.support.v7.internal.widget.** { *; }
--dontwarn android.support.v7.internal.widget.**
-
--keep class android.support.v4.widget.** { *; }
--dontwarn android.support.v4.widget.**
-
--keep class android.support.v4.view.** { *; }
--dontwarn android.support.v4.view.**
-
--keep class android.support.v7.view.** { *; }
--dontwarn android.support.v7.view.**
-
--keep class android.support.design.widget.** { *; }
--dontwarn android.support.design.widget.**
-
--keep class android.support.design.internal.** { *; }
--dontwarn android.support.design.internal.**
-
 # SimpleXML
 -keepclassmembers class com.thewizrd.shared_resources.locationdata.here.AutoCompleteQuery$** {
    <init>(...);
