@@ -143,7 +143,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_anchor="@id/app_bar"
-            app:layout_anchorGravity="bottom"
+            app:layout_anchorGravity="bottom|center_horizontal"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <com.thewizrd.simpleweather.controls.ObservableNestedScrollView
@@ -158,7 +158,9 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:layout_optimizationLevel="direct|barrier|chains|dimensions|groups">
+                    android:layout_gravity="center_horizontal"
+                    app:layout_optimizationLevel="direct|barrier|chains|dimensions|groups"
+                    tools:layout_width="720dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/condition_panel"
@@ -447,14 +449,16 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="20dp"
                         android:background="@android:color/transparent"
-                        android:gravity="center"
                         android:columnWidth="@dimen/detail_grid_column_width"
+                        android:gravity="center"
                         android:numColumns="auto_fit"
-                        android:stretchMode="columnWidth"
                         android:paddingStart="@dimen/activity_horizontal_margin"
                         android:paddingLeft="@dimen/activity_horizontal_margin"
+                        android:paddingTop="8dp"
                         android:paddingEnd="@dimen/activity_horizontal_margin"
                         android:paddingRight="@dimen/activity_horizontal_margin"
+                        android:paddingBottom="8dp"
+                        android:stretchMode="columnWidth"
                         app:darkMode="@{darkMode}"
                         app:details_data="@{weatherView.weatherDetails}"
                         app:hideIfEmpty="@{weatherView.weatherDetails}"
@@ -543,7 +547,7 @@
 
                     <com.thewizrd.simpleweather.controls.SunPhaseView
                         android:id="@+id/sun_phase_view"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="200dp"
                         android:layout_marginBottom="20dp"
                         android:orientation="vertical"
@@ -553,6 +557,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/sunriseset_label"
+                        app:layout_constraintWidth_max="720dp"
                         app:sunPhase="@{weatherView.sunPhase}" />
 
                     <View
@@ -574,7 +579,6 @@
                         android:layout="@layout/weathernow_radarcontrol"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:layout_constraintWidth_max="640dp"
                         app:layout_constraintBottom_toTopOf="@id/weather_credit"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"

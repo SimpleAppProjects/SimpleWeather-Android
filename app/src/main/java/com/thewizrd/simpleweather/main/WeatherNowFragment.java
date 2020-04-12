@@ -23,7 +23,6 @@ import android.os.Looper;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.transition.Transition;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -900,8 +899,6 @@ public class WeatherNowFragment extends WindowColorFragment
         super.onViewCreated(view, savedInstanceState);
 
         adjustDetailsLayout();
-        // Sun Phase
-        resizeSunPhasePanel();
 
         // Set property change listeners
         weatherView.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
@@ -1088,9 +1085,6 @@ public class WeatherNowFragment extends WindowColorFragment
 
                 adjustGradientView();
                 adjustConditionPanelLayout();
-                adjustDetailsLayout();
-                resizeAlertPanel();
-                resizeSunPhasePanel();
             }
         });
 
@@ -1168,52 +1162,6 @@ public class WeatherNowFragment extends WindowColorFragment
                             mRequestingLocationUpdates = false;
                         }
                     });
-        }
-    }
-
-    private void resizeSunPhasePanel() {
-        if (mActivity != null && ActivityUtils.isLargeTablet(mActivity)) {
-            binding.sunPhaseView.post(new Runnable() {
-                @Override
-                public void run() {
-                    View view = WeatherNowFragment.this.getView();
-
-                    if (view == null || view.getWidth() <= 0)
-                        return;
-
-                    int viewWidth = view.getWidth();
-
-                    if (viewWidth <= 600)
-                        binding.sunPhaseView.getLayoutParams().width = viewWidth;
-                    else if (viewWidth <= 1200)
-                        binding.sunPhaseView.getLayoutParams().width = (int) (viewWidth * (0.75));
-                    else
-                        binding.sunPhaseView.getLayoutParams().width = (int) (viewWidth * (0.50));
-                }
-            });
-        }
-    }
-
-    private void resizeAlertPanel() {
-        if (mActivity != null && ActivityUtils.isLargeTablet(mActivity)) {
-            binding.alertButton.post(new Runnable() {
-                @Override
-                public void run() {
-                    View view = WeatherNowFragment.this.getView();
-
-                    if (view == null || view.getWidth() <= 0)
-                        return;
-
-                    int viewWidth = view.getWidth();
-
-                    if (viewWidth <= 600)
-                        binding.alertButton.getLayoutParams().width = viewWidth;
-                    else if (viewWidth <= 1200)
-                        binding.alertButton.getLayoutParams().width = (int) (viewWidth * (0.75));
-                    else
-                        binding.alertButton.getLayoutParams().width = (int) (viewWidth * (0.50));
-                }
-            });
         }
     }
 
@@ -1296,7 +1244,6 @@ public class WeatherNowFragment extends WindowColorFragment
         // Don't resume if fragment is hidden
         if (!this.isHidden()) {
             adjustConditionPanelLayout();
-            adjustDetailsLayout();
             initSnackManager();
 
             if (binding != null) {
@@ -1338,7 +1285,6 @@ public class WeatherNowFragment extends WindowColorFragment
 
         if (!hidden && weatherView != null && this.isVisible()) {
             adjustConditionPanelLayout();
-            adjustDetailsLayout();
 
             initSnackManager();
 
@@ -1493,8 +1439,25 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.scrollView.post(new Runnable() {
             @Override
             public void run() {
-                if (binding != null)
+                if (binding != null) {
                     binding.scrollView.scrollTo(0, 0);
+
+                    if (ActivityUtils.isLargeTablet(mActivity)) {
+                        if (binding.scrollView.getChildCount() != 1) return;
+
+                        int viewWidth = binding.scrollView.getWidth();
+
+                        ViewGroup.LayoutParams lp = binding.scrollView.getChildAt(0).getLayoutParams();
+                        boolean isLandscape = ActivityUtils.getOrientation(mActivity) == Configuration.ORIENTATION_LANDSCAPE;
+
+                        if (isLandscape)
+                            lp.width = (int) (viewWidth * (0.75));
+                        else
+                            lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+                    }
+
+                    adjustDetailsLayout();
+                }
             }
         });
     }
@@ -1504,13 +1467,9 @@ public class WeatherNowFragment extends WindowColorFragment
             binding.detailsContainer.post(new Runnable() {
                 @Override
                 public void run() {
-                    View mainView = WeatherNowFragment.this.getView();
+                    if (binding.scrollView.getChildCount() != 1) return;
 
-                    if (mainView == null)
-                        return;
-
-                    DisplayMetrics displayMetrics = mActivity.getResources().getDisplayMetrics();
-                    float pxWidth = displayMetrics.widthPixels;
+                    float pxWidth = binding.scrollView.getChildAt(0).getWidth();
 
                     int minColumns = ActivityUtils.isLargeTablet(mActivity) ? 3 : 2;
 
@@ -1522,7 +1481,6 @@ public class WeatherNowFragment extends WindowColorFragment
                     binding.detailsContainer.setNumColumns(availColumns);
 
                     int horizMargin = 16;
-                    if (ActivityUtils.isLargeTablet(mActivity)) horizMargin = 24;
                     int itemSpacing = availColumns < 3 ? horizMargin * (availColumns - 1) : horizMargin * 4;
                     binding.detailsContainer.setHorizontalSpacing(itemSpacing);
                     binding.detailsContainer.setVerticalSpacing(itemSpacing);
@@ -1617,12 +1575,6 @@ public class WeatherNowFragment extends WindowColorFragment
 
         // Condition Panel & Scroll view
         adjustConditionPanelLayout();
-
-        // Alerts
-        resizeAlertPanel();
-
-        // Sun View
-        resizeSunPhasePanel();
     }
 
     private boolean updateLocation() {

@@ -15,8 +15,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:hideIfNull="@{weatherView.radarURL}"
-        app:layout_constraintWidth_max="640dp">
+        app:hideIfNull="@{weatherView.radarURL}">
 
         <TextView
             android:id="@+id/radar_label"
@@ -49,7 +48,7 @@
 
         <FrameLayout
             android:id="@+id/radar_webview_container"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="250dp"
             android:layout_marginBottom="12dp"
             android:background="@android:color/black"
@@ -59,7 +58,8 @@
             app:layout_constraintBottom_toTopOf="@id/radar_attribution"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/radar_label" />
+            app:layout_constraintTop_toBottomOf="@id/radar_label"
+            app:layout_constraintWidth_max="720dp" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/radar_attribution"
