@@ -65,7 +65,6 @@ import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
-import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
@@ -118,8 +117,6 @@ public class WeatherWidgetService extends JobIntentService {
     private AppWidgetManager mAppWidgetManager;
     private static BroadcastReceiver mTickReceiver;
 
-    private WeatherManager wm;
-
     // Weather Widget Providers
     private WeatherWidgetProvider1x1 mAppWidget1x1 =
             WeatherWidgetProvider1x1.getInstance();
@@ -155,7 +152,6 @@ public class WeatherWidgetService extends JobIntentService {
 
         mContext = getApplicationContext();
         mAppWidgetManager = AppWidgetManager.getInstance(mContext);
-        wm = WeatherManager.getInstance();
 
         cts = new CancellationTokenSource();
 
@@ -1398,10 +1394,14 @@ public class WeatherWidgetService extends JobIntentService {
     }
 
     private List<ForecastItemViewModel> getForecasts(int appWidgetId, int forecastLength) {
-        LocationData locationData = WidgetUtils.getLocationData(appWidgetId);
+        LocationData locData = null;
+        if (WidgetUtils.isGPS(appWidgetId))
+            locData = Settings.getLastGPSLocData();
+        else
+            locData = WidgetUtils.getLocationData(appWidgetId);
 
-        if (locationData != null && locationData.isValid()) {
-            Forecasts forecasts = Settings.getWeatherForecastData(locationData.getQuery());
+        if (locData != null && locData.isValid()) {
+            Forecasts forecasts = Settings.getWeatherForecastData(locData.getQuery());
 
             if (forecasts.getForecast() != null && forecasts.getForecast().size() > 0) {
                 List<ForecastItemViewModel> fcasts = new ArrayList<>();
@@ -1418,10 +1418,14 @@ public class WeatherWidgetService extends JobIntentService {
     }
 
     private List<HourlyForecastItemViewModel> getHourlyForecasts(int appWidgetId, int forecastLength) {
-        LocationData locationData = WidgetUtils.getLocationData(appWidgetId);
+        LocationData locData = null;
+        if (WidgetUtils.isGPS(appWidgetId))
+            locData = Settings.getLastGPSLocData();
+        else
+            locData = WidgetUtils.getLocationData(appWidgetId);
 
-        if (locationData != null && locationData.isValid()) {
-            List<HourlyForecast> forecasts = Settings.getHourlyWeatherForecastDataByLimit(locationData.getQuery(), forecastLength);
+        if (locData != null && locData.isValid()) {
+            List<HourlyForecast> forecasts = Settings.getHourlyWeatherForecastDataByLimit(locData.getQuery(), forecastLength);
 
             if (forecasts != null && forecasts.size() > 0) {
                 List<HourlyForecastItemViewModel> fcasts = new ArrayList<>();
