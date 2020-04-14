@@ -177,6 +177,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
             android:textColor="@android:color/white"
             style="@style/ShadowText"
+            app:darkModeEnabled="@{!weatherView.lightBackground}"
             app:layout_constraintBottom_toTopOf="@id/moonphase_description"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"

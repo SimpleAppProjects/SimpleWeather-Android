@@ -12,6 +12,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.location.Location;
@@ -599,10 +600,20 @@ public class WeatherNowFragment extends WindowColorFragment
                 gradientAlpha.set(Math.max(gradAlpha, 0));
 
                 if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible() && mSysBarColorsIface != null) {
+                    boolean override = false;
+                    if (weatherView != null)
+                        override = weatherView.isLightBackground();
+
                     if (gradientAlpha.get() >= 0.5f) {
-                        mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT);
+                        if (override)
+                            mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT, true);
+                        else
+                            mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT);
                     } else if (gradientAlpha.get() == 0.0f) {
-                        mSysBarColorsIface.setSystemBarColors(mSystemBarColor);
+                        if (override)
+                            mSysBarColorsIface.setSystemBarColors(mSystemBarColor, true);
+                        else
+                            mSysBarColorsIface.setSystemBarColors(mSystemBarColor);
                     }
                 }
             }
@@ -1567,7 +1578,10 @@ public class WeatherNowFragment extends WindowColorFragment
                 }
 
                 if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible() && mSysBarColorsIface != null) {
-                    mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT);
+                    if (weatherView != null)
+                        mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT, weatherView.isLightBackground());
+                    else
+                        mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT);
                 }
                 binding.getRoot().setBackgroundColor(mBackgroundColor);
             }
@@ -1935,6 +1949,17 @@ public class WeatherNowFragment extends WindowColorFragment
                 Drawable compatDrawable = DrawableCompat.wrap(origDrawable);
                 DrawableCompat.setTint(compatDrawable, progressColor);
                 progressBar.setProgressDrawable(compatDrawable);
+            }
+        }
+
+        @BindingAdapter("progressBackgroundColor")
+        public void updateProgressBackgroundColor(ProgressBar progressBar, @ColorInt int progressBackgroundColor) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                progressBar.setProgressBackgroundTintList(ColorStateList.valueOf(progressBackgroundColor));
+            } else {
+                LayerDrawable drawable = (LayerDrawable) progressBar.getProgressDrawable();
+                GradientDrawable background = (GradientDrawable) drawable.findDrawableByLayerId(android.R.id.background);
+                background.setColorFilter(progressBackgroundColor, PorterDuff.Mode.SRC_IN);
             }
         }
 

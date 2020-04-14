@@ -367,26 +367,26 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void setSystemBarColors(@ColorInt final int statusBarColor, @ColorInt final int navBarColor) {
-        setSystemBarColors(statusBarColor, navBarColor, navBarColor);
-    }
-
-    @Override
-    public void setSystemBarColors(@ColorInt final int statusBarColor, @ColorInt final int toolbarColor, @ColorInt final int navBarColor) {
-        setSystemBarColors(Colors.TRANSPARENT, statusBarColor, toolbarColor, navBarColor);
+    public void setSystemBarColors(@ColorInt final int color, boolean setColors) {
+        setSystemBarColors(color, color, color, color, setColors);
     }
 
     @Override
     public void setSystemBarColors(@ColorInt final int backgroundColor, @ColorInt final int statusBarColor, @ColorInt final int toolbarColor, @ColorInt final int navBarColor) {
+        Configuration config = getResources().getConfiguration();
+        final boolean isLandscapeMode = config.orientation != Configuration.ORIENTATION_PORTRAIT && !ActivityUtils.isLargeTablet(MainActivity.this);
+
+        setSystemBarColors(backgroundColor, statusBarColor, toolbarColor, navBarColor, isLandscapeMode);
+    }
+
+    @Override
+    public void setSystemBarColors(@ColorInt final int backgroundColor, @ColorInt final int statusBarColor, @ColorInt final int toolbarColor, @ColorInt final int navBarColor, final boolean setColors) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (binding == null) return;
                 // Actionbar, BottomNavBar & StatusBar
-                Configuration config = getResources().getConfiguration();
-                final boolean isLandscapeMode = config.orientation != Configuration.ORIENTATION_PORTRAIT && !ActivityUtils.isLargeTablet(MainActivity.this);
-
-                ActivityUtils.setTransparentWindow(getWindow(), backgroundColor, statusBarColor, isLandscapeMode ? navBarColor : Colors.TRANSPARENT, isLandscapeMode);
+                ActivityUtils.setTransparentWindow(getWindow(), backgroundColor, statusBarColor, setColors ? navBarColor : Colors.TRANSPARENT, setColors);
                 mRootView.setBackgroundColor(backgroundColor);
 
                 if (!ColorsUtils.isSuperLight(navBarColor)) {

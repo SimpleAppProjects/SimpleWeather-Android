@@ -77,6 +77,7 @@
             android:textAppearance="?android:textAppearanceMediumInverse"
             android:textColor="@android:color/white"
             android:textSize="12sp"
+            app:darkModeEnabled="@{!weatherView.lightBackground}"
             app:layout_constraintBottom_toTopOf="@id/border"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

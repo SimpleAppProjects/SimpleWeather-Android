@@ -200,6 +200,8 @@ public class ForecastGraphPanel extends LinearLayout {
             tabLayout.addTab(precipTab, 2, false);
         }
 
+        updateTabColors();
+
         switch (count) {
             case 1: // Forecasts
             default:
@@ -234,6 +236,22 @@ public class ForecastGraphPanel extends LinearLayout {
                 tabLayout.getTabAt(2).view.setVisibility(VISIBLE);
                 break;
         }
+    }
+
+    private void updateTabColors() {
+        TabLayout.Tab forecastTab = tabLayout.getTabAt(0);
+        ((TextView) forecastTab.view.findViewById(R.id.icon)).setTextColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
+        ((TextView) forecastTab.view.findViewById(android.R.id.text1)).setTextColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
+
+        TabLayout.Tab windTab = tabLayout.getTabAt(1);
+        ((TextView) windTab.view.findViewById(R.id.icon)).setTextColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
+        ((TextView) windTab.view.findViewById(android.R.id.text1)).setTextColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
+
+        TabLayout.Tab precipTab = tabLayout.getTabAt(2);
+        ((TextView) precipTab.view.findViewById(R.id.icon)).setTextColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
+        ((TextView) precipTab.view.findViewById(android.R.id.text1)).setTextColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
+
+        tabLayout.setSelectedTabIndicatorColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
     }
 
     private void updateLineViewColors() {
@@ -434,6 +452,7 @@ public class ForecastGraphPanel extends LinearLayout {
     public void updateColors(boolean isDark) {
         isDarkMode = isDark;
         updateLineViewColors();
+        updateTabs();
     }
 
     public void updateForecasts(@NonNull final List<BaseForecastItemViewModel> dataset) {

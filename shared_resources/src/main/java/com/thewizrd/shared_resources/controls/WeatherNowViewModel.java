@@ -228,6 +228,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
                             notifyPropertyChanged(BR.pendingBackground);
                         }
                     }
+                    isDark = true;
+                    notifyPropertyChanged(BR.lightBackground);
 
                     // Location
                     if (!ObjectsCompat.equals(location, weather.getLocation().getName())) {
@@ -551,10 +553,13 @@ public class WeatherNowViewModel extends ObservableViewModel {
                     updatePendingBackground(context, isPhone);
                 } else {
                     imageData = null;
+                    origPendingBackground = pendingBackground = DEFAULT_COLOR;
+                    isDark = true;
                 }
 
                 notifyPropertyChanged(BR.imageData);
                 notifyPropertyChanged(BR.pendingBackground);
+                notifyPropertyChanged(BR.lightBackground);
 
                 return null;
             }
