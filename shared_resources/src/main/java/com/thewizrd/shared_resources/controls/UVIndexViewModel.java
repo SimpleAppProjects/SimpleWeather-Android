@@ -1,5 +1,7 @@
 package com.thewizrd.shared_resources.controls;
 
+import android.graphics.Color;
+
 import androidx.annotation.ColorInt;
 
 import com.thewizrd.shared_resources.utils.Colors;
@@ -29,9 +31,9 @@ public class UVIndexViewModel {
         } else if (uvIdx.getIndex() < 8) {
             progressColor = Colors.ORANGE;
         } else if (uvIdx.getIndex() < 11) {
-            progressColor = Colors.MAROON;
+            progressColor = Color.rgb(0xBD, 0x00, 0x35); // Maroon
         } else if (uvIdx.getIndex() >= 11) {
-            progressColor = Colors.PURPLE;
+            progressColor = Color.rgb(0xAA, 0x00, 0xFF); // Purple
         }
     }
 

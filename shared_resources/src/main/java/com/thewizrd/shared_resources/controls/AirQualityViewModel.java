@@ -1,6 +1,7 @@
 package com.thewizrd.shared_resources.controls;
 
 import android.content.Context;
+import android.graphics.Color;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -28,27 +29,27 @@ public class AirQualityViewModel {
         this.progressMax = 301;
 
         if (aqi.getIndex() < 51) {
-            this.progressColor = Colors.GREEN;
+            this.progressColor = Colors.LIMEGREEN;
             this.level = context.getString(R.string.aqi_level_0_50);
             this.description = context.getString(R.string.aqi_desc_0_50);
         } else if (aqi.getIndex() < 101) {
-            this.progressColor = Colors.YELLOW;
+            this.progressColor = Color.rgb(0xff, 0xde, 0x33);
             this.level = context.getString(R.string.aqi_level_51_100);
             this.description = context.getString(R.string.aqi_desc_51_100);
         } else if (aqi.getIndex() < 151) {
-            this.progressColor = Colors.ORANGE;
+            this.progressColor = Color.rgb(0xff, 0x99, 0x33);
             this.level = context.getString(R.string.aqi_level_101_150);
             this.description = context.getString(R.string.aqi_desc_101_150);
         } else if (aqi.getIndex() < 201) {
-            this.progressColor = Colors.RED;
+            this.progressColor = Color.rgb(0xcc, 0x00, 0x33);
             this.level = context.getString(R.string.aqi_level_151_200);
             this.description = context.getString(R.string.aqi_desc_151_200);
         } else if (aqi.getIndex() < 301) {
-            this.progressColor = Colors.PURPLE;
+            this.progressColor = Color.rgb(0xaa, 0x00, 0xff); // 0xff660099
             this.level = context.getString(R.string.aqi_level_201_300);
             this.description = context.getString(R.string.aqi_desc_201_300);
         } else if (aqi.getIndex() >= 301) {
-            this.progressColor = Colors.MAROON;
+            this.progressColor = Color.rgb(0xbd, 0x00, 0x35); // 0xff7e0023
             this.level = context.getString(R.string.aqi_level_300);
             this.description = context.getString(R.string.aqi_desc_300);
         }

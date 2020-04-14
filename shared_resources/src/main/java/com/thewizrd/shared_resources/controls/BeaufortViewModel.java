@@ -1,5 +1,7 @@
 package com.thewizrd.shared_resources.controls;
 
+import android.graphics.Color;
+
 import androidx.annotation.ColorInt;
 
 import com.thewizrd.shared_resources.utils.Colors;
@@ -19,27 +21,27 @@ public class BeaufortViewModel {
         switch (beaufort.getScale()) {
             case B0:
                 progress = 0;
-                progressColor = Colors.SKYBLUE;
+                progressColor = Colors.DODGERBLUE;
                 break;
             case B1:
                 progress = 1;
-                progressColor = Colors.LIGHTSKYBLUE;
+                progressColor = Colors.DEEPSKYBLUE;
                 break;
             case B2:
                 progress = 2;
-                progressColor = Colors.DEEPSKYBLUE;
+                progressColor = Colors.SKYBLUE;
                 break;
             case B3:
                 progress = 3;
-                progressColor = Colors.GREEN;
+                progressColor = Colors.LIMEGREEN;
                 break;
             case B4:
                 progress = 4;
-                progressColor = Colors.GREENYELLOW;
+                progressColor = Colors.LIME;
                 break;
             case B5:
                 progress = 5;
-                progressColor = Colors.LIMEGREEN;
+                progressColor = Colors.GREENYELLOW;
                 break;
             case B6:
                 progress = 6;
@@ -67,7 +69,7 @@ public class BeaufortViewModel {
                 break;
             case B12:
                 progress = 12;
-                progressColor = Colors.MAROON;
+                progressColor = Color.rgb(0xBD, 0x00, 0x35); // FFBD0035
                 break;
         }
     }
