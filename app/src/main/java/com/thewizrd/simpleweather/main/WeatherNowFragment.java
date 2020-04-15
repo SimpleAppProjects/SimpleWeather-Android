@@ -1193,6 +1193,14 @@ public class WeatherNowFragment extends WindowColorFragment
 
                 boolean locationChanged = false;
                 if (!loaded) {
+                    // Check if current location still exists (is valid)
+                    if (location != null && location.getLocationType() == LocationType.SEARCH) {
+                        if (Settings.getLocation(location.getQuery()) == null) {
+                            location = null;
+                            wLoader = null;
+                            locationChanged = true;
+                        }
+                    }
                     // Load new favorite location if argument data is present
                     if (requireArguments().containsKey(Constants.KEY_DATA)) {
                         LocationData locationData =
