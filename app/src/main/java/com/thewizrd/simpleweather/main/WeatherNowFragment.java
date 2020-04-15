@@ -1503,8 +1503,11 @@ public class WeatherNowFragment extends WindowColorFragment
 
                     binding.detailsContainer.setNumColumns(availColumns);
 
+                    boolean isLandscape = ActivityUtils.getOrientation(mActivity) == Configuration.ORIENTATION_LANDSCAPE;
+
                     int horizMargin = 16;
-                    int itemSpacing = availColumns < 3 ? horizMargin * (availColumns - 1) : horizMargin * 4;
+                    int marginMultiplier = isLandscape ? 2 : 3;
+                    int itemSpacing = availColumns < 3 ? horizMargin * (availColumns - 1) : horizMargin * marginMultiplier;
                     binding.detailsContainer.setHorizontalSpacing(itemSpacing);
                     binding.detailsContainer.setVerticalSpacing(itemSpacing);
                 }
