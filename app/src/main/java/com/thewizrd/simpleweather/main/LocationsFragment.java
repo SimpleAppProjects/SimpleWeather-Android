@@ -1555,6 +1555,7 @@ public class LocationsFragment extends ToolbarFragment
 
                         final LocationPanelViewModel panel = new LocationPanelViewModel(weather);
                         panel.setLocationData(location);
+                        panel.updateBackground();
 
                         // Set properties if necessary
                         if (mEditMode) panel.setEditMode(true);
