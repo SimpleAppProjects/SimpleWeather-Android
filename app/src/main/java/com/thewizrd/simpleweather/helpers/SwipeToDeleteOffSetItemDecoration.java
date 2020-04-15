@@ -8,6 +8,7 @@ import android.view.View;
 import androidx.annotation.DimenRes;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -94,8 +95,8 @@ public class SwipeToDeleteOffSetItemDecoration extends LocationPanelOffsetDecora
         List<View> viewsComingUp = new ArrayList<>();
 
         // this is fixed
-        int left = 0;
-        int right = parent.getWidth();
+        int left = ViewCompat.getPaddingStart(parent);
+        int right = parent.getWidth() - ViewCompat.getPaddingEnd(parent);
 
         // this we need to find out
         int top = 0;
