@@ -30,6 +30,7 @@ import java.util.concurrent.Callable;
 public class ForecastsViewModel extends ViewModel {
     private Handler mMainHandler;
     private String locationKey;
+    private String tempUnit;
 
     private MutableLiveData<PagedList<ForecastItemViewModel>> forecasts;
     private MutableLiveData<PagedList<HourlyForecastItemViewModel>> hourlyForecasts;
@@ -59,6 +60,8 @@ public class ForecastsViewModel extends ViewModel {
             mMainHandler.post(new Runnable() {
                 @Override
                 public void run() {
+                    tempUnit = Settings.getTempUnit();
+
                     if (currentForecastsData != null) {
                         currentForecastsData.removeObserver(forecastObserver);
                     }
@@ -98,6 +101,20 @@ public class ForecastsViewModel extends ViewModel {
                     currentHrForecastsData.observeForever(hrforecastObserver);
                     if (hourlyForecasts != null)
                         hourlyForecasts.setValue(currentHrForecastsData.getValue());
+                }
+            });
+        } else if (!ObjectsCompat.equals(tempUnit, Settings.getTempUnit())) {
+            mMainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    tempUnit = Settings.getTempUnit();
+
+                    if (currentForecastsData != null && currentForecastsData.getValue() != null) {
+                        currentForecastsData.getValue().getDataSource().invalidate();
+                    }
+                    if (currentHrForecastsData != null && currentHrForecastsData.getValue() != null) {
+                        currentHrForecastsData.getValue().getDataSource().invalidate();
+                    }
                 }
             });
         }
