@@ -31,7 +31,7 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
     private ActivitySetupBinding binding;
     private final String CURRENT_STEP_POSITION_KEY = "position";
     private final String KEY_ARGS = "args";
-    private Bundle args = new Bundle();
+    private Bundle args;
     private int currentPosition = 0;
 
     // Widget id for ConfigurationActivity
@@ -77,8 +77,7 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
             args = savedInstanceState.getBundle(KEY_ARGS);
         }
 
-        if (args == null) args = new Bundle();
-        args.putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+        getArguments().putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
 
         binding.stepperLayout.setCompleteButtonColor(Colors.WHITE);
         binding.stepperLayout.setAdapter(new SetupStepperAdapter(getSupportFragmentManager(), this), startingStepPosition);
@@ -97,7 +96,7 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putInt(CURRENT_STEP_POSITION_KEY, binding.stepperLayout.getCurrentStepPosition());
-        outState.putBundle(KEY_ARGS, args);
+        outState.putBundle(KEY_ARGS, getArguments());
         super.onSaveInstanceState(outState);
     }
 
@@ -105,37 +104,37 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
     public void onCompleted(View completeButton) {
         // Commit settings changes
         // Units
-        if (args.containsKey(Settings.KEY_UNITS)) {
-            String value = args.getString(Settings.KEY_UNITS);
+        if (getArguments().containsKey(Settings.KEY_UNITS)) {
+            String value = getArguments().getString(Settings.KEY_UNITS);
             Settings.setTempUnit(value);
         }
         // Interval
-        if (args.containsKey(Settings.KEY_REFRESHINTERVAL)) {
-            int value = args.getInt(Settings.KEY_REFRESHINTERVAL, Settings.DEFAULTINTERVAL);
+        if (getArguments().containsKey(Settings.KEY_REFRESHINTERVAL)) {
+            int value = getArguments().getInt(Settings.KEY_REFRESHINTERVAL, Settings.DEFAULTINTERVAL);
             Settings.setRefreshInterval(value);
         }
         // Ongoing Notification
-        if (args.containsKey(Settings.KEY_ONGOINGNOTIFICATION)) {
-            boolean value = args.getBoolean(Settings.KEY_ONGOINGNOTIFICATION, false);
+        if (getArguments().containsKey(Settings.KEY_ONGOINGNOTIFICATION)) {
+            boolean value = getArguments().getBoolean(Settings.KEY_ONGOINGNOTIFICATION, false);
             Settings.setOngoingNotification(value);
         }
         // Weather Alerts
-        if (args.containsKey(Settings.KEY_USEALERTS)) {
-            boolean value = args.getBoolean(Settings.KEY_USEALERTS, false);
+        if (getArguments().containsKey(Settings.KEY_USEALERTS)) {
+            boolean value = getArguments().getBoolean(Settings.KEY_USEALERTS, false);
             Settings.setAlerts(value);
         }
 
         // Completion
         Settings.setOnBoardingComplete(true);
 
-        mAppWidgetId = args.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+        mAppWidgetId = getArguments().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
 
         if (mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
             // Start WeatherNow Activity with weather data
             Intent intent = new Intent(this, MainActivity.class);
 
-            if (args.containsKey(Constants.KEY_DATA))
-                intent.putExtra(Constants.KEY_DATA, args.getString(Constants.KEY_DATA));
+            if (getArguments().containsKey(Constants.KEY_DATA))
+                intent.putExtra(Constants.KEY_DATA, getArguments().getString(Constants.KEY_DATA));
 
             startActivity(intent);
             finishAffinity();
@@ -143,8 +142,8 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
             // Create return intent
             Intent resultValue = new Intent();
             resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-            if (args.containsKey(Constants.KEY_DATA))
-                resultValue.putExtra(Constants.KEY_DATA, args.getString(Constants.KEY_DATA));
+            if (getArguments().containsKey(Constants.KEY_DATA))
+                resultValue.putExtra(Constants.KEY_DATA, getArguments().getString(Constants.KEY_DATA));
             setResult(Activity.RESULT_OK, resultValue);
             finish();
         }
@@ -183,6 +182,9 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
 
     @Override
     public Bundle getArguments() {
+        if (args == null) {
+            args = new Bundle();
+        }
         return args;
     }
 }

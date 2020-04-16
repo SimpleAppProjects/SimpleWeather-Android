@@ -968,7 +968,7 @@ public class LocationsFragment extends ToolbarFragment
 
                 // Reload if weather source differs
                 if ((gpsPanelViewModel != null && !Settings.getAPI().equals(gpsPanelViewModel.getWeatherSource())) ||
-                        (mAdapter.getFavoritesCount() > 0 && !Settings.getAPI().equals(mAdapter.getFirstFavPanel().getWeatherSource())))
+                        (mAdapter.getFavoritesCount() > 0 && mAdapter.getFirstFavPanel() != null && !Settings.getAPI().equals(mAdapter.getFirstFavPanel().getWeatherSource())))
                     reload = true;
 
                 if (Settings.useFollowGPS()) {
@@ -1427,6 +1427,7 @@ public class LocationsFragment extends ToolbarFragment
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
+                                    if (mSearchFragment == null) return;
                                     mSearchFragment.showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.SHORT),
                                             new SnackbarWindowAdjustCallback(getAppCompatActivity()));
                                     mSearchFragment.showLoading(false);
@@ -1452,6 +1453,7 @@ public class LocationsFragment extends ToolbarFragment
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
+                                        if (mSearchFragment == null) return;
                                         mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
                                                 new SnackbarWindowAdjustCallback(getAppCompatActivity()));
                                         mSearchFragment.showLoading(false);
@@ -1474,7 +1476,8 @@ public class LocationsFragment extends ToolbarFragment
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mSearchFragment.showLoading(false);
+                                    if (mSearchFragment != null)
+                                        mSearchFragment.showLoading(false);
                                     exitSearchUi(false);
                                 }
                             });
@@ -1507,6 +1510,7 @@ public class LocationsFragment extends ToolbarFragment
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
+                                        if (mSearchFragment == null) return;
                                         mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
                                                 new SnackbarWindowAdjustCallback(getAppCompatActivity()));
                                     }

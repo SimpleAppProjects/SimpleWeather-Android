@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -279,6 +280,8 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
         mItemSelectedRunnable = new Runnable() {
             @Override
             public void run() {
+                if (!getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) return;
+
                 Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                 Class targetFragmentType = null;
                 WeatherListType weatherListType = WeatherListType.valueOf(0);

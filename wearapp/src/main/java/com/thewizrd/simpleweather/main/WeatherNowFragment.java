@@ -190,6 +190,7 @@ public class WeatherNowFragment extends Fragment
                     binding.swipeRefreshLayout.post(new Runnable() {
                         @Override
                         public void run() {
+                            if (binding == null) return;
                             binding.swipeRefreshLayout.setRefreshing(false);
                         }
                     });

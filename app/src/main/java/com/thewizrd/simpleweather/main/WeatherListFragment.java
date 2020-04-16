@@ -83,9 +83,15 @@ public class WeatherListFragment extends ToolbarFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && weatherType == WeatherListType.ALERTS) {
-            setEnterTransition(new TransitionSet()
-                    .addTransition(new Slide(Gravity.START).setDuration(200))
-                    .addTransition(new Fade(Fade.IN).setDuration(200)));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                setEnterTransition(new TransitionSet()
+                        .addTransition(new Slide(Gravity.START).setDuration(200))
+                        .addTransition(new Fade(Fade.IN).setDuration(200)));
+            } else {
+                setEnterTransition(new TransitionSet()
+                        .addTransition(new Slide(Gravity.LEFT).setDuration(200))
+                        .addTransition(new Fade(Fade.IN).setDuration(200)));
+            }
         }
 
         if (savedInstanceState != null) {

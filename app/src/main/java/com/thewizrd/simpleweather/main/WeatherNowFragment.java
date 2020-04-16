@@ -1440,7 +1440,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.conditionPanel.post(new Runnable() {
             @Override
             public void run() {
-                if (mActivity != null) {
+                if (mActivity != null && binding != null) {
                     int height = binding.getRoot().getMeasuredHeight() - binding.appBar.getMeasuredHeight();
                     ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) binding.conditionPanel.getLayoutParams();
                     if (height > 0 && lp.height != height) {
@@ -1543,6 +1543,8 @@ public class WeatherNowFragment extends WindowColorFragment
 
     @Override
     public void updateWindowColors() {
+        if (binding == null) return;
+
         binding.getRoot().post(new Runnable() {
             @Override
             public void run() {
