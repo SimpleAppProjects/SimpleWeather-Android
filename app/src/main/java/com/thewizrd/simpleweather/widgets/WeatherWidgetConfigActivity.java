@@ -890,7 +890,17 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                         (ActivityUtils.getOrientation(mActivity) != Configuration.ORIENTATION_LANDSCAPE || ActivityUtils.isLargeTablet(mActivity))) {
                     f.show(getFragmentManager(), TAG);
                 } else {
-                    f.showFullScreen(getFragmentManager(), android.R.id.content, null);
+                    f.setOnDialogClosedListener(new CustomListPreferenceDialogFragment.OnDialogClosedListener() {
+                        @Override
+                        public void onDialogClosed() {
+                            if (!inSearchUI) {
+                                mSearchFragmentContainer.setVisibility(View.GONE);
+                            }
+                        }
+                    });
+                    f.showFullScreen(getFragmentManager(), R.id.search_fragment_container, null);
+                    mSearchFragmentContainer.bringToFront();
+                    mSearchFragmentContainer.setVisibility(View.VISIBLE);
                 }
             } else {
                 super.onDisplayPreferenceDialog(preference);

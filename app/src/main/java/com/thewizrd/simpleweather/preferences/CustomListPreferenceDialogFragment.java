@@ -40,6 +40,10 @@ import com.thewizrd.simpleweather.helpers.WindowColorManager;
 public class CustomListPreferenceDialogFragment extends PreferenceDialogFragmentCompat
         implements WindowColorManager {
 
+    public interface OnDialogClosedListener {
+        public void onDialogClosed();
+    }
+
     private static final String SAVED_BACK_STACK_ID = "CustomListPreferenceDialogFragment.backStackId";
     private static final String SAVE_STATE_INDEX = "CustomListPreferenceDialogFragment.index";
     private static final String SAVE_STATE_ENTRIES = "CustomListPreferenceDialogFragment.entries";
@@ -52,6 +56,12 @@ public class CustomListPreferenceDialogFragment extends PreferenceDialogFragment
     private CharSequence[] mEntryValues;
 
     private int mBackStackId = -1;
+
+    private OnDialogClosedListener onDialogClosedListener;
+
+    public void setOnDialogClosedListener(OnDialogClosedListener listener) {
+        this.onDialogClosedListener = listener;
+    }
 
     public static CustomListPreferenceDialogFragment newInstance(String key) {
         final CustomListPreferenceDialogFragment fragment =
@@ -128,6 +138,9 @@ public class CustomListPreferenceDialogFragment extends PreferenceDialogFragment
             if (preference.callChangeListener(value)) {
                 preference.setValue(value);
             }
+        }
+        if (onDialogClosedListener != null) {
+            onDialogClosedListener.onDialogClosed();
         }
     }
 

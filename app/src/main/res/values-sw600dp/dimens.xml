@@ -6,6 +6,7 @@
     <dimen name="weather_icon_size">118sp</dimen>
     <dimen name="weather_condition_size">38sp</dimen>
     <dimen name="detail_card_height">150dp</dimen>
+    <dimen name="moonphase_text_size">48sp</dimen>
     <!-- Forecast -->
     <dimen name="forecast_panel_height">210dp</dimen>
     <dimen name="forecast_condition_size">16sp</dimen>

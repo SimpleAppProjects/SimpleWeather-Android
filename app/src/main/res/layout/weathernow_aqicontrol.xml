@@ -78,7 +78,6 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:gravity="top"
-            android:maxLines="2"
             android:padding="6dp"
             android:text="@{weatherView.airQuality != null ? weatherView.airQuality.description : null}"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"

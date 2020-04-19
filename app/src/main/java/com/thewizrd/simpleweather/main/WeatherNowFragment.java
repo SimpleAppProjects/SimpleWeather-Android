@@ -46,11 +46,13 @@ import android.widget.TextView;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.graphics.drawable.WrappedDrawable;
 import androidx.core.location.LocationManagerCompat;
 import androidx.core.text.HtmlCompat;
 import androidx.core.util.ObjectsCompat;
@@ -863,30 +865,39 @@ public class WeatherNowFragment extends WindowColorFragment
         });
 
         // Radar
-        binding.radarControl.setOnInflateListener(new ViewStub.OnInflateListener() {
-            @Override
-            public void onInflate(ViewStub stub, View inflated) {
-                WeathernowRadarcontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            binding.radarControl.setOnInflateListener(new ViewStub.OnInflateListener() {
+                @Override
+                public void onInflate(ViewStub stub, View inflated) {
+                    WeathernowRadarcontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
 
-                binding.radarWebviewCover.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (mActivity != null) {
-                            mActivity.getSupportFragmentManager().beginTransaction()
-                                    .add(R.id.fragment_container, new WeatherRadarFragment())
-                                    .hide(WeatherNowFragment.this)
-                                    .addToBackStack(null)
-                                    .commit();
+                    binding.radarWebviewCover.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (mActivity != null) {
+                                mActivity.getSupportFragmentManager().beginTransaction()
+                                        .add(R.id.fragment_container, new WeatherRadarFragment())
+                                        .hide(WeatherNowFragment.this)
+                                        .addToBackStack(null)
+                                        .commit();
+                            }
                         }
-                    }
-                });
+                    });
 
-                binding.setWeatherView(weatherView);
-                binding.setLifecycleOwner(WeatherNowFragment.this);
+                    /*
+                     * NOTE
+                     * Compat issue: bring container to the front
+                     * This is handled on API 21+ with the translationZ attribute
+                     */
+                    binding.radarWebviewCover.bringToFront();
 
-                navigateToRadarURL();
-            }
-        });
+                    binding.setWeatherView(weatherView);
+                    binding.setLifecycleOwner(WeatherNowFragment.this);
+
+                    navigateToRadarURL();
+                }
+            });
+        }
 
         loaded = true;
         binding.refreshLayout.setRefreshing(true);
@@ -967,17 +978,20 @@ public class WeatherNowFragment extends WindowColorFragment
                             });
                         }
                     } else if (propertyId == BR.radarURL) {
-                        if (weatherView.getRadarURL() != null) {
-                            if (binding.radarControl.getViewStub() != null) {
-                                binding.radarControl.getViewStub().postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (binding != null && binding.radarControl.getViewStub() != null)
-                                            binding.radarControl.getViewStub().inflate();
-                                    }
-                                }, 1000);
-                            } else {
-                                navigateToRadarURL();
+                        // Restrict control to Kitkat+ for Chromium WebView
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            if (weatherView.getRadarURL() != null) {
+                                if (binding.radarControl.getViewStub() != null) {
+                                    binding.radarControl.getViewStub().postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (binding != null && binding.radarControl.getViewStub() != null)
+                                                binding.radarControl.getViewStub().inflate();
+                                        }
+                                    }, 1000);
+                                } else {
+                                    navigateToRadarURL();
+                                }
                             }
                         }
                     }
@@ -1776,6 +1790,7 @@ public class WeatherNowFragment extends WindowColorFragment
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
     private void navigateToRadarURL() {
         if (weatherView == null || weatherView.getRadarURL() == null ||
                 binding == null || binding.radarControl.getBinding() == null)
@@ -1798,6 +1813,7 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     @NonNull
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
     private WebView createWebView() {
         WebView webView = new WebView(this.getContext());
 
@@ -1970,9 +1986,19 @@ public class WeatherNowFragment extends WindowColorFragment
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 progressBar.setProgressBackgroundTintList(ColorStateList.valueOf(progressBackgroundColor));
             } else {
-                LayerDrawable drawable = (LayerDrawable) progressBar.getProgressDrawable();
-                GradientDrawable background = (GradientDrawable) drawable.findDrawableByLayerId(android.R.id.background);
-                background.setColorFilter(progressBackgroundColor, PorterDuff.Mode.SRC_IN);
+                LayerDrawable drawable = null;
+                if (progressBar.getProgressDrawable() instanceof LayerDrawable) {
+                    drawable = (LayerDrawable) progressBar.getProgressDrawable();
+                } else if (progressBar.getProgressDrawable() instanceof WrappedDrawable) {
+                    Drawable unwrapped = DrawableCompat.unwrap(progressBar.getProgressDrawable());
+                    if (unwrapped instanceof LayerDrawable) {
+                        drawable = (LayerDrawable) unwrapped;
+                    }
+                }
+                if (drawable != null) {
+                    GradientDrawable background = (GradientDrawable) drawable.findDrawableByLayerId(android.R.id.background);
+                    background.setColorFilter(progressBackgroundColor, PorterDuff.Mode.SRC_IN);
+                }
             }
         }
 
