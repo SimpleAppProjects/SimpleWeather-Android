@@ -75,8 +75,9 @@ public class WeatherAlertsViewModel extends ObservableViewModel {
                                 }
                             });
                     currentAlertsData.observeForever(alertObserver);
-                    if (alerts != null)
+                    if (alerts != null) {
                         alerts.setValue(currentAlertsData.getValue());
+                    }
                 }
             });
         }
@@ -85,7 +86,9 @@ public class WeatherAlertsViewModel extends ObservableViewModel {
     private Observer<List<WeatherAlertViewModel>> alertObserver = new Observer<List<WeatherAlertViewModel>>() {
         @Override
         public void onChanged(List<WeatherAlertViewModel> alertViewModels) {
-            alerts.setValue(alertViewModels);
+            if (alerts != null) {
+                alerts.setValue(alertViewModels);
+            }
         }
     };
 

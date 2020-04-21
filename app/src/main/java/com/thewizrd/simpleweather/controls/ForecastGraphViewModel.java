@@ -146,14 +146,18 @@ public class ForecastGraphViewModel extends ViewModel {
     private Observer<Forecasts> forecastObserver = new Observer<Forecasts>() {
         @Override
         public void onChanged(Forecasts forecastData) {
-            forecasts.setValue(forecastMapper.apply(forecastData));
+            if (forecasts != null) {
+                forecasts.setValue(forecastMapper.apply(forecastData));
+            }
         }
     };
 
     private Observer<List<HourlyForecast>> hrforecastObserver = new Observer<List<HourlyForecast>>() {
         @Override
         public void onChanged(List<HourlyForecast> forecastData) {
-            hourlyForecasts.setValue(hrForecastMapper.apply(forecastData));
+            if (hourlyForecasts != null) {
+                hourlyForecasts.setValue(hrForecastMapper.apply(forecastData));
+            }
         }
     };
 

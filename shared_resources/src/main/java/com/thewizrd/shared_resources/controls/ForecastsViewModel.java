@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.arch.core.util.Function;
 import androidx.core.util.ObjectsCompat;
 import androidx.lifecycle.LiveData;
@@ -123,14 +124,18 @@ public class ForecastsViewModel extends ViewModel {
     private Observer<PagedList<ForecastItemViewModel>> forecastObserver = new Observer<PagedList<ForecastItemViewModel>>() {
         @Override
         public void onChanged(PagedList<ForecastItemViewModel> forecastItemViewModels) {
-            forecasts.setValue(forecastItemViewModels);
+            if (forecasts != null) {
+                forecasts.setValue(forecastItemViewModels);
+            }
         }
     };
 
     private Observer<PagedList<HourlyForecastItemViewModel>> hrforecastObserver = new Observer<PagedList<HourlyForecastItemViewModel>>() {
         @Override
         public void onChanged(PagedList<HourlyForecastItemViewModel> forecastItemViewModels) {
-            hourlyForecasts.setValue(forecastItemViewModels);
+            if (hourlyForecasts != null) {
+                hourlyForecasts.setValue(forecastItemViewModels);
+            }
         }
     };
 
@@ -186,7 +191,7 @@ public class ForecastsViewModel extends ViewModel {
                 }
             });
 
-            int totalCount = forecasts.getForecast().size();
+            int totalCount = forecasts != null ? forecasts.getForecast().size() : 0;
             if (totalCount == 0) {
                 callback.onResult(Collections.<ForecastItemViewModel>emptyList(), 0, 0);
                 return;
@@ -210,10 +215,13 @@ public class ForecastsViewModel extends ViewModel {
             callback.onResult(loadItems(forecasts, params.startPosition, params.loadSize));
         }
 
-        private List<ForecastItemViewModel> loadItems(Forecasts forecasts, int position, int loadSize) {
-            final int totalCount = forecasts.getForecast().size();
-            final List<ForecastItemViewModel> models = new ArrayList<>();
+        private List<ForecastItemViewModel> loadItems(@Nullable Forecasts forecasts, int position, int loadSize) {
+            final int totalCount = forecasts != null ? forecasts.getForecast().size() : 0;
+            if (totalCount == 0) {
+                return Collections.emptyList();
+            }
 
+            final List<ForecastItemViewModel> models = new ArrayList<>();
             int textForecastSize = forecasts.getTxtForecast() != null ? forecasts.getTxtForecast().size() : 0;
 
             boolean isDayAndNt = textForecastSize == forecasts.getForecast().size() * 2;

@@ -526,19 +526,21 @@ public class WidgetUtils {
         AppWidgetProviderInfo providerInfo = AppWidgetManager.getInstance(App.getInstance().getAppContext())
                 .getAppWidgetInfo(appWidgetId);
 
-        if (providerInfo.initialLayout == WeatherWidgetProvider1x1.getInstance().getWidgetLayoutId()) {
-            return WidgetType.Widget1x1;
-        } else if (providerInfo.initialLayout == WeatherWidgetProvider2x2.getInstance().getWidgetLayoutId()) {
-            return WidgetType.Widget2x2;
-        } else if (providerInfo.initialLayout == WeatherWidgetProvider4x1.getInstance().getWidgetLayoutId()) {
-            return WidgetType.Widget4x1;
-        } else if (providerInfo.initialLayout == WeatherWidgetProvider4x2.getInstance().getWidgetLayoutId()) {
-            return WidgetType.Widget4x2;
-        } else if (providerInfo.initialLayout == WeatherWidgetProvider4x1Google.getInstance().getWidgetLayoutId()) {
-            return WidgetType.Widget4x1Google;
-        } else {
-            return WidgetType.Unknown;
+        if (providerInfo != null) {
+            if (providerInfo.initialLayout == WeatherWidgetProvider1x1.getInstance().getWidgetLayoutId()) {
+                return WidgetType.Widget1x1;
+            } else if (providerInfo.initialLayout == WeatherWidgetProvider2x2.getInstance().getWidgetLayoutId()) {
+                return WidgetType.Widget2x2;
+            } else if (providerInfo.initialLayout == WeatherWidgetProvider4x1.getInstance().getWidgetLayoutId()) {
+                return WidgetType.Widget4x1;
+            } else if (providerInfo.initialLayout == WeatherWidgetProvider4x2.getInstance().getWidgetLayoutId()) {
+                return WidgetType.Widget4x2;
+            } else if (providerInfo.initialLayout == WeatherWidgetProvider4x1Google.getInstance().getWidgetLayoutId()) {
+                return WidgetType.Widget4x1Google;
+            }
         }
+
+        return WidgetType.Unknown;
     }
 
     public static WidgetBackground getWidgetBackground(int widgetId) {

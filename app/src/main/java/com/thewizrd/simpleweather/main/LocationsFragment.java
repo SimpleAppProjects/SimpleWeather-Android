@@ -587,7 +587,9 @@ public class LocationsFragment extends ToolbarFragment
         binding.searchFragmentContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                exitSearchUi(false);
+                if (inSearchUI) {
+                    exitSearchUi(false);
+                }
             }
         });
 
@@ -1595,11 +1597,13 @@ public class LocationsFragment extends ToolbarFragment
     private void removeSearchFragment() {
         if (mSearchFragment != null) {
             mSearchFragment.setUserVisibleHint(false);
-            final FragmentTransaction transaction = getChildFragmentManager()
-                    .beginTransaction();
-            transaction.remove(mSearchFragment);
+            if (mSearchFragment.isAdded()) {
+                final FragmentTransaction transaction = getChildFragmentManager()
+                        .beginTransaction();
+                transaction.remove(mSearchFragment);
+                transaction.commitNowAllowingStateLoss();
+            }
             mSearchFragment = null;
-            transaction.commitNowAllowingStateLoss();
         }
     }
 
