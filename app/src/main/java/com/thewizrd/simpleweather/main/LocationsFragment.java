@@ -1429,10 +1429,11 @@ public class LocationsFragment extends ToolbarFragment
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (mSearchFragment == null) return;
-                                    mSearchFragment.showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.SHORT),
-                                            new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                                    mSearchFragment.showLoading(false);
+                                    if (mSearchFragment != null) {
+                                        mSearchFragment.showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.SHORT),
+                                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                                        mSearchFragment.showLoading(false);
+                                    }
                                 }
                             });
                             return;
@@ -1455,10 +1456,11 @@ public class LocationsFragment extends ToolbarFragment
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        if (mSearchFragment == null) return;
-                                        mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
-                                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                                        mSearchFragment.showLoading(false);
+                                        if (mSearchFragment != null) {
+                                            mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
+                                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                                            mSearchFragment.showLoading(false);
+                                        }
                                     }
                                 });
                                 return;
@@ -1496,9 +1498,11 @@ public class LocationsFragment extends ToolbarFragment
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mSearchFragment.showSnackbar(Snackbar.make(R.string.werror_noweather, Snackbar.Duration.SHORT),
-                                            new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                                    mSearchFragment.showLoading(false);
+                                    if (mSearchFragment != null) {
+                                        mSearchFragment.showSnackbar(Snackbar.make(R.string.werror_noweather, Snackbar.Duration.SHORT),
+                                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                                        mSearchFragment.showLoading(false);
+                                    }
                                 }
                             });
                             return;
@@ -1512,9 +1516,10 @@ public class LocationsFragment extends ToolbarFragment
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        if (mSearchFragment == null) return;
-                                        mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
-                                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                                        if (mSearchFragment != null) {
+                                            mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
+                                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                                        }
                                     }
                                 });
                             }

@@ -435,12 +435,12 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     private RecyclerOnClickListenerInterface recyclerClickInterface = new RecyclerOnClickListenerInterface() {
         @Override
         public void onClick(final View view, final int position) {
-            if (mSearchFragment == null)
-                return;
-
             AsyncTask.run(new Runnable() {
                 @Override
                 public void run() {
+                    if (mSearchFragment == null)
+                        return;
+
                     if (mActivity != null) {
                         // Get selected query view
                         final LocationQueryAdapter adapter = mSearchFragment.getAdapter();
@@ -465,8 +465,10 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mSearchFragment.showSnackbar(Snackbar.make(R.string.werror_invalidkey, Snackbar.Duration.SHORT),
-                                            new SnackbarWindowAdjustCallback(mActivity));
+                                    if (mSearchFragment != null) {
+                                        mSearchFragment.showSnackbar(Snackbar.make(R.string.werror_invalidkey, Snackbar.Duration.SHORT),
+                                                new SnackbarWindowAdjustCallback(mActivity));
+                                    }
                                 }
                             });
                             mSearchFragment.showLoading(false);
@@ -492,8 +494,10 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mSearchFragment.showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.SHORT),
-                                            new SnackbarWindowAdjustCallback(mActivity));
+                                    if (mSearchFragment != null) {
+                                        mSearchFragment.showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.SHORT),
+                                                new SnackbarWindowAdjustCallback(mActivity));
+                                    }
                                 }
                             });
                             mSearchFragment.showLoading(false);
@@ -517,8 +521,10 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
-                                                new SnackbarWindowAdjustCallback(mActivity));
+                                        if (mSearchFragment != null) {
+                                            mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
+                                                    new SnackbarWindowAdjustCallback(mActivity));
+                                        }
                                     }
                                 });
                                 mSearchFragment.showLoading(false);
@@ -532,8 +538,10 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mSearchFragment.showSnackbar(Snackbar.make(R.string.werror_noweather, Snackbar.Duration.SHORT),
-                                            new SnackbarWindowAdjustCallback(mActivity));
+                                    if (mSearchFragment != null) {
+                                        mSearchFragment.showSnackbar(Snackbar.make(R.string.werror_noweather, Snackbar.Duration.SHORT),
+                                                new SnackbarWindowAdjustCallback(mActivity));
+                                    }
                                 }
                             });
                             mSearchFragment.showLoading(false);
@@ -548,9 +556,11 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
-                                                new SnackbarWindowAdjustCallback(mActivity));
-                                        mSearchFragment.showLoading(false);
+                                        if (mSearchFragment != null) {
+                                            mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
+                                                    new SnackbarWindowAdjustCallback(mActivity));
+                                            mSearchFragment.showLoading(false);
+                                        }
                                     }
                                 });
                             }

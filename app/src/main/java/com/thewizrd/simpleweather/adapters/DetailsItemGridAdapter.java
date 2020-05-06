@@ -33,7 +33,7 @@ public class DetailsItemGridAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return mDataset != null ? mDataset.get(position).getDetailsType().getValue() : 0;
+        return mDataset != null && mDataset.size() > 0 ? mDataset.get(position).getDetailsType().getValue() : 0;
     }
 
     @Override

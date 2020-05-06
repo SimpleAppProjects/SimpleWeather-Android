@@ -191,7 +191,7 @@ public class ForecastsViewModel extends ViewModel {
                 }
             });
 
-            int totalCount = forecasts != null ? forecasts.getForecast().size() : 0;
+            int totalCount = forecasts != null && forecasts.getForecast() != null ? forecasts.getForecast().size() : 0;
             if (totalCount == 0) {
                 callback.onResult(Collections.<ForecastItemViewModel>emptyList(), 0, 0);
                 return;
@@ -216,7 +216,7 @@ public class ForecastsViewModel extends ViewModel {
         }
 
         private List<ForecastItemViewModel> loadItems(@Nullable Forecasts forecasts, int position, int loadSize) {
-            final int totalCount = forecasts != null ? forecasts.getForecast().size() : 0;
+            final int totalCount = forecasts != null && forecasts.getForecast() != null ? forecasts.getForecast().size() : 0;
             if (totalCount == 0) {
                 return Collections.emptyList();
             }

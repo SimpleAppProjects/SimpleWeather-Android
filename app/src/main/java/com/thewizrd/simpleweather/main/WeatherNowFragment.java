@@ -659,6 +659,8 @@ public class WeatherNowFragment extends WindowColorFragment
             @SuppressLint("RestrictedApi")
             @Override
             public void onFlingStopped(int scrollY) {
+                if (binding == null) return;
+
                 int condPnlHeight = binding.refreshLayout.getHeight();
                 int THRESHOLD = condPnlHeight / 2;
                 int scrollOffset = binding.scrollView.computeVerticalScrollOffset();
@@ -1107,6 +1109,7 @@ public class WeatherNowFragment extends WindowColorFragment
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
+                if (binding == null) return;
                 binding.getRoot().getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                 adjustGradientView();
