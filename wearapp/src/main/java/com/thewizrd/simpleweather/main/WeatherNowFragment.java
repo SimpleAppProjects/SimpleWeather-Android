@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -20,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,6 +35,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.wear.widget.drawer.WearableActionDrawerView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -104,6 +107,7 @@ public class WeatherNowFragment extends Fragment
 
     // Views
     private FragmentWeatherNowBinding binding;
+    private WearableActionDrawerView mDrawerView;
 
     // GPS location
     private FusedLocationProviderClient mFusedLocationClient;
@@ -473,6 +477,8 @@ public class WeatherNowFragment extends Fragment
 
         View view = binding.getRoot();
 
+        mDrawerView = mActivity.findViewById(R.id.bottom_action_drawer);
+
         // SwipeRefresh
         binding.swipeRefreshLayout.setColorSchemeColors(Colors.SIMPLEBLUE);
         binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -493,6 +499,46 @@ public class WeatherNowFragment extends Fragment
             }
         });
         binding.swipeRefreshLayout.setRefreshing(true);
+        binding.swipeRefreshLayout.getViewTreeObserver().addOnWindowAttachListener(new ViewTreeObserver.OnWindowAttachListener() {
+            /* BoxInsetLayout impl */
+            private static final float FACTOR = 0.146447f; //(1 - sqrt(2)/2)/2
+            private final boolean mIsRound = getResources().getConfiguration().isScreenRound();
+
+            @Override
+            public void onWindowAttached() {
+                if (binding == null) return;
+                binding.swipeRefreshLayout.getViewTreeObserver().removeOnWindowAttachListener(this);
+
+                final View innerLayout = binding.scrollView.getChildAt(0);
+                final View peekContainer = mDrawerView.findViewById(R.id.ws_drawer_view_peek_container);
+
+                innerLayout.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (binding == null) return;
+                        int verticalPadding = getResources().getDimensionPixelSize(R.dimen.inner_frame_layout_padding);
+
+                        int mScreenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+                        int mScreenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+
+                        int rightEdge = Math.min(binding.swipeRefreshLayout.getMeasuredWidth(), mScreenWidth);
+                        int bottomEdge = Math.min(binding.swipeRefreshLayout.getMeasuredHeight(), mScreenHeight);
+                        int verticalInset = (int) (FACTOR * Math.max(rightEdge, bottomEdge));
+
+                        innerLayout.setPaddingRelative(
+                                innerLayout.getPaddingStart(),
+                                mIsRound ? verticalInset : verticalPadding,
+                                innerLayout.getPaddingEnd(),
+                                mIsRound ? verticalInset : peekContainer.getHeight());
+                    }
+                });
+            }
+
+            @Override
+            public void onWindowDetached() {
+
+            }
+        });
 
         binding.scrollView.setOnGenericMotionListener(new View.OnGenericMotionListener() {
             @Override
