@@ -43,9 +43,9 @@ import androidx.preference.PreferenceGroup;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -57,7 +57,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import com.thewizrd.simpleweather.App;
-import com.thewizrd.simpleweather.BuildConfig;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
@@ -161,8 +160,16 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        AnalyticsLogger.logEvent("SettingsFragment: onCreate");
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
+
+        AnalyticsLogger.logEvent("SettingsFragment: onResume");
 
         // Register listener
         ApplicationLib app = App.getInstance();
@@ -177,6 +184,8 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
 
     @Override
     public void onPause() {
+        AnalyticsLogger.logEvent("SettingsFragment: onPause");
+
         if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && WeatherManager.isKeyRequired(providerPref.getValue())) {
             // Fallback to supported weather provider
             WeatherManager wm = WeatherManager.getInstance();
@@ -211,13 +220,10 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
             if (CommonActions.ACTION_SETTINGS_UPDATEAPI.equals(filter.getIntent().getAction())) {
                 WeatherManager.getInstance().updateAPI();
                 // Log event
-                if (!BuildConfig.DEBUG) {
-                    FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(getAppCompatActivity());
-                    Bundle bundle = new Bundle();
-                    bundle.putString("API", Settings.getAPI());
-                    bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));
-                    mFirebaseAnalytics.logEvent("Update_API", bundle);
-                }
+                Bundle bundle = new Bundle();
+                bundle.putString("API", Settings.getAPI());
+                bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));
+                AnalyticsLogger.logEvent("Update_API", bundle);
             } else if (WeatherWidgetService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
                 WeatherWidgetService.enqueueWork(getAppCompatActivity(), filter.getIntent());
             } else if (WeatherUpdaterWorker.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
@@ -278,8 +284,10 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 if ((boolean) newValue) {
                     preference.setIcon(R.drawable.ic_celsius);
+                    AnalyticsLogger.logEvent("Settings: celsius checked");
                 } else {
                     preference.setIcon(R.drawable.ic_fahrenheit);
+                    AnalyticsLogger.logEvent("Settings: fahrenheit checked");
                 }
                 tintIcons(unitPref, Colors.SIMPLEBLUELIGHT);
                 return true;
@@ -296,6 +304,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         followGps.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
+                AnalyticsLogger.logEvent("Settings: followGps toggled");
                 SwitchPreferenceCompat pref = (SwitchPreferenceCompat) preference;
                 if ((boolean) newValue) {
                     if (ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -327,6 +336,10 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         themePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
+                Bundle args = new Bundle();
+                args.putString("mode", newValue.toString());
+                AnalyticsLogger.logEvent("Settings: theme changed", args);
+
                 UserThemeMode mode;
                 switch (newValue.toString()) {
                     case "0": // System

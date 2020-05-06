@@ -20,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.R;
@@ -37,6 +38,7 @@ public class WeatherRadarFragment extends ToolbarFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AnalyticsLogger.logEvent("WeatherRadarFragment: onCreate");
         setEnterTransition(null);
         setExitTransition(null);
         setReenterTransition(null);
@@ -103,6 +105,7 @@ public class WeatherRadarFragment extends ToolbarFragment {
         super.onResume();
 
         if (!isHidden()) {
+            AnalyticsLogger.logEvent("WeatherRadarFragment: onResume");
             if (binding != null) {
                 WebView webView = getRadarWebView();
                 if (webView != null) {
@@ -116,6 +119,7 @@ public class WeatherRadarFragment extends ToolbarFragment {
 
     @Override
     public void onPause() {
+        AnalyticsLogger.logEvent("WeatherRadarFragment: onPause");
         if (binding != null) {
             WebView webView = getRadarWebView();
             if (webView != null) {
@@ -209,6 +213,15 @@ public class WeatherRadarFragment extends ToolbarFragment {
         webView.setWebViewClient(new RadarWebClient(false) {
             @Override
             public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    Bundle args = new Bundle();
+                    args.putBoolean("didCrash", detail.didCrash());
+                    args.putInt("renderPriorityAtExit", detail.rendererPriorityAtExit());
+                    AnalyticsLogger.logEvent("WeatherRadarFragment: render gone", args);
+                } else {
+                    AnalyticsLogger.logEvent("WeatherRadarFragment: render gone");
+                }
+
                 if (binding != null) {
                     WebView wv = getRadarWebView();
 

@@ -1,6 +1,7 @@
 package com.thewizrd.shared_resources.utils;
 
 import android.database.Cursor;
+import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -163,6 +164,11 @@ class DBMigrations {
         int vDB = Settings.getDBVersion();
 
         if (vDB < Settings.CURRENT_DBVERSION) {
+            Bundle args = new Bundle();
+            args.putInt("Version", Settings.getDBVersion());
+            args.putInt("CurrentDBVersion", Settings.CURRENT_DBVERSION);
+            AnalyticsLogger.logEvent("DBMigrations: performMigrations", args);
+
             switch (vDB) {
                 case 0:
                     // Move data from json to db

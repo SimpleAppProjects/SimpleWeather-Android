@@ -13,6 +13,7 @@ import androidx.wear.widget.WearableLinearLayoutManager;
 
 import com.thewizrd.shared_resources.BR;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.simpleweather.adapters.DetailItemAdapter;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding;
 import com.thewizrd.simpleweather.fragments.SwipeDismissFragment;
@@ -25,6 +26,12 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
 
     public static WeatherDetailsFragment newInstance() {
         return new WeatherDetailsFragment();
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        AnalyticsLogger.logEvent("WeatherDetails: onCreate");
     }
 
     @Nullable
@@ -62,6 +69,7 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
 
         // Don't resume if fragment is hidden
         if (!this.isHidden()) {
+            AnalyticsLogger.logEvent("WeatherDetails: onResume");
             initialize();
             if (weatherView != null) {
                 weatherView.addOnPropertyChangedCallback(propertyChangedCallback);
@@ -74,12 +82,14 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
         super.onHiddenChanged(hidden);
 
         if (!hidden && this.isVisible()) {
+            AnalyticsLogger.logEvent("WeatherDetails: onHiddenChanged");
             initialize();
         }
     }
 
     @Override
     public void onPause() {
+        AnalyticsLogger.logEvent("WeatherDetails: onPause");
         weatherView.removeOnPropertyChangedCallback(propertyChangedCallback);
         super.onPause();
     }

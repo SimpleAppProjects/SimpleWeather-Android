@@ -82,6 +82,7 @@ import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -235,6 +236,7 @@ public class LocationsFragment extends ToolbarFragment
 
                     // Just in case
                     if (panel == null) {
+                        AnalyticsLogger.logEvent("LocationsFragment: panel == null");
                         for (LocationPanelViewModel panelVM : dataSet) {
                             if (panelVM.getLocationData().getName().equals(location.getName()) &&
                                     panelVM.getLocationData().getLatitude() == location.getLatitude() &&
@@ -354,6 +356,8 @@ public class LocationsFragment extends ToolbarFragment
     private RecyclerOnClickListenerInterface onRecyclerClickListener = new RecyclerOnClickListenerInterface() {
         @Override
         public void onClick(View view, int position) {
+            AnalyticsLogger.logEvent("LocationsFragment: recycler click");
+
             if (view != null && view.isEnabled() && view.getTag() instanceof LocationData) {
                 LocationData locData = (LocationData) view.getTag();
                 LocationPanelViewModel vm = mAdapter.getPanelViewModel(position);
@@ -408,6 +412,7 @@ public class LocationsFragment extends ToolbarFragment
 
         // Create your fragment here
         mLoaded = true;
+        AnalyticsLogger.logEvent("LocationsFragment: onCreate");
 
         mErrorCounter = new boolean[WeatherUtils.ErrorStatus.values().length];
 
@@ -783,6 +788,7 @@ public class LocationsFragment extends ToolbarFragment
 
         // Don't resume if fragment is hidden
         if (!this.isHidden()) {
+            AnalyticsLogger.logEvent("LocationsFragment: onResume");
             initSnackManager();
             AsyncTask.run(new Runnable() {
                 @Override
@@ -795,6 +801,7 @@ public class LocationsFragment extends ToolbarFragment
 
     @Override
     public void onPause() {
+        AnalyticsLogger.logEvent("LocationsFragment: onPause");
         if (inSearchUI) exitSearchUi(true);
         // Cancel pending actions
         if (cts != null) cts.cancel();
@@ -824,6 +831,7 @@ public class LocationsFragment extends ToolbarFragment
         }
 
         if (!hidden && this.isVisible()) {
+            AnalyticsLogger.logEvent("LocationsFragment: onHiddenChanged");
             initSnackManager();
             AsyncTask.run(new Runnable() {
                 @Override
@@ -1260,6 +1268,8 @@ public class LocationsFragment extends ToolbarFragment
     }
 
     private void prepareSearchUI() {
+        AnalyticsLogger.logEvent("LocationsFragment: prepareSearchUI");
+
         mBottomNavView.setVisibility(View.GONE);
         if (getSysBarColorMgr() != null) {
             @ColorInt int bg_color;
@@ -1389,6 +1399,8 @@ public class LocationsFragment extends ToolbarFragment
                 AsyncTask.run(new Runnable() {
                     @Override
                     public void run() {
+                        AnalyticsLogger.logEvent("LocationsFragment: searchFragment click");
+
                         if (mSearchFragment == null)
                             return;
 

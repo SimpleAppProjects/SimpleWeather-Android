@@ -10,6 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.database.TZDatabase;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 
 import java.util.concurrent.Callable;
@@ -26,6 +27,7 @@ public class TZDBCache {
 
     public static String getTimeZone(final double latitude, final double longitude) {
         if (latitude != 0 && longitude != 0) {
+            AnalyticsLogger.logEvent("TZDBCache: querying");
             // Initialize db if it hasn't been already
             if (tzDB == null) {
                 Context context = SimpleLibrary.getInstance().getAppContext();

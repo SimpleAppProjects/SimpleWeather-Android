@@ -33,9 +33,9 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.wear.widget.SwipeDismissFrameLayout;
 
 import com.google.android.wearable.intent.RemoteIntent;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -48,7 +48,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import com.thewizrd.simpleweather.App;
-import com.thewizrd.simpleweather.BuildConfig;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.fragments.SwipeDismissPreferenceFragment;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
@@ -68,6 +67,8 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        AnalyticsLogger.logEvent("SettingsActivity: onCreate");
 
         // Display the fragment as the main content.
         Fragment fragment = getFragmentManager().findFragmentById(android.R.id.content);
@@ -128,6 +129,8 @@ public class SettingsActivity extends Activity {
         public void onResume() {
             super.onResume();
 
+            AnalyticsLogger.logEvent("SettingsFragment: onResume");
+
             LocalBroadcastManager.getInstance(mActivity)
                     .registerReceiver(connStatusReceiver, new IntentFilter(WearableDataListenerService.ACTION_UPDATECONNECTIONSTATUS));
             mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
@@ -144,6 +147,8 @@ public class SettingsActivity extends Activity {
 
         @Override
         public void onPause() {
+            AnalyticsLogger.logEvent("SettingsFragment: onPause");
+
             if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && WeatherManager.isKeyRequired(providerPref.getValue())) {
                 // Fallback to supported weather provider
                 WeatherManager wm = WeatherManager.getInstance();
@@ -183,14 +188,11 @@ public class SettingsActivity extends Activity {
                     WeatherManager.getInstance().updateAPI();
                     mLocalBroadcastManager.sendBroadcast(
                             new Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI));
-                    if (!BuildConfig.DEBUG) {
-                        // Log event
-                        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(mActivity);
-                        Bundle bundle = new Bundle();
-                        bundle.putString("API", Settings.getAPI());
-                        bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));
-                        mFirebaseAnalytics.logEvent("Update_API", bundle);
-                    }
+                    // Log event
+                    Bundle bundle = new Bundle();
+                    bundle.putString("API", Settings.getAPI());
+                    bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));
+                    AnalyticsLogger.logEvent("Update_API", bundle);
                 } else if (CommonActions.ACTION_SETTINGS_UPDATEGPS.equals(filter.getIntent().getAction())) {
                     mLocalBroadcastManager.sendBroadcast(
                             new Intent(CommonActions.ACTION_SETTINGS_UPDATEGPS));
@@ -231,6 +233,7 @@ public class SettingsActivity extends Activity {
             followGps.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    AnalyticsLogger.logEvent("Settings: followGps toggled");
                     SwitchPreference pref = (SwitchPreference) preference;
                     if ((boolean) newValue) {
                         if (mActivity != null && mActivity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -461,6 +464,10 @@ public class SettingsActivity extends Activity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     int newVal = Integer.parseInt(newValue.toString());
+
+                    Bundle args = new Bundle();
+                    args.putInt("mode", newVal);
+                    AnalyticsLogger.logEvent("Settings: sync pref changed", args);
 
                     ListPreference pref = (ListPreference) preference;
                     pref.setSummary(pref.getEntries()[newVal]);

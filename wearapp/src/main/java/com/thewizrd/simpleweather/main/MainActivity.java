@@ -38,6 +38,7 @@ import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
@@ -70,6 +71,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AnalyticsLogger.logEvent("MainActivity: onCreate");
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -389,6 +391,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
     @Override
     protected void onResume() {
         super.onResume();
+        AnalyticsLogger.logEvent("MainActivity: onResume");
 
         if (binding != null) {
             MenuItem menuItem = null;
@@ -406,6 +409,12 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
                 getMenuInflater().inflate(R.menu.main_botton_drawer_menu, binding.bottomActionDrawer.getMenu());
             }
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AnalyticsLogger.logEvent("MainActivity: onPause");
     }
 
     private class NavDrawerAdapter extends WearableNavigationDrawerView.WearableNavigationDrawerAdapter {

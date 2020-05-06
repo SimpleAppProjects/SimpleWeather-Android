@@ -24,6 +24,7 @@ import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -48,6 +49,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        AnalyticsLogger.logEvent("MainActivity: onCreate");
 
         // Make full transparent statusBar
         ActivityUtils.setTransparentWindow(getWindow(), Colors.SIMPLEBLUE, Colors.TRANSPARENT, Colors.TRANSPARENT,
@@ -331,6 +334,18 @@ public class MainActivity extends AppCompatActivity
     protected void onResumeFragments() {
         super.onResumeFragments();
         refreshNavViewCheckedItem();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AnalyticsLogger.logEvent("MainActivity: onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AnalyticsLogger.logEvent("MainActivity: onPause");
     }
 
     @Override

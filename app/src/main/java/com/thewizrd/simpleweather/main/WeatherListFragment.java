@@ -37,6 +37,7 @@ import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -82,6 +83,7 @@ public class WeatherListFragment extends ToolbarFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AnalyticsLogger.logEvent("WeatherListFragment: onCreate");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && weatherType == WeatherListType.ALERTS) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                 setEnterTransition(new TransitionSet()
@@ -178,6 +180,7 @@ public class WeatherListFragment extends ToolbarFragment {
         super.onResume();
 
         if (!isHidden()) {
+            AnalyticsLogger.logEvent("WeatherListFragment: onResume");
             initSnackManager();
             initialize();
         } else {
@@ -190,6 +193,7 @@ public class WeatherListFragment extends ToolbarFragment {
         super.onHiddenChanged(hidden);
 
         if (!hidden && isVisible()) {
+            AnalyticsLogger.logEvent("WeatherListFragment: onHiddenChanged");
             initSnackManager();
             initialize();
         } else {
@@ -200,6 +204,7 @@ public class WeatherListFragment extends ToolbarFragment {
 
     @Override
     public void onPause() {
+        AnalyticsLogger.logEvent("WeatherListFragment: onPause");
         dismissAllSnackbars();
         mSnackMgr = null;
         super.onPause();

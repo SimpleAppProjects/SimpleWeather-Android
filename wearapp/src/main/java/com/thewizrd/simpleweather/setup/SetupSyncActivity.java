@@ -14,6 +14,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.wear.widget.CircularProgressLayout;
 
 import com.google.android.wearable.intent.RemoteIntent;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.wearable.WearConnectionStatus;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.simpleweather.R;
@@ -33,6 +34,8 @@ public class SetupSyncActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        AnalyticsLogger.logEvent("SetupSyncActivity: onCreate");
 
         binding = ActivitySetupSyncBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -153,6 +156,8 @@ public class SetupSyncActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
+        AnalyticsLogger.logEvent("SetupSyncActivity: onResume");
+
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mBroadcastReceiver, intentFilter);
         // Allow service to parse OnDataChanged updates
@@ -161,6 +166,8 @@ public class SetupSyncActivity extends Activity {
 
     @Override
     protected void onPause() {
+        AnalyticsLogger.logEvent("SetupSyncActivity: onPause");
+
         LocalBroadcastManager.getInstance(this)
                 .unregisterReceiver(mBroadcastReceiver);
 

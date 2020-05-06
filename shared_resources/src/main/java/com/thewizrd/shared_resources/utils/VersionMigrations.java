@@ -5,8 +5,6 @@ import android.content.pm.PackageInfo;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
-import com.thewizrd.shared_resources.BuildConfig;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.database.LocationsDatabase;
 import com.thewizrd.shared_resources.database.WeatherDatabase;
@@ -100,13 +98,12 @@ class VersionMigrations {
                 }
             }
 
-            if (!BuildConfig.DEBUG) {
-                FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
-                Bundle bundle = new Bundle();
-                bundle.putString("API", Settings.getAPI());
-                bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));
-                mFirebaseAnalytics.logEvent("App_Upgrading", bundle);
-            }
+            Bundle bundle = new Bundle();
+            bundle.putString("API", Settings.getAPI());
+            bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));
+            bundle.putLong("VersionCode", Settings.getVersionCode());
+            bundle.putLong("CurrentVersionCode", versionCode);
+            AnalyticsLogger.logEvent("App_Upgrading", bundle);
         }
         if (versionCode > 0) Settings.setVersionCode(versionCode);
     }

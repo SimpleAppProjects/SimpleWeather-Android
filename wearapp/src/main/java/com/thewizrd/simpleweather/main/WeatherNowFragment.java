@@ -54,6 +54,7 @@ import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -291,6 +292,8 @@ public class WeatherNowFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        AnalyticsLogger.logEvent("WeatherNowFragment: onCreate");
+
         if (savedInstanceState != null && savedInstanceState.containsKey(Constants.KEY_DATA)) {
             location = JSONParser.deserializer(savedInstanceState.getString(Constants.KEY_DATA), LocationData.class);
         } else if (requireArguments().containsKey(Constants.KEY_DATA)) {
@@ -475,6 +478,8 @@ public class WeatherNowFragment extends Fragment
         binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                AnalyticsLogger.logEvent("WeatherNowFragment: onRefresh");
+
                 AsyncTask.run(new Runnable() {
                     @Override
                     public void run() {
@@ -562,6 +567,8 @@ public class WeatherNowFragment extends Fragment
 
         // Don't resume if fragment is hidden
         if (!this.isHidden()) {
+            AnalyticsLogger.logEvent("WeatherNowFragment: onResume");
+
             binding.scrollView.requestFocus();
 
             AsyncTask.run(new Runnable() {
@@ -591,6 +598,8 @@ public class WeatherNowFragment extends Fragment
         }
 
         if (!hidden && weatherView != null && this.isVisible()) {
+            AnalyticsLogger.logEvent("WeatherNowFragment: onHiddenChanged");
+
             binding.scrollView.requestFocus();
 
             AsyncTask.run(new Runnable() {
@@ -612,6 +621,8 @@ public class WeatherNowFragment extends Fragment
     @Override
     public void onPause() {
         super.onPause();
+
+        AnalyticsLogger.logEvent("WeatherNowFragment: onPause");
 
         // Cancel pending actions
         if (cts != null) {

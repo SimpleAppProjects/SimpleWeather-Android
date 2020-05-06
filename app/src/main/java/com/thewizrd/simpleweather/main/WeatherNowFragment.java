@@ -107,6 +107,7 @@ import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
@@ -432,6 +433,7 @@ public class WeatherNowFragment extends WindowColorFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AnalyticsLogger.logEvent("WeatherNowFragment: onCreate");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             TransitionHelper.onCreate(this);
         }
@@ -716,6 +718,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.forecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
             @Override
             public void onClick(View view, int position) {
+                AnalyticsLogger.logEvent("WeatherNowFragment: fcast graph click");
                 Fragment fragment = WeatherListFragment.newInstance(location, WeatherListType.FORECAST);
                 Bundle args = new Bundle();
                 args.putInt(Constants.KEY_POSITION, position);
@@ -735,6 +738,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.hourlyForecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
             @Override
             public void onClick(View view, int position) {
+                AnalyticsLogger.logEvent("WeatherNowFragment: hrf graph click");
                 if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
                     Fragment fragment = WeatherListFragment.newInstance(location, WeatherListType.HOURLYFORECAST);
                     Bundle args = new Bundle();
@@ -772,6 +776,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.alertButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                AnalyticsLogger.logEvent("WeatherNowFragment: alerts click");
                 // Show Alert Fragment
                 if (mActivity != null)
                     mActivity.getSupportFragmentManager().beginTransaction()
@@ -803,6 +808,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                AnalyticsLogger.logEvent("WeatherNowFragment: onRefresh");
                 AsyncTask.run(new Runnable() {
                     @Override
                     public void run() {
@@ -870,6 +876,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     binding.radarWebviewCover.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            AnalyticsLogger.logEvent("WeatherNowFragment: radar view click");
                             if (mActivity != null) {
                                 mActivity.getSupportFragmentManager().beginTransaction()
                                         .add(R.id.fragment_container, new WeatherRadarFragment())
@@ -1275,6 +1282,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
         // Don't resume if fragment is hidden
         if (!this.isHidden()) {
+            AnalyticsLogger.logEvent("WeatherNowFragment: onResume");
             adjustConditionPanelLayout();
             initSnackManager();
 
@@ -1316,6 +1324,7 @@ public class WeatherNowFragment extends WindowColorFragment
         }
 
         if (!hidden && weatherView != null && this.isVisible()) {
+            AnalyticsLogger.logEvent("WeatherNowFragment: onHiddenChanged");
             adjustConditionPanelLayout();
 
             initSnackManager();
@@ -1352,6 +1361,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
     @Override
     public void onPause() {
+        AnalyticsLogger.logEvent("WeatherNowFragment: onPause");
         // Cancel pending actions
         if (cts != null) {
             cts.cancel();
@@ -1852,6 +1862,15 @@ public class WeatherNowFragment extends WindowColorFragment
         webView.setWebViewClient(new RadarWebClient(true) {
             @Override
             public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    Bundle args = new Bundle();
+                    args.putBoolean("didCrash", detail.didCrash());
+                    args.putInt("renderPriorityAtExit", detail.rendererPriorityAtExit());
+                    AnalyticsLogger.logEvent("WeatherNow: radarWebView render gone", args);
+                } else {
+                    AnalyticsLogger.logEvent("WeatherNow: radarWebView render gone");
+                }
+
                 if (binding != null) {
                     WeathernowRadarcontrolBinding radarcontrolBinding = (WeathernowRadarcontrolBinding) binding.radarControl.getBinding();
 

@@ -26,6 +26,7 @@ import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.adapters.ForecastItemAdapter;
@@ -60,6 +61,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AnalyticsLogger.logEvent("WeatherList: onCreate");
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(Constants.ARGS_WEATHERLISTTYPE)) {
@@ -113,6 +115,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
 
         // Don't resume if fragment is hidden
         if (!this.isHidden()) {
+            AnalyticsLogger.logEvent("WeatherList: onResume");
             initialize();
             if (weatherView != null) {
                 weatherView.addOnPropertyChangedCallback(propertyChangedCallback);
@@ -125,12 +128,14 @@ public class WeatherListFragment extends SwipeDismissFragment {
         super.onHiddenChanged(hidden);
 
         if (!hidden && this.isVisible()) {
+            AnalyticsLogger.logEvent("WeatherList: onHiddenChanged");
             initialize();
         }
     }
 
     @Override
     public void onPause() {
+        AnalyticsLogger.logEvent("WeatherList: onPause");
         if (weatherView != null) {
             weatherView.removeOnPropertyChangedCallback(propertyChangedCallback);
         }

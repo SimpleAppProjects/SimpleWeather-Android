@@ -23,6 +23,7 @@ import com.thewizrd.shared_resources.helpers.ObservableArrayList;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.simpleweather.App;
@@ -438,6 +439,8 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     public void onItemDismiss(final int position) {
+        AnalyticsLogger.logEvent("LocationPanelAdapter: onItemDismiss");
+
         final LocationPanelViewModel dismissedPanel = getPanelViewModel(position);
 
         AsyncTask.create(new Callable<Void>() {

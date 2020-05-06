@@ -64,6 +64,7 @@ import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -158,6 +159,12 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     public void unloadSnackManager() {
         dismissAllSnackbars();
         mSnackMgr = null;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        AnalyticsLogger.logEvent("SetupLocation: onCreate");
     }
 
     @Nullable
@@ -382,11 +389,13 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     @Override
     public void onResume() {
         super.onResume();
+        AnalyticsLogger.logEvent("SetupLocation: onResume");
         initSnackManager();
     }
 
     @Override
     public void onPause() {
+        AnalyticsLogger.logEvent("SetupLocation: onPause");
         ctsCancel();
         super.onPause();
         // Remove location updates to save battery.

@@ -21,6 +21,7 @@ import com.stepstone.stepper.adapter.StepAdapter;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.databinding.ActivitySetupBinding;
@@ -40,6 +41,8 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        AnalyticsLogger.logEvent("SetupActivity: onCreate");
 
         // Check if this activity was started from adding a new widget
         if (getIntent() != null && AppWidgetManager.ACTION_APPWIDGET_CONFIGURE.equals(getIntent().getAction())) {
@@ -91,6 +94,18 @@ public class SetupActivity extends AppCompatActivity implements StepperLayout.St
                 return insets;
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AnalyticsLogger.logEvent("SetupActivity: onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AnalyticsLogger.logEvent("SetupActivity: onPause");
     }
 
     @Override

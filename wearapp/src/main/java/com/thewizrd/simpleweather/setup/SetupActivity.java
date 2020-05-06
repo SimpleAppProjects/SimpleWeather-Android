@@ -44,6 +44,7 @@ import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -95,6 +96,8 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        AnalyticsLogger.logEvent("SetupActivity: onCreate");
 
         binding = ActivitySetupBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -265,7 +268,14 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        AnalyticsLogger.logEvent("SetupActivity: onResume");
+    }
+
+    @Override
     protected void onPause() {
+        AnalyticsLogger.logEvent("SetupActivity: onPause");
         ctsCancel();
         super.onPause();
         // Remove location updates to save battery.
