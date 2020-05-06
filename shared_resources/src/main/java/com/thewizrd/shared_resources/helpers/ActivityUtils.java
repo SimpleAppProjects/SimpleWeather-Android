@@ -76,11 +76,13 @@ public class ActivityUtils {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             boolean isLightNavBar =
-                    ColorsUtils.isSuperLight(navBarColor) || (navBarColor == Colors.TRANSPARENT && ColorsUtils.isSuperLight(backgroundColor));
+                    (navBarColor != Colors.TRANSPARENT && ColorUtils.calculateContrast(Colors.WHITE, ColorUtils.setAlphaComponent(navBarColor, 0xFF)) < 4.5f) ||
+                            (navBarColor == Colors.TRANSPARENT && ColorUtils.calculateContrast(Colors.WHITE, backgroundColor) < 4.5f);
             boolean navBarProtected = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) || !isLightNavBar;
 
             boolean isLightStatusBar =
-                    ColorsUtils.isSuperLight(statusBarColor) || (statusBarColor == Colors.TRANSPARENT && ColorsUtils.isSuperLight(backgroundColor));
+                    (statusBarColor != Colors.TRANSPARENT && ColorUtils.calculateContrast(Colors.WHITE, ColorUtils.setAlphaComponent(statusBarColor, 0xFF)) < 4.5f) ||
+                            (statusBarColor == Colors.TRANSPARENT && ColorUtils.calculateContrast(Colors.WHITE, backgroundColor) < 4.5f);
             boolean statBarProtected = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) || !isLightStatusBar;
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -108,7 +110,9 @@ public class ActivityUtils {
             }
 
             window.setStatusBarColor((setColors ?
-                    (statBarProtected ? statusBarColor : ColorUtils.blendARGB(statusBarColor, Colors.BLACK, 0.25f))
+                    (statBarProtected ?
+                            statusBarColor == Colors.TRANSPARENT ? ColorUtils.setAlphaComponent(backgroundColor, 0xB3) : statusBarColor :
+                            ColorUtils.blendARGB(statusBarColor, Colors.BLACK, 0.25f))
                     : Colors.TRANSPARENT));
             window.setNavigationBarColor((setColors ?
                     (navBarProtected ? navBarColor : ColorUtils.blendARGB(navBarColor, Colors.BLACK, 0.25f))

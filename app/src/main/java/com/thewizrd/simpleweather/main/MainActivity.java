@@ -397,8 +397,8 @@ public class MainActivity extends AppCompatActivity
 
                 mBottomNavView.setBackgroundColor(toolbarColor);
 
-                if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES ||
-                        isSystemNightMode && ColorUtils.calculateContrast(Colors.SIMPLEBLUELIGHT, toolbarColor) > 4.0f) {
+                if ((AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES || isSystemNightMode) &&
+                        ColorUtils.calculateContrast(Colors.SIMPLEBLUELIGHT, toolbarColor) >= 4.5f) {
                     mBottomNavView.setItemIconTintList(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_item_tint_darkcolor));
                     mBottomNavView.setItemTextColor(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_item_tint_darkcolor));
                 } else {

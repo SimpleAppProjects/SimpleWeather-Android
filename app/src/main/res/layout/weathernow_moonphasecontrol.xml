@@ -15,6 +15,10 @@
             name="weatherView"
             type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
 
+        <variable
+            name="isLightBackground"
+            type="androidx.databinding.ObservableBoolean" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -33,7 +37,7 @@
             android:textSize="16sp"
             android:textStyle="bold"
             style="@style/ShadowText"
-            app:darkModeEnabled="@{!weatherView.lightBackground}"
+            app:lightThemeEnabled="@{isLightBackground}"
             app:layout_constraintBottom_toTopOf="@id/phase_newmoon"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -51,6 +55,7 @@
             android:textColor="@android:color/white"
             android:textSize="@dimen/moonphase_text_size"
             app:fontFamily="@font/weathericons"
+            app:lightThemeEnabled="@{isLightBackground}"
             app:layout_constraintBottom_toTopOf="@id/moonphase_description"
             app:layout_constraintEnd_toStartOf="@+id/phase_wax_cresent"
             app:layout_constraintHorizontal_chainStyle="packed"
@@ -70,6 +75,7 @@
             android:textSize="@dimen/moonphase_text_size"
             style="@style/ShadowText"
             app:fontFamily="@font/weathericons"
+            app:lightThemeEnabled="@{isLightBackground}"
             app:layout_constraintBottom_toTopOf="@id/moonphase_description"
             app:layout_constraintEnd_toStartOf="@+id/phase_first_qtr"
             app:layout_constraintStart_toEndOf="@id/phase_newmoon"
@@ -88,6 +94,7 @@
             android:textSize="@dimen/moonphase_text_size"
             style="@style/ShadowText"
             app:fontFamily="@font/weathericons"
+            app:lightThemeEnabled="@{isLightBackground}"
             app:layout_constraintBottom_toTopOf="@id/moonphase_description"
             app:layout_constraintEnd_toStartOf="@+id/phase_wax_gibbous"
             app:layout_constraintStart_toEndOf="@id/phase_wax_cresent"
@@ -106,6 +113,7 @@
             android:textSize="@dimen/moonphase_text_size"
             style="@style/ShadowText"
             app:fontFamily="@font/weathericons"
+            app:lightThemeEnabled="@{isLightBackground}"
             app:layout_constraintBottom_toTopOf="@id/moonphase_description"
             app:layout_constraintEnd_toStartOf="@+id/phase_fullmoon"
             app:layout_constraintStart_toEndOf="@id/phase_first_qtr"
@@ -124,6 +132,7 @@
             android:textSize="@dimen/moonphase_text_size"
             style="@style/ShadowText"
             app:fontFamily="@font/weathericons"
+            app:lightThemeEnabled="@{isLightBackground}"
             app:layout_constraintBottom_toTopOf="@id/moonphase_description"
             app:layout_constraintEnd_toStartOf="@+id/phase_wan_gibbous"
             app:layout_constraintStart_toEndOf="@id/phase_wax_gibbous"
@@ -142,6 +151,7 @@
             android:textSize="@dimen/moonphase_text_size"
             style="@style/ShadowText"
             app:fontFamily="@font/weathericons"
+            app:lightThemeEnabled="@{isLightBackground}"
             app:layout_constraintBottom_toTopOf="@id/moonphase_description"
             app:layout_constraintEnd_toStartOf="@+id/phase_last_qtr"
             app:layout_constraintStart_toEndOf="@id/phase_fullmoon"
@@ -160,6 +170,7 @@
             android:textSize="@dimen/moonphase_text_size"
             style="@style/ShadowText"
             app:fontFamily="@font/weathericons"
+            app:lightThemeEnabled="@{isLightBackground}"
             app:layout_constraintBottom_toTopOf="@id/moonphase_description"
             app:layout_constraintEnd_toStartOf="@+id/phase_wan_crescent"
             app:layout_constraintStart_toEndOf="@id/phase_wan_gibbous"
@@ -178,6 +189,7 @@
             android:textSize="@dimen/moonphase_text_size"
             style="@style/ShadowText"
             app:fontFamily="@font/weathericons"
+            app:lightThemeEnabled="@{isLightBackground}"
             app:layout_constraintBottom_toTopOf="@id/moonphase_description"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/phase_last_qtr"
@@ -193,7 +205,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
             android:textColor="@android:color/white"
             style="@style/ShadowText"
-            app:darkModeEnabled="@{!weatherView.lightBackground}"
+            app:lightThemeEnabled="@{isLightBackground}"
             app:layout_constraintBottom_toTopOf="@id/moonphase_description"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -207,7 +219,7 @@
             android:layout_height="1dp"
             android:alpha="0.2"
             android:background="@android:color/white"
-            app:darkModeEnabled="@{!weatherView.lightBackground}"
+            app:lightThemeEnabled="@{isLightBackground}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

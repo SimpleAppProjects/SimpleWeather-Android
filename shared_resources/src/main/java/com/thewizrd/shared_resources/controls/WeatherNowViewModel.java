@@ -1,15 +1,12 @@
 package com.thewizrd.shared_resources.controls;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.format.DateFormat;
 import android.text.style.TypefaceSpan;
 import android.util.Log;
 
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.graphics.ColorUtils;
 import androidx.core.util.ObjectsCompat;
 import androidx.databinding.Bindable;
 
@@ -17,7 +14,6 @@ import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.BR;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
-import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.WeatherIconTextSpan;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
@@ -64,8 +60,6 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private ImageDataViewModel imageData;
     private static final int DEFAULT_COLOR = Colors.SIMPLEBLUE;
     private int pendingBackground = -1;
-    private int origPendingBackground = -1;
-    private boolean isDark = true;
 
     private String weatherCredit;
     private String weatherSource;
@@ -158,11 +152,6 @@ public class WeatherNowViewModel extends ObservableViewModel {
     }
 
     @Bindable
-    public boolean isLightBackground() {
-        return !isDark;
-    }
-
-    @Bindable
     public String getWeatherCredit() {
         return weatherCredit;
     }
@@ -189,20 +178,6 @@ public class WeatherNowViewModel extends ObservableViewModel {
         updateView(weather);
     }
 
-    public void updatePendingBackground(Context context, boolean isPhone) {
-        pendingBackground = origPendingBackground;
-
-        if (isPhone && (!ColorsUtils.isSuperDark(pendingBackground) || ColorsUtils.isSuperLight(pendingBackground))) {
-            final int systemNightMode = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-            boolean isDarkMode = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES || systemNightMode == Configuration.UI_MODE_NIGHT_YES;
-            if (isDarkMode) {
-                pendingBackground = ColorUtils.blendARGB(pendingBackground, Colors.BLACK, 0.75f);
-            }
-        }
-
-        isDark = pendingBackground != -1 && !ColorsUtils.isSuperLight(pendingBackground);
-    }
-
     public void updateView(final Weather weather) {
         if (weather != null && weather.isValid()) {
             if (!ObjectsCompat.equals(this.weather, weather)) {
@@ -218,19 +193,17 @@ public class WeatherNowViewModel extends ObservableViewModel {
                             notifyPropertyChanged(BR.imageData);
                         }
                         if (!isPhone) {
-                            origPendingBackground = WeatherUtils.getWeatherBackgroundColor(weather);
-                            if (origPendingBackground != pendingBackground) {
-                                pendingBackground = origPendingBackground;
+                            int pendingBGColor = WeatherUtils.getWeatherBackgroundColor(weather);
+                            if (pendingBGColor != pendingBackground) {
+                                pendingBackground = pendingBGColor;
                                 notifyPropertyChanged(BR.pendingBackground);
                             }
                         } else {
-                            if (origPendingBackground != DEFAULT_COLOR) {
-                                origPendingBackground = pendingBackground = DEFAULT_COLOR;
+                            if (pendingBackground != DEFAULT_COLOR) {
+                                pendingBackground = DEFAULT_COLOR;
                                 notifyPropertyChanged(BR.pendingBackground);
                             }
                         }
-                        isDark = true;
-                        notifyPropertyChanged(BR.lightBackground);
 
                         // Location
                         if (!ObjectsCompat.equals(location, weather.getLocation().getName())) {
@@ -550,8 +523,6 @@ public class WeatherNowViewModel extends ObservableViewModel {
         weatherDetails.clear();
         imageData = null;
         pendingBackground = -1;
-        origPendingBackground = -1;
-        isDark = true;
         weatherCredit = null;
         weatherSource = null;
         weatherLocale = null;
@@ -565,22 +536,17 @@ public class WeatherNowViewModel extends ObservableViewModel {
             @Override
             public Void call() {
                 ImageDataViewModel imageVM = WeatherUtils.getImageData(weather);
-                final Context context = SimpleLibrary.getInstance().getApp().getAppContext();
-                final boolean isPhone = SimpleLibrary.getInstance().getApp().isPhone();
 
                 if (imageVM != null) {
                     imageData = imageVM;
-                    origPendingBackground = imageVM.getColor();
-                    updatePendingBackground(context, isPhone);
+                    pendingBackground = imageVM.getColor();
                 } else {
                     imageData = null;
-                    origPendingBackground = pendingBackground = DEFAULT_COLOR;
-                    isDark = true;
+                    pendingBackground = DEFAULT_COLOR;
                 }
 
                 notifyPropertyChanged(BR.imageData);
                 notifyPropertyChanged(BR.pendingBackground);
-                notifyPropertyChanged(BR.lightBackground);
 
                 return null;
             }

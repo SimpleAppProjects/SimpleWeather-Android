@@ -9,12 +9,6 @@
 
         <import type="android.view.View" />
 
-        <import type="androidx.databinding.ObservableInt" />
-
-        <import type="androidx.databinding.ObservableFloat" />
-
-        <import type="androidx.databinding.ObservableField" />
-
         <import type="java.util.List" />
 
         <import type="com.thewizrd.shared_resources.utils.StringUtils" />
@@ -35,15 +29,19 @@
 
         <variable
             name="backgroundAlpha"
-            type="ObservableInt" />
+            type="androidx.databinding.ObservableInt" />
 
         <variable
             name="gradientAlpha"
-            type="ObservableFloat" />
+            type="androidx.databinding.ObservableFloat" />
 
         <variable
             name="darkMode"
-            type="ObservableField&lt;DarkMode>" />
+            type="androidx.databinding.ObservableField&lt;DarkMode>" />
+
+        <variable
+            name="isLightBackground"
+            type="androidx.databinding.ObservableBoolean" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -111,10 +109,10 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"
                         android:maxLines="2"
-                        android:shadowColor="@{gradientAlpha &lt;= 0.5f &amp;&amp; darkMode == DarkMode.OFF ? (!weatherView.lightBackground ? @android:color/black : @android:color/darker_gray) : @android:color/black}"
+                        android:shadowColor="@{gradientAlpha &lt;= 0.5f &amp;&amp; darkMode == DarkMode.OFF ? (isLightBackground ? @android:color/darker_gray : @android:color/black) : @android:color/black}"
                         android:text="@{!StringUtils.isNullOrWhitespace(weatherView.location) ? weatherView.location : @string/title_activity_weather_now}"
                         android:textAppearance="?titleTextAppearance"
-                        android:textColor="@{gradientAlpha &lt;= 0.5f &amp;&amp; darkMode == DarkMode.OFF ? (!weatherView.lightBackground ? @android:color/white : @android:color/black) : @android:color/white}"
+                        android:textColor="@{gradientAlpha &lt;= 0.5f &amp;&amp; darkMode == DarkMode.OFF ? (isLightBackground ? @android:color/black : @android:color/white) : @android:color/white}"
                         android:textSize="@dimen/label_location_size"
                         tools:text="A Really Long String of Text, New York, United States" />
 
@@ -125,10 +123,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:gravity="center_horizontal"
-                        android:shadowColor="@{gradientAlpha &lt;= 0.5f &amp;&amp; darkMode == DarkMode.OFF ? (!weatherView.lightBackground ? @android:color/black : @android:color/darker_gray) : @android:color/black}"
+                        android:shadowColor="@{gradientAlpha &lt;= 0.5f &amp;&amp; darkMode == DarkMode.OFF ? (isLightBackground ? @android:color/darker_gray : @android:color/black) : @android:color/black}"
                         android:text="@{weatherView.updateDate}"
                         android:textAppearance="?titleTextAppearance"
-                        android:textColor="@{gradientAlpha &lt;= 0.5f &amp;&amp; darkMode == DarkMode.OFF ? (!weatherView.lightBackground ? @android:color/white : @android:color/black) : @android:color/white}"
+                        android:textColor="@{gradientAlpha &lt;= 0.5f &amp;&amp; darkMode == DarkMode.OFF ? (isLightBackground ? @android:color/black : @android:color/white) : @android:color/white}"
                         android:textSize="@dimen/label_updatetime_size"
                         tools:text="Updated on 11:12 PM" />
 
@@ -320,7 +318,7 @@
                             android:textAppearance="?android:attr/textAppearanceSmallInverse"
                             android:textColor="@android:color/white"
                             android:textSize="12sp"
-                            app:darkModeEnabled="@{!weatherView.lightBackground}"
+                            app:lightThemeEnabled="@{isLightBackground}"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:imageData="@{weatherView.imageData}"
@@ -334,7 +332,7 @@
                         android:layout_height="1dp"
                         android:alpha="0.2"
                         android:background="@android:color/white"
-                        app:darkModeEnabled="@{!weatherView.lightBackground}"
+                        app:lightThemeEnabled="@{isLightBackground}"
                         app:layout_constraintBottom_toTopOf="@id/forecast_label"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -350,7 +348,7 @@
                         android:textAppearance="?android:textAppearanceMediumInverse"
                         android:textColor="@android:color/white"
                         android:textStyle="bold"
-                        app:darkModeEnabled="@{!weatherView.lightBackground}"
+                        app:lightThemeEnabled="@{isLightBackground}"
                         app:hideIfEmpty="@{forecastsView.forecasts}"
                         app:layout_constraintBottom_toTopOf="@id/forecast_graph_panel"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -361,7 +359,7 @@
                         android:id="@+id/forecast_graph_panel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:darkModeEnabled="@{!weatherView.lightBackground}"
+                        app:lightThemeEnabled="@{isLightBackground}"
                         app:forecast_data="@{forecastsView.forecasts}"
                         app:hideIfEmpty="@{forecastsView.forecasts}"
                         app:layout_constraintTop_toBottomOf="@id/forecast_label"
@@ -376,7 +374,7 @@
                         android:layout_height="1dp"
                         android:alpha="0.2"
                         android:background="@android:color/white"
-                        app:darkModeEnabled="@{!weatherView.lightBackground}"
+                        app:lightThemeEnabled="@{isLightBackground}"
                         app:hideIfEmpty="@{forecastsView.forecasts}"
                         app:layout_constraintBottom_toTopOf="@id/hourly_forecast_label"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -393,7 +391,7 @@
                         android:textAppearance="?android:textAppearanceMediumInverse"
                         android:textColor="@android:color/white"
                         android:textStyle="bold"
-                        app:darkModeEnabled="@{!weatherView.lightBackground}"
+                        app:lightThemeEnabled="@{isLightBackground}"
                         app:hideIfEmpty="@{forecastsView.hourlyForecasts}"
                         app:layout_constraintBottom_toTopOf="@id/hourly_forecast_graph_panel"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -404,7 +402,7 @@
                         android:id="@+id/hourly_forecast_graph_panel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:darkModeEnabled="@{!weatherView.lightBackground}"
+                        app:lightThemeEnabled="@{isLightBackground}"
                         app:forecast_data="@{forecastsView.hourlyForecasts}"
                         app:hideIfEmpty="@{forecastsView.hourlyForecasts}"
                         app:layout_constraintTop_toBottomOf="@id/hourly_forecast_label"
@@ -419,7 +417,7 @@
                         android:layout_height="1dp"
                         android:alpha="0.2"
                         android:background="@android:color/white"
-                        app:darkModeEnabled="@{!weatherView.lightBackground}"
+                        app:lightThemeEnabled="@{isLightBackground}"
                         app:hideIfEmpty="@{forecastsView.hourlyForecasts}"
                         app:layout_constraintBottom_toTopOf="@id/details_label"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -436,7 +434,7 @@
                         android:textColor="@android:color/white"
                         android:textStyle="bold"
                         style="@style/ShadowText"
-                        app:darkModeEnabled="@{!weatherView.lightBackground}"
+                        app:lightThemeEnabled="@{isLightBackground}"
                         app:hideIfEmpty="@{weatherView.weatherDetails}"
                         app:layout_constraintBottom_toTopOf="@id/details_container"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -463,6 +461,7 @@
                         app:details_data="@{weatherView.weatherDetails}"
                         app:hideIfEmpty="@{weatherView.weatherDetails}"
                         app:itemColor="@{weatherView.pendingBackground}"
+                        app:lightThemeEnabled="@{isLightBackground}"
                         app:layout_constraintBottom_toTopOf="@+id/details_border"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -477,7 +476,7 @@
                         android:layout_height="1dp"
                         android:alpha="0.2"
                         android:background="@android:color/white"
-                        app:darkModeEnabled="@{!weatherView.lightBackground}"
+                        app:lightThemeEnabled="@{isLightBackground}"
                         app:hideIfEmpty="@{weatherView.weatherDetails}"
                         app:layout_constraintBottom_toTopOf="@id/uv_control"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -538,7 +537,7 @@
                         android:textColor="@android:color/white"
                         android:textStyle="bold"
                         style="@style/ShadowText"
-                        app:darkModeEnabled="@{!weatherView.lightBackground}"
+                        app:lightThemeEnabled="@{isLightBackground}"
                         app:hideIfNull="@{weatherView.sunPhase}"
                         app:layout_constraintBottom_toTopOf="@id/sun_phase_view"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -551,7 +550,7 @@
                         android:layout_height="200dp"
                         android:layout_marginBottom="20dp"
                         android:orientation="vertical"
-                        app:darkModeEnabled="@{!weatherView.lightBackground}"
+                        app:lightThemeEnabled="@{isLightBackground}"
                         app:hideIfNull="@{weatherView.sunPhase}"
                         app:layout_constraintBottom_toTopOf="@id/sunriseset_border"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -566,7 +565,7 @@
                         android:layout_height="1dp"
                         android:alpha="0.2"
                         android:background="@android:color/white"
-                        app:darkModeEnabled="@{!weatherView.lightBackground}"
+                        app:lightThemeEnabled="@{isLightBackground}"
                         app:hideIfNull="@{weatherView.sunPhase}"
                         app:layout_constraintBottom_toTopOf="@id/radar_control"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -594,7 +593,7 @@
                         android:text="@{weatherView.weatherCredit}"
                         android:textAppearance="?android:textAppearanceSmallInverse"
                         android:textColor="@android:color/white"
-                        app:darkModeEnabled="@{!weatherView.lightBackground}"
+                        app:lightThemeEnabled="@{isLightBackground}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"

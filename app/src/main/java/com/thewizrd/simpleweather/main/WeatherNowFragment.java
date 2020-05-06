@@ -48,7 +48,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -65,6 +64,7 @@ import androidx.databinding.BindingAdapter;
 import androidx.databinding.DataBindingComponent;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.Observable;
+import androidx.databinding.ObservableBoolean;
 import androidx.databinding.ObservableField;
 import androidx.databinding.ObservableFloat;
 import androidx.databinding.ObservableInt;
@@ -104,6 +104,7 @@ import com.thewizrd.shared_resources.controls.SunPhaseViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -167,6 +168,7 @@ public class WeatherNowFragment extends WindowColorFragment
     private ObservableInt backgroundAlpha;
     private ObservableFloat gradientAlpha;
     private ObservableField<DarkMode> mDarkThemeMode;
+    private ObservableBoolean isLightBackground;
     private @ColorInt
     int mSystemBarColor;
     private @ColorInt
@@ -518,6 +520,7 @@ public class WeatherNowFragment extends WindowColorFragment
         } else {
             mDarkThemeMode = new ObservableField<>(DarkMode.OFF);
         }
+        isLightBackground = new ObservableBoolean(false);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -534,6 +537,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.setBackgroundAlpha(backgroundAlpha);
         binding.setGradientAlpha(gradientAlpha);
         binding.setDarkMode(mDarkThemeMode);
+        binding.setIsLightBackground(isLightBackground);
         binding.setLifecycleOwner(this);
 
         View view = binding.getRoot();
@@ -594,30 +598,16 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.scrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
             public void onScrollChange(final NestedScrollView v, int scrollX, final int scrollY, int oldScrollX, final int oldScrollY) {
+                if (binding == null) return;
+
                 // Default adj = 1.25
-                float adj = 2.5f;
-                int backAlpha = 0xFF - (int) (0xFF * adj * scrollY / (v.getChildAt(0).getHeight() - v.getHeight()));
-                float gradAlpha = 1.0f - (1.0f * adj * scrollY / (binding.refreshLayout.getHeight()));
+                float adj = 1.25f;
+                int backAlpha = 0xFF - (int) (0xFF * adj * scrollY / (binding.conditionPanel.getHeight()));
+                float gradAlpha = 1.0f - (1.0f * adj * scrollY / (binding.conditionPanel.getHeight()));
                 backgroundAlpha.set(Math.max(backAlpha, 0x25));
                 gradientAlpha.set(Math.max(gradAlpha, 0));
 
-                if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible() && mSysBarColorsIface != null) {
-                    boolean override = false;
-                    if (weatherView != null)
-                        override = weatherView.isLightBackground();
-
-                    if (gradientAlpha.get() >= 0.5f) {
-                        if (override)
-                            mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT, true);
-                        else
-                            mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT);
-                    } else if (gradientAlpha.get() == 0.0f) {
-                        if (override)
-                            mSysBarColorsIface.setSystemBarColors(mSystemBarColor, true);
-                        else
-                            mSysBarColorsIface.setSystemBarColors(mSystemBarColor);
-                    }
-                }
+                updateWindowColorsForGradient();
             }
         });
         binding.scrollView.setOnFlingListener(new ObservableNestedScrollView.OnFlingListener() {
@@ -832,6 +822,7 @@ public class WeatherNowFragment extends WindowColorFragment
             public void onInflate(ViewStub stub, View inflated) {
                 WeathernowUvcontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
                 binding.setWeatherView(weatherView);
+                binding.setIsLightBackground(isLightBackground);
                 binding.setLifecycleOwner(WeatherNowFragment.this);
             }
         });
@@ -842,6 +833,7 @@ public class WeatherNowFragment extends WindowColorFragment
             public void onInflate(ViewStub stub, View inflated) {
                 WeathernowBeaufortcontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
                 binding.setWeatherView(weatherView);
+                binding.setIsLightBackground(isLightBackground);
                 binding.setLifecycleOwner(WeatherNowFragment.this);
             }
         });
@@ -852,6 +844,7 @@ public class WeatherNowFragment extends WindowColorFragment
             public void onInflate(ViewStub stub, View inflated) {
                 WeathernowAqicontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
                 binding.setWeatherView(weatherView);
+                binding.setIsLightBackground(isLightBackground);
                 binding.setLifecycleOwner(WeatherNowFragment.this);
             }
         });
@@ -862,6 +855,7 @@ public class WeatherNowFragment extends WindowColorFragment
             public void onInflate(ViewStub stub, View inflated) {
                 WeathernowMoonphasecontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
                 binding.setWeatherView(weatherView);
+                binding.setIsLightBackground(isLightBackground);
                 binding.setLifecycleOwner(WeatherNowFragment.this);
             }
         });
@@ -894,6 +888,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     binding.radarWebviewCover.bringToFront();
 
                     binding.setWeatherView(weatherView);
+                    binding.setIsLightBackground(isLightBackground);
                     binding.setLifecycleOwner(WeatherNowFragment.this);
 
                     navigateToRadarURL();
@@ -1098,7 +1093,6 @@ public class WeatherNowFragment extends WindowColorFragment
             mDarkThemeMode.set(DarkMode.OFF);
         }
 
-        weatherView.updatePendingBackground(mActivity.getApplicationContext(), true);
         weatherView.notifyChange();
 
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(mActivity, R.color.invButtonColor));
@@ -1585,7 +1579,11 @@ public class WeatherNowFragment extends WindowColorFragment
 
                 if (currentNightMode != Configuration.UI_MODE_NIGHT_YES) {
                     if (weatherView != null && weatherView.getPendingBackground() != -1) {
-                        mSystemBarColor = weatherView.getPendingBackground();
+                        int color = weatherView.getPendingBackground();
+                        if (ColorsUtils.isSuperLight(color)) {
+                            color = ColorUtils.blendARGB(color, Colors.BLACK, 0.25f);
+                        }
+                        mSystemBarColor = color;
                         mBackgroundColor = mSystemBarColor;
                     } else {
                         mSystemBarColor = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
@@ -1597,9 +1595,17 @@ public class WeatherNowFragment extends WindowColorFragment
                     } else {
                         mSystemBarColor = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
                         if (weatherView != null && weatherView.getPendingBackground() != -1) {
-                            mBackgroundColor = ColorUtils.blendARGB(weatherView.getPendingBackground(), Colors.BLACK, 0.75f);
-                            if (userNightMode == UserThemeMode.FOLLOW_SYSTEM) {
-                                mSystemBarColor = ColorUtils.blendARGB(weatherView.getPendingBackground(), Colors.BLACK, 0.5f);
+                            if (ColorsUtils.isSuperLight(weatherView.getPendingBackground())) {
+                                mBackgroundColor = ColorUtils.blendARGB(weatherView.getPendingBackground(), Colors.BLACK, 0.75f);
+                                if (userNightMode == UserThemeMode.FOLLOW_SYSTEM) {
+                                    mSystemBarColor = ColorUtils.blendARGB(weatherView.getPendingBackground(), Colors.BLACK, 0.5f);
+                                }
+                            } else {
+                                if (userNightMode == UserThemeMode.FOLLOW_SYSTEM) {
+                                    mBackgroundColor = mSystemBarColor = weatherView.getPendingBackground();
+                                } else {
+                                    mBackgroundColor = mSystemBarColor;
+                                }
                             }
                         } else {
                             mBackgroundColor = mSystemBarColor;
@@ -1607,15 +1613,29 @@ public class WeatherNowFragment extends WindowColorFragment
                     }
                 }
 
-                if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible() && mSysBarColorsIface != null) {
-                    if (weatherView != null)
-                        mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT, weatherView.isLightBackground());
-                    else
-                        mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT);
-                }
+                isLightBackground.set(ColorsUtils.isSuperLight(mBackgroundColor));
+                updateWindowColorsForGradient();
                 binding.getRoot().setBackgroundColor(mBackgroundColor);
             }
         });
+    }
+
+    private void updateWindowColorsForGradient() {
+        if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible() && mSysBarColorsIface != null) {
+            boolean override = isLightBackground.get();
+
+            if (gradientAlpha.get() <= 0.5f && mDarkThemeMode.get() == DarkMode.OFF) {
+                if (override)
+                    mSysBarColorsIface.setSystemBarColors(mSystemBarColor, true);
+                else
+                    mSysBarColorsIface.setSystemBarColors(mSystemBarColor);
+            } else {
+                if (override)
+                    mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT, true);
+                else
+                    mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT);
+            }
+        }
     }
 
     private void updateView() {
@@ -1902,18 +1922,16 @@ public class WeatherNowFragment extends WindowColorFragment
         }
 
         /* BindingAdapters for dark mode (text color for views) */
-        @BindingAdapter("darkModeEnabled")
+        @BindingAdapter("lightThemeEnabled")
         public void setTextColor(TextView view, boolean enabled) {
-            boolean enableDarkMode = enabled || AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES;
-            view.setTextColor(enableDarkMode ? Colors.WHITE : Colors.BLACK);
-            view.setLinkTextColor(enableDarkMode ? Colors.SIMPLEBLUELIGHT : Colors.SIMPLEBLUEDARK);
-            view.setShadowLayer(view.getShadowRadius(), view.getShadowDx(), view.getShadowDy(), enableDarkMode ? Colors.BLACK : Colors.GRAY);
+            view.setTextColor(enabled ? Colors.BLACK : Colors.WHITE);
+            view.setLinkTextColor(enabled ? Colors.SIMPLEBLUEDARK : Colors.SIMPLEBLUELIGHT);
+            view.setShadowLayer(view.getShadowRadius(), view.getShadowDx(), view.getShadowDy(), enabled ? Colors.GRAY : Colors.BLACK);
         }
 
-        @BindingAdapter("darkModeEnabled")
+        @BindingAdapter("lightThemeEnabled")
         public void setBackgroundColor(View view, boolean enabled) {
-            boolean enableDarkMode = enabled || AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES;
-            int color = enableDarkMode ? Colors.WHITE : Colors.BLACK;
+            int color = enabled ? Colors.BLACK : Colors.WHITE;
             if (!(view.getBackground() instanceof ColorDrawable)) {
                 view.setBackgroundColor(color);
             } else {
@@ -1924,10 +1942,9 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         }
 
-        @BindingAdapter("darkModeEnabled")
+        @BindingAdapter("lightThemeEnabled")
         public void updateForecastGraphColors(ForecastGraphPanel view, boolean enabled) {
-            boolean enableDarkMode = enabled || AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES;
-            view.updateColors(enableDarkMode);
+            view.updateColors(enabled);
         }
 
         @BindingAdapter("darkMode")
@@ -1937,19 +1954,18 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         }
 
-        @BindingAdapter("itemColor")
-        public void updateRecyclerViewColors(GridView view, @ColorInt int color) {
+        @BindingAdapter(value = {"itemColor", "lightThemeEnabled"}, requireAll = true)
+        public void updateRecyclerViewColors(GridView view, @ColorInt int color, boolean enabled) {
             if (view.getAdapter() instanceof DetailsItemGridAdapter) {
-                ((DetailsItemGridAdapter) view.getAdapter()).setItemColor(color);
+                ((DetailsItemGridAdapter) view.getAdapter()).setItemColor(color, enabled);
             }
         }
 
-        @BindingAdapter("darkModeEnabled")
+        @BindingAdapter("lightThemeEnabled")
         public void updateSunPhaseViewColors(SunPhaseView view, boolean enabled) {
-            boolean enableDarkMode = enabled || AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES;
-            view.setTextColor(enableDarkMode ? Colors.WHITE : Colors.BLACK);
-            view.setPhaseArcColor(enableDarkMode ? Colors.WHITE : Colors.BLACK);
-            view.setPaintColor(enableDarkMode ? Colors.YELLOW : Colors.ORANGE);
+            view.setTextColor(enabled ? Colors.BLACK : Colors.WHITE);
+            view.setPhaseArcColor(enabled ? Colors.BLACK : Colors.WHITE);
+            view.setPaintColor(enabled ? Colors.ORANGE : Colors.YELLOW);
         }
         /* End of BindingAdapters for dark mode */
 

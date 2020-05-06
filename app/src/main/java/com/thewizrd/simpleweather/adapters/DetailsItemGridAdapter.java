@@ -10,7 +10,6 @@ import androidx.core.graphics.ColorUtils;
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
-import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.controls.DetailCard;
 import com.thewizrd.simpleweather.helpers.DarkMode;
@@ -45,16 +44,16 @@ public class DetailsItemGridAdapter extends BaseAdapter {
 
         switch (getDarkThemeMode()) {
             case OFF:
-                view.setBackgroundColor(isLightBackground() ? getItemColor() : ColorUtils.blendARGB(getItemColor(), Colors.WHITE, 0.25f));
-                view.setTextColor(isLightBackground() ? Colors.BLACK : Colors.WHITE);
-                view.setStrokeColor(ColorUtils.setAlphaComponent(isLightBackground() ? Colors.BLACK : Colors.LIGHTGRAY, 0x40));
-                view.setShadowColor(isLightBackground() ? Colors.GRAY : Colors.BLACK);
+                view.setBackgroundColor(isLightTheme() ? getItemColor() : ColorUtils.blendARGB(getItemColor(), Colors.WHITE, 0.25f));
+                view.setTextColor(isLightTheme() ? Colors.BLACK : Colors.WHITE);
+                view.setStrokeColor(ColorUtils.setAlphaComponent(isLightTheme() ? Colors.BLACK : Colors.LIGHTGRAY, 0x40));
+                view.setShadowColor(isLightTheme() ? Colors.GRAY : Colors.BLACK);
                 break;
             case ON:
                 view.setBackgroundColor(ColorUtils.blendARGB(getItemColor(), Colors.BLACK, 0.75f));
-                view.setTextColor(isLightBackground() ? Colors.BLACK : Colors.WHITE);
-                view.setStrokeColor(ColorUtils.setAlphaComponent(isLightBackground() ? Colors.BLACK : Colors.LIGHTGRAY, 0x40));
-                view.setShadowColor(isLightBackground() ? Colors.GRAY : Colors.BLACK);
+                view.setTextColor(isLightTheme() ? Colors.BLACK : Colors.WHITE);
+                view.setStrokeColor(ColorUtils.setAlphaComponent(isLightTheme() ? Colors.BLACK : Colors.LIGHTGRAY, 0x40));
+                view.setShadowColor(isLightTheme() ? Colors.GRAY : Colors.BLACK);
                 break;
             case AMOLED_DARK:
                 view.setBackgroundColor(0x90909); // 0x121212 (colorSurface) / 2
@@ -82,14 +81,14 @@ public class DetailsItemGridAdapter extends BaseAdapter {
     private DarkMode darkThemeMode;
     private @ColorInt
     int itemColor;
-    private boolean isLightBackground;
+    private boolean isLightTheme;
 
     public final DarkMode getDarkThemeMode() {
         return darkThemeMode;
     }
 
-    public final boolean isLightBackground() {
-        return isLightBackground;
+    public final boolean isLightTheme() {
+        return isLightTheme;
     }
 
     public final void setDarkThemeMode(DarkMode mode) {
@@ -102,9 +101,9 @@ public class DetailsItemGridAdapter extends BaseAdapter {
         return itemColor;
     }
 
-    public void setItemColor(@ColorInt int itemColor) {
+    public void setItemColor(@ColorInt int itemColor, boolean isLightTheme) {
         this.itemColor = itemColor;
-        isLightBackground = ColorsUtils.isSuperLight(this.itemColor);
+        this.isLightTheme = isLightTheme;
         notifyDataSetChanged();
     }
 }

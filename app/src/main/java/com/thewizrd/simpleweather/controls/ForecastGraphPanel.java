@@ -51,7 +51,7 @@ public class ForecastGraphPanel extends LinearLayout {
     private TabLayout tabLayout;
     private List<BaseForecastItemViewModel> forecasts;
 
-    private boolean isDarkMode;
+    private boolean isLightTheme = false;
     private static final int MAX_FETCH_SIZE = 24; // 24hrs
 
     private enum GraphType {
@@ -240,24 +240,25 @@ public class ForecastGraphPanel extends LinearLayout {
 
     private void updateTabColors() {
         TabLayout.Tab forecastTab = tabLayout.getTabAt(0);
-        ((TextView) forecastTab.view.findViewById(R.id.icon)).setTextColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
-        ((TextView) forecastTab.view.findViewById(android.R.id.text1)).setTextColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
+        ((TextView) forecastTab.view.findViewById(R.id.icon)).setTextColor(isLightTheme ? Colors.BLACK : Colors.WHITE);
+        ((TextView) forecastTab.view.findViewById(android.R.id.text1)).setTextColor(isLightTheme ? Colors.BLACK : Colors.WHITE);
 
         TabLayout.Tab windTab = tabLayout.getTabAt(1);
-        ((TextView) windTab.view.findViewById(R.id.icon)).setTextColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
-        ((TextView) windTab.view.findViewById(android.R.id.text1)).setTextColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
+        ((TextView) windTab.view.findViewById(R.id.icon)).setTextColor(isLightTheme ? Colors.BLACK : Colors.WHITE);
+        ((TextView) windTab.view.findViewById(android.R.id.text1)).setTextColor(isLightTheme ? Colors.BLACK : Colors.WHITE);
 
         TabLayout.Tab precipTab = tabLayout.getTabAt(2);
-        ((TextView) precipTab.view.findViewById(R.id.icon)).setTextColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
-        ((TextView) precipTab.view.findViewById(android.R.id.text1)).setTextColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
+        ((TextView) precipTab.view.findViewById(R.id.icon)).setTextColor(isLightTheme ? Colors.BLACK : Colors.WHITE);
+        ((TextView) precipTab.view.findViewById(android.R.id.text1)).setTextColor(isLightTheme ? Colors.BLACK : Colors.WHITE);
 
-        tabLayout.setSelectedTabIndicatorColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
+        tabLayout.setSelectedTabIndicatorColor(isLightTheme ? Colors.BLACK : Colors.WHITE);
     }
 
     private void updateLineViewColors() {
-        view.setLineColor(ColorUtils.setAlphaComponent(isDarkMode ? Colors.WHITE : Colors.GRAY, 0x80));
-        view.setBackgroundLineColor(ColorUtils.setAlphaComponent(isDarkMode ? Colors.WHITE : Colors.GRAY, 0x80));
-        view.setBottomTextColor(isDarkMode ? Colors.WHITE : Colors.BLACK);
+        view.setLineColor(ColorUtils.setAlphaComponent(isLightTheme ? Colors.GRAY : Colors.WHITE, 0x80));
+        view.setBackgroundLineColor(ColorUtils.setAlphaComponent(isLightTheme ? Colors.GRAY : Colors.WHITE, 0x80));
+        view.setBottomTextColor(isLightTheme ? Colors.BLACK : Colors.WHITE);
+        view.postInvalidate();
     }
 
     private void resetLineView(boolean resetOffset) {
@@ -449,8 +450,8 @@ public class ForecastGraphPanel extends LinearLayout {
         }
     }
 
-    public void updateColors(boolean isDark) {
-        isDarkMode = isDark;
+    public void updateColors(boolean isLightTheme) {
+        this.isLightTheme = isLightTheme;
         updateLineViewColors();
         updateTabs();
     }

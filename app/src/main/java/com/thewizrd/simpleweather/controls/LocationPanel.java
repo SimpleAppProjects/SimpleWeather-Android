@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.controls;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
@@ -14,6 +15,8 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.ColorUtils;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.palette.graphics.Palette;
 
 import com.bumptech.glide.Glide;
@@ -106,17 +109,31 @@ public class LocationPanel extends MaterialCardView {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                             super.onResourceReady(resource, transition);
-                            Palette p = Palette.from(resource).generate();
+                            Palette p = Palette.from(resource)
+                                    .generate();
                             int textColor = Colors.WHITE;
                             int shadowColor = Colors.BLACK;
-                            if (ColorsUtils.isSuperLight(p)) {
-                                textColor = Colors.BLACK;
-                                shadowColor = Colors.GRAY;
+
+                            Palette.Swatch prefSwatch = p.getDarkMutedSwatch();
+                            if (prefSwatch == null) {
+                                prefSwatch = ColorsUtils.getPreferredSwatch(p);
+                            }
+                            if (prefSwatch != null) {
+                                textColor = prefSwatch.getBodyTextColor();
+                                if (ColorsUtils.isSuperLight(prefSwatch.getRgb())) {
+                                    shadowColor = Colors.GRAY;
+                                }
+                            } else {
+                                if (ColorsUtils.isSuperLight(p)) {
+                                    textColor = Colors.BLACK;
+                                    shadowColor = Colors.GRAY;
+                                }
                             }
 
+                            DrawableCompat.setTintList(overlayDrawable, prefSwatch != null ? ColorStateList.valueOf(prefSwatch.getRgb()) : null);
                             binding.imageOverlay.setBackground(overlayDrawable);
 
-                            setTextColor(textColor);
+                            setTextColor(ColorUtils.setAlphaComponent(textColor, 0xFF));
                             setTextShadowColor(shadowColor);
                         }
 

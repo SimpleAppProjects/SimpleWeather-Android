@@ -1,5 +1,7 @@
 package com.thewizrd.shared_resources.helpers;
 
+import android.graphics.Color;
+
 import androidx.annotation.ColorInt;
 import androidx.core.graphics.ColorUtils;
 import androidx.palette.graphics.Palette;
@@ -28,7 +30,9 @@ import java.util.List;
  * Contains helper fields and methods related to extracting colors from the wallpaper.
  */
 public class ColorsUtils {
-    private static final float MIN_CONTRAST_RATIO = 2f;
+    private static final float MIN_CONTRAST_TITLE_TEXT = 3.0f;
+    private static final float MIN_CONTRAST_BODY_TEXT = 4.5f;
+    private static final float MIN_CONTRAST_RATIO = MIN_CONTRAST_BODY_TEXT;
 
     public static boolean isSuperLight(Palette p) {
         return !isLegibleOnWallpaper(Colors.WHITE, p.getSwatches());
@@ -91,5 +95,57 @@ public class ColorsUtils {
         }
 
         return swatch;
+    }
+
+    @ColorInt
+    public static int getBodyTextColor(@ColorInt int color) {
+        // First check white, as most colors will be dark
+        final int lightBodyAlpha = ColorUtils.calculateMinimumAlpha(
+                Color.WHITE, color, MIN_CONTRAST_BODY_TEXT);
+
+        if (lightBodyAlpha != -1) {
+            // If we found valid light values, use them and return
+            return ColorUtils.setAlphaComponent(Color.WHITE, lightBodyAlpha);
+        }
+
+        final int darkBodyAlpha = ColorUtils.calculateMinimumAlpha(
+                Color.BLACK, color, MIN_CONTRAST_BODY_TEXT);
+
+        if (darkBodyAlpha != -1) {
+            // If we found valid dark values, use them and return
+            return ColorUtils.setAlphaComponent(Color.BLACK, darkBodyAlpha);
+        }
+
+        // If we reach here then we can not find title and body values which use the same
+        // lightness, we need to use mismatched values
+        return lightBodyAlpha != -1
+                ? ColorUtils.setAlphaComponent(Color.WHITE, lightBodyAlpha)
+                : ColorUtils.setAlphaComponent(Color.BLACK, darkBodyAlpha);
+    }
+
+    @ColorInt
+    public static int getTitleTextColor(@ColorInt int color) {
+        // First check white, as most colors will be dark
+        final int lightTitleAlpha = ColorUtils.calculateMinimumAlpha(
+                Color.WHITE, color, MIN_CONTRAST_TITLE_TEXT);
+
+        if (lightTitleAlpha != -1) {
+            // If we found valid light values, use them and return
+            return ColorUtils.setAlphaComponent(Color.WHITE, lightTitleAlpha);
+        }
+
+        final int darkTitleAlpha = ColorUtils.calculateMinimumAlpha(
+                Color.BLACK, color, MIN_CONTRAST_TITLE_TEXT);
+
+        if (darkTitleAlpha != -1) {
+            // If we found valid dark values, use them and return
+            return ColorUtils.setAlphaComponent(Color.BLACK, darkTitleAlpha);
+        }
+
+        // If we reach here then we can not find title and body values which use the same
+        // lightness, we need to use mismatched values
+        return lightTitleAlpha != -1
+                ? ColorUtils.setAlphaComponent(Color.WHITE, lightTitleAlpha)
+                : ColorUtils.setAlphaComponent(Color.BLACK, darkTitleAlpha);
     }
 }
