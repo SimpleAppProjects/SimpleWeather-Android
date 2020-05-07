@@ -186,7 +186,7 @@ public class WeatherNotificationService extends Service {
                 else {
                     NotificationCompat.Builder mBuilder =
                             new NotificationCompat.Builder(context, NOT_CHANNEL_ID)
-                                    .setSmallIcon(R.drawable.ic_logo)
+                                    .setSmallIcon(R.drawable.day_sunny)
                                     .setPriority(NotificationCompat.PRIORITY_LOW)
                                     .setOnlyAlertOnce(true)
                                     .setOngoing(true);
@@ -199,7 +199,7 @@ public class WeatherNotificationService extends Service {
                 if (mNotification == null) {
                     NotificationCompat.Builder mBuilder =
                             new NotificationCompat.Builder(context, NOT_CHANNEL_ID)
-                                    .setSmallIcon(R.drawable.ic_logo)
+                                    .setSmallIcon(R.drawable.day_sunny)
                                     .setPriority(NotificationCompat.PRIORITY_LOW)
                                     .setOnlyAlertOnce(true)
                                     .setOngoing(true);

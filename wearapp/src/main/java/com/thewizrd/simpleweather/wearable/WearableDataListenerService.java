@@ -13,6 +13,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,7 +35,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -128,9 +128,10 @@ public class WearableDataListenerService extends WearableListenerService {
                         .setSmallIcon(R.drawable.ic_phone_android_white_24dp)
                         .setContentTitle(context.getString(R.string.not_title_device_sync))
                         .setProgress(0, 0, true)
-                        .setColor(Colors.SIMPLEBLUE)
+                        .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
                         .setOnlyAlertOnce(true)
-                        .setPriority(NotificationManager.IMPORTANCE_LOW);
+                        .setNotificationSilent()
+                        .setPriority(NotificationCompat.PRIORITY_LOW);
 
         return mBuilder.build();
     }
