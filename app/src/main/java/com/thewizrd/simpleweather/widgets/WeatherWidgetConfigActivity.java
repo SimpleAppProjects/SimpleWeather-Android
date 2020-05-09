@@ -1085,7 +1085,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
         private void exitSearchUiTransition(final Animation.AnimationListener exitAnimationListener) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                MaterialContainerTransform transition = new MaterialContainerTransform(requireContext());
+                MaterialContainerTransform transition = new MaterialContainerTransform();
                 transition.setStartView(mSearchFragmentContainer);
                 transition.setEndView(getListView().getChildAt(0));
                 transition.setPathMotion(null);

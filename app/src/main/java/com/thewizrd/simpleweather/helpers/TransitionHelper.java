@@ -16,8 +16,6 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
-import com.google.android.material.transition.Scale;
-
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class TransitionHelper {
     private static final float SCALE_OPEN_ENTER = 0.85f;

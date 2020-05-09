@@ -1332,7 +1332,7 @@ public class LocationsFragment extends ToolbarFragment
 
     private void enterSearchUiTransition(final Animation.AnimationListener enterAnimationListener) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            MaterialContainerTransform transition = new MaterialContainerTransform(requireContext());
+            MaterialContainerTransform transition = new MaterialContainerTransform();
             transition.setStartView(binding.fabContainer);
             transition.setEndView(binding.searchFragmentContainer);
             transition.setPathMotion(null);
@@ -1663,7 +1663,7 @@ public class LocationsFragment extends ToolbarFragment
 
     private void exitSearchUiTransition(final Animation.AnimationListener exitAnimationListener) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            MaterialContainerTransform transition = new MaterialContainerTransform(requireContext());
+            MaterialContainerTransform transition = new MaterialContainerTransform();
             transition.setStartView(binding.searchFragmentContainer);
             transition.setEndView(binding.fabContainer);
             transition.setPathMotion(null);

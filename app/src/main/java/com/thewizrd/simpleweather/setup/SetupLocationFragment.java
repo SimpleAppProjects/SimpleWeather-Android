@@ -1000,7 +1000,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
 
     private void enterSearchUiTransition(final Animation.AnimationListener enterAnimationListener) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            MaterialContainerTransform transition = new MaterialContainerTransform(requireContext());
+            MaterialContainerTransform transition = new MaterialContainerTransform();
             transition.setStartView(binding.searchBar.searchViewContainer);
             transition.setEndView(binding.searchFragmentContainer);
             transition.setPathMotion(null);
@@ -1099,7 +1099,7 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
 
     private void exitSearchUiTransition(final Animation.AnimationListener exitAnimationListener) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            MaterialContainerTransform transition = new MaterialContainerTransform(requireContext());
+            MaterialContainerTransform transition = new MaterialContainerTransform();
             transition.setStartView(binding.searchFragmentContainer);
             transition.setEndView(binding.searchBar.searchViewContainer);
             transition.setPathMotion(null);
