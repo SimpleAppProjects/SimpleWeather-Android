@@ -72,10 +72,7 @@
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="?android:attr/colorBackground">
-
-            <requestFocus />
-        </androidx.wear.widget.WearableRecyclerView>
+            android:background="?android:attr/colorBackground" />
 
     </androidx.wear.widget.SwipeDismissFrameLayout>
 

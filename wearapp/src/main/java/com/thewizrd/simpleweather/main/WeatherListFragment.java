@@ -91,6 +91,8 @@ public class WeatherListFragment extends SwipeDismissFragment {
         mLayoutManager = new WearableLinearLayoutManager(mActivity);
         binding.recyclerView.setLayoutManager(mLayoutManager);
 
+        binding.recyclerView.requestFocus();
+
         return outerView;
     }
 

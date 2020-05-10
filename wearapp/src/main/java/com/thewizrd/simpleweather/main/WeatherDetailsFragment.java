@@ -47,6 +47,8 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
         binding.recyclerView.setEdgeItemsCenteringEnabled(true);
         binding.recyclerView.setLayoutManager(new WearableLinearLayoutManager(mActivity));
 
+        binding.recyclerView.requestFocus();
+
         return outerView;
     }
 

@@ -75,9 +75,8 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        WearableDrawerLayout mWearableDrawerLayout = binding.activityMain;
 
-        mWearableDrawerLayout.setDrawerStateCallback(new WearableDrawerLayout.DrawerStateCallback() {
+        binding.activityMain.setDrawerStateCallback(new WearableDrawerLayout.DrawerStateCallback() {
             @Override
             public void onDrawerOpened(WearableDrawerLayout layout, WearableDrawerView drawerView) {
                 super.onDrawerOpened(layout, drawerView);
@@ -97,6 +96,11 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
                 if (newState != WearableDrawerView.STATE_IDLE && mItemSelectedRunnable != null) {
                     mItemSelectedRunnable.run();
                     mItemSelectedRunnable = null;
+                }
+
+                if (newState == WearableDrawerView.STATE_IDLE &&
+                        binding.bottomActionDrawer.isPeeking() && binding.bottomActionDrawer.hasFocus()) {
+                    binding.bottomActionDrawer.clearFocus();
                 }
             }
         });
@@ -373,6 +377,9 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
                             getSupportFragmentManager().beginTransaction()
                                     .remove(current)
                                     .commitAllowingStateLoss();
+                        } else {
+                            // Hide home frag
+                            ft.hide(current);
                         }
 
                         ft.commit();

@@ -392,6 +392,8 @@ public class LocationSearchFragment extends SwipeDismissFragment {
         mAdapter.setOnClickListener(recyclerClickListener);
         binding.recyclerView.setAdapter(mAdapter);
 
+        binding.recyclerView.requestFocus();
+
         return view;
     }
 

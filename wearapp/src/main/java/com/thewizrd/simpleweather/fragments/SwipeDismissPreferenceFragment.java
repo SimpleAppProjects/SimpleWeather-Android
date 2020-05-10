@@ -58,6 +58,7 @@ public class SwipeDismissPreferenceFragment extends PreferenceFragment {
             }
         };
         binding.swipeLayout.addCallback(swipeCallback);
+        binding.swipeLayout.requestFocus();
 
         return binding.swipeLayout;
     }
