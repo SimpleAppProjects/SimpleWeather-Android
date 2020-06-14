@@ -2,9 +2,6 @@ package com.thewizrd.simpleweather.helpers;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.transition.Fade;
-import android.transition.Transition;
-import android.transition.TransitionSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -15,6 +12,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+import androidx.transition.Fade;
+import androidx.transition.Transition;
+import androidx.transition.TransitionSet;
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class TransitionHelper {

@@ -5,7 +5,6 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
-import android.transition.Transition;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +21,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewGroupCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.transition.Transition;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;

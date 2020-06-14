@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
-import android.transition.Transition;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -74,6 +73,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.transition.Transition;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
