@@ -337,7 +337,7 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
         HttpURLConnection client = null;
 
         try {
-            weatherURL = new URL(url + "/observations/latest");
+            weatherURL = new URL(url + "/observations/latest?require_qc=true");
 
             InputStream stream = null;
 
