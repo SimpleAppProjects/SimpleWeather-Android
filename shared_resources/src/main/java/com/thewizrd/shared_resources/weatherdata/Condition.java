@@ -14,6 +14,9 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -66,6 +69,9 @@ public class Condition extends CustomJsonObject {
 
     @SerializedName("airQuality")
     private AirQuality airQuality;
+
+    @SerializedName("observation_time")
+    private ZonedDateTime observationTime;
 
     @RestrictTo({RestrictTo.Scope.LIBRARY})
     public Condition() {
@@ -209,6 +215,8 @@ public class Condition extends CustomJsonObject {
         } catch (NumberFormatException ex) {
             uv = null;
         }
+
+        observationTime = ZonedDateTime.parse(observation.getUtcTime());
     }
 
     public Condition(com.thewizrd.shared_resources.weatherdata.nws.ObservationCurrentResponse obsCurrentResponse) {
@@ -248,6 +256,8 @@ public class Condition extends CustomJsonObject {
         }
         icon = WeatherManager.getProvider(WeatherAPI.NWS)
                 .getWeatherIcon(obsCurrentResponse.getIcon());
+
+        observationTime = ZonedDateTime.parse(obsCurrentResponse.getTimestamp());
     }
 
     public String getWeather() {
@@ -378,6 +388,14 @@ public class Condition extends CustomJsonObject {
         this.airQuality = airQuality;
     }
 
+    public ZonedDateTime getObservationTime() {
+        return observationTime;
+    }
+
+    public void setObservationTime(ZonedDateTime observationTime) {
+        this.observationTime = observationTime;
+    }
+
     @Override
     public void fromJson(JsonReader extReader) {
         try {
@@ -459,6 +477,9 @@ public class Condition extends CustomJsonObject {
                     case "airQuality":
                         this.airQuality = new AirQuality();
                         this.airQuality.fromJson(reader);
+                        break;
+                    case "observation_time":
+                        observationTime = ZonedDateTime.parse(reader.nextString(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
                         break;
                     default:
                         break;
@@ -556,6 +577,10 @@ public class Condition extends CustomJsonObject {
                 else
                     airQuality.toJson(writer);
             }
+
+            // "observation_time" : ""
+            writer.name("observation_time");
+            writer.value(observationTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
 
             // }
             writer.endObject();

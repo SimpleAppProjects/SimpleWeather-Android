@@ -9,6 +9,7 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import com.google.common.collect.Iterables;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -25,6 +26,7 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.temporal.ChronoUnit;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -93,6 +95,8 @@ public class Weather extends CustomJsonObject {
             condition.setLowF(Float.parseFloat(forecast.get(0).getLowF()));
             condition.setLowC(Float.parseFloat(forecast.get(0).getLowC()));
         }
+
+        condition.setObservationTime(updateTime);
 
         source = WeatherAPI.YAHOO;
     }
@@ -166,6 +170,8 @@ public class Weather extends CustomJsonObject {
             condition.setLowF(Float.parseFloat(forecast.get(0).getLowF()));
             condition.setLowC(Float.parseFloat(forecast.get(0).getLowC()));
         }
+
+        condition.setObservationTime(updateTime);
 
         source = WeatherAPI.OPENWEATHERMAP;
     }
@@ -361,6 +367,8 @@ public class Weather extends CustomJsonObject {
             condition.setLowC(Float.parseFloat(forecast.get(0).getLowC()));
         }
 
+        condition.setObservationTime(updateTime);
+
         source = WeatherAPI.METNO;
     }
 
@@ -377,7 +385,7 @@ public class Weather extends CustomJsonObject {
         }
         hrForecast = new ArrayList<>(root.getHourlyForecasts().getForecastLocation().getForecast().size());
         for (com.thewizrd.shared_resources.weatherdata.here.ForecastItem1 forecast1 : root.getHourlyForecasts().getForecastLocation().getForecast()) {
-            if (ZonedDateTime.parse(forecast1.getUtcTime()).compareTo(now.withZoneSameInstant(ZoneOffset.UTC)) < 0)
+            if (ZonedDateTime.parse(forecast1.getUtcTime()).compareTo(now.withZoneSameInstant(ZoneOffset.UTC).truncatedTo(ChronoUnit.HOURS)) < 0)
                 continue;
 
             hrForecast.add(new HourlyForecast(forecast1));
@@ -390,11 +398,49 @@ public class Weather extends CustomJsonObject {
         ttl = "180";
 
         source = WeatherAPI.HERE;
+
+        // Check for outdated observation
+        int ttlMins = Integer.parseInt(ttl);
+        if (Duration.between(ZonedDateTime.now(), condition.getObservationTime()).toMinutes() > ttlMins) {
+            HourlyForecast hrf = Iterables.getFirst(hrForecast, null);
+            if (hrf != null) {
+                condition.setWeather(hrf.getCondition());
+                condition.setIcon(hrf.getIcon());
+
+                condition.setTempF(Double.parseDouble(hrf.getHighF()));
+                condition.setTempC(Double.parseDouble(hrf.getHighC()));
+
+                condition.setWindMph(hrf.getWindMph());
+                condition.setWindKph(hrf.getWindKph());
+                condition.setWindDegrees(hrf.getWindDegrees());
+
+                condition.setBeaufort(null);
+                condition.setFeelslikeF(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeF() : 0.0);
+                condition.setFeelslikeC(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeC() : 0.0);
+                condition.setUv(null);
+
+                atmosphere.setDewpointF(hrf.getExtras() != null ? hrf.getExtras().getDewpointF() : null);
+                atmosphere.setDewpointC(hrf.getExtras() != null ? hrf.getExtras().getDewpointC() : null);
+                atmosphere.setHumidity(hrf.getExtras() != null ? hrf.getExtras().getHumidity() : null);
+                atmosphere.setPressureTrend(null);
+                atmosphere.setPressureIn(hrf.getExtras() != null ? hrf.getExtras().getPressureIn() : null);
+                atmosphere.setPressureMb(hrf.getExtras() != null ? hrf.getExtras().getPressureMb() : null);
+                atmosphere.setVisibilityMi(hrf.getExtras() != null ? hrf.getExtras().getVisibilityMi() : null);
+                atmosphere.setVisibilityKm(hrf.getExtras() != null ? hrf.getExtras().getVisibilityKm() : null);
+
+                precipitation.setPop(hrf.getExtras() != null ? hrf.getExtras().getPop() : null);
+                precipitation.setQpfRainIn(hrf.getExtras() != null ? hrf.getExtras().getQpfRainIn() : 0.0f);
+                precipitation.setQpfRainMm(hrf.getExtras() != null ? hrf.getExtras().getQpfRainMm() : 0.0f);
+                precipitation.setQpfSnowIn(hrf.getExtras() != null ? hrf.getExtras().getQpfSnowIn() : 0.0f);
+                precipitation.setQpfSnowCm(hrf.getExtras() != null ? hrf.getExtras().getQpfSnowCm() : 0.0f);
+            }
+        }
     }
 
     public Weather(com.thewizrd.shared_resources.weatherdata.nws.PointsResponse pointsResponse, com.thewizrd.shared_resources.weatherdata.nws.ForecastResponse forecastResponse, com.thewizrd.shared_resources.weatherdata.nws.HourlyForecastResponse hourlyForecastResponse, com.thewizrd.shared_resources.weatherdata.nws.ObservationCurrentResponse obsCurrentResponse) {
         location = new Location(pointsResponse);
-        updateTime = ZonedDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now();
+        updateTime = now;
 
         // ~8-day forecast
         forecast = new ArrayList<>(8);
@@ -418,8 +464,11 @@ public class Weather extends CustomJsonObject {
         }
         if (hourlyForecastResponse != null) {
             hrForecast = new ArrayList<>(hourlyForecastResponse.getPeriods().size());
-            for (int i = 0; i < hourlyForecastResponse.getPeriods().size(); i++) {
-                hrForecast.add(new HourlyForecast(hourlyForecastResponse.getPeriods().get(i)));
+            for (com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem period : hourlyForecastResponse.getPeriods()) {
+                if (ZonedDateTime.parse(period.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME).compareTo(now.withZoneSameInstant(ZoneOffset.UTC).truncatedTo(ChronoUnit.HOURS)) < 0)
+                    continue;
+
+                hrForecast.add(new HourlyForecast(period));
             }
         }
         condition = new Condition(obsCurrentResponse);
@@ -436,6 +485,23 @@ public class Weather extends CustomJsonObject {
         }
 
         source = WeatherAPI.NWS;
+
+        // Check for outdated observation
+        int ttlMins = Integer.parseInt(ttl);
+        if (hrForecast != null && Duration.between(ZonedDateTime.now(), condition.getObservationTime()).toMinutes() > ttlMins) {
+            HourlyForecast hrf = Iterables.getFirst(hrForecast, null);
+            if (hrf != null) {
+                condition.setWeather(hrf.getCondition());
+                condition.setIcon(hrf.getIcon());
+
+                condition.setTempF(Double.parseDouble(hrf.getHighF()));
+                condition.setTempC(Double.parseDouble(hrf.getHighC()));
+
+                condition.setWindMph(hrf.getWindMph());
+                condition.setWindKph(hrf.getWindKph());
+                condition.setWindDegrees(hrf.getWindDegrees());
+            }
+        }
     }
 
     public Location getLocation() {
