@@ -208,6 +208,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         private View mRootView;
         private AppBarLayout appBarLayout;
         private Toolbar mToolbar;
+        private View mDialogFragmentContainer;
         private View mSearchFragmentContainer;
         private NestedScrollView mScrollView;
         private LocationSearchFragment mSearchFragment;
@@ -368,6 +369,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
             appBarLayout = root.findViewById(R.id.app_bar);
             mToolbar = root.findViewById(R.id.toolbar);
+            mDialogFragmentContainer = root.findViewById(R.id.dialog_fragment_container);
             mSearchFragmentContainer = root.findViewById(R.id.search_fragment_container);
 
             mRootView = (View) mActivity.findViewById(R.id.fragment_container).getParent();
@@ -394,8 +396,16 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                             paddingStart + insets.getSystemWindowInsetLeft(),
                             paddingTop,
                             paddingEnd + insets.getSystemWindowInsetRight(),
-                            paddingBottom);
+                            paddingBottom + insets.getSystemWindowInsetBottom());
                     return insets;
+                }
+            });
+
+            ViewCompat.setOnApplyWindowInsetsListener(mDialogFragmentContainer, new OnApplyWindowInsetsListener() {
+                @Override
+                public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                    ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
+                    return insets.consumeSystemWindowInsets();
                 }
             });
 
@@ -885,7 +895,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             final String TAG = "CustomListPreferenceDialogFragment";
 
             // check if dialog is already showing
-            if (getFragmentManager().findFragmentByTag(TAG) != null)
+            if (getActivity() == null || getActivity().getSupportFragmentManager().findFragmentByTag(TAG) != null)
                 return;
 
             if ((preference instanceof ListPreference)) {
@@ -893,19 +903,17 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 f.setTargetFragment(this, 0);
                 if (ActivityUtils.isSmallestWidth(mActivity, 400) &&
                         (ActivityUtils.getOrientation(mActivity) != Configuration.ORIENTATION_LANDSCAPE || ActivityUtils.isLargeTablet(mActivity))) {
-                    f.show(getFragmentManager(), TAG);
+                    f.show(getActivity().getSupportFragmentManager(), TAG);
                 } else {
                     f.setOnDialogClosedListener(new CustomListPreferenceDialogFragment.OnDialogClosedListener() {
                         @Override
                         public void onDialogClosed() {
-                            if (!inSearchUI) {
-                                mSearchFragmentContainer.setVisibility(View.GONE);
-                            }
+                            mDialogFragmentContainer.setVisibility(View.GONE);
                         }
                     });
-                    f.showFullScreen(getFragmentManager(), R.id.search_fragment_container, null);
-                    mSearchFragmentContainer.bringToFront();
-                    mSearchFragmentContainer.setVisibility(View.VISIBLE);
+                    f.showFullScreen(getActivity().getSupportFragmentManager(), R.id.dialog_fragment_container, null);
+                    mDialogFragmentContainer.bringToFront();
+                    mDialogFragmentContainer.setVisibility(View.VISIBLE);
                 }
             } else {
                 super.onDisplayPreferenceDialog(preference);
@@ -963,7 +971,7 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
                 }
                 color = bg_color;
             }
-            ActivityUtils.setTransparentWindow(mActivity.getWindow(), bg_color, color, ColorUtils.setAlphaComponent(bg_color, 0xB3), true);
+            ActivityUtils.setTransparentWindow(mActivity.getWindow(), bg_color, color, bg_color, true);
 
             enterSearchUi();
             enterSearchUiTransition(new Animation.AnimationListener() {

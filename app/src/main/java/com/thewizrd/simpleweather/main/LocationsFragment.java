@@ -33,7 +33,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.ColorUtils;
 import androidx.core.location.LocationManagerCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.view.MarginLayoutParamsCompat;
@@ -1294,7 +1293,7 @@ public class LocationsFragment extends ToolbarFragment
                 }
             }
 
-            ActivityUtils.setTransparentWindow(getAppCompatActivity().getWindow(), bg_color, color, ColorUtils.setAlphaComponent(bg_color, 0xB3), true);
+            ActivityUtils.setTransparentWindow(getAppCompatActivity().getWindow(), bg_color, color, bg_color, true);
         }
         enterSearchUi();
         enterSearchUiTransition(new Animation.AnimationListener() {

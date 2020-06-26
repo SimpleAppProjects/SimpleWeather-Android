@@ -245,11 +245,11 @@ public class CustomListPreferenceDialogFragment extends PreferenceDialogFragment
 
     public void dismissFragment() {
         if (mBackStackId >= 0) {
-            requireFragmentManager().popBackStack(mBackStackId,
+            getParentFragmentManager().popBackStack(mBackStackId,
                     FragmentManager.POP_BACK_STACK_INCLUSIVE);
             mBackStackId = -1;
         } else {
-            FragmentTransaction ft = requireFragmentManager().beginTransaction();
+            FragmentTransaction ft = getParentFragmentManager().beginTransaction();
             ft.remove(this);
             ft.commitAllowingStateLoss();
         }
