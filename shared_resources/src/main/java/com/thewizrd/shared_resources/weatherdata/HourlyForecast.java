@@ -68,10 +68,10 @@ public class HourlyForecast extends CustomJsonObject {
 
     }
 
-    public HourlyForecast(com.thewizrd.shared_resources.weatherdata.openweather.ListItem hr_forecast) {
+    public HourlyForecast(com.thewizrd.shared_resources.weatherdata.openweather.HourlyItem hr_forecast) {
         setDate(ZonedDateTime.ofInstant(Instant.ofEpochSecond(hr_forecast.getDt()), ZoneOffset.UTC));
-        highF = ConversionMethods.KtoF(Float.toString(hr_forecast.getMain().getTemp()));
-        highC = ConversionMethods.KtoC(Float.toString(hr_forecast.getMain().getTemp()));
+        highF = ConversionMethods.KtoF(Float.toString(hr_forecast.getTemp()));
+        highC = ConversionMethods.KtoC(Float.toString(hr_forecast.getTemp()));
         condition = StringUtils.toUpperCase(hr_forecast.getWeather().get(0).getDescription());
 
         // Use icon to determine if day or night
@@ -89,30 +89,37 @@ public class HourlyForecast extends CustomJsonObject {
                 .getWeatherIcon(hr_forecast.getWeather().get(0).getId() + dn);
 
         // Use cloudiness value here
-        pop = Integer.toString(hr_forecast.getClouds().getAll());
-        windDegrees = (int) hr_forecast.getWind().getDeg();
-        windMph = (float) Math.round(Double.parseDouble(ConversionMethods.msecToMph(Float.toString(hr_forecast.getWind().getSpeed()))));
-        windKph = (float) Math.round(Double.parseDouble(ConversionMethods.msecToKph(Float.toString(hr_forecast.getWind().getSpeed()))));
+        pop = Integer.toString(hr_forecast.getClouds());
+        windDegrees = hr_forecast.getWindDeg();
+        windMph = (float) Math.round(Double.parseDouble(ConversionMethods.msecToMph(Float.toString(hr_forecast.getWindSpeed()))));
+        windKph = (float) Math.round(Double.parseDouble(ConversionMethods.msecToKph(Float.toString(hr_forecast.getWindSpeed()))));
 
         // Extras
         extras = new ForecastExtras();
-        extras.setFeelslikeF(Float.parseFloat(WeatherUtils.getFeelsLikeTemp(highF, Double.toString(windMph), hr_forecast.getMain().getHumidity())));
-        extras.setFeelslikeC(Float.parseFloat(ConversionMethods.FtoC(Double.toString(extras.getFeelslikeF()))));
-        extras.setHumidity(hr_forecast.getMain().getHumidity());
+        extras.setFeelslikeF(Float.parseFloat(ConversionMethods.KtoF(Float.toString(hr_forecast.getFeelsLike()))));
+        extras.setFeelslikeC(Float.parseFloat(ConversionMethods.FtoC(Float.toString(hr_forecast.getFeelsLike()))));
+        extras.setDewpointF(ConversionMethods.KtoF(Float.toString(hr_forecast.getDewPoint())));
+        extras.setDewpointC(ConversionMethods.FtoC(Float.toString(hr_forecast.getDewPoint())));
+        extras.setHumidity(Integer.toString(hr_forecast.getHumidity()));
         extras.setPop(pop);
-        if (hr_forecast.getRain() != null) {
-            extras.setQpfRainIn(Float.parseFloat(ConversionMethods.mmToIn(Float.toString(hr_forecast.getRain().get_3h()))));
-            extras.setQpfRainMm(hr_forecast.getRain().get_3h());
-        }
-        if (hr_forecast.getSnow() != null) {
-            extras.setQpfSnowIn(Float.parseFloat(ConversionMethods.mmToIn(Float.toString(hr_forecast.getSnow().get_3h()))));
-            extras.setQpfSnowCm(hr_forecast.getSnow().get_3h() / 10);
-        }
-        extras.setPressureIn(ConversionMethods.mbToInHg(Float.toString(hr_forecast.getMain().getPressure())));
-        extras.setPressureMb(Float.toString(hr_forecast.getMain().getPressure()));
+        // 1hPA = 1mbar
+        extras.setPressureMb(Float.toString(hr_forecast.getPressure()));
+        extras.setPressureIn(ConversionMethods.mbToInHg(Float.toString(hr_forecast.getPressure())));
         extras.setWindDegrees(windDegrees);
         extras.setWindMph(windMph);
         extras.setWindKph(windKph);
+        if (hr_forecast.getVisibility() != null) {
+            extras.setVisibilityKm(hr_forecast.getVisibility().toString());
+            extras.setVisibilityMi(ConversionMethods.kmToMi(extras.getVisibilityKm()));
+        }
+        if (hr_forecast.getRain() != null) {
+            extras.setQpfRainMm(hr_forecast.getRain().get_1h());
+            extras.setQpfRainIn(Float.parseFloat(ConversionMethods.mmToIn(Float.toString(hr_forecast.getRain().get_1h()))));
+        }
+        if (hr_forecast.getSnow() != null) {
+            extras.setQpfSnowCm(hr_forecast.getSnow().get_1h() / 10);
+            extras.setQpfSnowIn(Float.parseFloat(ConversionMethods.mmToIn(Float.toString(hr_forecast.getSnow().get_1h()))));
+        }
     }
 
     public HourlyForecast(com.thewizrd.shared_resources.weatherdata.metno.Weatherdata.Time hr_forecast) {

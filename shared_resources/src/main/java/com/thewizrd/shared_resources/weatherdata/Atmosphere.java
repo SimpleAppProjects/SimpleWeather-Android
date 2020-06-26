@@ -55,13 +55,16 @@ public class Atmosphere extends CustomJsonObject {
         visibilityKm = ConversionMethods.miToKm(atmosphere.getVisibility());
     }
 
-    public Atmosphere(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
-        humidity = root.getMain().getHumidity();
-        pressureMb = Float.toString(root.getMain().getPressure());
-        pressureIn = ConversionMethods.mbToInHg(Float.toString(root.getMain().getPressure()));
+    public Atmosphere(com.thewizrd.shared_resources.weatherdata.openweather.Current current) {
+        humidity = Integer.toString(current.getHumidity());
+        // 1hPa = 1mbar
+        pressureMb = Float.toString(current.getPressure());
+        pressureIn = ConversionMethods.mbToInHg(pressureMb);
         pressureTrend = "";
-        visibilityMi = ConversionMethods.kmToMi(Integer.toString((root.getVisibility() / 1000)));
-        visibilityKm = Integer.toString((root.getVisibility() / 1000));
+        visibilityKm = Integer.toString((current.getVisibility() / 1000));
+        visibilityMi = ConversionMethods.kmToMi(visibilityKm);
+        dewpointF = ConversionMethods.KtoF(Float.toString(current.getDewPoint()));
+        dewpointC = ConversionMethods.KtoC(Float.toString(current.getDewPoint()));
     }
 
     public Atmosphere(com.thewizrd.shared_resources.weatherdata.metno.Weatherdata.Time time) {

@@ -37,16 +37,16 @@ public class Precipitation extends CustomJsonObject {
         // Needed for deserialization
     }
 
-    public Precipitation(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
+    public Precipitation(com.thewizrd.shared_resources.weatherdata.openweather.Current current) {
         // Use cloudiness value here
-        pop = Integer.toString(root.getClouds().getAll());
-        if (root.getRain() != null) {
-            qpfRainIn = Float.parseFloat(ConversionMethods.mmToIn(Float.toString(root.getRain().get_3h())));
-            qpfRainMm = root.getRain().get_3h();
+        pop = Integer.toString(current.getClouds());
+        if (current.getRain() != null) {
+            qpfRainIn = Float.parseFloat(ConversionMethods.mmToIn(Float.toString(current.getRain().get_1h())));
+            qpfRainMm = current.getRain().get_1h();
         }
-        if (root.getSnow() != null) {
-            qpfSnowIn = Float.parseFloat(ConversionMethods.mmToIn(Float.toString(root.getSnow().get_3h())));
-            qpfSnowCm = root.getSnow().get_3h();
+        if (current.getSnow() != null) {
+            qpfSnowIn = Float.parseFloat(ConversionMethods.mmToIn(Float.toString(current.getSnow().get_1h())));
+            qpfSnowCm = current.getSnow().get_1h() / 10;
         }
     }
 
@@ -61,19 +61,19 @@ public class Precipitation extends CustomJsonObject {
 
         try {
             qpfRainIn = Float.parseFloat(forecast.getRainFall());
+            qpfRainMm = Float.parseFloat(ConversionMethods.inToMM(Float.toString(qpfRainIn)));
         } catch (NumberFormatException ex) {
             qpfRainIn = 0.00f;
+            qpfRainMm = 0.00f;
         }
-
-        qpfRainMm = Float.parseFloat(ConversionMethods.inToMM(Float.toString(qpfRainIn)));
 
         try {
             qpfSnowIn = Float.parseFloat(forecast.getSnowFall());
+            qpfSnowCm = Float.parseFloat(ConversionMethods.inToMM(Float.toString(qpfSnowIn))) / 10;
         } catch (NumberFormatException ex) {
             qpfSnowIn = 0.00f;
+            qpfSnowCm = 0.00f;
         }
-
-        qpfSnowCm = Float.parseFloat(ConversionMethods.inToMM(Float.toString(qpfSnowIn))) / 10;
     }
 
     public String getPop() {

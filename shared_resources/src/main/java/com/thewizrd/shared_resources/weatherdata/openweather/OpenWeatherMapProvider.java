@@ -114,10 +114,8 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
     public Weather getWeather(String location_query) throws WeatherException {
         Weather weather = null;
 
-        String currentAPI = null;
-        URL currentURL = null;
-        String forecastAPI = null;
-        URL forecastURL = null;
+        String weatherAPI = null;
+        URL weatherURL = null;
         String query = null;
         HttpURLConnection client = null;
 
@@ -135,40 +133,26 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
         WeatherException wEx = null;
 
         try {
-            currentAPI = "https://api.openweathermap.org/data/2.5/weather?%s&appid=%s&lang=" + locale;
-            currentURL = new URL(String.format(currentAPI, query, key));
-            forecastAPI = "https://api.openweathermap.org/data/2.5/forecast?%s&appid=%s&lang=" + locale;
-            forecastURL = new URL(String.format(forecastAPI, query, key));
+            weatherAPI = "https://api.openweathermap.org/data/2.5/onecall?%s&exclude=minutely&appid=%s&lang=" + locale;
+            weatherURL = new URL(String.format(weatherAPI, query, key));
 
-            InputStream currentStream = null;
-            InputStream forecastStream = null;
+            InputStream contentStream = null;
 
-            client = (HttpURLConnection) currentURL.openConnection();
+            client = (HttpURLConnection) weatherURL.openConnection();
             client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
             client.setReadTimeout(Settings.READ_TIMEOUT);
-            currentStream = client.getInputStream();
-
-            client = (HttpURLConnection) forecastURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
-            forecastStream = client.getInputStream();
+            contentStream = client.getInputStream();
 
             // Reset exception
             wEx = null;
 
             // Load weather
-            CurrentRootobject currRoot = null;
-            ForecastRootobject foreRoot = null;
-            // TODO: put in async task?
-            currRoot = JSONParser.deserializer(currentStream, CurrentRootobject.class);
-            // TODO: put in async task?
-            foreRoot = JSONParser.deserializer(forecastStream, ForecastRootobject.class);
+            Rootobject root = JSONParser.deserializer(contentStream, Rootobject.class);
 
             // End Stream
-            currentStream.close();
-            forecastStream.close();
+            contentStream.close();
 
-            weather = new Weather(currRoot, foreRoot);
+            weather = new Weather(root);
 
         } catch (Exception ex) {
             weather = null;

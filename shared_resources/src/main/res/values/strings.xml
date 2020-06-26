@@ -56,6 +56,11 @@
     <string name="label_airquality">Air Quality Index</string>
     <string name="label_airquality_short">Air Quality</string>
     <string name="label_radar">Radar</string>
+    <string name="label_day">Afternoon</string>
+    <string name="label_eve">Evening</string>
+    <string name="label_morning">Morning</string>
+    <string name="label_night">Night</string>
+    <string name="label_temp">Temp</string>
     <!-- NavBar -->
     <string name="label_nav_weathernow">Weather</string>
     <string name="label_nav_locations">Locations</string>

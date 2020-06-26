@@ -14,6 +14,8 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
@@ -91,22 +93,17 @@ public class Condition extends CustomJsonObject {
                 .getWeatherIcon(observation.getCondition().getCode());
     }
 
-    public Condition(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
-        weather = StringUtils.toUpperCase(root.getWeather().get(0).getDescription());
-        tempF = Float.parseFloat(ConversionMethods.KtoF(Float.toString(root.getMain().getTemp())));
-        tempC = Float.parseFloat(ConversionMethods.KtoC(Float.toString(root.getMain().getTemp())));
-        highF = Float.parseFloat(ConversionMethods.KtoF(Float.toString(root.getMain().getTempMax())));
-        highC = Float.parseFloat(ConversionMethods.KtoC(Float.toString(root.getMain().getTempMax())));
-        lowF = Float.parseFloat(ConversionMethods.KtoF(Float.toString(root.getMain().getTempMin())));
-        lowC = Float.parseFloat(ConversionMethods.KtoC(Float.toString(root.getMain().getTempMin())));
-        windDegrees = (int) root.getWind().getDeg();
-        windMph = Float.parseFloat(ConversionMethods.msecToMph(Float.toString(root.getWind().getSpeed())));
-        windKph = Float.parseFloat(ConversionMethods.msecToKph(Float.toString(root.getWind().getSpeed())));
-        // This will be calculated after with formula
-        feelslikeF = tempF;
-        feelslikeC = tempC;
+    public Condition(com.thewizrd.shared_resources.weatherdata.openweather.Current current) {
+        weather = StringUtils.toUpperCase(current.getWeather().get(0).getDescription());
+        tempF = Float.parseFloat(ConversionMethods.KtoF(Float.toString(current.getTemp())));
+        tempC = Float.parseFloat(ConversionMethods.KtoC(Float.toString(current.getTemp())));
+        windDegrees = current.getWindDeg();
+        windMph = Float.parseFloat(ConversionMethods.msecToMph(Float.toString(current.getWindSpeed())));
+        windKph = Float.parseFloat(ConversionMethods.msecToKph(Float.toString(current.getWindSpeed())));
+        feelslikeF = Float.parseFloat(ConversionMethods.KtoF(Float.toString(current.getFeelsLike())));
+        feelslikeC = Float.parseFloat(ConversionMethods.KtoC(Float.toString(current.getFeelsLike())));
 
-        String ico = root.getWeather().get(0).getIcon();
+        String ico = current.getWeather().get(0).getIcon();
         String dn = Character.toString(ico.charAt(ico.length() == 0 ? 0 : ico.length() - 1));
 
         try {
@@ -117,7 +114,11 @@ public class Condition extends CustomJsonObject {
         }
 
         icon = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
-                .getWeatherIcon(root.getWeather().get(0).getId() + dn);
+                .getWeatherIcon(current.getWeather().get(0).getId() + dn);
+
+        uv = new UV(current.getUvi());
+
+        observationTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(current.getDt()), ZoneOffset.UTC);
     }
 
     public Condition(com.thewizrd.shared_resources.weatherdata.metno.Weatherdata.Time time) {

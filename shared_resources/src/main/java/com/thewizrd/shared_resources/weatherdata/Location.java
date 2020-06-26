@@ -57,13 +57,18 @@ public class Location extends CustomJsonObject {
         tzLong = location.getTimezoneId();
     }
 
-    public Location(com.thewizrd.shared_resources.weatherdata.openweather.ForecastRootobject root) {
+    public Location(com.thewizrd.shared_resources.weatherdata.openweather.Rootobject root) {
         // Use location name from location provider
         name = null;
-        latitude = Double.toString(root.getCity().getCoord().getLat());
-        longitude = Double.toString(root.getCity().getCoord().getLon());
-        tzOffset = ZoneOffset.UTC;
-        tzShort = "UTC";
+        latitude = Float.toString(root.getLat());
+        longitude = Float.toString(root.getLon());
+
+        ZoneId zId = ZoneId.of(root.getTimezone());
+
+        tzOffset = zId.getRules().getOffset(Instant.now());
+        tzShort = ZonedDateTime.now(zId)
+                .format(DateTimeFormatter.ofPattern("z", Locale.getDefault()));
+        tzLong = root.getTimezone();
     }
 
     public Location(com.thewizrd.shared_resources.weatherdata.metno.Weatherdata foreRoot) {

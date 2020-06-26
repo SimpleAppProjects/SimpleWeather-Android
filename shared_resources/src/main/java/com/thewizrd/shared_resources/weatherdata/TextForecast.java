@@ -9,11 +9,15 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
@@ -35,6 +39,73 @@ public class TextForecast extends CustomJsonObject {
     @RestrictTo({RestrictTo.Scope.LIBRARY})
     public TextForecast() {
         // Needed for deserialization
+    }
+
+    public TextForecast(com.thewizrd.shared_resources.weatherdata.openweather.DailyItem forecast) {
+        Context context = SimpleLibrary.getInstance().getApp().getAppContext();
+
+        date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(forecast.getDt()), ZoneOffset.UTC);
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format(Locale.ROOT,
+                "%s - %s: %sº; %s: %sº", context.getString(R.string.label_morning),
+                context.getString(R.string.label_temp),
+                ConversionMethods.KtoF(Float.toString(forecast.getTemp().getMorn())),
+                context.getString(R.string.label_feelslike),
+                ConversionMethods.KtoF(Float.toString(forecast.getFeelsLike().getMorn()))));
+        sb.append(StringUtils.lineSeparator());
+        sb.append(String.format(Locale.ROOT,
+                "%s - %s: %sº; %s: %sº", context.getString(R.string.label_day),
+                context.getString(R.string.label_temp),
+                ConversionMethods.KtoF(Float.toString(forecast.getTemp().getDay())),
+                context.getString(R.string.label_feelslike),
+                ConversionMethods.KtoF(Float.toString(forecast.getFeelsLike().getDay()))));
+        sb.append(StringUtils.lineSeparator());
+        sb.append(String.format(Locale.ROOT,
+                "%s - %s: %sº; %s: %sº", context.getString(R.string.label_eve),
+                context.getString(R.string.label_temp),
+                ConversionMethods.KtoF(Float.toString(forecast.getTemp().getEve())),
+                context.getString(R.string.label_feelslike),
+                ConversionMethods.KtoF(Float.toString(forecast.getFeelsLike().getEve()))));
+        sb.append(StringUtils.lineSeparator());
+        sb.append(String.format(Locale.ROOT,
+                "%s - %s: %sº; %s: %sº", context.getString(R.string.label_night),
+                context.getString(R.string.label_temp),
+                ConversionMethods.KtoF(Float.toString(forecast.getTemp().getNight())),
+                context.getString(R.string.label_feelslike),
+                ConversionMethods.KtoF(Float.toString(forecast.getFeelsLike().getNight()))));
+
+        fcttext = sb.toString();
+
+        StringBuilder sb_metric = new StringBuilder();
+        sb_metric.append(String.format(Locale.ROOT,
+                "%s - %s: %sº; %s: %sº", context.getString(R.string.label_morning),
+                context.getString(R.string.label_temp),
+                ConversionMethods.KtoC(Float.toString(forecast.getTemp().getMorn())),
+                context.getString(R.string.label_feelslike),
+                ConversionMethods.KtoC(Float.toString(forecast.getFeelsLike().getMorn()))));
+        sb_metric.append(StringUtils.lineSeparator());
+        sb_metric.append(String.format(Locale.ROOT,
+                "%s - %s: %sº; %s: %sº", context.getString(R.string.label_day),
+                context.getString(R.string.label_temp),
+                ConversionMethods.KtoC(Float.toString(forecast.getTemp().getDay())),
+                context.getString(R.string.label_feelslike),
+                ConversionMethods.KtoC(Float.toString(forecast.getFeelsLike().getDay()))));
+        sb_metric.append(StringUtils.lineSeparator());
+        sb_metric.append(String.format(Locale.ROOT,
+                "%s - %s: %sº; %s: %sº", context.getString(R.string.label_eve),
+                context.getString(R.string.label_temp),
+                ConversionMethods.KtoC(Float.toString(forecast.getTemp().getEve())),
+                context.getString(R.string.label_feelslike),
+                ConversionMethods.KtoC(Float.toString(forecast.getFeelsLike().getEve()))));
+        sb_metric.append(StringUtils.lineSeparator());
+        sb_metric.append(String.format(Locale.ROOT,
+                "%s - %s: %sº; %s: %sº", context.getString(R.string.label_night),
+                context.getString(R.string.label_temp),
+                ConversionMethods.KtoC(Float.toString(forecast.getTemp().getNight())),
+                context.getString(R.string.label_feelslike),
+                ConversionMethods.KtoC(Float.toString(forecast.getFeelsLike().getNight()))));
+
+        fcttextMetric = sb_metric.toString();
     }
 
     public TextForecast(com.thewizrd.shared_resources.weatherdata.here.ForecastItem forecast) {

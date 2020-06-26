@@ -75,14 +75,14 @@ public class Astronomy extends CustomJsonObject {
         }
     }
 
-    public Astronomy(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
+    public Astronomy(com.thewizrd.shared_resources.weatherdata.openweather.Current current) {
         try {
-            sunrise = LocalDateTime.ofEpochSecond(root.getSys().getSunrise(), 0, ZoneOffset.UTC);
+            sunrise = LocalDateTime.ofEpochSecond(current.getSunrise(), 0, ZoneOffset.UTC);
         } catch (Exception e) {
             Logger.writeLine(Log.ERROR, e);
         }
         try {
-            sunset = LocalDateTime.ofEpochSecond(root.getSys().getSunset(), 0, ZoneOffset.UTC);
+            sunset = LocalDateTime.ofEpochSecond(current.getSunset(), 0, ZoneOffset.UTC);
         } catch (Exception e) {
             Logger.writeLine(Log.ERROR, e);
         }

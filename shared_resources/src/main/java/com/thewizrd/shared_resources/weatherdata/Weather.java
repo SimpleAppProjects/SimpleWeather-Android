@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 @Entity(tableName = "weatherdata")
 public class Weather extends CustomJsonObject {
@@ -101,68 +102,28 @@ public class Weather extends CustomJsonObject {
         source = WeatherAPI.YAHOO;
     }
 
-    public Weather(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject currRoot,
-                   com.thewizrd.shared_resources.weatherdata.openweather.ForecastRootobject foreRoot) {
-        location = new Location(foreRoot);
-        updateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(currRoot.getDt()), ZoneOffset.UTC);
+    public Weather(com.thewizrd.shared_resources.weatherdata.openweather.Rootobject root) {
+        location = new Location(root);
+        updateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(root.getCurrent().getDt()), ZoneOffset.UTC);
 
-        // 5-day forecast / 3-hr forecast
-        // 24hr / 3hr = 8items for each day
-        forecast = new ArrayList<>(5);
-        hrForecast = new ArrayList<>(foreRoot.getList().size());
-
-        // Store potential min/max values
-        float dayMax = Float.NaN;
-        float dayMin = Float.NaN;
-        int lastDay = 0;
-
-        for (int i = 0; i < foreRoot.getList().size(); i++) {
-            hrForecast.add(new HourlyForecast(foreRoot.getList().get(i)));
-
-            float max = foreRoot.getList().get(i).getMain().getTempMax();
-            if (!Float.isNaN(max) && (Float.isNaN(dayMax) || max > dayMax)) {
-                dayMax = max;
-            }
-
-            float min = foreRoot.getList().get(i).getMain().getTempMin();
-            if (!Float.isNaN(min) && (Float.isNaN(dayMin) || min < dayMin)) {
-                dayMin = min;
-            }
-
-            // Get every 8th item for daily forecast
-            if (i % 8 == 0) {
-                lastDay = i / 8;
-
-                forecast.add(i / 8, new Forecast(foreRoot.getList().get(i)));
-            }
-
-            // This is possibly the last forecast for the day (3-hrly forecast)
-            // Set the min / max temp here and reset
-            if (hrForecast.get(i).getDate().getHour() >= 21) {
-                if (!Float.isNaN(dayMax)) {
-                    forecast.get(lastDay).setHighF(ConversionMethods.KtoF(Float.toString(dayMax)));
-                    forecast.get(lastDay).setHighC(ConversionMethods.KtoC(Float.toString(dayMax)));
-                }
-                if (!Float.isNaN(dayMin)) {
-                    forecast.get(lastDay).setLowF(ConversionMethods.KtoF(Float.toString(dayMin)));
-                    forecast.get(lastDay).setLowC(ConversionMethods.KtoC(Float.toString(dayMin)));
-                }
-
-                dayMax = Float.NaN;
-                dayMin = Float.NaN;
-            }
+        forecast = new ArrayList<>(root.getDaily().size());
+        txtForecast = new ArrayList<>(root.getDaily().size());
+        for (com.thewizrd.shared_resources.weatherdata.openweather.DailyItem daily : root.getDaily()) {
+            forecast.add(new Forecast(daily));
+            txtForecast.add(new TextForecast(daily));
         }
-        condition = new Condition(currRoot);
-        atmosphere = new Atmosphere(currRoot);
-        astronomy = new Astronomy(currRoot);
-        precipitation = new Precipitation(currRoot);
+        hrForecast = new ArrayList<>(root.getHourly().size());
+        for (com.thewizrd.shared_resources.weatherdata.openweather.HourlyItem hourly : root.getHourly()) {
+            hrForecast.add(new HourlyForecast(hourly));
+        }
+
+        condition = new Condition(root.getCurrent());
+        atmosphere = new Atmosphere(root.getCurrent());
+        astronomy = new Astronomy(root.getCurrent());
+        precipitation = new Precipitation(root.getCurrent());
         ttl = "120";
 
-        query = Integer.toString(currRoot.getId());
-
-        // Set feelslike temp
-        condition.setFeelslikeF(Float.parseFloat(WeatherUtils.getFeelsLikeTemp(Double.toString(condition.getTempF()), Double.toString(condition.getWindMph()), atmosphere.getHumidity())));
-        condition.setFeelslikeC(Float.parseFloat(ConversionMethods.FtoC(Double.toString(condition.getFeelslikeF()))));
+        query = String.format(Locale.ROOT, "lat=%s&lon=%s", location.getLatitude(), location.getLongitude());
 
         if (condition.getHighF() == condition.getHighC() && forecast.size() > 0) {
             condition.setHighF(Float.parseFloat(forecast.get(0).getHighF()));
@@ -171,9 +132,44 @@ public class Weather extends CustomJsonObject {
             condition.setLowC(Float.parseFloat(forecast.get(0).getLowC()));
         }
 
-        condition.setObservationTime(updateTime);
-
         source = WeatherAPI.OPENWEATHERMAP;
+
+        // Check for outdated observation
+        int ttlMins = Integer.parseInt(ttl);
+        if (Duration.between(ZonedDateTime.now(), condition.getObservationTime()).toMinutes() > ttlMins) {
+            HourlyForecast hrf = Iterables.getFirst(hrForecast, null);
+            if (hrf != null) {
+                condition.setWeather(hrf.getCondition());
+                condition.setIcon(hrf.getIcon());
+
+                condition.setTempF(Double.parseDouble(hrf.getHighF()));
+                condition.setTempC(Double.parseDouble(hrf.getHighC()));
+
+                condition.setWindMph(hrf.getWindMph());
+                condition.setWindKph(hrf.getWindKph());
+                condition.setWindDegrees(hrf.getWindDegrees());
+
+                condition.setBeaufort(null);
+                condition.setFeelslikeF(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeF() : 0.0);
+                condition.setFeelslikeC(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeC() : 0.0);
+                condition.setUv(null);
+
+                atmosphere.setDewpointF(hrf.getExtras() != null ? hrf.getExtras().getDewpointF() : null);
+                atmosphere.setDewpointC(hrf.getExtras() != null ? hrf.getExtras().getDewpointC() : null);
+                atmosphere.setHumidity(hrf.getExtras() != null ? hrf.getExtras().getHumidity() : null);
+                atmosphere.setPressureTrend(null);
+                atmosphere.setPressureIn(hrf.getExtras() != null ? hrf.getExtras().getPressureIn() : null);
+                atmosphere.setPressureMb(hrf.getExtras() != null ? hrf.getExtras().getPressureMb() : null);
+                atmosphere.setVisibilityMi(hrf.getExtras() != null ? hrf.getExtras().getVisibilityMi() : null);
+                atmosphere.setVisibilityKm(hrf.getExtras() != null ? hrf.getExtras().getVisibilityKm() : null);
+
+                precipitation.setPop(hrf.getExtras() != null ? hrf.getExtras().getPop() : null);
+                precipitation.setQpfRainIn(hrf.getExtras() != null ? hrf.getExtras().getQpfRainIn() : 0.0f);
+                precipitation.setQpfRainMm(hrf.getExtras() != null ? hrf.getExtras().getQpfRainMm() : 0.0f);
+                precipitation.setQpfSnowIn(hrf.getExtras() != null ? hrf.getExtras().getQpfSnowIn() : 0.0f);
+                precipitation.setQpfSnowCm(hrf.getExtras() != null ? hrf.getExtras().getQpfSnowCm() : 0.0f);
+            }
+        }
     }
 
     public Weather(com.thewizrd.shared_resources.weatherdata.metno.Weatherdata foreRoot, com.thewizrd.shared_resources.weatherdata.metno.Astrodata astroRoot) {
@@ -480,10 +476,20 @@ public class Weather extends CustomJsonObject {
         ttl = "180";
 
         if (condition.getHighF() == condition.getHighC() && forecast.size() > 0) {
-            condition.setHighF(Float.parseFloat(forecast.get(0).getHighF()));
-            condition.setHighC(Float.parseFloat(forecast.get(0).getHighC()));
-            condition.setLowF(Float.parseFloat(forecast.get(0).getLowF()));
-            condition.setLowC(Float.parseFloat(forecast.get(0).getLowC()));
+            if (forecast.get(0).getHighF() != null) {
+                condition.setHighF(Float.parseFloat(forecast.get(0).getHighF()));
+            }
+            if (forecast.get(0).getHighC() != null) {
+                condition.setHighC(Float.parseFloat(forecast.get(0).getHighC()));
+            }
+        }
+        if (condition.getLowF() == condition.getLowC() && forecast.size() > 0) {
+            if (forecast.get(0).getLowF() != null) {
+                condition.setLowF(Float.parseFloat(forecast.get(0).getLowF()));
+            }
+            if (forecast.get(0).getLowC() != null) {
+                condition.setLowC(Float.parseFloat(forecast.get(0).getLowC()));
+            }
         }
 
         source = WeatherAPI.NWS;

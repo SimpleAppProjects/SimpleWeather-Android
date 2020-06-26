@@ -66,15 +66,41 @@ public class Forecast extends CustomJsonObject {
                 .getWeatherIcon(forecast.getCode());
     }
 
-    public Forecast(com.thewizrd.shared_resources.weatherdata.openweather.ListItem forecast) {
+    public Forecast(com.thewizrd.shared_resources.weatherdata.openweather.DailyItem forecast) {
         date = LocalDateTime.ofEpochSecond(forecast.getDt(), 0, ZoneOffset.UTC);
-        highF = ConversionMethods.KtoF(Float.toString(forecast.getMain().getTempMax()));
-        highC = ConversionMethods.KtoC(Float.toString(forecast.getMain().getTempMax()));
-        lowF = ConversionMethods.KtoF(Float.toString(forecast.getMain().getTempMin()));
-        lowC = ConversionMethods.KtoC(Float.toString(forecast.getMain().getTempMin()));
+        highF = ConversionMethods.KtoF(Float.toString(forecast.getTemp().getMax()));
+        highC = ConversionMethods.KtoC(Float.toString(forecast.getTemp().getMax()));
+        lowF = ConversionMethods.KtoF(Float.toString(forecast.getTemp().getMin()));
+        lowC = ConversionMethods.KtoC(Float.toString(forecast.getTemp().getMin()));
         condition = StringUtils.toUpperCase(forecast.getWeather().get(0).getDescription());
         icon = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
                 .getWeatherIcon(Integer.toString(forecast.getWeather().get(0).getId()));
+
+        // Extras
+        extras = new ForecastExtras();
+        extras.setDewpointF(ConversionMethods.KtoF(Float.toString(forecast.getDewPoint())));
+        extras.setDewpointC(ConversionMethods.KtoC(Float.toString(forecast.getDewPoint())));
+        extras.setHumidity(Integer.toString(forecast.getHumidity()));
+        extras.setPop(Integer.toString(forecast.getClouds()));
+        // 1hPA = 1mbar
+        extras.setPressureMb(Float.toString(forecast.getPressure()));
+        extras.setPressureIn(ConversionMethods.mbToInHg(Float.toString(forecast.getPressure())));
+        extras.setWindDegrees(forecast.getWindDeg());
+        extras.setWindMph(Math.round(Float.parseFloat(ConversionMethods.msecToMph(Float.toString(forecast.getWindSpeed())))));
+        extras.setWindKph(Math.round(Float.parseFloat(ConversionMethods.msecToKph(Float.toString(forecast.getWindSpeed())))));
+        extras.setUvIndex(forecast.getUvi());
+        if (forecast.getVisibility() != null) {
+            extras.setVisibilityKm(forecast.getVisibility().toString());
+            extras.setVisibilityMi(ConversionMethods.kmToMi(extras.getVisibilityKm()));
+        }
+        if (forecast.getRain() != null) {
+            extras.setQpfRainMm(forecast.getRain());
+            extras.setQpfRainIn(Float.parseFloat(ConversionMethods.mmToIn(forecast.getRain().toString())));
+        }
+        if (forecast.getSnow() != null) {
+            extras.setQpfSnowCm(forecast.getSnow() / 10);
+            extras.setQpfSnowIn(Float.parseFloat(ConversionMethods.mmToIn(forecast.getSnow().toString())));
+        }
     }
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.metno.Weatherdata.Time time) {
