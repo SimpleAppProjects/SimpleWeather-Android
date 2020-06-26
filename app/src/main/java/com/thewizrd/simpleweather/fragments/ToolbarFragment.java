@@ -176,6 +176,9 @@ public abstract class ToolbarFragment extends WindowColorFragment
 
     @CallSuper
     public void updateWindowColors() {
+        if (mActivity == null)
+            return;
+
         Configuration config = getCurrentConfiguration();
         final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
 

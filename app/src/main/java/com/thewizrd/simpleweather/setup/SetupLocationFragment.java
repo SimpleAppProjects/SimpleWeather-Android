@@ -642,6 +642,9 @@ public class SetupLocationFragment extends Fragment implements Step, OnBackPress
     };
 
     private void fetchGeoLocation() {
+        if (binding == null)
+            return;
+
         binding.gpsFollow.setEnabled(false);
 
         // Show loading bar

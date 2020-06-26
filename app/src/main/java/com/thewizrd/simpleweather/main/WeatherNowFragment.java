@@ -1312,7 +1312,9 @@ public class WeatherNowFragment extends WindowColorFragment
             // Cancel pending actions
             if (cts != null) {
                 cts.cancel();
-                binding.refreshLayout.setRefreshing(false);
+                if (binding != null) {
+                    binding.refreshLayout.setRefreshing(false);
+                }
             }
 
             if (binding != null) {

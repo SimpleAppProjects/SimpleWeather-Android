@@ -205,10 +205,16 @@ public class WeatherNotificationService extends Service {
                                     .setOngoing(true);
 
                     mNotification = mBuilder.build();
-                } else if (mNotification.contentView == null) {
+                }
+
+                if (mNotification.contentView == null) {
                     mNotification.contentView = new RemoteViews(context.getPackageName(), R.layout.weather_notification_layout);
                 }
             }
+        }
+
+        if (mNotification.contentView == null) {
+            mNotification.contentView = new RemoteViews(context.getPackageName(), R.layout.weather_notification_layout);
         }
 
         return mNotification;

@@ -206,6 +206,7 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
         binding.recyclerView.post(new Runnable() {
             @Override
             public void run() {
+                if (binding == null) return;
                 binding.recyclerView.setEnabled(false);
             }
         });
