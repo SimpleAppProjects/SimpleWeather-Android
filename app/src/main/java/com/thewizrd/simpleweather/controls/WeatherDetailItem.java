@@ -86,7 +86,7 @@ public class WeatherDetailItem extends ConstraintLayout {
     private void bindModel(ForecastItemViewModel forecastView) {
         binding.forecastDate.setText(forecastView.getDate());
         binding.forecastIcon.setText(forecastView.getWeatherIcon());
-        binding.forecastCondition.setText(String.format(Locale.ROOT, "%s/ %s- %s",
+        binding.forecastCondition.setText(String.format(Locale.ROOT, "%s / %s - %s",
                 forecastView.getHiTemp(), forecastView.getLoTemp(), forecastView.getCondition()));
         binding.forecastExtra.setVisibility(GONE);
 
@@ -166,7 +166,7 @@ public class WeatherDetailItem extends ConstraintLayout {
     private void bindModel(final HourlyForecastItemViewModel forecastView) {
         binding.forecastDate.setText(forecastView.getDate());
         binding.forecastIcon.setText(forecastView.getWeatherIcon());
-        binding.forecastCondition.setText(String.format(Locale.ROOT, "%s- %s",
+        binding.forecastCondition.setText(String.format(Locale.ROOT, "%s - %s",
                 forecastView.getHiTemp(), forecastView.getCondition()));
         binding.forecastExtra.setVisibility(GONE);
 

@@ -30,17 +30,25 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
         shortDate = date;
         condition = forecast.getCondition();
         try {
-            hiTemp = (Settings.isFahrenheit() ?
-                    String.format(Locale.ROOT, "%d", Math.round(Double.parseDouble(forecast.getHighF()))) : String.format(Locale.ROOT, "%d", Math.round(Double.parseDouble(forecast.getHighC())))) + "º";
+            if (forecast.getHighF() != null && forecast.getHighC() != null) {
+                hiTemp = (Settings.isFahrenheit() ?
+                        String.format(Locale.ROOT, "%d", Math.round(Double.parseDouble(forecast.getHighF()))) : String.format(Locale.ROOT, "%d", Math.round(Double.parseDouble(forecast.getHighC())))) + "º";
+            } else {
+                hiTemp = "--";
+            }
         } catch (NumberFormatException nFe) {
-            hiTemp = "--º ";
+            hiTemp = "--";
             Logger.writeLine(Log.ERROR, nFe);
         }
         try {
-            loTemp = (Settings.isFahrenheit() ?
-                    String.format(Locale.ROOT, "%d", Math.round(Double.parseDouble(forecast.getLowF()))) : String.format(Locale.ROOT, "%d", Math.round(Double.parseDouble(forecast.getLowC())))) + "º";
+            if (forecast.getLowF() != null && forecast.getLowC() != null) {
+                loTemp = (Settings.isFahrenheit() ?
+                        String.format(Locale.ROOT, "%d", Math.round(Double.parseDouble(forecast.getLowF()))) : String.format(Locale.ROOT, "%d", Math.round(Double.parseDouble(forecast.getLowC())))) + "º";
+            } else {
+                loTemp = "--";
+            }
         } catch (NumberFormatException nFe) {
-            loTemp = "--º ";
+            loTemp = "--";
             Logger.writeLine(Log.ERROR, nFe);
         }
 
@@ -146,15 +154,13 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
                 StringBuilder sb = new StringBuilder();
 
                 TextForecast fctDay = txtForecasts[0];
-                sb.append(String.format(Locale.ROOT, "%s - %s", fctDay.getTitle(),
-                        Settings.isFahrenheit() ? fctDay.getFcttext() : fctDay.getFcttextMetric()));
+                sb.append(Settings.isFahrenheit() ? fctDay.getFcttext() : fctDay.getFcttextMetric());
 
                 if (dayAndNt) {
                     sb.append(StringUtils.lineSeparator()).append(StringUtils.lineSeparator());
 
                     TextForecast fctNt = txtForecasts[1];
-                    sb.append(String.format(Locale.ROOT, "%s - %s", fctNt.getTitle(),
-                            Settings.isFahrenheit() ? fctNt.getFcttext() : fctNt.getFcttextMetric()));
+                    sb.append(Settings.isFahrenheit() ? fctNt.getFcttext() : fctNt.getFcttextMetric());
                 }
 
                 conditionLongDesc = sb.toString();

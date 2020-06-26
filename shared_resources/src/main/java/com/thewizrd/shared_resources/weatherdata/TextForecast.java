@@ -9,32 +9,28 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
-import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Locale;
 
 public class TextForecast extends CustomJsonObject {
 
-    @SerializedName("title")
-    private String title;
+    @SerializedName("date")
+    private ZonedDateTime date;
 
     @SerializedName("fcttext")
     private String fcttext;
 
     @SerializedName("fcttext_metric")
     private String fcttextMetric;
-
-    @SerializedName("icon")
-    private String icon;
-
-    @SerializedName("pop")
-    private String pop;
 
     @RestrictTo({RestrictTo.Scope.LIBRARY})
     public TextForecast() {
@@ -44,52 +40,37 @@ public class TextForecast extends CustomJsonObject {
     public TextForecast(com.thewizrd.shared_resources.weatherdata.here.ForecastItem forecast) {
         Context context = SimpleLibrary.getInstance().getApp().getAppContext();
 
-        title = forecast.getWeekday();
-
-        String fctxt = String.format("%s %s %s: %s",
-                StringUtils.toPascalCase(forecast.getDescription()), StringUtils.toPascalCase(forecast.getBeaufortDescription()),
-                context.getString(R.string.label_humidity),
-                forecast.getHumidity() + "%");
-
-        fcttext = String.format("%s %s %sF. %s %sF. %s %s %smph",
-                fctxt,
-                context.getString(R.string.label_high),
-                Math.round(Double.parseDouble(forecast.getHighTemperature())),
-                context.getString(R.string.label_low),
-                Math.round(Double.parseDouble(forecast.getLowTemperature())),
-                context.getString(R.string.label_wind),
-                forecast.getWindDesc(), Math.round(Double.parseDouble(forecast.getWindSpeed())));
-
-        fcttextMetric = String.format("%s %s %sC. %s %sC. %s %s %skph",
-                fctxt,
-                context.getString(R.string.label_high),
-                ConversionMethods.FtoC(forecast.getHighTemperature()),
-                context.getString(R.string.label_low),
-                ConversionMethods.FtoC(forecast.getLowTemperature()),
-                context.getString(R.string.label_wind),
-                forecast.getWindDesc(), Math.round(Double.parseDouble(ConversionMethods.mphTokph(forecast.getWindSpeed()))));
-
-        icon = WeatherManager.getProvider(WeatherAPI.HERE)
-                .getWeatherIcon(String.format("%s_%s", forecast.getDaylight(), forecast.getIconName()));
-
-        pop = forecast.getPrecipitationProbability();
+        date = ZonedDateTime.parse(forecast.getUtcTime());
+        fcttext = String.format(Locale.ROOT, "%s - %s %s",
+                forecast.getWeekday(),
+                StringUtils.toPascalCase(forecast.getDescription()),
+                StringUtils.toPascalCase(forecast.getBeaufortDescription()));
+        fcttextMetric = fcttext;
     }
 
     public TextForecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem) {
-        title = forecastItem.getName();
-        fcttext = forecastItem.getDetailedForecast();
-        fcttextMetric = forecastItem.getDetailedForecast();
-        icon = WeatherManager.getProvider(WeatherAPI.NWS)
-                .getWeatherIcon(forecastItem.getIcon());
-        pop = null;
+        date = ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME);
+        fcttext = String.format(Locale.ROOT,
+                "%s - %s", forecastItem.getName(), forecastItem.getDetailedForecast());
+        fcttextMetric = fcttext;
     }
 
-    public String getTitle() {
-        return title;
+    public TextForecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem,
+                        com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem ntForecastItem) {
+        date = ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME);
+        fcttext = String.format(Locale.ROOT,
+                "%s - %s\n\n%s - %s",
+                forecastItem.getName(), forecastItem.getDetailedForecast(),
+                ntForecastItem.getName(), ntForecastItem.getDetailedForecast());
+        fcttextMetric = fcttext;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public ZonedDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(ZonedDateTime date) {
+        this.date = date;
     }
 
     public String getFcttext() {
@@ -106,22 +87,6 @@ public class TextForecast extends CustomJsonObject {
 
     public void setFcttextMetric(String fcttextMetric) {
         this.fcttextMetric = fcttextMetric;
-    }
-
-    public String getIcon() {
-        return icon;
-    }
-
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
-
-    public String getPop() {
-        return pop;
-    }
-
-    public void setPop(String pop) {
-        this.pop = pop;
     }
 
     @Override
@@ -155,8 +120,8 @@ public class TextForecast extends CustomJsonObject {
                 }
 
                 switch (property) {
-                    case "title":
-                        this.title = reader.nextString();
+                    case "date":
+                        this.date = ZonedDateTime.parse(reader.nextString(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
                         break;
                     case "fcttext":
                         this.fcttext = reader.nextString();
@@ -164,13 +129,8 @@ public class TextForecast extends CustomJsonObject {
                     case "fcttext_metric":
                         this.fcttextMetric = reader.nextString();
                         break;
-                    case "icon":
-                        this.icon = reader.nextString();
-                        break;
-                    case "pop":
-                        this.pop = reader.nextString();
-                        break;
                     default:
+                        reader.skipValue();
                         break;
                 }
             }
@@ -188,9 +148,9 @@ public class TextForecast extends CustomJsonObject {
             // {
             writer.beginObject();
 
-            // "title" : ""
-            writer.name("title");
-            writer.value(title);
+            // "date" : ""
+            writer.name("date");
+            writer.value(date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
 
             // "fcttext" : ""
             writer.name("fcttext");
@@ -199,14 +159,6 @@ public class TextForecast extends CustomJsonObject {
             // "fcttext_metric" : ""
             writer.name("fcttext_metric");
             writer.value(fcttextMetric);
-
-            // "icon" : ""
-            writer.name("icon");
-            writer.value(icon);
-
-            // "pop" : ""
-            writer.name("pop");
-            writer.value(pop);
 
             // }
             writer.endObject();

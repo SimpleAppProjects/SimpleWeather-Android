@@ -59,7 +59,7 @@ public class DetailItemViewModel {
                 break;
             case POPCHANCE:
                 this.label = context.getString(R.string.label_chance);
-                this.icon = context.getString(R.string.wi_raindrop);
+                this.icon = context.getString(R.string.wi_umbrella);
                 break;
             case POPCLOUDINESS:
                 this.label = context.getString(R.string.label_cloudiness);

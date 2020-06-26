@@ -51,7 +51,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
             hiTemp = (Settings.isFahrenheit() ?
                     String.format(Locale.getDefault(), "%d", Math.round(Double.parseDouble(hrForecast.getHighF()))) : String.format(Locale.getDefault(), "%d", Math.round(Double.parseDouble(hrForecast.getHighC())))) + "º";
         } catch (NumberFormatException nFe) {
-            hiTemp = "--º ";
+            hiTemp = "--";
             Logger.writeLine(Log.ERROR, nFe);
         }
         pop = hrForecast.getPop() + "%";

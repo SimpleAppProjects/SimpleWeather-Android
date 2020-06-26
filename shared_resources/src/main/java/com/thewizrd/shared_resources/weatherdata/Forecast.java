@@ -11,7 +11,9 @@ import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
@@ -146,6 +148,29 @@ public class Forecast extends CustomJsonObject {
             float uv_index = Float.parseFloat(forecast.getUvIndex());
             extras.setUvIndex(uv_index);
         } catch (NumberFormatException ignored) {
+        }
+    }
+
+    public Forecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem) {
+        date = ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME).toLocalDateTime();
+        if (forecastItem.getIsDaytime()) {
+            highF = Integer.toString(forecastItem.getTemperature());
+            highC = ConversionMethods.FtoC(highF);
+        } else {
+            lowF = Integer.toString(forecastItem.getTemperature());
+            lowC = ConversionMethods.FtoC(lowF);
+        }
+        condition = forecastItem.getShortForecast();
+        icon = WeatherManager.getProvider(WeatherAPI.NWS)
+                .getWeatherIcon(forecastItem.getIcon());
+
+        // Extras
+        extras = new ForecastExtras();
+        extras.setWindDegrees(WeatherUtils.getWindDirection(forecastItem.getWindDirection()));
+        Float windSpeed = NumberUtils.tryParse(StringUtils.removeNonDigitChars(forecastItem.getWindSpeed()));
+        if (windSpeed != null) {
+            extras.setWindMph(windSpeed);
+            extras.setWindKph(Float.parseFloat(ConversionMethods.mphTokph(windSpeed.toString())));
         }
     }
 

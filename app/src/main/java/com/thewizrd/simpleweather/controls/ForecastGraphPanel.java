@@ -30,6 +30,7 @@ import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
@@ -313,16 +314,36 @@ public class ForecastGraphPanel extends LinearLayout {
                 BaseForecastItemViewModel forecastItemViewModel = forecasts.get(i);
 
                 try {
-                    float hiTemp = Float.parseFloat(StringUtils.removeNonDigitChars(forecastItemViewModel.getHiTemp()));
-                    YEntryData hiTempData = new YEntryData(hiTemp, forecastItemViewModel.getHiTemp().trim());
-                    hiTempDataset.add(hiTempData);
+                    Float hiTemp = NumberUtils.tryParse(StringUtils.removeNonDigitChars(forecastItemViewModel.getHiTemp()));
+                    if (hiTemp != null) {
+                        YEntryData hiTempData = new YEntryData(hiTemp, forecastItemViewModel.getHiTemp().trim());
+                        hiTempDataset.add(hiTempData);
+                    } else if (i == 0 && i + 1 < forecasts.size()) { // For NWS, which contains bi-daily forecasts
+                        BaseForecastItemViewModel nextVM = forecasts.get(i + 1);
+                        YEntryData hiTempData = new YEntryData(Float.parseFloat(StringUtils.removeNonDigitChars(nextVM.getHiTemp())), "");
+                        hiTempDataset.add(hiTempData);
+                    } else if (i == forecasts.size() - 1) { // For NWS, which contains bi-daily forecasts
+                        BaseForecastItemViewModel prevVM = forecasts.get(i - 1);
+                        YEntryData hiTempData = new YEntryData(Float.parseFloat(StringUtils.removeNonDigitChars(prevVM.getHiTemp())), "");
+                        hiTempDataset.add(hiTempData);
+                    }
 
                     if (loTempDataset != null && forecastItemViewModel instanceof ForecastItemViewModel) {
                         ForecastItemViewModel fVM = (ForecastItemViewModel) forecastItemViewModel;
 
-                        float loTemp = Float.parseFloat(StringUtils.removeNonDigitChars(fVM.getLoTemp()));
-                        YEntryData loTempData = new YEntryData(loTemp, fVM.getLoTemp().trim());
-                        loTempDataset.add(loTempData);
+                        Float loTemp = NumberUtils.tryParse(StringUtils.removeNonDigitChars(fVM.getLoTemp()));
+                        if (loTemp != null) {
+                            YEntryData loTempData = new YEntryData(loTemp, fVM.getLoTemp().trim());
+                            loTempDataset.add(loTempData);
+                        } else if (i == 0 && i + 1 < forecasts.size()) { // For NWS, which contains bi-daily forecasts
+                            ForecastItemViewModel nextVM = (ForecastItemViewModel) forecasts.get(i + 1);
+                            YEntryData loTempData = new YEntryData(Float.parseFloat(StringUtils.removeNonDigitChars(nextVM.getLoTemp())), "");
+                            loTempDataset.add(loTempData);
+                        } else if (i == forecasts.size() - 1) { // For NWS, which contains bi-daily forecasts
+                            ForecastItemViewModel prevVM = (ForecastItemViewModel) forecasts.get(i - 1);
+                            YEntryData loTempData = new YEntryData(Float.parseFloat(StringUtils.removeNonDigitChars(prevVM.getLoTemp())), "");
+                            loTempDataset.add(loTempData);
+                        }
                     }
 
                     XLabelData xLabelData = new XLabelData(forecastItemViewModel.getDate(), forecastItemViewModel.getWeatherIcon(), 0);

@@ -379,9 +379,9 @@ public class Weather extends CustomJsonObject {
         updateTime = now;
         forecast = new ArrayList<>(root.getDailyForecasts().getForecastLocation().getForecast().size());
         txtForecast = new ArrayList<>(root.getDailyForecasts().getForecastLocation().getForecast().size());
-        for (int i = 0; i < root.getDailyForecasts().getForecastLocation().getForecast().size(); i++) {
-            forecast.add(new Forecast(root.getDailyForecasts().getForecastLocation().getForecast().get(i)));
-            txtForecast.add(new TextForecast(root.getDailyForecasts().getForecastLocation().getForecast().get(i)));
+        for (com.thewizrd.shared_resources.weatherdata.here.ForecastItem fcast : root.getDailyForecasts().getForecastLocation().getForecast()) {
+            forecast.add(new Forecast(fcast));
+            txtForecast.add(new TextForecast(fcast));
         }
         hrForecast = new ArrayList<>(root.getHourlyForecasts().getForecastLocation().getForecast().size());
         for (com.thewizrd.shared_resources.weatherdata.here.ForecastItem1 forecast1 : root.getHourlyForecasts().getForecastLocation().getForecast()) {
@@ -390,11 +390,14 @@ public class Weather extends CustomJsonObject {
 
             hrForecast.add(new HourlyForecast(forecast1));
         }
-        condition = new Condition(root.getObservations().getLocation().get(0).getObservation().get(0),
-                root.getDailyForecasts().getForecastLocation().getForecast().get(0));
-        atmosphere = new Atmosphere(root.getObservations().getLocation().get(0).getObservation().get(0));
+
+        com.thewizrd.shared_resources.weatherdata.here.ObservationItem observation = root.getObservations().getLocation().get(0).getObservation().get(0);
+        com.thewizrd.shared_resources.weatherdata.here.ForecastItem todaysForecast = root.getDailyForecasts().getForecastLocation().getForecast().get(0);
+
+        condition = new Condition(observation, todaysForecast);
+        atmosphere = new Atmosphere(observation);
         astronomy = new Astronomy(root.getAstronomy().getAstronomy());
-        precipitation = new Precipitation(root.getDailyForecasts().getForecastLocation().getForecast().get(0));
+        precipitation = new Precipitation(todaysForecast);
         ttl = "180";
 
         source = WeatherAPI.HERE;
@@ -449,15 +452,14 @@ public class Weather extends CustomJsonObject {
         for (int i = 0; i < forecastResponse.getPeriods().size(); i++) {
             com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem = forecastResponse.getPeriods().get(i);
 
-            if (forecast.isEmpty() && !forecastItem.getIsDaytime())
-                continue;
-
-            if (forecastItem.getIsDaytime() && (i + 1) < forecastResponse.getPeriods().size()) {
+            if ((forecast.isEmpty() && !forecastItem.getIsDaytime()) ||
+                    (forecast.size() == forecastResponse.getPeriods().size() - 1 && forecastItem.getIsDaytime())) {
+                forecast.add(new Forecast(forecastItem));
+                txtForecast.add(new TextForecast(forecastItem));
+            } else if (forecastItem.getIsDaytime() && (i + 1) < forecastResponse.getPeriods().size()) {
                 com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem nightForecastItem = forecastResponse.getPeriods().get(i + 1);
                 forecast.add(new Forecast(forecastItem, nightForecastItem));
-
-                txtForecast.add(new TextForecast(forecastItem));
-                txtForecast.add(new TextForecast(nightForecastItem));
+                txtForecast.add(new TextForecast(forecastItem, nightForecastItem));
 
                 i++;
             }

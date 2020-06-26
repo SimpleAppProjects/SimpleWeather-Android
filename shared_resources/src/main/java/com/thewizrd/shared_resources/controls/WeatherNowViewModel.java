@@ -288,36 +288,51 @@ public class WeatherNowViewModel extends ObservableViewModel {
             notifyPropertyChanged(BR.weatherIcon);
         }
 
-        String newHiTemp = (Settings.isFahrenheit() ? Math.round(weather.getCondition().getHighF()) : Math.round(weather.getCondition().getHighC())) + "°";
-        String newLoTemp = (Settings.isFahrenheit() ? Math.round(weather.getCondition().getLowF()) : Math.round(weather.getCondition().getLowC())) + "°";
-        if (!ObjectsCompat.equals(hiTemp, newHiTemp) && !ObjectsCompat.equals(loTemp, newLoTemp)) {
-            if (weather.getCondition().getHighF() != weather.getCondition().getHighC() && weather.getCondition().getLowF() != weather.getCondition().getLowC()) {
-                SpannableStringBuilder hiLoTempBuilder = new SpannableStringBuilder();
-
-                hiLoTempBuilder.append(newHiTemp)
-                        .append(' ');
-
-                int firstIdx = hiLoTempBuilder.length();
-
-                hiLoTempBuilder.append("\uf058")
-                        .append(" | ")
-                        .append(newLoTemp)
-                        .append(' ')
-                        .append("\uf044");
-
-                hiLoTempBuilder.setSpan(new WeatherIconTextSpan(context), firstIdx, firstIdx + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                hiLoTempBuilder.setSpan(new WeatherIconTextSpan(context), hiLoTempBuilder.length() - 1, hiLoTempBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-                hiTemp = newHiTemp;
-                loTemp = newLoTemp;
-                hiLoTemp = hiLoTempBuilder;
-            } else {
-                hiTemp = null;
-                loTemp = null;
-                hiLoTemp = null;
+        boolean hiTempChanged = false, loTempChanged = false;
+        {
+            String newHiTemp = (Settings.isFahrenheit() ? Math.round(weather.getCondition().getHighF()) : Math.round(weather.getCondition().getHighC())) + "°";
+            String newLoTemp = (Settings.isFahrenheit() ? Math.round(weather.getCondition().getLowF()) : Math.round(weather.getCondition().getLowC())) + "°";
+            if (!ObjectsCompat.equals(hiTemp, newHiTemp)) {
+                if (weather.getCondition().getHighF() != weather.getCondition().getHighC()) {
+                    hiTemp = newHiTemp;
+                } else {
+                    hiTemp = null;
+                }
+                notifyPropertyChanged(BR.hiTemp);
+                hiTempChanged = true;
             }
-            notifyPropertyChanged(BR.hiTemp);
-            notifyPropertyChanged(BR.loTemp);
+            if (!ObjectsCompat.equals(loTemp, newLoTemp)) {
+                if (weather.getCondition().getLowF() != weather.getCondition().getLowC()) {
+                    loTemp = newLoTemp;
+                } else {
+                    loTemp = null;
+                }
+                notifyPropertyChanged(BR.loTemp);
+                loTempChanged = true;
+            }
+        }
+
+        if ((hiTemp != null || loTemp != null) && (hiTempChanged || loTempChanged)) {
+            SpannableStringBuilder hiLoTempBuilder = new SpannableStringBuilder();
+
+            hiLoTempBuilder.append(hiTemp != null ? hiTemp : "--")
+                    .append(' ');
+
+            int firstIdx = hiLoTempBuilder.length();
+
+            hiLoTempBuilder.append("\uf058")
+                    .append(" | ")
+                    .append(loTemp != null ? loTemp : "--")
+                    .append(' ')
+                    .append("\uf044");
+
+            hiLoTempBuilder.setSpan(new WeatherIconTextSpan(context), firstIdx, firstIdx + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            hiLoTempBuilder.setSpan(new WeatherIconTextSpan(context), hiLoTempBuilder.length() - 1, hiLoTempBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            hiLoTemp = hiLoTempBuilder;
+            notifyPropertyChanged(BR.hiLoTemp);
+        } else if (hiTemp == null && loTemp == null) {
+            hiLoTemp = null;
             notifyPropertyChanged(BR.hiLoTemp);
         }
 
