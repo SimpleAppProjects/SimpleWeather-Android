@@ -11,6 +11,7 @@ import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.ImageDataViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.weatherdata.Beaufort;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertSeverity;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertType;
@@ -25,6 +26,8 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Locale;
 
 public class WeatherUtils {
@@ -799,6 +802,68 @@ public class WeatherUtils {
         }
 
         return rgb;
+    }
+
+    public static Beaufort.BeaufortScale getBeaufortScale(int mph) {
+        if (mph >= 1 && mph <= 3) {
+            return Beaufort.BeaufortScale.B1;
+        } else if (mph >= 4 && mph <= 7) {
+            return Beaufort.BeaufortScale.B2;
+        } else if (mph >= 8 && mph <= 12) {
+            return Beaufort.BeaufortScale.B3;
+        } else if (mph >= 13 && mph <= 18) {
+            return Beaufort.BeaufortScale.B4;
+        } else if (mph >= 19 && mph <= 24) {
+            return Beaufort.BeaufortScale.B5;
+        } else if (mph >= 25 && mph <= 31) {
+            return Beaufort.BeaufortScale.B6;
+        } else if (mph >= 32 && mph <= 38) {
+            return Beaufort.BeaufortScale.B7;
+        } else if (mph >= 39 && mph <= 46) {
+            return Beaufort.BeaufortScale.B8;
+        } else if (mph >= 47 && mph <= 54) {
+            return Beaufort.BeaufortScale.B9;
+        } else if (mph >= 55 && mph <= 63) {
+            return Beaufort.BeaufortScale.B10;
+        } else if (mph >= 64 && mph <= 72) {
+            return Beaufort.BeaufortScale.B11;
+        } else if (mph >= 73) {
+            return Beaufort.BeaufortScale.B12;
+        } else {
+            return Beaufort.BeaufortScale.B0;
+        }
+    }
+
+    public static Beaufort.BeaufortScale getBeaufortScale(float mps) {
+        mps = new BigDecimal(mps).setScale(1, RoundingMode.HALF_UP).floatValue();
+
+        if (mps >= 0.5f && mps <= 1.5f) {
+            return Beaufort.BeaufortScale.B1;
+        } else if (mps >= 1.6f && mps <= 3.3f) {
+            return Beaufort.BeaufortScale.B2;
+        } else if (mps >= 3.4f && mps <= 5.5f) {
+            return Beaufort.BeaufortScale.B3;
+        } else if (mps >= 5.5f && mps <= 7.9f) {
+            return Beaufort.BeaufortScale.B4;
+        } else if (mps >= 8f && mps <= 10.7f) {
+            return Beaufort.BeaufortScale.B5;
+        } else if (mps >= 10.8f && mps <= 13.8f) {
+            return Beaufort.BeaufortScale.B6;
+        } else if (mps >= 13.9f && mps <= 17.1f) {
+            return Beaufort.BeaufortScale.B7;
+        } else if (mps >= 17.2f && mps <= 20.7f) {
+            return Beaufort.BeaufortScale.B8;
+        } else if (mps >= 20.8f && mps <= 24.4f) {
+            return Beaufort.BeaufortScale.B9;
+        } else if (mps >= 24.5 && mps <= 28.4f) {
+            return Beaufort.BeaufortScale.B10;
+        } else if (mps >= 28.5f && mps <= 32.6f) {
+            return Beaufort.BeaufortScale.B11;
+        } else if (mps >= 32.7f) {
+            return Beaufort.BeaufortScale.B12;
+        } else {
+            return Beaufort.BeaufortScale.B0;
+        }
     }
 
     public static class Coordinate {

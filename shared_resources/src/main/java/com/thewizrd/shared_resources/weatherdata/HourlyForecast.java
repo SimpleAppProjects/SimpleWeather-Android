@@ -4,6 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 
+import com.google.common.collect.Iterables;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -12,6 +13,7 @@ import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
@@ -22,6 +24,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Arrays;
 
 public class HourlyForecast extends CustomJsonObject {
 
@@ -207,6 +210,13 @@ public class HourlyForecast extends CustomJsonObject {
             extras.setDewpointF(null);
             extras.setDewpointC(null);
         }
+        try {
+            extras.setVisibilityMi(hr_forecast.getVisibility());
+            extras.setVisibilityKm(ConversionMethods.miToKm(hr_forecast.getVisibility()));
+        } catch (NumberFormatException ignored) {
+            extras.setVisibilityMi(null);
+            extras.setVisibilityKm(null);
+        }
         extras.setPop(pop);
         try {
             float rain_in = Float.parseFloat(hr_forecast.getRainFall());
@@ -234,16 +244,29 @@ public class HourlyForecast extends CustomJsonObject {
         condition = forecastItem.getShortForecast();
         icon = WeatherManager.getProvider(WeatherAPI.NWS)
                 .getWeatherIcon(forecastItem.getIcon());
-        windMph = Float.parseFloat(StringUtils.removeNonDigitChars(forecastItem.getWindSpeed()));
-        windKph = Float.parseFloat(ConversionMethods.mphTokph(Float.toString(windMph)));
         pop = null;
-        windDegrees = WeatherUtils.getWindDirection(forecastItem.getWindDirection());
 
-        // Extras
-        extras = new ForecastExtras();
-        extras.setWindDegrees(windDegrees);
-        extras.setWindMph(windMph);
-        extras.setWindKph(windKph);
+        if (forecastItem.getWindSpeed() != null && forecastItem.getWindDirection() != null) {
+            windDegrees = WeatherUtils.getWindDirection(forecastItem.getWindDirection());
+
+            // windSpeed is reported usually as, for ex., '7 to 10 mph'
+            // Format and split text into min and max
+            String[] speeds = forecastItem.getWindSpeed().replace(" mph", "").split(" to ");
+            String maxWindSpeed = Iterables.getLast(Arrays.asList(speeds), null);
+            if (!StringUtils.isNullOrWhitespace(maxWindSpeed)) {
+                Integer windSpeed = NumberUtils.tryParseInt(maxWindSpeed);
+                if (windSpeed != null) {
+                    windMph = windSpeed;
+                    windKph = Float.parseFloat(ConversionMethods.mphTokph(maxWindSpeed));
+
+                    // Extras
+                    extras = new ForecastExtras();
+                    extras.setWindDegrees(this.windDegrees);
+                    extras.setWindMph(this.windMph);
+                    extras.setWindKph(this.windKph);
+                }
+            }
+        }
     }
 
     public ZonedDateTime getDate() {

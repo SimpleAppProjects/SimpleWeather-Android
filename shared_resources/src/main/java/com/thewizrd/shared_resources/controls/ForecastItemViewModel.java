@@ -61,7 +61,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
                                 String.format(Locale.getDefault(), "%dº", Math.round(forecast.getExtras().getFeelslikeC()))));
             }
 
-            String chance = pop = forecast.getExtras().getPop() + "%";
+            String chance = pop = (forecast.getExtras().getPop() != null ? forecast.getExtras().getPop() : "") + "%";
             String qpfRain = Settings.isFahrenheit() ?
                     String.format(Locale.getDefault(), "%.2f in", forecast.getExtras().getQpfRainIn()) :
                     String.format(Locale.getDefault(), "%.2f mm", forecast.getExtras().getQpfRainMm());

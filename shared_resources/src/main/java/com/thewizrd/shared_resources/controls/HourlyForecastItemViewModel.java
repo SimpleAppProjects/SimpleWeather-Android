@@ -54,7 +54,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
             hiTemp = "--";
             Logger.writeLine(Log.ERROR, nFe);
         }
-        pop = hrForecast.getPop() + "%";
+        pop = (hrForecast.getPop() != null ? hrForecast.getPop() : "") + "%";
         windDirection = hrForecast.getWindDegrees();
         windDir = WeatherUtils.getWindDirection(hrForecast.getWindDegrees());
         try {

@@ -148,7 +148,7 @@ public class Weather extends CustomJsonObject {
                 condition.setWindKph(hrf.getWindKph());
                 condition.setWindDegrees(hrf.getWindDegrees());
 
-                condition.setBeaufort(null);
+                condition.setBeaufort(new Beaufort(WeatherUtils.getBeaufortScale(Math.round(hrf.getWindMph())).getValue()));
                 condition.setFeelslikeF(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeF() : 0.0);
                 condition.setFeelslikeC(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeC() : 0.0);
                 condition.setUv(null);
@@ -256,10 +256,6 @@ public class Weather extends CustomJsonObject {
 
         query = String.format("lat=%s&lon=%s", location.getLatitude(), location.getLongitude());
 
-        // Set feelslike temp
-        condition.setFeelslikeF(Float.parseFloat(WeatherUtils.getFeelsLikeTemp(Double.toString(condition.getTempF()), Double.toString(condition.getWindMph()), atmosphere.getHumidity())));
-        condition.setFeelslikeC(Float.parseFloat(ConversionMethods.FtoC(Double.toString(condition.getFeelslikeF()))));
-
         if (condition.getHighF() == condition.getHighC() && forecast.size() > 0) {
             condition.setHighF(Float.parseFloat(forecast.get(0).getHighF()));
             condition.setHighC(Float.parseFloat(forecast.get(0).getHighC()));
@@ -286,7 +282,7 @@ public class Weather extends CustomJsonObject {
                 condition.setWindKph(hrf.getWindKph());
                 condition.setWindDegrees(hrf.getWindDegrees());
 
-                condition.setBeaufort(null);
+                condition.setBeaufort(new Beaufort(WeatherUtils.getBeaufortScale(Math.round(hrf.getWindMph())).getValue()));
                 condition.setFeelslikeF(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeF() : 0.0);
                 condition.setFeelslikeC(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeC() : 0.0);
                 condition.setUv(hrf.getExtras() != null && hrf.getExtras().getUvIndex() >= 0 ? new UV(hrf.getExtras().getUvIndex()) : null);
@@ -354,7 +350,7 @@ public class Weather extends CustomJsonObject {
                 condition.setWindKph(hrf.getWindKph());
                 condition.setWindDegrees(hrf.getWindDegrees());
 
-                condition.setBeaufort(null);
+                condition.setBeaufort(new Beaufort(WeatherUtils.getBeaufortScale(Math.round(hrf.getWindMph())).getValue()));
                 condition.setFeelslikeF(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeF() : 0.0);
                 condition.setFeelslikeC(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeC() : 0.0);
                 condition.setUv(null);
@@ -449,6 +445,8 @@ public class Weather extends CustomJsonObject {
                 condition.setWindMph(hrf.getWindMph());
                 condition.setWindKph(hrf.getWindKph());
                 condition.setWindDegrees(hrf.getWindDegrees());
+
+                condition.setBeaufort(new Beaufort(WeatherUtils.getBeaufortScale(Math.round(hrf.getWindMph())).getValue()));
             }
         }
     }

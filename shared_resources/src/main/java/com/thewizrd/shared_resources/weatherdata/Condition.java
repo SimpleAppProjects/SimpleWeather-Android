@@ -91,6 +91,8 @@ public class Condition extends CustomJsonObject {
         feelslikeC = Float.parseFloat(ConversionMethods.FtoC(observation.getWind().getChill()));
         icon = WeatherManager.getProvider(WeatherAPI.YAHOO)
                 .getWeatherIcon(observation.getCondition().getCode());
+
+        beaufort = new Beaufort(WeatherUtils.getBeaufortScale((int) Math.round(windMph)).getValue());
     }
 
     public Condition(com.thewizrd.shared_resources.weatherdata.openweather.Current current) {
@@ -117,6 +119,7 @@ public class Condition extends CustomJsonObject {
                 .getWeatherIcon(current.getWeather().get(0).getId() + dn);
 
         uv = new UV(current.getUvi());
+        beaufort = new Beaufort(WeatherUtils.getBeaufortScale(current.getWindSpeed()).getValue());
 
         observationTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(current.getDt()), ZoneOffset.UTC);
     }
@@ -128,9 +131,8 @@ public class Condition extends CustomJsonObject {
         windDegrees = Math.round(time.getData().getInstant().getDetails().getWindFromDirection());
         windMph = (float) Math.round(Double.parseDouble(ConversionMethods.msecToMph(time.getData().getInstant().getDetails().getWindSpeed().toString())));
         windKph = (float) Math.round(Double.parseDouble(ConversionMethods.msecToKph(time.getData().getInstant().getDetails().getWindSpeed().toString())));
-        // This will be calculated after with formula
-        feelslikeF = tempF;
-        feelslikeC = tempC;
+        feelslikeF = Float.parseFloat(WeatherUtils.getFeelsLikeTemp(Double.toString(tempF), Double.toString(windMph), time.getData().getInstant().getDetails().getRelativeHumidity().toString()));
+        feelslikeC = Float.parseFloat(ConversionMethods.FtoC(Double.toString(feelslikeF)));
 
         if (time.getData().getNext12Hours() != null) {
             icon = time.getData().getNext12Hours().getSummary().getSymbolCode();
@@ -138,6 +140,11 @@ public class Condition extends CustomJsonObject {
             icon = time.getData().getNext6Hours().getSummary().getSymbolCode();
         } else if (time.getData().getNext1Hours() != null) {
             icon = time.getData().getNext1Hours().getSummary().getSymbolCode();
+        }
+
+        beaufort = new Beaufort(WeatherUtils.getBeaufortScale(time.getData().getInstant().getDetails().getWindSpeed()).getValue());
+        if (time.getData().getInstant().getDetails().getUltravioletIndexClearSky() != null) {
+            uv = new UV(time.getData().getInstant().getDetails().getUltravioletIndexClearSky());
         }
     }
 
@@ -267,6 +274,8 @@ public class Condition extends CustomJsonObject {
         }
         icon = WeatherManager.getProvider(WeatherAPI.NWS)
                 .getWeatherIcon(obsCurrentResponse.getIcon());
+
+        beaufort = new Beaufort(WeatherUtils.getBeaufortScale((int) Math.round(windMph)).getValue());
 
         observationTime = ZonedDateTime.parse(obsCurrentResponse.getTimestamp());
     }

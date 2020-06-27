@@ -4,6 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 
+import com.google.common.collect.Iterables;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -11,7 +12,9 @@ import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
@@ -21,6 +24,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Arrays;
 
 public class Forecast extends CustomJsonObject {
 
@@ -195,6 +199,20 @@ public class Forecast extends CustomJsonObject {
         condition = forecastItem.getShortForecast();
         icon = WeatherManager.getProvider(WeatherAPI.NWS)
                 .getWeatherIcon(forecastItem.getIcon());
+
+        if (forecastItem.getWindSpeed() != null && forecastItem.getWindDirection() != null) {
+            String[] speeds = forecastItem.getWindSpeed().replace(" mph", "").split(" to ");
+            String maxWindSpeed = Iterables.getLast(Arrays.asList(speeds), null);
+            if (!StringUtils.isNullOrWhitespace(maxWindSpeed)) {
+                Integer windSpeed = NumberUtils.tryParseInt(maxWindSpeed);
+                if (windSpeed != null) {
+                    extras = new ForecastExtras();
+                    extras.setWindDegrees(WeatherUtils.getWindDirection(forecastItem.getWindDirection()));
+                    extras.setWindMph(windSpeed);
+                    extras.setWindKph(Float.parseFloat(ConversionMethods.mphTokph(maxWindSpeed)));
+                }
+            }
+        }
     }
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem, com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem nightForecastItem) {
@@ -206,6 +224,23 @@ public class Forecast extends CustomJsonObject {
         condition = forecastItem.getShortForecast();
         icon = WeatherManager.getProvider(WeatherAPI.NWS)
                 .getWeatherIcon(forecastItem.getIcon());
+
+        if (forecastItem.getWindSpeed() != null && forecastItem.getWindDirection() != null) {
+            // windSpeed is reported usually as, for ex., '7 to 10 mph'
+            // Format and split text into min and max
+            String[] speeds = forecastItem.getWindSpeed().replace(" mph", "").split(" to ");
+            String maxWindSpeed = Iterables.getLast(Arrays.asList(speeds), null);
+            if (!StringUtils.isNullOrWhitespace(maxWindSpeed)) {
+                Integer windSpeed = NumberUtils.tryParseInt(maxWindSpeed);
+                if (windSpeed != null) {
+                    // Extras
+                    extras = new ForecastExtras();
+                    extras.setWindDegrees(WeatherUtils.getWindDirection(forecastItem.getWindDirection()));
+                    extras.setWindMph(windSpeed);
+                    extras.setWindKph(Float.parseFloat(ConversionMethods.mphTokph(maxWindSpeed)));
+                }
+            }
+        }
     }
 
     public LocalDateTime getDate() {

@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources.weatherdata;
 
 import android.content.Context;
 import android.util.Log;
+import android.util.SparseArray;
 
 import androidx.annotation.RestrictTo;
 
@@ -21,51 +22,40 @@ import java.io.StringReader;
 public class Beaufort extends CustomJsonObject {
 
     public enum BeaufortScale {
-        B0,
-        B1,
-        B2,
-        B3,
-        B4,
-        B5,
-        B6,
-        B7,
-        B8,
-        B9,
-        B10,
-        B11,
-        B12;
+        B0(0),
+        B1(1),
+        B2(2),
+        B3(3),
+        B4(4),
+        B5(5),
+        B6(6),
+        B7(7),
+        B8(8),
+        B9(9),
+        B10(10),
+        B11(11),
+        B12(12);
+
+        private final int value;
+
+        public int getValue() {
+            return value;
+        }
+
+        private BeaufortScale(int value) {
+            this.value = value;
+        }
+
+        private static SparseArray<BeaufortScale> map = new SparseArray<>();
+
+        static {
+            for (BeaufortScale scale : values()) {
+                map.put(scale.value, scale);
+            }
+        }
 
         public static BeaufortScale valueOf(int value) {
-            switch (value) {
-                case 0:
-                    return BeaufortScale.B0;
-                case 1:
-                    return BeaufortScale.B1;
-                case 2:
-                    return BeaufortScale.B2;
-                case 3:
-                    return BeaufortScale.B3;
-                case 4:
-                    return BeaufortScale.B4;
-                case 5:
-                    return BeaufortScale.B5;
-                case 6:
-                    return BeaufortScale.B6;
-                case 7:
-                    return BeaufortScale.B7;
-                case 8:
-                    return BeaufortScale.B8;
-                case 9:
-                    return BeaufortScale.B9;
-                case 10:
-                    return BeaufortScale.B10;
-                case 11:
-                    return BeaufortScale.B11;
-                case 12:
-                    return BeaufortScale.B12;
-                default:
-                    return null;
-            }
+            return map.get(value);
         }
     }
 
