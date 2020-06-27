@@ -10,7 +10,7 @@ public class PeriodsItem {
     private String detailedForecast;
 
     @SerializedName("temperatureTrend")
-    private Object temperatureTrend;
+    private String temperatureTrend;
 
     @SerializedName("shortForecast")
     private String shortForecast;
@@ -53,11 +53,11 @@ public class PeriodsItem {
         return detailedForecast;
     }
 
-    public void setTemperatureTrend(Object temperatureTrend) {
+    public void setTemperatureTrend(String temperatureTrend) {
         this.temperatureTrend = temperatureTrend;
     }
 
-    public Object getTemperatureTrend() {
+    public String getTemperatureTrend() {
         return temperatureTrend;
     }
 

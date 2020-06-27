@@ -472,7 +472,7 @@ public class Weather extends CustomJsonObject {
         condition = new Condition(obsCurrentResponse);
         atmosphere = new Atmosphere(obsCurrentResponse);
         //astronomy = new Astronomy(obsCurrentResponse);
-        //precipitation = new Precipitation(obsCurrentResponse);
+        precipitation = new Precipitation(obsCurrentResponse);
         ttl = "180";
 
         if (condition.getHighF() == condition.getHighC() && forecast.size() > 0) {

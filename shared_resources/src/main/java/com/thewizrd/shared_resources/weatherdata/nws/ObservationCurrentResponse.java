@@ -18,8 +18,8 @@ public class ObservationCurrentResponse {
     @SerializedName("icon")
     private String icon;
 
-    //@SerializedName("heatIndex")
-    //private HeatIndex heatIndex;
+    @SerializedName("heatIndex")
+    private HeatIndex heatIndex;
 
     //@SerializedName("minTemperatureLast24Hours")
     //private MinTemperatureLast24Hours minTemperatureLast24Hours;
@@ -30,8 +30,8 @@ public class ObservationCurrentResponse {
     @SerializedName("temperature")
     private Temperature temperature;
 
-    //@SerializedName("precipitationLastHour")
-    //private PrecipitationLastHour precipitationLastHour;
+    @SerializedName("precipitationLastHour")
+    private PrecipitationLastHour precipitationLastHour;
 
     //@SerializedName("@id")
     //private String id;
@@ -45,8 +45,8 @@ public class ObservationCurrentResponse {
     @SerializedName("timestamp")
     private String timestamp;
 
-    //@SerializedName("windChill")
-    //private WindChill windChill;
+    @SerializedName("windChill")
+    private WindChill windChill;
 
     @SerializedName("visibility")
     private Visibility visibility;
@@ -54,11 +54,11 @@ public class ObservationCurrentResponse {
     //@SerializedName("maxTemperatureLast24Hours")
     //private MaxTemperatureLast24Hours maxTemperatureLast24Hours;
 
-    //@SerializedName("precipitationLast6Hours")
-    //private PrecipitationLast6Hours precipitationLast6Hours;
+    @SerializedName("precipitationLast6Hours")
+    private PrecipitationLast6Hours precipitationLast6Hours;
 
-    //@SerializedName("precipitationLast3Hours")
-    //private PrecipitationLast3Hours precipitationLast3Hours;
+    @SerializedName("precipitationLast3Hours")
+    private PrecipitationLast3Hours precipitationLast3Hours;
 
     @SerializedName("barometricPressure")
     private BarometricPressure barometricPressure;
@@ -106,7 +106,6 @@ public class ObservationCurrentResponse {
         return icon;
     }
 
-    /*
     public void setHeatIndex(HeatIndex heatIndex) {
         this.heatIndex = heatIndex;
     }
@@ -115,6 +114,7 @@ public class ObservationCurrentResponse {
         return heatIndex;
     }
 
+    /*
     public void setMinTemperatureLast24Hours(MinTemperatureLast24Hours minTemperatureLast24Hours) {
         this.minTemperatureLast24Hours = minTemperatureLast24Hours;
     }
@@ -140,7 +140,6 @@ public class ObservationCurrentResponse {
         return temperature;
     }
 
-    /*
     public void setPrecipitationLastHour(PrecipitationLastHour precipitationLastHour) {
         this.precipitationLastHour = precipitationLastHour;
     }
@@ -149,6 +148,7 @@ public class ObservationCurrentResponse {
         return precipitationLastHour;
     }
 
+    /*
     public void setId(String id) {
         this.id = id;
     }
@@ -182,7 +182,6 @@ public class ObservationCurrentResponse {
         return timestamp;
     }
 
-    /*
     public void setWindChill(WindChill windChill) {
         this.windChill = windChill;
     }
@@ -190,7 +189,6 @@ public class ObservationCurrentResponse {
     public WindChill getWindChill() {
         return windChill;
     }
-    */
 
     public void setVisibility(Visibility visibility) {
         this.visibility = visibility;
@@ -208,6 +206,7 @@ public class ObservationCurrentResponse {
     public MaxTemperatureLast24Hours getMaxTemperatureLast24Hours() {
         return maxTemperatureLast24Hours;
     }
+    */
 
     public void setPrecipitationLast6Hours(PrecipitationLast6Hours precipitationLast6Hours) {
         this.precipitationLast6Hours = precipitationLast6Hours;
@@ -224,7 +223,6 @@ public class ObservationCurrentResponse {
     public PrecipitationLast3Hours getPrecipitationLast3Hours() {
         return precipitationLast3Hours;
     }
-    */
 
     public void setBarometricPressure(BarometricPressure barometricPressure) {
         this.barometricPressure = barometricPressure;

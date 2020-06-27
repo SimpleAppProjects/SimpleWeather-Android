@@ -351,9 +351,13 @@ public class WeatherNowViewModel extends ObservableViewModel {
             if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, chance));
+                if (!StringUtils.isNullOrWhitespace(weather.getPrecipitation().getPop())) {
+                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, chance));
+                }
             } else {
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, chance));
+                if (!StringUtils.isNullOrWhitespace(weather.getPrecipitation().getPop())) {
+                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, chance));
+                }
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
             }

@@ -222,32 +222,36 @@ public class Condition extends CustomJsonObject {
 
     public Condition(com.thewizrd.shared_resources.weatherdata.nws.ObservationCurrentResponse obsCurrentResponse) {
         weather = obsCurrentResponse.getTextDescription();
-        try {
+        if (obsCurrentResponse.getTemperature().getValue() != null) {
             tempC = obsCurrentResponse.getTemperature().getValue();
-            tempF = Double.parseDouble(ConversionMethods.CtoF(Double.toString(tempC)));
-        } catch (NullPointerException | NumberFormatException ex) {
-            tempF = 0.00f;
+            tempF = Float.parseFloat(ConversionMethods.CtoF(Double.toString(tempC)));
+        } else {
             tempC = 0.00f;
+            tempF = 0.00f;
         }
-        try {
+        if (obsCurrentResponse.getWindDirection().getValue() != null) {
             windDegrees = obsCurrentResponse.getWindDirection().getValue().intValue();
-        } catch (NullPointerException | NumberFormatException ex) {
+        } else {
             windDegrees = 0;
         }
-        try {
-            windMph = Double.parseDouble(ConversionMethods.msecToMph(Float.toString(obsCurrentResponse.getWindSpeed().getValue())));
-            windKph = Double.parseDouble(ConversionMethods.msecToKph(Float.toString(obsCurrentResponse.getWindSpeed().getValue())));
-        } catch (NullPointerException | NumberFormatException ex) {
+
+        if (obsCurrentResponse.getWindSpeed().getValue() != null) {
+            windKph = obsCurrentResponse.getWindSpeed().getValue();
+            windMph = Float.parseFloat(ConversionMethods.kphTomph(Double.toString(windKph)));
+        } else {
             windMph = -1.0f;
             windKph = -1.0f;
         }
-        float humidity;
-        try {
-            humidity = obsCurrentResponse.getRelativeHumidity().getValue();
-        } catch (NullPointerException | NumberFormatException ex) {
-            humidity = -1.0f;
-        }
-        if (tempF != tempC) {
+
+        if (obsCurrentResponse.getHeatIndex().getValue() != null) {
+            feelslikeC = obsCurrentResponse.getHeatIndex().getValue();
+            feelslikeF = Float.parseFloat(ConversionMethods.CtoF(Double.toString(feelslikeC)));
+        } else if (obsCurrentResponse.getWindChill().getValue() != null) {
+            feelslikeC = obsCurrentResponse.getWindChill().getValue();
+            feelslikeF = Float.parseFloat(ConversionMethods.CtoF(Double.toString(feelslikeC)));
+        } else if (tempF != tempC) {
+            float humidity = obsCurrentResponse.getRelativeHumidity().getValue() != null ?
+                    obsCurrentResponse.getRelativeHumidity().getValue() : -1.0f;
             feelslikeF = Double.parseDouble(WeatherUtils.getFeelsLikeTemp(Double.toString(tempF),
                     Double.toString(windMph), Float.toString(humidity)));
             feelslikeC = Double.parseDouble(ConversionMethods.FtoC(Double.toString(feelslikeF)));

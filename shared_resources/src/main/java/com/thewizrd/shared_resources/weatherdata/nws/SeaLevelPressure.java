@@ -12,7 +12,7 @@ public class SeaLevelPressure {
     private String qualityControl;
 
     @SerializedName("value")
-    private Object value;
+    private Float value;
 
     public void setUnitCode(String unitCode) {
         this.unitCode = unitCode;
@@ -30,11 +30,11 @@ public class SeaLevelPressure {
         return qualityControl;
     }
 
-    public void setValue(Object value) {
+    public void setValue(Float value) {
         this.value = value;
     }
 
-    public Object getValue() {
+    public Float getValue() {
         return value;
     }
 }

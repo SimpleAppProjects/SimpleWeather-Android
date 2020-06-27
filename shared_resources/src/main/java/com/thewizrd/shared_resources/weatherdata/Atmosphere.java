@@ -120,38 +120,26 @@ public class Atmosphere extends CustomJsonObject {
     }
 
     public Atmosphere(com.thewizrd.shared_resources.weatherdata.nws.ObservationCurrentResponse obsCurrentResponse) {
-        try {
+        if (obsCurrentResponse.getRelativeHumidity().getValue() != null) {
             humidity = Integer.toString(Math.round(obsCurrentResponse.getRelativeHumidity().getValue()));
-        } catch (NullPointerException | NumberFormatException ex) {
-            humidity = null;
         }
-        try {
-            pressureIn = ConversionMethods.paToInHg(
-                    Float.toString(obsCurrentResponse.getBarometricPressure().getValue()));
-            pressureMb = ConversionMethods.paToMB(
-                    Float.toString(obsCurrentResponse.getBarometricPressure().getValue()));
-        } catch (NullPointerException | NumberFormatException ex) {
-            pressureIn = null;
-            pressureMb = null;
+        if (obsCurrentResponse.getBarometricPressure().getValue() != null) {
+            float pressure_pa = obsCurrentResponse.getBarometricPressure().getValue();
+            pressureIn = ConversionMethods.paToInHg(Float.toString(pressure_pa));
+            pressureMb = ConversionMethods.paToMB(Float.toString(pressure_pa));
         }
         pressureTrend = "";
 
-        try {
+        if (obsCurrentResponse.getVisibility().getValue() != null) {
             visibilityKm = Float.toString(obsCurrentResponse.getVisibility().getValue() / 1000);
             visibilityMi = ConversionMethods.kmToMi(
                     Float.toString(obsCurrentResponse.getVisibility().getValue() / 1000));
-        } catch (NullPointerException | NumberFormatException ex) {
-            visibilityKm = null;
-            visibilityMi = null;
         }
 
-        try {
+        if (obsCurrentResponse.getDewpoint().getValue() != null) {
             dewpointC = Float.toString(obsCurrentResponse.getDewpoint().getValue());
             dewpointF = ConversionMethods.CtoF(
                     Float.toString(obsCurrentResponse.getDewpoint().getValue()));
-        } catch (NullPointerException | NumberFormatException ex) {
-            dewpointC = null;
-            dewpointF = null;
         }
     }
 

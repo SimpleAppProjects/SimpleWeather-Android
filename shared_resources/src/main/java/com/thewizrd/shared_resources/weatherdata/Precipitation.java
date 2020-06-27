@@ -76,6 +76,18 @@ public class Precipitation extends CustomJsonObject {
         }
     }
 
+    public Precipitation(com.thewizrd.shared_resources.weatherdata.nws.ObservationCurrentResponse obsCurrentResponse) {
+        if (obsCurrentResponse.getPrecipitationLastHour().getValue() != null) {
+            // "unit:m"
+            qpfRainMm = obsCurrentResponse.getPrecipitationLastHour().getValue() * 1000;
+            qpfRainIn = Float.parseFloat(ConversionMethods.mmToIn(Float.toString(qpfRainMm)));
+        } else if (obsCurrentResponse.getPrecipitationLast3Hours().getValue() != null) {
+            qpfRainMm = obsCurrentResponse.getPrecipitationLast3Hours().getValue() * 1000;
+            qpfRainIn = Float.parseFloat(ConversionMethods.mmToIn(Float.toString(qpfRainMm)));
+        }
+        // The rest DNE
+    }
+
     public String getPop() {
         return pop;
     }
