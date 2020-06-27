@@ -13,6 +13,8 @@ import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.AsyncTaskEx;
+import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -24,17 +26,23 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.utils.here.HEREOAuthUtils;
+import com.thewizrd.shared_resources.weatherdata.Astronomy;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
+import com.thewizrd.shared_resources.weatherdata.nws.SolCalcAstroProvider;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 
 @RunWith(AndroidJUnit4.class)
@@ -155,5 +163,26 @@ public class WeatherUnitTest {
 
             Log.d("Serialzer", "JSON2 Test " + (i + 1) + ": " + s2.toString());
         }
+    }
+
+    @Test
+    public void getSunriseSetTime() throws WeatherException {
+        final ZonedDateTime date = ZonedDateTime.now();
+        String tz_long = "America/Los_Angeles";
+        final LocationData locationData = new LocationData();
+        locationData.setLatitude(47.6721646);
+        locationData.setLongitude(-122.1706614);
+        locationData.setTzLong(tz_long);
+        Astronomy astro = new AsyncTaskEx<Astronomy, WeatherException>().await(new CallableEx<Astronomy, WeatherException>() {
+            @Override
+            public Astronomy call() throws WeatherException {
+                return new SolCalcAstroProvider().getAstronomyData(locationData, date);
+            }
+        });
+
+        DateTimeFormatter fmt = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        Log.d("SolCalc", String.format(Locale.ROOT,
+                "Sunrise: %s; Sunset: %s", astro.getSunrise().format(fmt), astro.getSunset().format(fmt)));
+        Assert.assertTrue(astro.getSunrise() != LocalDateTime.MIN && astro.getSunset() != LocalDateTime.MIN);
     }
 }

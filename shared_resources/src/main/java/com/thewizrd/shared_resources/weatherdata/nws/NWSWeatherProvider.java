@@ -404,6 +404,9 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
 
         weather.setUpdateTime(weather.getUpdateTime().withZoneSameInstant(location.getTzOffset()));
 
+        // NWS does not provide astrodata; calculate this ourselves (using their calculator)
+        weather.setAstronomy(new SolCalcAstroProvider().getAstronomyData(location, weather.getUpdateTime()));
+
         return weather;
     }
 
