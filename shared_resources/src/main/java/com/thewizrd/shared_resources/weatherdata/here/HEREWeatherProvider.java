@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -283,7 +284,10 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
 
     @Override
     public String updateLocationQuery(LocationData location) {
-        return String.format(Locale.ROOT, "latitude=%s&longitude=%s", location.getLatitude(), location.getLongitude());
+        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
+        df.applyPattern("#.####");
+
+        return String.format(Locale.ROOT, "latitude=%s&longitude=%s", df.format(location.getLatitude()), df.format(location.getLongitude()));
     }
 
     @Override

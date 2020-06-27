@@ -20,6 +20,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.text.DecimalFormat;
 import java.util.Locale;
 
 public class Location extends CustomJsonObject {
@@ -44,10 +45,13 @@ public class Location extends CustomJsonObject {
     }
 
     public Location(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Location location) {
+        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
+        df.applyPattern("#.####");
+
         // Use location name from location provider
         name = null;
-        latitude = location.getLat();
-        longitude = location.get_long();
+        latitude = String.format(Locale.ROOT, "%s", df.format(location.getLat()));
+        longitude = String.format(Locale.ROOT, "%s", df.format(location.get_long()));
 
         ZoneId zId = ZoneId.of(location.getTimezoneId());
 
@@ -58,10 +62,13 @@ public class Location extends CustomJsonObject {
     }
 
     public Location(com.thewizrd.shared_resources.weatherdata.openweather.Rootobject root) {
+        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
+        df.applyPattern("#.####");
+
         // Use location name from location provider
         name = null;
-        latitude = Float.toString(root.getLat());
-        longitude = Float.toString(root.getLon());
+        latitude = String.format(Locale.ROOT, "%s", df.format(root.getLat()));
+        longitude = String.format(Locale.ROOT, "%s", df.format(root.getLon()));
 
         ZoneId zId = ZoneId.of(root.getTimezone());
 
@@ -72,19 +79,25 @@ public class Location extends CustomJsonObject {
     }
 
     public Location(com.thewizrd.shared_resources.weatherdata.metno.Response foreRoot) {
+        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
+        df.applyPattern("#.####");
+
         // API doesn't provide location name (at all)
         name = null;
-        latitude = String.format(Locale.ROOT, "%.4f", foreRoot.getGeometry().getCoordinates().get(1));
-        longitude = String.format(Locale.ROOT, "%.4f", foreRoot.getGeometry().getCoordinates().get(0));
+        latitude = String.format(Locale.ROOT, "%s", df.format(foreRoot.getGeometry().getCoordinates().get(1)));
+        longitude = String.format(Locale.ROOT, "%s", df.format(foreRoot.getGeometry().getCoordinates().get(0)));
         tzOffset = ZoneOffset.UTC;
         tzShort = "UTC";
     }
 
     public Location(com.thewizrd.shared_resources.weatherdata.here.LocationItem location) {
+        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
+        df.applyPattern("#.####");
+
         // Use location name from location provider
         name = null;
-        latitude = Double.toString(location.getLatitude());
-        longitude = Double.toString(location.getLongitude());
+        latitude = String.format(Locale.ROOT, "%s", df.format(location.getLatitude()));
+        longitude = String.format(Locale.ROOT, "%s", df.format(location.getLongitude()));
         tzOffset = ZoneOffset.UTC;
         tzShort = "UTC";
     }

@@ -13,8 +13,10 @@ import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNProvider;
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider;
 
+import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 public abstract class WeatherProviderImpl implements WeatherProviderImplInterface {
     protected LocationProviderImpl locationProvider;
@@ -103,8 +105,11 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
         if (StringUtils.isNullOrWhitespace(weather.getLocation().getName()))
             weather.getLocation().setName(location.getName());
 
-        weather.getLocation().setLatitude(Double.toString(location.getLatitude()));
-        weather.getLocation().setLongitude(Double.toString(location.getLongitude()));
+        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
+        df.applyPattern("#.####");
+
+        weather.getLocation().setLatitude(String.format(Locale.ROOT, "%s", df.format(location.getLatitude())));
+        weather.getLocation().setLongitude(String.format(Locale.ROOT, "%s", df.format(location.getLongitude())));
         weather.getLocation().setTzShort(location.getTzShort());
         weather.getLocation().setTzOffset(location.getTzOffset());
 

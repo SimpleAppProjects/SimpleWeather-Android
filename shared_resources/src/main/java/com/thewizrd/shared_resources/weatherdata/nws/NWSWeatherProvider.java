@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.Locale;
 import java.util.zip.GZIPInputStream;
 
@@ -413,7 +414,9 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
 
     @Override
     public String updateLocationQuery(LocationData location) {
-        return String.format(Locale.ROOT, "%s,%s", Double.toString(location.getLatitude()), Double.toString(location.getLongitude()));
+        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
+        df.applyPattern("#.####");
+        return String.format(Locale.ROOT, "%s,%s", df.format(location.getLatitude()), location.getLongitude());
     }
 
     @Override

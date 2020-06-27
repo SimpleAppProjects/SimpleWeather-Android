@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.Locale;
 import java.util.zip.GZIPInputStream;
 
@@ -253,7 +254,10 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
 
     @Override
     public String updateLocationQuery(LocationData location) {
-        return String.format(Locale.ROOT, "lat=%.4f&lon=%.4f", location.getLatitude(), location.getLongitude());
+        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
+        df.applyPattern("#.####");
+
+        return String.format(Locale.ROOT, "lat=%s&lon=%s", df.format(location.getLatitude()), df.format(location.getLongitude()));
     }
 
     @Override

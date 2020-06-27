@@ -22,10 +22,10 @@ public class Location {
     private String region;
 
     @SerializedName("lat")
-    private String lat;
+    private Double lat;
 
     @SerializedName("long")
-    private String _long;
+    private Double _long;
 
     public void setCountry(String country) {
         this.country = country;
@@ -67,19 +67,19 @@ public class Location {
         return region;
     }
 
-    public void setLat(String lat) {
+    public void setLat(Double lat) {
         this.lat = lat;
     }
 
-    public String getLat() {
+    public Double getLat() {
         return lat;
     }
 
-    public void set_long(String _long) {
+    public void set_long(Double _long) {
         this._long = _long;
     }
 
-    public String get_long() {
+    public Double get_long() {
         return _long;
     }
 }

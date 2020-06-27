@@ -10,6 +10,7 @@ import com.thewizrd.shared_resources.locationdata.locationiq.GeoLocation;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 
+import java.text.DecimalFormat;
 import java.util.Locale;
 
 public class LocationQueryViewModel {
@@ -245,12 +246,15 @@ public class LocationQueryViewModel {
     }
 
     private void updateLocationQuery() {
+        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
+        df.applyPattern("#.####");
+
         if (WeatherAPI.HERE.equals(weatherSource)) {
-            locationQuery = String.format(Locale.ROOT, "latitude=%.4f&longitude=%.4f", locationLat, locationLong);
+            locationQuery = String.format(Locale.ROOT, "latitude=%s&longitude=%s", df.format(locationLat), df.format(locationLong));
         } else if (WeatherAPI.NWS.equals(weatherSource)) {
-            locationQuery = String.format(Locale.ROOT, "%.4f,%.4f", locationLat, locationLong);
+            locationQuery = String.format(Locale.ROOT, "%s,%s", df.format(locationLat), df.format(locationLong));
         } else {
-            locationQuery = String.format(Locale.ROOT, "lat=%.4f&lon=%.4f", locationLat, locationLong);
+            locationQuery = String.format(Locale.ROOT, "lat=%s&lon=%s", df.format(locationLat), df.format(locationLong));
         }
     }
 
