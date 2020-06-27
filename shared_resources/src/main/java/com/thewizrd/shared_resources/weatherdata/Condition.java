@@ -121,18 +121,24 @@ public class Condition extends CustomJsonObject {
         observationTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(current.getDt()), ZoneOffset.UTC);
     }
 
-    public Condition(com.thewizrd.shared_resources.weatherdata.metno.Weatherdata.Time time) {
+    public Condition(com.thewizrd.shared_resources.weatherdata.metno.TimeseriesItem time) {
         // weather
-        tempF = Float.parseFloat(ConversionMethods.CtoF(time.getLocation().getTemperature().getValue().toString()));
-        tempC = time.getLocation().getTemperature().getValue().floatValue();
-        windDegrees = Math.round(time.getLocation().getWindDirection().getDeg().floatValue());
-        windMph = (float) Math.round(Double.parseDouble(ConversionMethods.msecToMph(time.getLocation().getWindSpeed().getMps().toString())));
-        windKph = (float) Math.round(Double.parseDouble(ConversionMethods.msecToKph(time.getLocation().getWindSpeed().getMps().toString())));
+        tempF = Float.parseFloat(ConversionMethods.CtoF(time.getData().getInstant().getDetails().getAirTemperature().toString()));
+        tempC = time.getData().getInstant().getDetails().getAirTemperature();
+        windDegrees = Math.round(time.getData().getInstant().getDetails().getWindFromDirection());
+        windMph = (float) Math.round(Double.parseDouble(ConversionMethods.msecToMph(time.getData().getInstant().getDetails().getWindSpeed().toString())));
+        windKph = (float) Math.round(Double.parseDouble(ConversionMethods.msecToKph(time.getData().getInstant().getDetails().getWindSpeed().toString())));
         // This will be calculated after with formula
         feelslikeF = tempF;
         feelslikeC = tempC;
-        // icon
-        beaufort = new Beaufort(time.getLocation().getWindSpeed().getBeaufort());
+
+        if (time.getData().getNext12Hours() != null) {
+            icon = time.getData().getNext12Hours().getSummary().getSymbolCode();
+        } else if (time.getData().getNext6Hours() != null) {
+            icon = time.getData().getNext6Hours().getSummary().getSymbolCode();
+        } else if (time.getData().getNext1Hours() != null) {
+            icon = time.getData().getNext1Hours().getSummary().getSymbolCode();
+        }
     }
 
     public Condition(com.thewizrd.shared_resources.weatherdata.here.ObservationItem observation,

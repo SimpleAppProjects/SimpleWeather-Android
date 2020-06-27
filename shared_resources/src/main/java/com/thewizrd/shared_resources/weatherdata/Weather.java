@@ -17,7 +17,6 @@ import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
 import org.threeten.bp.Duration;
@@ -172,179 +171,84 @@ public class Weather extends CustomJsonObject {
         }
     }
 
-    public Weather(com.thewizrd.shared_resources.weatherdata.metno.Weatherdata foreRoot, com.thewizrd.shared_resources.weatherdata.metno.Astrodata astroRoot) {
+    public Weather(com.thewizrd.shared_resources.weatherdata.metno.Response foreRoot, com.thewizrd.shared_resources.weatherdata.metno.AstroResponse astroRoot) {
+        ZonedDateTime now = ZonedDateTime.now();
+
         location = new Location(foreRoot);
-        updateTime = ZonedDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse((foreRoot.getCreated()))), ZoneOffset.UTC);
+        updateTime = now;
 
         // 9-day forecast / hrly -> 6hrly forecast
         forecast = new ArrayList<>(10);
-        hrForecast = new ArrayList<>(90);
+        hrForecast = new ArrayList<>(foreRoot.getProperties().getTimeseries().size());
 
         // Store potential min/max values
         float dayMax = Float.NaN;
         float dayMin = Float.NaN;
 
-        // Flag values
-        boolean end = false;
-        boolean conditionSet = false;
-        int fcastCount = 0;
-
-        LocalDateTime startDate = LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(
-                foreRoot.getMeta().getModel().getFrom())), ZoneOffset.UTC);
-        LocalDateTime endDate = LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(
-                foreRoot.getMeta().getModel().getTo())), ZoneOffset.UTC);
+        LocalDateTime currentDate = LocalDateTime.MIN;
         Forecast fcast = null;
 
         // Metno data is troublesome to parse thru
-        for (int i = 0; i < foreRoot.getProduct().getTime().size(); i++) {
-            com.thewizrd.shared_resources.weatherdata.metno.Weatherdata.Time time = foreRoot.getProduct().getTime().get(i);
-            LocalDateTime date = LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getFrom())), ZoneOffset.UTC);
+        for (int i = 0; i < foreRoot.getProperties().getTimeseries().size(); i++) {
+            com.thewizrd.shared_resources.weatherdata.metno.TimeseriesItem time = foreRoot.getProperties().getTimeseries().get(i);
+            LocalDateTime date = LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getTime())), ZoneOffset.UTC);
 
             // Create condition for next 2hrs from data
-            if (i == 0 && date.equals(startDate)) {
+            if (i == 0) {
                 condition = new Condition(time);
                 atmosphere = new Atmosphere(time);
                 precipitation = new Precipitation(time);
             }
 
-            // This contains all weather details
-            if (!end && Duration.between(
-                    LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getFrom())), ZoneOffset.UTC),
-                    LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getTo())), ZoneOffset.UTC)).toMillis() == 0) {
-                // Find max/min for each hour
-                float temp = time.getLocation().getTemperature().getValue().floatValue();
-                if (!Float.isNaN(temp) && (Float.isNaN(dayMax) || temp > dayMax)) {
-                    dayMax = temp;
-                }
-                if (!Float.isNaN(temp) && (Float.isNaN(dayMin) || temp < dayMin)) {
-                    dayMin = temp;
-                }
-
-                // Add a new hour
+            // Add a new hour
+            if (date.compareTo(now.toLocalDateTime().truncatedTo(ChronoUnit.HOURS)) >= 0)
                 hrForecast.add(new HourlyForecast(time));
 
-                // Create new forecast
-                if (date.getHour() == 0 || date.equals(startDate)) {
-                    fcastCount++;
-
-                    // Oops, we missed one
-                    if (fcast != null && fcastCount != forecast.size()) {
-                        // Set forecast properties here:
-                        // condition (set in provider GetWeather method)
-                        // date
-                        fcast.setDate(date);
-                        // high
-                        fcast.setHighF(ConversionMethods.CtoF(Double.toString(dayMax)));
-                        fcast.setHighC(Integer.toString(Math.round(dayMax)));
-                        // low
-                        fcast.setLowF(ConversionMethods.CtoF(Double.toString(dayMin)));
-                        fcast.setLowC(Integer.toString(Math.round(dayMin)));
-                        // icon
-                        forecast.add(fcast);
-
-                        // Reset
-                        dayMax = Float.NaN;
-                        dayMin = Float.NaN;
-                    }
-
-                    fcast = new Forecast(time);
-                }
+            // Create new forecast
+            if (currentDate.toLocalDate().compareTo(date.toLocalDate()) != 0) {
                 // Last forecast for day; create forecast
-                if (date.getHour() == 23 || date.equals(endDate)) {
+                if (fcast != null) {
                     // condition (set in provider GetWeather method)
                     // date
-                    fcast.setDate(date);
+                    fcast.setDate(currentDate);
                     // high
                     fcast.setHighF(ConversionMethods.CtoF(Double.toString(dayMax)));
                     fcast.setHighC(Integer.toString(Math.round(dayMax)));
                     // low
                     fcast.setLowF(ConversionMethods.CtoF(Double.toString(dayMin)));
                     fcast.setLowC(Integer.toString(Math.round(dayMin)));
-                    // icon
+
                     forecast.add(fcast);
-
-                    if (date.equals(endDate))
-                        end = true;
-
-                    // Reset
-                    dayMax = Float.NaN;
-                    dayMin = Float.NaN;
-                    fcast = null;
                 }
+
+                currentDate = date;
+                fcast = new Forecast(time);
+                fcast.setDate(date);
+
+                // Reset
+                dayMax = Float.NaN;
+                dayMin = Float.NaN;
             }
 
-            // Get conditions for hour if available
-            if (hrForecast.size() > 1 &&
-                    hrForecast.get(hrForecast.size() - 2).getDate().equals(
-                            ZonedDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getFrom())), ZoneOffset.UTC))) {
-                // Set condition from id
-                HourlyForecast hr = hrForecast.get(hrForecast.size() - 2);
-                if (StringUtils.isNullOrEmpty(hr.getIcon())) {
-                    if (time.getLocation().getSymbol() != null) {
-                        hr.setCondition(time.getLocation().getSymbol().getId());
-                        hr.setIcon(Byte.toString(time.getLocation().getSymbol().getNumber()));
-                    }
-                }
-            } else if (end && hrForecast.get(hrForecast.size() <= 0 ? 0 : hrForecast.size() - 1).getDate().equals(
-                    ZonedDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getFrom())), ZoneOffset.UTC))) {
-                // Set condition from id
-                HourlyForecast hr = hrForecast.get(hrForecast.size() <= 0 ? 0 : hrForecast.size() - 1);
-                if (StringUtils.isNullOrEmpty(hr.getIcon())) {
-                    if (time.getLocation().getSymbol() != null) {
-                        hr.setCondition(time.getLocation().getSymbol().getId());
-                        hr.setIcon(Byte.toString(time.getLocation().getSymbol().getNumber()));
-                    }
-                }
+            // Find max/min for each hour
+            float temp = time.getData().getInstant().getDetails().getAirTemperature() != null ?
+                    time.getData().getInstant().getDetails().getAirTemperature() : Float.NaN;
+            if (!Float.isNaN(temp) && (Float.isNaN(dayMax) || temp > dayMax)) {
+                dayMax = temp;
             }
-
-            if (fcast != null && fcast.getDate().equals(LocalDateTime.ofInstant(
-                    Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getFrom())), ZoneOffset.UTC)) &&
-                    Duration.between(
-                            LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getFrom())), ZoneOffset.UTC),
-                            LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getTo())), ZoneOffset.UTC)).toHours() >= 1) {
-                if (time.getLocation().getSymbol() != null) {
-                    fcast.setCondition(time.getLocation().getSymbol().getId());
-                    fcast.setIcon(Byte.toString(time.getLocation().getSymbol().getNumber()));
-                }
-            } else if (forecast.size() > 0 && forecast.get(forecast.size() <= 0 ? 0 : forecast.size() - 1).getDate().equals(
-                    LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getFrom())), ZoneOffset.UTC)) &&
-                    Duration.between(
-                            LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getFrom())), ZoneOffset.UTC),
-                            LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getTo())), ZoneOffset.UTC)).toHours() >= 1) {
-                int last = forecast.size() <= 0 ? 0 : forecast.size() - 1;
-                if (StringUtils.isNullOrEmpty(forecast.get(last).getIcon())) {
-                    if (time.getLocation().getSymbol() != null) {
-                        forecast.get(last).setCondition(time.getLocation().getSymbol().getId());
-                        forecast.get(last).setIcon(Byte.toString(time.getLocation().getSymbol().getNumber()));
-                    }
-                }
-            }
-
-            if (!conditionSet && condition != null && date.equals(startDate) &&
-                    Duration.between(
-                            LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getFrom())), ZoneOffset.UTC),
-                            LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getTo())), ZoneOffset.UTC)).toHours() >= 2) {
-                // Set condition from id
-                if (time.getLocation().getSymbol() != null) {
-                    condition.setIcon(Byte.toString(time.getLocation().getSymbol().getNumber()));
-                    condition.setWeather(time.getLocation().getSymbol().getId());
-
-                    if (time.getLocation().getMaxTemperature() != null && time.getLocation().getMaxTemperature().getValue() != null &&
-                            time.getLocation().getMinTemperature() != null && time.getLocation().getMinTemperature().getValue() != null) {
-                        condition.setHighF(Float.parseFloat(ConversionMethods.CtoF(time.getLocation().getMaxTemperature().getValue().toString())));
-                        condition.setHighC(Math.round(time.getLocation().getMaxTemperature().getValue().floatValue()));
-                        condition.setLowF(Float.parseFloat(ConversionMethods.CtoF(time.getLocation().getMinTemperature().getValue().toString())));
-                        condition.setLowC(Math.round(time.getLocation().getMinTemperature().getValue().floatValue()));
-                    }
-                }
-
-                conditionSet = true;
+            if (!Float.isNaN(temp) && (Float.isNaN(dayMin) || temp < dayMin)) {
+                dayMin = temp;
             }
         }
 
-        fcast = forecast.size() <= 0 ? null : forecast.get(forecast.size() - 1);
+        fcast = Iterables.getLast(forecast, null);
         if (fcast != null && (fcast.getCondition() == null && fcast.getIcon() == null)) {
             forecast.remove(forecast.size() - 1);
+        }
+
+        HourlyForecast hrfcast = Iterables.getLast(hrForecast, null);
+        if (hrfcast != null && (hrfcast.getCondition() == null && hrfcast.getIcon() == null)) {
+            hrForecast.remove(hrForecast.size() - 1);
         }
 
         astronomy = new Astronomy(astroRoot);
@@ -363,9 +267,46 @@ public class Weather extends CustomJsonObject {
             condition.setLowC(Float.parseFloat(forecast.get(0).getLowC()));
         }
 
-        condition.setObservationTime(updateTime);
+        condition.setObservationTime(ZonedDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(foreRoot.getProperties().getMeta().getUpdatedAt())), ZoneOffset.UTC));
 
         source = WeatherAPI.METNO;
+
+        // Check for outdated observation
+        int ttlMins = Integer.parseInt(ttl);
+        if (Duration.between(ZonedDateTime.now(), condition.getObservationTime()).toMinutes() > ttlMins) {
+            HourlyForecast hrf = Iterables.getFirst(hrForecast, null);
+            if (hrf != null) {
+                condition.setWeather(hrf.getCondition());
+                condition.setIcon(hrf.getIcon());
+
+                condition.setTempF(Double.parseDouble(hrf.getHighF()));
+                condition.setTempC(Double.parseDouble(hrf.getHighC()));
+
+                condition.setWindMph(hrf.getWindMph());
+                condition.setWindKph(hrf.getWindKph());
+                condition.setWindDegrees(hrf.getWindDegrees());
+
+                condition.setBeaufort(null);
+                condition.setFeelslikeF(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeF() : 0.0);
+                condition.setFeelslikeC(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeC() : 0.0);
+                condition.setUv(hrf.getExtras() != null && hrf.getExtras().getUvIndex() >= 0 ? new UV(hrf.getExtras().getUvIndex()) : null);
+
+                atmosphere.setDewpointF(hrf.getExtras() != null ? hrf.getExtras().getDewpointF() : null);
+                atmosphere.setDewpointC(hrf.getExtras() != null ? hrf.getExtras().getDewpointC() : null);
+                atmosphere.setHumidity(hrf.getExtras() != null ? hrf.getExtras().getHumidity() : null);
+                atmosphere.setPressureTrend(null);
+                atmosphere.setPressureIn(hrf.getExtras() != null ? hrf.getExtras().getPressureIn() : null);
+                atmosphere.setPressureMb(hrf.getExtras() != null ? hrf.getExtras().getPressureMb() : null);
+                atmosphere.setVisibilityMi(hrf.getExtras() != null ? hrf.getExtras().getVisibilityMi() : null);
+                atmosphere.setVisibilityKm(hrf.getExtras() != null ? hrf.getExtras().getVisibilityKm() : null);
+
+                precipitation.setPop(hrf.getExtras() != null ? hrf.getExtras().getPop() : null);
+                precipitation.setQpfRainIn(hrf.getExtras() != null ? hrf.getExtras().getQpfRainIn() : 0.0f);
+                precipitation.setQpfRainMm(hrf.getExtras() != null ? hrf.getExtras().getQpfRainMm() : 0.0f);
+                precipitation.setQpfSnowIn(hrf.getExtras() != null ? hrf.getExtras().getQpfSnowIn() : 0.0f);
+                precipitation.setQpfSnowCm(hrf.getExtras() != null ? hrf.getExtras().getQpfSnowCm() : 0.0f);
+            }
+        }
     }
 
     public Weather(com.thewizrd.shared_resources.weatherdata.here.Rootobject root) {

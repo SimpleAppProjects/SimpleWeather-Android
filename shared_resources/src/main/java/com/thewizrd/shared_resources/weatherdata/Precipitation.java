@@ -50,9 +50,9 @@ public class Precipitation extends CustomJsonObject {
         }
     }
 
-    public Precipitation(com.thewizrd.shared_resources.weatherdata.metno.Weatherdata.Time time) {
+    public Precipitation(com.thewizrd.shared_resources.weatherdata.metno.TimeseriesItem time) {
         // Use cloudiness value here
-        pop = Integer.toString(Math.round(time.getLocation().getCloudiness().getPercent().floatValue()));
+        pop = Integer.toString(Math.round(time.getData().getInstant().getDetails().getCloudAreaFraction()));
         // The rest DNE
     }
 

@@ -4,9 +4,13 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.util.Log;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.locationiq.LocationIQProvider;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -19,10 +23,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.convert.AnnotationStrategy;
-import org.simpleframework.xml.core.Persister;
-import org.simpleframework.xml.strategy.TreeStrategy;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
@@ -80,12 +80,6 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
         return null;
     }
 
-    class IgnoreClassAttrAnnotStrategy extends AnnotationStrategy {
-        public IgnoreClassAttrAnnotStrategy() {
-            super(new TreeStrategy("noClass", "noLength"));
-        }
-    }
-
     @Override
     public Weather getWeather(String location_query) throws WeatherException {
         Weather weather = null;
@@ -100,9 +94,9 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
         WeatherException wEx = null;
 
         try {
-            forecastAPI = "https://api.met.no/weatherapi/locationforecast/1.9/?%s";
+            forecastAPI = "https://api.met.no/weatherapi/locationforecast/2.0/complete.json?%s";
             forecastURL = new URL(String.format(forecastAPI, location_query));
-            sunrisesetAPI = "https://api.met.no/weatherapi/sunrise/2.0/?%s&date=%s&offset=+00:00";
+            sunrisesetAPI = "https://api.met.no/weatherapi/sunrise/2.0/.json?%s&date=%s&offset=+00:00";
             String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT));
             sunrisesetURL = new URL(String.format(sunrisesetAPI, location_query, date));
 
@@ -141,13 +135,8 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
             wEx = null;
 
             // Load weather
-            Weatherdata foreRoot = null;
-            Astrodata astroRoot = null;
-            // TODO: put in async task?
-            Serializer deserializer = new Persister(new IgnoreClassAttrAnnotStrategy());
-            foreRoot = deserializer.read(Weatherdata.class, forecastStream, false);
-            // TODO: put in async task?
-            astroRoot = deserializer.read(Astrodata.class, sunrisesetStream, false);
+            Response foreRoot = JSONParser.deserializer(forecastStream, Response.class);
+            AstroResponse astroRoot = JSONParser.deserializer(sunrisesetStream, AstroResponse.class);
 
             // End Stream
             forecastStream.close();
@@ -170,11 +159,6 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
             wEx = new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
         } else if (weather != null) {
             weather.setQuery(location_query);
-
-            for (Forecast forecast : weather.getForecast()) {
-                forecast.setCondition(getWeatherCondition(forecast.getIcon()));
-                forecast.setIcon(getWeatherIcon(forecast.getIcon()));
-            }
         }
 
         if (wEx != null)
@@ -214,102 +198,52 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
 
         weather.getCondition().setWeather(getWeatherCondition(weather.getCondition().getIcon()));
         weather.getCondition().setIcon(getWeatherIcon(now.compareTo(sunrise) < 0 || now.compareTo(sunset) > 0, weather.getCondition().getIcon()));
+        weather.getCondition().setObservationTime(weather.getCondition().getObservationTime().withZoneSameInstant(offset));
 
         for (Forecast forecast : weather.getForecast()) {
             forecast.setDate(forecast.getDate().plusSeconds(offset.getTotalSeconds()));
+            forecast.setCondition(getWeatherCondition(forecast.getIcon()));
+            forecast.setIcon(getWeatherIcon(forecast.getIcon()));
         }
 
         for (HourlyForecast hr_forecast : weather.getHrForecast()) {
             hr_forecast.setDate(hr_forecast.getDate().withZoneSameInstant(offset));
 
-            LocalTime hrnow = hr_forecast.getDate().toLocalTime();
-            LocalTime sunriseTime = weather.getAstronomy().getSunrise().toLocalTime();
-            LocalTime sunsetTime = weather.getAstronomy().getSunset().toLocalTime();
-
             hr_forecast.setCondition(getWeatherCondition(hr_forecast.getIcon()));
-            hr_forecast.setIcon(getWeatherIcon(hrnow.compareTo(sunriseTime) < 0 || hrnow.compareTo(sunsetTime) > 0, hr_forecast.getIcon()));
+            hr_forecast.setIcon(getWeatherIcon(hr_forecast.getIcon() != null &&
+                            (hr_forecast.getIcon().endsWith("_night") || hr_forecast.getIcon().endsWith("_polartwilight")),
+                    hr_forecast.getIcon()));
         }
 
         return weather;
     }
 
-    // TODO: Move this out
-    public static String getWeatherCondition(String icon) {
-        String condition = "";
+    private static final String LEGEND_JSON = "{'fog':{'variants':null,'desc_en':'Fog','old_id':'15','desc_nb':'Tåke','desc_nn':'Skodde'},'heavysnow':{'desc_nb':'Kraftig snø','desc_nn':'Kraftig snø','variants':null,'old_id':'50','desc_en':'Heavy snow'},'sleet':{'desc_nb':'Sludd','desc_nn':'Sludd','variants':null,'old_id':'12','desc_en':'Sleet'},'lightrainshowers':{'desc_nn':'Lette regnbyer','desc_nb':'Lette regnbyger','desc_en':'Light rain showers','old_id':'40','variants':['day','night','polartwilight']},'clearsky':{'desc_nb':'Klarvær','desc_nn':'Klårvêr','variants':['day','night','polartwilight'],'old_id':'1','desc_en':'Clear sky'},'sleetshowersandthunder':{'desc_nn':'Sluddbyer og torevêr','desc_nb':'Sluddbyger og torden','old_id':'20','desc_en':'Sleet showers and thunder','variants':['day','night','polartwilight']},'lightrainshowersandthunder':{'desc_nn':'Lette regnbyer og torevêr','desc_nb':'Lette regnbyger og torden','old_id':'24','desc_en':'Light rain showers and thunder','variants':['day','night','polartwilight']},'heavysnowshowers':{'variants':['day','night','polartwilight'],'old_id':'45','desc_en':'Heavy snow showers','desc_nb':'Kraftige snøbyger','desc_nn':'Kraftige snøbyer'},'lightssnowshowersandthunder':{'variants':['day','night','polartwilight'],'desc_en':'Lights snow showers and thunder','old_id':'28','desc_nb':'Lette snøbyger og torden','desc_nn':'Lette snøbyer og torevêr'},'lightsnowandthunder':{'old_id':'33','desc_en':'Light snow and thunder','variants':null,'desc_nn':'Lett snø og torevêr','desc_nb':'Lett snø og torden'},'lightrainandthunder':{'variants':null,'desc_en':'Light rain and thunder','old_id':'30','desc_nb':'Lett regn og torden','desc_nn':'Lett regn og torevêr'},'snowshowersandthunder':{'variants':['day','night','polartwilight'],'desc_en':'Snow showers and thunder','old_id':'21','desc_nb':'Snøbyger og torden','desc_nn':'Snøbyer og torevêr'},'partlycloudy':{'desc_en':'Partly cloudy','old_id':'3','variants':['day','night','polartwilight'],'desc_nn':'Delvis skya','desc_nb':'Delvis skyet'},'sleetandthunder':{'desc_nb':'Sludd og torden','desc_nn':'Sludd og torevêr','variants':null,'desc_en':'Sleet and thunder','old_id':'23'},'lightsleet':{'desc_nn':'Lett sludd','desc_nb':'Lett sludd','desc_en':'Light sleet','old_id':'47','variants':null},'lightsleetshowers':{'old_id':'42','desc_en':'Light sleet showers','variants':['day','night','polartwilight'],'desc_nn':'Lette sluddbyer','desc_nb':'Lette sluddbyger'},'heavysnowshowersandthunder':{'desc_nn':'Kraftige snøbyer og torevêr','desc_nb':'Kraftige snøbyger og torden','desc_en':'Heavy snow showers and thunder','old_id':'29','variants':['day','night','polartwilight']},'heavyrainandthunder':{'desc_nn':'Kraftig regn og torevêr','desc_nb':'Kraftig regn og torden','desc_en':'Heavy rain and thunder','old_id':'11','variants':null},'lightssleetshowersandthunder':{'old_id':'26','desc_en':'Lights sleet showers and thunder','variants':['day','night','polartwilight'],'desc_nn':'Lette sluddbyer og torevêr','desc_nb':'Lette sluddbyger og torden'},'lightsnow':{'desc_nb':'Lett snø','desc_nn':'Lett snø','variants':null,'old_id':'49','desc_en':'Light snow'},'rainshowersandthunder':{'variants':['day','night','polartwilight'],'old_id':'6','desc_en':'Rain showers and thunder','desc_nb':'Regnbyger og torden','desc_nn':'Regnbyer og torevêr'},'heavyrainshowersandthunder':{'variants':['day','night','polartwilight'],'old_id':'25','desc_en':'Heavy rain showers and thunder','desc_nb':'Kraftige regnbyger og torden','desc_nn':'Kraftige regnbyer og torevêr'},'heavyrainshowers':{'variants':['day','night','polartwilight'],'desc_en':'Heavy rain showers','old_id':'41','desc_nb':'Kraftige regnbyger','desc_nn':'Kraftige regnbyer'},'fair':{'variants':['day','night','polartwilight'],'desc_en':'Fair','old_id':'2','desc_nb':'Lettskyet','desc_nn':'Lettskya'},'sleetshowers':{'variants':['day','night','polartwilight'],'old_id':'7','desc_en':'Sleet showers','desc_nb':'Sluddbyger','desc_nn':'Sluddbyer'},'lightsnowshowers':{'desc_nb':'Lette snøbyger','desc_nn':'Lette snøbyer','variants':['day','night','polartwilight'],'old_id':'44','desc_en':'Light snow showers'},'rainandthunder':{'desc_nb':'Regn og torden','desc_nn':'Regn og torevêr','variants':null,'old_id':'22','desc_en':'Rain and thunder'},'heavyrain':{'desc_en':'Heavy rain','old_id':'10','variants':null,'desc_nn':'Kraftig regn','desc_nb':'Kraftig regn'},'rainshowers':{'old_id':'5','desc_en':'Rain showers','variants':['day','night','polartwilight'],'desc_nn':'Regnbyer','desc_nb':'Regnbyger'},'snowandthunder':{'desc_en':'Snow and thunder','old_id':'14','variants':null,'desc_nn':'Snø og torevêr','desc_nb':'Snø og torden'},'lightrain':{'desc_en':'Light rain','old_id':'46','variants':null,'desc_nn':'Lett regn','desc_nb':'Lett regn'},'rain':{'variants':null,'desc_en':'Rain','old_id':'9','desc_nb':'Regn','desc_nn':'Regn'},'heavysleet':{'variants':null,'old_id':'48','desc_en':'Heavy sleet','desc_nb':'Kraftig sludd','desc_nn':'Kraftig sludd'},'heavysleetandthunder':{'desc_nb':'Kraftig sludd og torden','desc_nn':'Kraftig sludd og torevêr','variants':null,'old_id':'32','desc_en':'Heavy sleet and thunder'},'snow':{'old_id':'13','desc_en':'Snow','variants':null,'desc_nn':'Snø','desc_nb':'Snø'},'lightsleetandthunder':{'desc_en':'Light sleet and thunder','old_id':'31','variants':null,'desc_nn':'Lett sludd og torevêr','desc_nb':'Lett sludd og torden'},'cloudy':{'desc_nn':'Skya','desc_nb':'Skyet','old_id':'4','desc_en':'Cloudy','variants':null},'heavysnowandthunder':{'desc_nn':'Kraftig snø og torevêr','desc_nb':'Kraftig snø og torden','desc_en':'Heavy snow and thunder','old_id':'34','variants':null},'heavysleetshowersandthunder':{'desc_nb':'Kraftige sluddbyger og torden','desc_nn':'Kraftige sluddbyer og torevêr','variants':['day','night','polartwilight'],'old_id':'27','desc_en':'Heavy sleet showers and thunder'},'heavysleetshowers':{'variants':['day','night','polartwilight'],'old_id':'43','desc_en':'Heavy sleet showers','desc_nb':'Kraftige sluddbyger','desc_nn':'Kraftige sluddbyer'},'snowshowers':{'old_id':'8','desc_en':'Snow showers','variants':['day','night','polartwilight'],'desc_nn':'Snøbyer','desc_nb':'Snøbyger'}}";
+    private static JsonObject sLegendObject;
 
-        if (icon == null)
-            return Weather.NA;
+    static {
+        sLegendObject = JsonParser.parseString(LEGEND_JSON).getAsJsonObject();
+    }
 
-        switch (icon) {
-            case "1": // Sun
-                condition = "Clear";
-                break;
-            case "2": // LightCloud
-            case "3": // PartlyCloud
-                condition = "Partly Cloudy";
-                break;
-            case "4": // Cloud
-                condition = "Mostly Cloudy";
-                break;
-            case "5": // LightRainSun
-            case "6": // LightRainThunderSun
-            case "9": // LightRain
-            case "22": // LightRainThunder
-                condition = "Light Rain";
-                break;
-            case "7": // SleetSun
-            case "12": // Sleet
-            case "20": // SleetSunThunder
-            case "23": // SleetThunder
-            case "26": // LightSleetThunderSun
-            case "27": // HeavySleetThunderSun
-            case "31": // LightSleetThunder
-            case "32": // HeavySleetThunder
-            case "42": // LightSleetSun
-            case "43": // HeavySleetSun
-            case "47": // LightSleet
-            case "48": // HeavySleet
-                condition = "Sleet";
-                break;
-            case "8": // SnowSun
-            case "13": // Snow
-            case "14": // SnowThunder
-            case "21": // SnowSunThunder
-                condition = "Snow";
-                break;
-            case "10": // Rain
-            case "11": // RainThunder
-            case "25": // RainThunderSun
-            case "41": // RainSun
-                condition = "Rain";
-                break;
-            case "15": // Fog
-                condition = "Fog";
-                break;
-            case "24": // DrizzleThunderSun
-            case "30": // DrizzleThunder
-            case "40": // DrizzleSun
-            case "46": // Drizzle
-                condition = "Drizzle";
-                break;
-            case "28": // LightSnowThunderSun
-            case "33": // LightSnowThunder
-            case "44": // LightSnowSun
-            case "49": // LightSnow
-                condition = "Light Snow";
-                break;
-            case "29": // HeavySnowThunderSun
-            case "34": // HeavySnowThunder
-            case "45": // HeavySnowSun
-            case "50": // HeavySnow
-                condition = "Heavy Snow";
-                break;
-            default:
-                condition = Weather.NA;
-                break;
+    private static String getNeutralIconName(String icon_variant) {
+        if (icon_variant == null)
+            return "";
+
+        return icon_variant.replace("_day", "").replace("_night", "").replace("_polartwilight", "");
+    }
+
+    private static String getWeatherCondition(String icon) {
+        String icon_neutral = getNeutralIconName(icon);
+
+        JsonElement icon_obj = sLegendObject.get(icon_neutral);
+
+        if (icon_obj != null) {
+            JsonObject condition_obj = icon_obj.getAsJsonObject();
+            String condition = condition_obj.get("desc_en").getAsString();
+            return condition;
         }
 
-        return condition;
+        return Weather.NA;
     }
 
     @Override
@@ -319,7 +253,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
 
     @Override
     public String updateLocationQuery(LocationData location) {
-        return String.format(Locale.ROOT, "lat=%s&lon=%s", Double.toString(location.getLatitude()), Double.toString(location.getLongitude()));
+        return String.format(Locale.ROOT, "lat=%.4f&lon=%.4f", location.getLatitude(), location.getLongitude());
     }
 
     @Override
@@ -335,129 +269,131 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
         if (icon == null)
             return WeatherIcons.NA;
 
+        icon = getNeutralIconName(icon);
+
         switch (icon) {
-            case "1": // Sun
+            case "clearsky":
                 if (isNight)
                     weatherIcon = WeatherIcons.NIGHT_CLEAR;
                 else
                     weatherIcon = WeatherIcons.DAY_SUNNY;
                 break;
 
-            case "2": // LightCloud
-            case "3": // PartlyCloud
+            case "fair":
+            case "partlycloudy":
                 if (isNight)
                     weatherIcon = WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY;
                 else
                     weatherIcon = WeatherIcons.DAY_SUNNY_OVERCAST;
                 break;
 
-            case "4": // Cloud
+            case "cloudy":
                 weatherIcon = WeatherIcons.CLOUDY;
                 break;
 
-            case "5": // LightRainSun
+            case "rainshowers":
                 if (isNight)
                     weatherIcon = WeatherIcons.NIGHT_ALT_SPRINKLE;
                 else
                     weatherIcon = WeatherIcons.DAY_SPRINKLE;
                 break;
 
-            case "6": // LightRainThunderSun
+            case "rainshowersandthunder":
                 if (isNight)
                     weatherIcon = WeatherIcons.NIGHT_ALT_THUNDERSTORM;
                 else
                     weatherIcon = WeatherIcons.DAY_THUNDERSTORM;
                 break;
 
-            case "7": // SleetSun
-            case "42": // LightSleetSun
-            case "43": // HeavySleetSun
+            case "sleetshowers":
+            case "lightsleetshowers":
+            case "heavysleetshowers":
                 if (isNight)
                     weatherIcon = WeatherIcons.NIGHT_ALT_SLEET;
                 else
                     weatherIcon = WeatherIcons.DAY_SLEET;
                 break;
 
-            case "8": // SnowSun
-            case "44": // LightSnowSun
-            case "45": // HeavySnowSun
+            case "snowshowers":
+            case "lightsnowshowers":
+            case "heavysnowshowers":
                 if (isNight)
                     weatherIcon = WeatherIcons.NIGHT_ALT_SNOW;
                 else
                     weatherIcon = WeatherIcons.DAY_SNOW;
                 break;
 
-            case "9": // LightRain
-            case "46": // Drizzle
+            case "rain":
+            case "lightrain":
                 weatherIcon = WeatherIcons.SPRINKLE;
                 break;
 
-            case "10": // Rain
+            case "heavyrain":
                 weatherIcon = WeatherIcons.RAIN;
                 break;
 
-            case "11": // RainThunder
+            case "heavyrainandthunder":
                 weatherIcon = WeatherIcons.THUNDERSTORM;
                 break;
 
-            case "12": // Sleet
-            case "47": // LightSleet
-            case "48": // HeavySleet
+            case "sleet":
+            case "lightsleet":
+            case "heavysleet":
                 weatherIcon = WeatherIcons.SLEET;
                 break;
 
-            case "13": // Snow
-            case "49": // LightSnow
+            case "snow":
+            case "lightsnow":
                 weatherIcon = WeatherIcons.SNOW;
                 break;
 
-            case "14": // SnowThunder
-            case "21": // SnowSunThunder
-            case "28": // LightSnowThunderSun
-            case "29": // HeavySnowThunderSun
-            case "33": // LightSnowThunder
-            case "34": // HeavySnowThunder
+            case "snowandthunder":
+            case "snowshowersandthunder":
+            case "lightssnowshowersandthunder":
+            case "heavysnowshowersandthunder":
+            case "lightsnowandthunder":
+            case "heavysnowandthunder":
                 if (isNight)
                     weatherIcon = WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM;
                 else
                     weatherIcon = WeatherIcons.DAY_SNOW_THUNDERSTORM;
                 break;
 
-            case "15": // Fog
+            case "fog":
                 weatherIcon = WeatherIcons.FOG;
                 break;
 
-            case "20": // SleetSunThunder
-            case "23": // SleetThunder
-            case "26": // LightSleetThunderSun
-            case "27": // HeavySleetThunderSun
-            case "31": // LightSleetThunder
-            case "32": // HeavySleetThunder
+            case "sleetshowersandthunder":
+            case "sleetandthunder":
+            case "lightssleetshowersandthunder":
+            case "heavysleetshowersandthunder":
+            case "lightsleetandthunder":
+            case "heavysleetandthunder":
                 if (isNight)
                     weatherIcon = WeatherIcons.NIGHT_ALT_SLEET_STORM;
                 else
                     weatherIcon = WeatherIcons.DAY_SLEET_STORM;
                 break;
 
-            case "22": // LightRainThunder
-            case "30": // DrizzleThunder
-            case "24": // DrizzleThunderSun
-            case "25": // RainThunderSun
+            case "rainandthunder":
+            case "lightrainandthunder":
+            case "lightrainshowersandthunder":
+            case "heavyrainshowersandthunder":
                 if (isNight)
                     weatherIcon = WeatherIcons.NIGHT_ALT_STORM_SHOWERS;
                 else
                     weatherIcon = WeatherIcons.DAY_STORM_SHOWERS;
                 break;
 
-            case "40": // DrizzleSun
-            case "41": // RainSun
+            case "lightrainshowers":
+            case "heavyrainshowers":
                 if (isNight)
                     weatherIcon = WeatherIcons.NIGHT_ALT_RAIN;
                 else
                     weatherIcon = WeatherIcons.DAY_RAIN;
                 break;
 
-            case "50": // HeavySnow
+            case "heavysnow":
                 weatherIcon = WeatherIcons.SNOW_WIND;
                 break;
 

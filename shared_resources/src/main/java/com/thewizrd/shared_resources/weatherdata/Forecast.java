@@ -101,8 +101,16 @@ public class Forecast extends CustomJsonObject {
         }
     }
 
-    public Forecast(com.thewizrd.shared_resources.weatherdata.metno.Weatherdata.Time time) {
-        date = LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getFrom())), ZoneOffset.UTC);
+    public Forecast(com.thewizrd.shared_resources.weatherdata.metno.TimeseriesItem time) {
+        date = LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getTime())), ZoneOffset.UTC);
+
+        if (time.getData().getNext12Hours() != null) {
+            icon = time.getData().getNext12Hours().getSummary().getSymbolCode();
+        } else if (time.getData().getNext6Hours() != null) {
+            icon = time.getData().getNext6Hours().getSummary().getSymbolCode();
+        } else if (time.getData().getNext1Hours() != null) {
+            icon = time.getData().getNext1Hours().getSummary().getSymbolCode();
+        }
         // Don't bother setting other values; they're not available yet
     }
 

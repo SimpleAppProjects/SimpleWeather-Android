@@ -102,30 +102,30 @@ public class Astronomy extends CustomJsonObject {
         }
     }
 
-    public Astronomy(com.thewizrd.shared_resources.weatherdata.metno.Astrodata astroRoot) {
+    public Astronomy(com.thewizrd.shared_resources.weatherdata.metno.AstroResponse astroRoot) {
         int moonPhaseValue = -1;
 
-        for (com.thewizrd.shared_resources.weatherdata.metno.Astrodata.Time time : astroRoot.getLocation().getTimes()) {
+        for (com.thewizrd.shared_resources.weatherdata.metno.TimeItem time : astroRoot.getLocation().getTime()) {
             if (time.getSunrise() != null) {
-                sunrise = ZonedDateTime.parse(astroRoot.getLocation().getTimes().get(0).getSunrise().getTime(),
+                sunrise = ZonedDateTime.parse(astroRoot.getLocation().getTime().get(0).getSunrise().getTime(),
                         DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
             }
             if (time.getSunset() != null) {
-                sunset = ZonedDateTime.parse(astroRoot.getLocation().getTimes().get(0).getSunset().getTime(),
+                sunset = ZonedDateTime.parse(astroRoot.getLocation().getTime().get(0).getSunset().getTime(),
                         DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
             }
 
             if (time.getMoonrise() != null) {
-                moonrise = ZonedDateTime.parse(astroRoot.getLocation().getTimes().get(0).getMoonrise().getTime(),
+                moonrise = ZonedDateTime.parse(astroRoot.getLocation().getTime().get(0).getMoonrise().getTime(),
                         DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
             }
             if (time.getMoonset() != null) {
-                moonset = ZonedDateTime.parse(astroRoot.getLocation().getTimes().get(0).getMoonset().getTime(),
+                moonset = ZonedDateTime.parse(astroRoot.getLocation().getTime().get(0).getMoonset().getTime(),
                         DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
             }
 
             if (time.getMoonphase() != null)
-                moonPhaseValue = Math.round(time.getMoonphase().getValue().floatValue());
+                moonPhaseValue = Math.round(Float.parseFloat(time.getMoonphase().getValue()));
         }
 
         // If the sun won't set/rise, set time to the future

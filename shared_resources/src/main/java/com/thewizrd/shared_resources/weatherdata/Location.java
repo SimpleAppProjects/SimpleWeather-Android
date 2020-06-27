@@ -71,11 +71,11 @@ public class Location extends CustomJsonObject {
         tzLong = root.getTimezone();
     }
 
-    public Location(com.thewizrd.shared_resources.weatherdata.metno.Weatherdata foreRoot) {
+    public Location(com.thewizrd.shared_resources.weatherdata.metno.Response foreRoot) {
         // API doesn't provide location name (at all)
         name = null;
-        latitude = foreRoot.getProduct().getTime().get(0).getLocation().getLatitude().toString();
-        longitude = foreRoot.getProduct().getTime().get(0).getLocation().getLongitude().toString();
+        latitude = String.format(Locale.ROOT, "%.4f", foreRoot.getGeometry().getCoordinates().get(1));
+        longitude = String.format(Locale.ROOT, "%.4f", foreRoot.getGeometry().getCoordinates().get(0));
         tzOffset = ZoneOffset.UTC;
         tzShort = "UTC";
     }

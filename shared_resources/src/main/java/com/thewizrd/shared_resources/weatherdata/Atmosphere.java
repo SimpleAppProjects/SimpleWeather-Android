@@ -67,27 +67,21 @@ public class Atmosphere extends CustomJsonObject {
         dewpointC = ConversionMethods.KtoC(Float.toString(current.getDewPoint()));
     }
 
-    public Atmosphere(com.thewizrd.shared_resources.weatherdata.metno.Weatherdata.Time time) {
-        humidity = Integer.toString(Math.round(time.getLocation().getHumidity().getValue().floatValue()));
-        pressureMb = time.getLocation().getPressure().getValue().toString();
-        pressureIn = ConversionMethods.mbToInHg(time.getLocation().getPressure().getValue().toString());
+    public Atmosphere(com.thewizrd.shared_resources.weatherdata.metno.TimeseriesItem time) {
+        humidity = Integer.toString(Math.round(time.getData().getInstant().getDetails().getRelativeHumidity()));
+        pressureMb = time.getData().getInstant().getDetails().getAirPressureAtSeaLevel().toString();
+        pressureIn = ConversionMethods.mbToInHg(time.getData().getInstant().getDetails().getAirPressureAtSeaLevel().toString());
         pressureTrend = "";
 
-        try {
+        if (time.getData().getInstant().getDetails().getFogAreaFraction() != null) {
             float visMi = 10.0f;
-            visibilityMi = Float.toString(visMi - (visMi * time.getLocation().getFog().getPercent().floatValue() / 100));
+            visibilityMi = Float.toString((visMi - (visMi * time.getData().getInstant().getDetails().getFogAreaFraction() / 100)));
             visibilityKm = ConversionMethods.miToKm(visibilityMi);
-        } catch (NumberFormatException ex) {
-            visibilityMi = Weather.NA;
-            visibilityKm = Weather.NA;
         }
 
-        try {
-            dewpointF = ConversionMethods.CtoF(time.getLocation().getDewpointTemperature().getValue().toString());
-            dewpointC = Float.toString(time.getLocation().getDewpointTemperature().getValue().floatValue());
-        } catch (NumberFormatException ex) {
-            dewpointF = null;
-            dewpointC = null;
+        if (time.getData().getInstant().getDetails().getDewPointTemperature() != null) {
+            dewpointF = ConversionMethods.CtoF(time.getData().getInstant().getDetails().getDewPointTemperature().toString());
+            dewpointC = time.getData().getInstant().getDetails().getDewPointTemperature().toString();
         }
     }
 

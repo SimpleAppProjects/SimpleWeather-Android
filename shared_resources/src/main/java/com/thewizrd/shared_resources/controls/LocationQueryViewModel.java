@@ -246,11 +246,11 @@ public class LocationQueryViewModel {
 
     private void updateLocationQuery() {
         if (WeatherAPI.HERE.equals(weatherSource)) {
-            locationQuery = String.format(Locale.ROOT, "latitude=%s&longitude=%s", Double.toString(locationLat), Double.toString(locationLong));
+            locationQuery = String.format(Locale.ROOT, "latitude=%.4f&longitude=%.4f", locationLat, locationLong);
         } else if (WeatherAPI.NWS.equals(weatherSource)) {
-            locationQuery = String.format(Locale.ROOT, "%s,%s", Double.toString(locationLat), Double.toString(locationLong));
+            locationQuery = String.format(Locale.ROOT, "%.4f,%.4f", locationLat, locationLong);
         } else {
-            locationQuery = String.format(Locale.ROOT, "lat=%s&lon=%s", Double.toString(locationLat), Double.toString(locationLong));
+            locationQuery = String.format(Locale.ROOT, "lat=%.4f&lon=%.4f", locationLat, locationLong);
         }
     }
 
