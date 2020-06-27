@@ -172,7 +172,7 @@ public class Weather extends CustomJsonObject {
     }
 
     public Weather(com.thewizrd.shared_resources.weatherdata.metno.Response foreRoot, com.thewizrd.shared_resources.weatherdata.metno.AstroResponse astroRoot) {
-        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
 
         location = new Location(foreRoot);
         updateTime = now;
@@ -205,7 +205,8 @@ public class Weather extends CustomJsonObject {
                 hrForecast.add(new HourlyForecast(time));
 
             // Create new forecast
-            if (currentDate.toLocalDate().compareTo(date.toLocalDate()) != 0) {
+            if (currentDate.toLocalDate().compareTo(date.toLocalDate()) != 0 &&
+                    date.compareTo(currentDate.plusDays(1)) >= 0) {
                 // Last forecast for day; create forecast
                 if (fcast != null) {
                     // condition (set in provider GetWeather method)
@@ -318,7 +319,7 @@ public class Weather extends CustomJsonObject {
         }
         hrForecast = new ArrayList<>(root.getHourlyForecasts().getForecastLocation().getForecast().size());
         for (com.thewizrd.shared_resources.weatherdata.here.ForecastItem1 forecast1 : root.getHourlyForecasts().getForecastLocation().getForecast()) {
-            if (ZonedDateTime.parse(forecast1.getUtcTime()).compareTo(now.withZoneSameInstant(ZoneOffset.UTC).truncatedTo(ChronoUnit.HOURS)) < 0)
+            if (ZonedDateTime.parse(forecast1.getUtcTime()).compareTo(now.truncatedTo(ChronoUnit.HOURS)) < 0)
                 continue;
 
             hrForecast.add(new HourlyForecast(forecast1));
@@ -375,7 +376,7 @@ public class Weather extends CustomJsonObject {
 
     public Weather(com.thewizrd.shared_resources.weatherdata.nws.PointsResponse pointsResponse, com.thewizrd.shared_resources.weatherdata.nws.ForecastResponse forecastResponse, com.thewizrd.shared_resources.weatherdata.nws.HourlyForecastResponse hourlyForecastResponse, com.thewizrd.shared_resources.weatherdata.nws.ObservationCurrentResponse obsCurrentResponse) {
         location = new Location(pointsResponse);
-        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
         updateTime = now;
 
         // ~8-day forecast
@@ -400,7 +401,7 @@ public class Weather extends CustomJsonObject {
         if (hourlyForecastResponse != null) {
             hrForecast = new ArrayList<>(hourlyForecastResponse.getPeriods().size());
             for (com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem period : hourlyForecastResponse.getPeriods()) {
-                if (ZonedDateTime.parse(period.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME).compareTo(now.withZoneSameInstant(ZoneOffset.UTC).truncatedTo(ChronoUnit.HOURS)) < 0)
+                if (ZonedDateTime.parse(period.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME).compareTo(now.truncatedTo(ChronoUnit.HOURS)) < 0)
                     continue;
 
                 hrForecast.add(new HourlyForecast(period));
