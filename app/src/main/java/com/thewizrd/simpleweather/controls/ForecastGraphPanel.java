@@ -412,7 +412,7 @@ public class ForecastGraphPanel extends LinearLayout {
                     YEntryData windData = new YEntryData(wind, forecastItemViewModel.getWindSpeed());
 
                     windDataSet.add(windData);
-                    XLabelData xLabelData = new XLabelData(forecastItemViewModel.getDate(), context.getString(R.string.wi_wind_direction), forecastItemViewModel.getWindDirection());
+                    XLabelData xLabelData = new XLabelData(forecastItemViewModel.getDate(), context.getString(R.string.wi_wind_direction), forecastItemViewModel.getWindDirection() + 180);
                     labelData.add(xLabelData);
                 } catch (NumberFormatException ex) {
                     Logger.writeLine(Log.DEBUG, ex);

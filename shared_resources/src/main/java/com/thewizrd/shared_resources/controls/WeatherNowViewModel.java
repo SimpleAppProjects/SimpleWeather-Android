@@ -460,7 +460,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                     Settings.isFahrenheit() ?
                             String.format(Locale.getDefault(), "%d mph, %s", Math.round(weather.getCondition().getWindMph()), WeatherUtils.getWindDirection(weather.getCondition().getWindDegrees())) :
                             String.format(Locale.getDefault(), "%d kph, %s", Math.round(weather.getCondition().getWindKph()), WeatherUtils.getWindDirection(weather.getCondition().getWindDegrees())),
-                    weather.getCondition().getWindDegrees()));
+                    weather.getCondition().getWindDegrees() + 180));
         }
 
         if (weather.getCondition().getBeaufort() != null) {
