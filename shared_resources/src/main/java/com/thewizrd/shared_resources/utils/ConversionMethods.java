@@ -116,6 +116,18 @@ public class ConversionMethods {
         return Math.PI * angle / 180.0;
     }
 
+    public static float toRadians(float angle) {
+        return (float) toRadians((double) angle);
+    }
+
+    public static double toDegrees(double angle) {
+        return 180.0 * angle / Math.PI;
+    }
+
+    public static float toDegrees(float angle) {
+        return (float) toDegrees((double) angle);
+    }
+
     public static double calculateHaversine(double lat1, double lon1, double lat2, double lon2) {
         double R = 6372.8; // In kilometers
         double dLat = toRadians(lat2 - lat1);
