@@ -39,6 +39,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.File;
@@ -394,6 +395,17 @@ public class Settings {
                 loadIfNeeded();
 
                 return weatherDB.weatherDAO().getHourlyForecastsByQueryOrderByDate(key);
+            }
+        });
+    }
+
+    public static HourlyForecast getFirstHourlyForecastDataByDate(final String key, final ZonedDateTime date) {
+        return new AsyncTask<HourlyForecast>().await(new Callable<HourlyForecast>() {
+            @Override
+            public HourlyForecast call() {
+                loadIfNeeded();
+
+                return weatherDB.weatherDAO().getFirstHourlyForecastDataByDate(key, date);
             }
         });
     }

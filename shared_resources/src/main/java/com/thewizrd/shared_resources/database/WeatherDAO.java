@@ -8,12 +8,15 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Transaction;
+import androidx.room.TypeConverters;
 
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecasts;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlerts;
+
+import org.threeten.bp.ZonedDateTime;
 
 import java.util.List;
 
@@ -132,4 +135,7 @@ public interface WeatherDAO {
 
     @Query("SELECT COUNT(*) FROM (SELECT COUNT(*) FROM hr_forecasts GROUP BY `query`)")
     public int getHourlyForecastCountGroupedByQuery();
+
+    @Query("SELECT `hrforecastblob` FROM hr_forecasts WHERE `query` = :key AND `dateblob` >= :date ORDER BY `dateblob` LIMIT 1")
+    public HourlyForecast getFirstHourlyForecastDataByDate(String key, @TypeConverters(SortableDateTimeConverters.class) ZonedDateTime date);
 }

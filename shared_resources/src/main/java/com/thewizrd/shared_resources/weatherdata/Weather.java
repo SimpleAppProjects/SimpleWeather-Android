@@ -19,7 +19,6 @@ import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
-import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
@@ -132,43 +131,6 @@ public class Weather extends CustomJsonObject {
         }
 
         source = WeatherAPI.OPENWEATHERMAP;
-
-        // Check for outdated observation
-        int ttlMins = Integer.parseInt(ttl);
-        if (Duration.between(ZonedDateTime.now(), condition.getObservationTime()).toMinutes() > ttlMins) {
-            HourlyForecast hrf = Iterables.getFirst(hrForecast, null);
-            if (hrf != null) {
-                condition.setWeather(hrf.getCondition());
-                condition.setIcon(hrf.getIcon());
-
-                condition.setTempF(Double.parseDouble(hrf.getHighF()));
-                condition.setTempC(Double.parseDouble(hrf.getHighC()));
-
-                condition.setWindMph(hrf.getWindMph());
-                condition.setWindKph(hrf.getWindKph());
-                condition.setWindDegrees(hrf.getWindDegrees());
-
-                condition.setBeaufort(new Beaufort(WeatherUtils.getBeaufortScale(Math.round(hrf.getWindMph())).getValue()));
-                condition.setFeelslikeF(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeF() : 0.0);
-                condition.setFeelslikeC(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeC() : 0.0);
-                condition.setUv(null);
-
-                atmosphere.setDewpointF(hrf.getExtras() != null ? hrf.getExtras().getDewpointF() : null);
-                atmosphere.setDewpointC(hrf.getExtras() != null ? hrf.getExtras().getDewpointC() : null);
-                atmosphere.setHumidity(hrf.getExtras() != null ? hrf.getExtras().getHumidity() : null);
-                atmosphere.setPressureTrend(null);
-                atmosphere.setPressureIn(hrf.getExtras() != null ? hrf.getExtras().getPressureIn() : null);
-                atmosphere.setPressureMb(hrf.getExtras() != null ? hrf.getExtras().getPressureMb() : null);
-                atmosphere.setVisibilityMi(hrf.getExtras() != null ? hrf.getExtras().getVisibilityMi() : null);
-                atmosphere.setVisibilityKm(hrf.getExtras() != null ? hrf.getExtras().getVisibilityKm() : null);
-
-                precipitation.setPop(hrf.getExtras() != null ? hrf.getExtras().getPop() : null);
-                precipitation.setQpfRainIn(hrf.getExtras() != null ? hrf.getExtras().getQpfRainIn() : 0.0f);
-                precipitation.setQpfRainMm(hrf.getExtras() != null ? hrf.getExtras().getQpfRainMm() : 0.0f);
-                precipitation.setQpfSnowIn(hrf.getExtras() != null ? hrf.getExtras().getQpfSnowIn() : 0.0f);
-                precipitation.setQpfSnowCm(hrf.getExtras() != null ? hrf.getExtras().getQpfSnowCm() : 0.0f);
-            }
-        }
     }
 
     public Weather(com.thewizrd.shared_resources.weatherdata.metno.Response foreRoot, com.thewizrd.shared_resources.weatherdata.metno.AstroResponse astroRoot) {
@@ -267,43 +229,6 @@ public class Weather extends CustomJsonObject {
         condition.setObservationTime(ZonedDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(foreRoot.getProperties().getMeta().getUpdatedAt())), ZoneOffset.UTC));
 
         source = WeatherAPI.METNO;
-
-        // Check for outdated observation
-        int ttlMins = Integer.parseInt(ttl);
-        if (Duration.between(ZonedDateTime.now(), condition.getObservationTime()).toMinutes() > ttlMins) {
-            HourlyForecast hrf = Iterables.getFirst(hrForecast, null);
-            if (hrf != null) {
-                condition.setWeather(hrf.getCondition());
-                condition.setIcon(hrf.getIcon());
-
-                condition.setTempF(Double.parseDouble(hrf.getHighF()));
-                condition.setTempC(Double.parseDouble(hrf.getHighC()));
-
-                condition.setWindMph(hrf.getWindMph());
-                condition.setWindKph(hrf.getWindKph());
-                condition.setWindDegrees(hrf.getWindDegrees());
-
-                condition.setBeaufort(new Beaufort(WeatherUtils.getBeaufortScale(Math.round(hrf.getWindMph())).getValue()));
-                condition.setFeelslikeF(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeF() : 0.0);
-                condition.setFeelslikeC(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeC() : 0.0);
-                condition.setUv(hrf.getExtras() != null && hrf.getExtras().getUvIndex() >= 0 ? new UV(hrf.getExtras().getUvIndex()) : null);
-
-                atmosphere.setDewpointF(hrf.getExtras() != null ? hrf.getExtras().getDewpointF() : null);
-                atmosphere.setDewpointC(hrf.getExtras() != null ? hrf.getExtras().getDewpointC() : null);
-                atmosphere.setHumidity(hrf.getExtras() != null ? hrf.getExtras().getHumidity() : null);
-                atmosphere.setPressureTrend(null);
-                atmosphere.setPressureIn(hrf.getExtras() != null ? hrf.getExtras().getPressureIn() : null);
-                atmosphere.setPressureMb(hrf.getExtras() != null ? hrf.getExtras().getPressureMb() : null);
-                atmosphere.setVisibilityMi(hrf.getExtras() != null ? hrf.getExtras().getVisibilityMi() : null);
-                atmosphere.setVisibilityKm(hrf.getExtras() != null ? hrf.getExtras().getVisibilityKm() : null);
-
-                precipitation.setPop(hrf.getExtras() != null ? hrf.getExtras().getPop() : null);
-                precipitation.setQpfRainIn(hrf.getExtras() != null ? hrf.getExtras().getQpfRainIn() : 0.0f);
-                precipitation.setQpfRainMm(hrf.getExtras() != null ? hrf.getExtras().getQpfRainMm() : 0.0f);
-                precipitation.setQpfSnowIn(hrf.getExtras() != null ? hrf.getExtras().getQpfSnowIn() : 0.0f);
-                precipitation.setQpfSnowCm(hrf.getExtras() != null ? hrf.getExtras().getQpfSnowCm() : 0.0f);
-            }
-        }
     }
 
     public Weather(com.thewizrd.shared_resources.weatherdata.here.Rootobject root) {
@@ -335,43 +260,6 @@ public class Weather extends CustomJsonObject {
         ttl = "180";
 
         source = WeatherAPI.HERE;
-
-        // Check for outdated observation
-        int ttlMins = Integer.parseInt(ttl);
-        if (Duration.between(ZonedDateTime.now(), condition.getObservationTime()).toMinutes() > ttlMins) {
-            HourlyForecast hrf = Iterables.getFirst(hrForecast, null);
-            if (hrf != null) {
-                condition.setWeather(hrf.getCondition());
-                condition.setIcon(hrf.getIcon());
-
-                condition.setTempF(Double.parseDouble(hrf.getHighF()));
-                condition.setTempC(Double.parseDouble(hrf.getHighC()));
-
-                condition.setWindMph(hrf.getWindMph());
-                condition.setWindKph(hrf.getWindKph());
-                condition.setWindDegrees(hrf.getWindDegrees());
-
-                condition.setBeaufort(new Beaufort(WeatherUtils.getBeaufortScale(Math.round(hrf.getWindMph())).getValue()));
-                condition.setFeelslikeF(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeF() : 0.0);
-                condition.setFeelslikeC(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeC() : 0.0);
-                condition.setUv(null);
-
-                atmosphere.setDewpointF(hrf.getExtras() != null ? hrf.getExtras().getDewpointF() : null);
-                atmosphere.setDewpointC(hrf.getExtras() != null ? hrf.getExtras().getDewpointC() : null);
-                atmosphere.setHumidity(hrf.getExtras() != null ? hrf.getExtras().getHumidity() : null);
-                atmosphere.setPressureTrend(null);
-                atmosphere.setPressureIn(hrf.getExtras() != null ? hrf.getExtras().getPressureIn() : null);
-                atmosphere.setPressureMb(hrf.getExtras() != null ? hrf.getExtras().getPressureMb() : null);
-                atmosphere.setVisibilityMi(hrf.getExtras() != null ? hrf.getExtras().getVisibilityMi() : null);
-                atmosphere.setVisibilityKm(hrf.getExtras() != null ? hrf.getExtras().getVisibilityKm() : null);
-
-                precipitation.setPop(hrf.getExtras() != null ? hrf.getExtras().getPop() : null);
-                precipitation.setQpfRainIn(hrf.getExtras() != null ? hrf.getExtras().getQpfRainIn() : 0.0f);
-                precipitation.setQpfRainMm(hrf.getExtras() != null ? hrf.getExtras().getQpfRainMm() : 0.0f);
-                precipitation.setQpfSnowIn(hrf.getExtras() != null ? hrf.getExtras().getQpfSnowIn() : 0.0f);
-                precipitation.setQpfSnowCm(hrf.getExtras() != null ? hrf.getExtras().getQpfSnowCm() : 0.0f);
-            }
-        }
     }
 
     public Weather(com.thewizrd.shared_resources.weatherdata.nws.PointsResponse pointsResponse, com.thewizrd.shared_resources.weatherdata.nws.ForecastResponse forecastResponse, com.thewizrd.shared_resources.weatherdata.nws.HourlyForecastResponse hourlyForecastResponse, com.thewizrd.shared_resources.weatherdata.nws.ObservationCurrentResponse obsCurrentResponse) {
@@ -431,25 +319,6 @@ public class Weather extends CustomJsonObject {
         }
 
         source = WeatherAPI.NWS;
-
-        // Check for outdated observation
-        int ttlMins = Integer.parseInt(ttl);
-        if (hrForecast != null && Duration.between(ZonedDateTime.now(), condition.getObservationTime()).toMinutes() > ttlMins) {
-            HourlyForecast hrf = Iterables.getFirst(hrForecast, null);
-            if (hrf != null) {
-                condition.setWeather(hrf.getCondition());
-                condition.setIcon(hrf.getIcon());
-
-                condition.setTempF(Double.parseDouble(hrf.getHighF()));
-                condition.setTempC(Double.parseDouble(hrf.getHighC()));
-
-                condition.setWindMph(hrf.getWindMph());
-                condition.setWindKph(hrf.getWindKph());
-                condition.setWindDegrees(hrf.getWindDegrees());
-
-                condition.setBeaufort(new Beaufort(WeatherUtils.getBeaufortScale(Math.round(hrf.getWindMph())).getValue()));
-            }
-        }
     }
 
     public Location getLocation() {
