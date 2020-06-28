@@ -143,7 +143,7 @@ public class WeatherDetailItem extends ConstraintLayout {
 
                 start = sb.length();
                 sb.append(detailItem.getValue());
-                if (i < forecastView.getExtras().size() - 1)
+                if (i < forecastView.getExtras().size())
                     sb.append(StringUtils.lineSeparator());
                 int colorPrimary = ActivityUtils.getColor(context, android.R.attr.textColorPrimary);
                 sb.setSpan(new ForegroundColorSpan(colorPrimary), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -203,7 +203,7 @@ public class WeatherDetailItem extends ConstraintLayout {
 
                 start = sb.length();
                 sb.append(detailItem.getValue());
-                if (i < forecastView.getExtras().size() - 1)
+                if (i < forecastView.getExtras().size())
                     sb.append(StringUtils.lineSeparator());
                 int colorPrimary = ActivityUtils.getColor(context, android.R.attr.textColorPrimary);
                 sb.setSpan(new ForegroundColorSpan(colorPrimary), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
