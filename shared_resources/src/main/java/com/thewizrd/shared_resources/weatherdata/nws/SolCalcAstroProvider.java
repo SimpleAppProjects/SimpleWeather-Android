@@ -57,7 +57,7 @@ public class SolCalcAstroProvider implements AstroDataProviderInterface, AstroDa
     }
 
     private static LocalTime toLocalTime(double timeInMins) {
-        if (timeInMins >= 0 && timeInMins < 1440) {
+        if (timeInMins >= 0) {
             double floatHour = timeInMins / 60.0;
             double hour = Math.floor(floatHour);
             double floatMinute = 60.0 * (floatHour - Math.floor(floatHour));
