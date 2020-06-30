@@ -107,12 +107,14 @@ public class LocationPanelViewModel {
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
             public Void call() {
-                ImageDataViewModel imageVM = WeatherUtils.getImageData(weather);
+                if (weather != null) {
+                    ImageDataViewModel imageVM = WeatherUtils.getImageData(weather);
 
-                if (imageVM != null) {
-                    imageData = imageVM;
-                } else {
-                    imageData = null;
+                    if (imageVM != null) {
+                        imageData = imageVM;
+                    } else {
+                        imageData = null;
+                    }
                 }
 
                 return null;

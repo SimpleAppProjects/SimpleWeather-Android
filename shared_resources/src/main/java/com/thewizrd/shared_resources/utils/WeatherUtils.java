@@ -6,6 +6,7 @@ import android.text.format.DateFormat;
 import android.util.SparseArray;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
@@ -531,7 +532,7 @@ public class WeatherUtils {
         return weatherIcon;
     }
 
-    public static ImageDataViewModel getImageData(Weather weather) {
+    public static ImageDataViewModel getImageData(@NonNull Weather weather) {
         String icon = weather.getCondition().getIcon();
         String backgroundCode = null;
         WeatherManager wm = WeatherManager.getInstance();

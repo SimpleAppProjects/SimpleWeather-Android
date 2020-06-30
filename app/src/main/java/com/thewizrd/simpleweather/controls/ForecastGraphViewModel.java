@@ -1,8 +1,6 @@
 package com.thewizrd.simpleweather.controls;
 
-import android.os.Handler;
-import android.os.Looper;
-
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.arch.core.util.Function;
 import androidx.core.util.ObjectsCompat;
@@ -23,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class ForecastGraphViewModel extends ViewModel {
-    private Handler mMainHandler;
     private String locationKey;
     private String tempUnit;
 
@@ -36,8 +33,6 @@ public class ForecastGraphViewModel extends ViewModel {
     public ForecastGraphViewModel() {
         forecasts = new MutableLiveData<>();
         hourlyForecasts = new MutableLiveData<>();
-
-        mMainHandler = new Handler(Looper.getMainLooper());
     }
 
     public LiveData<List<ForecastItemViewModel>> getForecasts() {
@@ -48,47 +43,38 @@ public class ForecastGraphViewModel extends ViewModel {
         return hourlyForecasts;
     }
 
+    @MainThread
     public void updateForecasts(@NonNull LocationData location) {
         if (!ObjectsCompat.equals(this.locationKey, location.getQuery())) {
             this.locationKey = location.getQuery();
 
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    tempUnit = Settings.getTempUnit();
+            tempUnit = Settings.getTempUnit();
 
-                    if (currentForecastsData != null) {
-                        currentForecastsData.removeObserver(forecastObserver);
-                    }
-                    currentForecastsData = Settings.getWeatherDAO().getLiveForecastData(locationKey);
+            if (currentForecastsData != null) {
+                currentForecastsData.removeObserver(forecastObserver);
+            }
+            currentForecastsData = Settings.getWeatherDAO().getLiveForecastData(locationKey);
 
-                    currentForecastsData.observeForever(forecastObserver);
-                    if (forecasts != null)
-                        forecasts.setValue(forecastMapper.apply(currentForecastsData.getValue()));
+            currentForecastsData.observeForever(forecastObserver);
+            if (forecasts != null)
+                forecasts.setValue(forecastMapper.apply(currentForecastsData.getValue()));
 
-                    if (currentHrForecastsData != null) {
-                        currentHrForecastsData.removeObserver(hrforecastObserver);
-                    }
-                    currentHrForecastsData = Settings.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimit(locationKey, 24);
-                    currentHrForecastsData.observeForever(hrforecastObserver);
-                    if (hourlyForecasts != null)
-                        hourlyForecasts.setValue(hrForecastMapper.apply(currentHrForecastsData.getValue()));
-                }
-            });
+            if (currentHrForecastsData != null) {
+                currentHrForecastsData.removeObserver(hrforecastObserver);
+            }
+            currentHrForecastsData = Settings.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimit(locationKey, 24);
+            currentHrForecastsData.observeForever(hrforecastObserver);
+            if (hourlyForecasts != null)
+                hourlyForecasts.setValue(hrForecastMapper.apply(currentHrForecastsData.getValue()));
         } else if (!ObjectsCompat.equals(tempUnit, Settings.getTempUnit())) {
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    tempUnit = Settings.getTempUnit();
+            tempUnit = Settings.getTempUnit();
 
-                    if (currentForecastsData != null && currentForecastsData.getValue() != null) {
-                        forecasts.setValue(forecastMapper.apply(currentForecastsData.getValue()));
-                    }
-                    if (currentHrForecastsData != null && currentHrForecastsData.getValue() != null) {
-                        hourlyForecasts.setValue(hrForecastMapper.apply(currentHrForecastsData.getValue()));
-                    }
-                }
-            });
+            if (currentForecastsData != null && currentForecastsData.getValue() != null) {
+                forecasts.setValue(forecastMapper.apply(currentForecastsData.getValue()));
+            }
+            if (currentHrForecastsData != null && currentHrForecastsData.getValue() != null) {
+                hourlyForecasts.setValue(hrForecastMapper.apply(currentHrForecastsData.getValue()));
+            }
         }
     }
 

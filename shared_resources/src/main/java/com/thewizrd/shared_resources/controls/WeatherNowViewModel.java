@@ -554,18 +554,20 @@ public class WeatherNowViewModel extends ObservableViewModel {
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
             public Void call() {
-                ImageDataViewModel imageVM = WeatherUtils.getImageData(weather);
+                if (weather != null) {
+                    ImageDataViewModel imageVM = WeatherUtils.getImageData(weather);
 
-                if (imageVM != null) {
-                    imageData = imageVM;
-                    pendingBackground = imageVM.getColor();
-                } else {
-                    imageData = null;
-                    pendingBackground = DEFAULT_COLOR;
+                    if (imageVM != null) {
+                        imageData = imageVM;
+                        pendingBackground = imageVM.getColor();
+                    } else {
+                        imageData = null;
+                        pendingBackground = DEFAULT_COLOR;
+                    }
+
+                    notifyPropertyChanged(BR.imageData);
+                    notifyPropertyChanged(BR.pendingBackground);
                 }
-
-                notifyPropertyChanged(BR.imageData);
-                notifyPropertyChanged(BR.pendingBackground);
 
                 return null;
             }

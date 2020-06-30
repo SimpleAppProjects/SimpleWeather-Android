@@ -1257,6 +1257,7 @@ public class WeatherWidgetService extends JobIntentService {
                             return null;
                     } else {
                         Logger.writeLine(Log.DEBUG, "%s: provider: %s; widgetId: %d; Unable to find location data", TAG, provider.getClassName(), appWidgetId);
+                        return null;
                     }
                 }
 

@@ -231,7 +231,9 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
             vHolder.mLocView.post(new Runnable() {
                 @Override
                 public void run() {
-                    updatePanelBackground(vHolder, panelView, imageUpdateOnly);
+                    if (vHolder != null && vHolder.mLocView != null) {
+                        updatePanelBackground(vHolder, panelView, imageUpdateOnly);
+                    }
                 }
             });
 

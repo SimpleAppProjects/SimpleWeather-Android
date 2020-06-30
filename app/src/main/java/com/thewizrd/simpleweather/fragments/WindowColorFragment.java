@@ -8,11 +8,10 @@ import android.view.View;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
 import com.thewizrd.simpleweather.helpers.WindowColorManager;
 
-public abstract class WindowColorFragment extends Fragment implements WindowColorManager {
+public abstract class WindowColorFragment extends CustomFragment implements WindowColorManager {
 
     private Configuration currentConfig;
 

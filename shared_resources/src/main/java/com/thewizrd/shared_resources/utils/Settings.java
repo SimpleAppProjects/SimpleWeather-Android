@@ -71,7 +71,7 @@ public class Settings {
     public static final int DEFAULTINTERVAL;
 
     static final boolean IS_PHONE;
-    public static final int CONNECTION_TIMEOUT = 5000; // 5s
+    public static final int CONNECTION_TIMEOUT = 10000; // 10s
     public static final int READ_TIMEOUT = 10000; // 10s
 
     // Shared Settings

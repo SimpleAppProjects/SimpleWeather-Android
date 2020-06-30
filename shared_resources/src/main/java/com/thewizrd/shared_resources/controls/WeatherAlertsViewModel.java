@@ -1,8 +1,6 @@
 package com.thewizrd.shared_resources.controls;
 
-import android.os.Handler;
-import android.os.Looper;
-
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.arch.core.util.Function;
 import androidx.core.util.ObjectsCompat;
@@ -23,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class WeatherAlertsViewModel extends ObservableViewModel {
-    private Handler mMainHandler;
     private String locationKey;
 
     private MutableLiveData<List<WeatherAlertViewModel>> alerts;
@@ -32,54 +29,51 @@ public class WeatherAlertsViewModel extends ObservableViewModel {
 
     public WeatherAlertsViewModel() {
         alerts = new MutableLiveData<>();
-
-        mMainHandler = new Handler(Looper.getMainLooper());
     }
 
     public LiveData<List<WeatherAlertViewModel>> getAlerts() {
         return alerts;
     }
 
+    @MainThread
     public void updateAlerts(@NonNull LocationData location) {
         if (!ObjectsCompat.equals(this.locationKey, location.getQuery())) {
             this.locationKey = location.getQuery();
 
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (currentAlertsData != null) {
-                        currentAlertsData.removeObserver(alertObserver);
-                    }
-                    currentAlertsData = Transformations.map(Settings.getWeatherDAO().getLiveWeatherAlertData(locationKey),
-                            new Function<WeatherAlerts, List<WeatherAlertViewModel>>() {
-                                @Override
-                                public List<WeatherAlertViewModel> apply(WeatherAlerts weatherAlerts) {
-                                    List<WeatherAlertViewModel> alerts;
+            if (currentAlertsData != null) {
+                currentAlertsData.removeObserver(alertObserver);
+            }
 
-                                    if (weatherAlerts != null && weatherAlerts.getAlerts() != null && weatherAlerts.getAlerts().size() > 0) {
-                                        alerts = new ArrayList<>(weatherAlerts.getAlerts().size());
+            currentAlertsData = Transformations.map(Settings.getWeatherDAO().getLiveWeatherAlertData(locationKey),
+                    new Function<WeatherAlerts, List<WeatherAlertViewModel>>() {
+                        @Override
+                        public List<WeatherAlertViewModel> apply(WeatherAlerts weatherAlerts) {
+                            List<WeatherAlertViewModel> alerts;
 
-                                        for (WeatherAlert alert : weatherAlerts.getAlerts()) {
-                                            // Skip if alert has expired
-                                            if (alert.getExpiresDate().compareTo(ZonedDateTime.now()) <= 0)
-                                                continue;
+                            if (weatherAlerts != null && weatherAlerts.getAlerts() != null && weatherAlerts.getAlerts().size() > 0) {
+                                alerts = new ArrayList<>(weatherAlerts.getAlerts().size());
 
-                                            WeatherAlertViewModel alertView = new WeatherAlertViewModel(alert);
-                                            alerts.add(alertView);
-                                        }
+                                for (WeatherAlert alert : weatherAlerts.getAlerts()) {
+                                    // Skip if alert has expired
+                                    if (alert.getExpiresDate().compareTo(ZonedDateTime.now()) <= 0)
+                                        continue;
 
-                                        return alerts;
-                                    }
-
-                                    return Collections.emptyList();
+                                    WeatherAlertViewModel alertView = new WeatherAlertViewModel(alert);
+                                    alerts.add(alertView);
                                 }
-                            });
-                    currentAlertsData.observeForever(alertObserver);
-                    if (alerts != null) {
-                        alerts.setValue(currentAlertsData.getValue());
-                    }
-                }
-            });
+
+                                return alerts;
+                            }
+
+                            return Collections.emptyList();
+                        }
+                    });
+
+            currentAlertsData.observeForever(alertObserver);
+
+            if (alerts != null) {
+                alerts.setValue(currentAlertsData.getValue());
+            }
         }
     }
 

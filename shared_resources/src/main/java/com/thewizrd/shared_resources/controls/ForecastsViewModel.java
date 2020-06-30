@@ -1,8 +1,6 @@
 package com.thewizrd.shared_resources.controls;
 
-import android.os.Handler;
-import android.os.Looper;
-
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.util.Function;
@@ -29,7 +27,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class ForecastsViewModel extends ViewModel {
-    private Handler mMainHandler;
     private String locationKey;
     private String tempUnit;
 
@@ -42,8 +39,6 @@ public class ForecastsViewModel extends ViewModel {
     public ForecastsViewModel() {
         forecasts = new MutableLiveData<>();
         hourlyForecasts = new MutableLiveData<>();
-
-        mMainHandler = new Handler(Looper.getMainLooper());
     }
 
     public LiveData<PagedList<ForecastItemViewModel>> getForecasts() {
@@ -54,70 +49,61 @@ public class ForecastsViewModel extends ViewModel {
         return hourlyForecasts;
     }
 
+    @MainThread
     public void updateForecasts(@NonNull LocationData location) {
         if (!ObjectsCompat.equals(this.locationKey, location.getQuery())) {
             this.locationKey = location.getQuery();
 
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    tempUnit = Settings.getTempUnit();
+            tempUnit = Settings.getTempUnit();
 
-                    if (currentForecastsData != null) {
-                        currentForecastsData.removeObserver(forecastObserver);
-                    }
+            if (currentForecastsData != null) {
+                currentForecastsData.removeObserver(forecastObserver);
+            }
 
-                    currentForecastsData = new LivePagedListBuilder<>(
-                            new ForecastDataSourceFactory(locationKey, Settings.getWeatherDAO()),
-                            new PagedList.Config.Builder()
-                                    .setEnablePlaceholders(true)
-                                    .setPageSize(7)
-                                    .build())
-                            .build();
+            currentForecastsData = new LivePagedListBuilder<>(
+                    new ForecastDataSourceFactory(locationKey, Settings.getWeatherDAO()),
+                    new PagedList.Config.Builder()
+                            .setEnablePlaceholders(true)
+                            .setPageSize(7)
+                            .build())
+                    .build();
 
-                    currentForecastsData.observeForever(forecastObserver);
-                    if (forecasts != null)
-                        forecasts.setValue(currentForecastsData.getValue());
+            currentForecastsData.observeForever(forecastObserver);
+            if (forecasts != null)
+                forecasts.setValue(currentForecastsData.getValue());
 
-                    DataSource.Factory<Integer, HourlyForecastItemViewModel> hrFactory = Settings.getWeatherDAO().loadHourlyForecastsByQueryOrderByDate(locationKey)
-                            .map(new Function<HourlyForecast, HourlyForecastItemViewModel>() {
-                                @Override
-                                public HourlyForecastItemViewModel apply(HourlyForecast input) {
-                                    return new HourlyForecastItemViewModel(input);
-                                }
-                            });
+            DataSource.Factory<Integer, HourlyForecastItemViewModel> hrFactory = Settings.getWeatherDAO().loadHourlyForecastsByQueryOrderByDate(locationKey)
+                    .map(new Function<HourlyForecast, HourlyForecastItemViewModel>() {
+                        @Override
+                        public HourlyForecastItemViewModel apply(HourlyForecast input) {
+                            return new HourlyForecastItemViewModel(input);
+                        }
+                    });
 
-                    if (currentHrForecastsData != null) {
-                        currentHrForecastsData.removeObserver(hrforecastObserver);
-                    }
-                    currentHrForecastsData = new LivePagedListBuilder<>(
-                            hrFactory,
-                            new PagedList.Config.Builder()
-                                    .setEnablePlaceholders(true)
-                                    .setPrefetchDistance(12)
-                                    .setPageSize(24)
-                                    .setMaxSize(48)
-                                    .build())
-                            .build();
-                    currentHrForecastsData.observeForever(hrforecastObserver);
-                    if (hourlyForecasts != null)
-                        hourlyForecasts.setValue(currentHrForecastsData.getValue());
-                }
-            });
+            if (currentHrForecastsData != null) {
+                currentHrForecastsData.removeObserver(hrforecastObserver);
+            }
+            currentHrForecastsData = new LivePagedListBuilder<>(
+                    hrFactory,
+                    new PagedList.Config.Builder()
+                            .setEnablePlaceholders(true)
+                            .setPrefetchDistance(12)
+                            .setPageSize(24)
+                            .setMaxSize(48)
+                            .build())
+                    .build();
+            currentHrForecastsData.observeForever(hrforecastObserver);
+            if (hourlyForecasts != null)
+                hourlyForecasts.setValue(currentHrForecastsData.getValue());
         } else if (!ObjectsCompat.equals(tempUnit, Settings.getTempUnit())) {
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    tempUnit = Settings.getTempUnit();
+            tempUnit = Settings.getTempUnit();
 
-                    if (currentForecastsData != null && currentForecastsData.getValue() != null) {
-                        currentForecastsData.getValue().getDataSource().invalidate();
-                    }
-                    if (currentHrForecastsData != null && currentHrForecastsData.getValue() != null) {
-                        currentHrForecastsData.getValue().getDataSource().invalidate();
-                    }
-                }
-            });
+            if (currentForecastsData != null && currentForecastsData.getValue() != null) {
+                currentForecastsData.getValue().getDataSource().invalidate();
+            }
+            if (currentHrForecastsData != null && currentHrForecastsData.getValue() != null) {
+                currentHrForecastsData.getValue().getDataSource().invalidate();
+            }
         }
     }
 

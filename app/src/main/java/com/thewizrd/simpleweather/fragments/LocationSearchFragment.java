@@ -23,14 +23,14 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
@@ -57,13 +57,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Callable;
 
-public class LocationSearchFragment extends Fragment implements SnackbarManagerInterface {
+public class LocationSearchFragment extends CustomFragment implements SnackbarManagerInterface {
     private FragmentLocationSearchBinding binding;
     private SearchActionBarBinding searchBarBinding;
     private LocationQueryAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private FragmentActivity mActivity;
 
     private SnackbarManager mSnackMgr;
 
@@ -106,7 +106,6 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        mActivity = (FragmentActivity) context;
         initSnackManager();
     }
 
@@ -125,24 +124,22 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        getAppCompatActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
         ctsCancel();
-        mActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-        mActivity = null;
+        super.onDestroy();
     }
 
     @Override
     public void onDetach() {
-        super.onDetach();
         ctsCancel();
         unloadSnackManager();
-        mActivity = null;
+        super.onDetach();
     }
 
     @Override
     public void initSnackManager() {
         if (mSnackMgr == null) {
-            mSnackMgr = new SnackbarManager(mActivity.findViewById(android.R.id.content));
+            mSnackMgr = new SnackbarManager(getAppCompatActivity().findViewById(android.R.id.content));
             mSnackMgr.setSwipeDismissEnabled(true);
             mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
         }
@@ -174,12 +171,6 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
         mSnackMgr = null;
     }
 
-    private void runOnUiThread(Runnable action) {
-        if (mActivity != null) {
-            mActivity.runOnUiThread(action);
-        }
-    }
-
     public LocationQueryAdapter getAdapter() {
         return mAdapter;
     }
@@ -203,13 +194,17 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
     }
 
     public void disableRecyclerView() {
-        binding.recyclerView.post(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (binding == null) return;
                 binding.recyclerView.setEnabled(false);
             }
         });
+    }
+
+    @Override
+    public boolean isAlive() {
+        return binding != null && super.isAlive();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -225,7 +220,7 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
         searchBarBinding.searchBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mActivity != null) mActivity.onBackPressed();
+                if (getAppCompatActivity() != null) getAppCompatActivity().onBackPressed();
             }
         });
 
@@ -310,7 +305,7 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             searchBarBinding.searchProgressBar.setIndeterminateDrawable(
-                    ContextCompat.getDrawable(mActivity, R.drawable.progressring));
+                    ContextCompat.getDrawable(getAppCompatActivity(), R.drawable.progressring));
         }
 
         /*
@@ -386,7 +381,7 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
         binding.recyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(mActivity);
+        mLayoutManager = new LinearLayoutManager(getAppCompatActivity());
         binding.recyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
@@ -409,15 +404,15 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
         super.onViewCreated(view, savedInstanceState);
 
         int bg_color = Settings.getUserThemeMode() != UserThemeMode.AMOLED_DARK ?
-                ActivityUtils.getColor(mActivity, android.R.attr.colorBackground) : Colors.BLACK;
+                ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground) : Colors.BLACK;
         view.setBackgroundColor(bg_color);
     }
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         searchBarBinding = null;
         binding = null;
+        super.onDestroyView();
     }
 
     public void fetchLocations(final String queryString) {
@@ -425,36 +420,27 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
         ctsCancel();
 
         if (!StringUtils.isNullOrWhitespace(queryString)) {
-            AsyncTask.run(new Runnable() {
+            final CancellationToken ctsToken = cts.getToken();
+
+            AsyncTask.create(new Callable<Collection<LocationQueryViewModel>>() {
                 @Override
-                public void run() {
-                    CancellationToken ctsToken = cts.getToken();
-
-                    if (ctsToken.isCancellationRequested()) return;
-
-                    final Collection<LocationQueryViewModel> results;
-                    try {
-                        results = wm.getLocations(queryString);
-                    } catch (final WeatherException e) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
-                                        new SnackbarWindowAdjustCallback(mActivity));
-                                mAdapter.setLocations(Collections.singletonList(new LocationQueryViewModel()));
-                            }
-                        });
-                        return;
+                public Collection<LocationQueryViewModel> call() throws Exception {
+                    if (ctsToken.isCancellationRequested()) return null;
+                    return wm.getLocations(queryString);
+                }
+            }).addOnSuccessListener(new OnSuccessListener<Collection<LocationQueryViewModel>>() {
+                @Override
+                public void onSuccess(Collection<LocationQueryViewModel> results) {
+                    mAdapter.setLocations(new ArrayList<>(results));
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    if (e instanceof WeatherException) {
+                        showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
+                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
                     }
-
-                    if (ctsToken.isCancellationRequested()) return;
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mAdapter.setLocations(new ArrayList<>(results));
-                        }
-                    });
+                    mAdapter.setLocations(Collections.singletonList(new LocationQueryViewModel()));
                 }
             });
         } else if (StringUtils.isNullOrWhitespace(queryString)) {
@@ -483,8 +469,8 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
     }
 
     private void showInputMethod(View view) {
-        if (mActivity != null) {
-            InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
+        if (getAppCompatActivity() != null) {
+            InputMethodManager imm = (InputMethodManager) getAppCompatActivity().getSystemService(
                     Context.INPUT_METHOD_SERVICE);
             if (imm != null && view != null) {
                 imm.showSoftInput(view, 0);
@@ -493,8 +479,8 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
     }
 
     private void hideInputMethod(View view) {
-        if (mActivity != null) {
-            InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
+        if (getAppCompatActivity() != null) {
+            InputMethodManager imm = (InputMethodManager) getAppCompatActivity().getSystemService(
                     Context.INPUT_METHOD_SERVICE);
             if (imm != null && view != null) {
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -506,7 +492,7 @@ public class LocationSearchFragment extends Fragment implements SnackbarManagerI
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        final FragmentTransaction ft = getFragmentManager().beginTransaction();
+        final FragmentTransaction ft = getParentFragmentManager().beginTransaction();
         ft.detach(this);
         ft.attach(this);
         ft.commit();

@@ -13,7 +13,6 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.OnApplyWindowInsetsListener;
@@ -37,7 +36,6 @@ import com.thewizrd.simpleweather.helpers.TransitionHelper;
 public abstract class ToolbarFragment extends WindowColorFragment
         implements OnBackPressedFragmentListener {
 
-    private AppCompatActivity mActivity;
     private SystemBarColorManager mSysBarColorsIface;
 
     // Views
@@ -55,10 +53,6 @@ public abstract class ToolbarFragment extends WindowColorFragment
         return binding.toolbar;
     }
 
-    public final AppCompatActivity getAppCompatActivity() {
-        return mActivity;
-    }
-
     public final SystemBarColorManager getSysBarColorMgr() {
         return mSysBarColorsIface;
     }
@@ -66,28 +60,19 @@ public abstract class ToolbarFragment extends WindowColorFragment
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        mActivity = (AppCompatActivity) context;
         mSysBarColorsIface = (SystemBarColorManager) context;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mActivity = null;
         mSysBarColorsIface = null;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        mActivity = null;
         mSysBarColorsIface = null;
-    }
-
-    protected void runOnUiThread(Runnable action) {
-        if (mActivity != null)
-            mActivity.runOnUiThread(action);
     }
 
     @Override
@@ -116,7 +101,7 @@ public abstract class ToolbarFragment extends WindowColorFragment
         binding.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActivity.onBackPressed();
+                getAppCompatActivity().onBackPressed();
             }
         });
 
@@ -170,25 +155,25 @@ public abstract class ToolbarFragment extends WindowColorFragment
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         binding = null;
+        super.onDestroyView();
     }
 
     @CallSuper
     public void updateWindowColors() {
-        if (mActivity == null)
+        if (isAlive())
             return;
 
         Configuration config = getCurrentConfiguration();
         final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
-        @ColorInt int color = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
-        @ColorInt int bg_color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+        @ColorInt int color = ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary);
+        @ColorInt int bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
         if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
             if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
                 bg_color = Colors.BLACK;
             } else {
-                bg_color = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+                bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
             }
             color = bg_color;
         }
