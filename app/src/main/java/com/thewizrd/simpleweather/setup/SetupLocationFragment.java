@@ -43,6 +43,8 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
@@ -65,11 +67,13 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.CustomException;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
@@ -423,163 +427,149 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
     private RecyclerOnClickListenerInterface recyclerClickInterface = new RecyclerOnClickListenerInterface() {
         @Override
         public void onClick(final View view, final int position) {
+            AnalyticsLogger.logEvent("SetupLocFragment: searchFragment click");
+
             if (mSearchFragment == null || !isAlive())
                 return;
 
-            // Get selected query view
-            final LocationQueryAdapter adapter = mSearchFragment.getAdapter();
-            LocationQueryViewModel query_vm = null;
-
-            try {
-                if (!StringUtils.isNullOrEmpty(adapter.getDataset().get(position).getLocationQuery()))
-                    query_vm = adapter.getDataset().get(position);
-            } catch (ArrayIndexOutOfBoundsException ex) {
-                query_vm = null;
-            } finally {
-                if (query_vm == null)
-                    query_vm = new LocationQueryViewModel();
-            }
-
-            if (StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
-                // Stop since there is no valid query
-                return;
-            }
-
-            if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired()) {
-                if (mSearchFragment != null) {
-                    mSearchFragment.showSnackbar(Snackbar.make(R.string.werror_invalidkey, Snackbar.Duration.SHORT),
-                            new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                    mSearchFragment.showLoading(false);
-                }
-                return;
-            }
-
-            // Cancel pending search
-            mSearchFragment.ctsCancel();
-            CancellationToken ctsToken = mSearchFragment.getCancellationTokenSource().getToken();
-
             mSearchFragment.showLoading(true);
+            mSearchFragment.enableRecyclerView(false);
 
-            if (ctsToken.isCancellationRequested()) {
-                mSearchFragment.showLoading(false);
-                return;
-            }
-
-            String country_code = query_vm.getLocationCountry();
-            if (!StringUtils.isNullOrWhitespace(country_code))
-                country_code = country_code.toLowerCase();
-
-            if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
-                if (mSearchFragment != null) {
-                    mSearchFragment.showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.SHORT),
-                            new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                    mSearchFragment.showLoading(false);
-                }
-                return;
-            }
-
-            // Need to get FULL location data for HERE API
-            // Data provided is incomplete
-            if (WeatherAPI.HERE.equals(query_vm.getLocationSource())
-                    && query_vm.getLocationLat() == -1 && query_vm.getLocationLong() == -1
-                    && query_vm.getLocationTZLong() == null) {
-                final LocationQueryViewModel loc = query_vm;
-                try {
-                    query_vm = new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
-                        @Override
-                        public LocationQueryViewModel call() throws WeatherException {
-                            return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
-                        }
-                    });
-                } catch (final WeatherException wEx) {
-                    if (mSearchFragment != null) {
-                        mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
-                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                        mSearchFragment.showLoading(false);
-                    }
-                    return;
-                }
-            }
-
-            // Get weather data
-            location = new LocationData(query_vm);
-            if (!location.isValid()) {
-                if (mSearchFragment != null) {
-                    mSearchFragment.showSnackbar(Snackbar.make(R.string.werror_noweather, Snackbar.Duration.SHORT),
-                            new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                    mSearchFragment.showLoading(false);
-                }
-                return;
-            }
-            Weather weather = Settings.getWeatherData(location.getQuery());
-            if (weather == null) {
-                try {
-                    weather = wm.getWeather(location);
-                } catch (final WeatherException wEx) {
-                    weather = null;
-                    if (mSearchFragment != null) {
-                        mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
-                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                        mSearchFragment.showLoading(false);
-                    }
-                }
-            }
-
-            if (weather == null) {
-                mSearchFragment.showLoading(false);
-                return;
-            }
-
-            // We got our data so disable controls just in case
-            adapter.getDataset().clear();
-            adapter.notifyDataSetChanged();
-            if (mSearchFragment != null) {
-                mSearchFragment.disableRecyclerView();
-            }
-
-            // Save weather data
-            Settings.deleteLocations();
-            Settings.addLocation(location);
-            if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
-                Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
-            Settings.saveWeatherData(weather);
-            Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
-            final Weather finalWeather = weather;
-            Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
-                    Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
-                        @NonNull
-                        @Override
-                        public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
-                            return new HourlyForecasts(finalWeather.getQuery(), input);
-                        }
-                    }));
-
-            // If we're using search
-            // make sure gps feature is off
-            Settings.setFollowGPS(false);
-            Settings.setWeatherLoaded(true);
-
-            // Send data for wearables
-            if (getAppCompatActivity() != null) {
-                WearableDataListenerService.enqueueWork(getAppCompatActivity(),
-                        new Intent(getAppCompatActivity(), WearableDataListenerService.class)
-                                .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
-                WearableDataListenerService.enqueueWork(getAppCompatActivity(),
-                        new Intent(getAppCompatActivity(), WearableDataListenerService.class)
-                                .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
-                WearableDataListenerService.enqueueWork(getAppCompatActivity(),
-                        new Intent(getAppCompatActivity(), WearableDataListenerService.class)
-                                .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
-            }
-
-            // Setup complete
-            mDataManager.getArguments().putString(Constants.KEY_DATA, new AsyncTask<String>().await(new Callable<String>() {
+            AsyncTask.create(new Callable<Boolean>() {
                 @Override
-                public String call() {
-                    return JSONParser.serializer(location, LocationData.class);
+                public Boolean call() throws CustomException, InterruptedException, WeatherException {
+                    // Get selected query view
+                    final LocationQueryAdapter adapter = mSearchFragment.getAdapter();
+                    LocationQueryViewModel queryResult = new LocationQueryViewModel();
+
+                    if (!StringUtils.isNullOrEmpty(adapter.getDataset().get(position).getLocationQuery()))
+                        queryResult = adapter.getDataset().get(position);
+
+                    if (StringUtils.isNullOrWhitespace(queryResult.getLocationQuery())) {
+                        // Stop since there is no valid query
+                        throw new CustomException(R.string.error_retrieve_location);
+                    }
+
+                    // Cancel pending search
+                    mSearchFragment.ctsCancel();
+                    CancellationToken ctsToken = mSearchFragment.getCancellationTokenSource().getToken();
+
+                    if (ctsToken.isCancellationRequested()) throw new InterruptedException();
+
+                    String country_code = queryResult.getLocationCountry();
+                    if (!StringUtils.isNullOrWhitespace(country_code))
+                        country_code = country_code.toLowerCase();
+
+                    if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
+                        throw new CustomException(R.string.error_message_weather_us_only);
+                    }
+
+                    // Need to get FULL location data for HERE API
+                    // Data provided is incomplete
+                    if (WeatherAPI.HERE.equals(queryResult.getLocationSource())
+                            && queryResult.getLocationLat() == -1 && queryResult.getLocationLong() == -1
+                            && queryResult.getLocationTZLong() == null) {
+                        final LocationQueryViewModel loc = queryResult;
+                        queryResult = new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
+                            @Override
+                            public LocationQueryViewModel call() throws WeatherException {
+                                return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
+                            }
+                        });
+                    }
+
+                    // Get weather data
+                    location = new LocationData(queryResult);
+                    if (!location.isValid()) {
+                        throw new CustomException(R.string.werror_noweather);
+                    }
+                    Weather weather = Settings.getWeatherData(location.getQuery());
+                    if (weather == null) {
+                        weather = wm.getWeather(location);
+                    }
+
+                    if (weather == null) {
+                        throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
+                    }
+
+                    // Save weather data
+                    Settings.deleteLocations();
+                    Settings.addLocation(location);
+                    if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
+                        Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
+                    Settings.saveWeatherData(weather);
+                    Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
+                    final Weather finalWeather = weather;
+                    Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
+                            Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
+                                @NonNull
+                                @Override
+                                public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
+                                    return new HourlyForecasts(finalWeather.getQuery(), input);
+                                }
+                            }));
+
+                    // If we're using search
+                    // make sure gps feature is off
+                    Settings.setFollowGPS(false);
+                    Settings.setWeatherLoaded(true);
+
+                    // Send data for wearables
+                    if (getAppCompatActivity() != null) {
+                        WearableDataListenerService.enqueueWork(getAppCompatActivity(),
+                                new Intent(getAppCompatActivity(), WearableDataListenerService.class)
+                                        .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
+                        WearableDataListenerService.enqueueWork(getAppCompatActivity(),
+                                new Intent(getAppCompatActivity(), WearableDataListenerService.class)
+                                        .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
+                        WearableDataListenerService.enqueueWork(getAppCompatActivity(),
+                                new Intent(getAppCompatActivity(), WearableDataListenerService.class)
+                                        .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
+                    }
+
+                    return true;
                 }
-            }));
-            mStepperLayout.proceed();
+            }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Boolean>() {
+                @Override
+                public void onSuccess(Boolean success) {
+                    if (success) {
+                        // Setup complete
+                        mDataManager.getArguments().putString(Constants.KEY_DATA, new AsyncTask<String>().await(new Callable<String>() {
+                            @Override
+                            public String call() {
+                                return JSONParser.serializer(location, LocationData.class);
+                            }
+                        }));
+                        mStepperLayout.proceed();
+                    } else {
+                        if (mSearchFragment != null) {
+                            mSearchFragment.showLoading(false);
+                            mSearchFragment.enableRecyclerView(true);
+                        }
+                    }
+                }
+            }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // Restore controls
+                    Settings.setFollowGPS(false);
+                    Settings.setWeatherLoaded(false);
+
+                    if (e instanceof WeatherException || e instanceof CustomException) {
+                        if (mSearchFragment != null) {
+                            mSearchFragment.showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
+                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                            mSearchFragment.showLoading(false);
+                            mSearchFragment.enableRecyclerView(true);
+                        }
+                    } else {
+                        mSearchFragment.showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
+                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                        mSearchFragment.showLoading(false);
+                        mSearchFragment.enableRecyclerView(true);
+                    }
+                }
+            });
         }
     };
 
@@ -591,133 +581,139 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
         // Show loading bar
         binding.progressBar.setVisibility(View.VISIBLE);
 
-        try {
-            if (mLocation != null) {
-                LocationQueryViewModel view = null;
+        AsyncTask.create(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws InterruptedException, WeatherException, ExecutionException, CustomException {
+                if (mLocation != null) {
+                    LocationQueryViewModel view;
 
-                // Cancel other tasks
-                ctsCancel();
-                CancellationToken ctsToken = cts.getToken();
+                    // Cancel other tasks
+                    ctsCancel();
+                    CancellationToken ctsToken = cts.getToken();
 
-                if (ctsToken.isCancellationRequested()) throw new InterruptedException();
+                    if (ctsToken.isCancellationRequested()) throw new InterruptedException();
 
-                // Show loading bar
-                binding.progressBar.setVisibility(View.VISIBLE);
+                    // Show loading bar
+                    binding.progressBar.setVisibility(View.VISIBLE);
 
-                if (ctsToken.isCancellationRequested()) throw new InterruptedException();
+                    if (ctsToken.isCancellationRequested()) throw new InterruptedException();
 
-                view = wm.getLocation(mLocation);
+                    view = wm.getLocation(mLocation);
 
-                if (StringUtils.isNullOrWhitespace(view.getLocationQuery()))
-                    view = new LocationQueryViewModel();
+                    if (StringUtils.isNullOrWhitespace(view.getLocationQuery()))
+                        view = new LocationQueryViewModel();
 
-                if (StringUtils.isNullOrWhitespace(view.getLocationQuery())) {
-                    enableControls(true);
-                    return;
-                }
+                    if (StringUtils.isNullOrWhitespace(view.getLocationQuery())) {
+                        throw new CustomException(R.string.error_retrieve_location);
+                    }
 
-                if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired()) {
-                    showSnackbar(Snackbar.make(R.string.werror_invalidkey, Snackbar.Duration.SHORT),
-                            new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                    enableControls(true);
-                    return;
-                }
+                    if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired()) {
+                        throw new CustomException(R.string.werror_invalidkey);
+                    }
 
-                if (ctsToken.isCancellationRequested()) throw new InterruptedException();
+                    if (ctsToken.isCancellationRequested()) throw new InterruptedException();
 
-                String country_code = view.getLocationCountry();
-                if (!StringUtils.isNullOrWhitespace(country_code))
-                    country_code = country_code.toLowerCase();
+                    String country_code = view.getLocationCountry();
+                    if (!StringUtils.isNullOrWhitespace(country_code))
+                        country_code = country_code.toLowerCase();
 
-                if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
-                    showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.SHORT),
-                            new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                    enableControls(true);
-                    return;
-                }
+                    if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
+                        throw new CustomException(R.string.error_message_weather_us_only);
+                    }
 
-                // Get Weather Data
-                location = new LocationData(view, mLocation);
-                if (!location.isValid()) {
-                    showSnackbar(Snackbar.make(R.string.werror_noweather, Snackbar.Duration.SHORT),
-                            new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                    enableControls(true);
-                    return;
-                }
+                    // Get Weather Data
+                    location = new LocationData(view, mLocation);
+                    if (!location.isValid()) {
+                        throw new CustomException(R.string.werror_noweather);
+                    }
 
-                if (ctsToken.isCancellationRequested()) throw new InterruptedException();
+                    if (ctsToken.isCancellationRequested()) throw new InterruptedException();
 
-                Weather weather = Settings.getWeatherData(location.getQuery());
-                if (weather == null) {
-                    if (ctsToken.isCancellationRequested())
-                        throw new InterruptedException();
+                    Weather weather = Settings.getWeatherData(location.getQuery());
+                    if (weather == null) {
+                        if (ctsToken.isCancellationRequested())
+                            throw new InterruptedException();
 
-                    try {
                         TaskCompletionSource<Weather> tcs = new TaskCompletionSource<>(ctsToken);
                         tcs.setResult(wm.getWeather(location));
                         weather = Tasks.await(tcs.getTask());
-                    } catch (final WeatherException wEx) {
-                        weather = null;
-                        showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
-                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
                     }
+
+                    if (weather == null) {
+                        throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
+                    }
+
+                    if (ctsToken.isCancellationRequested()) throw new InterruptedException();
+
+                    // We got our data so disable controls just in case
+                    enableControls(false);
+
+                    // Save weather data
+                    Settings.saveLastGPSLocData(location);
+                    Settings.deleteLocations();
+                    Settings.addLocation(new LocationData(view));
+                    if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
+                        Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
+                    Settings.saveWeatherData(weather);
+                    Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
+                    final Weather finalWeather = weather;
+                    Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
+                            Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
+                                @NonNull
+                                @Override
+                                public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
+                                    return new HourlyForecasts(finalWeather.getQuery(), input);
+                                }
+                            }));
+
+                    Settings.setFollowGPS(true);
+                    Settings.setWeatherLoaded(true);
+
+                    // Send data for wearables
+                    if (getAppCompatActivity() != null) {
+                        getAppCompatActivity().startService(new Intent(getAppCompatActivity(), WearableDataListenerService.class)
+                                .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
+                        getAppCompatActivity().startService(new Intent(getAppCompatActivity(), WearableDataListenerService.class)
+                                .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
+                        getAppCompatActivity().startService(new Intent(getAppCompatActivity(), WearableDataListenerService.class)
+                                .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
+                    }
+
+                    return true;
+                } else {
+                    updateLocation();
                 }
 
-                if (weather == null) {
-                    enableControls(true);
-                    return;
-                }
-
-                if (ctsToken.isCancellationRequested()) throw new InterruptedException();
-
-                // We got our data so disable controls just in case
-                enableControls(false);
-
-                // Save weather data
-                Settings.saveLastGPSLocData(location);
-                Settings.deleteLocations();
-                Settings.addLocation(new LocationData(view));
-                if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
-                    Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
-                Settings.saveWeatherData(weather);
-                Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
-                final Weather finalWeather = weather;
-                Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
-                        Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
-                            @NonNull
-                            @Override
-                            public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
-                                return new HourlyForecasts(finalWeather.getQuery(), input);
-                            }
-                        }));
-
-                Settings.setFollowGPS(true);
-                Settings.setWeatherLoaded(true);
-
-                // Send data for wearables
-                if (getAppCompatActivity() != null) {
-                    getAppCompatActivity().startService(new Intent(getAppCompatActivity(), WearableDataListenerService.class)
-                            .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
-                    getAppCompatActivity().startService(new Intent(getAppCompatActivity(), WearableDataListenerService.class)
-                            .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
-                    getAppCompatActivity().startService(new Intent(getAppCompatActivity(), WearableDataListenerService.class)
-                            .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
-                }
-
-                // Setup complete
-                mDataManager.getArguments().putString(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class));
-                mStepperLayout.proceed();
-            } else {
-                updateLocation();
+                return false;
             }
-        } catch (Exception e) {
-            // Restore controls
-            enableControls(true);
-            Settings.setFollowGPS(false);
-            Settings.setWeatherLoaded(false);
-            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
-                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-        }
+        }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Boolean>() {
+            @Override
+            public void onSuccess(Boolean success) {
+                if (success) {
+                    // Setup complete
+                    mDataManager.getArguments().putString(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class));
+                    mStepperLayout.proceed();
+                } else {
+                    enableControls(true);
+                }
+            }
+        }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                // Restore controls
+                enableControls(true);
+                Settings.setFollowGPS(false);
+                Settings.setWeatherLoaded(false);
+
+                if (e instanceof WeatherException || e instanceof CustomException) {
+                    showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
+                            new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                } else {
+                    showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
+                            new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                }
+            }
+        });
     }
 
     private void updateLocation() {

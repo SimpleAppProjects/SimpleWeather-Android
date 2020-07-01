@@ -60,6 +60,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -67,7 +68,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.transition.MaterialContainerTransform;
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
@@ -84,6 +87,7 @@ import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
+import com.thewizrd.shared_resources.utils.CustomException;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -1302,159 +1306,141 @@ public class LocationsFragment extends ToolbarFragment
                 if (mSearchFragment == null)
                     return;
 
-                final LocationQueryAdapter adapter = searchFragment.getAdapter();
-                LocationQueryViewModel query_vm = null;
-
-                try {
-                    if (!StringUtils.isNullOrEmpty(adapter.getDataset().get(position).getLocationQuery()))
-                        query_vm = adapter.getDataset().get(position);
-                } catch (Exception e) {
-                    query_vm = null;
-                } finally {
-                    if (query_vm == null)
-                        query_vm = new LocationQueryViewModel();
-                }
-
-                if (StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
-                    // Stop since there is no valid query
-                    return;
-                }
-
-                // Cancel other tasks
-                mSearchFragment.ctsCancel();
-                CancellationToken ctsToken = mSearchFragment.getCancellationTokenSource().getToken();
-
                 mSearchFragment.showLoading(true);
+                mSearchFragment.enableRecyclerView(false);
 
-                if (ctsToken.isCancellationRequested()) {
-                    mSearchFragment.showLoading(false);
-                    return;
-                }
+                AsyncTask.create(new Callable<LocationPanelViewModel>() {
+                    @Override
+                    public LocationPanelViewModel call() throws CustomException, InterruptedException, WeatherException {
+                        final LocationQueryAdapter adapter = searchFragment.getAdapter();
+                        LocationQueryViewModel queryResult = new LocationQueryViewModel();
 
-                String country_code = query_vm.getLocationCountry();
-                if (!StringUtils.isNullOrWhitespace(country_code))
-                    country_code = country_code.toLowerCase();
+                        if (!StringUtils.isNullOrEmpty(adapter.getDataset().get(position).getLocationQuery()))
+                            queryResult = adapter.getDataset().get(position);
 
-                if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
-                    if (mSearchFragment != null) {
-                        mSearchFragment.showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.SHORT),
-                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                        mSearchFragment.showLoading(false);
-                    }
-                    return;
-                }
+                        if (StringUtils.isNullOrWhitespace(queryResult.getLocationQuery())) {
+                            // Stop since there is no valid query
+                            throw new CustomException(R.string.error_retrieve_location);
+                        }
 
-                // Need to get FULL location data for HERE API
-                // Data provided is incomplete
-                if (WeatherAPI.HERE.equals(query_vm.getLocationSource())
-                        && query_vm.getLocationLat() == -1 && query_vm.getLocationLong() == -1
-                        && query_vm.getLocationTZLong() == null) {
-                    final LocationQueryViewModel loc = query_vm;
-                    try {
-                        query_vm = new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
+                        // Cancel other tasks
+                        mSearchFragment.ctsCancel();
+                        CancellationToken ctsToken = mSearchFragment.getCancellationTokenSource().getToken();
+
+                        if (ctsToken.isCancellationRequested()) throw new InterruptedException();
+
+                        String country_code = queryResult.getLocationCountry();
+                        if (!StringUtils.isNullOrWhitespace(country_code))
+                            country_code = country_code.toLowerCase();
+
+                        if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
+                            throw new CustomException(R.string.error_message_weather_us_only);
+                        }
+
+                        // Need to get FULL location data for HERE API
+                        // Data provided is incomplete
+                        if (WeatherAPI.HERE.equals(queryResult.getLocationSource())
+                                && queryResult.getLocationLat() == -1 && queryResult.getLocationLong() == -1
+                                && queryResult.getLocationTZLong() == null) {
+                            final LocationQueryViewModel loc = queryResult;
+                            queryResult = new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
+                                @Override
+                                public LocationQueryViewModel call() throws WeatherException {
+                                    return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
+                                }
+                            });
+                        }
+
+                        // Check if location already exists
+                        List<LocationData> locData = Settings.getLocationData();
+                        final LocationQueryViewModel finalQueryResult = queryResult;
+                        LocationData loc = Iterables.find(locData, new Predicate<LocationData>() {
                             @Override
-                            public LocationQueryViewModel call() throws WeatherException {
-                                return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
+                            public boolean apply(@NullableDecl LocationData input) {
+                                return input != null && input.getQuery().equals(finalQueryResult.getLocationQuery());
                             }
-                        });
-                    } catch (final WeatherException wEx) {
+                        }, null);
+
+                        if (loc != null) {
+                            // Location exists; return
+                            return null;
+                        }
+
+                        if (ctsToken.isCancellationRequested()) throw new InterruptedException();
+
+                        LocationData location = new LocationData(queryResult);
+                        if (!location.isValid()) {
+                            throw new CustomException(R.string.werror_noweather);
+                        }
+                        Weather weather = Settings.getWeatherData(location.getQuery());
+                        if (weather == null) {
+                            weather = wm.getWeather(location);
+                        }
+
+                        if (weather == null) {
+                            throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
+                        }
+
+                        // Save data
+                        Settings.addLocation(location);
+                        if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
+                            Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
+                        Settings.saveWeatherData(weather);
+                        Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
+                        final Weather finalWeather = weather;
+                        Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
+                                Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
+                                    @NonNull
+                                    @Override
+                                    public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
+                                        return new HourlyForecasts(finalWeather.getQuery(), input);
+                                    }
+                                }));
+
+                        final LocationPanelViewModel panel = new LocationPanelViewModel(weather);
+                        panel.setLocationData(location);
+                        panel.updateBackground();
+
+                        // Set properties if necessary
+                        if (mEditMode) panel.setEditMode(true);
+
+                        return panel;
+                    }
+                }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<LocationPanelViewModel>() {
+                    @Override
+                    public void onSuccess(LocationPanelViewModel panel) {
+                        if (panel != null) {
+                            mAdapter.add(panel);
+
+                            // Update shortcuts
+                            ShortcutCreatorWorker.requestUpdateShortcuts(getAppCompatActivity());
+                        }
+                        // Hide dialog
                         if (mSearchFragment != null) {
-                            mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
-                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
                             mSearchFragment.showLoading(false);
                         }
-                        return;
+                        exitSearchUi(false);
                     }
-                }
-
-                // Check if location already exists
-                List<LocationData> locData = Settings.getLocationData();
-                boolean exists = false;
-                for (LocationData l : locData) {
-                    if (l.getQuery().equals(query_vm.getLocationQuery())) {
-                        exists = true;
-                        break;
-                    }
-                }
-                if (exists) {
-                    if (mSearchFragment != null)
-                        mSearchFragment.showLoading(false);
-                    exitSearchUi(false);
-                    return;
-                }
-
-                if (ctsToken.isCancellationRequested()) {
-                    mSearchFragment.showLoading(false);
-                    return;
-                }
-
-                LocationData location = new LocationData(query_vm);
-                if (!location.isValid()) {
-                    if (mSearchFragment != null) {
-                        mSearchFragment.showSnackbar(Snackbar.make(R.string.werror_noweather, Snackbar.Duration.SHORT),
-                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                        mSearchFragment.showLoading(false);
-                    }
-                    return;
-                }
-                Weather weather = Settings.getWeatherData(location.getQuery());
-                if (weather == null) {
-                    try {
-                        weather = wm.getWeather(location);
-                    } catch (final WeatherException wEx) {
-                        weather = null;
-                        if (mSearchFragment != null) {
-                            mSearchFragment.showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.SHORT),
-                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (e instanceof WeatherException || e instanceof CustomException) {
+                            if (mSearchFragment != null) {
+                                mSearchFragment.showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
+                                        new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                                mSearchFragment.showLoading(false);
+                                mSearchFragment.enableRecyclerView(true);
+                            }
+                        } else {
+                            if (mSearchFragment != null) {
+                                mSearchFragment.showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
+                                        new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                                mSearchFragment.showLoading(false);
+                                mSearchFragment.enableRecyclerView(true);
+                            }
                         }
                     }
-                }
-
-                if (weather == null) {
-                    mSearchFragment.showLoading(false);
-                    return;
-                }
-
-                // We got our data so disable controls just in case
-                adapter.getDataset().clear();
-                adapter.notifyDataSetChanged();
-
-                if (mSearchFragment != null) {
-                    mSearchFragment.disableRecyclerView();
-                }
-
-                // Save data
-                Settings.addLocation(location);
-                if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
-                    Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
-                Settings.saveWeatherData(weather);
-                Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
-                final Weather finalWeather = weather;
-                Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
-                        Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
-                            @NonNull
-                            @Override
-                            public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
-                                return new HourlyForecasts(finalWeather.getQuery(), input);
-                            }
-                        }));
-
-                final LocationPanelViewModel panel = new LocationPanelViewModel(weather);
-                panel.setLocationData(location);
-                panel.updateBackground();
-
-                // Set properties if necessary
-                if (mEditMode) panel.setEditMode(true);
-
-                mAdapter.add(panel);
-
-                // Update shortcuts
-                ShortcutCreatorWorker.requestUpdateShortcuts(getAppCompatActivity());
-
-                // Hide dialog
-                if (mSearchFragment != null)
-                    mSearchFragment.showLoading(false);
-                exitSearchUi(false);
+                });
             }
         });
         searchFragment.setUserVisibleHint(false);

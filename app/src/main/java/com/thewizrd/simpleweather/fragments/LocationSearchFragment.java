@@ -193,11 +193,11 @@ public class LocationSearchFragment extends CustomFragment implements SnackbarMa
         });
     }
 
-    public void disableRecyclerView() {
+    public void enableRecyclerView(final boolean enable) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                binding.recyclerView.setEnabled(false);
+                binding.recyclerView.setEnabled(enable);
             }
         });
     }
