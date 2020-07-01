@@ -38,7 +38,8 @@ public class WeatherNotificationBuilder {
         String condition = viewModel.getCurCondition();
         String hiTemp = viewModel.getHiTemp();
         String loTemp = viewModel.getLoTemp();
-        String temp = StringUtils.removeNonDigitChars(viewModel.getCurTemp().toString());
+        String temp = viewModel.getCurTemp() != null ?
+                StringUtils.removeNonDigitChars(viewModel.getCurTemp().toString()) : "--";
 
         // Weather icon
         updateViews.setImageViewResource(R.id.weather_icon,
@@ -49,11 +50,13 @@ public class WeatherNotificationBuilder {
 
         // Condition text
         updateViews.setTextViewText(R.id.condition_weather,
-                String.format("%sº - %s", temp, condition));
+                String.format("%sº - %s", !StringUtils.isNullOrWhitespace(temp) ? temp : "--", condition));
 
         // Details
         updateViews.setTextViewText(R.id.condition_details,
-                String.format("%s | %s", hiTemp, loTemp));
+                String.format("%s | %s",
+                        !StringUtils.isNullOrWhitespace(hiTemp) ? hiTemp : "--",
+                        !StringUtils.isNullOrWhitespace(loTemp) ? loTemp : "--"));
 
         // Update Time
         String timeformat = LocalDateTime.now().format(DateTimeFormatter.ofPattern("h:mm a"));

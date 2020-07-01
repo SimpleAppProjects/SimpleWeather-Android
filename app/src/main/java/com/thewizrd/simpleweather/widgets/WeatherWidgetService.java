@@ -925,12 +925,17 @@ public class WeatherWidgetService extends JobIntentService {
                     temp.toString().replace(WeatherIcons.FAHRENHEIT, "ºF").replace(WeatherIcons.CELSIUS, "ºC"));
             updateViews.setViewVisibility(R.id.divider, View.VISIBLE);
         } else if (provider.getWidgetType() == WidgetType.Widget2x2) {
+            String curTemp = StringUtils.removeNonDigitChars(temp.toString());
             // Condition text
             updateViews.setTextViewText(R.id.condition_weather,
-                    String.format(Locale.ROOT, "%sº - %s", StringUtils.removeNonDigitChars(temp.toString()), weather.getCurCondition()));
+                    String.format(Locale.ROOT, "%sº - %s",
+                            !StringUtils.isNullOrWhitespace(curTemp) ? curTemp : "--",
+                            weather.getCurCondition()));
 
             updateViews.setTextViewText(R.id.condition_details,
-                    String.format(Locale.ROOT, "%s | %s", weather.getHiTemp(), weather.getLoTemp()));
+                    String.format(Locale.ROOT, "%s | %s",
+                            !StringUtils.isNullOrWhitespace(weather.getHiTemp()) ? weather.getHiTemp() : "--",
+                            !StringUtils.isNullOrWhitespace(weather.getLoTemp()) ? weather.getLoTemp() : "--"));
         } else if (provider.getWidgetType() == WidgetType.Widget4x2) {
             // Condition text
             updateViews.setTextViewText(R.id.condition_weather, weather.getCurCondition());
