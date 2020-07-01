@@ -157,7 +157,7 @@ public class ForecastGraphPanel extends LinearLayout {
         if (first instanceof ForecastItemViewModel) {
             if (!StringUtils.isNullOrWhitespace(first.getWindSpeed()))
                 count++;
-            if (!StringUtils.isNullOrWhitespace(first.getPop().replace("%", "")))
+            if (first.getPop() != null && !StringUtils.isNullOrWhitespace(first.getPop().replace("%", "")))
                 count++;
         } else if (first instanceof HourlyForecastItemViewModel) {
             if (Settings.getAPI().equals(WeatherAPI.OPENWEATHERMAP) ||
