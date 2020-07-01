@@ -57,7 +57,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:truth:1.2.0'
     androidTestImplementation 'com.google.truth:truth:1.0.1'
 
-    implementation 'androidx.wear:wear:1.0.0'
+    implementation 'androidx.wear:wear:1.1.0-rc02'
     implementation 'com.google.android.support:wearable:2.7.0'
     compileOnly 'com.google.android.wearable:wearable:2.7.0'
 
