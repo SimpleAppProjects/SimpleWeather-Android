@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.core.content.ContextCompat;
 import androidx.databinding.Observable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -447,7 +448,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
 
         @Override
         public Drawable getItemDrawable(int pos) {
-            Drawable drawable = mContext.getDrawable(navItems.get(pos).drawableIcon);
+            Drawable drawable = ContextCompat.getDrawable(mContext, navItems.get(pos).drawableIcon);
             drawable.setTint(mContext.getColor(android.R.color.white));
             return drawable;
         }

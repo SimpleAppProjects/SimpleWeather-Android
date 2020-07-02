@@ -620,7 +620,7 @@ public class WearableDataListenerService extends WearableListenerService {
                         Settings.saveWeatherForecasts(new Forecasts(weatherData.getQuery(), weatherData.getForecast(), weatherData.getTxtForecast()));
                         Settings.saveWeatherForecasts(weatherData.getQuery(), weatherData.getHrForecast() == null ? null :
                                 Collections2.transform(weatherData.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
-                                    @NullableDecl
+                                    @NonNull
                                     @Override
                                     public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
                                         return new HourlyForecasts(weatherData.getQuery(), input);

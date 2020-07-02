@@ -102,8 +102,6 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
     private LocationSearchFragment mSearchFragment;
     private boolean inSearchUI;
 
-    private static final int ANIMATION_DURATION = 240;
-
     private SnackbarManager mSnackMgr;
 
     // Views
@@ -371,8 +369,8 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
 
     @Override
     public void onDetach() {
-        super.onDetach();
         mDataManager = null;
+        super.onDetach();
     }
 
     @Override
@@ -396,9 +394,8 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
     public void onDestroy() {
         // Cancel pending actions
         ctsCancel();
-
-        super.onDestroy();
         mDataManager = null;
+        super.onDestroy();
     }
 
     @Override
@@ -593,11 +590,6 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
 
                     if (ctsToken.isCancellationRequested()) throw new InterruptedException();
 
-                    // Show loading bar
-                    binding.progressBar.setVisibility(View.VISIBLE);
-
-                    if (ctsToken.isCancellationRequested()) throw new InterruptedException();
-
                     view = wm.getLocation(mLocation);
 
                     if (StringUtils.isNullOrWhitespace(view.getLocationQuery()))
@@ -644,9 +636,6 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
                     }
 
                     if (ctsToken.isCancellationRequested()) throw new InterruptedException();
-
-                    // We got our data so disable controls just in case
-                    enableControls(false);
 
                     // Save weather data
                     Settings.saveLastGPSLocData(location);
@@ -820,7 +809,6 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
                     showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT),
                             new SnackbarWindowAdjustCallback(getAppCompatActivity()));
                 }
-                return;
             }
         }
     }

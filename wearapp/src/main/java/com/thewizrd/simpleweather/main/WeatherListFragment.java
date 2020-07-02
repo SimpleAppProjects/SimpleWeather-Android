@@ -59,6 +59,11 @@ public class WeatherListFragment extends SwipeDismissFragment {
     }
 
     @Override
+    public boolean isAlive() {
+        return binding != null && super.isAlive();
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AnalyticsLogger.logEvent("WeatherList: onCreate");
@@ -88,7 +93,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
         binding.recyclerView.setHasFixedSize(true);
         binding.recyclerView.setEdgeItemsCenteringEnabled(true);
 
-        mLayoutManager = new WearableLinearLayoutManager(mActivity);
+        mLayoutManager = new WearableLinearLayoutManager(getFragmentActivity());
         binding.recyclerView.setLayoutManager(mLayoutManager);
 
         binding.recyclerView.requestFocus();
@@ -99,7 +104,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        final ViewModelProvider vmProvider = new ViewModelProvider(mActivity);
+        final ViewModelProvider vmProvider = new ViewModelProvider(getFragmentActivity());
         weatherView = vmProvider.get(WeatherNowViewModel.class);
         alertsView = vmProvider.get(WeatherAlertsViewModel.class);
         forecastsView = vmProvider.get(ForecastsViewModel.class);
@@ -107,8 +112,8 @@ public class WeatherListFragment extends SwipeDismissFragment {
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         binding = null;
+        super.onDestroyView();
     }
 
     @Override
@@ -118,10 +123,10 @@ public class WeatherListFragment extends SwipeDismissFragment {
         // Don't resume if fragment is hidden
         if (!this.isHidden()) {
             AnalyticsLogger.logEvent("WeatherList: onResume");
-            initialize();
             if (weatherView != null) {
                 weatherView.addOnPropertyChangedCallback(propertyChangedCallback);
             }
+            initialize();
         }
     }
 
@@ -146,23 +151,21 @@ public class WeatherListFragment extends SwipeDismissFragment {
 
     private Observable.OnPropertyChangedCallback propertyChangedCallback = new Observable.OnPropertyChangedCallback() {
         @Override
-        public void onPropertyChanged(Observable sender, int propertyId) {
-            if (propertyId == BR.pendingBackground) {
-                binding.getRoot().post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (binding != null) {
-                            binding.getRoot().setBackgroundColor(weatherView.getPendingBackground());
-                        }
+        public void onPropertyChanged(Observable sender, final int propertyId) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (propertyId == BR.pendingBackground) {
+                        binding.getRoot().setBackgroundColor(weatherView.getPendingBackground());
                     }
-                });
-            }
+                }
+            });
         }
     };
 
     public void initialize() {
-        if (mActivity != null && getView() != null) {
-            getView().setBackgroundColor(weatherView != null ? weatherView.getPendingBackground() : ActivityUtils.getColor(mActivity, android.R.attr.colorBackground));
+        if (isAlive() && getView() != null) {
+            getView().setBackgroundColor(weatherView != null ? weatherView.getPendingBackground() : ActivityUtils.getColor(getFragmentActivity(), android.R.attr.colorBackground));
             binding.recyclerView.requestFocus();
 
             WeatherListType newWeatherListType = WeatherListType.FORECAST;
@@ -180,7 +183,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
                 case FORECAST:
                 case HOURLYFORECAST:
                     if (!(mLayoutManager.getLayoutCallback() instanceof CurvingLayoutCallback)) {
-                        mLayoutManager.setLayoutCallback(new CurvingLayoutCallback(mActivity));
+                        mLayoutManager.setLayoutCallback(new CurvingLayoutCallback(getFragmentActivity()));
                     }
 
                     final ForecastItemAdapter detailsAdapter;

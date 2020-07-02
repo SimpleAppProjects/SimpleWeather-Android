@@ -29,6 +29,11 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
     }
 
     @Override
+    public boolean isAlive() {
+        return binding != null && super.isAlive();
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AnalyticsLogger.logEvent("WeatherDetails: onCreate");
@@ -45,7 +50,7 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
         // in content do not change the layout size of the RecyclerView
         binding.recyclerView.setHasFixedSize(true);
         binding.recyclerView.setEdgeItemsCenteringEnabled(true);
-        binding.recyclerView.setLayoutManager(new WearableLinearLayoutManager(mActivity));
+        binding.recyclerView.setLayoutManager(new WearableLinearLayoutManager(getFragmentActivity()));
 
         binding.recyclerView.requestFocus();
 
@@ -55,14 +60,14 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.weatherView = new ViewModelProvider(mActivity).get(WeatherNowViewModel.class);
+        this.weatherView = new ViewModelProvider(getFragmentActivity()).get(WeatherNowViewModel.class);
     }
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         binding = null;
         weatherView = null;
+        super.onDestroyView();
     }
 
     @Override
@@ -72,10 +77,10 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
         // Don't resume if fragment is hidden
         if (!this.isHidden()) {
             AnalyticsLogger.logEvent("WeatherDetails: onResume");
-            initialize();
             if (weatherView != null) {
                 weatherView.addOnPropertyChangedCallback(propertyChangedCallback);
             }
+            initialize();
         }
     }
 
@@ -98,29 +103,22 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
 
     private Observable.OnPropertyChangedCallback propertyChangedCallback = new Observable.OnPropertyChangedCallback() {
         @Override
-        public void onPropertyChanged(Observable sender, int propertyId) {
-            if (propertyId == BR.pendingBackground) {
-                binding.getRoot().post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (binding != null) {
-                            binding.getRoot().setBackgroundColor(weatherView.getPendingBackground());
-                        }
-                    }
-                });
-            } else if (propertyId == BR.weatherDetails) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
+        public void onPropertyChanged(Observable sender, final int propertyId) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (propertyId == BR.pendingBackground) {
+                        binding.getRoot().setBackgroundColor(weatherView.getPendingBackground());
+                    } else if (propertyId == BR.weatherDetails) {
                         initialize();
                     }
-                });
-            }
+                }
+            });
         }
     };
 
     public void initialize() {
-        if (weatherView != null && mActivity != null && getView() != null) {
+        if (isAlive() && weatherView != null && getView() != null) {
             getView().setBackgroundColor(weatherView.getPendingBackground());
             binding.recyclerView.requestFocus();
 

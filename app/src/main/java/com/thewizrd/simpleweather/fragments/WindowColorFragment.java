@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.fragments;
 
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -9,16 +10,41 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
 import com.thewizrd.simpleweather.helpers.WindowColorManager;
 
 public abstract class WindowColorFragment extends CustomFragment implements WindowColorManager {
 
     private Configuration currentConfig;
 
+    private SystemBarColorManager mSysBarColorsIface;
+
+    public final SystemBarColorManager getSysBarColorMgr() {
+        return mSysBarColorsIface;
+    }
+
     protected void postToViewQueue(Runnable runnable) {
         if (getView() != null) {
             getView().post(runnable);
         }
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mSysBarColorsIface = (SystemBarColorManager) context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mSysBarColorsIface = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mSysBarColorsIface = null;
     }
 
     @Override

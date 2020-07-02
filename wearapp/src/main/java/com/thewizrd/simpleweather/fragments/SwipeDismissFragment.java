@@ -11,15 +11,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Lifecycle;
 import androidx.wear.widget.SwipeDismissFrameLayout;
 
 import com.thewizrd.simpleweather.databinding.ActivitySettingsBinding;
 
 public class SwipeDismissFragment extends Fragment {
-    protected FragmentActivity mActivity;
+    private FragmentActivity mActivity;
 
     private ActivitySettingsBinding binding;
     private SwipeDismissFrameLayout.Callback swipeCallback;
+
+    public final FragmentActivity getFragmentActivity() {
+        return mActivity;
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -29,19 +34,23 @@ public class SwipeDismissFragment extends Fragment {
 
     @Override
     public void onDetach() {
-        super.onDetach();
         mActivity = null;
+        super.onDetach();
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         mActivity = null;
+        super.onDestroy();
     }
 
     protected void runOnUiThread(Runnable action) {
-        if (mActivity != null)
+        if (mActivity != null && isAlive())
             mActivity.runOnUiThread(action);
+    }
+
+    public boolean isAlive() {
+        return binding != null && mActivity != null && getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED);
     }
 
     @SuppressLint("RestrictedApi")
@@ -65,8 +74,8 @@ public class SwipeDismissFragment extends Fragment {
     @Override
     public void onDestroyView() {
         binding.swipeLayout.removeCallback(swipeCallback);
-        super.onDestroyView();
         binding = null;
+        super.onDestroyView();
     }
 }
 

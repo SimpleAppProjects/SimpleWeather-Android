@@ -25,13 +25,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class DetailItemAdapter extends RecyclerView.Adapter {
+public class DetailItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private AsyncListDiffer<DetailItemViewModel> mDiffer;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
-    class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         private DetailItemPanelBinding binding;
 
         public ViewHolder(DetailItemPanelBinding binding) {

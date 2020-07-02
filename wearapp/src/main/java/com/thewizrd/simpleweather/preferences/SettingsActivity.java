@@ -131,9 +131,9 @@ public class SettingsActivity extends Activity {
 
             AnalyticsLogger.logEvent("SettingsFragment: onResume");
 
-            LocalBroadcastManager.getInstance(mActivity)
+            LocalBroadcastManager.getInstance(getParentActivity())
                     .registerReceiver(connStatusReceiver, new IntentFilter(WearableDataListenerService.ACTION_UPDATECONNECTIONSTATUS));
-            mActivity.startService(new Intent(mActivity, WearableDataListenerService.class)
+            getParentActivity().startService(new Intent(getParentActivity(), WearableDataListenerService.class)
                     .setAction(WearableDataListenerService.ACTION_UPDATECONNECTIONSTATUS));
 
             // Register listener
@@ -175,7 +175,7 @@ public class SettingsActivity extends Activity {
             }
 
             LocalBroadcastManager mLocalBroadcastManager =
-                    LocalBroadcastManager.getInstance(mActivity);
+                    LocalBroadcastManager.getInstance(getParentActivity());
             mLocalBroadcastManager.unregisterReceiver(connStatusReceiver);
 
             // Unregister listener
@@ -203,7 +203,7 @@ public class SettingsActivity extends Activity {
                     mLocalBroadcastManager.sendBroadcast(
                             new Intent(CommonActions.ACTION_SETTINGS_UPDATEDATASYNC));
                 } else {
-                    mActivity.startService(filter.getIntent());
+                    getParentActivity().startService(filter.getIntent());
                 }
             }
 
@@ -236,15 +236,15 @@ public class SettingsActivity extends Activity {
                     AnalyticsLogger.logEvent("Settings: followGps toggled");
                     SwitchPreference pref = (SwitchPreference) preference;
                     if ((boolean) newValue) {
-                        if (mActivity != null && mActivity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                                mActivity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        if (getParentActivity() != null && getParentActivity().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                                getParentActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                                     PERMISSION_LOCATION_REQUEST_CODE);
                             return false;
-                        } else {
-                            LocationManager locMan = (LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
+                        } else if (getParentActivity() != null) {
+                            LocationManager locMan = (LocationManager) getParentActivity().getSystemService(Context.LOCATION_SERVICE);
                             if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                                Toast.makeText(mActivity, R.string.error_enable_location_services, Toast.LENGTH_LONG).show();
+                                Toast.makeText(getParentActivity(), R.string.error_enable_location_services, Toast.LENGTH_LONG).show();
                                 Settings.setFollowGPS(false);
                             }
                             return false;
@@ -282,7 +282,7 @@ public class SettingsActivity extends Activity {
                         }
                     } catch (WeatherException e) {
                         Logger.writeLine(Log.ERROR, e);
-                        Toast.makeText(mActivity, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getParentActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -523,8 +523,8 @@ public class SettingsActivity extends Activity {
                         .addCategory(Intent.CATEGORY_BROWSABLE)
                         .setData(WearableHelper.getPlayStoreURI());
 
-                RemoteIntent.startRemoteActivity(mActivity, intentAndroid,
-                        new ConfirmationResultReceiver(mActivity));
+                RemoteIntent.startRemoteActivity(getParentActivity(), intentAndroid,
+                        new ConfirmationResultReceiver(getParentActivity()));
 
                 return true;
             }
@@ -536,8 +536,8 @@ public class SettingsActivity extends Activity {
                 Intent intentAndroid = new Intent(preference.getIntent())
                         .addCategory(Intent.CATEGORY_BROWSABLE);
 
-                RemoteIntent.startRemoteActivity(mActivity, intentAndroid,
-                        new ConfirmationResultReceiver(mActivity));
+                RemoteIntent.startRemoteActivity(getParentActivity(), intentAndroid,
+                        new ConfirmationResultReceiver(getParentActivity()));
 
                 return true;
             }
@@ -597,7 +597,7 @@ public class SettingsActivity extends Activity {
                         // functionality that depends on this permission.
                         followGps.setChecked(false);
                         Settings.setFollowGPS(false);
-                        Toast.makeText(mActivity, R.string.error_location_denied, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getParentActivity(), R.string.error_location_denied, Toast.LENGTH_SHORT).show();
                     }
                     return;
                 default:
@@ -678,7 +678,7 @@ public class SettingsActivity extends Activity {
             });
 
             try {
-                PackageInfo packageInfo = mActivity.getPackageManager().getPackageInfo(mActivity.getPackageName(), 0);
+                PackageInfo packageInfo = getParentActivity().getPackageManager().getPackageInfo(getParentActivity().getPackageName(), 0);
                 findPreference(KEY_ABOUTVERSION).setSummary(String.format("v%s", packageInfo.versionName));
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
@@ -696,13 +696,13 @@ public class SettingsActivity extends Activity {
         @Override
         public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
             if (preference != null && preference.getIntent() != null) {
-                RemoteIntent.startRemoteActivity(mActivity, preference.getIntent()
+                RemoteIntent.startRemoteActivity(getParentActivity(), preference.getIntent()
                                 .setAction(Intent.ACTION_VIEW).addCategory(Intent.CATEGORY_BROWSABLE),
                         null);
 
                 // Show open on phone animation
                 new ConfirmationOverlay().setType(ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION)
-                        .setMessage(mActivity.getString(R.string.message_openedonphone))
+                        .setMessage(getParentActivity().getString(R.string.message_openedonphone))
                         .showAbove(getView());
 
                 return true;

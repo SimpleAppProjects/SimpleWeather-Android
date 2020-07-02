@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather.fragments;
 
-import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,13 +29,10 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentToolbarLayoutBinding;
-import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
 import com.thewizrd.simpleweather.helpers.TransitionHelper;
 
 public abstract class ToolbarFragment extends WindowColorFragment
         implements OnBackPressedFragmentListener {
-
-    private SystemBarColorManager mSysBarColorsIface;
 
     // Views
     private FragmentToolbarLayoutBinding binding;
@@ -51,28 +47,6 @@ public abstract class ToolbarFragment extends WindowColorFragment
 
     public final Toolbar getToolbar() {
         return binding.toolbar;
-    }
-
-    public final SystemBarColorManager getSysBarColorMgr() {
-        return mSysBarColorsIface;
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        mSysBarColorsIface = (SystemBarColorManager) context;
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mSysBarColorsIface = null;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mSysBarColorsIface = null;
     }
 
     @Override
@@ -94,7 +68,7 @@ public abstract class ToolbarFragment extends WindowColorFragment
 
     @Override
     @CallSuper
-    public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentToolbarLayoutBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
@@ -180,8 +154,8 @@ public abstract class ToolbarFragment extends WindowColorFragment
         binding.rootView.setBackgroundColor(bg_color);
         binding.appBar.setBackgroundColor(color);
         binding.rootView.setStatusBarBackgroundColor(color);
-        if (mSysBarColorsIface != null) {
-            mSysBarColorsIface.setSystemBarColors(bg_color, color, color, color);
+        if (getSysBarColorMgr() != null) {
+            getSysBarColorMgr().setSystemBarColors(bg_color, color, color, color);
         }
     }
 }

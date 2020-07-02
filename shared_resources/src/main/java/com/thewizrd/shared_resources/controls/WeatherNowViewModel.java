@@ -579,6 +579,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
     }
 
     private String getPressureStateIcon(String state) {
+        if (state == null) state = "";
+
         switch (state) {
             // Steady
             case "0":

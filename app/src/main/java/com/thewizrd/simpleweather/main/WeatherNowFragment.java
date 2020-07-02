@@ -46,7 +46,6 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -141,7 +140,6 @@ import com.thewizrd.simpleweather.databinding.WeathernowUvcontrolBinding;
 import com.thewizrd.simpleweather.fragments.WindowColorFragment;
 import com.thewizrd.simpleweather.helpers.DarkMode;
 import com.thewizrd.simpleweather.helpers.RadarWebClient;
-import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
 import com.thewizrd.simpleweather.helpers.TransitionHelper;
 import com.thewizrd.simpleweather.helpers.WebViewHelper;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
@@ -183,8 +181,6 @@ public class WeatherNowFragment extends WindowColorFragment
     private DataBindingComponent dataBindingComponent =
             new WeatherFragmentDataBindingComponent(this);
 
-    private AppCompatActivity mActivity;
-    private SystemBarColorManager mSysBarColorsIface;
     private CancellationTokenSource cts;
     private SnackbarManager mSnackMgr;
 
@@ -266,7 +262,7 @@ public class WeatherNowFragment extends WindowColorFragment
         if (weather != null && weather.isValid()) {
             AsyncTask.create(new Callable<Void>() {
                 @Override
-                public Void call() throws Exception {
+                public Void call() {
                     weatherView.updateView(weather);
                     weatherView.updateBackground();
                     if (binding.imageView.getDrawable() == null || binding.imageView.getTag(R.id.glide_custom_view_target_tag) == null) {
@@ -381,21 +377,12 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        mActivity = (AppCompatActivity) context;
-        mSysBarColorsIface = (SystemBarColorManager) context;
-    }
-
-    @Override
     public void onDestroy() {
         // Cancel pending actions
         if (cts != null) cts.cancel();
 
         wLoader = null;
         weatherView = null;
-        mActivity = null;
-        mSysBarColorsIface = null;
         cts = null;
         super.onDestroy();
     }
@@ -404,8 +391,6 @@ public class WeatherNowFragment extends WindowColorFragment
     public void onDetach() {
         wLoader = null;
         weatherView = null;
-        mActivity = null;
-        mSysBarColorsIface = null;
         cts = null;
         super.onDetach();
     }
@@ -434,7 +419,7 @@ public class WeatherNowFragment extends WindowColorFragment
         }
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {
-            mFusedLocationClient = new FusedLocationProviderClient(mActivity);
+            mFusedLocationClient = new FusedLocationProviderClient(getAppCompatActivity());
             mLocCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(final LocationResult locationResult) {
@@ -486,9 +471,9 @@ public class WeatherNowFragment extends WindowColorFragment
         mRequestingLocationUpdates = false;
         loaded = true;
 
-        final int systemNightMode = mActivity.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        final int systemNightMode = getAppCompatActivity().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         // Setup ViewModel
-        ViewModelProvider vmProvider = new ViewModelProvider(mActivity);
+        ViewModelProvider vmProvider = new ViewModelProvider(getAppCompatActivity());
         weatherView = vmProvider.get(WeatherNowViewModel.class);
         forecastsView = vmProvider.get(ForecastGraphViewModel.class);
         alertsView = vmProvider.get(WeatherAlertsViewModel.class);
@@ -601,7 +586,7 @@ public class WeatherNowFragment extends WindowColorFragment
             private final float INFLEXION = 0.35f; // Tension lines cross at (INFLEXION, 1)
             // Fling friction
             private float mFlingFriction = ViewConfiguration.getScrollFriction();
-            private final float ppi = mActivity.getResources().getDisplayMetrics().density * 160.0f;
+            private final float ppi = getAppCompatActivity().getResources().getDisplayMetrics().density * 160.0f;
             private float mPhysicalCoeff = SensorManager.GRAVITY_EARTH // g (m/s^2)
                     * 39.37f // inch/meter
                     * ppi
@@ -702,8 +687,8 @@ public class WeatherNowFragment extends WindowColorFragment
                 args.putInt(Constants.KEY_POSITION, position);
                 fragment.setArguments(args);
 
-                if (mActivity != null) {
-                    mActivity.getSupportFragmentManager().beginTransaction()
+                if (isAlive()) {
+                    getAppCompatActivity().getSupportFragmentManager().beginTransaction()
                             .add(R.id.fragment_container, fragment)
                             .hide(WeatherNowFragment.this)
                             .addToBackStack(null)
@@ -723,8 +708,8 @@ public class WeatherNowFragment extends WindowColorFragment
                     args.putInt(Constants.KEY_POSITION, position);
                     fragment.setArguments(args);
 
-                    if (mActivity != null) {
-                        mActivity.getSupportFragmentManager().beginTransaction()
+                    if (isAlive()) {
+                        getAppCompatActivity().getSupportFragmentManager().beginTransaction()
                                 .add(R.id.fragment_container, fragment)
                                 .hide(WeatherNowFragment.this)
                                 .addToBackStack(null)
@@ -745,7 +730,7 @@ public class WeatherNowFragment extends WindowColorFragment
             drawable.setColorFilter(Colors.ORANGERED, PorterDuff.Mode.SRC_IN);
             binding.alertButton.setBackground(drawable);
         } else {
-            Drawable origDrawable = ContextCompat.getDrawable(mActivity, R.drawable.light_round_corner_bg);
+            Drawable origDrawable = ContextCompat.getDrawable(getAppCompatActivity(), R.drawable.light_round_corner_bg);
             Drawable compatDrawable = DrawableCompat.wrap(origDrawable);
             DrawableCompat.setTint(compatDrawable, Colors.ORANGERED);
             binding.alertButton.setBackground(compatDrawable);
@@ -756,8 +741,8 @@ public class WeatherNowFragment extends WindowColorFragment
             public void onClick(View v) {
                 AnalyticsLogger.logEvent("WeatherNowFragment: alerts click");
                 // Show Alert Fragment
-                if (mActivity != null)
-                    mActivity.getSupportFragmentManager().beginTransaction()
+                if (isAlive())
+                    getAppCompatActivity().getSupportFragmentManager().beginTransaction()
                             .add(R.id.fragment_container, WeatherListFragment.newInstance(location, WeatherListType.ALERTS))
                             .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_right, R.anim.slide_out_left)
                             .hide(WeatherNowFragment.this)
@@ -781,8 +766,8 @@ public class WeatherNowFragment extends WindowColorFragment
         });
 
         // SwipeRefresh
-        binding.refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(mActivity, R.color.invButtonColor));
-        binding.refreshLayout.setColorSchemeColors(ActivityUtils.getColor(mActivity, R.attr.colorPrimary));
+        binding.refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(getAppCompatActivity(), R.color.invButtonColor));
+        binding.refreshLayout.setColorSchemeColors(ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
         binding.refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -851,8 +836,8 @@ public class WeatherNowFragment extends WindowColorFragment
                         @Override
                         public void onClick(View v) {
                             AnalyticsLogger.logEvent("WeatherNowFragment: radar view click");
-                            if (mActivity != null) {
-                                mActivity.getSupportFragmentManager().beginTransaction()
+                            if (isAlive()) {
+                                getAppCompatActivity().getSupportFragmentManager().beginTransaction()
                                         .add(R.id.fragment_container, new WeatherRadarFragment())
                                         .hide(WeatherNowFragment.this)
                                         .addToBackStack(null)
@@ -1066,8 +1051,8 @@ public class WeatherNowFragment extends WindowColorFragment
 
         weatherView.notifyChange();
 
-        binding.refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(mActivity, R.color.invButtonColor));
-        binding.refreshLayout.setColorSchemeColors(ActivityUtils.getColor(mActivity, R.attr.colorPrimary));
+        binding.refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(getAppCompatActivity(), R.color.invButtonColor));
+        binding.refreshLayout.setColorSchemeColors(ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
 
         // Resize necessary views
         ViewTreeObserver observer = binding.getRoot().getViewTreeObserver();
@@ -1150,9 +1135,9 @@ public class WeatherNowFragment extends WindowColorFragment
         // It is a good practice to remove location requests when the activity is in a paused or
         // stopped state. Doing so helps battery performance and is especially
         // recommended in applications that request frequent location updates.
-        if (mActivity != null) {
+        if (getAppCompatActivity() != null) {
             mFusedLocationClient.removeLocationUpdates(mLocCallback)
-                    .addOnCompleteListener(mActivity, new OnCompleteListener<Void>() {
+                    .addOnCompleteListener(getAppCompatActivity(), new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             mRequestingLocationUpdates = false;
@@ -1394,7 +1379,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     .forceRefresh(forceRefresh)
                     .setErrorListener(WeatherNowFragment.this)
                     .build())
-                    .addOnSuccessListener(mActivity, new OnSuccessListener<Weather>() {
+                    .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
                         @Override
                         public void onSuccess(final Weather weather) {
                             onWeatherLoaded(location, weather);
@@ -1429,12 +1414,12 @@ public class WeatherNowFragment extends WindowColorFragment
 
                 binding.scrollView.scrollTo(0, 0);
 
-                if (ActivityUtils.isLargeTablet(mActivity)) {
+                if (ActivityUtils.isLargeTablet(getAppCompatActivity())) {
                     if (binding.scrollView.getChildCount() < 1) {
                         int viewWidth = binding.scrollView.getWidth();
 
                         ViewGroup.LayoutParams lp = binding.scrollView.getChildAt(0).getLayoutParams();
-                        boolean isLandscape = ActivityUtils.getOrientation(mActivity) == Configuration.ORIENTATION_LANDSCAPE;
+                        boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
 
                         if (isLandscape)
                             lp.width = (int) (viewWidth * (0.75));
@@ -1455,16 +1440,16 @@ public class WeatherNowFragment extends WindowColorFragment
 
         float pxWidth = binding.scrollView.getChildAt(0).getWidth();
 
-        int minColumns = ActivityUtils.isLargeTablet(mActivity) ? 3 : 2;
+        int minColumns = ActivityUtils.isLargeTablet(getAppCompatActivity()) ? 3 : 2;
 
         // Minimum width for ea. card
-        int minWidth = mActivity.getResources().getDimensionPixelSize(R.dimen.detail_grid_column_width);
+        int minWidth = getAppCompatActivity().getResources().getDimensionPixelSize(R.dimen.detail_grid_column_width);
         // Available columns based on min card width
         int availColumns = ((int) (pxWidth / minWidth)) <= 1 ? minColumns : (int) (pxWidth / minWidth);
 
         binding.detailsContainer.setNumColumns(availColumns);
 
-        boolean isLandscape = ActivityUtils.getOrientation(mActivity) == Configuration.ORIENTATION_LANDSCAPE;
+        boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
 
         int horizMargin = 16;
         int marginMultiplier = isLandscape ? 2 : 3;
@@ -1497,7 +1482,7 @@ public class WeatherNowFragment extends WindowColorFragment
     public void updateWindowColors() {
         if (isCtsCancelRequested() || !isAlive()) return;
 
-        Configuration config = mActivity.getResources().getConfiguration();
+        Configuration config = getAppCompatActivity().getResources().getConfiguration();
         final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
         final UserThemeMode userNightMode = Settings.getUserThemeMode();
 
@@ -1520,14 +1505,14 @@ public class WeatherNowFragment extends WindowColorFragment
                 }
                 mSystemBarColor = color;
             } else {
-                mSystemBarColor = ActivityUtils.getColor(mActivity, R.attr.colorPrimary);
+                mSystemBarColor = ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary);
             }
             mBackgroundColor = mSystemBarColor;
         } else {
             if (userNightMode == UserThemeMode.AMOLED_DARK) {
                 mBackgroundColor = mSystemBarColor = Colors.BLACK;
             } else {
-                mSystemBarColor = ActivityUtils.getColor(mActivity, android.R.attr.colorBackground);
+                mSystemBarColor = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
                 if (weatherView != null && weatherView.getPendingBackground() != -1) {
                     if (ColorsUtils.isSuperLight(weatherView.getPendingBackground())) {
                         mBackgroundColor = ColorUtils.blendARGB(weatherView.getPendingBackground(), Colors.BLACK, 0.75f);
@@ -1553,19 +1538,19 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     private void updateWindowColorsForGradient() {
-        if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible() && mSysBarColorsIface != null) {
+        if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible() && getSysBarColorMgr() != null) {
             boolean override = isLightBackground.get();
 
             if (gradientAlpha.get() <= 0.5f && mDarkThemeMode.get() == DarkMode.OFF) {
                 if (override)
-                    mSysBarColorsIface.setSystemBarColors(mSystemBarColor, true);
+                    getSysBarColorMgr().setSystemBarColors(mSystemBarColor, true);
                 else
-                    mSysBarColorsIface.setSystemBarColors(mSystemBarColor);
+                    getSysBarColorMgr().setSystemBarColors(mSystemBarColor);
             } else {
                 if (override)
-                    mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT, true);
+                    getSysBarColorMgr().setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT, true);
                 else
-                    mSysBarColorsIface.setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT);
+                    getSysBarColorMgr().setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT);
             }
         }
     }
@@ -1584,9 +1569,9 @@ public class WeatherNowFragment extends WindowColorFragment
             public Boolean call() {
                 boolean locationChanged = false;
 
-                if (mActivity != null && Settings.useFollowGPS() && (location == null || location.getLocationType() == LocationType.GPS)) {
-                    if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                            ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (getAppCompatActivity() != null && Settings.useFollowGPS() && (location == null || location.getLocationType() == LocationType.GPS)) {
+                    if (ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                            ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                             requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION},
                                     PERMISSION_LOCATION_REQUEST_CODE);
@@ -1603,8 +1588,8 @@ public class WeatherNowFragment extends WindowColorFragment
                         return false;
 
                     LocationManager locMan = null;
-                    if (mActivity != null)
-                        locMan = (LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
+                    if (getAppCompatActivity() != null)
+                        locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
 
                     if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
                         showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
@@ -1701,7 +1686,7 @@ public class WeatherNowFragment extends WindowColorFragment
                         lastGPSLocData.setData(view, location);
                         Settings.saveLastGPSLocData(lastGPSLocData);
 
-                        LocalBroadcastManager.getInstance(mActivity)
+                        LocalBroadcastManager.getInstance(getAppCompatActivity())
                                 .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
 
                         WeatherNowFragment.this.location = lastGPSLocData;
