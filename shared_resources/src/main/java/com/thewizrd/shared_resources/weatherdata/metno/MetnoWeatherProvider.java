@@ -208,12 +208,12 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
         }
 
         for (HourlyForecast hr_forecast : weather.getHrForecast()) {
-            hr_forecast.setDate(hr_forecast.getDate().withZoneSameInstant(offset));
+            ZonedDateTime hrf_date = hr_forecast.getDate().withZoneSameInstant(offset);
+            hr_forecast.setDate(hrf_date);
 
+            LocalTime hrf_localTime = hrf_date.toLocalTime();
             hr_forecast.setCondition(getWeatherCondition(hr_forecast.getIcon()));
-            hr_forecast.setIcon(getWeatherIcon(hr_forecast.getIcon() != null &&
-                            (hr_forecast.getIcon().endsWith("_night") || hr_forecast.getIcon().endsWith("_polartwilight")),
-                    hr_forecast.getIcon()));
+            hr_forecast.setIcon(getWeatherIcon(hrf_localTime.compareTo(sunrise) < 0 || hrf_localTime.compareTo(sunset) > 0, hr_forecast.getIcon()));
         }
 
         return weather;
