@@ -9,11 +9,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
-import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.format.DateFormat;
@@ -65,9 +66,15 @@ import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.CancellationTokenSource;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.appbar.AppBarLayout;
@@ -137,7 +144,14 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
     private LocationQueryViewModel query_vm = null;
 
     private FusedLocationProviderClient mFusedLocationClient;
+    private LocationCallback mLocCallback;
+    private LocationListener mLocListnr;
     private CancellationTokenSource cts;
+
+    /**
+     * Tracks the status of the location updates request.
+     */
+    private boolean mRequestingLocationUpdates;
 
     // Weather
     private WeatherManager wm;
@@ -326,7 +340,75 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
         // Location Listener
         if (WearableHelper.isGooglePlayServicesInstalled()) {
             mFusedLocationClient = new FusedLocationProviderClient(getAppCompatActivity());
+            mLocCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    Location mLocation = null;
+                    if (locationResult != null) {
+                        mLocation = locationResult.getLastLocation();
+                    }
+
+                    if (mLocation == null) {
+                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
+                    } else {
+                        if (isAlive()) {
+                            prepareWidget();
+                        }
+                    }
+
+                    stopLocationUpdates();
+                }
+
+                @Override
+                public void onLocationAvailability(LocationAvailability locationAvailability) {
+                    new AsyncTask<Void>().await(new Callable<Void>() {
+                        @Override
+                        public Void call() {
+                            try {
+                                return Tasks.await(mFusedLocationClient.flushLocations());
+                            } catch (ExecutionException | InterruptedException e) {
+                                Logger.writeLine(Log.ERROR, e);
+                            }
+
+                            return null;
+                        }
+                    });
+
+                    if (!locationAvailability.isLocationAvailable()) {
+                        stopLocationUpdates();
+                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
+                    }
+                }
+            };
+        } else {
+            mLocListnr = new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    if (location != null && isAlive()) {
+                        prepareWidget();
+                    } else if (location == null) {
+                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
+                    }
+                }
+
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+
+                }
+
+                @Override
+                public void onProviderEnabled(String provider) {
+
+                }
+
+                @Override
+                public void onProviderDisabled(String provider) {
+
+                }
+            };
         }
+
+        mRequestingLocationUpdates = false;
 
         if (!Settings.isWeatherLoaded()) {
             Toast.makeText(getAppCompatActivity(), R.string.prompt_setup_app_first, Toast.LENGTH_SHORT).show();
@@ -338,6 +420,22 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
         }
 
         return root;
+    }
+
+    /**
+     * Removes location updates from the FusedLocationApi.
+     */
+    private void stopLocationUpdates() {
+        // It is a good practice to remove location requests when the activity is in a paused or
+        // stopped state. Doing so helps battery performance and is especially
+        // recommended in applications that request frequent location updates.
+        mFusedLocationClient.removeLocationUpdates(mLocCallback)
+                .addOnCompleteListener(getAppCompatActivity(), new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        mRequestingLocationUpdates = false;
+                    }
+                });
     }
 
     @Override
@@ -1471,94 +1569,105 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
         getAppCompatActivity().finish();
     }
 
-    private boolean updateLocation() {
-        return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
+    private boolean updateLocation() throws CustomException {
+        return new AsyncTaskEx<Boolean, CustomException>().await(new CallableEx<Boolean, CustomException>() {
             @Override
-            public Boolean call() {
+            public Boolean call() throws CustomException {
                 boolean locationChanged = false;
 
-                if (Settings.useFollowGPS()) {
-                    if (ContextCompat.checkSelfPermission(App.getInstance().getAppContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                            ContextCompat.checkSelfPermission(App.getInstance().getAppContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                        ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+
+                Location location = null;
+
+                LocationManager locMan = null;
+                if (getAppCompatActivity() != null)
+                    locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
+
+                if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                    // Disable GPS feature if location is not enabled
+                    Settings.setFollowGPS(false);
+                    throw new CustomException(R.string.error_enable_location_services);
+                }
+
+                if (WearableHelper.isGooglePlayServicesInstalled()) {
+                    location = new AsyncTask<Location>().await(new Callable<Location>() {
+                        @SuppressLint("MissingPermission")
+                        @Override
+                        public Location call() {
+                            Location result = null;
+                            try {
+                                result = Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
+                            } catch (Exception e) {
+                                Logger.writeLine(Log.ERROR, e);
+                            }
+                            return result;
+                        }
+                    });
+
+                    /**
+                     * Request start of location updates. Does nothing if
+                     * updates have already been requested.
+                     */
+                    if (location == null && !mRequestingLocationUpdates) {
+                        final LocationRequest mLocationRequest = new LocationRequest();
+                        mLocationRequest.setNumUpdates(1);
+                        mLocationRequest.setInterval(5000);
+                        mLocationRequest.setFastestInterval(1000);
+                        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                        mRequestingLocationUpdates = true;
+                        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper());
+                    }
+                } else {
+                    boolean isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                    boolean isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+                    if (isGPSEnabled) {
+                        location = locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+                        if (location == null)
+                            location = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+                        if (location == null)
+                            locMan.requestSingleUpdate(LocationManager.GPS_PROVIDER, mLocListnr, Looper.getMainLooper());
+                    } else if (isNetEnabled) {
+                        location = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+                        if (location == null)
+                            locMan.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, mLocListnr, null);
+                    }
+                }
+
+                if (location != null && !isCtsCancelRequested()) {
+                    LocationQueryViewModel query_vm;
+
+                    TaskCompletionSource<LocationQueryViewModel> tcs = new TaskCompletionSource<>(cts.getToken());
+                    try {
+                        tcs.setResult(wm.getLocation(location));
+                        query_vm = Tasks.await(tcs.getTask());
+                    } catch (ExecutionException | WeatherException e) {
+                        Logger.writeLine(Log.ERROR, e);
+                        return false;
+                    } catch (InterruptedException e) {
                         return false;
                     }
 
-                    Location location = null;
+                    if (StringUtils.isNullOrEmpty(query_vm.getLocationQuery()))
+                        query_vm = new LocationQueryViewModel();
 
-                    LocationManager locMan = null;
-                    if (getAppCompatActivity() != null)
-                        locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
-
-                    if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
-                            }
-                        });
-
-                        // Disable GPS feature if location is not enabled
-                        Settings.setFollowGPS(false);
+                    if (StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
+                        // Stop since there is no valid query
                         return false;
                     }
 
-                    if (WearableHelper.isGooglePlayServicesInstalled()) {
-                        location = new AsyncTask<Location>().await(new Callable<Location>() {
-                            @SuppressLint("MissingPermission")
-                            @Override
-                            public Location call() {
-                                Location result = null;
-                                try {
-                                    result = Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
-                                } catch (Exception e) {
-                                    Logger.writeLine(Log.ERROR, e);
-                                }
-                                return result;
-                            }
-                        });
-                    } else {
-                        boolean isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                        boolean isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+                    if (isCtsCancelRequested()) return false;
 
-                        if (isGPSEnabled || isNetEnabled && !isCtsCancelRequested()) {
-                            Criteria locCriteria = new Criteria();
-                            locCriteria.setAccuracy(Criteria.ACCURACY_COARSE);
-                            locCriteria.setCostAllowed(false);
-                            locCriteria.setPowerRequirement(Criteria.POWER_LOW);
-                            String provider = locMan.getBestProvider(locCriteria, true);
-                            location = locMan.getLastKnownLocation(provider);
-                        }
-                    }
+                    // Save location as last known
+                    Settings.saveLastGPSLocData(new LocationData(query_vm, location));
 
-                    if (location != null && !isCtsCancelRequested()) {
-                        LocationQueryViewModel query_vm;
-
-                        TaskCompletionSource<LocationQueryViewModel> tcs = new TaskCompletionSource<>(cts.getToken());
-                        try {
-                            tcs.setResult(wm.getLocation(location));
-                            query_vm = Tasks.await(tcs.getTask());
-                        } catch (ExecutionException | WeatherException e) {
-                            Logger.writeLine(Log.ERROR, e);
-                            return false;
-                        } catch (InterruptedException e) {
-                            return false;
-                        }
-
-                        if (StringUtils.isNullOrEmpty(query_vm.getLocationQuery()))
-                            query_vm = new LocationQueryViewModel();
-
-                        if (StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
-                            // Stop since there is no valid query
-                            return false;
-                        }
-
-                        if (isCtsCancelRequested()) return false;
-
-                        // Save location as last known
-                        Settings.saveLastGPSLocData(new LocationData(query_vm, location));
-
-                        locationChanged = true;
-                    }
+                    locationChanged = true;
                 }
 
                 return locationChanged;
