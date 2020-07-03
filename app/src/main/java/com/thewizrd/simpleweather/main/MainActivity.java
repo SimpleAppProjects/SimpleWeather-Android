@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, fragment, Constants.FRAGTAG_NOTIFICATION)
                         .setReorderingAllowed(true)
-                        .commitNow();
+                        .commit();
             } else {
                 // Navigate to WeatherNowFragment
                 // Make sure we exit if location is not home
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity
                         .add(R.id.fragment_container, newFragment, Constants.FRAGTAG_NOTIFICATION)
                         .setReorderingAllowed(true)
                         .addToBackStack(null) // allow exit
-                        .commitNow();
+                        .commit();
             }
         }
 
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fragment, Constants.FRAGTAG_HOME)
                     .setReorderingAllowed(true)
-                    .commitNow();
+                    .commit();
         }
 
         // Shortcut intent: from app shortcuts
@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, newFragment, Constants.FRAGTAG_SHORTCUT)
                     .setReorderingAllowed(true)
-                    .commitNow();
+                    .commit();
         }
 
         // Check nav item in bottom nav view

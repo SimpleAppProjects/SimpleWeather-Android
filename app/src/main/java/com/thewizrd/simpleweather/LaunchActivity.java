@@ -6,6 +6,9 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.thewizrd.shared_resources.Constants;
+import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.main.MainActivity;
@@ -17,7 +20,6 @@ public class LaunchActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
 
         Intent intent = null;
@@ -25,7 +27,8 @@ public class LaunchActivity extends AppCompatActivity {
         try {
             if (Settings.isWeatherLoaded() && Settings.isOnBoardingComplete()) {
                 intent = new Intent(this, MainActivity.class)
-                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        .putExtra(Constants.KEY_DATA, JSONParser.serializer(Settings.getHomeData(), LocationData.class));
             } else {
                 intent = new Intent(this, SetupActivity.class);
             }

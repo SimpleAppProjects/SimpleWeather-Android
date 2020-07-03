@@ -42,6 +42,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -676,42 +677,56 @@ public class WeatherNowFragment extends CustomFragment
     }
 
     private void restore() {
-        boolean forceRefresh = false;
+        AsyncTask.create(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws InterruptedException {
+                boolean forceRefresh = false;
 
-        // GPS Follow location
-        if (Settings.useFollowGPS() && (location == null || location.getLocationType() == LocationType.GPS)) {
-            LocationData locData = Settings.getLastGPSLocData();
+                // GPS Follow location
+                if (Settings.useFollowGPS() && (location == null || location.getLocationType() == LocationType.GPS)) {
+                    LocationData locData = Settings.getLastGPSLocData();
 
-            if (locData == null) {
-                // Update location if not setup
-                updateLocation();
-                forceRefresh = true;
-            } else {
-                // Reset locdata if source is different
-                if (!Settings.getAPI().equals(locData.getWeatherSource()))
-                    Settings.saveHomeData(new LocationData());
+                    if (locData == null) {
+                        // Update location if not setup
+                        updateLocation();
+                        forceRefresh = true;
+                    } else {
+                        // Reset locdata if source is different
+                        if (!Settings.getAPI().equals(locData.getWeatherSource()))
+                            Settings.saveHomeData(new LocationData());
 
-                if (updateLocation()) {
-                    // Setup loader from updated location
-                    forceRefresh = true;
-                } else {
-                    // Setup loader saved location data
-                    location = locData;
+                        if (updateLocation()) {
+                            // Setup loader from updated location
+                            forceRefresh = true;
+                        } else {
+                            // Setup loader saved location data
+                            location = locData;
+                        }
+                    }
+                } else if (wLoader == null) {
+                    // Weather was loaded before. Lets load it up...
+                    location = Settings.getHomeData();
                 }
+
+                if (isCtsCancelRequested()) throw new InterruptedException();
+
+                if (location != null)
+                    wLoader = new WeatherDataLoader(location);
+
+                return forceRefresh;
             }
-        } else if (wLoader == null) {
-            // Weather was loaded before. Lets load it up...
-            location = Settings.getHomeData();
-        }
+        }).addOnSuccessListener(getFragmentActivity(), new OnSuccessListener<Boolean>() {
+            @Override
+            public void onSuccess(Boolean forceRefresh) {
+                // Load up weather data
+                refreshWeather(forceRefresh);
+            }
+        }).addOnFailureListener(getFragmentActivity(), new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
 
-        if (isCtsCancelRequested())
-            return;
-
-        if (location != null)
-            wLoader = new WeatherDataLoader(location);
-
-        // Load up weather data
-        refreshWeather(forceRefresh);
+            }
+        });
     }
 
     private void resume() {
