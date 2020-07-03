@@ -384,10 +384,10 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
     public void onPause() {
         AnalyticsLogger.logEvent("SetupLocation: onPause");
         ctsCancel();
-        super.onPause();
         // Remove location updates to save battery.
         stopLocationUpdates();
         unloadSnackManager();
+        super.onPause();
     }
 
     @Override
@@ -578,10 +578,34 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
         // Show loading bar
         binding.progressBar.setVisibility(View.VISIBLE);
 
-        AsyncTask.create(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws InterruptedException, WeatherException, ExecutionException, CustomException {
-                if (mLocation != null) {
+        if (mLocation == null) {
+            AsyncTask.create(new Callable<Void>() {
+                @Override
+                public Void call() {
+                    updateLocation();
+                    return null;
+                }
+            }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // Restore controls
+                    enableControls(true);
+                    Settings.setFollowGPS(false);
+                    Settings.setWeatherLoaded(false);
+
+                    if (e instanceof WeatherException || e instanceof CustomException) {
+                        showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
+                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                    } else {
+                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
+                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                    }
+                }
+            });
+        } else {
+            AsyncTask.create(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws InterruptedException, WeatherException, ExecutionException, CustomException {
                     LocationQueryViewModel view;
 
                     // Cancel other tasks
@@ -669,40 +693,49 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
                     }
 
                     return true;
-                } else {
-                    updateLocation();
                 }
+            }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Boolean>() {
+                @Override
+                public void onSuccess(Boolean success) {
+                    if (success) {
+                        // Setup complete
+                        mDataManager.getArguments().putString(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class));
+                        mStepperLayout.proceed();
+                    } else {
+                        enableControls(true);
+                        Settings.setFollowGPS(false);
 
-                return false;
-            }
-        }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Boolean>() {
-            @Override
-            public void onSuccess(Boolean success) {
-                if (success) {
-                    // Setup complete
-                    mDataManager.getArguments().putString(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class));
-                    mStepperLayout.proceed();
-                } else {
+                        LocationManager locMan = null;
+                        if (getAppCompatActivity() != null)
+                            locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
+
+                        if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                            showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG),
+                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                        } else {
+                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
+                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                        }
+                    }
+                }
+            }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // Restore controls
                     enableControls(true);
-                }
-            }
-        }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                // Restore controls
-                enableControls(true);
-                Settings.setFollowGPS(false);
-                Settings.setWeatherLoaded(false);
+                    Settings.setFollowGPS(false);
+                    Settings.setWeatherLoaded(false);
 
-                if (e instanceof WeatherException || e instanceof CustomException) {
-                    showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
-                            new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                } else {
-                    showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
-                            new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                    if (e instanceof WeatherException || e instanceof CustomException) {
+                        showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
+                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                    } else {
+                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
+                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     private void updateLocation() {
@@ -725,9 +758,6 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
             locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
 
         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-            showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG),
-                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-
             // Disable GPS feature if location is not enabled
             enableControls(true);
             Settings.setFollowGPS(false);
@@ -779,10 +809,6 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
 
                 if (location == null)
                     locMan.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, mLocListnr, null);
-            } else {
-                enableControls(true);
-                showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
-                        new SnackbarWindowAdjustCallback(getAppCompatActivity()));
             }
         }
 

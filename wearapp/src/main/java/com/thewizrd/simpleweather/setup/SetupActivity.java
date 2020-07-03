@@ -369,10 +369,32 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
         // Show loading bar
         enableControls(false);
 
-        AsyncTask.create(new Callable<LocationData>() {
-            @Override
-            public LocationData call() throws InterruptedException, WeatherException, CustomException, ExecutionException {
-                if (mLocation != null) {
+        if (mLocation == null) {
+            AsyncTask.create(new Callable<Void>() {
+                @Override
+                public Void call() {
+                    updateLocation();
+                    return null;
+                }
+            }).addOnFailureListener(this, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // Restore controls
+                    enableControls(true);
+                    Settings.setFollowGPS(false);
+                    Settings.setWeatherLoaded(false);
+
+                    if (e instanceof WeatherException || e instanceof CustomException) {
+                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        } else {
+            AsyncTask.create(new Callable<LocationData>() {
+                @Override
+                public LocationData call() throws InterruptedException, WeatherException, CustomException, ExecutionException {
                     LocationQueryViewModel view;
 
                     // Cancel other tasks
@@ -437,7 +459,7 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
                     final Weather finalWeather = weather;
                     Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
                             Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
-                                @NullableDecl
+                                @NonNull
                                 @Override
                                 public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
                                     return new HourlyForecasts(finalWeather.getQuery(), input);
@@ -454,41 +476,37 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
                     Settings.setWeatherLoaded(true);
 
                     return location;
-                } else {
-                    updateLocation();
                 }
+            }).addOnSuccessListener(this, new OnSuccessListener<LocationData>() {
+                @Override
+                public void onSuccess(LocationData locationData) {
+                    if (locationData != null) {
+                        // Start WeatherNow Activity with weather data
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        intent.putExtra(Constants.KEY_DATA, JSONParser.serializer(locationData, LocationData.class));
 
-                return null;
-            }
-        }).addOnSuccessListener(this, new OnSuccessListener<LocationData>() {
-            @Override
-            public void onSuccess(LocationData locationData) {
-                if (locationData != null) {
-                    // Start WeatherNow Activity with weather data
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    intent.putExtra(Constants.KEY_DATA, JSONParser.serializer(locationData, LocationData.class));
-
-                    startActivity(intent);
-                    finishAffinity();
-                } else {
+                        startActivity(intent);
+                        finishAffinity();
+                    } else {
+                        enableControls(true);
+                    }
+                }
+            }).addOnFailureListener(this, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // Restore controls
                     enableControls(true);
-                }
-            }
-        }).addOnFailureListener(this, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                // Restore controls
-                enableControls(true);
-                Settings.setFollowGPS(false);
-                Settings.setWeatherLoaded(false);
+                    Settings.setFollowGPS(false);
+                    Settings.setWeatherLoaded(false);
 
-                if (e instanceof WeatherException || e instanceof CustomException) {
-                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getApplicationContext(), R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                    if (e instanceof WeatherException || e instanceof CustomException) {
+                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     private void updateLocation() {
@@ -504,13 +522,6 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
         LocationManager locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(SetupActivity.this, R.string.error_enable_location_services, Toast.LENGTH_LONG).show();
-                }
-            });
-
             // Disable GPS feature if location is not enabled
             enableControls(true);
             Settings.setFollowGPS(false);
@@ -562,14 +573,6 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
 
                 if (location == null)
                     locMan.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, mLocListnr, Looper.getMainLooper());
-            } else {
-                enableControls(true);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(SetupActivity.this, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
-                    }
-                });
             }
         }
 
@@ -595,7 +598,6 @@ public class SetupActivity extends FragmentActivity implements MenuItem.OnMenuIt
                     enableControls(true);
                     Toast.makeText(this, R.string.error_location_denied, Toast.LENGTH_SHORT).show();
                 }
-                return;
             }
         }
     }
