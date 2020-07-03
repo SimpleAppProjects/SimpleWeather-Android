@@ -43,7 +43,6 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.location.LocationManagerCompat;
@@ -1315,186 +1314,161 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
             Settings.setRefreshInterval(refreshValue);
         }
 
+        if (!isAlive()) {
+            if (getAppCompatActivity() != null) {
+                getAppCompatActivity().setResult(Activity.RESULT_CANCELED, resultValue);
+                getAppCompatActivity().finish();
+            }
+            return;
+        }
+
         // Get location data
         if (locationPref.getValue() != null) {
-            String locationItemValue = locationPref.getValue();
-            LocationData locData;
+            final String locationItemValue = locationPref.getValue();
 
-            // Widget ID exists in prefs
-            if (WidgetUtils.exists(mAppWidgetId)) {
-                locData = WidgetUtils.getLocationData(mAppWidgetId);
+            if (Constants.KEY_GPS.equals(locationItemValue)) {
+                // Check location
+                AsyncTask.create(new Callable<Boolean>() {
+                    @Override
+                    public Boolean call() throws CustomException {
+                        // Changing location to GPS
+                        if (ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                                ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                                        PERMISSION_LOCATION_REQUEST_CODE);
+                            } else {
+                                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                                        PERMISSION_LOCATION_REQUEST_CODE);
+                            }
+                            return false;
+                        }
 
-                // Handle location changes
-                if (Constants.KEY_GPS.equals(locationItemValue)) {
-                    // Changing location to GPS
-                    if (ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                            ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                                    PERMISSION_LOCATION_REQUEST_CODE);
+                        LocationManager locMan = null;
+                        if (getAppCompatActivity() != null)
+                            locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
+
+                        if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                            // Disable GPS feature if location is not enabled
+                            Settings.setFollowGPS(false);
+                            throw new CustomException(R.string.error_enable_location_services);
+                        }
+
+                        LocationData lastGPSLocData = Settings.getLastGPSLocData();
+
+                        // Check if last location exists
+                        if ((lastGPSLocData == null || !lastGPSLocData.isValid()) && !updateLocation()) {
+                            throw new CustomException(R.string.error_retrieve_location);
+                        }
+
+                        return true;
+                    }
+                }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Boolean>() {
+                    @Override
+                    public void onSuccess(Boolean success) {
+                        if (success) {
+                            Settings.setFollowGPS(true);
+
+                            // Reset data for widget
+                            WidgetUtils.deleteWidget(mAppWidgetId);
+                            WidgetUtils.saveLocationData(mAppWidgetId, null);
+                            WidgetUtils.addWidgetId(Constants.KEY_GPS, mAppWidgetId);
+
+                            finalizeWidgetUpdate();
+                        }
+                    }
+                }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (e instanceof WeatherException || e instanceof CustomException) {
+                            showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT), null);
                         } else {
-                            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                                    PERMISSION_LOCATION_REQUEST_CODE);
+                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
                         }
-                        return;
                     }
-
-                    LocationManager locMan = null;
-                    if (getAppCompatActivity() != null)
-                        locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
-
-                    if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                        showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
-
-                        // Disable GPS feature if location is not enabled
-                        Settings.setFollowGPS(false);
-                        return;
-                    }
-
-                    LocationData lastGPSLocData = Settings.getLastGPSLocData();
-
-                    // Check if last location exists
-                    if (lastGPSLocData == null && !updateLocation()) {
-                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
-                        return;
-                    }
-
-                    Settings.setFollowGPS(true);
-
-                    // Reset data for widget
-                    WidgetUtils.deleteWidget(mAppWidgetId);
-                    WidgetUtils.saveLocationData(mAppWidgetId, null);
-                    WidgetUtils.addWidgetId(Constants.KEY_GPS, mAppWidgetId);
-                } else {
-                    // Changing location to whatever
-                    if (locData == null || !locationItemValue.equals(locData.getQuery())) {
-                        // Get location data
-                        final String itemValue = locationPref.getValue();
-                        locData = Iterables.find(favorites, new Predicate<LocationData>() {
-                            @Override
-                            public boolean apply(@NullableDecl LocationData input) {
-                                return input != null && input.getQuery().equals(itemValue);
-                            }
-                        }, null);
-
-                        if (locData == null && query_vm != null) {
-                            locData = new LocationData(query_vm);
-
-                            if (!locData.isValid()) {
-                                getAppCompatActivity().setResult(Activity.RESULT_CANCELED, resultValue);
-                                getAppCompatActivity().finish();
-                                return;
-                            }
-
-                            // Add location to favs
-                            Settings.addLocation(locData);
-                        } else if (locData == null) {
-                            getAppCompatActivity().setResult(Activity.RESULT_CANCELED, resultValue);
-                            getAppCompatActivity().finish();
-                            return;
-                        }
-
-                        // Save locdata for widget
-                        WidgetUtils.deleteWidget(mAppWidgetId);
-                        WidgetUtils.saveLocationData(mAppWidgetId, locData);
-                        WidgetUtils.addWidgetId(locData.getQuery(), mAppWidgetId);
-                    }
-                }
+                });
             } else {
-                if (Constants.KEY_GPS.equals(locationItemValue)) {
-                    if (ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                            ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            ActivityCompat.requestPermissions(getAppCompatActivity(), new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                                    PERMISSION_LOCATION_REQUEST_CODE);
+                AsyncTask.create(new Callable<LocationData>() {
+                    @Override
+                    public LocationData call() {
+                        LocationData locData = null;
+
+                        // Widget ID exists in prefs
+                        if (WidgetUtils.exists(mAppWidgetId)) {
+                            locData = WidgetUtils.getLocationData(mAppWidgetId);
+                        }
+
+                        // Changing location to whatever
+                        if (locData == null || !locationItemValue.equals(locData.getQuery())) {
+                            // Get location data
+                            final String itemValue = locationPref.getValue();
+                            locData = Iterables.find(favorites, new Predicate<LocationData>() {
+                                @Override
+                                public boolean apply(@NullableDecl LocationData input) {
+                                    return input != null && input.getQuery().equals(itemValue);
+                                }
+                            }, null);
+
+                            if (locData == null && query_vm != null) {
+                                locData = new LocationData(query_vm);
+
+                                if (!locData.isValid()) {
+                                    return null;
+                                }
+
+                                // Add location to favs
+                                Settings.addLocation(locData);
+                            }
+                        }
+
+                        return locData;
+                    }
+                }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<LocationData>() {
+                    @Override
+                    public void onSuccess(LocationData locationData) {
+                        if (locationData != null) {
+                            // Save locdata for widget
+                            WidgetUtils.deleteWidget(mAppWidgetId);
+                            WidgetUtils.saveLocationData(mAppWidgetId, locationData);
+                            WidgetUtils.addWidgetId(locationData.getQuery(), mAppWidgetId);
+
+                            finalizeWidgetUpdate();
                         } else {
-                            ActivityCompat.requestPermissions(getAppCompatActivity(), new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                                    PERMISSION_LOCATION_REQUEST_CODE);
-                        }
-                        return;
-                    }
-
-                    LocationManager locMan = null;
-                    if (getAppCompatActivity() != null)
-                        locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
-
-                    if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                        showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
-
-                        // Disable GPS feature if location is not enabled
-                        Settings.setFollowGPS(false);
-                        return;
-                    }
-
-                    LocationData lastGPSLocData = Settings.getLastGPSLocData();
-
-                    // Check if last location exists
-                    if ((lastGPSLocData == null || !lastGPSLocData.isValid()) && !updateLocation()) {
-                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
-                        return;
-                    }
-
-                    Settings.setFollowGPS(true);
-
-                    // Save locdata for widget
-                    WidgetUtils.deleteWidget(mAppWidgetId);
-                    WidgetUtils.saveLocationData(mAppWidgetId, null);
-                    WidgetUtils.addWidgetId(Constants.KEY_GPS, mAppWidgetId);
-                } else {
-                    // Get location data
-                    final String itemValue = locationPref.getValue();
-                    locData = Iterables.find(favorites, new Predicate<LocationData>() {
-                        @Override
-                        public boolean apply(@NullableDecl LocationData input) {
-                            return input != null && input.getQuery().equals(itemValue);
-                        }
-                    }, null);
-
-                    if (locData == null && query_vm != null) {
-                        locData = new LocationData(query_vm);
-
-                        if (!locData.isValid()) {
                             getAppCompatActivity().setResult(Activity.RESULT_CANCELED, resultValue);
                             getAppCompatActivity().finish();
-                            return;
                         }
-
-                        // Add location to favs
-                        Settings.addLocation(locData);
-                    } else if (locData == null) {
-                        getAppCompatActivity().setResult(Activity.RESULT_CANCELED, resultValue);
-                        getAppCompatActivity().finish();
-                        return;
                     }
-
-                    // Save locdata for widget
-                    WidgetUtils.deleteWidget(mAppWidgetId);
-                    WidgetUtils.saveLocationData(mAppWidgetId, locData);
-                    WidgetUtils.addWidgetId(locData.getQuery(), mAppWidgetId);
-                }
+                }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
+                    }
+                });
             }
-
-            // Save widget preferences
-            WidgetUtils.setWidgetBackground(mAppWidgetId, Integer.parseInt(bgColorPref.getValue()));
-            WidgetUtils.setBackgroundStyle(mAppWidgetId, Integer.parseInt(bgStylePref.getValue()));
-            WidgetUtils.setTapToSwitchEnabled(mAppWidgetId, tap2SwitchPref.isChecked());
-
-            // Trigger widget service to update widget
-            getAppCompatActivity().sendBroadcast(new Intent(WeatherWidgetProvider.ACTION_SHOWREFRESH)
-                    .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, new int[]{mAppWidgetId}));
-            WeatherWidgetService.enqueueWork(getAppCompatActivity(),
-                    new Intent(getAppCompatActivity(), WeatherWidgetService.class)
-                            .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET)
-                            .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, new int[]{mAppWidgetId})
-                            .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, mWidgetType.getValue()));
-
-            // Create return intent
-            getAppCompatActivity().setResult(Activity.RESULT_OK, resultValue);
-            getAppCompatActivity().finish();
         } else {
             getAppCompatActivity().setResult(Activity.RESULT_CANCELED, resultValue);
             getAppCompatActivity().finish();
         }
+    }
+
+    private void finalizeWidgetUpdate() {
+        // Save widget preferences
+        WidgetUtils.setWidgetBackground(mAppWidgetId, Integer.parseInt(bgColorPref.getValue()));
+        WidgetUtils.setBackgroundStyle(mAppWidgetId, Integer.parseInt(bgStylePref.getValue()));
+        WidgetUtils.setTapToSwitchEnabled(mAppWidgetId, tap2SwitchPref.isChecked());
+
+        // Trigger widget service to update widget
+        getAppCompatActivity().sendBroadcast(new Intent(WeatherWidgetProvider.ACTION_SHOWREFRESH)
+                .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, new int[]{mAppWidgetId}));
+        WeatherWidgetService.enqueueWork(getAppCompatActivity(),
+                new Intent(getAppCompatActivity(), WeatherWidgetService.class)
+                        .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET)
+                        .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, new int[]{mAppWidgetId})
+                        .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, mWidgetType.getValue()));
+
+        // Create return intent
+        getAppCompatActivity().setResult(Activity.RESULT_OK, resultValue);
+        getAppCompatActivity().finish();
     }
 
     private boolean updateLocation() {
@@ -1601,6 +1575,7 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
                     // Do the task you need to do.
+                    prepareWidget();
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.

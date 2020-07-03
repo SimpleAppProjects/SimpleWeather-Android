@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
@@ -40,7 +41,6 @@ public abstract class WindowColorPreferenceFragmentCompat extends CustomPreferen
 
     private FragmentSettingsBinding binding;
     private SystemBarColorManager mSysBarColorsIface;
-    private SnackbarManager mSnackMgr;
 
     private Configuration currentConfig;
 
@@ -75,6 +75,11 @@ public abstract class WindowColorPreferenceFragmentCompat extends CustomPreferen
     public void onDetach() {
         mSysBarColorsIface = null;
         super.onDetach();
+    }
+
+    @Override
+    public boolean isAlive() {
+        return binding != null && super.isAlive();
     }
 
     @Override
@@ -145,7 +150,17 @@ public abstract class WindowColorPreferenceFragmentCompat extends CustomPreferen
         if (currentConfig == null) {
             currentConfig = new Configuration(getResources().getConfiguration());
         }
-        updateWindowColors();
+
+        binding.getRoot().getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                if (isAlive()) {
+                    binding.getRoot().getViewTreeObserver().removeOnPreDrawListener(this);
+                    updateWindowColors();
+                }
+                return true;
+            }
+        });
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ViewGroupCompat.setTransitionGroup(getRootView(), false);
