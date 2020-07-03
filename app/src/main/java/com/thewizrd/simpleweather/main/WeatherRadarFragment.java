@@ -18,6 +18,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
@@ -28,12 +29,22 @@ import com.thewizrd.simpleweather.databinding.FragmentWeatherRadarBinding;
 import com.thewizrd.simpleweather.fragments.ToolbarFragment;
 import com.thewizrd.simpleweather.helpers.RadarWebClient;
 import com.thewizrd.simpleweather.helpers.WebViewHelper;
+import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 
 public class WeatherRadarFragment extends ToolbarFragment {
     private WeatherNowViewModel weatherView = null;
     private FragmentWeatherRadarBinding binding;
 
     private static final String DEFAULT_URL = "https://earth.nullschool.net/#current/wind/surface/level/overlay=precip_3hr";
+
+    @NonNull
+    @Override
+    public SnackbarManager createSnackManager() {
+        SnackbarManager mSnackMgr = new SnackbarManager(binding.getRoot());
+        mSnackMgr.setSwipeDismissEnabled(true);
+        mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
+        return mSnackMgr;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,7 +57,7 @@ public class WeatherRadarFragment extends ToolbarFragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
         // Use this to return your custom view for this Fragment
         binding = FragmentWeatherRadarBinding.inflate(inflater, root, true);

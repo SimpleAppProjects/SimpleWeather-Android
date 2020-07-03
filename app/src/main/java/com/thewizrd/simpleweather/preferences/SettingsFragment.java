@@ -78,7 +78,7 @@ import static com.thewizrd.shared_resources.utils.Settings.KEY_USECELSIUS;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_USEPERSONALKEY;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_USERTHEME;
 
-public class SettingsFragment extends CustomPreferenceFragmentCompat
+public class SettingsFragment extends WindowColorPreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener, UserThemeMode.OnThemeChangeListener {
 
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
@@ -933,7 +933,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         }
     }
 
-    public static class AboutAppFragment extends CustomPreferenceFragmentCompat {
+    public static class AboutAppFragment extends WindowColorPreferenceFragmentCompat {
         // Preference Keys
         private static final String KEY_ABOUTCREDITS = "key_aboutcredits";
         private static final String KEY_ABOUTOSLIBS = "key_aboutoslibs";
@@ -983,7 +983,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         }
     }
 
-    public static class CreditsFragment extends CustomPreferenceFragmentCompat {
+    public static class CreditsFragment extends WindowColorPreferenceFragmentCompat {
         @Override
         protected int getTitle() {
             return R.string.pref_title_credits;
@@ -995,7 +995,7 @@ public class SettingsFragment extends CustomPreferenceFragmentCompat
         }
     }
 
-    public static class OSSCreditsFragment extends CustomPreferenceFragmentCompat {
+    public static class OSSCreditsFragment extends WindowColorPreferenceFragmentCompat {
         @Override
         protected int getTitle() {
             return R.string.pref_title_oslibs;

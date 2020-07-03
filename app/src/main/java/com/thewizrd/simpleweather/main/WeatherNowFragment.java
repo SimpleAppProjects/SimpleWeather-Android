@@ -182,7 +182,6 @@ public class WeatherNowFragment extends WindowColorFragment
             new WeatherFragmentDataBindingComponent(this);
 
     private CancellationTokenSource cts;
-    private SnackbarManager mSnackMgr;
 
     // Views
     private FragmentWeatherNowBinding binding;
@@ -350,30 +349,13 @@ public class WeatherNowFragment extends WindowColorFragment
         }
     }
 
-    private void initSnackManager() {
-        if (mSnackMgr == null) {
-            mSnackMgr = new SnackbarManager(binding.getRoot());
-            mSnackMgr.setSwipeDismissEnabled(true);
-            mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
-        }
-    }
-
-    private void showSnackbar(final Snackbar snackbar, final com.google.android.material.snackbar.Snackbar.Callback callback) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
-            }
-        });
-    }
-
-    private void dismissAllSnackbars() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mSnackMgr != null) mSnackMgr.dismissAll();
-            }
-        });
+    @NonNull
+    @Override
+    public SnackbarManager createSnackManager() {
+        SnackbarManager mSnackMgr = new SnackbarManager(binding.getRoot());
+        mSnackMgr.setSwipeDismissEnabled(true);
+        mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
+        return mSnackMgr;
     }
 
     @Override
@@ -1234,7 +1216,6 @@ public class WeatherNowFragment extends WindowColorFragment
         if (!this.isHidden()) {
             AnalyticsLogger.logEvent("WeatherNowFragment: onResume");
             adjustConditionPanelLayout();
-            initSnackManager();
 
             if (binding != null) {
                 final WebView webView = getRadarWebView();
@@ -1279,8 +1260,6 @@ public class WeatherNowFragment extends WindowColorFragment
             AnalyticsLogger.logEvent("WeatherNowFragment: onHiddenChanged");
             adjustConditionPanelLayout();
 
-            initSnackManager();
-
             if (requireArguments().containsKey(Constants.ARGS_BACKGROUND)) {
                 loadBackgroundImage(requireArguments().getString(Constants.ARGS_BACKGROUND), false);
                 requireArguments().remove(Constants.ARGS_BACKGROUND);
@@ -1300,8 +1279,6 @@ public class WeatherNowFragment extends WindowColorFragment
 
             resume();
         } else if (hidden) {
-            dismissAllSnackbars();
-            mSnackMgr = null;
             loaded = false;
         }
     }
@@ -1321,9 +1298,6 @@ public class WeatherNowFragment extends WindowColorFragment
                 webView.pauseTimers();
             }
         }
-
-        dismissAllSnackbars();
-        mSnackMgr = null;
 
         // Remove location updates to save battery.
         stopLocationUpdates();

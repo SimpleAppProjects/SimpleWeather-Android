@@ -57,7 +57,6 @@ import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -119,7 +118,6 @@ import com.thewizrd.simpleweather.helpers.TransitionHelper;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
-import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface;
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
@@ -132,14 +130,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class LocationsFragment extends ToolbarFragment
-        implements SnackbarManagerInterface, WeatherRequest.WeatherErrorListener {
+        implements WeatherRequest.WeatherErrorListener {
     private boolean mLoaded = false;
     private boolean mEditMode = false;
     private boolean mDataChanged = false;
     private boolean mHomeChanged = false;
     private boolean[] mErrorCounter;
-
-    private SnackbarManager mSnackMgr;
 
     // Views
     private FragmentLocationsBinding binding;
@@ -303,39 +299,13 @@ public class LocationsFragment extends ToolbarFragment
         }
     }
 
+    @NonNull
     @Override
-    public void initSnackManager() {
-        if (mSnackMgr == null) {
-            mSnackMgr = new SnackbarManager(getRootView());
-            mSnackMgr.setSwipeDismissEnabled(true);
-            mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
-        }
-    }
-
-    @Override
-    public void showSnackbar(final com.thewizrd.simpleweather.snackbar.Snackbar snackbar, final com.google.android.material.snackbar.Snackbar.Callback callback) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
-            }
-        });
-    }
-
-    @Override
-    public void dismissAllSnackbars() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mSnackMgr != null) mSnackMgr.dismissAll();
-            }
-        });
-    }
-
-    @Override
-    public void unloadSnackManager() {
-        dismissAllSnackbars();
-        mSnackMgr = null;
+    public SnackbarManager createSnackManager() {
+        SnackbarManager mSnackMgr = new SnackbarManager(getRootView());
+        mSnackMgr.setSwipeDismissEnabled(true);
+        mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
+        return mSnackMgr;
     }
 
     // For LocationPanels
@@ -765,7 +735,6 @@ public class LocationsFragment extends ToolbarFragment
         // Don't resume if fragment is hidden
         if (!this.isHidden()) {
             AnalyticsLogger.logEvent("LocationsFragment: onResume");
-            initSnackManager();
             resume();
         }
     }
@@ -778,17 +747,13 @@ public class LocationsFragment extends ToolbarFragment
         if (cts != null) cts.cancel();
         if (mSearchFragment != null) mSearchFragment.ctsCancel();
 
-        unloadSnackManager();
-
-        super.onPause();
-
         // Remove location updates to save battery.
         stopLocationUpdates();
-
         mLoaded = false;
-
         // Reset error counter
         Arrays.fill(mErrorCounter, 0, mErrorCounter.length, false);
+
+        super.onPause();
     }
 
     @Override
@@ -803,14 +768,10 @@ public class LocationsFragment extends ToolbarFragment
 
         if (!hidden && this.isVisible()) {
             AnalyticsLogger.logEvent("LocationsFragment: onHiddenChanged");
-            initSnackManager();
             resume();
         } else if (hidden) {
             if (inSearchUI) exitSearchUi(true);
             if (mEditMode) toggleEditMode();
-
-            unloadSnackManager();
-
             mLoaded = false;
             // Reset error counter
             Arrays.fill(mErrorCounter, 0, mErrorCounter.length, false);
@@ -1303,7 +1264,7 @@ public class LocationsFragment extends ToolbarFragment
             public void onClick(final View view, final int position) {
                 AnalyticsLogger.logEvent("LocationsFragment: searchFragment click");
 
-                if (mSearchFragment == null)
+                if (mSearchFragment == null || !isAlive())
                     return;
 
                 mSearchFragment.showLoading(true);
@@ -1325,9 +1286,8 @@ public class LocationsFragment extends ToolbarFragment
 
                         // Cancel other tasks
                         mSearchFragment.ctsCancel();
-                        CancellationToken ctsToken = mSearchFragment.getCancellationTokenSource().getToken();
 
-                        if (ctsToken.isCancellationRequested()) throw new InterruptedException();
+                        if (mSearchFragment.ctsCancelRequested()) throw new InterruptedException();
 
                         String country_code = queryResult.getLocationCountry();
                         if (!StringUtils.isNullOrWhitespace(country_code))
@@ -1366,7 +1326,7 @@ public class LocationsFragment extends ToolbarFragment
                             return null;
                         }
 
-                        if (ctsToken.isCancellationRequested()) throw new InterruptedException();
+                        if (mSearchFragment.ctsCancelRequested()) throw new InterruptedException();
 
                         LocationData location = new LocationData(queryResult);
                         if (!location.isValid()) {

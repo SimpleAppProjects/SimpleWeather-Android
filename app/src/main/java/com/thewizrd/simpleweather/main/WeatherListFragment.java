@@ -65,7 +65,6 @@ public class WeatherListFragment extends ToolbarFragment {
 
     private FragmentWeatherListBinding binding;
     private LinearLayoutManager layoutManager;
-    private SnackbarManager mSnackMgr;
 
     private WeatherListType weatherType;
 
@@ -189,10 +188,7 @@ public class WeatherListFragment extends ToolbarFragment {
 
         if (!isHidden()) {
             AnalyticsLogger.logEvent("WeatherListFragment: onResume");
-            initSnackManager();
             initialize();
-        } else {
-            dismissAllSnackbars();
         }
     }
 
@@ -202,19 +198,13 @@ public class WeatherListFragment extends ToolbarFragment {
 
         if (!hidden && isVisible()) {
             AnalyticsLogger.logEvent("WeatherListFragment: onHiddenChanged");
-            initSnackManager();
             initialize();
-        } else {
-            dismissAllSnackbars();
-            mSnackMgr = null;
         }
     }
 
     @Override
     public void onPause() {
         AnalyticsLogger.logEvent("WeatherListFragment: onPause");
-        dismissAllSnackbars();
-        mSnackMgr = null;
         super.onPause();
     }
 
@@ -367,29 +357,12 @@ public class WeatherListFragment extends ToolbarFragment {
         updateWindowColors();
     }
 
-    private void initSnackManager() {
-        if (mSnackMgr == null) {
-            mSnackMgr = new SnackbarManager(binding.getRoot());
-            mSnackMgr.setSwipeDismissEnabled(true);
-            mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
-        }
-    }
-
-    private void showSnackbar(final Snackbar snackbar, final com.google.android.material.snackbar.Snackbar.Callback callback) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
-            }
-        });
-    }
-
-    private void dismissAllSnackbars() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mSnackMgr != null) mSnackMgr.dismissAll();
-            }
-        });
+    @NonNull
+    @Override
+    public SnackbarManager createSnackManager() {
+        SnackbarManager mSnackMgr = new SnackbarManager(binding.getRoot());
+        mSnackMgr.setSwipeDismissEnabled(true);
+        mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
+        return mSnackMgr;
     }
 }

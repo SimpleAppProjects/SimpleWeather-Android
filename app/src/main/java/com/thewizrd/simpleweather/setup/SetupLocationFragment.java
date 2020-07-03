@@ -87,7 +87,6 @@ import com.thewizrd.simpleweather.fragments.CustomFragment;
 import com.thewizrd.simpleweather.fragments.LocationSearchFragment;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
-import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface;
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
@@ -97,12 +96,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public class SetupLocationFragment extends CustomFragment implements Step, OnBackPressedFragmentListener, SnackbarManagerInterface {
+public class SetupLocationFragment extends CustomFragment implements Step, OnBackPressedFragmentListener {
 
     private LocationSearchFragment mSearchFragment;
     private boolean inSearchUI;
-
-    private SnackbarManager mSnackMgr;
 
     // Views
     private FragmentSetupLocationBinding binding;
@@ -126,40 +123,14 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
 
     private WeatherManager wm;
 
+    @NonNull
     @Override
-    public void initSnackManager() {
-        if (mSnackMgr == null) {
-            mSnackMgr = new SnackbarManager(binding.getRoot());
-            mSnackMgr.setSwipeDismissEnabled(true);
-            mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
-            mSnackMgr.setAnchorView(mStepperNavBar);
-        }
-    }
-
-    @Override
-    public void showSnackbar(final com.thewizrd.simpleweather.snackbar.Snackbar snackbar, final com.google.android.material.snackbar.Snackbar.Callback callback) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
-            }
-        });
-    }
-
-    @Override
-    public void dismissAllSnackbars() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mSnackMgr != null) mSnackMgr.dismissAll();
-            }
-        });
-    }
-
-    @Override
-    public void unloadSnackManager() {
-        dismissAllSnackbars();
-        mSnackMgr = null;
+    public SnackbarManager createSnackManager() {
+        SnackbarManager mSnackMgr = new SnackbarManager(binding.getRoot());
+        mSnackMgr.setSwipeDismissEnabled(true);
+        mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
+        mSnackMgr.setAnchorView(mStepperNavBar);
+        return mSnackMgr;
     }
 
     @Override
@@ -377,7 +348,6 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
     public void onResume() {
         super.onResume();
         AnalyticsLogger.logEvent("SetupLocation: onResume");
-        initSnackManager();
     }
 
     @Override
@@ -386,7 +356,6 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
         ctsCancel();
         // Remove location updates to save battery.
         stopLocationUpdates();
-        unloadSnackManager();
         super.onPause();
     }
 

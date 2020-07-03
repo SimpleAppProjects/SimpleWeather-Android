@@ -49,7 +49,6 @@ import com.thewizrd.simpleweather.databinding.FragmentLocationSearchBinding;
 import com.thewizrd.simpleweather.databinding.SearchActionBarBinding;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
-import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface;
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 
 import java.util.ArrayList;
@@ -59,13 +58,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
 
-public class LocationSearchFragment extends CustomFragment implements SnackbarManagerInterface {
+public class LocationSearchFragment extends CustomFragment {
     private FragmentLocationSearchBinding binding;
     private SearchActionBarBinding searchBarBinding;
     private LocationQueryAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-
-    private SnackbarManager mSnackMgr;
 
     private CancellationTokenSource cts;
 
@@ -136,39 +133,13 @@ public class LocationSearchFragment extends CustomFragment implements SnackbarMa
         super.onDetach();
     }
 
+    @NonNull
     @Override
-    public void initSnackManager() {
-        if (mSnackMgr == null) {
-            mSnackMgr = new SnackbarManager(getAppCompatActivity().findViewById(android.R.id.content));
-            mSnackMgr.setSwipeDismissEnabled(true);
-            mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
-        }
-    }
-
-    @Override
-    public void showSnackbar(final Snackbar snackbar, final com.google.android.material.snackbar.Snackbar.Callback callback) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
-            }
-        });
-    }
-
-    @Override
-    public void dismissAllSnackbars() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mSnackMgr != null) mSnackMgr.dismissAll();
-            }
-        });
-    }
-
-    @Override
-    public void unloadSnackManager() {
-        dismissAllSnackbars();
-        mSnackMgr = null;
+    public SnackbarManager createSnackManager() {
+        SnackbarManager mSnackMgr = new SnackbarManager(getAppCompatActivity().findViewById(android.R.id.content));
+        mSnackMgr.setSwipeDismissEnabled(true);
+        mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
+        return mSnackMgr;
     }
 
     public LocationQueryAdapter getAdapter() {
