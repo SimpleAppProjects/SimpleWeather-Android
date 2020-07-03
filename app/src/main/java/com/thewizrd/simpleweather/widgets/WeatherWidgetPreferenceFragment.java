@@ -1556,8 +1556,7 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
         WidgetUtils.setTapToSwitchEnabled(mAppWidgetId, tap2SwitchPref.isChecked());
 
         // Trigger widget service to update widget
-        getAppCompatActivity().sendBroadcast(new Intent(WeatherWidgetProvider.ACTION_SHOWREFRESH)
-                .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, new int[]{mAppWidgetId}));
+        WeatherWidgetProvider.showRefreshForWidget(getAppCompatActivity(), mAppWidgetId);
         WeatherWidgetService.enqueueWork(getAppCompatActivity(),
                 new Intent(getAppCompatActivity(), WeatherWidgetService.class)
                         .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET)

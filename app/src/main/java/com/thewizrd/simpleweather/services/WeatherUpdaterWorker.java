@@ -207,8 +207,9 @@ public class WeatherUpdaterWorker extends Worker {
 
         if (Settings.isWeatherLoaded()) {
             // Send broadcast to signal update
-            if (WeatherWidgetService.widgetsExist(mContext))
-                mContext.sendBroadcast(new Intent(WeatherWidgetProvider.ACTION_SHOWREFRESH));
+            if (WeatherWidgetService.widgetsExist(mContext)) {
+                WeatherWidgetProvider.showRefreshForAllWidgets(mContext);
+            }
             // NOTE: Don't try to show refresh for pre-M devices
             // If app gets killed, instance of notif is lost & view is reset
             // and might get stuck
