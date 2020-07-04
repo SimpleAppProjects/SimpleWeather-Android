@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fragment, Constants.FRAGTAG_HOME)
                     .setReorderingAllowed(true)
-                    .commit();
+                    .commitNow();
         }
 
         // Shortcut intent: from app shortcuts

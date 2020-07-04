@@ -117,7 +117,7 @@ public abstract class CustomFragment extends Fragment implements SnackbarManager
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         mActivity = null;
+        super.onDestroy();
     }
 }

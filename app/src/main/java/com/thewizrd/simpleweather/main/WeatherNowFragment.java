@@ -1173,7 +1173,6 @@ public class WeatherNowFragment extends WindowColorFragment
                         if (!ObjectsCompat.equals(location, homeData)) {
                             location = homeData;
                             weatherView.reset();
-                            updateWindowColors();
                             locationChanged = true;
                         }
                     }
@@ -1184,6 +1183,10 @@ public class WeatherNowFragment extends WindowColorFragment
         }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Boolean>() {
             @Override
             public void onSuccess(Boolean locationChanged) {
+                if (locationChanged && requireArguments().getBoolean(Constants.FRAGTAG_HOME)) {
+                    updateWindowColors();
+                }
+
                 // New fragment instance -> loaded = true
                 // Navigating back to existing fragment instance => loaded = false
                 // Weather location changed (ex. due to GPS setting) -> locationChanged = true
