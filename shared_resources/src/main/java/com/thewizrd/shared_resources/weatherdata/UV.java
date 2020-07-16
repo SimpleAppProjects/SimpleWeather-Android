@@ -13,6 +13,7 @@ import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
 
 import java.io.IOException;
@@ -21,7 +22,7 @@ import java.io.StringReader;
 public class UV extends CustomJsonObject {
 
     @SerializedName("index")
-    private float index = -1;
+    private Float index;
 
     @SerializedName("desc")
     private String desc;
@@ -56,11 +57,11 @@ public class UV extends CustomJsonObject {
             this.desc = description;
     }
 
-    public float getIndex() {
+    public Float getIndex() {
         return index;
     }
 
-    public void setIndex(float index) {
+    public void setIndex(Float index) {
         this.index = index;
     }
 
@@ -104,7 +105,7 @@ public class UV extends CustomJsonObject {
 
                 switch (property) {
                     case "index":
-                        this.index = Float.parseFloat(reader.nextString());
+                        this.index = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "desc":
                         this.desc = reader.nextString();

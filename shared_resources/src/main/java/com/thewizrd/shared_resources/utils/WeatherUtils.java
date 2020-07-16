@@ -58,34 +58,15 @@ public class WeatherUtils {
         return date;
     }
 
-    public static String getFeelsLikeTemp(String temp_f, String wind_mph, String humidity_percent) {
-        String feelslikeTemp = temp_f;
+    public static float getFeelsLikeTemp(float temp_f, float wind_mph, int humidity_percent) {
+        float feelslikeTemp;
 
-        float temp = -99.00f;
-        float windmph = -1f;
-        int humidity = -1;
-
-        try {
-            temp = Float.parseFloat(temp_f);
-        } catch (NumberFormatException e) {
-        }
-        try {
-            windmph = Float.parseFloat(wind_mph);
-        } catch (NumberFormatException e) {
-        }
-        try {
-            humidity = Integer.parseInt(humidity_percent);
-        } catch (NumberFormatException e) {
-        }
-
-        if (temp > -99.00f) {
-            if (temp < 50 && windmph > -1f) {
-                feelslikeTemp = Float.toString(calculateWindChill(temp, windmph));
-            } else if (temp > 80 && humidity > -1) {
-                feelslikeTemp = Double.toString(calculateHeatIndex(temp, humidity));
-            } else
-                feelslikeTemp = temp_f;
-        }
+        if (temp_f < 50)
+            feelslikeTemp = calculateWindChill(temp_f, wind_mph);
+        else if (temp_f > 80)
+            feelslikeTemp = calculateHeatIndex(temp_f, humidity_percent);
+        else
+            feelslikeTemp = temp_f;
 
         return feelslikeTemp;
     }
@@ -97,7 +78,7 @@ public class WeatherUtils {
             return temp_f;
     }
 
-    public static double calculateHeatIndex(float temp_f, int humidity) {
+    public static float calculateHeatIndex(float temp_f, int humidity) {
         if (temp_f > 80) {
             double HI = -42.379
                     + (2.04901523 * temp_f)
@@ -118,7 +99,7 @@ public class WeatherUtils {
             }
 
             if (HI > 80 && HI > temp_f)
-                return HI;
+                return (float) HI;
             else
                 return temp_f;
         } else

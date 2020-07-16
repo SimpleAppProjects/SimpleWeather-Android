@@ -283,14 +283,7 @@ public class WeatherTileProviderService extends TileProviderService {
                     weather = Tasks.await(wloader.loadWeatherData(request.build()));
 
                     if (weather != null && Settings.getDataSync() != WearableDataSync.OFF) {
-                        int ttl = Settings.DEFAULTINTERVAL;
-                        try {
-                            ttl = Integer.parseInt(weather.getTtl());
-                        } catch (NumberFormatException ex) {
-                            Logger.writeLine(Log.ERROR, ex);
-                        } finally {
-                            ttl = Math.max(ttl, Settings.getRefreshInterval());
-                        }
+                        int ttl = Math.max(weather.getTtl(), Settings.getRefreshInterval());
 
                         // Check file age
                         ZonedDateTime updateTime = Settings.getUpdateTime().atZone(ZoneOffset.UTC);

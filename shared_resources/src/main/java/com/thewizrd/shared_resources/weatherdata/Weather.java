@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
 import org.threeten.bp.Instant;
@@ -27,6 +28,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.temporal.ChronoUnit;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -58,7 +60,7 @@ public class Weather extends CustomJsonObject {
     @Ignore
     // Just for passing along to where its needed
     private transient Collection<WeatherAlert> weather_alerts;
-    private String ttl;
+    private int ttl;
     private String source;
     @PrimaryKey
     @NonNull
@@ -80,19 +82,19 @@ public class Weather extends CustomJsonObject {
         condition = new Condition(root.getCurrentObservation());
         atmosphere = new Atmosphere(root.getCurrentObservation().getAtmosphere());
         astronomy = new Astronomy(root.getCurrentObservation().getAstronomy());
-        ttl = "120";
+        ttl = 120;
 
         // Set feelslike temp
-        if (condition.getTempF() > 80) {
-            condition.setFeelslikeF(WeatherUtils.calculateHeatIndex((float) condition.getTempF(), Integer.parseInt(atmosphere.getHumidity().replace("%", ""))));
-            condition.setFeelslikeC(Double.parseDouble(ConversionMethods.FtoC(Double.toString(condition.getFeelslikeF()))));
+        if (condition.getTempF() != null && condition.getTempF() > 80 && atmosphere.getHumidity() != null) {
+            condition.setFeelslikeF(WeatherUtils.calculateHeatIndex(condition.getTempF(), atmosphere.getHumidity()));
+            condition.setFeelslikeC(ConversionMethods.FtoC(condition.getFeelslikeF()));
         }
 
-        if (condition.getHighF() == condition.getHighC() && forecast.size() > 0) {
-            condition.setHighF(Float.parseFloat(forecast.get(0).getHighF()));
-            condition.setHighC(Float.parseFloat(forecast.get(0).getHighC()));
-            condition.setLowF(Float.parseFloat(forecast.get(0).getLowF()));
-            condition.setLowC(Float.parseFloat(forecast.get(0).getLowC()));
+        if ((condition.getHighF() == null || condition.getHighC() == null) && forecast.size() > 0) {
+            condition.setHighF(forecast.get(0).getHighF());
+            condition.setHighC(forecast.get(0).getHighC());
+            condition.setLowF(forecast.get(0).getLowF());
+            condition.setLowC(forecast.get(0).getLowC());
         }
 
         condition.setObservationTime(updateTime);
@@ -119,15 +121,17 @@ public class Weather extends CustomJsonObject {
         atmosphere = new Atmosphere(root.getCurrent());
         astronomy = new Astronomy(root.getCurrent());
         precipitation = new Precipitation(root.getCurrent());
-        ttl = "120";
+        ttl = 120;
 
-        query = String.format(Locale.ROOT, "lat=%s&lon=%s", location.getLatitude(), location.getLongitude());
+        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
+        df.applyPattern("#.####");
+        query = String.format(Locale.ROOT, "lat=%s&lon=%s", df.format(location.getLatitude()), location.getLongitude());
 
-        if (condition.getHighF() == condition.getHighC() && forecast.size() > 0) {
-            condition.setHighF(Float.parseFloat(forecast.get(0).getHighF()));
-            condition.setHighC(Float.parseFloat(forecast.get(0).getHighC()));
-            condition.setLowF(Float.parseFloat(forecast.get(0).getLowF()));
-            condition.setLowC(Float.parseFloat(forecast.get(0).getLowC()));
+        if ((condition.getHighF() == null || condition.getHighC() == null) && forecast.size() > 0) {
+            condition.setHighF(forecast.get(0).getHighF());
+            condition.setHighC(forecast.get(0).getHighC());
+            condition.setLowF(forecast.get(0).getLowF());
+            condition.setLowC(forecast.get(0).getLowC());
         }
 
         source = WeatherAPI.OPENWEATHERMAP;
@@ -175,11 +179,11 @@ public class Weather extends CustomJsonObject {
                     // date
                     fcast.setDate(currentDate);
                     // high
-                    fcast.setHighF(ConversionMethods.CtoF(Double.toString(dayMax)));
-                    fcast.setHighC(Integer.toString(Math.round(dayMax)));
+                    fcast.setHighF(ConversionMethods.CtoF(dayMax));
+                    fcast.setHighC((float) Math.round(dayMax));
                     // low
-                    fcast.setLowF(ConversionMethods.CtoF(Double.toString(dayMin)));
-                    fcast.setLowC(Integer.toString(Math.round(dayMin)));
+                    fcast.setLowF(ConversionMethods.CtoF(dayMin));
+                    fcast.setLowC((float) Math.round(dayMin));
 
                     forecast.add(fcast);
                 }
@@ -215,15 +219,17 @@ public class Weather extends CustomJsonObject {
         }
 
         astronomy = new Astronomy(astroRoot);
-        ttl = "120";
+        ttl = 120;
 
-        query = String.format("lat=%s&lon=%s", location.getLatitude(), location.getLongitude());
+        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
+        df.applyPattern("#.####");
+        query = String.format(Locale.ROOT, "lat=%s&lon=%s", df.format(location.getLatitude()), location.getLongitude());
 
-        if (condition.getHighF() == condition.getHighC() && forecast.size() > 0) {
-            condition.setHighF(Float.parseFloat(forecast.get(0).getHighF()));
-            condition.setHighC(Float.parseFloat(forecast.get(0).getHighC()));
-            condition.setLowF(Float.parseFloat(forecast.get(0).getLowF()));
-            condition.setLowC(Float.parseFloat(forecast.get(0).getLowC()));
+        if ((condition.getHighF() == null || condition.getHighC() == null) && forecast.size() > 0) {
+            condition.setHighF(forecast.get(0).getHighF());
+            condition.setHighC(forecast.get(0).getHighC());
+            condition.setLowF(forecast.get(0).getLowF());
+            condition.setLowC(forecast.get(0).getLowC());
         }
 
         condition.setObservationTime(ZonedDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(foreRoot.getProperties().getMeta().getUpdatedAt())), ZoneOffset.UTC));
@@ -257,7 +263,7 @@ public class Weather extends CustomJsonObject {
         atmosphere = new Atmosphere(observation);
         astronomy = new Astronomy(root.getAstronomy().getAstronomy());
         precipitation = new Precipitation(todaysForecast);
-        ttl = "180";
+        ttl = 180;
 
         source = WeatherAPI.HERE;
     }
@@ -299,23 +305,15 @@ public class Weather extends CustomJsonObject {
         atmosphere = new Atmosphere(obsCurrentResponse);
         //astronomy = new Astronomy(obsCurrentResponse);
         precipitation = new Precipitation(obsCurrentResponse);
-        ttl = "180";
+        ttl = 180;
 
-        if (condition.getHighF() == condition.getHighC() && forecast.size() > 0) {
-            if (forecast.get(0).getHighF() != null) {
-                condition.setHighF(Float.parseFloat(forecast.get(0).getHighF()));
-            }
-            if (forecast.get(0).getHighC() != null) {
-                condition.setHighC(Float.parseFloat(forecast.get(0).getHighC()));
-            }
+        if (condition.getHighF() == null && forecast.size() > 0) {
+            condition.setHighF(forecast.get(0).getHighF());
+            condition.setHighC(forecast.get(0).getHighC());
         }
-        if (condition.getLowF() == condition.getLowC() && forecast.size() > 0) {
-            if (forecast.get(0).getLowF() != null) {
-                condition.setLowF(Float.parseFloat(forecast.get(0).getLowF()));
-            }
-            if (forecast.get(0).getLowC() != null) {
-                condition.setLowC(Float.parseFloat(forecast.get(0).getLowC()));
-            }
+        if (condition.getLowF() == null && forecast.size() > 0) {
+            condition.setLowF(forecast.get(0).getLowF());
+            condition.setLowC(forecast.get(0).getLowC());
         }
 
         source = WeatherAPI.NWS;
@@ -401,11 +399,11 @@ public class Weather extends CustomJsonObject {
         this.weather_alerts = weather_alerts;
     }
 
-    public String getTtl() {
+    public int getTtl() {
         return ttl;
     }
 
-    public void setTtl(String ttl) {
+    public void setTtl(int ttl) {
         this.ttl = ttl;
     }
 
@@ -417,11 +415,12 @@ public class Weather extends CustomJsonObject {
         this.source = source;
     }
 
+    @NonNull
     public String getQuery() {
         return query;
     }
 
-    public void setQuery(String query) {
+    public void setQuery(@NonNull String query) {
         this.query = query;
     }
 
@@ -546,7 +545,7 @@ public class Weather extends CustomJsonObject {
                         this.precipitation.fromJson(reader);
                         break;
                     case "ttl":
-                        this.ttl = reader.nextString();
+                        this.ttl = NumberUtils.tryParseInt(reader.nextString(), 120);
                         break;
                     case "source":
                         this.source = reader.nextString();
@@ -712,7 +711,7 @@ public class Weather extends CustomJsonObject {
             return false;
         if (weather_alerts != null ? !weather_alerts.equals(weather.weather_alerts) : weather.weather_alerts != null)
             return false;
-        if (ttl != null ? !ttl.equals(weather.ttl) : weather.ttl != null) return false;
+        if (ttl != weather.ttl) return false;
         if (source != null ? !source.equals(weather.source) : weather.source != null) return false;
         if (!query.equals(weather.query)) return false;
         return locale != null ? locale.equals(weather.locale) : weather.locale == null;
@@ -730,7 +729,7 @@ public class Weather extends CustomJsonObject {
         result = 31 * result + (astronomy != null ? astronomy.hashCode() : 0);
         result = 31 * result + (precipitation != null ? precipitation.hashCode() : 0);
         result = 31 * result + (weather_alerts != null ? weather_alerts.hashCode() : 0);
-        result = 31 * result + (ttl != null ? ttl.hashCode() : 0);
+        result = 31 * result + ttl;
         result = 31 * result + (source != null ? source.hashCode() : 0);
         result = 31 * result + query.hashCode();
         result = 31 * result + (locale != null ? locale.hashCode() : 0);

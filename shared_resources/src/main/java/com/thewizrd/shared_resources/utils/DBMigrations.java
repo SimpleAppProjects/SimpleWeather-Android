@@ -152,7 +152,34 @@ class DBMigrations {
         }
     };
 
+    static final Migration W_MIGRATION_5_6 = new Migration(5, 6) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // Create the new table
+            database.execSQL(
+                    "DROP TABLE IF EXISTS `weatherdata_new`");
+            database.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `weatherdata_new` (`locationblob` TEXT, `update_time` TEXT, `conditionblob` TEXT, `atmosphereblob` TEXT, `astronomyblob` TEXT, `precipitationblob` TEXT, `ttl` INTEGER NOT NULL, `source` TEXT, `query` TEXT NOT NULL, `locale` TEXT, PRIMARY KEY(`query`))");
+
+            // Copy the data
+            database.execSQL(
+                    "INSERT INTO weatherdata_new (`locationblob`, `update_time`, `conditionblob`, `atmosphereblob`, `astronomyblob`, `precipitationblob`, `ttl`, `source`, `query`, `locale`) SELECT `locationblob`, `update_time`, `conditionblob`, `atmosphereblob`, `astronomyblob`, `precipitationblob`, IFNULL(CAST(`ttl` AS INTEGER), 120), `source`, `query`, `locale` FROM weatherdata");
+
+            // Remove the old table
+            database.execSQL("DROP TABLE weatherdata");
+            // Change the table name to the correct one
+            database.execSQL("ALTER TABLE weatherdata_new RENAME TO weatherdata");
+        }
+    };
+
     static final Migration LOC_MIGRATION_4_5 = new Migration(4, 5) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // Since we didn't alter the table, there's nothing else to do here.
+        }
+    };
+
+    static final Migration LOC_MIGRATION_5_6 = new Migration(5, 6) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             // Since we didn't alter the table, there's nothing else to do here.

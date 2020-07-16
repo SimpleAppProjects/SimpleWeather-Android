@@ -1,0 +1,64 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 6,
+    "identityHash": "33992f8dd29b860a3f499aa86c9fd6f6",
+    "entities": [
+      {
+        "tableName": "tzdb",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `tz_long` TEXT, PRIMARY KEY(`latitude`, `longitude`))",
+        "fields": [
+          {
+            "fieldPath": "latitude",
+            "columnName": "latitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "longitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tzLong",
+            "columnName": "tz_long",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "latitude",
+            "longitude"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_tzdb_latitude",
+            "unique": false,
+            "columnNames": [
+              "latitude"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tzdb_latitude` ON `${TABLE_NAME}` (`latitude`)"
+          },
+          {
+            "name": "index_tzdb_longitude",
+            "unique": false,
+            "columnNames": [
+              "longitude"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tzdb_longitude` ON `${TABLE_NAME}` (`longitude`)"
+          }
+        ],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '33992f8dd29b860a3f499aa86c9fd6f6')"
+    ]
+  }
+}

@@ -10,6 +10,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.weatherdata.aqicn.Rootobject;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ import java.io.StringReader;
 public class AirQuality extends CustomJsonObject {
 
     @SerializedName("index")
-    private int index;
+    private Integer index;
 
     @RestrictTo({RestrictTo.Scope.LIBRARY})
     public AirQuality() {
@@ -29,11 +30,11 @@ public class AirQuality extends CustomJsonObject {
         this.index = root.getData().getAqi();
     }
 
-    public int getIndex() {
+    public Integer getIndex() {
         return index;
     }
 
-    public void setIndex(int index) {
+    public void setIndex(Integer index) {
         this.index = index;
     }
 
@@ -69,7 +70,7 @@ public class AirQuality extends CustomJsonObject {
 
                 switch (property) {
                     case "index":
-                        this.index = Integer.parseInt(reader.nextString());
+                        this.index = NumberUtils.tryParseInt(reader.nextString());
                         break;
                     default:
                         break;

@@ -45,6 +45,7 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -134,8 +135,10 @@ public class WeatherComplicationService extends ComplicationProviderService {
             return null;
         } else {
             // Temperature
-            String temp = Settings.isFahrenheit() ?
-                    Math.round(weather.getCondition().getTempF()) + "º" : Math.round(weather.getCondition().getTempC()) + "º";
+            String temp = String.format(Locale.getDefault(), "%dº",
+                    Settings.isFahrenheit() ?
+                            Math.round(weather.getCondition().getTempF()) :
+                            Math.round(weather.getCondition().getTempC()));
             // Weather Icon
             int weatherIcon = WeatherUtils.getWeatherIconResource(weather.getCondition().getIcon());
             // Condition text
@@ -145,7 +148,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
             if (dataType == ComplicationData.TYPE_SHORT_TEXT) {
                 builder.setShortText(ComplicationText.plainText(temp));
             } else if (dataType == ComplicationData.TYPE_LONG_TEXT) {
-                builder.setLongText(ComplicationText.plainText(String.format("%s: %s", condition, temp)));
+                builder.setLongText(ComplicationText.plainText(String.format("%s - %s", condition, temp)));
             }
 
             builder.setIcon(Icon.createWithResource(this, weatherIcon))
@@ -177,14 +180,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
                     weather = Tasks.await(wloader.loadWeatherData(request.build()));
 
                     if (weather != null && Settings.getDataSync() != WearableDataSync.OFF) {
-                        int ttl = Settings.DEFAULTINTERVAL;
-                        try {
-                            ttl = Integer.parseInt(weather.getTtl());
-                        } catch (NumberFormatException ex) {
-                            Logger.writeLine(Log.ERROR, ex);
-                        } finally {
-                            ttl = Math.max(ttl, Settings.getRefreshInterval());
-                        }
+                        int ttl = Math.max(weather.getTtl(), Settings.getRefreshInterval());
 
                         // Check file age
                         ZonedDateTime updateTime = Settings.getUpdateTime().atZone(ZoneOffset.UTC);

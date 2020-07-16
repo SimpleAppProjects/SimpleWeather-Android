@@ -202,17 +202,17 @@ public class DetailItemViewModel {
         this.iconRotation = 0;
 
         if (aqi.getIndex() < 51) {
-            this.value = String.format(Locale.ROOT, "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_0_50));
+            this.value = String.format(Locale.getDefault(), "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_0_50));
         } else if (aqi.getIndex() < 101) {
-            this.value = String.format(Locale.ROOT, "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_51_100));
+            this.value = String.format(Locale.getDefault(), "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_51_100));
         } else if (aqi.getIndex() < 151) {
-            this.value = String.format(Locale.ROOT, "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_101_150));
+            this.value = String.format(Locale.getDefault(), "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_101_150));
         } else if (aqi.getIndex() < 201) {
-            this.value = String.format(Locale.ROOT, "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_151_200));
+            this.value = String.format(Locale.getDefault(), "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_151_200));
         } else if (aqi.getIndex() < 301) {
-            this.value = String.format(Locale.ROOT, "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_201_300));
+            this.value = String.format(Locale.getDefault(), "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_201_300));
         } else if (aqi.getIndex() >= 301) {
-            this.value = String.format(Locale.ROOT, "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_300));
+            this.value = String.format(Locale.getDefault(), "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_300));
         }
     }
 

@@ -279,14 +279,15 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
 
     @Override
     public String updateLocationQuery(Weather weather) {
-        return String.format(Locale.ROOT, "latitude=%s&longitude=%s", weather.getLocation().getLatitude(), weather.getLocation().getLongitude());
+        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
+        df.applyPattern("0.####");
+        return String.format(Locale.ROOT, "latitude=%s&longitude=%s", df.format(weather.getLocation().getLatitude()), df.format(weather.getLocation().getLongitude()));
     }
 
     @Override
     public String updateLocationQuery(LocationData location) {
         DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
-        df.applyPattern("#.####");
-
+        df.applyPattern("0.####");
         return String.format(Locale.ROOT, "latitude=%s&longitude=%s", df.format(location.getLatitude()), df.format(location.getLongitude()));
     }
 

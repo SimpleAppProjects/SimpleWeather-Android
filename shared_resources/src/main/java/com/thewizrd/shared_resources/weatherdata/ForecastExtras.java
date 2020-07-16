@@ -8,6 +8,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -15,200 +16,200 @@ import java.io.StringReader;
 public class ForecastExtras extends CustomJsonObject {
 
     @SerializedName("feelslike_f")
-    private double feelslikeF;
+    private Float feelslikeF;
 
     @SerializedName("feelslike_c")
-    private double feelslikeC;
+    private Float feelslikeC;
 
     @SerializedName("humidity")
-    private String humidity;
+    private Integer humidity;
 
     @SerializedName("dewpoint_f")
-    private String dewpointF;
+    private Float dewpointF;
 
     @SerializedName("dewpoint_c")
-    private String dewpointC;
+    private Float dewpointC;
 
     @SerializedName("uv_index")
-    private float uvIndex = -1.0f;
+    private Float uvIndex;
 
     @SerializedName("pop")
-    private String pop;
+    private Integer pop;
 
     @SerializedName("qpf_rain_in")
-    private float qpfRainIn = -1.0f;
+    private Float qpfRainIn;
 
     @SerializedName("qpf_rain_mm")
-    private float qpfRainMm = -1.0f;
+    private Float qpfRainMm;
 
     @SerializedName("qpf_snow_in")
-    private float qpfSnowIn = -1.0f;
+    private Float qpfSnowIn;
 
     @SerializedName("qpf_snow_cm")
-    private float qpfSnowCm = -1.0f;
+    private Float qpfSnowCm;
 
     @SerializedName("pressure_mb")
-    private String pressureMb;
+    private Float pressureMb;
 
     @SerializedName("pressure_in")
-    private String pressureIn;
+    private Float pressureIn;
 
     @SerializedName("wind_degrees")
-    private int windDegrees;
+    private Integer windDegrees;
 
     @SerializedName("wind_mph")
-    private float windMph = -1.0f;
+    private Float windMph;
 
     @SerializedName("wind_kph")
-    private float windKph = -1.0f;
+    private Float windKph;
 
     @SerializedName("visibility_mi")
-    private String visibilityMi;
+    private Float visibilityMi;
 
     @SerializedName("visibility_km")
-    private String visibilityKm;
+    private Float visibilityKm;
 
-    public double getFeelslikeF() {
+    public Float getFeelslikeF() {
         return feelslikeF;
     }
 
-    public void setFeelslikeF(double feelslikeF) {
+    public void setFeelslikeF(Float feelslikeF) {
         this.feelslikeF = feelslikeF;
     }
 
-    public double getFeelslikeC() {
+    public Float getFeelslikeC() {
         return feelslikeC;
     }
 
-    public void setFeelslikeC(double feelslikeC) {
+    public void setFeelslikeC(Float feelslikeC) {
         this.feelslikeC = feelslikeC;
     }
 
-    public String getHumidity() {
+    public Integer getHumidity() {
         return humidity;
     }
 
-    public void setHumidity(String humidity) {
+    public void setHumidity(Integer humidity) {
         this.humidity = humidity;
     }
 
-    public String getDewpointF() {
+    public Float getDewpointF() {
         return dewpointF;
     }
 
-    public void setDewpointF(String dewpointF) {
+    public void setDewpointF(Float dewpointF) {
         this.dewpointF = dewpointF;
     }
 
-    public String getDewpointC() {
+    public Float getDewpointC() {
         return dewpointC;
     }
 
-    public void setDewpointC(String dewpointC) {
+    public void setDewpointC(Float dewpointC) {
         this.dewpointC = dewpointC;
     }
 
-    public float getUvIndex() {
+    public Float getUvIndex() {
         return uvIndex;
     }
 
-    public void setUvIndex(float uvIndex) {
+    public void setUvIndex(Float uvIndex) {
         this.uvIndex = uvIndex;
     }
 
-    public String getPop() {
+    public Integer getPop() {
         return pop;
     }
 
-    public void setPop(String pop) {
+    public void setPop(Integer pop) {
         this.pop = pop;
     }
 
-    public float getQpfRainIn() {
+    public Float getQpfRainIn() {
         return qpfRainIn;
     }
 
-    public void setQpfRainIn(float qpfRainIn) {
+    public void setQpfRainIn(Float qpfRainIn) {
         this.qpfRainIn = qpfRainIn;
     }
 
-    public float getQpfRainMm() {
+    public Float getQpfRainMm() {
         return qpfRainMm;
     }
 
-    public void setQpfRainMm(float qpfRainMm) {
+    public void setQpfRainMm(Float qpfRainMm) {
         this.qpfRainMm = qpfRainMm;
     }
 
-    public float getQpfSnowIn() {
+    public Float getQpfSnowIn() {
         return qpfSnowIn;
     }
 
-    public void setQpfSnowIn(float qpfSnowIn) {
+    public void setQpfSnowIn(Float qpfSnowIn) {
         this.qpfSnowIn = qpfSnowIn;
     }
 
-    public float getQpfSnowCm() {
+    public Float getQpfSnowCm() {
         return qpfSnowCm;
     }
 
-    public void setQpfSnowCm(float qpfSnowCm) {
+    public void setQpfSnowCm(Float qpfSnowCm) {
         this.qpfSnowCm = qpfSnowCm;
     }
 
-    public String getPressureMb() {
+    public Float getPressureMb() {
         return pressureMb;
     }
 
-    public void setPressureMb(String pressureMb) {
+    public void setPressureMb(Float pressureMb) {
         this.pressureMb = pressureMb;
     }
 
-    public String getPressureIn() {
+    public Float getPressureIn() {
         return pressureIn;
     }
 
-    public void setPressureIn(String pressureIn) {
+    public void setPressureIn(Float pressureIn) {
         this.pressureIn = pressureIn;
     }
 
-    public int getWindDegrees() {
+    public Integer getWindDegrees() {
         return windDegrees;
     }
 
-    public void setWindDegrees(int windDegrees) {
+    public void setWindDegrees(Integer windDegrees) {
         this.windDegrees = windDegrees;
     }
 
-    public float getWindMph() {
+    public Float getWindMph() {
         return windMph;
     }
 
-    public void setWindMph(float windMph) {
+    public void setWindMph(Float windMph) {
         this.windMph = windMph;
     }
 
-    public float getWindKph() {
+    public Float getWindKph() {
         return windKph;
     }
 
-    public void setWindKph(float windKph) {
+    public void setWindKph(Float windKph) {
         this.windKph = windKph;
     }
 
-    public String getVisibilityMi() {
+    public Float getVisibilityMi() {
         return visibilityMi;
     }
 
-    public void setVisibilityMi(String visibilityMi) {
+    public void setVisibilityMi(Float visibilityMi) {
         this.visibilityMi = visibilityMi;
     }
 
-    public String getVisibilityKm() {
+    public Float getVisibilityKm() {
         return visibilityKm;
     }
 
-    public void setVisibilityKm(String visibilityKm) {
+    public void setVisibilityKm(Float visibilityKm) {
         this.visibilityKm = visibilityKm;
     }
 
@@ -244,58 +245,58 @@ public class ForecastExtras extends CustomJsonObject {
 
                 switch (property) {
                     case "feelslike_f":
-                        this.feelslikeF = Float.parseFloat(reader.nextString());
+                        this.feelslikeF = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "feelslike_c":
-                        this.feelslikeC = Float.parseFloat(reader.nextString());
+                        this.feelslikeC = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "humidity":
-                        this.humidity = reader.nextString();
+                        this.humidity = NumberUtils.tryParseInt(reader.nextString());
                         break;
                     case "dewpoint_f":
-                        this.dewpointF = reader.nextString();
+                        this.dewpointF = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "dewpoint_c":
-                        this.dewpointC = reader.nextString();
+                        this.dewpointC = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "uv_index":
-                        this.uvIndex = Float.parseFloat(reader.nextString());
+                        this.uvIndex = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "pop":
-                        this.pop = reader.nextString();
+                        this.pop = NumberUtils.tryParseInt(reader.nextString());
                         break;
                     case "qpf_rain_in":
-                        this.qpfRainIn = Float.parseFloat(reader.nextString());
+                        this.qpfRainIn = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "qpf_rain_mm":
-                        this.qpfRainMm = Float.parseFloat(reader.nextString());
+                        this.qpfRainMm = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "qpf_snow_in":
-                        this.qpfSnowIn = Float.parseFloat(reader.nextString());
+                        this.qpfSnowIn = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "qpf_snow_cm":
-                        this.qpfSnowCm = Float.parseFloat(reader.nextString());
+                        this.qpfSnowCm = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "pressure_mb":
-                        this.pressureMb = reader.nextString();
+                        this.pressureMb = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "pressure_in":
-                        this.pressureIn = reader.nextString();
+                        this.pressureIn = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "wind_degrees":
                         this.windDegrees = Integer.parseInt(reader.nextString());
                         break;
                     case "wind_mph":
-                        this.windMph = Float.parseFloat(reader.nextString());
+                        this.windMph = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "wind_kph":
-                        this.windKph = Float.parseFloat(reader.nextString());
+                        this.windKph = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "visibility_mi":
-                        this.visibilityMi = reader.nextString();
+                        this.visibilityMi = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "visibility_km":
-                        this.visibilityKm = reader.nextString();
+                        this.visibilityKm = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     default:
                         break;

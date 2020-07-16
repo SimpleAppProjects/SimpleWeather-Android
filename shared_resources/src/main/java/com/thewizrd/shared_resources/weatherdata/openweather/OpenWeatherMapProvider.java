@@ -202,14 +202,15 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
 
     @Override
     public String updateLocationQuery(Weather weather) {
-        return String.format(Locale.ROOT, "lat=%s&lon=%s", weather.getLocation().getLatitude(), weather.getLocation().getLongitude());
+        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
+        df.applyPattern("0.####");
+        return String.format(Locale.ROOT, "lat=%s&lon=%s", df.format(weather.getLocation().getLatitude()), df.format(weather.getLocation().getLongitude()));
     }
 
     @Override
     public String updateLocationQuery(LocationData location) {
         DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
-        df.applyPattern("#.####");
-
+        df.applyPattern("0.####");
         return String.format(Locale.ROOT, "lat=%s&lon=%s", df.format(location.getLatitude()), df.format(location.getLongitude()));
     }
 

@@ -20,7 +20,7 @@ public class UVIndexViewModel {
     public UVIndexViewModel(UV uvIdx) {
         icon = WeatherIcons.DAY_SUNNY;
         description = uvIdx.getDescription();
-        index = (int) uvIdx.getIndex();
+        index = uvIdx.getIndex().intValue();
         progressMax = 11;
         progress = Math.min(index, progressMax);
 

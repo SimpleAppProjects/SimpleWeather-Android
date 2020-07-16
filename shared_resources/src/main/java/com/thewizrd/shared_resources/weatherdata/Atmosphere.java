@@ -11,6 +11,7 @@ import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -18,28 +19,28 @@ import java.io.StringReader;
 public class Atmosphere extends CustomJsonObject {
 
     @SerializedName("humidity")
-    private String humidity;
+    private Integer humidity;
 
     @SerializedName("pressure_mb")
-    private String pressureMb;
+    private Float pressureMb;
 
     @SerializedName("pressure_in")
-    private String pressureIn;
+    private Float pressureIn;
 
     @SerializedName("pressure_trend")
     private String pressureTrend;
 
     @SerializedName("visibility_mi")
-    private String visibilityMi;
+    private Float visibilityMi;
 
     @SerializedName("visibility_km")
-    private String visibilityKm;
+    private Float visibilityKm;
 
     @SerializedName("dewpoint_f")
-    private String dewpointF;
+    private Float dewpointF;
 
     @SerializedName("dewpoint_c")
-    private String dewpointC;
+    private Float dewpointC;
 
     @RestrictTo({RestrictTo.Scope.LIBRARY})
     public Atmosphere() {
@@ -47,117 +48,113 @@ public class Atmosphere extends CustomJsonObject {
     }
 
     public Atmosphere(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Atmosphere atmosphere) {
-        humidity = atmosphere.getHumidity();
-        pressureIn = atmosphere.getPressure();
-        pressureMb = ConversionMethods.inHgToMB(atmosphere.getPressure());
+        humidity = NumberUtils.tryParseInt(atmosphere.getHumidity());
+        pressureIn = NumberUtils.tryParseFloat(atmosphere.getPressure());
+        pressureMb = ConversionMethods.inHgToMB(pressureIn);
         pressureTrend = atmosphere.getRising();
-        visibilityMi = atmosphere.getVisibility();
-        visibilityKm = ConversionMethods.miToKm(atmosphere.getVisibility());
+        visibilityMi = NumberUtils.tryParseFloat(atmosphere.getVisibility());
+        visibilityKm = ConversionMethods.miToKm(visibilityMi);
     }
 
     public Atmosphere(com.thewizrd.shared_resources.weatherdata.openweather.Current current) {
-        humidity = Integer.toString(current.getHumidity());
+        humidity = current.getHumidity();
         // 1hPa = 1mbar
-        pressureMb = Float.toString(current.getPressure());
+        pressureMb = current.getPressure();
         pressureIn = ConversionMethods.mbToInHg(pressureMb);
         pressureTrend = "";
-        visibilityKm = Integer.toString((current.getVisibility() / 1000));
+        visibilityKm = current.getVisibility() / 1000f;
         visibilityMi = ConversionMethods.kmToMi(visibilityKm);
-        dewpointF = ConversionMethods.KtoF(Float.toString(current.getDewPoint()));
-        dewpointC = ConversionMethods.KtoC(Float.toString(current.getDewPoint()));
+        dewpointF = ConversionMethods.KtoF(current.getDewPoint());
+        dewpointC = ConversionMethods.KtoC(current.getDewPoint());
     }
 
     public Atmosphere(com.thewizrd.shared_resources.weatherdata.metno.TimeseriesItem time) {
-        humidity = Integer.toString(Math.round(time.getData().getInstant().getDetails().getRelativeHumidity()));
-        pressureMb = time.getData().getInstant().getDetails().getAirPressureAtSeaLevel().toString();
-        pressureIn = ConversionMethods.mbToInHg(time.getData().getInstant().getDetails().getAirPressureAtSeaLevel().toString());
+        humidity = Math.round(time.getData().getInstant().getDetails().getRelativeHumidity());
+        pressureMb = time.getData().getInstant().getDetails().getAirPressureAtSeaLevel();
+        pressureIn = ConversionMethods.mbToInHg(time.getData().getInstant().getDetails().getAirPressureAtSeaLevel());
         pressureTrend = "";
 
         if (time.getData().getInstant().getDetails().getFogAreaFraction() != null) {
             float visMi = 10.0f;
-            visibilityMi = Float.toString((visMi - (visMi * time.getData().getInstant().getDetails().getFogAreaFraction() / 100)));
+            visibilityMi = (visMi - (visMi * time.getData().getInstant().getDetails().getFogAreaFraction() / 100));
             visibilityKm = ConversionMethods.miToKm(visibilityMi);
         }
 
         if (time.getData().getInstant().getDetails().getDewPointTemperature() != null) {
-            dewpointF = ConversionMethods.CtoF(time.getData().getInstant().getDetails().getDewPointTemperature().toString());
-            dewpointC = time.getData().getInstant().getDetails().getDewPointTemperature().toString();
+            dewpointF = ConversionMethods.CtoF(time.getData().getInstant().getDetails().getDewPointTemperature());
+            dewpointC = time.getData().getInstant().getDetails().getDewPointTemperature();
         }
     }
 
     public Atmosphere(com.thewizrd.shared_resources.weatherdata.here.ObservationItem observation) {
-        humidity = observation.getHumidity();
-        try {
-            pressureIn = observation.getBarometerPressure();
-            pressureMb = ConversionMethods.inHgToMB(observation.getBarometerPressure());
-        } catch (NumberFormatException ex) {
-            pressureIn = null;
-            pressureMb = null;
+        Integer Humidity = NumberUtils.tryParseInt(observation.getHumidity());
+        if (Humidity != null) {
+            humidity = Humidity;
+        }
+
+        Float pressureIN = NumberUtils.tryParseFloat(observation.getBarometerPressure());
+        if (pressureIN != null) {
+            pressureIn = pressureIN;
+            pressureMb = ConversionMethods.inHgToMB(pressureIN);
         }
         pressureTrend = observation.getBarometerTrend();
 
-        try {
-            visibilityMi = observation.getVisibility();
-            visibilityKm = ConversionMethods.miToKm(observation.getVisibility());
-        } catch (NumberFormatException ex) {
-            visibilityMi = null;
-            visibilityKm = null;
+        Float visibilityMI = NumberUtils.tryParseFloat(observation.getVisibility());
+        if (visibilityMI != null) {
+            visibilityMi = visibilityMI;
+            visibilityKm = ConversionMethods.miToKm(visibilityMI);
         }
 
-        try {
-            dewpointF = observation.getDewPoint();
-            dewpointC = ConversionMethods.FtoC(observation.getDewPoint());
-        } catch (NumberFormatException ex) {
-            dewpointF = null;
-            dewpointC = null;
+        Float dewpoint_f = NumberUtils.tryParseFloat(observation.getDewPoint());
+        if (dewpoint_f != null) {
+            dewpointF = dewpoint_f;
+            dewpointC = ConversionMethods.FtoC(dewpoint_f);
         }
     }
 
     public Atmosphere(com.thewizrd.shared_resources.weatherdata.nws.ObservationCurrentResponse obsCurrentResponse) {
         if (obsCurrentResponse.getRelativeHumidity().getValue() != null) {
-            humidity = Integer.toString(Math.round(obsCurrentResponse.getRelativeHumidity().getValue()));
+            humidity = Math.round(obsCurrentResponse.getRelativeHumidity().getValue());
         }
         if (obsCurrentResponse.getBarometricPressure().getValue() != null) {
             float pressure_pa = obsCurrentResponse.getBarometricPressure().getValue();
-            pressureIn = ConversionMethods.paToInHg(Float.toString(pressure_pa));
-            pressureMb = ConversionMethods.paToMB(Float.toString(pressure_pa));
+            pressureIn = ConversionMethods.paToInHg(pressure_pa);
+            pressureMb = ConversionMethods.paToMB(pressure_pa);
         }
         pressureTrend = "";
 
         if (obsCurrentResponse.getVisibility().getValue() != null) {
-            visibilityKm = Float.toString(obsCurrentResponse.getVisibility().getValue() / 1000);
-            visibilityMi = ConversionMethods.kmToMi(
-                    Float.toString(obsCurrentResponse.getVisibility().getValue() / 1000));
+            visibilityKm = obsCurrentResponse.getVisibility().getValue() / 1000;
+            visibilityMi = ConversionMethods.kmToMi(obsCurrentResponse.getVisibility().getValue() / 1000);
         }
 
         if (obsCurrentResponse.getDewpoint().getValue() != null) {
-            dewpointC = Float.toString(obsCurrentResponse.getDewpoint().getValue());
-            dewpointF = ConversionMethods.CtoF(
-                    Float.toString(obsCurrentResponse.getDewpoint().getValue()));
+            dewpointC = obsCurrentResponse.getDewpoint().getValue();
+            dewpointF = ConversionMethods.CtoF(obsCurrentResponse.getDewpoint().getValue());
         }
     }
 
-    public String getHumidity() {
+    public Integer getHumidity() {
         return humidity;
     }
 
-    public void setHumidity(String humidity) {
+    public void setHumidity(Integer humidity) {
         this.humidity = humidity;
     }
 
-    public String getPressureMb() {
+    public Float getPressureMb() {
         return pressureMb;
     }
 
-    public void setPressureMb(String pressureMb) {
+    public void setPressureMb(Float pressureMb) {
         this.pressureMb = pressureMb;
     }
 
-    public String getPressureIn() {
+    public Float getPressureIn() {
         return pressureIn;
     }
 
-    public void setPressureIn(String pressureIn) {
+    public void setPressureIn(Float pressureIn) {
         this.pressureIn = pressureIn;
     }
 
@@ -169,35 +166,35 @@ public class Atmosphere extends CustomJsonObject {
         this.pressureTrend = pressureTrend;
     }
 
-    public String getVisibilityMi() {
+    public Float getVisibilityMi() {
         return visibilityMi;
     }
 
-    public void setVisibilityMi(String visibilityMi) {
+    public void setVisibilityMi(Float visibilityMi) {
         this.visibilityMi = visibilityMi;
     }
 
-    public String getVisibilityKm() {
+    public Float getVisibilityKm() {
         return visibilityKm;
     }
 
-    public void setVisibilityKm(String visibilityKm) {
+    public void setVisibilityKm(Float visibilityKm) {
         this.visibilityKm = visibilityKm;
     }
 
-    public String getDewpointF() {
+    public Float getDewpointF() {
         return dewpointF;
     }
 
-    public void setDewpointF(String dewpointF) {
+    public void setDewpointF(Float dewpointF) {
         this.dewpointF = dewpointF;
     }
 
-    public String getDewpointC() {
+    public Float getDewpointC() {
         return dewpointC;
     }
 
-    public void setDewpointC(String dewpointC) {
+    public void setDewpointC(Float dewpointC) {
         this.dewpointC = dewpointC;
     }
 
@@ -233,28 +230,28 @@ public class Atmosphere extends CustomJsonObject {
 
                 switch (property) {
                     case "humidity":
-                        this.humidity = reader.nextString();
+                        this.humidity = NumberUtils.tryParseInt(reader.nextString());
                         break;
                     case "pressure_mb":
-                        this.pressureMb = reader.nextString();
+                        this.pressureMb = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "pressure_in":
-                        this.pressureIn = reader.nextString();
+                        this.pressureIn = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "pressure_trend":
                         this.pressureTrend = reader.nextString();
                         break;
                     case "visibility_mi":
-                        this.visibilityMi = reader.nextString();
+                        this.visibilityMi = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "visibility_km":
-                        this.visibilityKm = reader.nextString();
+                        this.visibilityKm = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "dewpoint_f":
-                        this.dewpointF = reader.nextString();
+                        this.dewpointF = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "dewpoint_c":
-                        this.dewpointC = reader.nextString();
+                        this.dewpointC = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     default:
                         break;

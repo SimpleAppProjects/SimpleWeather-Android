@@ -247,7 +247,7 @@ public class LocationQueryViewModel {
 
     private void updateLocationQuery() {
         DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
-        df.applyPattern("#.####");
+        df.applyPattern("0.####");
 
         if (WeatherAPI.HERE.equals(weatherSource)) {
             locationQuery = String.format(Locale.ROOT, "latitude=%s&longitude=%s", df.format(locationLat), df.format(locationLong));

@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.weatherdata.AirQuality;
 
 public class AirQualityViewModel {
@@ -25,7 +26,7 @@ public class AirQualityViewModel {
     public AirQualityViewModel(AirQuality aqi) {
         Context context = SimpleLibrary.getInstance().getAppContext();
         this.airQuality = new DetailItemViewModel(aqi);
-        this.index = this.progress = aqi.getIndex();
+        this.index = this.progress = NumberUtils.getValueOrDefault(aqi.getIndex(), 0);
         this.progressMax = 301;
 
         if (aqi.getIndex() < 51) {

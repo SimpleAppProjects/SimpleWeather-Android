@@ -212,7 +212,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                         }
 
                         // Additional Details
-                        if (!StringUtils.isNullOrWhitespace(weather.getLocation().getLatitude()) && !StringUtils.isNullOrWhitespace(weather.getLocation().getLongitude())) {
+                        if (weather.getLocation().getLatitude() != null && weather.getLocation().getLongitude() != null) {
                             String newUrl = String.format(Locale.ROOT, radarUrlFormat, weather.getLocation().getLongitude(), weather.getLocation().getLatitude());
                             if (!ObjectsCompat.equals(radarURL, newUrl)) {
                                 radarURL = newUrl;
@@ -264,9 +264,10 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
         // Update current condition
         SpannableStringBuilder curTempSSBuilder = new SpannableStringBuilder();
-        if (weather.getCondition().getTempF() != weather.getCondition().getTempC()) {
-            int temp = (int) (Settings.isFahrenheit() ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC()));
-            curTempSSBuilder.append(Integer.toString(temp));
+        if (weather.getCondition().getTempF() != null &&
+                !ObjectsCompat.equals(weather.getCondition().getTempF(), weather.getCondition().getTempC())) {
+            int temp = Settings.isFahrenheit() ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC());
+            curTempSSBuilder.append(String.format(Locale.getDefault(), "%d", temp));
         } else {
             curTempSSBuilder.append("--");
         }
@@ -290,10 +291,17 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
         boolean hiTempChanged = false, loTempChanged = false;
         {
-            String newHiTemp = (Settings.isFahrenheit() ? Math.round(weather.getCondition().getHighF()) : Math.round(weather.getCondition().getHighC())) + "°";
-            String newLoTemp = (Settings.isFahrenheit() ? Math.round(weather.getCondition().getLowF()) : Math.round(weather.getCondition().getLowC())) + "°";
+            String newHiTemp = String.format(Locale.getDefault(), "%d°",
+                    Settings.isFahrenheit() ?
+                            Math.round(weather.getCondition().getHighF()) :
+                            Math.round(weather.getCondition().getHighC()));
+            String newLoTemp = String.format(Locale.getDefault(), "%d°",
+                    Settings.isFahrenheit() ?
+                            Math.round(weather.getCondition().getLowF()) :
+                            Math.round(weather.getCondition().getLowC()));
             if (!ObjectsCompat.equals(hiTemp, newHiTemp)) {
-                if (weather.getCondition().getHighF() != weather.getCondition().getHighC()) {
+                if (weather.getCondition().getHighF() != null &&
+                        !ObjectsCompat.equals(weather.getCondition().getHighF(), weather.getCondition().getHighC())) {
                     hiTemp = newHiTemp;
                 } else {
                     hiTemp = null;
@@ -302,7 +310,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 hiTempChanged = true;
             }
             if (!ObjectsCompat.equals(loTemp, newLoTemp)) {
-                if (weather.getCondition().getLowF() != weather.getCondition().getLowC()) {
+                if (weather.getCondition().getLowF() != null &&
+                        !ObjectsCompat.equals(weather.getCondition().getLowF(), weather.getCondition().getLowC())) {
                     loTemp = newLoTemp;
                 } else {
                     loTemp = null;
@@ -340,35 +349,46 @@ public class WeatherNowViewModel extends ObservableViewModel {
         weatherDetails.clear();
         // Precipitation
         if (weather.getPrecipitation() != null) {
-            String chance = weather.getPrecipitation().getPop() + "%";
-            String qpfRain = Settings.isFahrenheit() ?
-                    String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfRainIn()) :
-                    String.format(Locale.getDefault(), "%.2f mm", weather.getPrecipitation().getQpfRainMm());
-            String qpfSnow = Settings.isFahrenheit() ?
-                    String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfSnowIn()) :
-                    String.format(Locale.getDefault(), "%.2f cm", weather.getPrecipitation().getQpfSnowCm());
+            String chance = weather.getPrecipitation().getPop() != null ? weather.getPrecipitation().getPop() + "%" : null;
 
             if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
-                if (!StringUtils.isNullOrWhitespace(weather.getPrecipitation().getPop())) {
+                if (weather.getPrecipitation().getQpfRainIn() != null && weather.getPrecipitation().getQpfRainIn() >= 0) {
+                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN,
+                            Settings.isFahrenheit() ?
+                                    String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfRainIn()) :
+                                    String.format(Locale.getDefault(), "%.2f mm", weather.getPrecipitation().getQpfRainMm())));
+                }
+                if (weather.getPrecipitation().getQpfSnowIn() != null && weather.getPrecipitation().getQpfSnowIn() >= 0) {
+                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW,
+                            Settings.isFahrenheit() ?
+                                    String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfSnowIn()) :
+                                    String.format(Locale.getDefault(), "%.2f cm", weather.getPrecipitation().getQpfSnowCm())));
+                }
+                if (weather.getPrecipitation().getPop() != null && weather.getPrecipitation().getPop() >= 0) {
                     weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, chance));
                 }
             } else {
-                if (!StringUtils.isNullOrWhitespace(weather.getPrecipitation().getPop())) {
+                if (weather.getPrecipitation().getPop() != null && weather.getPrecipitation().getPop() >= 0) {
                     weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, chance));
                 }
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN, qpfRain));
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW, qpfSnow));
+                if (weather.getPrecipitation().getQpfRainIn() != null && weather.getPrecipitation().getQpfRainIn() >= 0) {
+                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN,
+                            Settings.isFahrenheit() ?
+                                    String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfRainIn()) :
+                                    String.format(Locale.getDefault(), "%.2f mm", weather.getPrecipitation().getQpfRainMm())));
+                }
+                if (weather.getPrecipitation().getQpfSnowIn() != null && weather.getPrecipitation().getQpfSnowIn() >= 0) {
+                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW,
+                            Settings.isFahrenheit() ?
+                                    String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfSnowIn()) :
+                                    String.format(Locale.getDefault(), "%.2f cm", weather.getPrecipitation().getQpfSnowCm())));
+                }
             }
         }
 
         // Atmosphere
-        if (!StringUtils.isNullOrWhitespace(weather.getAtmosphere().getPressureMb())) {
-            String pressureVal = Settings.isFahrenheit() ?
-                    weather.getAtmosphere().getPressureIn() :
-                    weather.getAtmosphere().getPressureMb();
-
+        if (weather.getAtmosphere().getPressureMb() != null) {
+            float pressureVal = Settings.isFahrenheit() ? weather.getAtmosphere().getPressureIn() : weather.getAtmosphere().getPressureMb();
             String pressureUnit = Settings.isFahrenheit() ? "in" : "mb";
 
             try {
@@ -377,9 +397,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 SpannableStringBuilder ssBuilder = new SpannableStringBuilder();
                 ssBuilder.append(pressureStateIcon)
                         .append(" ")
-                        .append(pressureVal)
-                        .append(" ")
-                        .append(pressureUnit);
+                        .append(String.format(Locale.getDefault(), "%.2f %s", pressureVal, pressureUnit));
 
                 if (pressureStateIcon.length() > 0) {
                     TypefaceSpan span = new WeatherIconTextSpan(context);
@@ -392,34 +410,26 @@ public class WeatherNowViewModel extends ObservableViewModel {
             }
         }
 
-        if (!StringUtils.isNullOrWhitespace(weather.getAtmosphere().getHumidity())) {
+        if (weather.getAtmosphere().getHumidity() != null) {
             weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.HUMIDITY,
-                    weather.getAtmosphere().getHumidity().endsWith("%") ?
-                            weather.getAtmosphere().getHumidity() :
-                            weather.getAtmosphere().getHumidity() + "%"));
+                    String.format(Locale.getDefault(), "%d%%", weather.getAtmosphere().getHumidity())));
         }
 
-        if (!StringUtils.isNullOrWhitespace(weather.getAtmosphere().getDewpointF())) {
+        if (weather.getAtmosphere().getDewpointF() != null && !ObjectsCompat.equals(weather.getAtmosphere().getDewpointF(), weather.getAtmosphere().getDewpointC())) {
             weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.DEWPOINT,
-                    Settings.isFahrenheit() ?
-                            String.format(Locale.getDefault(), "%dº", Math.round(Float.parseFloat(weather.getAtmosphere().getDewpointF()))) :
-                            String.format(Locale.getDefault(), "%dº", Math.round(Float.parseFloat(weather.getAtmosphere().getDewpointC())))));
-
+                    String.format(Locale.getDefault(), "%dº",
+                            Settings.isFahrenheit() ?
+                                    Math.round(weather.getAtmosphere().getDewpointF()) :
+                                    Math.round(weather.getAtmosphere().getDewpointC())
+                    )));
         }
 
-        if (!StringUtils.isNullOrWhitespace(weather.getAtmosphere().getVisibilityMi())) {
-            String visibilityVal = Settings.isFahrenheit() ?
-                    weather.getAtmosphere().getVisibilityMi() :
-                    weather.getAtmosphere().getVisibilityKm();
-
+        if (weather.getAtmosphere().getVisibilityMi() != null && weather.getAtmosphere().getVisibilityMi() >= 0) {
+            float visibilityVal = Settings.isFahrenheit() ? weather.getAtmosphere().getVisibilityMi() : weather.getAtmosphere().getVisibilityKm();
             String visibilityUnit = Settings.isFahrenheit() ? "mi" : "km";
 
-            try {
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.VISIBILITY,
-                        String.format(Locale.getDefault(), "%s %s", visibilityVal, visibilityUnit)));
-            } catch (Exception e) {
-                Logger.writeLine(Log.DEBUG, e);
-            }
+            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.VISIBILITY,
+                    String.format(Locale.getDefault(), "%.2f %s", visibilityVal, visibilityUnit)));
         }
 
         if (weather.getCondition().getUv() != null) {
@@ -427,7 +437,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 uvIndex = new UVIndexViewModel(weather.getCondition().getUv());
             } else {
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.UV,
-                        String.format(Locale.ROOT, "%s, %s",
+                        String.format(Locale.getDefault(), "%.1f, %s",
                                 weather.getCondition().getUv().getIndex(), weather.getCondition().getUv().getDescription())));
             }
         } else {
@@ -447,19 +457,22 @@ public class WeatherNowViewModel extends ObservableViewModel {
         }
         notifyPropertyChanged(BR.airQuality);
 
-        if (weather.getCondition().getFeelslikeF() != weather.getCondition().getFeelslikeC()) {
+        if (weather.getCondition().getFeelslikeF() != null &&
+                !ObjectsCompat.equals(weather.getCondition().getFeelslikeF(), weather.getCondition().getFeelslikeC())) {
+            int value = Settings.isFahrenheit() ? Math.round(weather.getCondition().getFeelslikeF()) : Math.round(weather.getCondition().getFeelslikeC());
+
             weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
-                    Settings.isFahrenheit() ?
-                            String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getFeelslikeF())) :
-                            String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getFeelslikeC()))));
+                    String.format(Locale.getDefault(), "%dº", value)));
         }
 
         // Wind
-        if (weather.getCondition().getWindMph() != weather.getCondition().getWindKph()) {
+        if (weather.getCondition().getWindMph() != null &&
+                !ObjectsCompat.equals(weather.getCondition().getWindMph(), weather.getCondition().getWindKph())) {
+            int speedVal = Settings.isFahrenheit() ? Math.round(weather.getCondition().getWindMph()) : Math.round(weather.getCondition().getWindKph());
+            String speedUnit = Settings.isFahrenheit() ? "mph" : "kph";
+
             weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
-                    Settings.isFahrenheit() ?
-                            String.format(Locale.getDefault(), "%d mph, %s", Math.round(weather.getCondition().getWindMph()), WeatherUtils.getWindDirection(weather.getCondition().getWindDegrees())) :
-                            String.format(Locale.getDefault(), "%d kph, %s", Math.round(weather.getCondition().getWindKph()), WeatherUtils.getWindDirection(weather.getCondition().getWindDegrees())),
+                    String.format(Locale.getDefault(), "%d %s, %s", speedVal, speedUnit, WeatherUtils.getWindDirection(weather.getCondition().getWindDegrees())),
                     weather.getCondition().getWindDegrees() + 180));
         }
 

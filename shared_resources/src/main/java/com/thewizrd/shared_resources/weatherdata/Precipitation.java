@@ -11,6 +11,7 @@ import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -18,19 +19,19 @@ import java.io.StringReader;
 public class Precipitation extends CustomJsonObject {
 
     @SerializedName("pop")
-    private String pop;
+    private Integer pop;
 
     @SerializedName("qpf_rain_in")
-    private float qpfRainIn;
+    private Float qpfRainIn;
 
     @SerializedName("qpf_rain_mm")
-    private float qpfRainMm;
+    private Float qpfRainMm;
 
     @SerializedName("qpf_snow_in")
-    private float qpfSnowIn;
+    private Float qpfSnowIn;
 
     @SerializedName("qpf_snow_cm")
-    private float qpfSnowCm;
+    private Float qpfSnowCm;
 
     @RestrictTo({RestrictTo.Scope.LIBRARY})
     public Precipitation() {
@@ -39,40 +40,39 @@ public class Precipitation extends CustomJsonObject {
 
     public Precipitation(com.thewizrd.shared_resources.weatherdata.openweather.Current current) {
         // Use cloudiness value here
-        pop = Integer.toString(current.getClouds());
+        pop = current.getClouds();
         if (current.getRain() != null) {
-            qpfRainIn = Float.parseFloat(ConversionMethods.mmToIn(Float.toString(current.getRain().get_1h())));
+            qpfRainIn = ConversionMethods.mmToIn(current.getRain().get_1h());
             qpfRainMm = current.getRain().get_1h();
         }
         if (current.getSnow() != null) {
-            qpfSnowIn = Float.parseFloat(ConversionMethods.mmToIn(Float.toString(current.getSnow().get_1h())));
+            qpfSnowIn = ConversionMethods.mmToIn(current.getSnow().get_1h());
             qpfSnowCm = current.getSnow().get_1h() / 10;
         }
     }
 
     public Precipitation(com.thewizrd.shared_resources.weatherdata.metno.TimeseriesItem time) {
         // Use cloudiness value here
-        pop = Integer.toString(Math.round(time.getData().getInstant().getDetails().getCloudAreaFraction()));
+        pop = Math.round(time.getData().getInstant().getDetails().getCloudAreaFraction());
         // The rest DNE
     }
 
     public Precipitation(com.thewizrd.shared_resources.weatherdata.here.ForecastItem forecast) {
-        pop = forecast.getPrecipitationProbability();
-
-        try {
-            qpfRainIn = Float.parseFloat(forecast.getRainFall());
-            qpfRainMm = Float.parseFloat(ConversionMethods.inToMM(Float.toString(qpfRainIn)));
-        } catch (NumberFormatException ex) {
-            qpfRainIn = 0.00f;
-            qpfRainMm = 0.00f;
+        Integer POP = NumberUtils.tryParseInt(forecast.getPrecipitationProbability());
+        if (POP != null) {
+            pop = POP;
         }
 
-        try {
-            qpfSnowIn = Float.parseFloat(forecast.getSnowFall());
-            qpfSnowCm = Float.parseFloat(ConversionMethods.inToMM(Float.toString(qpfSnowIn))) / 10;
-        } catch (NumberFormatException ex) {
-            qpfSnowIn = 0.00f;
-            qpfSnowCm = 0.00f;
+        Float rain_in = NumberUtils.tryParseFloat(forecast.getRainFall());
+        if (rain_in != null) {
+            qpfRainIn = rain_in;
+            qpfRainMm = ConversionMethods.inToMM(rain_in);
+        }
+
+        Float snow_in = NumberUtils.tryParseFloat(forecast.getRainFall());
+        if (snow_in != null) {
+            qpfSnowIn = snow_in;
+            qpfSnowCm = ConversionMethods.inToMM(snow_in) / 10;
         }
     }
 
@@ -80,51 +80,51 @@ public class Precipitation extends CustomJsonObject {
         if (obsCurrentResponse.getPrecipitationLastHour().getValue() != null) {
             // "unit:m"
             qpfRainMm = obsCurrentResponse.getPrecipitationLastHour().getValue() * 1000;
-            qpfRainIn = Float.parseFloat(ConversionMethods.mmToIn(Float.toString(qpfRainMm)));
+            qpfRainIn = ConversionMethods.mmToIn(qpfRainMm);
         } else if (obsCurrentResponse.getPrecipitationLast3Hours().getValue() != null) {
             qpfRainMm = obsCurrentResponse.getPrecipitationLast3Hours().getValue() * 1000;
-            qpfRainIn = Float.parseFloat(ConversionMethods.mmToIn(Float.toString(qpfRainMm)));
+            qpfRainIn = ConversionMethods.mmToIn(qpfRainMm);
         }
         // The rest DNE
     }
 
-    public String getPop() {
+    public Integer getPop() {
         return pop;
     }
 
-    public void setPop(String pop) {
+    public void setPop(Integer pop) {
         this.pop = pop;
     }
 
-    public float getQpfRainIn() {
+    public Float getQpfRainIn() {
         return qpfRainIn;
     }
 
-    public void setQpfRainIn(float qpfRainIn) {
+    public void setQpfRainIn(Float qpfRainIn) {
         this.qpfRainIn = qpfRainIn;
     }
 
-    public float getQpfRainMm() {
+    public Float getQpfRainMm() {
         return qpfRainMm;
     }
 
-    public void setQpfRainMm(float qpfRainMm) {
+    public void setQpfRainMm(Float qpfRainMm) {
         this.qpfRainMm = qpfRainMm;
     }
 
-    public float getQpfSnowIn() {
+    public Float getQpfSnowIn() {
         return qpfSnowIn;
     }
 
-    public void setQpfSnowIn(float qpfSnowIn) {
+    public void setQpfSnowIn(Float qpfSnowIn) {
         this.qpfSnowIn = qpfSnowIn;
     }
 
-    public float getQpfSnowCm() {
+    public Float getQpfSnowCm() {
         return qpfSnowCm;
     }
 
-    public void setQpfSnowCm(float qpfSnowCm) {
+    public void setQpfSnowCm(Float qpfSnowCm) {
         this.qpfSnowCm = qpfSnowCm;
     }
 
@@ -160,19 +160,19 @@ public class Precipitation extends CustomJsonObject {
 
                 switch (property) {
                     case "pop":
-                        this.pop = reader.nextString();
+                        this.pop = NumberUtils.tryParseInt(reader.nextString());
                         break;
                     case "qpf_rain_in":
-                        this.qpfRainIn = Float.parseFloat(reader.nextString());
+                        this.qpfRainIn = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "qpf_rain_mm":
-                        this.qpfRainMm = Float.parseFloat(reader.nextString());
+                        this.qpfRainMm = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "qpf_snow_in":
-                        this.qpfSnowIn = Float.parseFloat(reader.nextString());
+                        this.qpfSnowIn = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "qpf_snow_cm":
-                        this.qpfSnowCm = Float.parseFloat(reader.nextString());
+                        this.qpfSnowCm = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     default:
                         break;

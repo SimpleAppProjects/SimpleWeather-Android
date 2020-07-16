@@ -102,7 +102,7 @@ public class WeatherNotificationBuilder {
 
         // Builds the notification and issues it.
         float temp_f = viewModel.getCurTemp().toString().endsWith(WeatherIcons.FAHRENHEIT) ?
-                Float.parseFloat(temp) : Float.parseFloat(ConversionMethods.CtoF(temp));
+                Float.parseFloat(temp) : ConversionMethods.CtoF(Float.parseFloat(temp));
         mBuilder.setColor(WeatherUtils.getColorFromTempF(temp_f));
         return mBuilder.build();
     }

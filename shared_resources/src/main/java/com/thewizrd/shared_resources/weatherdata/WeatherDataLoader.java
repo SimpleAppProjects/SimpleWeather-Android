@@ -95,9 +95,10 @@ public class WeatherDataLoader {
                         else
                             Settings.saveHomeData(location);
                     }
-                    if (location.getLatitude() == 0 && location.getLongitude() == 0) {
-                        location.setLatitude(Double.parseDouble(weather.getLocation().getLatitude()));
-                        location.setLongitude(Double.parseDouble(weather.getLocation().getLongitude()));
+                    if (location.getLatitude() == 0 && location.getLongitude() == 0 &&
+                            weather.getLocation().getLatitude() != null && weather.getLocation().getLongitude() != null) {
+                        location.setLatitude(weather.getLocation().getLatitude());
+                        location.setLongitude(weather.getLocation().getLongitude());
 
                         if (SimpleLibrary.getInstance().getApp().isPhone())
                             Settings.updateLocation(location);
@@ -265,25 +266,27 @@ public class WeatherDataLoader {
                     weather.getCondition().setWeather(hrf.getCondition());
                     weather.getCondition().setIcon(hrf.getIcon());
 
-                    weather.getCondition().setTempF(Double.parseDouble(hrf.getHighF()));
-                    weather.getCondition().setTempC(Double.parseDouble(hrf.getHighC()));
+                    weather.getCondition().setTempF(hrf.getHighF());
+                    weather.getCondition().setTempC(hrf.getHighC());
 
                     weather.getCondition().setWindMph(hrf.getWindMph());
                     weather.getCondition().setWindKph(hrf.getWindKph());
                     weather.getCondition().setWindDegrees(hrf.getWindDegrees());
 
-                    weather.getCondition().setBeaufort(new Beaufort(WeatherUtils.getBeaufortScale(Math.round(hrf.getWindMph())).getValue()));
-                    weather.getCondition().setFeelslikeF(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeF() : 0.0);
-                    weather.getCondition().setFeelslikeC(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeC() : 0.0);
-                    weather.getCondition().setUv(hrf.getExtras() != null && hrf.getExtras().getUvIndex() >= 0 ? new UV(hrf.getExtras().getUvIndex()) : null);
+                    if (hrf.getWindMph() != null) {
+                        weather.getCondition().setBeaufort(new Beaufort(WeatherUtils.getBeaufortScale(Math.round(hrf.getWindMph())).getValue()));
+                    }
+                    weather.getCondition().setFeelslikeF(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeF() : 0.0f);
+                    weather.getCondition().setFeelslikeC(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeC() : 0.0f);
+                    weather.getCondition().setUv(hrf.getExtras() != null && hrf.getExtras().getUvIndex() != null && hrf.getExtras().getUvIndex() >= 0 ? new UV(hrf.getExtras().getUvIndex()) : null);
 
                     weather.getCondition().setObservationTime(hrf.getDate());
 
                     if (duraMins > 60 * 6) {
-                        weather.getCondition().setHighF(0);
-                        weather.getCondition().setHighC(0);
-                        weather.getCondition().setLowF(0);
-                        weather.getCondition().setLowC(0);
+                        weather.getCondition().setHighF(0f);
+                        weather.getCondition().setHighC(0f);
+                        weather.getCondition().setLowF(0f);
+                        weather.getCondition().setLowC(0f);
                     }
 
                     weather.getAtmosphere().setDewpointF(hrf.getExtras() != null ? hrf.getExtras().getDewpointF() : null);
@@ -297,10 +300,10 @@ public class WeatherDataLoader {
 
                     if (weather.getPrecipitation() != null) {
                         weather.getPrecipitation().setPop(hrf.getExtras() != null ? hrf.getExtras().getPop() : null);
-                        weather.getPrecipitation().setQpfRainIn(hrf.getExtras() != null && hrf.getExtras().getQpfRainIn() >= 0 ? hrf.getExtras().getQpfRainIn() : 0.0f);
-                        weather.getPrecipitation().setQpfRainMm(hrf.getExtras() != null && hrf.getExtras().getQpfRainMm() >= 0 ? hrf.getExtras().getQpfRainMm() : 0.0f);
-                        weather.getPrecipitation().setQpfSnowIn(hrf.getExtras() != null && hrf.getExtras().getQpfSnowIn() >= 0 ? hrf.getExtras().getQpfSnowIn() : 0.0f);
-                        weather.getPrecipitation().setQpfSnowCm(hrf.getExtras() != null && hrf.getExtras().getQpfSnowCm() >= 0 ? hrf.getExtras().getQpfSnowCm() : 0.0f);
+                        weather.getPrecipitation().setQpfRainIn(hrf.getExtras() != null && hrf.getExtras().getQpfRainIn() != null && hrf.getExtras().getQpfRainIn() >= 0 ? hrf.getExtras().getQpfRainIn() : 0.0f);
+                        weather.getPrecipitation().setQpfRainMm(hrf.getExtras() != null && hrf.getExtras().getQpfRainMm() != null && hrf.getExtras().getQpfRainMm() >= 0 ? hrf.getExtras().getQpfRainMm() : 0.0f);
+                        weather.getPrecipitation().setQpfSnowIn(hrf.getExtras() != null && hrf.getExtras().getQpfSnowIn() != null && hrf.getExtras().getQpfSnowIn() >= 0 ? hrf.getExtras().getQpfSnowIn() : 0.0f);
+                        weather.getPrecipitation().setQpfSnowCm(hrf.getExtras() != null && hrf.getExtras().getQpfSnowCm() != null && hrf.getExtras().getQpfSnowCm() >= 0 ? hrf.getExtras().getQpfSnowCm() : 0.0f);
                     }
 
                     Settings.saveWeatherData(weather);
@@ -326,14 +329,7 @@ public class WeatherDataLoader {
 
         if (_override || isInvalid) return !isInvalid;
 
-        int ttl = Settings.DEFAULTINTERVAL;
-        try {
-            ttl = Integer.parseInt(weather.getTtl());
-        } catch (NumberFormatException ex) {
-            Logger.writeLine(Log.ERROR, ex);
-        } finally {
-            ttl = Math.max(ttl, Settings.getRefreshInterval());
-        }
+        int ttl = Math.max(weather.getTtl(), Settings.getRefreshInterval());
 
         // Check file age
         ZonedDateTime updateTime = weather.getUpdateTime();

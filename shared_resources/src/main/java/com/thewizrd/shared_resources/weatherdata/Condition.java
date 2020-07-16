@@ -3,6 +3,7 @@ package com.thewizrd.shared_resources.weatherdata;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
+import androidx.core.util.ObjectsCompat;
 
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
@@ -11,6 +12,7 @@ import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
@@ -28,25 +30,25 @@ public class Condition extends CustomJsonObject {
     private String weather;
 
     @SerializedName("temp_f")
-    private double tempF;
+    private Float tempF;
 
     @SerializedName("temp_c")
-    private double tempC;
+    private Float tempC;
 
     @SerializedName("wind_degrees")
-    private int windDegrees;
+    private Integer windDegrees;
 
     @SerializedName("wind_mph")
-    private double windMph;
+    private Float windMph;
 
     @SerializedName("wind_kph")
-    private double windKph;
+    private Float windKph;
 
     @SerializedName("feelslike_f")
-    private double feelslikeF;
+    private Float feelslikeF;
 
     @SerializedName("feelslike_c")
-    private double feelslikeC;
+    private Float feelslikeC;
 
     @SerializedName("icon")
     private String icon;
@@ -58,16 +60,16 @@ public class Condition extends CustomJsonObject {
     private UV uv;
 
     @SerializedName("high_f")
-    private double highF;
+    private Float highF;
 
     @SerializedName("high_c")
-    private double highC;
+    private Float highC;
 
     @SerializedName("low_f")
-    private double lowF;
+    private Float lowF;
 
     @SerializedName("low_c")
-    private double lowC;
+    private Float lowC;
 
     @SerializedName("airQuality")
     private AirQuality airQuality;
@@ -82,13 +84,13 @@ public class Condition extends CustomJsonObject {
 
     public Condition(com.thewizrd.shared_resources.weatherdata.weatheryahoo.CurrentObservation observation) {
         weather = observation.getCondition().getText();
-        tempF = Float.parseFloat(observation.getCondition().getTemperature());
-        tempC = Float.parseFloat(ConversionMethods.FtoC((observation.getCondition().getTemperature())));
-        windDegrees = Integer.parseInt(observation.getWind().getDirection());
-        windMph = Float.parseFloat(observation.getWind().getSpeed());
-        windKph = Float.parseFloat(ConversionMethods.mphTokph(observation.getWind().getSpeed()));
-        feelslikeF = Float.parseFloat(observation.getWind().getChill());
-        feelslikeC = Float.parseFloat(ConversionMethods.FtoC(observation.getWind().getChill()));
+        tempF = NumberUtils.tryParseFloat(observation.getCondition().getTemperature());
+        tempC = ConversionMethods.FtoC(tempF);
+        windDegrees = NumberUtils.tryParseInt(observation.getWind().getDirection());
+        windMph = NumberUtils.tryParseFloat(observation.getWind().getSpeed());
+        windKph = ConversionMethods.mphTokph(windMph);
+        feelslikeF = NumberUtils.tryParseFloat(observation.getWind().getChill());
+        feelslikeC = ConversionMethods.FtoC(feelslikeF);
         icon = WeatherManager.getProvider(WeatherAPI.YAHOO)
                 .getWeatherIcon(observation.getCondition().getCode());
 
@@ -97,13 +99,13 @@ public class Condition extends CustomJsonObject {
 
     public Condition(com.thewizrd.shared_resources.weatherdata.openweather.Current current) {
         weather = StringUtils.toUpperCase(current.getWeather().get(0).getDescription());
-        tempF = Float.parseFloat(ConversionMethods.KtoF(Float.toString(current.getTemp())));
-        tempC = Float.parseFloat(ConversionMethods.KtoC(Float.toString(current.getTemp())));
+        tempF = ConversionMethods.KtoF(current.getTemp());
+        tempC = ConversionMethods.KtoC(current.getTemp());
         windDegrees = current.getWindDeg();
-        windMph = Float.parseFloat(ConversionMethods.msecToMph(Float.toString(current.getWindSpeed())));
-        windKph = Float.parseFloat(ConversionMethods.msecToKph(Float.toString(current.getWindSpeed())));
-        feelslikeF = Float.parseFloat(ConversionMethods.KtoF(Float.toString(current.getFeelsLike())));
-        feelslikeC = Float.parseFloat(ConversionMethods.KtoC(Float.toString(current.getFeelsLike())));
+        windMph = ConversionMethods.msecToMph(current.getWindSpeed());
+        windKph = ConversionMethods.msecToKph(current.getWindSpeed());
+        feelslikeF = ConversionMethods.KtoF(current.getFeelsLike());
+        feelslikeC = ConversionMethods.KtoC(current.getFeelsLike());
 
         String ico = current.getWeather().get(0).getIcon();
         String dn = Character.toString(ico.charAt(ico.length() == 0 ? 0 : ico.length() - 1));
@@ -126,13 +128,13 @@ public class Condition extends CustomJsonObject {
 
     public Condition(com.thewizrd.shared_resources.weatherdata.metno.TimeseriesItem time) {
         // weather
-        tempF = Float.parseFloat(ConversionMethods.CtoF(time.getData().getInstant().getDetails().getAirTemperature().toString()));
+        tempF = ConversionMethods.CtoF(time.getData().getInstant().getDetails().getAirTemperature());
         tempC = time.getData().getInstant().getDetails().getAirTemperature();
         windDegrees = Math.round(time.getData().getInstant().getDetails().getWindFromDirection());
-        windMph = (float) Math.round(Double.parseDouble(ConversionMethods.msecToMph(time.getData().getInstant().getDetails().getWindSpeed().toString())));
-        windKph = (float) Math.round(Double.parseDouble(ConversionMethods.msecToKph(time.getData().getInstant().getDetails().getWindSpeed().toString())));
-        feelslikeF = Float.parseFloat(WeatherUtils.getFeelsLikeTemp(Double.toString(tempF), Double.toString(windMph), time.getData().getInstant().getDetails().getRelativeHumidity().toString()));
-        feelslikeC = Float.parseFloat(ConversionMethods.FtoC(Double.toString(feelslikeF)));
+        windMph = (float) Math.round(ConversionMethods.msecToMph(time.getData().getInstant().getDetails().getWindSpeed()));
+        windKph = (float) Math.round(ConversionMethods.msecToKph(time.getData().getInstant().getDetails().getWindSpeed()));
+        feelslikeF = WeatherUtils.getFeelsLikeTemp(tempF, windMph, Math.round(time.getData().getInstant().getDetails().getRelativeHumidity()));
+        feelslikeC = ConversionMethods.FtoC(feelslikeF);
 
         if (time.getData().getNext12Hours() != null) {
             icon = time.getData().getNext12Hours().getSummary().getSymbolCode();
@@ -151,38 +153,29 @@ public class Condition extends CustomJsonObject {
     public Condition(com.thewizrd.shared_resources.weatherdata.here.ObservationItem observation,
                      com.thewizrd.shared_resources.weatherdata.here.ForecastItem forecastItem) {
         weather = StringUtils.toPascalCase(observation.getDescription());
-        try {
-            Float tempF = Float.valueOf(observation.getTemperature());
-            this.tempF = tempF;
-            tempC = Float.parseFloat(ConversionMethods.FtoC(tempF.toString()));
-        } catch (NumberFormatException ex) {
-            this.tempF = 0.00f;
-            tempC = 0.00f;
+        Float temp_F = NumberUtils.tryParseFloat(observation.getTemperature());
+        if (temp_F != null) {
+            tempF = temp_F;
+            tempC = ConversionMethods.FtoC(temp_F);
         }
 
-        try {
-            Float highTempF = Float.valueOf(observation.getHighTemperature());
-            Float lowTempF = Float.valueOf(observation.getLowTemperature());
+        Float highTempF = NumberUtils.tryParseFloat(observation.getHighTemperature());
+        Float lowTempF = NumberUtils.tryParseFloat(observation.getLowTemperature());
+        if (highTempF != null && lowTempF != null) {
             this.highF = highTempF;
-            this.highC = Float.parseFloat(ConversionMethods.FtoC(highTempF.toString()));
+            this.highC = ConversionMethods.FtoC(highTempF);
             this.lowF = lowTempF;
-            this.lowC = Float.parseFloat(ConversionMethods.FtoC(lowTempF.toString()));
-        } catch (NumberFormatException ignored) {
-            this.highF = 0.00f;
-            this.highC = 0.00f;
-            this.lowF = 0.00f;
-            this.lowC = 0.00f;
-        }
+            this.lowC = ConversionMethods.FtoC(lowTempF);
+        } else {
+            highTempF = NumberUtils.tryParseFloat(forecastItem.getHighTemperature());
+            lowTempF = NumberUtils.tryParseFloat(forecastItem.getLowTemperature());
 
-        if (highF == 0 && highF == highC && lowF == 0 && lowF == lowC) {
-            try {
-                Float highTempF = Float.valueOf(forecastItem.getHighTemperature());
-                Float lowTempF = Float.valueOf(forecastItem.getLowTemperature());
+            if (highTempF != null && lowTempF != null) {
                 this.highF = highTempF;
-                this.highC = Float.parseFloat(ConversionMethods.FtoC(highTempF.toString()));
+                this.highC = ConversionMethods.FtoC(highTempF);
                 this.lowF = lowTempF;
-                this.lowC = Float.parseFloat(ConversionMethods.FtoC(lowTempF.toString()));
-            } catch (NumberFormatException ignored) {
+                this.lowC = ConversionMethods.FtoC(lowTempF);
+            } else {
                 this.highF = 0.00f;
                 this.highC = 0.00f;
                 this.lowF = 0.00f;
@@ -190,44 +183,34 @@ public class Condition extends CustomJsonObject {
             }
         }
 
-        try {
-            this.windDegrees = Integer.parseInt(observation.getWindDirection());
-        } catch (NumberFormatException ex) {
-            this.windDegrees = 0;
+        Integer windDeg = NumberUtils.tryParseInt(observation.getWindDirection());
+        if (windDeg != null) {
+            windDegrees = Integer.parseInt(observation.getWindDirection());
         }
 
-        try {
-            windMph = Float.parseFloat(observation.getWindSpeed());
-            windKph = Float.parseFloat(ConversionMethods.mphTokph(observation.getWindSpeed()));
-        } catch (NumberFormatException ex) {
-            windMph = 0.00f;
-            windKph = 0.00f;
+        Float windSpeed = NumberUtils.tryParseFloat(observation.getWindSpeed());
+        if (windSpeed != null) {
+            windMph = windSpeed;
+            windKph = ConversionMethods.mphTokph(windSpeed);
         }
 
-        try {
-            Float comfortTempF = Float.valueOf(observation.getComfort());
+        Float comfortTempF = NumberUtils.tryParseFloat(observation.getComfort());
+        if (comfortTempF != null) {
             feelslikeF = comfortTempF;
-            feelslikeC = Float.parseFloat(ConversionMethods.FtoC(comfortTempF.toString()));
-        } catch (NumberFormatException ex) {
-            feelslikeF = 0.00f;
-            feelslikeC = 0.00f;
+            feelslikeC = ConversionMethods.FtoC(comfortTempF);
         }
 
         icon = WeatherManager.getProvider(WeatherAPI.HERE)
                 .getWeatherIcon(String.format("%s_%s", observation.getDaylight(), observation.getIconName()));
 
-        try {
-            int scale = Integer.parseInt(forecastItem.getBeaufortScale());
+        Integer scale = NumberUtils.tryParseInt(forecastItem.getBeaufortScale());
+        if (scale != null) {
             beaufort = new Beaufort(scale, forecastItem.getBeaufortDescription());
-        } catch (NumberFormatException ex) {
-            beaufort = null;
         }
 
-        try {
-            float index = Float.parseFloat(forecastItem.getUvIndex());
+        Float index = NumberUtils.tryParseFloat(forecastItem.getUvIndex());
+        if (index != null) {
             uv = new UV(index, forecastItem.getUvDesc());
-        } catch (NumberFormatException ex) {
-            uv = null;
         }
 
         observationTime = ZonedDateTime.parse(observation.getUtcTime());
@@ -237,45 +220,36 @@ public class Condition extends CustomJsonObject {
         weather = obsCurrentResponse.getTextDescription();
         if (obsCurrentResponse.getTemperature().getValue() != null) {
             tempC = obsCurrentResponse.getTemperature().getValue();
-            tempF = Float.parseFloat(ConversionMethods.CtoF(Double.toString(tempC)));
-        } else {
-            tempC = 0.00f;
-            tempF = 0.00f;
+            tempF = ConversionMethods.CtoF(tempC);
         }
+
         if (obsCurrentResponse.getWindDirection().getValue() != null) {
             windDegrees = obsCurrentResponse.getWindDirection().getValue().intValue();
-        } else {
-            windDegrees = 0;
         }
 
         if (obsCurrentResponse.getWindSpeed().getValue() != null) {
             windKph = obsCurrentResponse.getWindSpeed().getValue();
-            windMph = Float.parseFloat(ConversionMethods.kphTomph(Double.toString(windKph)));
-        } else {
-            windMph = -1.0f;
-            windKph = -1.0f;
+            windMph = ConversionMethods.kphTomph(windKph);
         }
 
         if (obsCurrentResponse.getHeatIndex().getValue() != null) {
             feelslikeC = obsCurrentResponse.getHeatIndex().getValue();
-            feelslikeF = Float.parseFloat(ConversionMethods.CtoF(Double.toString(feelslikeC)));
+            feelslikeF = ConversionMethods.CtoF(feelslikeC);
         } else if (obsCurrentResponse.getWindChill().getValue() != null) {
             feelslikeC = obsCurrentResponse.getWindChill().getValue();
-            feelslikeF = Float.parseFloat(ConversionMethods.CtoF(Double.toString(feelslikeC)));
-        } else if (tempF != tempC) {
-            float humidity = obsCurrentResponse.getRelativeHumidity().getValue() != null ?
-                    obsCurrentResponse.getRelativeHumidity().getValue() : -1.0f;
-            feelslikeF = Double.parseDouble(WeatherUtils.getFeelsLikeTemp(Double.toString(tempF),
-                    Double.toString(windMph), Float.toString(humidity)));
-            feelslikeC = Double.parseDouble(ConversionMethods.FtoC(Double.toString(feelslikeF)));
-        } else {
-            feelslikeF = -1.0f;
-            feelslikeC = -1.0f;
+            feelslikeF = ConversionMethods.CtoF(feelslikeC);
+        } else if (tempF != null && !ObjectsCompat.equals(tempF, tempC) && windMph != null) {
+            float humidity = NumberUtils.getValueOrDefault(obsCurrentResponse.getRelativeHumidity().getValue(), -1.f);
+            feelslikeF = WeatherUtils.getFeelsLikeTemp(tempF, windMph, Math.round(humidity));
+            feelslikeC = ConversionMethods.FtoC(feelslikeF);
         }
+
         icon = WeatherManager.getProvider(WeatherAPI.NWS)
                 .getWeatherIcon(obsCurrentResponse.getIcon());
 
-        beaufort = new Beaufort(WeatherUtils.getBeaufortScale((int) Math.round(windMph)).getValue());
+        if (windMph != null) {
+            beaufort = new Beaufort(WeatherUtils.getBeaufortScale((int) Math.round(windMph)).getValue());
+        }
 
         observationTime = ZonedDateTime.parse(obsCurrentResponse.getTimestamp());
     }
@@ -288,19 +262,19 @@ public class Condition extends CustomJsonObject {
         this.weather = weather;
     }
 
-    public double getTempF() {
+    public Float getTempF() {
         return tempF;
     }
 
-    public void setTempF(double tempF) {
+    public void setTempF(Float tempF) {
         this.tempF = tempF;
     }
 
-    public double getTempC() {
+    public Float getTempC() {
         return tempC;
     }
 
-    public void setTempC(double tempC) {
+    public void setTempC(Float tempC) {
         this.tempC = tempC;
     }
 
@@ -312,35 +286,35 @@ public class Condition extends CustomJsonObject {
         this.windDegrees = windDegrees;
     }
 
-    public double getWindMph() {
+    public Float getWindMph() {
         return windMph;
     }
 
-    public void setWindMph(double windMph) {
+    public void setWindMph(Float windMph) {
         this.windMph = windMph;
     }
 
-    public double getWindKph() {
+    public Float getWindKph() {
         return windKph;
     }
 
-    public void setWindKph(double windKph) {
+    public void setWindKph(Float windKph) {
         this.windKph = windKph;
     }
 
-    public double getFeelslikeF() {
+    public Float getFeelslikeF() {
         return feelslikeF;
     }
 
-    public void setFeelslikeF(double feelslikeF) {
+    public void setFeelslikeF(Float feelslikeF) {
         this.feelslikeF = feelslikeF;
     }
 
-    public double getFeelslikeC() {
+    public Float getFeelslikeC() {
         return feelslikeC;
     }
 
-    public void setFeelslikeC(double feelslikeC) {
+    public void setFeelslikeC(Float feelslikeC) {
         this.feelslikeC = feelslikeC;
     }
 
@@ -368,35 +342,35 @@ public class Condition extends CustomJsonObject {
         this.uv = uv;
     }
 
-    public double getHighF() {
+    public Float getHighF() {
         return highF;
     }
 
-    public void setHighF(double highF) {
+    public void setHighF(Float highF) {
         this.highF = highF;
     }
 
-    public double getHighC() {
+    public Float getHighC() {
         return highC;
     }
 
-    public void setHighC(double highC) {
+    public void setHighC(Float highC) {
         this.highC = highC;
     }
 
-    public double getLowF() {
+    public Float getLowF() {
         return lowF;
     }
 
-    public void setLowF(double lowF) {
+    public void setLowF(Float lowF) {
         this.lowF = lowF;
     }
 
-    public double getLowC() {
+    public Float getLowC() {
         return lowC;
     }
 
-    public void setLowC(double lowC) {
+    public void setLowC(Float lowC) {
         this.lowC = lowC;
     }
 
@@ -451,25 +425,25 @@ public class Condition extends CustomJsonObject {
                         this.weather = reader.nextString();
                         break;
                     case "temp_f":
-                        this.tempF = Float.parseFloat(reader.nextString());
+                        this.tempF = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "temp_c":
-                        this.tempC = Float.parseFloat(reader.nextString());
+                        this.tempC = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "wind_degrees":
-                        this.windDegrees = Integer.parseInt(reader.nextString());
+                        this.windDegrees = NumberUtils.tryParseInt(reader.nextString());
                         break;
                     case "wind_mph":
-                        this.windMph = Float.parseFloat(reader.nextString());
+                        this.windMph = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "wind_kph":
-                        this.windKph = Float.parseFloat(reader.nextString());
+                        this.windKph = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "feelslike_f":
-                        this.feelslikeF = Float.parseFloat(reader.nextString());
+                        this.feelslikeF = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "feelslike_c":
-                        this.feelslikeC = Float.parseFloat(reader.nextString());
+                        this.feelslikeC = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "icon":
                         this.icon = reader.nextString();
@@ -483,16 +457,16 @@ public class Condition extends CustomJsonObject {
                         this.uv.fromJson(reader);
                         break;
                     case "high_f":
-                        this.highF = Float.parseFloat(reader.nextString());
+                        this.highF = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "high_c":
-                        this.highC = Float.parseFloat(reader.nextString());
+                        this.highC = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "low_f":
-                        this.lowF = Float.parseFloat(reader.nextString());
+                        this.lowF = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "low_c":
-                        this.lowC = Float.parseFloat(reader.nextString());
+                        this.lowC = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "airQuality":
                         this.airQuality = new AirQuality();

@@ -11,6 +11,7 @@ import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneId;
@@ -20,7 +21,6 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.text.DecimalFormat;
 import java.util.Locale;
 
 public class Location extends CustomJsonObject {
@@ -28,9 +28,9 @@ public class Location extends CustomJsonObject {
     @SerializedName("name")
     private String name;
     @SerializedName("latitude")
-    private String latitude;
+    private Float latitude;
     @SerializedName("longitude")
-    private String longitude;
+    private Float longitude;
     @SerializedName("tz_offset")
     private ZoneOffset tzOffset;
     @SerializedName("tz_short")
@@ -45,13 +45,10 @@ public class Location extends CustomJsonObject {
     }
 
     public Location(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Location location) {
-        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
-        df.applyPattern("#.####");
-
         // Use location name from location provider
         name = null;
-        latitude = String.format(Locale.ROOT, "%s", df.format(location.getLat()));
-        longitude = String.format(Locale.ROOT, "%s", df.format(location.get_long()));
+        latitude = location.getLat().floatValue();
+        longitude = location.get_long().floatValue();
 
         ZoneId zId = ZoneId.of(location.getTimezoneId());
 
@@ -62,13 +59,10 @@ public class Location extends CustomJsonObject {
     }
 
     public Location(com.thewizrd.shared_resources.weatherdata.openweather.Rootobject root) {
-        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
-        df.applyPattern("#.####");
-
         // Use location name from location provider
         name = null;
-        latitude = String.format(Locale.ROOT, "%s", df.format(root.getLat()));
-        longitude = String.format(Locale.ROOT, "%s", df.format(root.getLon()));
+        latitude = root.getLat();
+        longitude = root.getLon();
 
         ZoneId zId = ZoneId.of(root.getTimezone());
 
@@ -79,25 +73,19 @@ public class Location extends CustomJsonObject {
     }
 
     public Location(com.thewizrd.shared_resources.weatherdata.metno.Response foreRoot) {
-        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
-        df.applyPattern("#.####");
-
         // API doesn't provide location name (at all)
         name = null;
-        latitude = String.format(Locale.ROOT, "%s", df.format(foreRoot.getGeometry().getCoordinates().get(1)));
-        longitude = String.format(Locale.ROOT, "%s", df.format(foreRoot.getGeometry().getCoordinates().get(0)));
+        latitude = foreRoot.getGeometry().getCoordinates().get(1);
+        longitude = foreRoot.getGeometry().getCoordinates().get(0);
         tzOffset = ZoneOffset.UTC;
         tzShort = "UTC";
     }
 
     public Location(com.thewizrd.shared_resources.weatherdata.here.LocationItem location) {
-        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
-        df.applyPattern("#.####");
-
         // Use location name from location provider
         name = null;
-        latitude = String.format(Locale.ROOT, "%s", df.format(location.getLatitude()));
-        longitude = String.format(Locale.ROOT, "%s", df.format(location.getLongitude()));
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
         tzOffset = ZoneOffset.UTC;
         tzShort = "UTC";
     }
@@ -122,19 +110,19 @@ public class Location extends CustomJsonObject {
         this.name = name;
     }
 
-    public String getLatitude() {
+    public Float getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(String latitude) {
+    public void setLatitude(Float latitude) {
         this.latitude = latitude;
     }
 
-    public String getLongitude() {
+    public Float getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(String longitude) {
+    public void setLongitude(Float longitude) {
         this.longitude = longitude;
     }
 
@@ -197,10 +185,10 @@ public class Location extends CustomJsonObject {
                         this.name = reader.nextString();
                         break;
                     case "latitude":
-                        this.latitude = reader.nextString();
+                        this.latitude = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "longitude":
-                        this.longitude = reader.nextString();
+                        this.longitude = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "tz_offset":
                         this.tzOffset = ZoneOffset.of(reader.nextString());

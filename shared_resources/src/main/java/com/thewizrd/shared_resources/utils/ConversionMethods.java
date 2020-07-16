@@ -6,105 +6,81 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
-import java.text.DecimalFormat;
-
 public class ConversionMethods {
     // Constants
-    private static final double KM_TO_MI = 0.621371192;
-    private static final double MI_TO_KM = 1.609344;
-    private static final double INHG_TO_MB = 1013.25 / 29.92;
-    private static final double MB_TO_INHG = 29.92 / 1013.25;
-    private static final double MSEC_TO_MPH = 2.23694;
-    private static final double MSEC_TO_KPH = 3.6;
-    private static final double MM_TO_IN = 1 / 25.4;
-    private static final double IN_TO_MM = 25.4;
-    private static final double PA_TO_INHG = 0.0002952998751;
-    private static final double PA_TO_MB = 0.01;
+    private static final float KM_TO_MI = 0.621371192f;
+    private static final float MI_TO_KM = 1.609344f;
+    private static final float INHG_TO_MB = 1013.25f / 29.92f;
+    private static final float MB_TO_INHG = 29.92f / 1013.25f;
+    private static final float MSEC_TO_MPH = 2.23694f;
+    private static final float MSEC_TO_KPH = 3.6f;
+    private static final float MM_TO_IN = 1 / 25.4f;
+    private static final float IN_TO_MM = 25.4f;
+    private static final float PA_TO_INHG = 0.0002952998751f;
+    private static final float PA_TO_MB = 0.01f;
 
-    private static final DecimalFormat df;
-
-    static {
-        df = new DecimalFormat("#.##");
+    public static float mbToInHg(float input) {
+        return MB_TO_INHG * input;
     }
 
-    public static String mbToInHg(String input) {
-        double result = MB_TO_INHG * Double.parseDouble(input);
-        return df.format(result);
+    public static float inHgToMB(float input) {
+        return INHG_TO_MB * input;
     }
 
-    public static String inHgToMB(String input) {
-        double result = INHG_TO_MB * Double.parseDouble(input);
-        return df.format(result);
+    public static float paToInHg(float input) {
+        return PA_TO_INHG * input;
     }
 
-    public static String paToInHg(String input) {
-        double result = PA_TO_INHG * Double.parseDouble(input);
-        return df.format(result);
+    public static float paToMB(float input) {
+        return PA_TO_MB * input;
     }
 
-    public static String paToMB(String input) {
-        double result = PA_TO_MB * Double.parseDouble(input);
-        return df.format(result);
+    public static float kmToMi(float input) {
+        return KM_TO_MI * input;
     }
 
-    public static String kmToMi(String input) {
-        double result = KM_TO_MI * Double.parseDouble(input);
-        return String.format("%d", Math.round(result));
+    public static float miToKm(float input) {
+        return MI_TO_KM * input;
     }
 
-    public static String miToKm(String input) {
-        double result = MI_TO_KM * Double.parseDouble(input);
-        return String.format("%d", Math.round(result));
+    public static float mmToIn(float input) {
+        return MM_TO_IN * input;
     }
 
-    public static String mmToIn(String input) {
-        double result = MM_TO_IN * Double.parseDouble(input);
-        return String.format("%d", Math.round(result));
+    public static float inToMM(float input) {
+        return IN_TO_MM * input;
     }
 
-    public static String inToMM(String input) {
-        double result = IN_TO_MM * Double.parseDouble(input);
-        return String.format("%d", Math.round(result));
+    public static float mphTokph(float input) {
+        return MI_TO_KM * input;
     }
 
-    public static String mphTokph(String input) {
-        double result = MI_TO_KM * Double.parseDouble(input);
-        return String.format("%d", Math.round(result));
+    public static float kphTomph(float input) {
+        return KM_TO_MI * input;
     }
 
-    public static String kphTomph(String input) {
-        double result = KM_TO_MI * Double.parseDouble(input);
-        return String.format("%d", Math.round(result));
+    public static float msecToMph(float input) {
+        return input * MSEC_TO_MPH;
     }
 
-    public static String msecToMph(String input) {
-        double result = MSEC_TO_MPH * Double.parseDouble(input);
-        return df.format(Math.round(result));
+    public static float msecToKph(float input) {
+        return input * MSEC_TO_KPH;
     }
 
-    public static String msecToKph(String input) {
-        double result = MSEC_TO_KPH * Double.parseDouble(input);
-        return df.format(Math.round(result));
+    public static float FtoC(float input) {
+        return (input - 32) * (5f / 9);
     }
 
-    public static String FtoC(String input) {
-        double result = (Double.parseDouble(input) - 32) * ((double) 5 / 9);
-        return String.format("%d", Math.round(result));
+    public static float CtoF(float input) {
+        return (input * (9f / 5)) + 32;
     }
 
-    public static String CtoF(String input) {
-        double result = (Double.parseDouble(input) * ((double) 9 / 5)) + 32;
-        return String.format("%d", Math.round(result));
+    public static float KtoC(float input) {
+        return input - 273.15f;
     }
 
-    public static String KtoC(String input) {
-        double result = Double.parseDouble(input) - 273.15;
-        return String.format("%d", Math.round(result));
-    }
-
-    public static String KtoF(String input) {
-        double result = (Double.parseDouble(input) * ((double) 9 / 5)) - 459.67;
-        return String.format("%d", Math.round(result));
+    public static float KtoF(float input) {
+        return (input * (9f / 5)) - 459.67f;
     }
 
     public static ZonedDateTime toEpochDateTime(String epoch_time) {

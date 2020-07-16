@@ -25,6 +25,13 @@ public class TZDBCache {
         }
     };
 
+    private static final Migration TZDB_MIGRATION_5_6 = new Migration(5, 6) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // Since we didn't alter the table, there's nothing else to do here.
+        }
+    };
+
     public static String getTimeZone(final double latitude, final double longitude) {
         if (latitude != 0 && longitude != 0) {
             AnalyticsLogger.logEvent("TZDBCache: querying");
@@ -33,7 +40,7 @@ public class TZDBCache {
                 Context context = SimpleLibrary.getInstance().getAppContext();
                 tzDB = Room.databaseBuilder(context,
                         TZDatabase.class, "tzdb.db")
-                        .addMigrations(TZDB_MIGRATION_0_5)
+                        .addMigrations(TZDB_MIGRATION_0_5, TZDB_MIGRATION_5_6)
                         .fallbackToDestructiveMigration()
                         .build();
             }

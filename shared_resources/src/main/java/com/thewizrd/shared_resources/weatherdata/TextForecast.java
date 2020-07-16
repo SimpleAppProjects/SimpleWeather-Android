@@ -23,6 +23,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.text.DecimalFormat;
 import java.util.Locale;
 
 public class TextForecast extends CustomJsonObject {
@@ -44,35 +45,37 @@ public class TextForecast extends CustomJsonObject {
     public TextForecast(com.thewizrd.shared_resources.weatherdata.openweather.DailyItem forecast) {
         Context context = SimpleLibrary.getInstance().getApp().getAppContext();
 
+        final DecimalFormat f = new DecimalFormat("0.##");
+
         date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(forecast.getDt()), ZoneOffset.UTC);
         StringBuilder sb = new StringBuilder();
         sb.append(String.format(Locale.ROOT,
                 "%s - %s: %sº; %s: %sº", context.getString(R.string.label_morning),
                 context.getString(R.string.label_temp),
-                ConversionMethods.KtoF(Float.toString(forecast.getTemp().getMorn())),
+                f.format(ConversionMethods.KtoF(forecast.getTemp().getMorn())),
                 context.getString(R.string.label_feelslike),
-                ConversionMethods.KtoF(Float.toString(forecast.getFeelsLike().getMorn()))));
+                f.format(ConversionMethods.KtoF(forecast.getFeelsLike().getMorn()))));
         sb.append(StringUtils.lineSeparator());
         sb.append(String.format(Locale.ROOT,
                 "%s - %s: %sº; %s: %sº", context.getString(R.string.label_day),
                 context.getString(R.string.label_temp),
-                ConversionMethods.KtoF(Float.toString(forecast.getTemp().getDay())),
+                f.format(ConversionMethods.KtoF(forecast.getTemp().getDay())),
                 context.getString(R.string.label_feelslike),
-                ConversionMethods.KtoF(Float.toString(forecast.getFeelsLike().getDay()))));
+                f.format(ConversionMethods.KtoF(forecast.getFeelsLike().getDay()))));
         sb.append(StringUtils.lineSeparator());
         sb.append(String.format(Locale.ROOT,
                 "%s - %s: %sº; %s: %sº", context.getString(R.string.label_eve),
                 context.getString(R.string.label_temp),
-                ConversionMethods.KtoF(Float.toString(forecast.getTemp().getEve())),
+                f.format(ConversionMethods.KtoF(forecast.getTemp().getEve())),
                 context.getString(R.string.label_feelslike),
-                ConversionMethods.KtoF(Float.toString(forecast.getFeelsLike().getEve()))));
+                f.format(ConversionMethods.KtoF(forecast.getFeelsLike().getEve()))));
         sb.append(StringUtils.lineSeparator());
         sb.append(String.format(Locale.ROOT,
                 "%s - %s: %sº; %s: %sº", context.getString(R.string.label_night),
                 context.getString(R.string.label_temp),
-                ConversionMethods.KtoF(Float.toString(forecast.getTemp().getNight())),
+                f.format(ConversionMethods.KtoF(forecast.getTemp().getNight())),
                 context.getString(R.string.label_feelslike),
-                ConversionMethods.KtoF(Float.toString(forecast.getFeelsLike().getNight()))));
+                f.format(ConversionMethods.KtoF(forecast.getFeelsLike().getNight()))));
 
         fcttext = sb.toString();
 
@@ -80,37 +83,35 @@ public class TextForecast extends CustomJsonObject {
         sb_metric.append(String.format(Locale.ROOT,
                 "%s - %s: %sº; %s: %sº", context.getString(R.string.label_morning),
                 context.getString(R.string.label_temp),
-                ConversionMethods.KtoC(Float.toString(forecast.getTemp().getMorn())),
+                f.format(ConversionMethods.KtoC(forecast.getTemp().getMorn())),
                 context.getString(R.string.label_feelslike),
-                ConversionMethods.KtoC(Float.toString(forecast.getFeelsLike().getMorn()))));
+                f.format(ConversionMethods.KtoC(forecast.getFeelsLike().getMorn()))));
         sb_metric.append(StringUtils.lineSeparator());
         sb_metric.append(String.format(Locale.ROOT,
                 "%s - %s: %sº; %s: %sº", context.getString(R.string.label_day),
                 context.getString(R.string.label_temp),
-                ConversionMethods.KtoC(Float.toString(forecast.getTemp().getDay())),
+                f.format(ConversionMethods.KtoC(forecast.getTemp().getDay())),
                 context.getString(R.string.label_feelslike),
-                ConversionMethods.KtoC(Float.toString(forecast.getFeelsLike().getDay()))));
+                f.format(ConversionMethods.KtoC(forecast.getFeelsLike().getDay()))));
         sb_metric.append(StringUtils.lineSeparator());
         sb_metric.append(String.format(Locale.ROOT,
                 "%s - %s: %sº; %s: %sº", context.getString(R.string.label_eve),
                 context.getString(R.string.label_temp),
-                ConversionMethods.KtoC(Float.toString(forecast.getTemp().getEve())),
+                f.format(ConversionMethods.KtoC(forecast.getTemp().getEve())),
                 context.getString(R.string.label_feelslike),
-                ConversionMethods.KtoC(Float.toString(forecast.getFeelsLike().getEve()))));
+                f.format(ConversionMethods.KtoC(forecast.getFeelsLike().getEve()))));
         sb_metric.append(StringUtils.lineSeparator());
         sb_metric.append(String.format(Locale.ROOT,
                 "%s - %s: %sº; %s: %sº", context.getString(R.string.label_night),
                 context.getString(R.string.label_temp),
-                ConversionMethods.KtoC(Float.toString(forecast.getTemp().getNight())),
+                f.format(ConversionMethods.KtoC(forecast.getTemp().getNight())),
                 context.getString(R.string.label_feelslike),
-                ConversionMethods.KtoC(Float.toString(forecast.getFeelsLike().getNight()))));
+                f.format(ConversionMethods.KtoC(forecast.getFeelsLike().getNight()))));
 
         fcttextMetric = sb_metric.toString();
     }
 
     public TextForecast(com.thewizrd.shared_resources.weatherdata.here.ForecastItem forecast) {
-        Context context = SimpleLibrary.getInstance().getApp().getAppContext();
-
         date = ZonedDateTime.parse(forecast.getUtcTime());
         fcttext = String.format(Locale.ROOT, "%s - %s %s",
                 forecast.getWeekday(),

@@ -32,16 +32,16 @@ public class Forecast extends CustomJsonObject {
     private LocalDateTime date;
 
     @SerializedName("high_f")
-    private String highF;
+    private Float highF;
 
     @SerializedName("high_c")
-    private String highC;
+    private Float highC;
 
     @SerializedName("low_f")
-    private String lowF;
+    private Float lowF;
 
     @SerializedName("low_c")
-    private String lowC;
+    private Float lowC;
 
     @SerializedName("condition")
     private String condition;
@@ -59,9 +59,9 @@ public class Forecast extends CustomJsonObject {
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.weatheryahoo.ForecastsItem forecast) {
         date = LocalDateTime.ofEpochSecond(Long.parseLong(forecast.getDate()), 0, ZoneOffset.UTC);
-        highF = forecast.getHigh();
+        highF = Float.parseFloat(forecast.getHigh());
         highC = ConversionMethods.FtoC(highF);
-        lowF = forecast.getLow();
+        lowF = Float.parseFloat(forecast.getLow());
         lowC = ConversionMethods.FtoC(lowF);
         condition = forecast.getText();
         icon = WeatherManager.getProvider(WeatherAPI.YAHOO)
@@ -70,38 +70,38 @@ public class Forecast extends CustomJsonObject {
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.openweather.DailyItem forecast) {
         date = LocalDateTime.ofEpochSecond(forecast.getDt(), 0, ZoneOffset.UTC);
-        highF = ConversionMethods.KtoF(Float.toString(forecast.getTemp().getMax()));
-        highC = ConversionMethods.KtoC(Float.toString(forecast.getTemp().getMax()));
-        lowF = ConversionMethods.KtoF(Float.toString(forecast.getTemp().getMin()));
-        lowC = ConversionMethods.KtoC(Float.toString(forecast.getTemp().getMin()));
+        highF = ConversionMethods.KtoF(forecast.getTemp().getMax());
+        highC = ConversionMethods.KtoC(forecast.getTemp().getMax());
+        lowF = ConversionMethods.KtoF(forecast.getTemp().getMin());
+        lowC = ConversionMethods.KtoC(forecast.getTemp().getMin());
         condition = StringUtils.toUpperCase(forecast.getWeather().get(0).getDescription());
         icon = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
                 .getWeatherIcon(Integer.toString(forecast.getWeather().get(0).getId()));
 
         // Extras
         extras = new ForecastExtras();
-        extras.setDewpointF(ConversionMethods.KtoF(Float.toString(forecast.getDewPoint())));
-        extras.setDewpointC(ConversionMethods.KtoC(Float.toString(forecast.getDewPoint())));
-        extras.setHumidity(Integer.toString(forecast.getHumidity()));
-        extras.setPop(Integer.toString(forecast.getClouds()));
+        extras.setDewpointF(ConversionMethods.KtoF(forecast.getDewPoint()));
+        extras.setDewpointC(ConversionMethods.KtoC(forecast.getDewPoint()));
+        extras.setHumidity(forecast.getHumidity());
+        extras.setPop(forecast.getClouds());
         // 1hPA = 1mbar
-        extras.setPressureMb(Float.toString(forecast.getPressure()));
-        extras.setPressureIn(ConversionMethods.mbToInHg(Float.toString(forecast.getPressure())));
+        extras.setPressureMb(forecast.getPressure());
+        extras.setPressureIn(ConversionMethods.mbToInHg(forecast.getPressure()));
         extras.setWindDegrees(forecast.getWindDeg());
-        extras.setWindMph(Math.round(Float.parseFloat(ConversionMethods.msecToMph(Float.toString(forecast.getWindSpeed())))));
-        extras.setWindKph(Math.round(Float.parseFloat(ConversionMethods.msecToKph(Float.toString(forecast.getWindSpeed())))));
+        extras.setWindMph((float) Math.round(ConversionMethods.msecToMph(forecast.getWindSpeed())));
+        extras.setWindKph((float) Math.round(ConversionMethods.msecToKph(forecast.getWindSpeed())));
         extras.setUvIndex(forecast.getUvi());
         if (forecast.getVisibility() != null) {
-            extras.setVisibilityKm(forecast.getVisibility().toString());
+            extras.setVisibilityKm(forecast.getVisibility().floatValue());
             extras.setVisibilityMi(ConversionMethods.kmToMi(extras.getVisibilityKm()));
         }
         if (forecast.getRain() != null) {
             extras.setQpfRainMm(forecast.getRain());
-            extras.setQpfRainIn(Float.parseFloat(ConversionMethods.mmToIn(forecast.getRain().toString())));
+            extras.setQpfRainIn(ConversionMethods.mmToIn(forecast.getRain()));
         }
         if (forecast.getSnow() != null) {
             extras.setQpfSnowCm(forecast.getSnow() / 10);
-            extras.setQpfSnowIn(Float.parseFloat(ConversionMethods.mmToIn(forecast.getSnow().toString())));
+            extras.setQpfSnowIn(ConversionMethods.mmToIn(forecast.getSnow()));
         }
     }
 
@@ -120,19 +120,15 @@ public class Forecast extends CustomJsonObject {
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.here.ForecastItem forecast) {
         date = ZonedDateTime.parse(forecast.getUtcTime()).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
-        try {
-            highF = forecast.getHighTemperature();
-            highC = ConversionMethods.FtoC(forecast.getHighTemperature());
-        } catch (NumberFormatException ignored) {
-            highF = null;
-            highC = null;
+        Float high_f = NumberUtils.tryParseFloat(forecast.getHighTemperature());
+        if (high_f != null) {
+            highF = high_f;
+            highC = ConversionMethods.FtoC(high_f);
         }
-        try {
-            lowF = forecast.getLowTemperature();
-            lowC = ConversionMethods.FtoC(forecast.getLowTemperature());
-        } catch (NumberFormatException ignored) {
-            lowF = null;
-            lowC = null;
+        Float low_f = NumberUtils.tryParseFloat(forecast.getLowTemperature());
+        if (low_f != null) {
+            lowF = low_f;
+            lowC = ConversionMethods.FtoC(low_f);
         }
         condition = StringUtils.toPascalCase(forecast.getDescription());
         icon = WeatherManager.getProvider(WeatherAPI.HERE)
@@ -140,60 +136,61 @@ public class Forecast extends CustomJsonObject {
 
         // Extras
         extras = new ForecastExtras();
-        try {
-            float comfortTempF = Float.parseFloat(forecast.getComfort());
+        Float comfortTempF = NumberUtils.tryParseFloat(forecast.getComfort());
+        if (comfortTempF != null) {
             extras.setFeelslikeF(comfortTempF);
-            extras.setFeelslikeC(Float.parseFloat(ConversionMethods.FtoC(Float.toString(comfortTempF))));
-        } catch (NumberFormatException ignored) {
+            extras.setFeelslikeC(ConversionMethods.FtoC(comfortTempF));
         }
-        extras.setHumidity(forecast.getHumidity());
-        try {
-            extras.setDewpointF(forecast.getDewPoint());
-            extras.setDewpointC(ConversionMethods.FtoC(forecast.getDewPoint()));
-        } catch (NumberFormatException ignored) {
-            extras.setDewpointF(null);
-            extras.setDewpointC(null);
+        Integer humidity = NumberUtils.tryParseInt(forecast.getHumidity());
+        if (humidity != null) {
+            extras.setHumidity(humidity);
         }
-        extras.setPop(forecast.getPrecipitationProbability());
-        try {
-            float rain_in = Float.parseFloat(forecast.getRainFall());
+        Float dewpointF = NumberUtils.tryParseFloat(forecast.getDewPoint());
+        if (dewpointF != null) {
+            extras.setDewpointF(dewpointF);
+            extras.setDewpointC(ConversionMethods.FtoC(dewpointF));
+        }
+        Integer pop = NumberUtils.tryParseInt(forecast.getPrecipitationProbability());
+        if (pop != null) {
+            extras.setPop(pop);
+        }
+        Float rain_in = NumberUtils.tryParseFloat(forecast.getRainFall());
+        if (rain_in != null) {
             extras.setQpfRainIn(rain_in);
-            extras.setQpfRainMm(Float.parseFloat(ConversionMethods.inToMM(Float.toString(rain_in))));
-        } catch (NumberFormatException ignored) {
+            extras.setQpfRainMm(ConversionMethods.inToMM(rain_in));
         }
-        try {
-            float snow_in = Float.parseFloat(forecast.getSnowFall());
+        Float snow_in = NumberUtils.tryParseFloat(forecast.getSnowFall());
+        if (snow_in != null) {
             extras.setQpfSnowIn(snow_in);
-            extras.setQpfSnowCm(Float.parseFloat(ConversionMethods.inToMM(Float.toString(snow_in))) / 10);
-        } catch (NumberFormatException ignored) {
+            extras.setQpfSnowCm(ConversionMethods.inToMM(snow_in) / 10);
         }
-        try {
-            extras.setPressureIn(forecast.getBarometerPressure());
-            extras.setPressureMb(ConversionMethods.inHgToMB(forecast.getBarometerPressure()));
-        } catch (NumberFormatException ignored) {
-            extras.setPressureIn(null);
-            extras.setPressureMb(null);
+        Float pressureIN = NumberUtils.tryParseFloat(forecast.getBarometerPressure());
+        if (pressureIN != null) {
+            extras.setPressureIn(pressureIN);
+            extras.setPressureMb(ConversionMethods.inHgToMB(pressureIN));
         }
-        extras.setWindDegrees(Integer.parseInt(forecast.getWindDirection()));
-        try {
-            extras.setWindMph(Float.parseFloat(forecast.getWindSpeed()));
-            extras.setWindKph(Float.parseFloat(ConversionMethods.mphTokph(forecast.getWindSpeed())));
-        } catch (NumberFormatException ignored) {
+        Integer windDegrees = NumberUtils.tryParseInt(forecast.getWindDirection());
+        if (windDegrees != null) {
+            extras.setWindDegrees(windDegrees);
         }
-        try {
-            float uv_index = Float.parseFloat(forecast.getUvIndex());
+        Float windSpeed = NumberUtils.tryParseFloat(forecast.getWindSpeed());
+        if (windSpeed != null) {
+            extras.setWindMph(windSpeed);
+            extras.setWindKph(ConversionMethods.mphTokph(windSpeed));
+        }
+        Float uv_index = NumberUtils.tryParseFloat(forecast.getUvIndex());
+        if (uv_index != null) {
             extras.setUvIndex(uv_index);
-        } catch (NumberFormatException ignored) {
         }
     }
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem) {
         date = ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME).toLocalDateTime();
         if (forecastItem.getIsDaytime()) {
-            highF = Integer.toString(forecastItem.getTemperature());
+            highF = (float) forecastItem.getTemperature();
             highC = ConversionMethods.FtoC(highF);
         } else {
-            lowF = Integer.toString(forecastItem.getTemperature());
+            lowF = (float) forecastItem.getTemperature();
             lowC = ConversionMethods.FtoC(lowF);
         }
         condition = forecastItem.getShortForecast();
@@ -208,8 +205,8 @@ public class Forecast extends CustomJsonObject {
                 if (windSpeed != null) {
                     extras = new ForecastExtras();
                     extras.setWindDegrees(WeatherUtils.getWindDirection(forecastItem.getWindDirection()));
-                    extras.setWindMph(windSpeed);
-                    extras.setWindKph(Float.parseFloat(ConversionMethods.mphTokph(maxWindSpeed)));
+                    extras.setWindMph(windSpeed.floatValue());
+                    extras.setWindKph(ConversionMethods.mphTokph(windSpeed.floatValue()));
                 }
             }
         }
@@ -217,9 +214,9 @@ public class Forecast extends CustomJsonObject {
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem, com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem nightForecastItem) {
         date = ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME).toLocalDateTime();
-        highF = Integer.toString(forecastItem.getTemperature());
+        highF = (float) forecastItem.getTemperature();
         highC = ConversionMethods.FtoC(highF);
-        lowF = Integer.toString(nightForecastItem.getTemperature());
+        lowF = (float) nightForecastItem.getTemperature();
         lowC = ConversionMethods.FtoC(lowF);
         condition = forecastItem.getShortForecast();
         icon = WeatherManager.getProvider(WeatherAPI.NWS)
@@ -236,8 +233,8 @@ public class Forecast extends CustomJsonObject {
                     // Extras
                     extras = new ForecastExtras();
                     extras.setWindDegrees(WeatherUtils.getWindDirection(forecastItem.getWindDirection()));
-                    extras.setWindMph(windSpeed);
-                    extras.setWindKph(Float.parseFloat(ConversionMethods.mphTokph(maxWindSpeed)));
+                    extras.setWindMph(windSpeed.floatValue());
+                    extras.setWindKph(ConversionMethods.mphTokph(windSpeed.floatValue()));
                 }
             }
         }
@@ -251,35 +248,35 @@ public class Forecast extends CustomJsonObject {
         this.date = date;
     }
 
-    public String getHighF() {
+    public Float getHighF() {
         return highF;
     }
 
-    public void setHighF(String highF) {
+    public void setHighF(Float highF) {
         this.highF = highF;
     }
 
-    public String getHighC() {
+    public Float getHighC() {
         return highC;
     }
 
-    public void setHighC(String highC) {
+    public void setHighC(Float highC) {
         this.highC = highC;
     }
 
-    public String getLowF() {
+    public Float getLowF() {
         return lowF;
     }
 
-    public void setLowF(String lowF) {
+    public void setLowF(Float lowF) {
         this.lowF = lowF;
     }
 
-    public String getLowC() {
+    public Float getLowC() {
         return lowC;
     }
 
-    public void setLowC(String lowC) {
+    public void setLowC(Float lowC) {
         this.lowC = lowC;
     }
 
@@ -343,16 +340,16 @@ public class Forecast extends CustomJsonObject {
                         this.date = LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(reader.nextString())), ZoneOffset.UTC);
                         break;
                     case "high_f":
-                        this.highF = reader.nextString();
+                        this.highF = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "high_c":
-                        this.highC = reader.nextString();
+                        this.highC = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "low_f":
-                        this.lowF = reader.nextString();
+                        this.lowF = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "low_c":
-                        this.lowC = reader.nextString();
+                        this.lowC = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     case "condition":
                         this.condition = reader.nextString();

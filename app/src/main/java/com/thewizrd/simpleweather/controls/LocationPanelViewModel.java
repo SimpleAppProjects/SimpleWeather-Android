@@ -5,6 +5,7 @@ import androidx.core.util.ObjectsCompat;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.ImageDataViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
@@ -86,9 +87,12 @@ public class LocationPanelViewModel {
             imageData = null;
 
             locationName = weather.getLocation().getName();
-            currTemp = (Settings.isFahrenheit() ?
-                    String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getTempF())) :
-                    String.format(Locale.getDefault(), "%dº", Math.round(weather.getCondition().getTempC())));
+            if (weather.getCondition().getTempF() != null && !ObjectsCompat.equals(weather.getCondition().getTempF(), weather.getCondition().getTempC())) {
+                int temp = Settings.isFahrenheit() ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC());
+                currTemp = String.format(Locale.getDefault(), "%dº", temp);
+            } else {
+                currTemp = "--";
+            }
             weatherIcon = weather.getCondition().getIcon();
             weatherSource = weather.getSource();
 
@@ -96,8 +100,8 @@ public class LocationPanelViewModel {
                 locationData = new LocationData();
                 locationData.setQuery(weather.getQuery());
                 locationData.setName(weather.getLocation().getName());
-                locationData.setLatitude(Double.parseDouble(weather.getLocation().getLatitude()));
-                locationData.setLongitude(Double.parseDouble(weather.getLocation().getLongitude()));
+                locationData.setLatitude(NumberUtils.getValueOrDefault(weather.getLocation().getLatitude(), 0));
+                locationData.setLongitude(NumberUtils.getValueOrDefault(weather.getLocation().getLongitude(), 0));
                 locationData.setTzLong(weather.getLocation().getTzLong());
             }
         }
