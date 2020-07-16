@@ -826,10 +826,8 @@ public class Settings {
     public static boolean isWeatherLoaded() {
         if (IS_PHONE) {
             if (!DBUtils.locationDataExists(locationDB)) {
-                if (!DBUtils.weatherDataExists(weatherDB)) {
-                    setWeatherLoaded(false);
-                    return false;
-                }
+                setWeatherLoaded(false);
+                return false;
             }
         } else {
             if (!DBUtils.weatherDataExists(weatherDB)) {
