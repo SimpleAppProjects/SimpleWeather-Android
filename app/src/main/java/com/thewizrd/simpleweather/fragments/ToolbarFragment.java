@@ -27,7 +27,6 @@ import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
-import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentToolbarLayoutBinding;
 import com.thewizrd.simpleweather.helpers.TransitionHelper;
 
@@ -135,13 +134,11 @@ public abstract class ToolbarFragment extends WindowColorFragment
 
     @CallSuper
     public void updateWindowColors() {
-        if (isAlive())
-            return;
+        if (!isAlive()) return;
 
         Configuration config = getCurrentConfiguration();
         final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
-        @ColorInt int color = ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary);
         @ColorInt int bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
         if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
             if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
@@ -149,13 +146,12 @@ public abstract class ToolbarFragment extends WindowColorFragment
             } else {
                 bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
             }
-            color = bg_color;
         }
         binding.rootView.setBackgroundColor(bg_color);
-        binding.appBar.setBackgroundColor(color);
-        binding.rootView.setStatusBarBackgroundColor(color);
+        binding.appBar.setBackgroundColor(bg_color);
+        binding.rootView.setStatusBarBackgroundColor(bg_color);
         if (getSysBarColorMgr() != null) {
-            getSysBarColorMgr().setSystemBarColors(bg_color, color, color, color);
+            getSysBarColorMgr().setSystemBarColors(bg_color);
         }
     }
 }

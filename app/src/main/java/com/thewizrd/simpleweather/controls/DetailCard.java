@@ -17,6 +17,7 @@ import androidx.core.graphics.ColorUtils;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.CardWeatherDetailBinding;
 
@@ -28,6 +29,8 @@ public class DetailCard extends ConstraintLayout {
     private @ColorInt
     int mShadowColor;
     private MaterialShapeDrawable bgDrawable;
+
+    private Configuration currentConfig;
 
     public float getShadowRadius() {
         return mShadowRadius;
@@ -62,6 +65,8 @@ public class DetailCard extends ConstraintLayout {
     }
 
     private void initialize(Context context) {
+        this.currentConfig = new Configuration(context.getResources().getConfiguration());
+
         LayoutInflater inflater = LayoutInflater.from(context);
         binding = CardWeatherDetailBinding.inflate(inflater, this, true);
         bgDrawable = new MaterialShapeDrawable(
@@ -92,11 +97,26 @@ public class DetailCard extends ConstraintLayout {
         array = currentTheme.obtainStyledAttributes(R.style.ShadowText, new int[]{android.R.attr.shadowColor});
         mShadowColor = array.getColor(0, 0);
         array.recycle();
+
+        updateColors();
+    }
+
+    private void updateColors() {
+        final int systemNightMode = currentConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        final boolean isNightMode = systemNightMode == Configuration.UI_MODE_NIGHT_YES;
+
+        setBackgroundColor(isNightMode ? Colors.BLACK : Colors.WHITE);
+        setTextColor(isNightMode ? Colors.WHITE : Colors.BLACK);
+        binding.detailIcon.setTextColor(isNightMode ? Colors.SIMPLEBLUELIGHT : Colors.SIMPLEBLUEDARK);
+        setStrokeColor(ColorUtils.setAlphaComponent(isNightMode ? Colors.LIGHTGRAY : Colors.BLACK, 0x40));
+        setShadowColor(isNightMode ? Colors.BLACK : Colors.GRAY);
     }
 
     @Override
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        currentConfig = new Configuration(newConfig);
+        updateColors();
     }
 
     public void bindModel(DetailItemViewModel model) {

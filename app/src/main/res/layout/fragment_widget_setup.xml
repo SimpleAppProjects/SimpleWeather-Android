@@ -12,9 +12,8 @@
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
+        style="@style/Widget.MaterialComponents.AppBarLayout.Surface"
         android:fitsSystemWindows="true"
-        android:minHeight="?attr/actionBarSize"
         android:stateListAnimator="@animator/design_appbar_state_list_animator"
         android:theme="@style/AppTheme.AppBarOverlay"
         app:liftOnScroll="true"
@@ -26,6 +25,7 @@
             android:layout_height="?attr/actionBarSize"
             app:layout_collapseMode="pin"
             app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:titleTextColor="@color/invButtonColorText"
             tools:title="@string/widget_configure_prompt" />
 
     </com.google.android.material.appbar.AppBarLayout>

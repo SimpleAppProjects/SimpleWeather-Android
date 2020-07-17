@@ -26,7 +26,8 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             app:cardBackgroundColor="@{WeatherUtils.getColorFromAlertSeverity(viewModel.alertSeverity)}"
-            app:cardCornerRadius="0dp">
+            app:cardCornerRadius="0dp"
+            tools:background="@android:color/red">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -43,7 +44,8 @@
                     android:paddingLeft="24dp"
                     android:paddingRight="8dp"
                     android:paddingStart="24dp"
-                    android:src="@{ContextCompat.getDrawable(context, WeatherUtils.getDrawableFromAlertType(viewModel.alertType))}" />
+                    android:src="@{ContextCompat.getDrawable(context, WeatherUtils.getDrawableFromAlertType(viewModel.alertType))}"
+                    tools:src="@drawable/ic_error_white" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/alert_title"
@@ -61,6 +63,7 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
+                    android:textStyle="bold"
                     app:autoSizeMaxTextSize="16sp"
                     app:autoSizeMinTextSize="2dp"
                     app:autoSizeTextType="uniform"
@@ -80,6 +83,7 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Tooltip"
                     android:textColor="@android:color/white"
                     android:textSize="12sp"
+                    android:textStyle="bold"
                     app:autoSizeMaxTextSize="14sp"
                     app:autoSizeMinTextSize="2dp"
                     tools:text="1hr ago" />

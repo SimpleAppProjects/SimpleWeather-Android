@@ -9,9 +9,6 @@ import android.view.View;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.ColorUtils;
 import androidx.core.util.ObjectsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -21,7 +18,6 @@ import androidx.lifecycle.Lifecycle;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
-import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
@@ -51,10 +47,6 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
         AnalyticsLogger.logEvent("MainActivity: onCreate");
-
-        // Make full transparent statusBar
-        ActivityUtils.setTransparentWindow(getWindow(), Colors.SIMPLEBLUE, Colors.TRANSPARENT, Colors.TRANSPARENT,
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
@@ -207,6 +199,8 @@ public class MainActivity extends AppCompatActivity
 
         if (current instanceof WeatherNowFragment) {
             currentId = R.id.nav_weathernow;
+        } else if (current instanceof WeatherRadarFragment) {
+            currentId = R.id.nav_radar;
         } else if (current instanceof LocationsFragment) {
             currentId = R.id.nav_locations;
         } else if (current instanceof SettingsFragment) {
@@ -305,6 +299,13 @@ public class MainActivity extends AppCompatActivity
 
                 // Commit the transaction
                 transaction.commit();
+            } else if (id == R.id.nav_radar) {
+                fragment = new WeatherRadarFragment();
+                transaction
+                        .add(R.id.fragment_container, fragment)
+                        .hide(current)
+                        .addToBackStack(null)
+                        .commit();
             } else if (id == R.id.nav_settings) {
                 // Commit the transaction if current frag is not a SettingsFragment sub-fragment
                 if (!current.getClass().getName().contains(SettingsFragment.class.getName())) {
@@ -362,8 +363,10 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         int checkedItemId = -1;
 
-        if (fragment instanceof WeatherNowFragment || fragment instanceof WeatherListFragment || fragment instanceof WeatherRadarFragment) {
+        if (fragment instanceof WeatherNowFragment || fragment instanceof WeatherListFragment) {
             checkedItemId = R.id.nav_weathernow;
+        } else if (fragment instanceof WeatherRadarFragment) {
+            checkedItemId = R.id.nav_radar;
         } else if (fragment instanceof LocationsFragment) {
             checkedItemId = R.id.nav_locations;
         } else if (fragment != null && fragment.getClass().getName().contains(SettingsFragment.class.getName())) {
@@ -378,64 +381,35 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void setSystemBarColors(@ColorInt final int color) {
-        setSystemBarColors(color, color, color, color);
-    }
-
-    @Override
-    public void setSystemBarColors(@ColorInt final int color, boolean setColors) {
-        setSystemBarColors(color, color, color, color, setColors);
-    }
-
-    @Override
-    public void setSystemBarColors(@ColorInt final int backgroundColor, @ColorInt final int statusBarColor, @ColorInt final int toolbarColor, @ColorInt final int navBarColor) {
-        Configuration config = getResources().getConfiguration();
-        final boolean isLandscapeMode = config.orientation != Configuration.ORIENTATION_PORTRAIT && !ActivityUtils.isLargeTablet(MainActivity.this);
-
-        setSystemBarColors(backgroundColor, statusBarColor, toolbarColor, navBarColor, isLandscapeMode);
-    }
-
-    @Override
-    public void setSystemBarColors(@ColorInt final int backgroundColor, @ColorInt final int statusBarColor, @ColorInt final int toolbarColor, @ColorInt final int navBarColor, final boolean setColors) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (binding == null) return;
+
+                Configuration config = getResources().getConfiguration();
+                final boolean isLandscapeMode = config.orientation != Configuration.ORIENTATION_PORTRAIT && !ActivityUtils.isLargeTablet(MainActivity.this);
+
                 // Actionbar, BottomNavBar & StatusBar
-                ActivityUtils.setTransparentWindow(getWindow(), backgroundColor, statusBarColor, setColors ? navBarColor : Colors.TRANSPARENT, setColors);
-                mRootView.setBackgroundColor(backgroundColor);
-
-                if (!ColorsUtils.isSuperLight(navBarColor)) {
-                    mBottomNavView.setItemRippleColor(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_ripple_color_dark));
-                } else {
-                    mBottomNavView.setItemRippleColor(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_ripple_color_light));
-                }
-
-                mBottomNavView.setBackgroundColor(toolbarColor);
-
-                if ((AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES || isSystemNightMode) &&
-                        ColorUtils.calculateContrast(Colors.SIMPLEBLUELIGHT, toolbarColor) >= 4.5f) {
-                    mBottomNavView.setItemIconTintList(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_item_tint_darkcolor));
-                    mBottomNavView.setItemTextColor(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_item_tint_darkcolor));
-                } else {
-                    if (!ColorsUtils.isSuperLight(toolbarColor)) {
-                        mBottomNavView.setItemIconTintList(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_item_tint_dark));
-                        mBottomNavView.setItemTextColor(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_item_tint_dark));
-                    } else {
-                        mBottomNavView.setItemIconTintList(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_item_tint_light));
-                        mBottomNavView.setItemTextColor(ContextCompat.getColorStateList(MainActivity.this, R.color.btm_nav_item_tint_light));
-                    }
-                }
+                ActivityUtils.setTransparentWindow(getWindow(), color, Colors.TRANSPARENT, isLandscapeMode ? color : Colors.TRANSPARENT, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+                mRootView.setBackgroundColor(color);
+                mBottomNavView.setBackgroundColor(color);
             }
         });
     }
 
     private void updateWindowColors() {
+        Configuration config = getResources().getConfiguration();
+        final boolean isLandscapeMode = config.orientation != Configuration.ORIENTATION_PORTRAIT && !ActivityUtils.isLargeTablet(MainActivity.this);
+
         int color = ActivityUtils.getColor(this, android.R.attr.colorBackground);
         if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK;
         }
         mRootView.setBackgroundColor(color);
         getWindow().getDecorView().setBackgroundColor(color);
+
+        ActivityUtils.setTransparentWindow(getWindow(), color, Colors.TRANSPARENT, isLandscapeMode ? color : Colors.TRANSPARENT,
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
     }
 
     @Override

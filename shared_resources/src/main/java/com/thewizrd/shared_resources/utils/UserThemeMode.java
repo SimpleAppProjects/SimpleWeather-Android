@@ -5,7 +5,8 @@ import android.util.SparseArray;
 public enum UserThemeMode {
     FOLLOW_SYSTEM(0),
     DARK(1),
-    AMOLED_DARK(2);
+    AMOLED_DARK(2),
+    LIGHT(3);
 
     private final int value;
 

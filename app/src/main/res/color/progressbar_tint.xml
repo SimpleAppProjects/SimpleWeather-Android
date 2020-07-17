@@ -14,6 +14,6 @@
 -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_enabled="false" android:alpha="0.5" android:color="#fff1f1f1" />
-    <item android:alpha="0.54" android:color="#fff1f1f1" />
+    <item android:state_enabled="false" android:alpha="0.26" android:color="@android:color/black" />
+    <item android:alpha="0.54" android:color="@android:color/black" />
 </selector>

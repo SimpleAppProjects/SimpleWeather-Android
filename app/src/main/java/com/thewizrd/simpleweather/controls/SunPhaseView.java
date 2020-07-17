@@ -31,6 +31,8 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.util.Arrays;
 
 public class SunPhaseView extends View {
+    private Configuration currentConfig;
+
     private int mViewHeight;
     private int mViewWidth;
     private float bottomTextHeight = 0;
@@ -61,6 +63,8 @@ public class SunPhaseView extends View {
 
     public SunPhaseView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        this.currentConfig = new Configuration(context.getResources().getConfiguration());
+
         bottomTextPaint = new Paint();
 
         bottomTextPaint.setAntiAlias(true);
@@ -68,6 +72,8 @@ public class SunPhaseView extends View {
         bottomTextPaint.setTextAlign(Paint.Align.CENTER);
         bottomTextPaint.setStyle(Paint.Style.FILL);
         bottomTextPaint.setColor(BOTTOM_TEXT_COLOR);
+
+        updateColors();
     }
 
     private float getGraphHeight() {
@@ -299,6 +305,15 @@ public class SunPhaseView extends View {
         canvas.drawText(getSunsetLabel(), sunsetX, y, bottomTextPaint);
     }
 
+    private void updateColors() {
+        final int systemNightMode = currentConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        final boolean isNightMode = systemNightMode == Configuration.UI_MODE_NIGHT_YES;
+
+        setTextColor(isNightMode ? Colors.WHITE : Colors.BLACK);
+        setPhaseArcColor(isNightMode ? Colors.WHITE : Colors.BLACK);
+        setPaintColor(isNightMode ? Colors.YELLOW : Colors.ORANGE);
+    }
+
     private void refreshAfterDataChanged() {
         refreshXCoordinateList();
     }
@@ -325,6 +340,9 @@ public class SunPhaseView extends View {
     @Override
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        currentConfig = new Configuration(newConfig);
+        updateColors();
+
         invalidate();
     }
 

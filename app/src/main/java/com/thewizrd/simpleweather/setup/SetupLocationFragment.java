@@ -5,10 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -26,10 +23,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
-import androidx.core.view.OnApplyWindowInsetsListener;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.transition.Transition;
@@ -66,7 +59,6 @@ import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CustomException;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -148,34 +140,11 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
         mStepperLayout = getAppCompatActivity().findViewById(R.id.stepperLayout);
         mStepperNavBar = getAppCompatActivity().findViewById(R.id.ms_bottomNavigation);
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.searchFragmentContainer, new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-                layoutParams.setMargins(insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), 0);
-                return insets;
-            }
-        });
-
         binding.progressBar.setVisibility(View.GONE);
 
         // NOTE: Bug: Explicitly set tintmode on Lollipop devices
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP)
             binding.progressBar.setIndeterminateTintMode(PorterDuff.Mode.SRC_IN);
-
-        // Tint drawable in button view
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-            for (Drawable drawable : binding.gpsFollow.getCompoundDrawables()) {
-                if (drawable != null) {
-                    Configuration config = getAppCompatActivity().getResources().getConfiguration();
-                    final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-
-                    drawable.setColorFilter(new PorterDuffColorFilter(
-                            currentNightMode == Configuration.UI_MODE_NIGHT_YES ? Colors.WHITE : Colors.SIMPLEBLUE, PorterDuff.Mode.SRC_IN));
-                    TextViewCompat.setCompoundDrawablesRelative(binding.gpsFollow, drawable, null, null, null);
-                }
-            }
-        }
 
         /* Event Listeners */
         binding.searchBar.searchViewContainer.setOnClickListener(new View.OnClickListener() {

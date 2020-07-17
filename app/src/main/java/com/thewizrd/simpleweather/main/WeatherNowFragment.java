@@ -7,9 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
-import android.graphics.Outline;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
@@ -31,7 +29,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.ViewOutlineProvider;
 import android.view.ViewStub;
 import android.view.ViewTreeObserver;
 import android.webkit.RenderProcessGoneDetail;
@@ -47,7 +44,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.WrappedDrawable;
 import androidx.core.location.LocationManagerCompat;
@@ -62,10 +58,6 @@ import androidx.databinding.BindingAdapter;
 import androidx.databinding.DataBindingComponent;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.Observable;
-import androidx.databinding.ObservableBoolean;
-import androidx.databinding.ObservableField;
-import androidx.databinding.ObservableFloat;
-import androidx.databinding.ObservableInt;
 import androidx.databinding.library.baseAdapters.BR;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -104,7 +96,6 @@ import com.thewizrd.shared_resources.controls.SunPhaseViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
-import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
@@ -139,7 +130,6 @@ import com.thewizrd.simpleweather.databinding.WeathernowMoonphasecontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowRadarcontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowUvcontrolBinding;
 import com.thewizrd.simpleweather.fragments.WindowColorFragment;
-import com.thewizrd.simpleweather.helpers.DarkMode;
 import com.thewizrd.simpleweather.helpers.RadarWebClient;
 import com.thewizrd.simpleweather.helpers.TransitionHelper;
 import com.thewizrd.simpleweather.helpers.WebViewHelper;
@@ -165,14 +155,6 @@ public class WeatherNowFragment extends WindowColorFragment
         implements WeatherRequest.WeatherErrorListener {
     private LocationData location = null;
     private boolean loaded = false;
-    private ObservableInt backgroundAlpha;
-    private ObservableFloat gradientAlpha;
-    private ObservableField<DarkMode> mDarkThemeMode;
-    private ObservableBoolean isLightBackground;
-    private @ColorInt
-    int mSystemBarColor;
-    private @ColorInt
-    int mBackgroundColor;
 
     private WeatherManager wm;
     private WeatherDataLoader wLoader = null;
@@ -460,15 +442,6 @@ public class WeatherNowFragment extends WindowColorFragment
         weatherView = vmProvider.get(WeatherNowViewModel.class);
         forecastsView = vmProvider.get(ForecastGraphViewModel.class);
         alertsView = vmProvider.get(WeatherAlertsViewModel.class);
-        backgroundAlpha = new ObservableInt(0xFF); // int: 255
-        gradientAlpha = new ObservableFloat(1.0f);
-        // Dark Mode fields
-        if (systemNightMode == Configuration.UI_MODE_NIGHT_YES) {
-            mDarkThemeMode = new ObservableField<>(Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK ? DarkMode.AMOLED_DARK : DarkMode.ON);
-        } else {
-            mDarkThemeMode = new ObservableField<>(DarkMode.OFF);
-        }
-        isLightBackground = new ObservableBoolean(false);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -482,10 +455,6 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.setWeatherView(weatherView);
         binding.setForecastsView(forecastsView);
         binding.setAlertsView(alertsView);
-        binding.setBackgroundAlpha(backgroundAlpha);
-        binding.setGradientAlpha(gradientAlpha);
-        binding.setDarkMode(mDarkThemeMode);
-        binding.setIsLightBackground(isLightBackground);
         binding.setLifecycleOwner(this);
 
         View view = binding.getRoot();
@@ -494,41 +463,11 @@ public class WeatherNowFragment extends WindowColorFragment
         view.requestFocus();
 
         // Setup ActionBar
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            binding.appBar.setOutlineProvider(new ViewOutlineProvider() {
-                @Override
-                public void getOutline(View view, Outline outline) {
-                    // L, T, R, B
-                    outline.setRect(view.getPaddingStart(), view.getHeight(), view.getWidth() + view.getPaddingEnd(), view.getHeight() + 1);
-                    outline.setAlpha(1.0f);
-                }
-            });
-        }
-
         ViewCompat.setOnApplyWindowInsetsListener(binding.appBar, new OnApplyWindowInsetsListener() {
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
                 ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
                 return insets.replaceSystemWindowInsets(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
-            }
-        });
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.gradientView, new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-                layoutParams.topMargin = -insets.getSystemWindowInsetTop();
-                layoutParams.bottomMargin = -insets.getSystemWindowInsetBottom();
-                return insets;
-            }
-        });
-        ViewCompat.setOnApplyWindowInsetsListener(binding.imageView, new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-                layoutParams.topMargin = -insets.getSystemWindowInsetTop();
-                layoutParams.bottomMargin = -insets.getSystemWindowInsetBottom();
-                return insets;
             }
         });
 
@@ -552,10 +491,8 @@ public class WeatherNowFragment extends WindowColorFragment
                 float adj = 1.25f;
                 int backAlpha = 0xFF - (int) (0xFF * adj * scrollY / (binding.conditionPanel.getHeight()));
                 float gradAlpha = 1.0f - (1.0f * adj * scrollY / (binding.conditionPanel.getHeight()));
-                backgroundAlpha.set(Math.max(backAlpha, 0x25));
-                gradientAlpha.set(Math.max(gradAlpha, 0));
-
-                updateWindowColorsForGradient();
+                binding.imageView.setImageAlpha(Math.max(backAlpha, 0x25));
+                binding.gradientView.setAlpha(Math.max(gradAlpha, 0));
             }
         });
         binding.scrollView.setOnFlingListener(new ObservableNestedScrollView.OnFlingListener() {
@@ -770,7 +707,6 @@ public class WeatherNowFragment extends WindowColorFragment
             public void onInflate(ViewStub stub, View inflated) {
                 WeathernowUvcontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
                 binding.setWeatherView(weatherView);
-                binding.setIsLightBackground(isLightBackground);
                 binding.setLifecycleOwner(WeatherNowFragment.this);
             }
         });
@@ -781,7 +717,6 @@ public class WeatherNowFragment extends WindowColorFragment
             public void onInflate(ViewStub stub, View inflated) {
                 WeathernowBeaufortcontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
                 binding.setWeatherView(weatherView);
-                binding.setIsLightBackground(isLightBackground);
                 binding.setLifecycleOwner(WeatherNowFragment.this);
             }
         });
@@ -792,7 +727,6 @@ public class WeatherNowFragment extends WindowColorFragment
             public void onInflate(ViewStub stub, View inflated) {
                 WeathernowAqicontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
                 binding.setWeatherView(weatherView);
-                binding.setIsLightBackground(isLightBackground);
                 binding.setLifecycleOwner(WeatherNowFragment.this);
             }
         });
@@ -803,7 +737,6 @@ public class WeatherNowFragment extends WindowColorFragment
             public void onInflate(ViewStub stub, View inflated) {
                 WeathernowMoonphasecontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
                 binding.setWeatherView(weatherView);
-                binding.setIsLightBackground(isLightBackground);
                 binding.setLifecycleOwner(WeatherNowFragment.this);
             }
         });
@@ -837,7 +770,6 @@ public class WeatherNowFragment extends WindowColorFragment
                     binding.radarWebviewCover.bringToFront();
 
                     binding.setWeatherView(weatherView);
-                    binding.setIsLightBackground(isLightBackground);
                     binding.setLifecycleOwner(WeatherNowFragment.this);
 
                     navigateToRadarURL();
@@ -888,11 +820,6 @@ public class WeatherNowFragment extends WindowColorFragment
                         if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible()) {
                             if (propertyId == 0) {
                                 updateView();
-                            } else if (propertyId == BR.imageData) {
-                                // Background
-                                adjustGradientView();
-                            } else if (propertyId == BR.pendingBackground) {
-                                updateWindowColors();
                             } else if (propertyId == BR.location) {
                                 adjustConditionPanelLayout();
                             } else if (propertyId == BR.uvIndex) {
@@ -1003,6 +930,23 @@ public class WeatherNowFragment extends WindowColorFragment
                 }
             });
         }
+
+        // Restrict control to Kitkat+ for Chromium WebView
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (weatherView.getRadarURL() != null) {
+                if (binding.radarControl.getViewStub() != null) {
+                    binding.radarControl.getViewStub().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (isAlive() && binding.radarControl.getViewStub() != null)
+                                binding.radarControl.getViewStub().inflate();
+                        }
+                    }, 1000);
+                } else {
+                    navigateToRadarURL();
+                }
+            }
+        }
     }
 
     @Override
@@ -1025,13 +969,6 @@ public class WeatherNowFragment extends WindowColorFragment
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        final int systemNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        if (systemNightMode == Configuration.UI_MODE_NIGHT_YES) {
-            mDarkThemeMode.set(Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK ? DarkMode.AMOLED_DARK : DarkMode.ON);
-        } else {
-            mDarkThemeMode.set(DarkMode.OFF);
-        }
-
         weatherView.notifyChange();
 
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(getAppCompatActivity(), R.color.invButtonColor));
@@ -1045,7 +982,6 @@ public class WeatherNowFragment extends WindowColorFragment
                 if (!isAlive()) return;
                 binding.getRoot().getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-                adjustGradientView();
                 adjustConditionPanelLayout();
             }
         });
@@ -1183,10 +1119,6 @@ public class WeatherNowFragment extends WindowColorFragment
         }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Boolean>() {
             @Override
             public void onSuccess(Boolean locationChanged) {
-                if (locationChanged && requireArguments().getBoolean(Constants.FRAGTAG_HOME)) {
-                    updateWindowColors();
-                }
-
                 // New fragment instance -> loaded = true
                 // Navigating back to existing fragment instance => loaded = false
                 // Weather location changed (ex. due to GPS setting) -> locationChanged = true
@@ -1236,6 +1168,9 @@ public class WeatherNowFragment extends WindowColorFragment
                         @Override
                         public void run() {
                             webView.resumeTimers();
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                                navigateToRadarURL();
+                            }
                         }
                     });
                 }
@@ -1284,6 +1219,9 @@ public class WeatherNowFragment extends WindowColorFragment
                         @Override
                         public void run() {
                             webView.resumeTimers();
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                                navigateToRadarURL();
+                            }
                         }
                     });
                 }
@@ -1438,44 +1376,33 @@ public class WeatherNowFragment extends WindowColorFragment
     private void adjustDetailsLayout() {
         if (!isAlive() || binding.scrollView.getChildCount() != 1) return;
 
-        float pxWidth = binding.scrollView.getChildAt(0).getWidth();
+        binding.detailsContainer.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                binding.detailsContainer.getViewTreeObserver().removeOnPreDrawListener(this);
 
-        int minColumns = ActivityUtils.isLargeTablet(getAppCompatActivity()) ? 3 : 2;
+                float pxWidth = binding.scrollView.getChildAt(0).getWidth();
 
-        // Minimum width for ea. card
-        int minWidth = getAppCompatActivity().getResources().getDimensionPixelSize(R.dimen.detail_grid_column_width);
-        // Available columns based on min card width
-        int availColumns = ((int) (pxWidth / minWidth)) <= 1 ? minColumns : (int) (pxWidth / minWidth);
+                int minColumns = ActivityUtils.isLargeTablet(getAppCompatActivity()) ? 3 : 2;
 
-        binding.detailsContainer.setNumColumns(availColumns);
+                // Minimum width for ea. card
+                int minWidth = getAppCompatActivity().getResources().getDimensionPixelSize(R.dimen.detail_grid_column_width);
+                // Available columns based on min card width
+                int availColumns = ((int) (pxWidth / minWidth)) <= 1 ? minColumns : (int) (pxWidth / minWidth);
 
-        boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
+                binding.detailsContainer.setNumColumns(availColumns);
 
-        int horizMargin = 16;
-        int marginMultiplier = isLandscape ? 2 : 3;
-        int itemSpacing = availColumns < 3 ? horizMargin * (availColumns - 1) : horizMargin * marginMultiplier;
-        binding.detailsContainer.setHorizontalSpacing(itemSpacing);
-        binding.detailsContainer.setVerticalSpacing(itemSpacing);
-    }
+                boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
 
-    private void adjustGradientView() {
-        /*
-         * NOTE
-         *
-         * BUG: Re-set the radius for the background_overlay drawable
-         * For some reason the %p suffix does not work on pre-Lollipop devices
-         */
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            int height = binding.getRoot().getHeight();
-            int width = binding.getRoot().getWidth();
+                int horizMargin = 16;
+                int marginMultiplier = isLandscape ? 2 : 3;
+                int itemSpacing = availColumns < 3 ? horizMargin * (availColumns - 1) : horizMargin * marginMultiplier;
+                binding.detailsContainer.setHorizontalSpacing(itemSpacing);
+                binding.detailsContainer.setVerticalSpacing(itemSpacing);
 
-            if (binding.gradientView.getBackground() instanceof GradientDrawable && height > 0 && width > 0) {
-                GradientDrawable drawable = ((GradientDrawable) binding.gradientView.getBackground().mutate());
-                float radius = 1.5f;
-                radius *= Math.min(width, height);
-                drawable.setGradientRadius(radius);
+                return true;
             }
-        }
+        });
     }
 
     @Override
@@ -1484,75 +1411,23 @@ public class WeatherNowFragment extends WindowColorFragment
 
         Configuration config = getAppCompatActivity().getResources().getConfiguration();
         final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        final UserThemeMode userNightMode = Settings.getUserThemeMode();
 
-        DarkMode mode;
+        @ColorInt int bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
         if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
-            mode = Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK ? DarkMode.AMOLED_DARK : DarkMode.ON;
-        } else {
-            mode = DarkMode.OFF;
-        }
-
-        if (mDarkThemeMode != null) {
-            mDarkThemeMode.set(mode);
-        }
-
-        if (currentNightMode != Configuration.UI_MODE_NIGHT_YES) {
-            if (weatherView != null && weatherView.getPendingBackground() != -1) {
-                int color = weatherView.getPendingBackground();
-                if (ColorsUtils.isSuperLight(color)) {
-                    color = ColorUtils.blendARGB(color, Colors.BLACK, 0.25f);
-                }
-                mSystemBarColor = color;
+            if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+                bg_color = Colors.BLACK;
             } else {
-                mSystemBarColor = ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary);
-            }
-            mBackgroundColor = mSystemBarColor;
-        } else {
-            if (userNightMode == UserThemeMode.AMOLED_DARK) {
-                mBackgroundColor = mSystemBarColor = Colors.BLACK;
-            } else {
-                mSystemBarColor = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-                if (weatherView != null && weatherView.getPendingBackground() != -1) {
-                    if (ColorsUtils.isSuperLight(weatherView.getPendingBackground())) {
-                        mBackgroundColor = ColorUtils.blendARGB(weatherView.getPendingBackground(), Colors.BLACK, 0.75f);
-                        if (userNightMode == UserThemeMode.FOLLOW_SYSTEM) {
-                            mSystemBarColor = ColorUtils.blendARGB(weatherView.getPendingBackground(), Colors.BLACK, 0.5f);
-                        }
-                    } else {
-                        if (userNightMode == UserThemeMode.FOLLOW_SYSTEM) {
-                            mBackgroundColor = mSystemBarColor = weatherView.getPendingBackground();
-                        } else {
-                            mBackgroundColor = mSystemBarColor;
-                        }
-                    }
-                } else {
-                    mBackgroundColor = mSystemBarColor;
-                }
+                bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
             }
         }
 
-        isLightBackground.set(ColorsUtils.isSuperLight(mBackgroundColor));
-        updateWindowColorsForGradient();
-        binding.getRoot().setBackgroundColor(mBackgroundColor);
-    }
-
-    private void updateWindowColorsForGradient() {
-        if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible() && getSysBarColorMgr() != null) {
-            boolean override = isLightBackground.get();
-
-            if (gradientAlpha.get() <= 0.5f && mDarkThemeMode.get() == DarkMode.OFF) {
-                if (override)
-                    getSysBarColorMgr().setSystemBarColors(mSystemBarColor, true);
-                else
-                    getSysBarColorMgr().setSystemBarColors(mSystemBarColor);
-            } else {
-                if (override)
-                    getSysBarColorMgr().setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT, true);
-                else
-                    getSysBarColorMgr().setSystemBarColors(mBackgroundColor, Colors.TRANSPARENT, mSystemBarColor, Colors.TRANSPARENT);
-            }
+        if (getSysBarColorMgr() != null) {
+            getSysBarColorMgr().setSystemBarColors(bg_color);
         }
+
+        binding.appBar.setBackgroundColor(bg_color);
+        binding.rootView.setStatusBarBackgroundColor(bg_color);
+        binding.getRoot().setBackgroundColor(bg_color);
     }
 
     private void updateView() {
@@ -1738,8 +1613,10 @@ public class WeatherNowFragment extends WindowColorFragment
             radarcontrolBinding.radarWebviewContainer.addView(webView = createWebView());
         }
 
-        if (!StringUtils.isNullOrWhitespace(weatherView.getRadarURL())) {
-            WebViewHelper.loadUrl(webView, weatherView.getRadarURL());
+        if (!isHidden() && !StringUtils.isNullOrWhitespace(weatherView.getRadarURL())) {
+            if (!ObjectsCompat.equals(webView.getOriginalUrl(), weatherView.getRadarURL())) {
+                WebViewHelper.loadUrl(webView, weatherView.getRadarURL());
+            }
         } else {
             webView.stopLoading();
             WebViewHelper.loadBlank(webView);
@@ -1841,54 +1718,6 @@ public class WeatherNowFragment extends WindowColorFragment
         public <T extends BaseForecastItemViewModel> void updateForecastGraph(final ForecastGraphPanel view, final List<T> forecasts) {
             view.updateForecasts((List<BaseForecastItemViewModel>) forecasts);
         }
-
-        /* BindingAdapters for dark mode (text color for views) */
-        @BindingAdapter("lightThemeEnabled")
-        public void setTextColor(TextView view, boolean enabled) {
-            view.setTextColor(enabled ? Colors.BLACK : Colors.WHITE);
-            view.setLinkTextColor(enabled ? Colors.SIMPLEBLUEDARK : Colors.SIMPLEBLUELIGHT);
-            view.setShadowLayer(view.getShadowRadius(), view.getShadowDx(), view.getShadowDy(), enabled ? Colors.GRAY : Colors.BLACK);
-        }
-
-        @BindingAdapter("lightThemeEnabled")
-        public void setBackgroundColor(View view, boolean enabled) {
-            int color = enabled ? Colors.BLACK : Colors.WHITE;
-            if (!(view.getBackground() instanceof ColorDrawable)) {
-                view.setBackgroundColor(color);
-            } else {
-                ColorDrawable drawable = (ColorDrawable) view.getBackground();
-                if (drawable.getColor() != color) {
-                    view.setBackgroundColor(color);
-                }
-            }
-        }
-
-        @BindingAdapter("lightThemeEnabled")
-        public void updateForecastGraphColors(ForecastGraphPanel view, boolean enabled) {
-            view.updateColors(enabled);
-        }
-
-        @BindingAdapter("darkMode")
-        public void updateRecyclerViewColors(GridView view, DarkMode mode) {
-            if (view.getAdapter() instanceof DetailsItemGridAdapter) {
-                ((DetailsItemGridAdapter) view.getAdapter()).setDarkThemeMode(mode);
-            }
-        }
-
-        @BindingAdapter(value = {"itemColor", "lightThemeEnabled"}, requireAll = true)
-        public void updateRecyclerViewColors(GridView view, @ColorInt int color, boolean enabled) {
-            if (view.getAdapter() instanceof DetailsItemGridAdapter) {
-                ((DetailsItemGridAdapter) view.getAdapter()).setItemColor(color, enabled);
-            }
-        }
-
-        @BindingAdapter("lightThemeEnabled")
-        public void updateSunPhaseViewColors(SunPhaseView view, boolean enabled) {
-            view.setTextColor(enabled ? Colors.BLACK : Colors.WHITE);
-            view.setPhaseArcColor(enabled ? Colors.BLACK : Colors.WHITE);
-            view.setPaintColor(enabled ? Colors.ORANGE : Colors.YELLOW);
-        }
-        /* End of BindingAdapters for dark mode */
 
         @BindingAdapter("sunPhase")
         public void updateSunPhasePanel(SunPhaseView view, SunPhaseViewModel sunPhase) {

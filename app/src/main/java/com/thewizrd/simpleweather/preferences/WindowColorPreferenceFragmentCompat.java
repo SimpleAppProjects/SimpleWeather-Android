@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.preferences;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,6 +17,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewGroupCompat;
@@ -120,6 +123,11 @@ public abstract class WindowColorPreferenceFragmentCompat extends CustomPreferen
                 getAppCompatActivity().onBackPressed();
             }
         });
+
+        Context context = root.getContext();
+        Drawable navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, ActivityUtils.getResourceId(getAppCompatActivity(), R.attr.homeAsUpIndicator)));
+        DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText));
+        binding.toolbar.setNavigationIcon(navIcon);
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.appBar, new OnApplyWindowInsetsListener() {
             @Override
@@ -233,7 +241,6 @@ public abstract class WindowColorPreferenceFragmentCompat extends CustomPreferen
         }
         final int currentNightMode = currentConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
-        int color = ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary);
         int bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
         if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
             if (mode == UserThemeMode.AMOLED_DARK) {
@@ -241,13 +248,12 @@ public abstract class WindowColorPreferenceFragmentCompat extends CustomPreferen
             } else {
                 bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
             }
-            color = bg_color;
         }
         binding.coordinatorLayout.setBackgroundColor(bg_color);
-        binding.appBar.setBackgroundColor(color);
-        binding.coordinatorLayout.setStatusBarBackgroundColor(color);
+        binding.appBar.setBackgroundColor(bg_color);
+        binding.coordinatorLayout.setStatusBarBackgroundColor(bg_color);
         if (mSysBarColorsIface != null) {
-            mSysBarColorsIface.setSystemBarColors(bg_color, color, color, color);
+            mSysBarColorsIface.setSystemBarColors(bg_color);
         }
     }
 }

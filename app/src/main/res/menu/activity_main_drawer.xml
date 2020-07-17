@@ -7,8 +7,12 @@
             android:icon="@drawable/day_cloudy"
             android:title="@string/label_nav_weathernow" />
         <item
+            android:id="@+id/nav_radar"
+            android:icon="@drawable/ic_radar"
+            android:title="@string/label_radar" />
+        <item
             android:id="@+id/nav_locations"
-            android:icon="@drawable/ic_list_icon"
+            android:icon="@drawable/ic_star_border"
             android:title="@string/label_nav_locations" />
         <item
             android:id="@+id/nav_settings"

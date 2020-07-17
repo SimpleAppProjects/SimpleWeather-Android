@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- this is needed as preference_category_material layout uses this color as the text color -->
+    <color name="preference_fallback_accent_color" tools:override="true">@color/colorPrimaryLight
+    </color>
+
     <color name="design_snackbar_background_color" tools:override="true">#484848</color>
+
+    <color name="sun_color">#FFFFFF00</color>
+    <color name="beaufort_color">#FF1E90FF</color>
+
 </resources>

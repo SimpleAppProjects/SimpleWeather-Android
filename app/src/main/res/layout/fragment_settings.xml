@@ -5,15 +5,13 @@
     android:id="@+id/coordinator_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/colorBackground"
-    app:statusBarBackground="?attr/colorPrimary"
     tools:context=".preferences.SettingsFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
+        style="@style/Widget.MaterialComponents.AppBarLayout.Surface"
         android:fitsSystemWindows="true"
         android:stateListAnimator="@animator/design_appbar_state_list_animator"
         android:theme="@style/AppTheme.AppBarOverlay"
@@ -26,8 +24,8 @@
             android:layout_height="?attr/actionBarSize"
             app:layout_collapseMode="pin"
             app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:navigationIcon="?attr/homeAsUpIndicator"
-            app:title="@string/title_activity_settings" />
+            app:title="@string/title_activity_settings"
+            app:titleTextColor="@color/invButtonColorText" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

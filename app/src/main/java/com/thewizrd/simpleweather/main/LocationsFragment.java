@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
-import android.graphics.drawable.ColorDrawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -28,7 +27,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
@@ -36,6 +34,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.view.MarginLayoutParamsCompat;
+import androidx.core.view.MenuItemCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewGroupCompat;
@@ -76,7 +75,6 @@ import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ListChangedAction;
 import com.thewizrd.shared_resources.helpers.ListChangedArgs;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
@@ -84,14 +82,12 @@ import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.CustomException;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
-import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
@@ -664,13 +660,6 @@ public class LocationsFragment extends ToolbarFragment
     }
 
     @Override
-    public void updateWindowColors() {
-        super.updateWindowColors();
-
-        binding.fab.setBackgroundTintList(ColorStateList.valueOf(ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary)));
-    }
-
-    @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
@@ -692,6 +681,7 @@ public class LocationsFragment extends ToolbarFragment
             editMenuBtn.setIcon(mEditMode ? R.drawable.ic_done_white_24dp : R.drawable.ic_mode_edit_white_24dp);
             // Change EditMode button label
             editMenuBtn.setTitle(mEditMode ? R.string.abc_action_mode_done : R.string.action_editmode);
+            MenuItemCompat.setIconTintList(editMenuBtn, ColorStateList.valueOf(ContextCompat.getColor(getAppCompatActivity(), R.color.invButtonColorText)));
         }
     }
 
@@ -1137,31 +1127,6 @@ public class LocationsFragment extends ToolbarFragment
         AnalyticsLogger.logEvent("LocationsFragment: prepareSearchUI");
 
         mBottomNavView.setVisibility(View.GONE);
-        if (getSysBarColorMgr() != null) {
-            @ColorInt int bg_color;
-            @ColorInt int color;
-
-            if (getRootView() != null && getRootView().getBackground() instanceof ColorDrawable &&
-                    getRootView().getStatusBarBackground() instanceof ColorDrawable) {
-                bg_color = ((ColorDrawable) getRootView().getBackground()).getColor();
-                color = ((ColorDrawable) getRootView().getStatusBarBackground()).getColor();
-            } else {
-                Configuration config = getCurrentConfiguration();
-                final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-                bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-                color = ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary);
-                if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
-                    if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
-                        bg_color = Colors.BLACK;
-                    } else {
-                        bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-                    }
-                    color = bg_color;
-                }
-            }
-
-            ActivityUtils.setTransparentWindow(getAppCompatActivity().getWindow(), bg_color, color, bg_color, true);
-        }
         enterSearchUi();
         enterSearchUiTransition(new Animation.AnimationListener() {
             @Override
@@ -1590,6 +1555,7 @@ public class LocationsFragment extends ToolbarFragment
             editMenuBtn.setIcon(mEditMode ? R.drawable.ic_done_white_24dp : R.drawable.ic_mode_edit_white_24dp);
             // Change EditMode button label
             editMenuBtn.setTitle(mEditMode ? R.string.abc_action_mode_done : R.string.action_editmode);
+            MenuItemCompat.setIconTintList(editMenuBtn, ColorStateList.valueOf(ContextCompat.getColor(getAppCompatActivity(), R.color.invButtonColorText)));
         }
 
         // Set Drag & Swipe ability

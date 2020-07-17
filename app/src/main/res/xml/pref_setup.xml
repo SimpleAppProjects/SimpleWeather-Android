@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:iconSpaceReserved="false">
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="key_usecelsius"
+        android:summaryOff="@string/pref_summary_fahrenheit"
+        android:summaryOn="@string/pref_summary_celsius"
+        android:title="@string/pref_title_units"
+        app:allowDividerAbove="true"
+        app:allowDividerBelow="true"
+        app:iconSpaceReserved="false" />
+
+    <ListPreference
+        android:defaultValue="60"
+        android:entries="@array/refreshinterval_entries"
+        android:entryValues="@array/refreshinterval_values"
+        android:key="key_refreshinterval"
+        android:summary="%s"
+        android:title="@string/pref_title_refreshinterval"
+        app:allowDividerAbove="true"
+        app:allowDividerBelow="true"
+        app:iconSpaceReserved="false" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="key_ongoingnotification"
+        android:summary="@string/pref_summary_notification"
+        android:title="@string/pref_title_onnotification"
+        app:allowDividerAbove="true"
+        app:allowDividerBelow="true"
+        app:iconSpaceReserved="false" />
+
+    <ListPreference
+        android:defaultValue="0"
+        android:dependency="key_ongoingnotification"
+        android:entries="@array/notification_entries"
+        android:entryValues="@array/notification_values"
+        android:key="key_notificationicon"
+        android:summary="%s"
+        android:title="@string/pref_title_notificationicon"
+        app:allowDividerAbove="true"
+        app:allowDividerBelow="true"
+        app:iconSpaceReserved="false" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="key_usealerts"
+        android:summary="@string/pref_summary_alerts"
+        android:title="@string/pref_title_alerts"
+        app:allowDividerAbove="true"
+        app:allowDividerBelow="true"
+        app:iconSpaceReserved="false" />
+
+</PreferenceScreen>

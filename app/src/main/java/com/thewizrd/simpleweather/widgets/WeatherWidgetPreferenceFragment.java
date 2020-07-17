@@ -7,8 +7,10 @@ import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -45,8 +47,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.ColorUtils;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.location.LocationManagerCompat;
+import androidx.core.view.MenuItemCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -113,7 +116,6 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.fragments.LocationSearchFragment;
 import com.thewizrd.simpleweather.preferences.ArrayListPreference;
-import com.thewizrd.simpleweather.preferences.CustomListPreferenceDialogFragment;
 import com.thewizrd.simpleweather.preferences.CustomPreferenceFragmentCompat;
 import com.thewizrd.simpleweather.setup.SetupActivity;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
@@ -283,14 +285,6 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
         // Make full transparent statusBar
         updateWindowColors();
 
-        ViewCompat.setOnApplyWindowInsetsListener(appBarLayout, new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
-                return insets;
-            }
-        });
-
         ViewCompat.setOnApplyWindowInsetsListener(mScrollView, new OnApplyWindowInsetsListener() {
             private int paddingStart = ViewCompat.getPaddingStart(mScrollView);
             private int paddingTop = mScrollView.getPaddingTop();
@@ -326,7 +320,11 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
 
         getAppCompatActivity().setSupportActionBar(mToolbar);
         getAppCompatActivity().getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getAppCompatActivity().getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
+
+        Context context = root.getContext();
+        Drawable navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, ActivityUtils.getResourceId(getAppCompatActivity(), R.attr.homeAsUpIndicator)));
+        DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText));
+        getAppCompatActivity().getSupportActionBar().setHomeAsUpIndicator(navIcon);
 
         mSearchFragmentContainer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -890,36 +888,6 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
     }
 
     @Override
-    public void onDisplayPreferenceDialog(Preference preference) {
-        final String TAG = "CustomListPreferenceDialogFragment";
-
-        // check if dialog is already showing
-        if (getActivity() == null || getActivity().getSupportFragmentManager().findFragmentByTag(TAG) != null)
-            return;
-
-        if ((preference instanceof ListPreference)) {
-            final CustomListPreferenceDialogFragment f = CustomListPreferenceDialogFragment.newInstance(preference.getKey());
-            f.setTargetFragment(this, 0);
-            if (ActivityUtils.isSmallestWidth(getAppCompatActivity(), 400) &&
-                    (ActivityUtils.getOrientation(getAppCompatActivity()) != Configuration.ORIENTATION_LANDSCAPE || ActivityUtils.isLargeTablet(getAppCompatActivity()))) {
-                f.show(getActivity().getSupportFragmentManager(), TAG);
-            } else {
-                f.setOnDialogClosedListener(new CustomListPreferenceDialogFragment.OnDialogClosedListener() {
-                    @Override
-                    public void onDialogClosed() {
-                        mDialogFragmentContainer.setVisibility(View.GONE);
-                    }
-                });
-                f.showFullScreen(getActivity().getSupportFragmentManager(), R.id.dialog_fragment_container, null);
-                mDialogFragmentContainer.bringToFront();
-                mDialogFragmentContainer.setVisibility(View.VISIBLE);
-            }
-        } else {
-            super.onDisplayPreferenceDialog(preference);
-        }
-    }
-
-    @Override
     public boolean onBackPressed() {
         if (inSearchUI) {
             // We should let the user go back to usual screens with tabs.
@@ -957,20 +925,6 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
          * This is handled on API 21+ with the translationZ attribute
          */
         mSearchFragmentContainer.bringToFront();
-
-        final Configuration config = this.getResources().getConfiguration();
-        final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        @ColorInt int bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-        @ColorInt int color = ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary);
-        if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
-            if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
-                bg_color = Colors.BLACK;
-            } else {
-                bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-            }
-            color = bg_color;
-        }
-        ActivityUtils.setTransparentWindow(getAppCompatActivity().getWindow(), bg_color, color, bg_color, true);
 
         enterSearchUi();
         enterSearchUiTransition(new Animation.AnimationListener() {
@@ -1257,30 +1211,22 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
 
     private void updateWindowColors() {
         final Configuration config = this.getResources().getConfiguration();
+        final boolean isLandscapeMode = config.orientation != Configuration.ORIENTATION_PORTRAIT && !ActivityUtils.isLargeTablet(getAppCompatActivity());
 
         // Set user theme
-        int bg_color;
-        if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
-            bg_color = Colors.BLACK;
-            appBarLayout.setBackgroundColor(Colors.BLACK);
-            ActivityUtils.setTransparentWindow(getAppCompatActivity().getWindow(), bg_color,
-                    Colors.BLACK, /* StatusBar */
-                    Colors.TRANSPARENT /* NavBar */,
-                    false);
-        } else {
-            final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-            boolean isDarkMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
-
-            bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-            int colorPrimary = ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary);
-            int color = isDarkMode ? bg_color : colorPrimary;
-            appBarLayout.setBackgroundColor(color);
-            ActivityUtils.setTransparentWindow(getAppCompatActivity().getWindow(), bg_color,
-                    color, /* StatusBar */
-                    config.orientation == Configuration.ORIENTATION_PORTRAIT || ActivityUtils.isLargeTablet(getAppCompatActivity()) ? ColorUtils.setAlphaComponent(bg_color, 0xB3) : color /* NavBar */,
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+        final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        @ColorInt int bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
+        if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
+            if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+                bg_color = Colors.BLACK;
+            } else {
+                bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
+            }
         }
+
+        // Actionbar, BottomNavBar & StatusBar
         mRootView.setBackgroundColor(bg_color);
+        ActivityUtils.setTransparentWindow(getAppCompatActivity().getWindow(), bg_color, Colors.TRANSPARENT, isLandscapeMode ? bg_color : Colors.TRANSPARENT, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
     }
 
     @Override
@@ -1380,6 +1326,11 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
         // Inflate the menu; this adds items to the action bar if it is present.
         menu.clear();
         menuInflater.inflate(R.menu.menu_widgetsetup, menu);
+
+        for (int i = 0; i < menu.size(); i++) {
+            MenuItem item = menu.getItem(i);
+            MenuItemCompat.setIconTintList(item, ColorStateList.valueOf(ContextCompat.getColor(getAppCompatActivity(), R.color.invButtonColorText)));
+        }
     }
 
     @Override

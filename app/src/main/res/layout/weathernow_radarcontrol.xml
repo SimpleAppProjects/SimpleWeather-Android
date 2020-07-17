@@ -10,10 +10,6 @@
             name="weatherView"
             type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
 
-        <variable
-            name="isLightBackground"
-            type="androidx.databinding.ObservableBoolean" />
-
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -28,11 +24,10 @@
             android:layout_height="wrap_content"
             android:padding="12dp"
             android:text="@string/label_radar"
-            android:textAppearance="?android:textAppearanceMediumInverse"
-            android:textColor="@android:color/white"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textColor="@color/colorTextPrimary"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:lightThemeEnabled="@{isLightBackground}"
             app:layout_constraintBottom_toTopOf="@id/radar_webview_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -79,10 +74,9 @@
             android:paddingRight="12dp"
             android:paddingBottom="12dp"
             android:text="@{@string/credit_prefix + ` ` + @string/radar_earthnullschool}"
-            android:textAppearance="?android:textAppearanceMediumInverse"
-            android:textColor="@android:color/white"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textColor="@color/colorTextPrimary"
             android:textSize="12sp"
-            app:lightThemeEnabled="@{isLightBackground}"
             app:layout_constraintBottom_toTopOf="@id/border"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -93,8 +87,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:alpha="0.2"
-            android:background="@android:color/white"
-            app:lightThemeEnabled="@{isLightBackground}"
+            android:background="@color/colorOnSurface"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -5,7 +5,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorPrimaryLight</item>
+        <item name="colorAccent">@color/colorPrimary</item>
         <item name="colorSecondary">@color/colorPrimaryLight</item>
         <item name="android:colorBackground">@color/colorBackground</item>
         <item name="colorSurface">@color/colorSurface</item>
@@ -16,8 +16,6 @@
         <item name="colorOnBackground">@color/colorOnBackground</item>
         <item name="colorOnSurface">@color/colorOnSurface</item>
         <item name="colorOnError">@color/colorOnError</item>
-
-        <item name="android:windowBackground">@color/colorPrimary</item>
 
         <item name="actionButtonStyle">@style/ActionButton</item>
 
@@ -99,34 +97,21 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorPrimaryLight</item>
+        <item name="colorAccent">@color/colorPrimary</item>
     </style>
 
     <style name="AppTheme" parent="AppTheme.Base">
-        <item name="preferenceTheme">@style/PreferenceThemeOverlayMaterial</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     </style>
 
     <style name="AppTheme.Launcher">
         <item name="android:windowBackground">@drawable/ic_splash_screen</item>
     </style>
 
-    <style name="PreferenceThemeOverlayMaterial" parent="@style/PreferenceThemeOverlay">
-        <item name="switchPreferenceCompatStyle">@style/PreferenceSwitchCompatMaterialStyle</item>
+    <style name="SetupTheme" parent="AppTheme">
+        <item name="android:windowBackground">@color/colorPrimary</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     </style>
-
-    <style name="PreferenceSwitchCompatMaterialStyle" parent="@style/Preference.SwitchPreferenceCompat.Material">
-        <item name="android:widgetLayout">@layout/pref_widget_switch_compat</item>
-    </style>
-
-    <style name="Preference.Material" tools:override="true">
-        <item name="android:layout">@layout/preference_material</item>
-        <item name="allowDividerAbove">false</item>
-        <item name="allowDividerBelow">true</item>
-        <item name="singleLineTitle">false</item>
-        <item name="iconSpaceReserved">@bool/config_materialPreferenceIconSpaceReserved</item>
-    </style>
-
-    <style name="SetupTheme" parent="AppTheme" />
 
     <style name="ActionButton" parent="Widget.AppCompat.ActionButton">
         <item name="android:drawablePadding">8dp</item>
@@ -135,14 +120,6 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
-
-    <style name="SwitchStyle" parent="Widget.AppCompat.CompoundButton.Switch">
-        <item name="colorControlActivated">@color/colorPrimary</item>
-        <item name="switchTextAppearance">@style/TextAppearance.AppCompat.Widget.Switch</item>
-        <item name="android:textSize">14sp</item>
-        <item name="trackTint">@color/switch_track_tint</item>
-        <item name="thumbTint">@color/switch_thumb_tint</item>
-    </style>
 
     <style name="WeatherDetails" parent="@style/TextAppearance.OpenSans.Medium.Inverse">
         <item name="android:textColor">@android:color/white</item>
@@ -182,13 +159,13 @@
     </style>
 
     <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:textColor">@color/colorPrimaryLight</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">14sp</item>
     </style>
 
     <style name="PositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:textColor">@color/colorPrimaryLight</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">14sp</item>
     </style>

@@ -4,15 +4,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import androidx.annotation.ColorInt;
-import androidx.core.graphics.ColorUtils;
-
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.controls.DetailCard;
-import com.thewizrd.simpleweather.helpers.DarkMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,27 +37,6 @@ public class DetailsItemGridAdapter extends BaseAdapter {
 
         view.bindModel(mDataset.get(position));
 
-        switch (getDarkThemeMode()) {
-            case OFF:
-                view.setBackgroundColor(isLightTheme() ? getItemColor() : ColorUtils.blendARGB(getItemColor(), Colors.WHITE, 0.25f));
-                view.setTextColor(isLightTheme() ? Colors.BLACK : Colors.WHITE);
-                view.setStrokeColor(ColorUtils.setAlphaComponent(isLightTheme() ? Colors.BLACK : Colors.LIGHTGRAY, 0x40));
-                view.setShadowColor(isLightTheme() ? Colors.GRAY : Colors.BLACK);
-                break;
-            case ON:
-                view.setBackgroundColor(ColorUtils.blendARGB(getItemColor(), Colors.BLACK, 0.75f));
-                view.setTextColor(isLightTheme() ? Colors.BLACK : Colors.WHITE);
-                view.setStrokeColor(ColorUtils.setAlphaComponent(isLightTheme() ? Colors.BLACK : Colors.LIGHTGRAY, 0x40));
-                view.setShadowColor(isLightTheme() ? Colors.GRAY : Colors.BLACK);
-                break;
-            case AMOLED_DARK:
-                view.setBackgroundColor(0x90909); // 0x121212 (colorSurface) / 2
-                view.setTextColor(Colors.WHITE);
-                view.setStrokeColor(ColorUtils.setAlphaComponent(Colors.DARKGRAY, 0x40));
-                view.setShadowColor(Colors.BLACK);
-                break;
-        }
-
         return view;
     }
 
@@ -76,34 +50,5 @@ public class DetailsItemGridAdapter extends BaseAdapter {
     @Override
     public boolean hasStableIds() {
         return true;
-    }
-
-    private DarkMode darkThemeMode;
-    private @ColorInt
-    int itemColor;
-    private boolean isLightTheme;
-
-    public final DarkMode getDarkThemeMode() {
-        return darkThemeMode;
-    }
-
-    public final boolean isLightTheme() {
-        return isLightTheme;
-    }
-
-    public final void setDarkThemeMode(DarkMode mode) {
-        darkThemeMode = mode;
-        notifyDataSetChanged();
-    }
-
-    public @ColorInt
-    int getItemColor() {
-        return itemColor;
-    }
-
-    public void setItemColor(@ColorInt int itemColor, boolean isLightTheme) {
-        this.itemColor = itemColor;
-        this.isLightTheme = isLightTheme;
-        notifyDataSetChanged();
     }
 }

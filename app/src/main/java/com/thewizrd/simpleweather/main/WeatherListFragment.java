@@ -1,6 +1,8 @@
 package com.thewizrd.simpleweather.main;
 
+import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -13,6 +15,8 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -68,6 +72,21 @@ public class WeatherListFragment extends ToolbarFragment {
 
     private WeatherListType weatherType;
 
+    public WeatherListType getWeatherListType() {
+        return weatherType;
+    }
+
+    public static WeatherListFragment newInstance(WeatherListType type) {
+        WeatherListFragment fragment = new WeatherListFragment();
+        fragment.weatherType = type;
+
+        Bundle args = new Bundle();
+        args.putInt(Constants.ARGS_WEATHERLISTTYPE, type.getValue());
+        fragment.setArguments(args);
+
+        return fragment;
+    }
+
     public static WeatherListFragment newInstance(LocationData locData, WeatherListType type) {
         WeatherListFragment fragment = new WeatherListFragment();
         fragment.weatherType = type;
@@ -121,8 +140,11 @@ public class WeatherListFragment extends ToolbarFragment {
         binding = FragmentWeatherListBinding.inflate(inflater, root, true);
 
         // Setup Actionbar
-        getToolbar().setNavigationIcon(
-                ActivityUtils.getResourceId(getAppCompatActivity(), R.attr.homeAsUpIndicator));
+        Context context = binding.getRoot().getContext();
+        Drawable navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, ActivityUtils.getResourceId(getAppCompatActivity(), R.attr.homeAsUpIndicator)));
+        DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText));
+        getToolbar().setNavigationIcon(navIcon);
+
         getToolbar().setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

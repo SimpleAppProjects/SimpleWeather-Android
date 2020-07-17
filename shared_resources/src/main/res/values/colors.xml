@@ -36,4 +36,6 @@
 
     <color name="card_background_dark">#323232</color>
     <color name="card_background_light">#FFFFFF</color>
+
+    <color name="colorTextShadow">#000000</color>
 </resources>

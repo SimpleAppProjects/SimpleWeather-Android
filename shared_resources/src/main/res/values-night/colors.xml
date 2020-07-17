@@ -21,4 +21,6 @@
     <color name="invButtonColor">@color/cardview_dark_background</color>
     <color name="invButtonColorText">@android:color/white</color>
     <color name="invButtonColorTextHint">@color/colorTextHint</color>
+
+    <color name="colorTextShadow">#888888</color>
 </resources>

@@ -266,18 +266,18 @@ public class WeatherDataLoader {
                     weather.getCondition().setWeather(hrf.getCondition());
                     weather.getCondition().setIcon(hrf.getIcon());
 
-                    weather.getCondition().setTempF(hrf.getHighF());
-                    weather.getCondition().setTempC(hrf.getHighC());
+                    weather.getCondition().setTempF(hrf.getHighF() != null ? hrf.getHighF() : null);
+                    weather.getCondition().setTempC(hrf.getHighC() != null ? hrf.getHighC() : null);
 
-                    weather.getCondition().setWindMph(hrf.getWindMph());
-                    weather.getCondition().setWindKph(hrf.getWindKph());
-                    weather.getCondition().setWindDegrees(hrf.getWindDegrees());
+                    weather.getCondition().setWindMph(hrf.getWindMph() != null ? hrf.getWindMph() : null);
+                    weather.getCondition().setWindKph(hrf.getWindKph() != null ? hrf.getWindKph() : null);
+                    weather.getCondition().setWindDegrees(hrf.getWindDegrees() != null ? hrf.getWindDegrees() : null);
 
                     if (hrf.getWindMph() != null) {
                         weather.getCondition().setBeaufort(new Beaufort(WeatherUtils.getBeaufortScale(Math.round(hrf.getWindMph())).getValue()));
                     }
-                    weather.getCondition().setFeelslikeF(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeF() : 0.0f);
-                    weather.getCondition().setFeelslikeC(hrf.getExtras() != null ? hrf.getExtras().getFeelslikeC() : 0.0f);
+                    weather.getCondition().setFeelslikeF(hrf.getExtras() != null && hrf.getExtras().getFeelslikeF() != null ? hrf.getExtras().getFeelslikeF() : null);
+                    weather.getCondition().setFeelslikeC(hrf.getExtras() != null && hrf.getExtras().getFeelslikeC() != null ? hrf.getExtras().getFeelslikeC() : null);
                     weather.getCondition().setUv(hrf.getExtras() != null && hrf.getExtras().getUvIndex() != null && hrf.getExtras().getUvIndex() >= 0 ? new UV(hrf.getExtras().getUvIndex()) : null);
 
                     weather.getCondition().setObservationTime(hrf.getDate());
@@ -289,17 +289,17 @@ public class WeatherDataLoader {
                         weather.getCondition().setLowC(0f);
                     }
 
-                    weather.getAtmosphere().setDewpointF(hrf.getExtras() != null ? hrf.getExtras().getDewpointF() : null);
-                    weather.getAtmosphere().setDewpointC(hrf.getExtras() != null ? hrf.getExtras().getDewpointC() : null);
-                    weather.getAtmosphere().setHumidity(hrf.getExtras() != null ? hrf.getExtras().getHumidity() : null);
+                    weather.getAtmosphere().setDewpointF(hrf.getExtras() != null && hrf.getExtras().getDewpointF() != null ? hrf.getExtras().getDewpointF() : null);
+                    weather.getAtmosphere().setDewpointC(hrf.getExtras() != null && hrf.getExtras().getDewpointC() != null ? hrf.getExtras().getDewpointC() : null);
+                    weather.getAtmosphere().setHumidity(hrf.getExtras() != null && hrf.getExtras().getHumidity() != null ? hrf.getExtras().getHumidity() : null);
                     weather.getAtmosphere().setPressureTrend(null);
-                    weather.getAtmosphere().setPressureIn(hrf.getExtras() != null ? hrf.getExtras().getPressureIn() : null);
-                    weather.getAtmosphere().setPressureMb(hrf.getExtras() != null ? hrf.getExtras().getPressureMb() : null);
-                    weather.getAtmosphere().setVisibilityMi(hrf.getExtras() != null ? hrf.getExtras().getVisibilityMi() : null);
-                    weather.getAtmosphere().setVisibilityKm(hrf.getExtras() != null ? hrf.getExtras().getVisibilityKm() : null);
+                    weather.getAtmosphere().setPressureIn(hrf.getExtras() != null && hrf.getExtras().getPressureIn() != null ? hrf.getExtras().getPressureIn() : null);
+                    weather.getAtmosphere().setPressureMb(hrf.getExtras() != null && hrf.getExtras().getPressureMb() != null ? hrf.getExtras().getPressureMb() : null);
+                    weather.getAtmosphere().setVisibilityMi(hrf.getExtras() != null && hrf.getExtras().getVisibilityMi() != null ? hrf.getExtras().getVisibilityMi() : null);
+                    weather.getAtmosphere().setVisibilityKm(hrf.getExtras() != null && hrf.getExtras().getVisibilityKm() != null ? hrf.getExtras().getVisibilityKm() : null);
 
                     if (weather.getPrecipitation() != null) {
-                        weather.getPrecipitation().setPop(hrf.getExtras() != null ? hrf.getExtras().getPop() : null);
+                        weather.getPrecipitation().setPop(hrf.getExtras() != null && hrf.getExtras().getPop() != null ? hrf.getExtras().getPop() : null);
                         weather.getPrecipitation().setQpfRainIn(hrf.getExtras() != null && hrf.getExtras().getQpfRainIn() != null && hrf.getExtras().getQpfRainIn() >= 0 ? hrf.getExtras().getQpfRainIn() : 0.0f);
                         weather.getPrecipitation().setQpfRainMm(hrf.getExtras() != null && hrf.getExtras().getQpfRainMm() != null && hrf.getExtras().getQpfRainMm() >= 0 ? hrf.getExtras().getQpfRainMm() : 0.0f);
                         weather.getPrecipitation().setQpfSnowIn(hrf.getExtras() != null && hrf.getExtras().getQpfSnowIn() != null && hrf.getExtras().getQpfSnowIn() >= 0 ? hrf.getExtras().getQpfSnowIn() : 0.0f);

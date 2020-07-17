@@ -21,15 +21,13 @@
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_nav_bar"
-            style="@style/Widget.MaterialComponents.BottomNavigationView.Colored"
+            style="@style/Widget.MaterialComponents.BottomNavigationView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:elevation="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragment_container"
             app:menu="@menu/activity_main_drawer"
-            app:itemIconTint="@color/colorTextHint"
-            app:itemTextColor="@color/colorTextHint"
             app:itemTextAppearanceActive="@style/BottomNavTextAppearance.Active"
             app:itemTextAppearanceInactive="@style/BottomNavTextAppearance.Inactive" />
 

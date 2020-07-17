@@ -11,10 +11,6 @@
             name="weatherView"
             type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
 
-        <variable
-            name="isLightBackground"
-            type="androidx.databinding.ObservableBoolean" />
-
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -29,11 +25,10 @@
             android:layout_height="wrap_content"
             android:padding="12dp"
             android:text="@string/label_airquality"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
-            android:textColor="@android:color/white"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textColor="@color/colorTextPrimary"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:lightThemeEnabled="@{isLightBackground}"
             app:layout_constraintBottom_toTopOf="@id/aqi_level"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -64,9 +59,8 @@
             android:padding="6dp"
             android:text="@{weatherView.airQuality != null ? weatherView.airQuality.level : null}"
             android:textAppearance="?attr/textAppearanceHeadline6"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorTextPrimary"
             android:textSize="16sp"
-            app:lightThemeEnabled="@{isLightBackground}"
             app:layout_constraintBottom_toTopOf="@id/aqi_description"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -84,10 +78,9 @@
             android:gravity="top"
             android:padding="6dp"
             android:text="@{weatherView.airQuality != null ? weatherView.airQuality.description : null}"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
-            android:textColor="@android:color/white"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textColor="@color/colorTextPrimary"
             android:textSize="14sp"
-            app:lightThemeEnabled="@{isLightBackground}"
             app:layout_constraintBottom_toTopOf="@id/aqi_progressBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -109,7 +102,6 @@
             android:progress="@{weatherView.airQuality != null ? weatherView.airQuality.progress : 0}"
             android:progressDrawable="@drawable/rounded_progress_horizontal_material"
             app:progressColor="@{weatherView.airQuality != null ? weatherView.airQuality.progressColor : 0}"
-            app:progressBackgroundColor="@{isLightBackground ? @color/progressbar_tint_dark : @color/progressbar_tint}"
             app:layout_constraintBottom_toTopOf="@id/aqi_attribution"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -131,9 +123,8 @@
             android:paddingBottom="12dp"
             android:text="@{@string/credit_prefix + ` ` + @string/api_waqi}"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorTextPrimary"
             android:textSize="14sp"
-            app:lightThemeEnabled="@{isLightBackground}"
             app:layout_constraintBottom_toTopOf="@id/border"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -144,8 +135,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:alpha="0.2"
-            android:background="@android:color/white"
-            app:lightThemeEnabled="@{isLightBackground}"
+            android:background="@color/colorOnSurface"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

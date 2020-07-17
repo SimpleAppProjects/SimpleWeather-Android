@@ -45,8 +45,8 @@ import androidx.preference.SwitchPreferenceCompat;
 import com.google.android.material.snackbar.Snackbar;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
+import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -289,7 +289,7 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
                     preference.setIcon(R.drawable.ic_fahrenheit);
                     AnalyticsLogger.logEvent("Settings: fahrenheit checked");
                 }
-                tintIcons(unitPref, Colors.SIMPLEBLUELIGHT);
+                tintIcons(unitPref, ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
                 return true;
             }
         });
@@ -357,6 +357,10 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
                     case "2": // Dark (AMOLED / Black)
                         mode = UserThemeMode.AMOLED_DARK;
                         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                        break;
+                    case "3": // Light
+                        mode = UserThemeMode.LIGHT;
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                         break;
                 }
                 dispatchThemeChanged(mode);
@@ -600,7 +604,7 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
         });
         updateAlertPreference(WeatherManager.getInstance().supportsAlerts());
 
-        tintIcons(getPreferenceScreen(), Colors.SIMPLEBLUELIGHT);
+        tintIcons(getPreferenceScreen(), ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
     }
 
     private static void tintIcons(Preference preference, @ColorInt int color) {

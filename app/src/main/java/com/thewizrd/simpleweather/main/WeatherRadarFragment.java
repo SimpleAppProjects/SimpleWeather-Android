@@ -1,6 +1,8 @@
 package com.thewizrd.simpleweather.main;
 
+import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,6 +15,8 @@ import android.webkit.WebView;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -63,8 +67,10 @@ public class WeatherRadarFragment extends ToolbarFragment {
         binding = FragmentWeatherRadarBinding.inflate(inflater, root, true);
 
         // Setup Actionbar
-        getToolbar().setNavigationIcon(
-                ActivityUtils.getResourceId(getAppCompatActivity(), R.attr.homeAsUpIndicator));
+        Context context = binding.getRoot().getContext();
+        Drawable navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, ActivityUtils.getResourceId(getAppCompatActivity(), R.attr.homeAsUpIndicator)));
+        DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText));
+        getToolbar().setNavigationIcon(navIcon);
         getToolbar().setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

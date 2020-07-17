@@ -9,7 +9,6 @@
         android:layout_height="match_parent"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        tools:background="?colorPrimary"
         tools:context=".setup.SetupLocationFragment">
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -52,26 +51,18 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_max="720dp" />
 
-        <androidx.appcompat.widget.AppCompatButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/gps_follow"
             android:layout_width="wrap_content"
-            android:layout_height="48dp"
+            android:layout_height="56dp"
             android:layout_marginTop="8dp"
-            android:background="@drawable/button_background_inverse"
-            android:backgroundTint="@color/invButtonColor"
-            android:drawableStart="@drawable/ic_my_location_white_24dp"
-            android:drawableLeft="@drawable/ic_my_location_white_24dp"
-            android:drawablePadding="8dp"
-            android:drawableTint="@color/invButtonColorText"
-            android:drawableTintMode="src_in"
-            android:foreground="?selectableItemBackground"
-            android:paddingStart="12dp"
-            android:paddingLeft="12dp"
-            android:paddingEnd="16dp"
-            android:paddingRight="16dp"
             android:text="@string/label_gpsfollow"
-            android:textColor="@color/invButtonColorText"
-            app:elevation="4dp"
+            android:textColor="?attr/colorPrimary"
+            style="@style/Widget.MaterialComponents.Button"
+            app:backgroundTint="@android:color/white"
+            app:icon="@drawable/ic_my_location_white_24dp"
+            app:iconPadding="8dp"
+            app:iconTint="?attr/colorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/search_bar" />

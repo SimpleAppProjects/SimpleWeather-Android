@@ -142,6 +142,9 @@ public class App extends Application implements ApplicationLib, Application.Acti
             case AMOLED_DARK: // Dark (AMOLED)
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 break;
+            case LIGHT: // Light
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                break;
         }
 
         // Receive Firebase messages
