@@ -124,6 +124,7 @@ import com.thewizrd.simpleweather.controls.ForecastGraphViewModel;
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView;
 import com.thewizrd.simpleweather.controls.SunPhaseView;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding;
+import com.thewizrd.simpleweather.databinding.ViewBindingAdapter;
 import com.thewizrd.simpleweather.databinding.WeathernowAqicontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowBeaufortcontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowMoonphasecontrolBinding;
@@ -1689,21 +1690,29 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     public class WeatherFragmentDataBindingComponent implements androidx.databinding.DataBindingComponent {
-        private final WeatherFragmentBindingAdapter mAdapter;
+        private final WeatherNowFragmentBindingAdapter mAdapter;
+        private final ViewBindingAdapter viewBindingAdapter;
 
         public WeatherFragmentDataBindingComponent(WeatherNowFragment fragment) {
-            this.mAdapter = new WeatherFragmentBindingAdapter(fragment);
+            this.mAdapter = new WeatherNowFragmentBindingAdapter(fragment);
+            this.viewBindingAdapter = new ViewBindingAdapter();
         }
 
-        public WeatherFragmentBindingAdapter getWeatherFragmentBindingAdapter() {
+        @Override
+        public WeatherNowFragmentBindingAdapter getWeatherNowFragmentBindingAdapter() {
             return mAdapter;
+        }
+
+        @Override
+        public ViewBindingAdapter getViewBindingAdapter() {
+            return viewBindingAdapter;
         }
     }
 
-    public class WeatherFragmentBindingAdapter {
+    public class WeatherNowFragmentBindingAdapter {
         private WeatherNowFragment fragment;
 
-        public WeatherFragmentBindingAdapter(WeatherNowFragment fragment) {
+        public WeatherNowFragmentBindingAdapter(WeatherNowFragment fragment) {
             this.fragment = fragment;
         }
 
@@ -1788,26 +1797,6 @@ public class WeatherNowFragment extends WindowColorFragment
         public void loadBackground(ImageView view, ImageDataViewModel imageData) {
             String backgroundUri = imageData != null ? imageData.getImageURI() : null;
             loadBackgroundImage(backgroundUri, false);
-        }
-
-        @BindingAdapter("hideIfNull")
-        public void hideIfNull(View view, Object object) {
-            view.setVisibility(object == null ? View.GONE : View.VISIBLE);
-        }
-
-        @BindingAdapter("hideIfNullOrWhitespace")
-        public void hideIfNullOrWhitespace(View view, String s) {
-            view.setVisibility(StringUtils.isNullOrWhitespace(s) ? View.GONE : View.VISIBLE);
-        }
-
-        @BindingAdapter("hideIfEmpty")
-        public <T extends Object> void hideIfEmpty(View view, Collection<T> c) {
-            view.setVisibility(c == null || c.isEmpty() ? View.GONE : View.VISIBLE);
-        }
-
-        @BindingAdapter("invisibleIfEmpty")
-        public <T extends Object> void invisibleIfEmpty(View view, Collection<T> c) {
-            view.setVisibility(c == null || c.isEmpty() ? View.INVISIBLE : View.VISIBLE);
         }
     }
 }

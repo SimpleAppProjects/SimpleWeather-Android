@@ -278,11 +278,11 @@ public class Condition extends CustomJsonObject {
         this.tempC = tempC;
     }
 
-    public int getWindDegrees() {
+    public Integer getWindDegrees() {
         return windDegrees;
     }
 
-    public void setWindDegrees(int windDegrees) {
+    public void setWindDegrees(Integer windDegrees) {
         this.windDegrees = windDegrees;
     }
 

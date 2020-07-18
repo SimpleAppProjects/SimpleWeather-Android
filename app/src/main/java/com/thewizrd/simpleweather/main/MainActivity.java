@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity
     private BottomNavigationView mBottomNavView;
     private View mFragmentContainer;
     private View mRootView;
-    private boolean isSystemNightMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,7 +134,6 @@ public class MainActivity extends AppCompatActivity
         ShortcutCreatorWorker.requestUpdateShortcuts(this);
 
         final int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        isSystemNightMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
     }
 
     @Override
@@ -416,7 +414,6 @@ public class MainActivity extends AppCompatActivity
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         // Update before we send the configuration to all other fragments
         final int currentNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        isSystemNightMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
 
         super.onConfigurationChanged(newConfig);
 

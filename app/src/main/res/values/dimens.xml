@@ -30,10 +30,7 @@
     <dimen name="detail_grid_column_width">125dp</dimen>
     <dimen name="moonphase_text_size">36sp</dimen>
     <!-- Locations -->
-    <dimen name="location_panel_height">72dp</dimen>
-    <dimen name="location_panel_text_size">16sp</dimen>
-    <dimen name="location_panel_textview_size">50dp</dimen>
-    <dimen name="location_panel_icon_size">24sp</dimen>
+    <dimen name="location_panel_height">130dp</dimen>
     <dimen name="delete_icon_margin">12dp</dimen>
 
     <!--

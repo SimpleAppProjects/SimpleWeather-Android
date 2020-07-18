@@ -10,6 +10,8 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
+import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 import java.util.Locale;
@@ -21,7 +23,14 @@ public class LocationPanelViewModel {
 
     private String locationName;
     private String currTemp;
+    private String currWeather;
     private String weatherIcon;
+    private String hiTemp;
+    private String loTemp;
+    private String pop;
+    private String popIcon;
+    private int windDir;
+    private String windSpeed;
     private ImageDataViewModel imageData;
     private LocationData locationData;
     private int locationType = LocationType.SEARCH.getValue();
@@ -37,8 +46,36 @@ public class LocationPanelViewModel {
         return currTemp;
     }
 
+    public String getCurrWeather() {
+        return currWeather;
+    }
+
     public String getWeatherIcon() {
         return weatherIcon;
+    }
+
+    public String getHiTemp() {
+        return hiTemp;
+    }
+
+    public String getLoTemp() {
+        return loTemp;
+    }
+
+    public String getPop() {
+        return pop;
+    }
+
+    public String getPopIcon() {
+        return popIcon;
+    }
+
+    public int getWindDir() {
+        return windDir;
+    }
+
+    public String getWindSpeed() {
+        return windSpeed;
     }
 
     public ImageDataViewModel getImageData() {
@@ -87,12 +124,54 @@ public class LocationPanelViewModel {
             imageData = null;
 
             locationName = weather.getLocation().getName();
+
             if (weather.getCondition().getTempF() != null && !ObjectsCompat.equals(weather.getCondition().getTempF(), weather.getCondition().getTempC())) {
                 int temp = Settings.isFahrenheit() ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC());
-                currTemp = String.format(Locale.getDefault(), "%dº", temp);
+                String unitTemp = Settings.isFahrenheit() ? WeatherIcons.FAHRENHEIT : WeatherIcons.CELSIUS;
+
+                currTemp = String.format(Locale.getDefault(), "%d%s", temp, unitTemp);
             } else {
                 currTemp = "--";
             }
+
+            currWeather = weather.getCondition().getWeather();
+
+            if (weather.getCondition().getHighF() != null && !ObjectsCompat.equals(weather.getCondition().getHighF(), weather.getCondition().getHighC())) {
+                int temp = Settings.isFahrenheit() ? Math.round(weather.getCondition().getHighF()) : Math.round(weather.getCondition().getHighC());
+                hiTemp = String.format(Locale.getDefault(), "%dº", temp);
+            } else {
+                hiTemp = "--";
+            }
+
+            if (weather.getCondition().getLowF() != null && !ObjectsCompat.equals(weather.getCondition().getLowF(), weather.getCondition().getLowC())) {
+                int temp = Settings.isFahrenheit() ? Math.round(weather.getCondition().getLowF()) : Math.round(weather.getCondition().getLowC());
+                loTemp = String.format(Locale.getDefault(), "%dº", temp);
+            } else {
+                loTemp = "--";
+            }
+
+            if (weather.getCondition().getWindMph() != null && weather.getCondition().getWindMph() >= 0 &&
+                    weather.getCondition().getWindDegrees() != null && weather.getCondition().getWindDegrees() >= 0) {
+                int speedVal = Settings.isFahrenheit() ? Math.round(weather.getCondition().getWindMph()) : Math.round(weather.getCondition().getWindKph());
+                String speedUnit = Settings.isFahrenheit() ? "mph" : "kph";
+
+                windSpeed = String.format(Locale.getDefault(), "%d %s", speedVal, speedUnit);
+                windDir = weather.getCondition().getWindDegrees() + 180;
+            } else {
+                windSpeed = "--";
+                windDir = 0;
+            }
+
+            if (weather.getPrecipitation() != null) {
+                pop = weather.getPrecipitation().getPop() != null ? weather.getPrecipitation().getPop() + "%" : null;
+
+                if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
+                    popIcon = WeatherIcons.CLOUDY;
+                } else {
+                    popIcon = WeatherIcons.UMBRELLA;
+                }
+            }
+
             weatherIcon = weather.getCondition().getIcon();
             weatherSource = weather.getSource();
 

@@ -85,6 +85,52 @@ public class WeatherIcons {
     public static final String FLOOD = "\uf07c";
     public static final String VOLCANO = "\uf0c8";
 
+    public static final String BAROMETER = "\uf079";
+    public static final String HUMIDITY = "\uf07a";
+    public static final String MOONRISE = "\uf0c9";
+    public static final String MOONSET = "\uf0ca";
+    public static final String RAINDROP = "\uf078";
+    public static final String RAINDROPS = "\uf04e";
+    public static final String SUNRISE = "\uf051";
+    public static final String SUNSET = "\uf052";
+    public static final String THERMOMETER = "\uf055";
+    public static final String UMBRELLA = "\uf084";
+    public static final String WIND_DIRECTION = "\uf0b1";
+
+    // Beaufort
+    public static final String WIND_BEAUFORT_0 = "\uf0b7";
+    public static final String WIND_BEAUFORT_1 = "\uf0b8";
+    public static final String WIND_BEAUFORT_2 = "\uf0b9";
+    public static final String WIND_BEAUFORT_3 = "\uf0ba";
+    public static final String WIND_BEAUFORT_4 = "\uf0bb";
+    public static final String WIND_BEAUFORT_5 = "\uf0bc";
+    public static final String WIND_BEAUFORT_6 = "\uf0bd";
+    public static final String WIND_BEAUFORT_7 = "\uf0be";
+    public static final String WIND_BEAUFORT_8 = "\uf0bf";
+    public static final String WIND_BEAUFORT_9 = "\uf0c0";
+    public static final String WIND_BEAUFORT_10 = "\uf0c1";
+    public static final String WIND_BEAUFORT_11 = "\uf0c2";
+    public static final String WIND_BEAUFORT_12 = "\uf0c3";
+
+    // Moon Phase
+    public static final String MOON_NEW = "\uf095";
+    public static final String MOON_WAXING_CRESCENT_3 = "\uf098";
+    public static final String MOON_FIRST_QUARTER = "\uf09c";
+    public static final String MOON_WAXING_GIBBOUS_3 = "\uf09f";
+    public static final String MOON_FULL = "\uf0a3";
+    public static final String MOON_WANING_GIBBOUS_3 = "\uf0a6";
+    public static final String MOON_THIRD_QUARTER = "\uf0aa";
+    public static final String MOON_WANING_CRESCENT_3 = "\uf0ad";
+
+    public static final String MOON_ALT_NEW = "\uf0eb";
+    public static final String MOON_ALT_WAXING_CRESCENT_3 = "\uf0d2";
+    public static final String MOON_ALT_FIRST_QUARTER = "\uf0d6";
+    public static final String MOON_ALT_WAXING_GIBBOUS_3 = "\uf0d9";
+    public static final String MOON_ALT_FULL = "\uf0dd";
+    public static final String MOON_ALT_WANING_GIBBOUS_3 = "\uf0e0";
+    public static final String MOON_ALT_THIRD_QUARTER = "\uf0e4";
+    public static final String MOON_ALT_WANING_CRESCENT_3 = "\uf0e7";
+
     public static final String FAHRENHEIT = "\uf045";
     public static final String CELSIUS = "\uf03c";
 

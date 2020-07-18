@@ -1,7 +1,6 @@
 package com.thewizrd.simpleweather.controls;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
@@ -11,13 +10,10 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.ColorUtils;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.palette.graphics.Palette;
+import androidx.databinding.DataBindingUtil;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
@@ -28,10 +24,11 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.card.MaterialCardView;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
-import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.LocationPanelBinding;
+import com.thewizrd.simpleweather.databinding.ViewBindingAdapter;
+import com.thewizrd.simpleweather.main.WeatherNowFragment;
 
 public class LocationPanel extends MaterialCardView {
     private LocationPanelBinding binding;
@@ -60,7 +57,8 @@ public class LocationPanel extends MaterialCardView {
 
     private void initialize(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        binding = LocationPanelBinding.inflate(inflater, this, true);
+        binding = DataBindingUtil.inflate(inflater, R.layout.location_panel, this, true,
+                new LocationPanelDataBindingComponent());
 
         int height = context.getResources().getDimensionPixelSize(R.dimen.location_panel_height);
         this.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
@@ -109,32 +107,7 @@ public class LocationPanel extends MaterialCardView {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                             super.onResourceReady(resource, transition);
-                            Palette p = Palette.from(resource)
-                                    .generate();
-                            int textColor = Colors.WHITE;
-                            int shadowColor = Colors.BLACK;
-
-                            Palette.Swatch prefSwatch = p.getDarkMutedSwatch();
-                            if (prefSwatch == null) {
-                                prefSwatch = ColorsUtils.getPreferredSwatch(p);
-                            }
-                            if (prefSwatch != null) {
-                                textColor = prefSwatch.getBodyTextColor();
-                                if (ColorsUtils.isSuperLight(prefSwatch.getRgb())) {
-                                    shadowColor = Colors.GRAY;
-                                }
-                            } else {
-                                if (ColorsUtils.isSuperLight(p)) {
-                                    textColor = Colors.BLACK;
-                                    shadowColor = Colors.GRAY;
-                                }
-                            }
-
-                            DrawableCompat.setTintList(overlayDrawable, prefSwatch != null ? ColorStateList.valueOf(prefSwatch.getRgb()) : null);
                             binding.imageOverlay.setBackground(overlayDrawable);
-
-                            setTextColor(ColorUtils.setAlphaComponent(textColor, 0xFF));
-                            setTextShadowColor(shadowColor);
                         }
 
                         @Override
@@ -163,7 +136,6 @@ public class LocationPanel extends MaterialCardView {
     public void clearBackground() {
         mGlide.clear(binding.imageView);
         binding.imageView.setImageDrawable(colorDrawable);
-        setTextColor(Colors.WHITE);
     }
 
     public void bindModel(LocationPanelViewModel model) {
@@ -181,25 +153,28 @@ public class LocationPanel extends MaterialCardView {
         setClickable(!show);
     }
 
-    public void setTextColor(@ColorInt int color) {
-        binding.locationName.setTextColor(color);
-        binding.weatherTemp.setTextColor(color);
-        binding.weatherIcon.setTextColor(color);
-    }
-
-    public void setTextShadowColor(@ColorInt int color) {
-        binding.locationName.setShadowLayer(
-                binding.locationName.getShadowRadius(), binding.locationName.getShadowDx(), binding.locationName.getShadowDy(), color);
-        binding.weatherTemp.setShadowLayer(
-                binding.weatherTemp.getShadowRadius(), binding.weatherTemp.getShadowDx(), binding.weatherTemp.getShadowDy(), color);
-        binding.weatherIcon.setShadowLayer(
-                binding.weatherIcon.getShadowRadius(), binding.weatherIcon.getShadowDx(), binding.weatherIcon.getShadowDy(), color);
-    }
-
     @Override
     public void setDragged(boolean dragged) {
         super.setDragged(dragged);
         setStrokeColor(ActivityUtils.getColor(getContext(), R.attr.colorOnSurface));
         setStrokeWidth(dragged ? (int) ActivityUtils.dpToPx(getContext(), 2) : 0);
+    }
+
+    public class LocationPanelDataBindingComponent implements androidx.databinding.DataBindingComponent {
+        private final ViewBindingAdapter viewBindingAdapter;
+
+        public LocationPanelDataBindingComponent() {
+            this.viewBindingAdapter = new ViewBindingAdapter();
+        }
+
+        @Override
+        public ViewBindingAdapter getViewBindingAdapter() {
+            return viewBindingAdapter;
+        }
+
+        @Override
+        public WeatherNowFragment.WeatherNowFragmentBindingAdapter getWeatherNowFragmentBindingAdapter() {
+            return null;
+        }
     }
 }
