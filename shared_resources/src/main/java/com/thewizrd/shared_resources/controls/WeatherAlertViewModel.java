@@ -112,7 +112,7 @@ public class WeatherAlertViewModel {
     }
 
     public String getAlertBodyMessage() {
-        return String.format("%s\n%s\n%s", getExpireDate(), getMessage(), getAttribution());
+        return String.format("%s\n\n%s\n\n%s", getExpireDate(), getMessage(), getAttribution());
     }
 
     @Override

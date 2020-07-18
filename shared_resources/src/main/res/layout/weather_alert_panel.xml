@@ -124,6 +124,7 @@
                 android:text="@{viewModel.alertBodyMessage}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 tools:text="TextView" />
+
         </androidx.cardview.widget.CardView>
     </merge>
 </layout>

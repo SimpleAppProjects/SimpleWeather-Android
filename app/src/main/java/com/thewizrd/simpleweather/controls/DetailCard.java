@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.ColorInt;
-import androidx.constraintlayout.solver.widgets.Optimizer;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.ColorUtils;
 
@@ -77,7 +76,6 @@ public class DetailCard extends ConstraintLayout {
         this.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
         this.setBackground(bgDrawable);
         this.setBackgroundColor(0xB3FFFFFF);
-        this.setOptimizationLevel(Optimizer.OPTIMIZATION_DIRECT | Optimizer.OPTIMIZATION_BARRIER | Optimizer.OPTIMIZATION_CHAIN | Optimizer.OPTIMIZATION_DIMENSIONS);
 
         Resources.Theme currentTheme = context.getTheme();
         TypedArray array;

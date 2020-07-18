@@ -127,8 +127,12 @@ import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding;
 import com.thewizrd.simpleweather.databinding.ViewBindingAdapter;
 import com.thewizrd.simpleweather.databinding.WeathernowAqicontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowBeaufortcontrolBinding;
+import com.thewizrd.simpleweather.databinding.WeathernowDetailscontainerBinding;
+import com.thewizrd.simpleweather.databinding.WeathernowForecastgraphpanelBinding;
+import com.thewizrd.simpleweather.databinding.WeathernowHrforecastgraphpanelBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowMoonphasecontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowRadarcontrolBinding;
+import com.thewizrd.simpleweather.databinding.WeathernowSunphasecontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowUvcontrolBinding;
 import com.thewizrd.simpleweather.fragments.WindowColorFragment;
 import com.thewizrd.simpleweather.helpers.RadarWebClient;
@@ -146,7 +150,6 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
@@ -492,7 +495,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 float adj = 1.25f;
                 int backAlpha = 0xFF - (int) (0xFF * adj * scrollY / (binding.conditionPanel.getHeight()));
                 float gradAlpha = 1.0f - (1.0f * adj * scrollY / (binding.conditionPanel.getHeight()));
-                binding.imageView.setImageAlpha(Math.max(backAlpha, 0x25));
+                binding.imageView.setImageAlpha(Math.max(backAlpha, 0));
                 binding.gradientView.setAlpha(Math.max(gradAlpha, 0));
             }
         });
@@ -598,48 +601,6 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
 
-        // Forecast
-        binding.forecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
-            @Override
-            public void onClick(View view, int position) {
-                AnalyticsLogger.logEvent("WeatherNowFragment: fcast graph click");
-                Fragment fragment = WeatherListFragment.newInstance(location, WeatherListType.FORECAST);
-                Bundle args = new Bundle();
-                args.putInt(Constants.KEY_POSITION, position);
-                fragment.setArguments(args);
-
-                if (isAlive()) {
-                    getAppCompatActivity().getSupportFragmentManager().beginTransaction()
-                            .add(R.id.fragment_container, fragment)
-                            .hide(WeatherNowFragment.this)
-                            .addToBackStack(null)
-                            .commit();
-                }
-            }
-        });
-
-        // Hourly Forecast
-        binding.hourlyForecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
-            @Override
-            public void onClick(View view, int position) {
-                AnalyticsLogger.logEvent("WeatherNowFragment: hrf graph click");
-                if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
-                    Fragment fragment = WeatherListFragment.newInstance(location, WeatherListType.HOURLYFORECAST);
-                    Bundle args = new Bundle();
-                    args.putInt(Constants.KEY_POSITION, position);
-                    fragment.setArguments(args);
-
-                    if (isAlive()) {
-                        getAppCompatActivity().getSupportFragmentManager().beginTransaction()
-                                .add(R.id.fragment_container, fragment)
-                                .hide(WeatherNowFragment.this)
-                                .addToBackStack(null)
-                                .commit();
-                    }
-                }
-            }
-        });
-
         // Condition
         binding.bgAttribution.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -672,20 +633,6 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
 
-        // Details
-        binding.detailsContainer.setAdapter(new DetailsItemGridAdapter());
-
-        // Disable touch events on container
-        // View does not scroll
-        binding.detailsContainer.setFocusable(false);
-        binding.detailsContainer.setFocusableInTouchMode(false);
-        binding.detailsContainer.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return true;
-            }
-        });
-
         // SwipeRefresh
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(getAppCompatActivity(), R.color.invButtonColor));
         binding.refreshLayout.setColorSchemeColors(ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
@@ -699,6 +646,92 @@ public class WeatherNowFragment extends WindowColorFragment
                     wLoader = new WeatherDataLoader(location);
 
                 refreshWeather(true);
+            }
+        });
+
+        // Forecast
+        binding.forecastGraphPanel.setOnInflateListener(new ViewStub.OnInflateListener() {
+            @Override
+            public void onInflate(ViewStub stub, View inflated) {
+                WeathernowForecastgraphpanelBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
+                binding.setForecastsView(forecastsView);
+                binding.setLifecycleOwner(WeatherNowFragment.this);
+
+                binding.forecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
+                    @Override
+                    public void onClick(View view, int position) {
+                        AnalyticsLogger.logEvent("WeatherNowFragment: fcast graph click");
+                        Fragment fragment = WeatherListFragment.newInstance(location, WeatherListType.FORECAST);
+                        Bundle args = new Bundle();
+                        args.putInt(Constants.KEY_POSITION, position);
+                        fragment.setArguments(args);
+
+                        if (isAlive()) {
+                            getAppCompatActivity().getSupportFragmentManager().beginTransaction()
+                                    .add(R.id.fragment_container, fragment)
+                                    .hide(WeatherNowFragment.this)
+                                    .addToBackStack(null)
+                                    .commit();
+                        }
+                    }
+                });
+            }
+        });
+
+        // Hourly Forecast
+        binding.hourlyForecastGraphPanel.setOnInflateListener(new ViewStub.OnInflateListener() {
+            @Override
+            public void onInflate(ViewStub stub, View inflated) {
+                WeathernowHrforecastgraphpanelBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
+                binding.setForecastsView(forecastsView);
+                binding.setLifecycleOwner(WeatherNowFragment.this);
+
+                binding.hourlyForecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
+                    @Override
+                    public void onClick(View view, int position) {
+                        AnalyticsLogger.logEvent("WeatherNowFragment: hrf graph click");
+                        if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
+                            Fragment fragment = WeatherListFragment.newInstance(location, WeatherListType.HOURLYFORECAST);
+                            Bundle args = new Bundle();
+                            args.putInt(Constants.KEY_POSITION, position);
+                            fragment.setArguments(args);
+
+                            if (isAlive()) {
+                                getAppCompatActivity().getSupportFragmentManager().beginTransaction()
+                                        .add(R.id.fragment_container, fragment)
+                                        .hide(WeatherNowFragment.this)
+                                        .addToBackStack(null)
+                                        .commit();
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        binding.detailsControl.setOnInflateListener(new ViewStub.OnInflateListener() {
+            @Override
+            public void onInflate(ViewStub stub, View inflated) {
+                WeathernowDetailscontainerBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
+
+                // Details
+                binding.detailsContainer.setAdapter(new DetailsItemGridAdapter());
+
+                binding.setWeatherView(weatherView);
+                binding.setLifecycleOwner(WeatherNowFragment.this);
+
+                // Disable touch events on container
+                // View does not scroll
+                binding.detailsContainer.setFocusable(false);
+                binding.detailsContainer.setFocusableInTouchMode(false);
+                binding.detailsContainer.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        return true;
+                    }
+                });
+
+                adjustDetailsLayout();
             }
         });
 
@@ -737,6 +770,16 @@ public class WeatherNowFragment extends WindowColorFragment
             @Override
             public void onInflate(ViewStub stub, View inflated) {
                 WeathernowMoonphasecontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
+                binding.setWeatherView(weatherView);
+                binding.setLifecycleOwner(WeatherNowFragment.this);
+            }
+        });
+
+        // Sun Phase
+        binding.sunphaseControl.setOnInflateListener(new ViewStub.OnInflateListener() {
+            @Override
+            public void onInflate(ViewStub stub, View inflated) {
+                WeathernowSunphasecontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
                 binding.setWeatherView(weatherView);
                 binding.setLifecycleOwner(WeatherNowFragment.this);
             }
@@ -823,22 +866,6 @@ public class WeatherNowFragment extends WindowColorFragment
                                 updateView();
                             } else if (propertyId == BR.location) {
                                 adjustConditionPanelLayout();
-                            } else if (propertyId == BR.uvIndex) {
-                                if (weatherView.getUvIndex() != null && binding.uvControl.getViewStub() != null) {
-                                    binding.uvControl.getViewStub().inflate();
-                                }
-                            } else if (propertyId == BR.beaufort) {
-                                if (weatherView.getBeaufort() != null && binding.beaufortControl.getViewStub() != null) {
-                                    binding.beaufortControl.getViewStub().inflate();
-                                }
-                            } else if (propertyId == BR.airQuality) {
-                                if (weatherView.getAirQuality() != null && binding.aqiControl.getViewStub() != null) {
-                                    binding.aqiControl.getViewStub().inflate();
-                                }
-                            } else if (propertyId == BR.moonPhase) {
-                                if (weatherView.getMoonPhase() != null && binding.moonphaseControl.getViewStub() != null) {
-                                    binding.moonphaseControl.getViewStub().inflate();
-                                }
                             } else if (propertyId == BR.radarURL) {
                                 // Restrict control to Kitkat+ for Chromium WebView
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -867,7 +894,6 @@ public class WeatherNowFragment extends WindowColorFragment
             ViewGroupCompat.setTransitionGroup((ViewGroup) binding.getRoot(), false);
             ViewGroupCompat.setTransitionGroup(binding.appBar, false);
             ViewGroupCompat.setTransitionGroup(binding.toolbar, false);
-            ViewGroupCompat.setTransitionGroup(binding.alertButton, true);
 
             TransitionHelper.onViewCreated(this, (ViewGroup) view.getParent(), new TransitionHelper.OnPrepareTransitionListener() {
                 @Override
@@ -1375,12 +1401,15 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     private void adjustDetailsLayout() {
-        if (!isAlive() || binding.scrollView.getChildCount() != 1) return;
+        if (!isAlive() || binding.detailsControl.getBinding() == null || binding.scrollView.getChildCount() != 1)
+            return;
 
-        binding.detailsContainer.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+        final WeathernowDetailscontainerBinding detailsBinding = (WeathernowDetailscontainerBinding) binding.detailsControl.getBinding();
+
+        detailsBinding.detailsContainer.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
-                binding.detailsContainer.getViewTreeObserver().removeOnPreDrawListener(this);
+                detailsBinding.detailsContainer.getViewTreeObserver().removeOnPreDrawListener(this);
 
                 float pxWidth = binding.scrollView.getChildAt(0).getWidth();
 
@@ -1391,15 +1420,15 @@ public class WeatherNowFragment extends WindowColorFragment
                 // Available columns based on min card width
                 int availColumns = ((int) (pxWidth / minWidth)) <= 1 ? minColumns : (int) (pxWidth / minWidth);
 
-                binding.detailsContainer.setNumColumns(availColumns);
+                detailsBinding.detailsContainer.setNumColumns(availColumns);
 
                 boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
 
                 int horizMargin = 16;
                 int marginMultiplier = isLandscape ? 2 : 3;
                 int itemSpacing = availColumns < 3 ? horizMargin * (availColumns - 1) : horizMargin * marginMultiplier;
-                binding.detailsContainer.setHorizontalSpacing(itemSpacing);
-                binding.detailsContainer.setVerticalSpacing(itemSpacing);
+                detailsBinding.detailsContainer.setHorizontalSpacing(itemSpacing);
+                detailsBinding.detailsContainer.setVerticalSpacing(itemSpacing);
 
                 return true;
             }
