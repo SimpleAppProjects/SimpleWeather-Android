@@ -28,4 +28,14 @@ public class ViewBindingAdapter {
     public <T extends Object> void invisibleIfEmpty(View view, Collection<T> c) {
         view.setVisibility(c == null || c.isEmpty() ? View.INVISIBLE : View.VISIBLE);
     }
+
+    @BindingAdapter("showIfTrue")
+    public void showIfTrue(View view, boolean show) {
+        view.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    @BindingAdapter(value = {"showIfTrue", "showIfNotEmpty"}, requireAll = true)
+    public <T extends Object> void showIfTrue(View view, boolean show, Collection<T> c) {
+        view.setVisibility(show && c != null && !c.isEmpty() ? View.VISIBLE : View.GONE);
+    }
 }

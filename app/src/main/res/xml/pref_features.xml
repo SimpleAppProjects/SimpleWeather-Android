@@ -1,0 +1,71 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:iconSpaceReserved="false">
+
+    <com.thewizrd.simpleweather.preferences.RightCheckBoxPreference
+        android:defaultValue="true"
+        android:key="key_feature_bgimage"
+        android:title="@string/pref_title_feature_bgimage"
+        app:iconSpaceReserved="false" />
+
+    <com.thewizrd.simpleweather.preferences.RightCheckBoxPreference
+        android:defaultValue="true"
+        android:key="key_feature_forecast"
+        android:title="@string/pref_title_feature_forecast"
+        app:iconSpaceReserved="false" />
+
+    <com.thewizrd.simpleweather.preferences.RightCheckBoxPreference
+        android:defaultValue="true"
+        android:key="key_feature_hrforecast"
+        android:title="@string/pref_title_feature_hrforecast"
+        app:iconSpaceReserved="false" />
+
+    <com.thewizrd.simpleweather.preferences.RightCheckBoxPreference
+        android:defaultValue="true"
+        android:key="key_feature_details"
+        android:title="@string/pref_title_feature_details"
+        app:iconSpaceReserved="false" />
+
+    <com.thewizrd.simpleweather.preferences.RightCheckBoxPreference
+        android:defaultValue="true"
+        android:key="key_feature_uv"
+        android:title="@string/pref_title_feature_uv"
+        app:iconSpaceReserved="false" />
+
+    <com.thewizrd.simpleweather.preferences.RightCheckBoxPreference
+        android:defaultValue="true"
+        android:key="key_feature_beaufort"
+        android:title="@string/pref_title_feature_beaufort"
+        app:iconSpaceReserved="false" />
+
+    <com.thewizrd.simpleweather.preferences.RightCheckBoxPreference
+        android:defaultValue="true"
+        android:key="key_feature_aqindex"
+        android:title="@string/pref_title_feature_aqindex"
+        app:iconSpaceReserved="false" />
+
+    <com.thewizrd.simpleweather.preferences.RightCheckBoxPreference
+        android:defaultValue="true"
+        android:key="key_feature_moonphase"
+        android:title="@string/pref_title_feature_moonphase"
+        app:iconSpaceReserved="false" />
+
+    <com.thewizrd.simpleweather.preferences.RightCheckBoxPreference
+        android:defaultValue="true"
+        android:key="key_feature_sunphase"
+        android:title="@string/pref_title_feature_sunphase"
+        app:iconSpaceReserved="false" />
+
+    <com.thewizrd.simpleweather.preferences.RightCheckBoxPreference
+        android:defaultValue="true"
+        android:key="key_feature_radar"
+        android:title="@string/pref_title_feature_radar"
+        app:iconSpaceReserved="false" />
+
+    <com.thewizrd.simpleweather.preferences.RightCheckBoxPreference
+        android:defaultValue="true"
+        android:key="key_feature_locpanelimg"
+        android:title="@string/pref_title_feature_locpanelimg"
+        app:iconSpaceReserved="false" />
+
+</PreferenceScreen>

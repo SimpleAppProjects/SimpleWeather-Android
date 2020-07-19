@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity
         mRootView = (View) mFragmentContainer.getParent();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
             mRootView.setFitsSystemWindows(true);
-        updateWindowColors();
 
         mBottomNavView = binding.bottomNavBar;
         mBottomNavView.setOnNavigationItemSelectedListener(this);
@@ -67,6 +66,8 @@ public class MainActivity extends AppCompatActivity
                 refreshNavViewCheckedItem();
             }
         });
+
+        updateWindowColors();
 
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
 
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fragment, Constants.FRAGTAG_HOME)
                     .setReorderingAllowed(true)
-                    .commitNow();
+                    .commit();
         }
 
         // Shortcut intent: from app shortcuts
@@ -132,8 +133,6 @@ public class MainActivity extends AppCompatActivity
 
         // Update app shortcuts
         ShortcutCreatorWorker.requestUpdateShortcuts(this);
-
-        final int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
     }
 
     @Override
@@ -396,18 +395,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateWindowColors() {
-        Configuration config = getResources().getConfiguration();
-        final boolean isLandscapeMode = config.orientation != Configuration.ORIENTATION_PORTRAIT && !ActivityUtils.isLargeTablet(MainActivity.this);
-
         int color = ActivityUtils.getColor(this, android.R.attr.colorBackground);
         if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK;
         }
-        mRootView.setBackgroundColor(color);
         getWindow().getDecorView().setBackgroundColor(color);
-
-        ActivityUtils.setTransparentWindow(getWindow(), color, Colors.TRANSPARENT, isLandscapeMode ? color : Colors.TRANSPARENT,
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+        setSystemBarColors(color);
     }
 
     @Override

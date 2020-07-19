@@ -84,6 +84,7 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
 
     // Preference Keys
+    private static final String KEY_FEATURES = "key_features";
     private static final String KEY_ABOUTAPP = "key_aboutapp";
     private static final String KEY_APIREGISTER = "key_apiregister";
     private static final String CATEGORY_NOTIFICATION = "category_notification";
@@ -604,6 +605,18 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
         });
         updateAlertPreference(WeatherManager.getInstance().supportsAlerts());
 
+        findPreference(KEY_FEATURES).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                // Display the fragment as the main content.
+                getAppCompatActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new FeaturesFragment())
+                        .addToBackStack(null)
+                        .commit();
+                return true;
+            }
+        });
+
         tintIcons(getPreferenceScreen(), ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
     }
 
@@ -934,6 +947,18 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
                 keyEntry.setText(app_id);
                 keyEntry2.setText(app_code);
             }
+        }
+    }
+
+    public static class FeaturesFragment extends WindowColorPreferenceFragmentCompat {
+        @Override
+        protected int getTitle() {
+            return R.string.pref_title_features;
+        }
+
+        @Override
+        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+            setPreferencesFromResource(R.xml.pref_features, null);
         }
     }
 

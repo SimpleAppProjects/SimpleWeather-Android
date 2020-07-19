@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
+
         <variable
             name="viewModel"
             type="com.thewizrd.simpleweather.controls.LocationPanelViewModel" />
@@ -25,7 +27,8 @@
         <View
             android:id="@+id/image_overlay"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            app:showIfTrue="@{FeatureSettings.locationPanelImageEnabled}" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

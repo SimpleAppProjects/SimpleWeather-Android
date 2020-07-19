@@ -29,6 +29,7 @@ import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.LocationPanelBinding;
 import com.thewizrd.simpleweather.databinding.ViewBindingAdapter;
 import com.thewizrd.simpleweather.main.WeatherNowFragment;
+import com.thewizrd.simpleweather.preferences.FeatureSettings;
 
 public class LocationPanel extends MaterialCardView {
     private LocationPanelBinding binding;
@@ -93,7 +94,7 @@ public class LocationPanel extends MaterialCardView {
                 panelView.getImageData().getImageURI() : null;
 
         // Background
-        if (backgroundUri != null) {
+        if (FeatureSettings.isLocationPanelImageEnabled() && backgroundUri != null) {
             mGlide.asBitmap()
                     .load(backgroundUri)
                     .apply(RequestOptions

@@ -60,6 +60,9 @@ import androidx.databinding.DataBindingUtil;
 import androidx.databinding.Observable;
 import androidx.databinding.library.baseAdapters.BR;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -139,6 +142,7 @@ import com.thewizrd.simpleweather.helpers.RadarWebClient;
 import com.thewizrd.simpleweather.helpers.TransitionHelper;
 import com.thewizrd.simpleweather.helpers.WebViewHelper;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
+import com.thewizrd.simpleweather.preferences.FeatureSettings;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
@@ -461,7 +465,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.setAlertsView(alertsView);
         binding.setLifecycleOwner(this);
 
-        View view = binding.getRoot();
+        final View view = binding.getRoot();
         // Request focus away from RecyclerView
         view.setFocusableInTouchMode(true);
         view.requestFocus();
@@ -538,9 +542,9 @@ public class WeatherNowFragment extends WindowColorFragment
             @SuppressLint("RestrictedApi")
             @Override
             public void onFlingStopped(int scrollY) {
-                if (binding == null) return;
+                if (binding == null || !FeatureSettings.isBackgroundImageEnabled()) return;
 
-                int condPnlHeight = binding.refreshLayout.getHeight();
+                int condPnlHeight = binding.conditionPanel.getHeight();
                 int THRESHOLD = condPnlHeight / 2;
                 int scrollOffset = binding.scrollView.computeVerticalScrollOffset();
                 int dY = scrollY - oldScrollY;
@@ -581,6 +585,8 @@ public class WeatherNowFragment extends WindowColorFragment
             @SuppressLint("RestrictedApi")
             @Override
             public void onTouchScrollChange(int scrollY, int oldScrollY) {
+                if (binding == null || !FeatureSettings.isBackgroundImageEnabled()) return;
+
                 int condPnlHeight = binding.refreshLayout.getHeight();
                 int THRESHOLD = condPnlHeight / 2;
                 int scrollOffset = binding.scrollView.computeVerticalScrollOffset();
@@ -823,15 +829,10 @@ public class WeatherNowFragment extends WindowColorFragment
 
         loaded = true;
 
-        view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-            @Override
-            public void onViewAttachedToWindow(View v) {
+        getLifecycle().addObserver(new LifecycleObserver() {
+            @OnLifecycleEvent(Lifecycle.Event.ON_START)
+            private void onLifeStarted() {
                 updateWindowColors();
-            }
-
-            @Override
-            public void onViewDetachedFromWindow(View v) {
-
             }
         });
 
@@ -869,18 +870,8 @@ public class WeatherNowFragment extends WindowColorFragment
                             } else if (propertyId == BR.radarURL) {
                                 // Restrict control to Kitkat+ for Chromium WebView
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                                    if (weatherView.getRadarURL() != null) {
-                                        if (binding.radarControl.getViewStub() != null) {
-                                            binding.radarControl.getViewStub().postDelayed(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    if (isAlive() && binding.radarControl.getViewStub() != null)
-                                                        binding.radarControl.getViewStub().inflate();
-                                                }
-                                            }, 1000);
-                                        } else {
-                                            navigateToRadarURL();
-                                        }
+                                    if (FeatureSettings.isRadarEnabled() && weatherView.getRadarURL() != null) {
+                                        navigateToRadarURL();
                                     }
                                 }
                             }
@@ -960,18 +951,8 @@ public class WeatherNowFragment extends WindowColorFragment
 
         // Restrict control to Kitkat+ for Chromium WebView
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            if (weatherView.getRadarURL() != null) {
-                if (binding.radarControl.getViewStub() != null) {
-                    binding.radarControl.getViewStub().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (isAlive() && binding.radarControl.getViewStub() != null)
-                                binding.radarControl.getViewStub().inflate();
-                        }
-                    }, 1000);
-                } else {
-                    navigateToRadarURL();
-                }
+            if (FeatureSettings.isRadarEnabled() && weatherView.getRadarURL() != null) {
+                navigateToRadarURL();
             }
         }
     }
@@ -1359,10 +1340,13 @@ public class WeatherNowFragment extends WindowColorFragment
             public boolean onPreDraw() {
                 binding.conditionPanel.getViewTreeObserver().removeOnPreDrawListener(this);
 
-                int height = binding.getRoot().getMeasuredHeight() - binding.appBar.getMeasuredHeight();
+                int height = binding.getRoot().getMeasuredHeight() - binding.appBar.getMeasuredHeight() - binding.alertButton.getMeasuredHeight() - binding.bgAttribution.getMeasuredHeight();
                 ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) binding.conditionPanel.getLayoutParams();
-                if (height > 0 && lp.height != height) {
+                if (FeatureSettings.isBackgroundImageEnabled() && height > 0) {
                     lp.height = height;
+                    binding.conditionPanel.setLayoutParams(lp);
+                } else {
+                    lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                     binding.conditionPanel.setLayoutParams(lp);
                 }
 
@@ -1633,7 +1617,8 @@ public class WeatherNowFragment extends WindowColorFragment
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     private void navigateToRadarURL() {
         if (weatherView == null || weatherView.getRadarURL() == null ||
-                binding == null || binding.radarControl.getBinding() == null)
+                binding == null || binding.radarControl.getBinding() == null ||
+                !FeatureSettings.isRadarEnabled())
             return;
 
         WeathernowRadarcontrolBinding radarcontrolBinding = (WeathernowRadarcontrolBinding) binding.radarControl.getBinding();
@@ -1815,10 +1800,8 @@ public class WeatherNowFragment extends WindowColorFragment
                 view.setText(HtmlCompat.fromHtml(String.format("<a href=\"%s\">%s %s (%s)</a>",
                         imageData.getOriginalLink(), view.getContext().getString(R.string.attrib_prefix), imageData.getArtistName(), imageData.getSiteName()),
                         HtmlCompat.FROM_HTML_MODE_COMPACT));
-                view.setVisibility(View.VISIBLE);
             } else {
                 view.setText("");
-                view.setVisibility(View.GONE);
             }
         }
 

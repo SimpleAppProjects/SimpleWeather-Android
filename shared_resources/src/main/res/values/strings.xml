@@ -102,6 +102,21 @@
     <string name="pref_summary_apiregister">Create an account to register for a Provider key</string>
     <string name="error_message_weather_us_only">This weather provider only supports locations in the U.S.</string>
 
+    <!-- Feature Settings -->
+    <string name="pref_title_features">Features</string>
+    <string name="pref_summary_features">Select features to enable/disable</string>
+    <string name="pref_title_feature_bgimage">Background Image</string>
+    <string name="pref_title_feature_forecast">Forecast</string>
+    <string name="pref_title_feature_hrforecast">Hourly Forecast</string>
+    <string name="pref_title_feature_details">Weather Details</string>
+    <string name="pref_title_feature_uv">UV</string>
+    <string name="pref_title_feature_beaufort">Beaufort</string>
+    <string name="pref_title_feature_aqindex">Air Quality Index</string>
+    <string name="pref_title_feature_moonphase">Moon Phase</string>
+    <string name="pref_title_feature_sunphase">Sun Phase</string>
+    <string name="pref_title_feature_radar">Weather Radar</string>
+    <string name="pref_title_feature_locpanelimg">Location Panel Image</string>
+
     <!-- Locations -->
     <string name="label_btn_add_location">Add Location</string>
     <string name="action_editmode">Edit Mode</string>
