@@ -69,7 +69,7 @@
                 android:textSize="12sp"
                 android:textStyle="bold"
                 style="@style/ShadowText"
-                tools:text="70º" />
+                tools:text="70°" />
 
             <TextView
                 android:id="@+id/forecast_lo"
@@ -84,7 +84,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 style="@style/ShadowText"
-                tools:text="52º" />
+                tools:text="52°" />
 
         </LinearLayout>
     </RelativeLayout>

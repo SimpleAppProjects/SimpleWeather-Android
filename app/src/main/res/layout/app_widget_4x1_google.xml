@@ -125,7 +125,7 @@
                 android:paddingRight="2dp"
                 android:textColor="@android:color/white"
                 android:textSize="24sp"
-                tools:text="77ºF" />
+                tools:text="77°F" />
 
         </RelativeLayout>
 

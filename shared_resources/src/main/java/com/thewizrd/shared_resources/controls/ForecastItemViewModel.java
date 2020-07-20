@@ -34,7 +34,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
         try {
             if (forecast.getHighF() != null && forecast.getHighC() != null) {
                 int value = Settings.isFahrenheit() ? Math.round(forecast.getHighF()) : Math.round(forecast.getHighC());
-                hiTemp = String.format(Locale.getDefault(), "%dº", value);
+                hiTemp = String.format(Locale.getDefault(), "%d°", value);
             } else {
                 hiTemp = "--";
             }
@@ -45,7 +45,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
         try {
             if (forecast.getLowF() != null && forecast.getLowC() != null) {
                 int value = Settings.isFahrenheit() ? Math.round(forecast.getLowF()) : Math.round(forecast.getLowC());
-                loTemp = String.format(Locale.getDefault(), "%dº", value);
+                loTemp = String.format(Locale.getDefault(), "%d°", value);
             } else {
                 loTemp = "--";
             }
@@ -59,7 +59,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
             if (forecast.getExtras().getFeelslikeF() != null && (!ObjectsCompat.equals(forecast.getExtras().getFeelslikeF(), forecast.getExtras().getFeelslikeC()))) {
                 int value = Settings.isFahrenheit() ? Math.round(forecast.getExtras().getFeelslikeF()) : Math.round(forecast.getExtras().getFeelslikeC());
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
-                        String.format(Locale.getDefault(), "%dº", value)));
+                        String.format(Locale.getDefault(), "%d°", value)));
             }
 
             String chance = pop = forecast.getExtras().getPop() != null ? forecast.getExtras().getPop() + "%" : null;
@@ -103,7 +103,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
 
             if (forecast.getExtras().getDewpointF() != null && (!ObjectsCompat.equals(forecast.getExtras().getDewpointF(), forecast.getExtras().getDewpointC()))) {
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.DEWPOINT,
-                        String.format(Locale.getDefault(), "%dº",
+                        String.format(Locale.getDefault(), "%d°",
                                 Settings.isFahrenheit() ?
                                         Math.round(forecast.getExtras().getDewpointF()) :
                                         Math.round(forecast.getExtras().getDewpointC()))));

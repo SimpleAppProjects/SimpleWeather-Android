@@ -61,7 +61,7 @@
             android:text="@{viewModel != null ? viewModel.hiTemp : @string/placeholder_text}"
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white"
-            tools:text="77º" />
+            tools:text="77°" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
@@ -83,7 +83,7 @@
             android:text="@{viewModel.loTemp}"
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white"
-            tools:text="66º" />
+            tools:text="66°" />
 
     </LinearLayout>
 </layout>

@@ -50,28 +50,28 @@ public class TextForecast extends CustomJsonObject {
         date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(forecast.getDt()), ZoneOffset.UTC);
         StringBuilder sb = new StringBuilder();
         sb.append(String.format(Locale.ROOT,
-                "%s - %s: %sº; %s: %sº", context.getString(R.string.label_morning),
+                "%s - %s: %s°; %s: %s°", context.getString(R.string.label_morning),
                 context.getString(R.string.label_temp),
                 f.format(ConversionMethods.KtoF(forecast.getTemp().getMorn())),
                 context.getString(R.string.label_feelslike),
                 f.format(ConversionMethods.KtoF(forecast.getFeelsLike().getMorn()))));
         sb.append(StringUtils.lineSeparator());
         sb.append(String.format(Locale.ROOT,
-                "%s - %s: %sº; %s: %sº", context.getString(R.string.label_day),
+                "%s - %s: %s°; %s: %s°", context.getString(R.string.label_day),
                 context.getString(R.string.label_temp),
                 f.format(ConversionMethods.KtoF(forecast.getTemp().getDay())),
                 context.getString(R.string.label_feelslike),
                 f.format(ConversionMethods.KtoF(forecast.getFeelsLike().getDay()))));
         sb.append(StringUtils.lineSeparator());
         sb.append(String.format(Locale.ROOT,
-                "%s - %s: %sº; %s: %sº", context.getString(R.string.label_eve),
+                "%s - %s: %s°; %s: %s°", context.getString(R.string.label_eve),
                 context.getString(R.string.label_temp),
                 f.format(ConversionMethods.KtoF(forecast.getTemp().getEve())),
                 context.getString(R.string.label_feelslike),
                 f.format(ConversionMethods.KtoF(forecast.getFeelsLike().getEve()))));
         sb.append(StringUtils.lineSeparator());
         sb.append(String.format(Locale.ROOT,
-                "%s - %s: %sº; %s: %sº", context.getString(R.string.label_night),
+                "%s - %s: %s°; %s: %s°", context.getString(R.string.label_night),
                 context.getString(R.string.label_temp),
                 f.format(ConversionMethods.KtoF(forecast.getTemp().getNight())),
                 context.getString(R.string.label_feelslike),
@@ -81,28 +81,28 @@ public class TextForecast extends CustomJsonObject {
 
         StringBuilder sb_metric = new StringBuilder();
         sb_metric.append(String.format(Locale.ROOT,
-                "%s - %s: %sº; %s: %sº", context.getString(R.string.label_morning),
+                "%s - %s: %s°; %s: %s°", context.getString(R.string.label_morning),
                 context.getString(R.string.label_temp),
                 f.format(ConversionMethods.KtoC(forecast.getTemp().getMorn())),
                 context.getString(R.string.label_feelslike),
                 f.format(ConversionMethods.KtoC(forecast.getFeelsLike().getMorn()))));
         sb_metric.append(StringUtils.lineSeparator());
         sb_metric.append(String.format(Locale.ROOT,
-                "%s - %s: %sº; %s: %sº", context.getString(R.string.label_day),
+                "%s - %s: %s°; %s: %s°", context.getString(R.string.label_day),
                 context.getString(R.string.label_temp),
                 f.format(ConversionMethods.KtoC(forecast.getTemp().getDay())),
                 context.getString(R.string.label_feelslike),
                 f.format(ConversionMethods.KtoC(forecast.getFeelsLike().getDay()))));
         sb_metric.append(StringUtils.lineSeparator());
         sb_metric.append(String.format(Locale.ROOT,
-                "%s - %s: %sº; %s: %sº", context.getString(R.string.label_eve),
+                "%s - %s: %s°; %s: %s°", context.getString(R.string.label_eve),
                 context.getString(R.string.label_temp),
                 f.format(ConversionMethods.KtoC(forecast.getTemp().getEve())),
                 context.getString(R.string.label_feelslike),
                 f.format(ConversionMethods.KtoC(forecast.getFeelsLike().getEve()))));
         sb_metric.append(StringUtils.lineSeparator());
         sb_metric.append(String.format(Locale.ROOT,
-                "%s - %s: %sº; %s: %sº", context.getString(R.string.label_night),
+                "%s - %s: %s°; %s: %s°", context.getString(R.string.label_night),
                 context.getString(R.string.label_temp),
                 f.format(ConversionMethods.KtoC(forecast.getTemp().getNight())),
                 context.getString(R.string.label_feelslike),

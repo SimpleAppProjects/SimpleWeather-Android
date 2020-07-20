@@ -52,7 +52,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
         try {
             if (hrForecast.getHighF() != null && hrForecast.getHighC() != null) {
                 int value = Settings.isFahrenheit() ? Math.round(hrForecast.getHighF()) : Math.round(hrForecast.getHighC());
-                hiTemp = String.format(Locale.getDefault(), "%dº", value);
+                hiTemp = String.format(Locale.getDefault(), "%d°", value);
             } else {
                 hiTemp = "--";
             }
@@ -80,7 +80,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                 int value = Settings.isFahrenheit() ? Math.round(hrForecast.getExtras().getFeelslikeF()) : Math.round(hrForecast.getExtras().getFeelslikeC());
 
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
-                        String.format(Locale.getDefault(), "%dº", value)));
+                        String.format(Locale.getDefault(), "%d°", value)));
             }
 
             if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
@@ -123,7 +123,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
 
             if (hrForecast.getExtras().getDewpointF() != null && (!ObjectsCompat.equals(hrForecast.getExtras().getDewpointF(), hrForecast.getExtras().getDewpointC()))) {
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.DEWPOINT,
-                        String.format(Locale.getDefault(), "%dº",
+                        String.format(Locale.getDefault(), "%d°",
                                 Settings.isFahrenheit() ?
                                         Math.round(hrForecast.getExtras().getDewpointF()) :
                                         Math.round(hrForecast.getExtras().getDewpointC())

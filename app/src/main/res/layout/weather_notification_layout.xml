@@ -59,7 +59,7 @@
             android:ellipsize="end"
             android:textAppearance="@style/TextAppearance.Compat.Notification"
             android:textSize="@dimen/not_primary_textSize"
-            tools:text="68º - Sunny" />
+            tools:text="68° - Sunny" />
 
         <TextView
             android:id="@+id/condition_details"
@@ -67,7 +67,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:textAppearance="@style/TextAppearance.Compat.Notification.Line2"
-            tools:text="74º / 65º" />
+            tools:text="74° / 65°" />
 
     </LinearLayout>
 

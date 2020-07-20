@@ -114,7 +114,7 @@
         android:singleLine="true"
         android:textColor="@android:color/white"
         android:textSize="13sp"
-        tools:text="68º - Sunny" />
+        tools:text="68° - Sunny" />
 
     <TextView
         android:id="@+id/condition_details"
@@ -133,7 +133,7 @@
         android:paddingLeft="4dp"
         android:textColor="@android:color/white"
         android:textSize="12sp"
-        tools:text="74º / 65º" />
+        tools:text="74° / 65°" />
 
     <LinearLayout
         android:id="@+id/status_layout"

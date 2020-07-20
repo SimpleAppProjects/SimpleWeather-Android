@@ -922,7 +922,7 @@ public class WeatherWidgetService extends JobIntentService {
         // Set specific data for widgets
         if (provider.getWidgetType() == WidgetType.Widget4x1Google) {
             updateViews.setTextViewText(R.id.condition_temp,
-                    temp.toString().replace(WeatherIcons.FAHRENHEIT, "ºF").replace(WeatherIcons.CELSIUS, "ºC"));
+                    temp.toString().replace(WeatherIcons.FAHRENHEIT, "°F").replace(WeatherIcons.CELSIUS, "°C"));
             updateViews.setViewVisibility(R.id.divider, View.VISIBLE);
         } else if (provider.getWidgetType() == WidgetType.Widget2x2) {
             String curTemp = StringUtils.removeNonDigitChars(temp.toString());
@@ -931,12 +931,12 @@ public class WeatherWidgetService extends JobIntentService {
 
             // Condition text
             updateViews.setTextViewText(R.id.condition_weather,
-                    String.format(Locale.ROOT, "%sº - %s",
+                    String.format(Locale.ROOT, "%s° - %s",
                             !StringUtils.isNullOrWhitespace(curTemp) ? curTemp : "--",
                             weather.getCurCondition()));
 
             updateViews.setTextViewText(R.id.condition_details,
-                    String.format(Locale.ROOT, "%sº | %sº",
+                    String.format(Locale.ROOT, "%s° ↑ | %s° ↓",
                             !StringUtils.isNullOrWhitespace(hiTemp) ? hiTemp : "--",
                             !StringUtils.isNullOrWhitespace(loTemp) ? loTemp : "--"));
         } else if (provider.getWidgetType() == WidgetType.Widget4x2) {

@@ -50,11 +50,11 @@ public class WeatherNotificationBuilder {
 
         // Condition text
         updateViews.setTextViewText(R.id.condition_weather,
-                String.format("%sº - %s", !StringUtils.isNullOrWhitespace(temp) ? temp : "--", condition));
+                String.format("%s° - %s", !StringUtils.isNullOrWhitespace(temp) ? temp : "--", condition));
 
         // Details
         updateViews.setTextViewText(R.id.condition_details,
-                String.format("%sº | %sº",
+                String.format("%s° ↑ | %s° ↓",
                         !StringUtils.isNullOrWhitespace(hiTemp) ? hiTemp : "--",
                         !StringUtils.isNullOrWhitespace(loTemp) ? loTemp : "--"));
 
@@ -77,7 +77,7 @@ public class WeatherNotificationBuilder {
 
         int level = 0;
         try {
-            level = Integer.parseInt(temp.replace("º", ""));
+            level = Integer.parseInt(temp.replace("°", ""));
         } catch (NumberFormatException e) {
             // Do nothing
         }

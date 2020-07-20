@@ -138,14 +138,14 @@ public class LocationPanelViewModel {
 
             if (weather.getCondition().getHighF() != null && !ObjectsCompat.equals(weather.getCondition().getHighF(), weather.getCondition().getHighC())) {
                 int temp = Settings.isFahrenheit() ? Math.round(weather.getCondition().getHighF()) : Math.round(weather.getCondition().getHighC());
-                hiTemp = String.format(Locale.getDefault(), "%dº", temp);
+                hiTemp = String.format(Locale.getDefault(), "%d°", temp);
             } else {
                 hiTemp = "--";
             }
 
             if (weather.getCondition().getLowF() != null && !ObjectsCompat.equals(weather.getCondition().getLowF(), weather.getCondition().getLowC())) {
                 int temp = Settings.isFahrenheit() ? Math.round(weather.getCondition().getLowF()) : Math.round(weather.getCondition().getLowC());
-                loTemp = String.format(Locale.getDefault(), "%dº", temp);
+                loTemp = String.format(Locale.getDefault(), "%d°", temp);
             } else {
                 loTemp = "--";
             }

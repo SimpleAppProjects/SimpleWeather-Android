@@ -23,7 +23,6 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
-import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 
 import org.threeten.bp.format.DateTimeFormatter;
 
@@ -402,7 +401,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
         if (weather.getAtmosphere().getDewpointF() != null && !ObjectsCompat.equals(weather.getAtmosphere().getDewpointF(), weather.getAtmosphere().getDewpointC())) {
             weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.DEWPOINT,
-                    String.format(Locale.getDefault(), "%dº",
+                    String.format(Locale.getDefault(), "%d°",
                             Settings.isFahrenheit() ?
                                     Math.round(weather.getAtmosphere().getDewpointF()) :
                                     Math.round(weather.getAtmosphere().getDewpointC())
@@ -447,7 +446,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
             int value = Settings.isFahrenheit() ? Math.round(weather.getCondition().getFeelslikeF()) : Math.round(weather.getCondition().getFeelslikeC());
 
             weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
-                    String.format(Locale.getDefault(), "%dº", value)));
+                    String.format(Locale.getDefault(), "%d°", value)));
         }
 
         // Wind

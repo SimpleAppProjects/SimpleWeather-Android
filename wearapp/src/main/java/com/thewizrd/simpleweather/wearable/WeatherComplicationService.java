@@ -135,7 +135,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
             return null;
         } else {
             // Temperature
-            String temp = String.format(Locale.getDefault(), "%dº",
+            String temp = String.format(Locale.getDefault(), "%d°",
                     Settings.isFahrenheit() ?
                             Math.round(weather.getCondition().getTempF()) :
                             Math.round(weather.getCondition().getTempC()));

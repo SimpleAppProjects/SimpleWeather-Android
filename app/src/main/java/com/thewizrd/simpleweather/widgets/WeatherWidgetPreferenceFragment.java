@@ -644,8 +644,8 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
         if (mWidgetType == WidgetType.Widget2x2) {
             TextView conditionDetails = widgetView.findViewById(R.id.condition_details);
 
-            conditionText.setText("70º - Sunny");
-            conditionDetails.setText("79º | 65º");
+            conditionText.setText("70° - Sunny");
+            conditionDetails.setText("79° | 65°");
         } else if (mWidgetType == WidgetType.Widget4x2) {
             conditionText.setText("Sunny");
         } else if (mWidgetType == WidgetType.Widget4x1) {
@@ -657,7 +657,7 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
             tempView.setImageResource(R.drawable.notification_temp_pos70);
         } else if (mWidgetType == WidgetType.Widget4x1Google) {
             TextView tempView = widgetView.findViewById(R.id.condition_temp);
-            tempView.setText("70ºF");
+            tempView.setText("70°F");
         }
 
         ImageView iconView = widgetView.findViewById(R.id.weather_icon);
@@ -723,10 +723,10 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
                 forecastDate.setText(LocalDateTime.now().plusDays(i).format(DateTimeFormatter.ofPattern("eee")));
 
                 TextView forecastHi = forecastPanel.findViewById(R.id.forecast_hi);
-                forecastHi.setText(75 + i + "º");
+                forecastHi.setText(75 + i + "°");
 
                 TextView forecastLo = forecastPanel.findViewById(R.id.forecast_lo);
-                forecastLo.setText(65 - i + "º");
+                forecastLo.setText(65 - i + "°");
 
                 ImageView forecastIcon = forecastPanel.findViewById(R.id.forecast_icon);
                 forecastIcon.setImageResource(R.drawable.day_sunny);
