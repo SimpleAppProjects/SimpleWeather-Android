@@ -232,14 +232,14 @@
                             android:text="@{weatherView.curTemp}"
                             android:textColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
                             android:textSize="60sp"
-                            app:fontFamily="@font/roboto_thin"
+                            app:fontFamily="@font/open_sans_light"
                             app:layout_constraintTop_toBottomOf="@id/spacer"
                             app:layout_constraintBottom_toTopOf="@id/weather_condition"
                             app:layout_constraintStart_toEndOf="@id/guideleft_16"
                             app:layout_constraintEnd_toStartOf="@id/weather_temp_center"
                             app:layout_constraintHorizontal_bias="0"
                             app:layout_constraintVertical_bias="1"
-                            tools:text="70&#xF045;" />
+                            tools:text="70°F" />
 
                         <androidx.constraintlayout.widget.Placeholder
                             android:id="@+id/weather_temp_center"
@@ -264,7 +264,7 @@
                             android:textColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
                             android:textSize="20sp"
                             android:textStyle="bold"
-                            app:fontFamily="@font/roboto_thin"
+                            app:fontFamily="@font/open_sans_light"
                             app:layout_constraintBottom_toTopOf="@id/weather_temp_center"
                             app:layout_constraintStart_toEndOf="@id/weather_temp"
                             app:layout_constraintEnd_toStartOf="@id/weather_icon"
@@ -289,7 +289,7 @@
                             android:textColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
                             android:textSize="20sp"
                             android:textStyle="bold"
-                            app:fontFamily="@font/roboto_thin"
+                            app:fontFamily="@font/open_sans_light"
                             app:layout_constraintTop_toBottomOf="@id/weather_temp_center"
                             app:layout_constraintStart_toEndOf="@id/weather_temp"
                             app:layout_constraintBottom_toTopOf="@id/weather_condition"
@@ -305,6 +305,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="end|center_vertical"
+                            android:padding="4dp"
                             android:scrollbars="none"
                             android:shadowColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/black : @android:color/transparent}"
                             android:text="@{weatherView.weatherIcon}"

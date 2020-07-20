@@ -1061,7 +1061,7 @@ public class WeatherWidgetService extends JobIntentService {
 
         if (provider.getWidgetType() != WidgetType.Widget2x2 && provider.getWidgetType() != WidgetType.Widget4x1Google) {
             updateViews.setImageViewBitmap(R.id.condition_temp,
-                    ImageUtils.weatherIconToBitmap(mContext, weather.getCurTemp(), tempTextSize, textColor, shadowRadius));
+                    ImageUtils.fontTextToBitmap(mContext, weather.getCurTemp(), R.font.open_sans, tempTextSize, textColor, shadowRadius));
         }
 
         if (provider.getWidgetType() == WidgetType.Widget4x1) {

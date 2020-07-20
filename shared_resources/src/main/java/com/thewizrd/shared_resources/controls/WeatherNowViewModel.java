@@ -273,13 +273,11 @@ public class WeatherNowViewModel extends ObservableViewModel {
         if (weather.getCondition().getTempF() != null &&
                 !ObjectsCompat.equals(weather.getCondition().getTempF(), weather.getCondition().getTempC())) {
             int temp = Settings.isFahrenheit() ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC());
-            curTempSSBuilder.append(String.format(Locale.getDefault(), "%d", temp));
+            curTempSSBuilder.append(String.format(Locale.getDefault(), "%d°", temp));
         } else {
             curTempSSBuilder.append("--");
         }
-        String unitTemp = Settings.isFahrenheit() ? WeatherIcons.FAHRENHEIT : WeatherIcons.CELSIUS;
-        curTempSSBuilder.append(unitTemp)
-                .setSpan(new WeatherIconTextSpan(context), curTempSSBuilder.length() - unitTemp.length(), curTempSSBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        curTempSSBuilder.append(tempUnit);
 
         if (!ObjectsCompat.equals(curTemp, curTempSSBuilder)) {
             curTemp = curTempSSBuilder;

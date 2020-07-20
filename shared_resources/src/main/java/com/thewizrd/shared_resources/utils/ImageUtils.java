@@ -22,6 +22,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.widget.ImageView;
 
+import androidx.annotation.FontRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -72,6 +73,37 @@ public class ImageUtils {
         Typeface weathericons = ResourcesCompat.getFont(context, R.font.weathericons);
         paint.setSubpixelText(true);
         paint.setTypeface(weathericons);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(textColor);
+        paint.setTextSize(textSizePx);
+        paint.setTextAlign(Paint.Align.LEFT);
+
+        float shadowLayerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, shadowRadius, metrics);
+
+        if (shadowRadius > 0) {
+            paint.setShadowLayer(shadowLayerRadius, 1, 1, Colors.BLACK);
+        }
+
+        int width = (int) paint.measureText(text, 0, text.length());
+
+        StaticLayout mTextLayout = new StaticLayout(
+                text, paint, (int) (width + shadowLayerRadius * 2f), Layout.Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
+
+        Bitmap bmp = Bitmap.createBitmap(mTextLayout.getWidth(), mTextLayout.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas myCanvas = new Canvas(bmp);
+        mTextLayout.draw(myCanvas);
+
+        return bmp;
+    }
+
+    public static Bitmap fontTextToBitmap(@NonNull Context context, @NonNull CharSequence text, @FontRes int fontId, int textSize, int textColor, float shadowRadius) {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        float textSizePx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize, metrics);
+
+        TextPaint paint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        Typeface font = ResourcesCompat.getFont(context, fontId);
+        paint.setSubpixelText(true);
+        paint.setTypeface(font);
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(textColor);
         paint.setTextSize(textSizePx);
