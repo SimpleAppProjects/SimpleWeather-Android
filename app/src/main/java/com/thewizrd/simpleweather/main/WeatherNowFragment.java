@@ -111,11 +111,13 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.shared_resources.utils.WeatherException;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
+import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.App;
@@ -497,9 +499,9 @@ public class WeatherNowFragment extends WindowColorFragment
 
                 // Default adj = 1.25
                 float adj = 1.25f;
-                int backAlpha = 0xFF - (int) (0xFF * adj * scrollY / (binding.conditionPanel.getHeight()));
-                float gradAlpha = 1.0f - (1.0f * adj * scrollY / (binding.conditionPanel.getHeight()));
-                binding.imageView.setImageAlpha(Math.max(backAlpha, 0));
+                int backAlpha = 0xFF - (int) (0xFF * adj * scrollY / (binding.refreshLayout.getHeight()));
+                float gradAlpha = 1.0f - (1.0f * adj * scrollY / (binding.refreshLayout.getHeight()));
+                binding.imageView.setImageAlpha(Math.max(backAlpha, 0x25));
                 binding.gradientView.setAlpha(Math.max(gradAlpha, 0));
             }
         });
@@ -544,7 +546,7 @@ public class WeatherNowFragment extends WindowColorFragment
             public void onFlingStopped(int scrollY) {
                 if (binding == null || !FeatureSettings.isBackgroundImageEnabled()) return;
 
-                int condPnlHeight = binding.conditionPanel.getHeight();
+                int condPnlHeight = binding.refreshLayout.getHeight();
                 int THRESHOLD = condPnlHeight / 2;
                 int scrollOffset = binding.scrollView.computeVerticalScrollOffset();
                 int dY = scrollY - oldScrollY;
@@ -1340,7 +1342,7 @@ public class WeatherNowFragment extends WindowColorFragment
             public boolean onPreDraw() {
                 binding.conditionPanel.getViewTreeObserver().removeOnPreDrawListener(this);
 
-                int height = binding.getRoot().getMeasuredHeight() - binding.appBar.getMeasuredHeight() - binding.alertButton.getMeasuredHeight() - binding.bgAttribution.getMeasuredHeight();
+                int height = binding.refreshLayout.getMeasuredHeight();
                 ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) binding.conditionPanel.getLayoutParams();
                 if (FeatureSettings.isBackgroundImageEnabled() && height > 0) {
                     lp.height = height;
@@ -1809,6 +1811,23 @@ public class WeatherNowFragment extends WindowColorFragment
         public void loadBackground(ImageView view, ImageDataViewModel imageData) {
             String backgroundUri = imageData != null ? imageData.getImageURI() : null;
             loadBackgroundImage(backgroundUri, false);
+        }
+
+        @BindingAdapter(value = {"tempTextColor", "tempUnit"}, requireAll = false)
+        public void tempTextColor(TextView view, CharSequence temp, String tempUnit) {
+            String temp_str = temp != null ? StringUtils.removeNonDigitChars(temp.toString()) : null;
+            if (!StringUtils.isNullOrWhitespace(temp_str)) {
+                float temp_f;
+                if (ObjectsCompat.equals(tempUnit, Settings.CELSIUS) || temp.toString().endsWith(WeatherIcons.CELSIUS)) {
+                    temp_f = ConversionMethods.CtoF(Float.parseFloat(temp_str));
+                } else {
+                    temp_f = Float.parseFloat(temp_str);
+                }
+
+                view.setTextColor(WeatherUtils.getColorFromTempF(temp_f));
+            } else {
+                view.setTextColor(ContextCompat.getColor(view.getContext(), R.color.colorTextPrimary));
+            }
         }
     }
 }

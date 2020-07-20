@@ -40,8 +40,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private CharSequence curTemp;
     private String curCondition;
     private String weatherIcon;
-    private String hiTemp;
-    private String loTemp;
+    private CharSequence hiTemp;
+    private CharSequence loTemp;
     private CharSequence hiLoTemp;
 
     // Weather Details
@@ -92,12 +92,12 @@ public class WeatherNowViewModel extends ObservableViewModel {
     }
 
     @Bindable
-    public String getHiTemp() {
+    public CharSequence getHiTemp() {
         return hiTemp;
     }
 
     @Bindable
-    public String getLoTemp() {
+    public CharSequence getLoTemp() {
         return loTemp;
     }
 
@@ -164,6 +164,11 @@ public class WeatherNowViewModel extends ObservableViewModel {
     @Bindable
     public String getWeatherLocale() {
         return weatherLocale;
+    }
+
+    @Bindable
+    public String getTempUnit() {
+        return tempUnit;
     }
 
     private Weather weather;
@@ -255,6 +260,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         final boolean isPhone = SimpleLibrary.getInstance().getApp().isPhone();
 
         tempUnit = Settings.getTempUnit();
+        notifyPropertyChanged(BR.tempUnit);
 
         // Date Updated
         if (!ObjectsCompat.equals(updateDate, WeatherUtils.getLastBuildDate(weather))) {
@@ -289,61 +295,42 @@ public class WeatherNowViewModel extends ObservableViewModel {
             notifyPropertyChanged(BR.weatherIcon);
         }
 
-        boolean hiTempChanged = false, loTempChanged = false;
         {
-            String newHiTemp = String.format(Locale.getDefault(), "%d°",
-                    Settings.isFahrenheit() ?
-                            Math.round(weather.getCondition().getHighF()) :
-                            Math.round(weather.getCondition().getHighC()));
-            String newLoTemp = String.format(Locale.getDefault(), "%d°",
-                    Settings.isFahrenheit() ?
-                            Math.round(weather.getCondition().getLowF()) :
-                            Math.round(weather.getCondition().getLowC()));
-            if (!ObjectsCompat.equals(hiTemp, newHiTemp)) {
-                if (weather.getCondition().getHighF() != null &&
-                        !ObjectsCompat.equals(weather.getCondition().getHighF(), weather.getCondition().getHighC())) {
-                    hiTemp = newHiTemp;
-                } else {
-                    hiTemp = null;
-                }
-                notifyPropertyChanged(BR.hiTemp);
-                hiTempChanged = true;
+            SpannableStringBuilder hiTempBuilder = new SpannableStringBuilder();
+            if (weather.getCondition().getHighF() != null &&
+                    !ObjectsCompat.equals(weather.getCondition().getHighF(), weather.getCondition().getHighC())) {
+                hiTempBuilder.append(String.valueOf(Settings.isFahrenheit() ? Math.round(weather.getCondition().getHighF()) : Math.round(weather.getCondition().getHighC())))
+                        .append("°");
+            } else {
+                hiTempBuilder.append("--°");
             }
-            if (!ObjectsCompat.equals(loTemp, newLoTemp)) {
-                if (weather.getCondition().getLowF() != null &&
-                        !ObjectsCompat.equals(weather.getCondition().getLowF(), weather.getCondition().getLowC())) {
-                    loTemp = newLoTemp;
-                } else {
-                    loTemp = null;
-                }
-                notifyPropertyChanged(BR.loTemp);
-                loTempChanged = true;
+
+            int idx = hiTempBuilder.length();
+
+            hiTempBuilder.append(" \uf058");
+            hiTempBuilder.setSpan(new WeatherIconTextSpan(context), idx, idx + 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            hiTemp = hiTempBuilder;
+            notifyPropertyChanged(BR.hiTemp);
+
+            SpannableStringBuilder loTempBuilder = new SpannableStringBuilder();
+            if (weather.getCondition().getLowF() != null &&
+                    !ObjectsCompat.equals(weather.getCondition().getLowF(), weather.getCondition().getLowC())) {
+                loTempBuilder.append(String.valueOf(Settings.isFahrenheit() ? Math.round(weather.getCondition().getLowF()) : Math.round(weather.getCondition().getLowC())))
+                        .append("°");
+            } else {
+                loTempBuilder.append("--°");
             }
+
+            idx = loTempBuilder.length();
+
+            loTempBuilder.append(" \uf044");
+            loTempBuilder.setSpan(new WeatherIconTextSpan(context), idx, idx + 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            loTemp = loTempBuilder;
+            notifyPropertyChanged(BR.loTemp);
         }
 
-        if ((hiTemp != null || loTemp != null) && (hiTempChanged || loTempChanged)) {
-            SpannableStringBuilder hiLoTempBuilder = new SpannableStringBuilder();
-
-            hiLoTempBuilder.append(hiTemp != null ? hiTemp : "--")
-                    .append(' ');
-
-            int firstIdx = hiLoTempBuilder.length();
-
-            hiLoTempBuilder.append("\uf058")
-                    .append(" | ")
-                    .append(loTemp != null ? loTemp : "--")
-                    .append(' ')
-                    .append("\uf044");
-
-            hiLoTempBuilder.setSpan(new WeatherIconTextSpan(context), firstIdx, firstIdx + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            hiLoTempBuilder.setSpan(new WeatherIconTextSpan(context), hiLoTempBuilder.length() - 1, hiLoTempBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-            hiLoTemp = hiLoTempBuilder;
-            notifyPropertyChanged(BR.hiLoTemp);
-        } else if (hiTemp == null && loTemp == null) {
-            hiLoTemp = null;
-            notifyPropertyChanged(BR.hiLoTemp);
-        }
+        hiLoTemp = new SpannableStringBuilder().append(hiTemp).append(" | ").append(loTemp);
+        notifyPropertyChanged(BR.hiLoTemp);
 
         // WeatherDetails
         weatherDetails.clear();

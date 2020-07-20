@@ -926,6 +926,9 @@ public class WeatherWidgetService extends JobIntentService {
             updateViews.setViewVisibility(R.id.divider, View.VISIBLE);
         } else if (provider.getWidgetType() == WidgetType.Widget2x2) {
             String curTemp = StringUtils.removeNonDigitChars(temp.toString());
+            String hiTemp = StringUtils.removeNonDigitChars(weather.getHiTemp());
+            String loTemp = StringUtils.removeNonDigitChars(weather.getLoTemp());
+
             // Condition text
             updateViews.setTextViewText(R.id.condition_weather,
                     String.format(Locale.ROOT, "%sº - %s",
@@ -933,9 +936,9 @@ public class WeatherWidgetService extends JobIntentService {
                             weather.getCurCondition()));
 
             updateViews.setTextViewText(R.id.condition_details,
-                    String.format(Locale.ROOT, "%s | %s",
-                            !StringUtils.isNullOrWhitespace(weather.getHiTemp()) ? weather.getHiTemp() : "--",
-                            !StringUtils.isNullOrWhitespace(weather.getLoTemp()) ? weather.getLoTemp() : "--"));
+                    String.format(Locale.ROOT, "%sº | %sº",
+                            !StringUtils.isNullOrWhitespace(hiTemp) ? hiTemp : "--",
+                            !StringUtils.isNullOrWhitespace(loTemp) ? loTemp : "--"));
         } else if (provider.getWidgetType() == WidgetType.Widget4x2) {
             // Condition text
             updateViews.setTextViewText(R.id.condition_weather, weather.getCurCondition());

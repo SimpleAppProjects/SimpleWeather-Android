@@ -36,8 +36,8 @@ public class WeatherNotificationBuilder {
         RemoteViews updateViews = new RemoteViews(context.getPackageName(), R.layout.weather_notification_layout);
 
         String condition = viewModel.getCurCondition();
-        String hiTemp = viewModel.getHiTemp();
-        String loTemp = viewModel.getLoTemp();
+        String hiTemp = StringUtils.removeNonDigitChars(viewModel.getHiTemp());
+        String loTemp = StringUtils.removeNonDigitChars(viewModel.getLoTemp());
         String temp = viewModel.getCurTemp() != null ?
                 StringUtils.removeNonDigitChars(viewModel.getCurTemp().toString()) : "--";
 
@@ -54,7 +54,7 @@ public class WeatherNotificationBuilder {
 
         // Details
         updateViews.setTextViewText(R.id.condition_details,
-                String.format("%s | %s",
+                String.format("%sº | %sº",
                         !StringUtils.isNullOrWhitespace(hiTemp) ? hiTemp : "--",
                         !StringUtils.isNullOrWhitespace(loTemp) ? loTemp : "--"));
 

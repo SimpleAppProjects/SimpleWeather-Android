@@ -1,6 +1,7 @@
 package com.thewizrd.shared_resources.utils;
 
 import android.os.Build;
+import android.text.TextUtils;
 
 public class StringUtils {
     public static boolean isNullOrEmpty(String s) {
@@ -55,6 +56,14 @@ public class StringUtils {
         }
 
         return sb.toString().trim();
+    }
+
+    public static String removeNonDigitChars(CharSequence s) {
+        if (TextUtils.isEmpty(s) || isNullOrWhitespace(s.toString()))
+            return "";
+        else {
+            return s.toString().replaceAll("[^\\d.-]", "").trim();
+        }
     }
 
     public static String removeNonDigitChars(String s) {
