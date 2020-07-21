@@ -51,6 +51,12 @@ public class WeatherAlertPanel extends RelativeLayout {
 
     public void bindModel(WeatherAlertViewModel model) {
         binding.setViewModel(model);
+
+        // Reset expanded state
+        expanded = false;
+        binding.expandIcon.setText(R.string.materialicon_expand_more);
+        binding.bodyCard.setVisibility(GONE);
+
         binding.executePendingBindings();
     }
 }

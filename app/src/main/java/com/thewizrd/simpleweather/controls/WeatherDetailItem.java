@@ -80,6 +80,11 @@ public class WeatherDetailItem extends ConstraintLayout {
             binding.headerCard.setOnClickListener(null);
             binding.bodyTextview.setText("");
         }
+
+        // Reset expanded state
+        expanded = false;
+        binding.bodyCard.setVisibility(GONE);
+
         binding.executePendingBindings();
     }
 
