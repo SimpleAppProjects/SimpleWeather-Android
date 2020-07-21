@@ -16,11 +16,15 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
+import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -47,11 +51,9 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.WrappedDrawable;
 import androidx.core.location.LocationManagerCompat;
-import androidx.core.text.HtmlCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.ViewGroupCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.databinding.BindingAdapter;
@@ -65,14 +67,13 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.transition.Transition;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
@@ -141,7 +142,6 @@ import com.thewizrd.simpleweather.databinding.WeathernowSunphasecontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowUvcontrolBinding;
 import com.thewizrd.simpleweather.fragments.WindowColorFragment;
 import com.thewizrd.simpleweather.helpers.RadarWebClient;
-import com.thewizrd.simpleweather.helpers.TransitionHelper;
 import com.thewizrd.simpleweather.helpers.WebViewHelper;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
 import com.thewizrd.simpleweather.preferences.FeatureSettings;
@@ -260,6 +260,14 @@ public class WeatherNowFragment extends WindowColorFragment
                     if (binding.imageView.getDrawable() == null || binding.imageView.getTag(R.id.glide_custom_view_target_tag) == null) {
                         String backgroundUri = weatherView.getImageData() != null ? weatherView.getImageData().getImageURI() : null;
                         loadBackgroundImage(backgroundUri, false);
+                    } else {
+                        binding.refreshLayout.postOnAnimation(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!isAlive()) return;
+                                binding.refreshLayout.setRefreshing(false);
+                            }
+                        });
                     }
                     return null;
                 }
@@ -268,7 +276,6 @@ public class WeatherNowFragment extends WindowColorFragment
                 public void onComplete(@NonNull Task<Void> task) {
                     forecastsView.updateForecasts(location);
                     alertsView.updateAlerts(location);
-                    binding.refreshLayout.setRefreshing(false);
                 }
             });
 
@@ -382,9 +389,6 @@ public class WeatherNowFragment extends WindowColorFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AnalyticsLogger.logEvent("WeatherNowFragment: onCreate");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            TransitionHelper.onCreate(this);
-        }
 
         if (savedInstanceState != null && savedInstanceState.containsKey(Constants.KEY_DATA)) {
             location = JSONParser.deserializer(savedInstanceState.getString(Constants.KEY_DATA), LocationData.class);
@@ -473,15 +477,22 @@ public class WeatherNowFragment extends WindowColorFragment
         view.requestFocus();
 
         // Setup ActionBar
-        ViewCompat.setOnApplyWindowInsetsListener(binding.appBar, new OnApplyWindowInsetsListener() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar, new OnApplyWindowInsetsListener() {
+            private int paddingStart = ViewCompat.getPaddingStart(binding.toolbar);
+            private int paddingTop = binding.toolbar.getPaddingTop();
+            private int paddingEnd = ViewCompat.getPaddingEnd(binding.toolbar);
+            private int paddingBottom = binding.toolbar.getPaddingBottom();
+
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
+                ViewCompat.setPaddingRelative(v,
+                        paddingStart + insets.getSystemWindowInsetLeft(),
+                        paddingTop + insets.getSystemWindowInsetTop(),
+                        paddingEnd + insets.getSystemWindowInsetRight(),
+                        paddingBottom);
                 return insets.replaceSystemWindowInsets(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
             }
         });
-
-        binding.toolbarTitle.setText(R.string.title_activity_weather_now);
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.refreshLayout, new OnApplyWindowInsetsListener() {
             @Override
@@ -493,6 +504,7 @@ public class WeatherNowFragment extends WindowColorFragment
         });
 
         binding.scrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+            @SuppressLint("RestrictedApi")
             @Override
             public void onScrollChange(final NestedScrollView v, int scrollX, final int scrollY, int oldScrollX, final int oldScrollY) {
                 if (binding == null) return;
@@ -503,6 +515,13 @@ public class WeatherNowFragment extends WindowColorFragment
                 float gradAlpha = 1.0f - (1.0f * adj * scrollY / (binding.refreshLayout.getHeight()));
                 binding.imageView.setImageAlpha(Math.max(backAlpha, 0x25));
                 binding.gradientView.setAlpha(Math.max(gradAlpha, 0));
+
+                int offset = v.computeVerticalScrollOffset();
+                if (offset > 0) {
+                    ViewCompat.setElevation(binding.toolbar, ActivityUtils.dpToPx(getAppCompatActivity(), 4));
+                } else {
+                    ViewCompat.setElevation(binding.toolbar, 0);
+                }
             }
         });
         binding.scrollView.setOnFlingListener(new ObservableNestedScrollView.OnFlingListener() {
@@ -883,74 +902,6 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ViewGroupCompat.setTransitionGroup((ViewGroup) binding.getRoot(), false);
-            ViewGroupCompat.setTransitionGroup(binding.appBar, false);
-            ViewGroupCompat.setTransitionGroup(binding.toolbar, false);
-
-            TransitionHelper.onViewCreated(this, (ViewGroup) view.getParent(), new TransitionHelper.OnPrepareTransitionListener() {
-                @Override
-                public void prepareTransitions(@Nullable Transition enterTransition, @Nullable Transition exitTransition, @Nullable Transition reenterTransition, @Nullable Transition returnTransition) {
-                    if (enterTransition != null) {
-                        enterTransition
-                                .excludeTarget(R.id.image_view, true)
-                                .excludeTarget(R.id.gradient_view, true)
-                                .excludeTarget(ForecastGraphPanel.class, true)
-                                .excludeChildren(ForecastGraphPanel.class, true)
-                                .excludeTarget(GridView.class, true)
-                                .excludeChildren(GridView.class, true)
-                                .excludeTarget(RecyclerView.class, true)
-                                .excludeChildren(RecyclerView.class, true)
-                                .excludeTarget(SunPhaseView.class, true)
-                                .excludeTarget(NestedScrollView.class, true)
-                                .excludeTarget(SwipeRefreshLayout.class, true);
-                    }
-                    if (exitTransition != null) {
-                        exitTransition
-                                .excludeTarget(R.id.image_view, true)
-                                .excludeTarget(R.id.gradient_view, true)
-                                .excludeTarget(ForecastGraphPanel.class, true)
-                                .excludeChildren(ForecastGraphPanel.class, true)
-                                .excludeTarget(GridView.class, true)
-                                .excludeChildren(GridView.class, true)
-                                .excludeTarget(RecyclerView.class, true)
-                                .excludeChildren(RecyclerView.class, true)
-                                .excludeTarget(SunPhaseView.class, true)
-                                .excludeTarget(NestedScrollView.class, true)
-                                .excludeTarget(SwipeRefreshLayout.class, true);
-                    }
-                    if (reenterTransition != null) {
-                        reenterTransition
-                                .excludeTarget(R.id.image_view, true)
-                                .excludeTarget(R.id.gradient_view, true)
-                                .excludeTarget(ForecastGraphPanel.class, true)
-                                .excludeChildren(ForecastGraphPanel.class, true)
-                                .excludeTarget(GridView.class, true)
-                                .excludeChildren(GridView.class, true)
-                                .excludeTarget(RecyclerView.class, true)
-                                .excludeChildren(RecyclerView.class, true)
-                                .excludeTarget(SunPhaseView.class, true)
-                                .excludeTarget(NestedScrollView.class, true)
-                                .excludeTarget(SwipeRefreshLayout.class, true);
-                    }
-                    if (returnTransition != null) {
-                        returnTransition
-                                .excludeTarget(R.id.image_view, true)
-                                .excludeTarget(R.id.gradient_view, true)
-                                .excludeTarget(ForecastGraphPanel.class, true)
-                                .excludeChildren(ForecastGraphPanel.class, true)
-                                .excludeTarget(GridView.class, true)
-                                .excludeChildren(GridView.class, true)
-                                .excludeTarget(RecyclerView.class, true)
-                                .excludeChildren(RecyclerView.class, true)
-                                .excludeTarget(SunPhaseView.class, true)
-                                .excludeTarget(NestedScrollView.class, true)
-                                .excludeTarget(SwipeRefreshLayout.class, true);
-                    }
-                }
-            });
-        }
-
         // Restrict control to Kitkat+ for Chromium WebView
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             if (FeatureSettings.isRadarEnabled() && weatherView.getRadarURL() != null) {
@@ -1010,7 +961,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
     private void loadBackgroundImage(final String imageURI, final boolean skipCache) {
         if (isAlive()) {
-            binding.imageView.post(new Runnable() {
+            binding.imageView.postOnAnimation(new Runnable() {
                 @Override
                 public void run() {
                     // Reload background image
@@ -1022,22 +973,22 @@ public class WeatherNowFragment extends WindowColorFragment
                                     .apply(RequestOptions.centerCropTransform()
                                             .format(DecodeFormat.PREFER_RGB_565)
                                             .skipMemoryCache(skipCache))
-                                    .listener(new RequestListener<Drawable>() {
+                                    .transition(DrawableTransitionOptions.withCrossFade())
+                                    .addListener(new RequestListener<Drawable>() {
                                         @Override
                                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                            // Perform manual shared element transition
-                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                                TransitionHelper.performElementTransition(WeatherNowFragment.this, binding.imageView);
-                                            }
                                             return false;
                                         }
 
                                         @Override
                                         public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                            // Perform manual shared element transition
-                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                                TransitionHelper.performElementTransition(WeatherNowFragment.this, binding.imageView);
-                                            }
+                                            binding.refreshLayout.postOnAnimation(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    if (!isAlive()) return;
+                                                    binding.refreshLayout.setRefreshing(false);
+                                                }
+                                            });
                                             return false;
                                         }
                                     })
@@ -1320,19 +1271,21 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     private void refreshWeather(final boolean forceRefresh) {
-        binding.refreshLayout.setRefreshing(true);
+        if (isAlive()) {
+            binding.refreshLayout.setRefreshing(true);
 
-        if (wLoader != null && !isCtsCancelRequested()) {
-            wLoader.loadWeatherData(new WeatherRequest.Builder()
-                    .forceRefresh(forceRefresh)
-                    .setErrorListener(WeatherNowFragment.this)
-                    .build())
-                    .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
-                        @Override
-                        public void onSuccess(final Weather weather) {
-                            onWeatherLoaded(location, weather);
-                        }
-                    });
+            if (wLoader != null && !isCtsCancelRequested()) {
+                wLoader.loadWeatherData(new WeatherRequest.Builder()
+                        .forceRefresh(forceRefresh)
+                        .setErrorListener(WeatherNowFragment.this)
+                        .build())
+                        .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
+                            @Override
+                            public void onSuccess(final Weather weather) {
+                                onWeatherLoaded(location, weather);
+                            }
+                        });
+            }
         }
     }
 
@@ -1441,8 +1394,7 @@ public class WeatherNowFragment extends WindowColorFragment
             getSysBarColorMgr().setSystemBarColors(bg_color);
         }
 
-        binding.appBar.setBackgroundColor(bg_color);
-        binding.rootView.setStatusBarBackgroundColor(bg_color);
+        binding.toolbar.setBackgroundColor(bg_color);
         binding.getRoot().setBackgroundColor(bg_color);
     }
 
@@ -1797,13 +1749,21 @@ public class WeatherNowFragment extends WindowColorFragment
         }
 
         @BindingAdapter("imageData")
-        public void getBackgroundAttribution(TextView view, ImageDataViewModel imageData) {
+        public void getBackgroundAttribution(final TextView view, final ImageDataViewModel imageData) {
             if (imageData != null && !StringUtils.isNullOrWhitespace(imageData.getOriginalLink())) {
-                view.setText(HtmlCompat.fromHtml(String.format("<a href=\"%s\">%s %s (%s)</a>",
-                        imageData.getOriginalLink(), view.getContext().getString(R.string.attrib_prefix), imageData.getArtistName(), imageData.getSiteName()),
-                        HtmlCompat.FROM_HTML_MODE_COMPACT));
+                SpannableString text = new SpannableString(String.format("%s %s (%s)",
+                        view.getContext().getString(R.string.attrib_prefix), imageData.getArtistName(), imageData.getSiteName()));
+                text.setSpan(new UnderlineSpan(), 0, text.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                view.setText(text);
+                view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(imageData.getOriginalLink())));
+                    }
+                });
             } else {
                 view.setText("");
+                view.setOnClickListener(null);
             }
         }
 

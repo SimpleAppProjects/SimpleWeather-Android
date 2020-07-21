@@ -13,7 +13,7 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:hideIfNull="@{weatherView.beaufort}">
@@ -29,15 +29,17 @@
             android:textSize="16sp"
             android:textStyle="bold"
             style="@style/ShadowText"
-            app:layout_constraintBottom_toTopOf="@id/beaufort_icon"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentLeft="true" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/beaufort_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:paddingLeft="12dp"
             android:paddingRight="12dp"
             android:paddingStart="12dp"
@@ -48,9 +50,9 @@
             android:textSize="36sp"
             style="@style/ShadowText"
             app:fontFamily="@font/weathericons"
-            app:layout_constraintBottom_toTopOf="@+id/beaufort_progressBar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/beaufort_label"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/beaufort_label"
             tools:text="@string/wi_wind_beaufort_11" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -63,11 +65,12 @@
             android:textAppearance="?android:textAppearanceMedium"
             android:textColor="@color/colorTextPrimary"
             style="@style/ShadowText"
-            app:layout_constraintBottom_toBottomOf="@id/beaufort_icon"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@id/beaufort_icon"
-            app:layout_constraintTop_toBottomOf="@id/beaufort_label"
+            android:layout_below="@id/beaufort_label"
+            android:layout_alignBottom="@id/beaufort_icon"
+            android:layout_alignParentEnd="true"
+            android:layout_toEndOf="@id/beaufort_icon"
+            android:layout_toRightOf="@id/beaufort_icon"
+            android:layout_alignParentRight="true"
             tools:text="11, Extreme" />
 
         <ProgressBar
@@ -84,10 +87,11 @@
             android:progress="@{weatherView.beaufort != null ? weatherView.beaufort.progress : 0}"
             android:progressDrawable="@drawable/rounded_progress_horizontal_material"
             app:progressColor="@{weatherView.beaufort != null ? weatherView.beaufort.progressColor : 0}"
-            app:layout_constraintBottom_toTopOf="@+id/border"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/beaufort_icon"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/beaufort_icon"
             tools:progress="11"
             tools:max="12" />
 
@@ -97,10 +101,11 @@
             android:layout_height="1dp"
             android:alpha="0.2"
             android:background="@color/colorOnSurface"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/beaufort_progressBar" />
+            android:layout_below="@id/beaufort_progressBar"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </RelativeLayout>
 </layout>

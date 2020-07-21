@@ -13,7 +13,7 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:hideIfNull="@{weatherView.uvIndex}">
@@ -29,15 +29,17 @@
             android:textSize="16sp"
             android:textStyle="bold"
             style="@style/ShadowText"
-            app:layout_constraintBottom_toTopOf="@id/uv_icon"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentLeft="true" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/uv_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:paddingLeft="12dp"
             android:paddingRight="12dp"
             android:paddingStart="12dp"
@@ -48,9 +50,9 @@
             android:textSize="36sp"
             style="@style/ShadowText"
             app:fontFamily="@font/weathericons"
-            app:layout_constraintBottom_toTopOf="@+id/uv_progressBar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/uv_label" />
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/uv_label" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/uv_description"
@@ -62,11 +64,12 @@
             android:textAppearance="?android:textAppearanceMedium"
             android:textColor="@color/colorTextPrimary"
             style="@style/ShadowText"
-            app:layout_constraintBottom_toBottomOf="@id/uv_icon"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@id/uv_icon"
-            app:layout_constraintTop_toBottomOf="@id/uv_label"
+            android:layout_below="@id/uv_label"
+            android:layout_alignBottom="@id/uv_icon"
+            android:layout_alignParentEnd="true"
+            android:layout_toEndOf="@id/uv_icon"
+            android:layout_toRightOf="@id/uv_icon"
+            android:layout_alignParentRight="true"
             tools:text="11, Extreme" />
 
         <ProgressBar
@@ -83,23 +86,25 @@
             android:progress="@{weatherView.uvIndex != null ? weatherView.uvIndex.progress : 0}"
             android:progressDrawable="@drawable/rounded_progress_horizontal_material"
             app:progressColor="@{weatherView.uvIndex != null ? weatherView.uvIndex.progressColor : 0}"
-            app:layout_constraintBottom_toTopOf="@+id/uv_border"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/uv_icon"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/uv_icon"
             tools:progress="7"
             tools:max="11" />
 
         <View
-            android:id="@+id/uv_border"
+            android:id="@+id/border"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:alpha="0.2"
             android:background="@color/colorOnSurface"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/uv_progressBar" />
+            android:layout_below="@id/uv_progressBar"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </RelativeLayout>
 </layout>

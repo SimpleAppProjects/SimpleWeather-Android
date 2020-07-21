@@ -70,7 +70,7 @@ public class ForecastsViewModel extends ViewModel {
 
             currentForecastsData.observeForever(forecastObserver);
             if (forecasts != null)
-                forecasts.setValue(currentForecastsData.getValue());
+                forecasts.postValue(currentForecastsData.getValue());
 
             DataSource.Factory<Integer, HourlyForecastItemViewModel> hrFactory = Settings.getWeatherDAO().loadHourlyForecastsByQueryOrderByDate(locationKey)
                     .map(new Function<HourlyForecast, HourlyForecastItemViewModel>() {
@@ -94,7 +94,7 @@ public class ForecastsViewModel extends ViewModel {
                     .build();
             currentHrForecastsData.observeForever(hrforecastObserver);
             if (hourlyForecasts != null)
-                hourlyForecasts.setValue(currentHrForecastsData.getValue());
+                hourlyForecasts.postValue(currentHrForecastsData.getValue());
         } else if (!ObjectsCompat.equals(tempUnit, Settings.getTempUnit())) {
             tempUnit = Settings.getTempUnit();
 
@@ -111,7 +111,7 @@ public class ForecastsViewModel extends ViewModel {
         @Override
         public void onChanged(PagedList<ForecastItemViewModel> forecastItemViewModels) {
             if (forecasts != null) {
-                forecasts.setValue(forecastItemViewModels);
+                forecasts.postValue(forecastItemViewModels);
             }
         }
     };
@@ -120,7 +120,7 @@ public class ForecastsViewModel extends ViewModel {
         @Override
         public void onChanged(PagedList<HourlyForecastItemViewModel> forecastItemViewModels) {
             if (hourlyForecasts != null) {
-                hourlyForecasts.setValue(forecastItemViewModels);
+                hourlyForecasts.postValue(forecastItemViewModels);
             }
         }
     };

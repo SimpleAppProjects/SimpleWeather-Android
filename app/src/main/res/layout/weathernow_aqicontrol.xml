@@ -13,7 +13,7 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:hideIfNull="@{weatherView.airQuality}">
@@ -29,25 +29,25 @@
             android:textColor="@color/colorTextPrimary"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@id/aqi_level"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/aqi_index"
             android:layout_width="85dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@{weatherView.airQuality != null ? weatherView.airQuality.index + `` : null}"
             android:textColor="@{weatherView.airQuality != null ? weatherView.airQuality.progressColor : 0}"
             android:textSize="36sp"
             style="@style/ShadowText"
-            app:layout_constraintBottom_toTopOf="@id/aqi_progressBar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/aqi_level"
-            app:layout_constraintTop_toBottomOf="@id/aqi_label"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/aqi_label"
+            android:layout_above="@id/aqi_progressBar"
             tools:text="300" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -61,12 +61,11 @@
             android:textAppearance="?attr/textAppearanceHeadline6"
             android:textColor="@color/colorTextPrimary"
             android:textSize="16sp"
-            app:layout_constraintBottom_toTopOf="@id/aqi_description"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@id/aqi_index"
-            app:layout_constraintTop_toBottomOf="@id/aqi_label"
-            app:layout_constraintVertical_bias="0.0"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_toEndOf="@id/aqi_index"
+            android:layout_below="@id/aqi_label"
+            android:layout_toRightOf="@id/aqi_index"
             tools:text="@string/aqi_level_300" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -81,11 +80,11 @@
             android:textAppearance="?android:textAppearanceMedium"
             android:textColor="@color/colorTextPrimary"
             android:textSize="14sp"
-            app:layout_constraintBottom_toTopOf="@id/aqi_progressBar"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@id/aqi_index"
-            app:layout_constraintTop_toBottomOf="@id/aqi_level"
+            android:layout_below="@id/aqi_level"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_toEndOf="@id/aqi_index"
+            android:layout_toRightOf="@id/aqi_index"
             tools:text="@string/aqi_desc_300" />
 
         <ProgressBar
@@ -101,11 +100,12 @@
             android:max="@{weatherView.airQuality != null ? weatherView.airQuality.progressMax : 1}"
             android:progress="@{weatherView.airQuality != null ? weatherView.airQuality.progress : 0}"
             android:progressDrawable="@drawable/rounded_progress_horizontal_material"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/aqi_description"
             app:progressColor="@{weatherView.airQuality != null ? weatherView.airQuality.progressColor : 0}"
-            app:layout_constraintBottom_toTopOf="@id/aqi_attribution"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/aqi_index"
             tools:progress="11"
             tools:max="12" />
 
@@ -125,10 +125,11 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
             android:textColor="@color/colorTextPrimary"
             android:textSize="14sp"
-            app:layout_constraintBottom_toTopOf="@id/border"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/aqi_progressBar" />
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/aqi_progressBar" />
 
         <View
             android:id="@+id/border"
@@ -136,10 +137,11 @@
             android:layout_height="1dp"
             android:alpha="0.2"
             android:background="@color/colorOnSurface"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/aqi_attribution" />
+            android:layout_below="@id/aqi_attribution"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </RelativeLayout>
 </layout>

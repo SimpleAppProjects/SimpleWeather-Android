@@ -8,9 +8,9 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import androidx.annotation.ColorInt;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.ColorUtils;
 
 import com.google.android.material.shape.MaterialShapeDrawable;
@@ -20,7 +20,7 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.CardWeatherDetailBinding;
 
-public class DetailCard extends ConstraintLayout {
+public class DetailCard extends LinearLayout {
     private CardWeatherDetailBinding binding;
     private float mShadowRadius;
     private float mShadowDx;
@@ -65,6 +65,7 @@ public class DetailCard extends ConstraintLayout {
 
     private void initialize(Context context) {
         this.currentConfig = new Configuration(context.getResources().getConfiguration());
+        setOrientation(VERTICAL);
 
         LayoutInflater inflater = LayoutInflater.from(context);
         binding = CardWeatherDetailBinding.inflate(inflater, this, true);

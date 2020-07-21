@@ -110,7 +110,6 @@ import com.thewizrd.simpleweather.fragments.ToolbarFragment;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperCallback;
 import com.thewizrd.simpleweather.helpers.OffsetMargin;
 import com.thewizrd.simpleweather.helpers.SwipeToDeleteOffSetItemDecoration;
-import com.thewizrd.simpleweather.helpers.TransitionHelper;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
@@ -341,10 +340,6 @@ public class LocationsFragment extends ToolbarFragment
                             .setReorderingAllowed(true)
                             .commit();
                 } else {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        home.requireArguments()
-                                .putBundle(TransitionHelper.ARGS_TRANSITION, TransitionHelper.captureElementValues(view));
-                    }
                     home.requireArguments()
                             .putString(Constants.ARGS_BACKGROUND, vm.getImageData() != null ? vm.getImageData().getImageURI() : null);
                     home.requireArguments()

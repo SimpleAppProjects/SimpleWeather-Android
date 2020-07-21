@@ -12,13 +12,15 @@
 
     <merge
         tools:context=".controls.DetailCard"
-        tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+        tools:parentTag="android.widget.LinearLayout"
+        android:orientation="vertical">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/detail_label"
             style="@style/WeatherDetails"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_weight="1"
             android:gravity="center"
             android:text="@{viewModel.label}"
             android:textAppearance="@style/ShadowText"
@@ -35,8 +37,9 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/detail_icon"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_weight="1"
             android:gravity="center"
             android:includeFontPadding="false"
             android:scrollbars="none"
@@ -48,33 +51,20 @@
             android:textColor="@android:color/white"
             android:textSize="24sp"
             app:fontFamily="@font/weathericons"
-            app:layout_constrainedHeight="true"
-            app:layout_constraintBottom_toTopOf="@+id/detail_value"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/detail_label"
-            app:layout_constraintVertical_weight="1"
-            tools:fontFamily="@font/weathericons"
             tools:text="@string/wi_barometer" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/detail_value"
             style="@style/WeatherDetails"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_weight="1"
             android:gravity="center"
             android:scrollbars="none"
             android:text="@{viewModel.value}"
             android:textAppearance="@style/ShadowText"
             android:textColor="@android:color/white"
             android:textSize="@dimen/forecast_condition_size"
-            app:layout_constrainedHeight="true"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/detail_icon"
-            app:layout_constraintVertical_bias="0"
-            app:layout_constraintVertical_weight="1"
             tools:fontFamily="@font/weathericons"
             tools:text=" 50.00 in" />
 

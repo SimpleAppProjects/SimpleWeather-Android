@@ -57,7 +57,7 @@ public class ForecastGraphViewModel extends ViewModel {
 
             currentForecastsData.observeForever(forecastObserver);
             if (forecasts != null)
-                forecasts.setValue(forecastMapper.apply(currentForecastsData.getValue()));
+                forecasts.postValue(forecastMapper.apply(currentForecastsData.getValue()));
 
             if (currentHrForecastsData != null) {
                 currentHrForecastsData.removeObserver(hrforecastObserver);
@@ -65,15 +65,15 @@ public class ForecastGraphViewModel extends ViewModel {
             currentHrForecastsData = Settings.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimit(locationKey, 24);
             currentHrForecastsData.observeForever(hrforecastObserver);
             if (hourlyForecasts != null)
-                hourlyForecasts.setValue(hrForecastMapper.apply(currentHrForecastsData.getValue()));
+                hourlyForecasts.postValue(hrForecastMapper.apply(currentHrForecastsData.getValue()));
         } else if (!ObjectsCompat.equals(tempUnit, Settings.getTempUnit())) {
             tempUnit = Settings.getTempUnit();
 
             if (currentForecastsData != null && currentForecastsData.getValue() != null) {
-                forecasts.setValue(forecastMapper.apply(currentForecastsData.getValue()));
+                forecasts.postValue(forecastMapper.apply(currentForecastsData.getValue()));
             }
             if (currentHrForecastsData != null && currentHrForecastsData.getValue() != null) {
-                hourlyForecasts.setValue(hrForecastMapper.apply(currentHrForecastsData.getValue()));
+                hourlyForecasts.postValue(hrForecastMapper.apply(currentHrForecastsData.getValue()));
             }
         }
     }
@@ -133,7 +133,7 @@ public class ForecastGraphViewModel extends ViewModel {
         @Override
         public void onChanged(Forecasts forecastData) {
             if (forecasts != null) {
-                forecasts.setValue(forecastMapper.apply(forecastData));
+                forecasts.postValue(forecastMapper.apply(forecastData));
             }
         }
     };
@@ -142,7 +142,7 @@ public class ForecastGraphViewModel extends ViewModel {
         @Override
         public void onChanged(List<HourlyForecast> forecastData) {
             if (hourlyForecasts != null) {
-                hourlyForecasts.setValue(hrForecastMapper.apply(forecastData));
+                hourlyForecasts.postValue(hrForecastMapper.apply(forecastData));
             }
         }
     };

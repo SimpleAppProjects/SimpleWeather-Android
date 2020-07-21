@@ -229,8 +229,8 @@ public class LineView extends HorizontalScrollView {
         return this.graph.dataLists;
     }
 
-    public void resetData() {
-        this.graph.resetData();
+    public void resetData(boolean invalidate) {
+        this.graph.resetData(invalidate);
     }
 
     /*
@@ -313,7 +313,7 @@ public class LineView extends HorizontalScrollView {
             yCoordinateList = new ArrayList<>();
             drawDotLists = new ArrayList<>();
 
-            resetData();
+            resetData(false);
             dataLabels.addOnListChangedCallback(onXLabelDataChangedListener);
             dataLists.addOnListChangedCallback(onLineDataSeriesChangedListener);
 
@@ -371,7 +371,7 @@ public class LineView extends HorizontalScrollView {
             return graphHeight;
         }
 
-        private void resetData() {
+        private void resetData(boolean invalidate) {
             this.dataLists.clear();
             this.dataLabels.clear();
             this.xCoordinateList.clear();
@@ -382,7 +382,9 @@ public class LineView extends HorizontalScrollView {
             drawIconsLabels = false;
             horizontalGridNum = MIN_HORIZONTAL_GRID_NUM;
             verticalGridNum = MIN_VERTICAL_GRID_NUM;
-            this.postInvalidate();
+            if (invalidate) {
+                this.postInvalidate();
+            }
         }
 
         private OnListChangedListener<XLabelData> onXLabelDataChangedListener = new OnListChangedListener<XLabelData>() {

@@ -95,7 +95,7 @@ public class ForecastGraphPanel extends LinearLayout {
         updateTabColors();
         updateLineViewColors();
 
-        view.invalidate();
+        view.postInvalidate();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -273,7 +273,7 @@ public class ForecastGraphPanel extends LinearLayout {
         updateLineViewColors();
         updateTabs();
 
-        view.resetData();
+        view.resetData(false);
 
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override

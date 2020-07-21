@@ -17,10 +17,6 @@
         android:layout_height="wrap_content"
         app:forecast_data="@{forecastsView.hourlyForecasts}"
         app:hideIfEmpty="@{forecastsView.hourlyForecasts}"
-        app:layout_constraintTop_toBottomOf="@id/hourly_forecast_label"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/hourly_forecast_border"
         tools:layout_height="@dimen/forecast_panel_height" />
 
 </layout>
