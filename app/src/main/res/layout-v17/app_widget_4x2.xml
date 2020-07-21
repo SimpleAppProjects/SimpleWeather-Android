@@ -51,7 +51,6 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="14sp"
-                android:textStyle="bold"
                 tools:text="New York, NY" />
 
             <TextView

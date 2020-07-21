@@ -105,9 +105,10 @@
                 android:layout_alignBaseline="@id/condition_temp"
                 android:layout_alignBottom="@id/condition_temp"
                 android:layout_alignParentLeft="true"
-                android:baseline="20dp"
+                android:baseline="25dp"
                 android:maxWidth="30dp"
-                tools:src="@drawable/ic_weather_icon" />
+                tools:tint="@android:color/white"
+                tools:src="@drawable/night_alt_partly_cloudy" />
 
             <TextView
                 android:id="@+id/condition_temp"
@@ -149,6 +150,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
         android:textColor="@android:color/white"
         android:textSize="14sp"
+        android:textStyle="bold"
         tools:text="New York, NY" />
 
 </LinearLayout>

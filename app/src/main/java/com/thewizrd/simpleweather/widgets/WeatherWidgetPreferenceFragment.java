@@ -162,7 +162,6 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
     private View mRootView;
     private AppBarLayout appBarLayout;
     private Toolbar mToolbar;
-    private View mDialogFragmentContainer;
     private View mSearchFragmentContainer;
     private NestedScrollView mScrollView;
     private LocationSearchFragment mSearchFragment;
@@ -278,7 +277,6 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
 
         appBarLayout = root.findViewById(R.id.app_bar);
         mToolbar = root.findViewById(R.id.toolbar);
-        mDialogFragmentContainer = root.findViewById(R.id.dialog_fragment_container);
         mSearchFragmentContainer = root.findViewById(R.id.search_fragment_container);
 
         mRootView = (View) getAppCompatActivity().findViewById(R.id.fragment_container).getParent();
@@ -299,14 +297,6 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
                         paddingEnd + insets.getSystemWindowInsetRight(),
                         paddingBottom + insets.getSystemWindowInsetBottom());
                 return insets;
-            }
-        });
-
-        ViewCompat.setOnApplyWindowInsetsListener(mDialogFragmentContainer, new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
-                return insets.consumeSystemWindowInsets();
             }
         });
 

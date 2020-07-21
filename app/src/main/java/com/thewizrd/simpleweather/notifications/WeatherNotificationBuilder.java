@@ -50,7 +50,7 @@ public class WeatherNotificationBuilder {
 
         // Condition text
         updateViews.setTextViewText(R.id.condition_weather,
-                String.format("%s° - %s", !StringUtils.isNullOrWhitespace(temp) ? temp : "--", condition));
+                String.format("%s°%s - %s", !StringUtils.isNullOrWhitespace(temp) ? temp : "--", viewModel.getTempUnit(), condition));
 
         // Details
         updateViews.setTextViewText(R.id.condition_details,

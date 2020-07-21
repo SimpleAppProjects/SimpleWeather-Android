@@ -74,13 +74,4 @@
         android:visibility="gone"
         android:translationZ="@dimen/floating_window_z" />
 
-    <RelativeLayout
-        android:id="@+id/dialog_fragment_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:focusable="true"
-        android:visibility="gone"
-        android:translationZ="@dimen/floating_window_z" />
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

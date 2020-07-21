@@ -142,7 +142,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintVertical_bias="0.0"
-                        app:layout_optimizationLevel="direct|chains|dimensions|groups|graph|graph_wrap"
+                        app:layout_optimizationLevel="direct|chains|dimensions|groups|graph|graph_wrap|barrier"
                         tools:layout_height="wrap_content">
 
                         <androidx.constraintlayout.widget.Guideline

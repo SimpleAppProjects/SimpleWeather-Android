@@ -121,6 +121,7 @@
                 android:layout_gravity="start|center_vertical"
                 android:layout_weight="1"
                 android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
                 android:paddingLeft="4dp"
                 android:paddingStart="4dp"
