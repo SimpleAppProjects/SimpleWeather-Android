@@ -769,16 +769,16 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
                 if (pandaBG != null) {
                     if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.PANDA) {
                         pandaBG.setColorFilter(isNightMode ? Colors.BLACK : Colors.WHITE);
-                        pandaBG.setImageResource(R.drawable.widget_background_bottom_corners);
+                        pandaBG.setImageResource(R.drawable.widget_background);
                     } else if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.PENDINGCOLOR) {
                         pandaBG.setColorFilter(0xff88b0c8);
-                        pandaBG.setImageResource(R.drawable.widget_background_bottom_corners);
+                        pandaBG.setImageResource(R.drawable.widget_background);
                     } else if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.LIGHT) {
                         pandaBG.setColorFilter(Colors.WHITE);
-                        pandaBG.setImageResource(R.drawable.widget_background_bottom_corners);
+                        pandaBG.setImageResource(R.drawable.widget_background);
                     } else if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.DARK) {
                         pandaBG.setColorFilter(Colors.BLACK);
-                        pandaBG.setImageResource(R.drawable.widget_background_bottom_corners);
+                        pandaBG.setImageResource(R.drawable.widget_background);
                     } else {
                         pandaBG.setImageBitmap(null);
                     }

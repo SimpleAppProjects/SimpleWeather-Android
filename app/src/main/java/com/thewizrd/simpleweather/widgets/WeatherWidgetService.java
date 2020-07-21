@@ -32,8 +32,8 @@ import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DecodeFormat;
+import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -871,16 +871,16 @@ public class WeatherWidgetService extends JobIntentService {
 
                 if (style == WidgetUtils.WidgetBackgroundStyle.PANDA) {
                     updateViews.setInt(R.id.panda_background, "setColorFilter", isNightMode ? Colors.BLACK : Colors.WHITE);
-                    updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background_bottom_corners);
+                    updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background);
                 } else if (style == WidgetUtils.WidgetBackgroundStyle.PENDINGCOLOR) {
                     updateViews.setInt(R.id.panda_background, "setColorFilter", weather.getPendingBackground());
-                    updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background_bottom_corners);
+                    updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background);
                 } else if (style == WidgetUtils.WidgetBackgroundStyle.LIGHT) {
                     updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.WHITE);
-                    updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background_bottom_corners);
+                    updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background);
                 } else if (style == WidgetUtils.WidgetBackgroundStyle.DARK) {
                     updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.BLACK);
-                    updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background_bottom_corners);
+                    updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background);
                 } else {
                     updateViews.setImageViewBitmap(R.id.panda_background, null);
                 }
@@ -1157,7 +1157,7 @@ public class WeatherWidgetService extends JobIntentService {
                         .asBitmap()
                         .load(backgroundURI)
                         .apply(RequestOptions.formatOf(DecodeFormat.PREFER_RGB_565)
-                                .transforms(new CenterCrop(), new TransparentOverlay(0x33), new RoundedCorners((int) radius))
+                                .transform(new MultiTransformation<Bitmap>(new CenterCrop(), new TransparentOverlay(0x33)))
                         )
                         .into(new SimpleTarget<Bitmap>(imgWidth, imgHeight) {
                             @Override
