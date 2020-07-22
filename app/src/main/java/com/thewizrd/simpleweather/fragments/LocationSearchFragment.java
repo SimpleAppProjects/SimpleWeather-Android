@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,6 +39,7 @@ import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -47,6 +49,7 @@ import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CustomException;
+import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
@@ -173,9 +176,9 @@ public class LocationSearchFragment extends CustomFragment {
             showLoading(true);
             enableRecyclerView(false);
 
-            AsyncTask.create(new Callable<Boolean>() {
+            AsyncTask.create(new Callable<LocationData>() {
                 @Override
-                public Boolean call() throws CustomException, InterruptedException, WeatherException {
+                public LocationData call() throws CustomException, InterruptedException, WeatherException {
                     LocationQueryViewModel queryResult = new LocationQueryViewModel();
 
                     if (!StringUtils.isNullOrEmpty(mAdapter.getDataset().get(position).getLocationQuery()))
@@ -225,7 +228,7 @@ public class LocationSearchFragment extends CustomFragment {
 
                     if (loc != null) {
                         // Location exists; return
-                        return true;
+                        return null;
                     }
 
                     if (ctsCancelRequested()) throw new InterruptedException();
@@ -259,13 +262,19 @@ public class LocationSearchFragment extends CustomFragment {
                                 }
                             }));
 
-                    return true;
+                    return location;
                 }
-            }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Boolean>() {
+            }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<LocationData>() {
                 @Override
-                public void onSuccess(Boolean success) {
+                public void onSuccess(LocationData result) {
                     // Go back to where we started
-                    Navigation.findNavController(binding.getRoot()).navigateUp();
+                    NavController navController = Navigation.findNavController(binding.getRoot());
+                    if (result != null) {
+                        navController.getPreviousBackStackEntry()
+                                .getSavedStateHandle()
+                                .set(Constants.KEY_DATA, JSONParser.serializer(result, LocationData.class));
+                    }
+                    navController.navigateUp();
                 }
             }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
                 @Override
@@ -555,6 +564,8 @@ public class LocationSearchFragment extends CustomFragment {
                 ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground) : Colors.BLACK;
         view.setBackgroundColor(bg_color);
         searchBarBinding.getRoot().setBackgroundColor(bg_color);
+
+        requestSearchbarFocus();
     }
 
     @Override

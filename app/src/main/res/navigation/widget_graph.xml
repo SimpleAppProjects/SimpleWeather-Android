@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/widget_graph"
+    app:startDestination="@id/weatherWidgetPreferenceFragment">
+
+    <fragment
+        android:id="@+id/weatherWidgetPreferenceFragment"
+        android:name="com.thewizrd.simpleweather.widgets.WeatherWidgetPreferenceFragment"
+        android:label="WeatherWidgetPreferenceFragment">
+        <action
+            android:id="@+id/action_weatherWidgetPreferenceFragment_to_locationSearchFragment2"
+            app:destination="@id/locationSearchFragment2" />
+        <argument
+            android:name="appWidgetId"
+            app:argType="integer"
+            android:defaultValue="0" />
+        <argument
+            android:name="SimpleWeather.Droid.extra.LOCATION_NAME"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="SimpleWeather.Droid.extra.LOCATION_QUERY"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/locationSearchFragment2"
+        android:name="com.thewizrd.simpleweather.fragments.LocationSearchFragment"
+        android:label="LocationSearchFragment" />
+</navigation>

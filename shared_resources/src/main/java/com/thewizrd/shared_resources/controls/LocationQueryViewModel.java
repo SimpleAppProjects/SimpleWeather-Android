@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources.controls;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.AdditionalDataItem;
 import com.thewizrd.shared_resources.locationdata.here.ResultItem;
 import com.thewizrd.shared_resources.locationdata.here.SuggestionsItem;
@@ -30,6 +31,17 @@ public class LocationQueryViewModel {
         locationName = SimpleLibrary.getInstance().getAppContext().getString(R.string.error_noresults);
         locationCountry = "";
         locationQuery = "";
+    }
+
+    public LocationQueryViewModel(LocationData data) {
+        locationQuery = data.getQuery();
+        locationName = data.getName();
+        locationLat = data.getLatitude();
+        locationLong = data.getLongitude();
+        locationTZLong = data.getTzLong();
+        weatherSource = data.getWeatherSource();
+        locationSource = data.getLocationSource();
+        locationCountry = data.getCountryCode();
     }
 
     public LocationQueryViewModel(SuggestionsItem location, String weatherAPI) {

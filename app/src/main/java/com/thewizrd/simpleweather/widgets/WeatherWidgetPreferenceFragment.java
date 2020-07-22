@@ -30,11 +30,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -54,14 +49,13 @@ import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+import androidx.navigation.Navigation;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.SwitchPreference;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.AutoTransition;
-import androidx.transition.Transition;
 import androidx.transition.TransitionManager;
 
 import com.bumptech.glide.Glide;
@@ -82,21 +76,16 @@ import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.transition.MaterialContainerTransform;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.Constants;
-import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.ComboBoxItem;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
-import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
-import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CustomException;
@@ -114,13 +103,11 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.fragments.LocationSearchFragment;
 import com.thewizrd.simpleweather.preferences.ArrayListPreference;
 import com.thewizrd.simpleweather.preferences.CustomPreferenceFragmentCompat;
 import com.thewizrd.simpleweather.setup.SetupActivity;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
-import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.threeten.bp.LocalDateTime;
@@ -135,7 +122,7 @@ import java.util.concurrent.TimeUnit;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.getWidgetTypeFromID;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.isForecastWidget;
 
-public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCompat implements OnBackPressedFragmentListener {
+public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCompat {
     // Widget id for ConfigurationActivity
     private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
     private WidgetType mWidgetType = WidgetType.Unknown;
@@ -162,11 +149,8 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
     private View mRootView;
     private AppBarLayout appBarLayout;
     private Toolbar mToolbar;
-    private View mSearchFragmentContainer;
     private NestedScrollView mScrollView;
-    private LocationSearchFragment mSearchFragment;
     private CharSequence mLastSelectedValue;
-    private boolean inSearchUI;
 
     private ViewGroup widgetContainer;
     private boolean isWidgetInit;
@@ -277,7 +261,6 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
 
         appBarLayout = root.findViewById(R.id.app_bar);
         mToolbar = root.findViewById(R.id.toolbar);
-        mSearchFragmentContainer = root.findViewById(R.id.search_fragment_container);
 
         mRootView = (View) getAppCompatActivity().findViewById(R.id.fragment_container).getParent();
         // Make full transparent statusBar
@@ -300,14 +283,6 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
             }
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(mSearchFragmentContainer, new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
-                return insets;
-            }
-        });
-
         getAppCompatActivity().setSupportActionBar(mToolbar);
         getAppCompatActivity().getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -315,13 +290,6 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
         Drawable navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, ActivityUtils.getResourceId(getAppCompatActivity(), R.attr.homeAsUpIndicator)));
         DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText));
         getAppCompatActivity().getSupportActionBar().setHomeAsUpIndicator(navIcon);
-
-        mSearchFragmentContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                exitSearchUi(false);
-            }
-        });
 
         cts = new CancellationTokenSource();
 
@@ -451,7 +419,8 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
                 CharSequence selectedValue = (CharSequence) newValue;
                 if (Constants.KEY_SEARCH.contentEquals(selectedValue)) {
                     // Setup search UI
-                    prepareSearchUI();
+                    Navigation.findNavController(getView())
+                            .navigate(WeatherWidgetPreferenceFragmentDirections.actionWeatherWidgetPreferenceFragmentToLocationSearchFragment2());
                     query_vm = null;
                     return false;
                 } else if (Constants.KEY_GPS.contentEquals(selectedValue)) {
@@ -535,19 +504,42 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
             tap2SwitchPref.setVisible(true);
             tap2SwitchPref.setChecked(WidgetUtils.isTapToSwitchEnabled(mAppWidgetId));
         }
-
-        // Get SearchUI state
-        if (savedInstanceState != null && savedInstanceState.getBoolean(Constants.KEY_SEARCHUI, false)) {
-            inSearchUI = true;
-
-            // Restart SearchUI
-            prepareSearchUI();
-        }
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        MutableLiveData<String> liveData =
+                Navigation.findNavController(view).getCurrentBackStackEntry()
+                        .getSavedStateHandle()
+                        .getLiveData(Constants.KEY_DATA);
+        liveData.observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String result) {
+                // Do something with the result.
+                if (result != null) {
+                    // Save data
+                    LocationData data = JSONParser.deserializer(result, LocationData.class);
+                    if (data != null) {
+                        query_vm = new LocationQueryViewModel(data);
+                        final ComboBoxItem item = new ComboBoxItem(query_vm.getLocationName(), query_vm.getLocationQuery());
+                        final int idx = locationPref.getEntryCount() - 1;
+                        locationPref.insertEntry(idx, item.getDisplay(), item.getValue());
+                        locationPref.setValueIndex(idx);
+                        if (locationPref.getEntryCount() > MAX_LOCATIONS) {
+                            locationPref.removeEntry(locationPref.getEntryCount() - 1);
+                        }
+                        locationPref.callChangeListener(item.getValue());
+
+                        Navigation.findNavController(view).getCurrentBackStackEntry()
+                                .getSavedStateHandle().remove(Constants.KEY_DATA);
+                    } else {
+                        query_vm = null;
+                    }
+                }
+            }
+        });
 
         widgetContainer = view.findViewById(R.id.widget_container);
         initializeWidget();
@@ -878,326 +870,13 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
     }
 
     @Override
-    public boolean onBackPressed() {
-        if (inSearchUI) {
-            // We should let the user go back to usual screens with tabs.
-            exitSearchUi(false);
-            return true;
-        } else {
-            getAppCompatActivity().setResult(Activity.RESULT_CANCELED, resultValue);
-            return false;
-        }
-    }
-
-    @Override
-    public void onAttachFragment(@NonNull Fragment fragment) {
-        if (fragment instanceof LocationSearchFragment) {
-            mSearchFragment = (LocationSearchFragment) fragment;
-        }
-    }
-
-    @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
-        // Save ActionMode state
-        outState.putBoolean(Constants.KEY_SEARCHUI, inSearchUI);
-
         // Reset to last selected item
-        if (inSearchUI && query_vm == null && mLastSelectedValue != null)
+        if (query_vm == null && mLastSelectedValue != null)
             locationPref.setValue(mLastSelectedValue.toString());
 
         super.onSaveInstanceState(outState);
     }
-
-    private void prepareSearchUI() {
-        /*
-         * NOTE
-         * Compat issue: bring container to the front
-         * This is handled on API 21+ with the translationZ attribute
-         */
-        mSearchFragmentContainer.bringToFront();
-
-        enterSearchUi();
-        enterSearchUiTransition(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                if (mSearchFragment != null)
-                    mSearchFragment.requestSearchbarFocus();
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-    }
-
-    private void enterSearchUi() {
-        inSearchUI = true;
-
-        if (mSearchFragment == null) {
-            addSearchFragment();
-            return;
-        }
-        mSearchFragment.setUserVisibleHint(true);
-        final FragmentTransaction transaction = getChildFragmentManager()
-                .beginTransaction();
-        transaction.show(mSearchFragment);
-        transaction.commitAllowingStateLoss();
-        getChildFragmentManager().executePendingTransactions();
-    }
-
-    private void enterSearchUiTransition(final Animation.AnimationListener enterAnimationListener) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // FragmentContainer fade/translation animation
-            AnimationSet fragmentAniSet = new AnimationSet(true);
-            fragmentAniSet.setInterpolator(new DecelerateInterpolator());
-            AlphaAnimation fragFadeAni = new AlphaAnimation(0.0f, 1.0f);
-            TranslateAnimation fragmentAnimation = new TranslateAnimation(
-                    Animation.RELATIVE_TO_SELF, 0,
-                    Animation.RELATIVE_TO_SELF, 0,
-                    Animation.ABSOLUTE, mSearchFragmentContainer.getRootView().getHeight(),
-                    Animation.ABSOLUTE, 0);
-            fragmentAniSet.setDuration((long) (ANIMATION_DURATION * 1.5));
-            fragmentAniSet.setFillEnabled(false);
-            fragmentAniSet.addAnimation(fragFadeAni);
-            fragmentAniSet.addAnimation(fragmentAnimation);
-            fragmentAniSet.setAnimationListener(enterAnimationListener);
-            mSearchFragmentContainer.setVisibility(View.VISIBLE);
-            mSearchFragmentContainer.startAnimation(fragmentAniSet);
-        } else {
-            mSearchFragmentContainer.setVisibility(View.VISIBLE);
-            if (enterAnimationListener != null)
-                enterAnimationListener.onAnimationEnd(null);
-        }
-    }
-
-    private void addSearchFragment() {
-        if (mSearchFragment != null) {
-            return;
-        }
-        final FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-        final LocationSearchFragment searchFragment = new LocationSearchFragment();
-        searchFragment.setRecyclerOnClickListener(recyclerClickListener);
-        searchFragment.setUserVisibleHint(false);
-        ft.add(R.id.search_fragment_container, searchFragment);
-        ft.commitAllowingStateLoss();
-    }
-
-    private void removeSearchFragment() {
-        if (mSearchFragment != null) {
-            mSearchFragment.setUserVisibleHint(false);
-            final FragmentTransaction transaction = getChildFragmentManager()
-                    .beginTransaction();
-            transaction.remove(mSearchFragment);
-            mSearchFragment = null;
-            transaction.commitAllowingStateLoss();
-        }
-        mSearchFragmentContainer.setVisibility(View.GONE);
-    }
-
-    private void exitSearchUi(boolean skipAnimation) {
-        if (mSearchFragment != null) {
-            if (skipAnimation) {
-                removeSearchFragment();
-            } else {
-                exitSearchUiTransition(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        // Remove fragment once animation ends
-                        removeSearchFragment();
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                });
-            }
-        }
-
-        updateWindowColors();
-        hideInputMethod(getAppCompatActivity() == null ? null : getAppCompatActivity().getCurrentFocus());
-        inSearchUI = false;
-
-        // Reset to last selected item
-        if (query_vm == null && mLastSelectedValue != null)
-            locationPref.setValue(mLastSelectedValue.toString());
-    }
-
-    private void exitSearchUiTransition(final Animation.AnimationListener exitAnimationListener) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            MaterialContainerTransform transition = new MaterialContainerTransform();
-            transition.setStartView(mSearchFragmentContainer);
-            transition.setEndView(getListView().getChildAt(0));
-            transition.setPathMotion(null);
-            transition.addListener(new Transition.TransitionListener() {
-                @Override
-                public void onTransitionStart(Transition transition) {
-
-                }
-
-                @Override
-                public void onTransitionEnd(Transition transition) {
-                    if (exitAnimationListener != null)
-                        exitAnimationListener.onAnimationEnd(null);
-                }
-
-                @Override
-                public void onTransitionCancel(Transition transition) {
-
-                }
-
-                @Override
-                public void onTransitionPause(Transition transition) {
-
-                }
-
-                @Override
-                public void onTransitionResume(Transition transition) {
-
-                }
-            });
-
-            TransitionManager.beginDelayedTransition((ViewGroup) getView(), transition);
-            mSearchFragmentContainer.setVisibility(View.GONE);
-            getListView().setVisibility(View.VISIBLE);
-        } else {
-            mSearchFragmentContainer.setVisibility(View.GONE);
-            getListView().setVisibility(View.VISIBLE);
-            if (exitAnimationListener != null)
-                exitAnimationListener.onAnimationEnd(null);
-        }
-    }
-
-    private RecyclerOnClickListenerInterface recyclerClickListener = new RecyclerOnClickListenerInterface() {
-        @Override
-        public void onClick(final View view, final int position) {
-            if (mSearchFragment == null || !isAlive())
-                return;
-
-            mSearchFragment.showLoading(true);
-            mSearchFragment.enableRecyclerView(false);
-
-            AsyncTask.create(new Callable<LocationQueryViewModel>() {
-                @Override
-                public LocationQueryViewModel call() throws WeatherException, CustomException, InterruptedException {
-                    // Get selected query view
-                    final LocationQueryAdapter mSearchFragmentAdapter = mSearchFragment.getAdapter();
-                    LocationQueryViewModel queryResult = new LocationQueryViewModel();
-
-                    if (!StringUtils.isNullOrEmpty(mSearchFragmentAdapter.getDataset().get(position).getLocationQuery()))
-                        queryResult = mSearchFragmentAdapter.getDataset().get(position);
-
-                    if (StringUtils.isNullOrWhitespace(queryResult.getLocationQuery())) {
-                        // Stop since there is no valid query
-                        throw new CustomException(R.string.error_retrieve_location);
-                    }
-
-                    // Cancel pending search
-                    mSearchFragment.ctsCancel();
-
-                    if (mSearchFragment.ctsCancelRequested()) throw new InterruptedException();
-
-                    String country_code = queryResult.getLocationCountry();
-                    if (!StringUtils.isNullOrWhitespace(country_code))
-                        country_code = country_code.toLowerCase();
-
-                    if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
-                        throw new CustomException(R.string.error_message_weather_us_only);
-                    }
-
-                    // Need to get FULL location data for HERE API
-                    // Data provided is incomplete
-                    if (WeatherAPI.HERE.equals(queryResult.getLocationSource())
-                            && queryResult.getLocationLat() == -1 && queryResult.getLocationLong() == -1
-                            && queryResult.getLocationTZLong() == null) {
-                        final LocationQueryViewModel loc = queryResult;
-                        queryResult = new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
-                            @Override
-                            public LocationQueryViewModel call() throws WeatherException {
-                                return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
-                            }
-                        });
-                    }
-
-                    // Check if location already exists
-                    final LocationQueryViewModel finalQueryResult = queryResult;
-                    LocationData loc = Iterables.find(favorites, new Predicate<LocationData>() {
-                        @Override
-                        public boolean apply(@NullableDecl LocationData input) {
-                            return input != null && input.getQuery().equals(finalQueryResult.getLocationQuery());
-                        }
-                    }, null);
-
-                    if (loc != null) {
-                        // Set selection
-                        locationPref.setValue(loc.getQuery());
-                        return null;
-                    }
-
-                    if (mSearchFragment.ctsCancelRequested()) throw new InterruptedException();
-
-                    return queryResult;
-                }
-            }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<LocationQueryViewModel>() {
-                @Override
-                public void onSuccess(LocationQueryViewModel result) {
-                    if (mSearchFragment != null && mSearchFragment.getView() != null &&
-                            mSearchFragment.getView().findViewById(R.id.recycler_view) instanceof RecyclerView) {
-                        mSearchFragment.enableRecyclerView(false);
-                    }
-
-                    if (result != null) {
-                        // Save data
-                        query_vm = result;
-                        final ComboBoxItem item = new ComboBoxItem(query_vm.getLocationName(), query_vm.getLocationQuery());
-                        final int idx = locationPref.getEntryCount() - 1;
-                        locationPref.insertEntry(idx, item.getDisplay(), item.getValue());
-                        locationPref.setValueIndex(idx);
-                        if (locationPref.getEntryCount() > MAX_LOCATIONS) {
-                            locationPref.removeEntry(locationPref.getEntryCount() - 1);
-                        }
-                        locationPref.callChangeListener(item.getValue());
-                    }
-
-                    // Hide dialog
-                    if (mSearchFragment != null) {
-                        mSearchFragment.showLoading(false);
-                    }
-                    exitSearchUi(false);
-                }
-            }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    if (e instanceof WeatherException || e instanceof CustomException) {
-                        if (mSearchFragment != null) {
-                            mSearchFragment.showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
-                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                            mSearchFragment.showLoading(false);
-                            mSearchFragment.enableRecyclerView(true);
-                        }
-                    } else {
-                        if (mSearchFragment != null) {
-                            mSearchFragment.showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
-                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                            mSearchFragment.showLoading(false);
-                            mSearchFragment.enableRecyclerView(true);
-                        }
-                    }
-                }
-            });
-        }
-    };
 
     private void updateWindowColors() {
         final Configuration config = this.getResources().getConfiguration();
@@ -1328,13 +1007,8 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
-                if (inSearchUI) {
-                    // We should let the user go back to usual screens with tabs.
-                    exitSearchUi(false);
-                } else {
-                    getAppCompatActivity().setResult(Activity.RESULT_CANCELED, resultValue);
-                    getAppCompatActivity().finish();
-                }
+                getAppCompatActivity().setResult(Activity.RESULT_CANCELED, resultValue);
+                getAppCompatActivity().finish();
                 return true;
             case R.id.action_done:
                 prepareWidget();
