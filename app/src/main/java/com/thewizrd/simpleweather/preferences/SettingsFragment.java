@@ -34,6 +34,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
+import androidx.navigation.Navigation;
 import androidx.preference.EditTextPreference;
 import androidx.preference.EditTextPreferenceDialogFragmentCompat;
 import androidx.preference.ListPreference;
@@ -241,14 +242,12 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
 
     @Override
     public boolean onBackPressed() {
-        if (getAppCompatActivity().getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof SettingsFragment) {
-            SettingsFragment fragment = (SettingsFragment) getAppCompatActivity().getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-            ListPreference keyPref = (ListPreference) fragment.findPreference(KEY_API);
-            if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && WeatherManager.isKeyRequired(keyPref.getValue())) {
-                // Set keyentrypref color to red
-                Snackbar.make(getRootView(), R.string.message_enter_apikey, Snackbar.LENGTH_LONG).show();
-                return true;
-            }
+        if (Settings.usePersonalKey() &&
+                StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) &&
+                WeatherManager.isKeyRequired(providerPref.getValue())) {
+            // Set keyentrypref color to red
+            Snackbar.make(getRootView(), R.string.message_enter_apikey, Snackbar.LENGTH_LONG).show();
+            return true;
         }
 
         return false;
@@ -264,22 +263,20 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pref_general, null);
 
-        notCategory = (PreferenceCategory) findPreference(CATEGORY_NOTIFICATION);
-        apiCategory = (PreferenceCategory) findPreference(CATEGORY_API);
+        notCategory = findPreference(CATEGORY_NOTIFICATION);
+        apiCategory = findPreference(CATEGORY_API);
 
         findPreference(KEY_ABOUTAPP).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 // Display the fragment as the main content.
-                getAppCompatActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, new AboutAppFragment())
-                        .addToBackStack(null)
-                        .commit();
+                Navigation.findNavController(getAppCompatActivity(), R.id.fragment_container)
+                        .navigate(SettingsFragmentDirections.actionSettingsFragmentToAboutAppFragment());
                 return true;
             }
         });
 
-        unitPref = (SwitchPreferenceCompat) findPreference(KEY_USECELSIUS);
+        unitPref = findPreference(KEY_USECELSIUS);
         unitPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -301,7 +298,7 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
             unitPref.setIcon(R.drawable.ic_celsius);
         }
 
-        followGps = (SwitchPreferenceCompat) findPreference(KEY_FOLLOWGPS);
+        followGps = findPreference(KEY_FOLLOWGPS);
         followGps.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -333,7 +330,7 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
             }
         });
 
-        themePref = (ListPreference) findPreference(KEY_USERTHEME);
+        themePref = findPreference(KEY_USERTHEME);
         themePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -369,12 +366,11 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
             }
         });
 
-        keyEntry = (EditTextPreference) findPreference(KEY_APIKEY);
-        personalKeyPref = (SwitchPreferenceCompat) findPreference(KEY_USEPERSONALKEY);
+        keyEntry = findPreference(KEY_APIKEY);
+        personalKeyPref = findPreference(KEY_USEPERSONALKEY);
         personalKeyPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                SwitchPreferenceCompat pref = (SwitchPreferenceCompat) preference;
                 if ((boolean) newValue) {
                     if (apiCategory.findPreference(KEY_APIKEY) == null)
                         apiCategory.addPreference(keyEntry);
@@ -400,7 +396,7 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
         });
 
         final List<ProviderEntry> providers = WeatherAPI.APIs;
-        providerPref = (ListPreference) findPreference(KEY_API);
+        providerPref = findPreference(KEY_API);
 
         String[] entries = new String[providers.size()];
         String[] entryValues = new String[providers.size()];
@@ -544,7 +540,7 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
         updateKeySummary();
         updateRegisterLink();
 
-        onGoingNotification = (SwitchPreferenceCompat) findPreference(KEY_ONGOINGNOTIFICATION);
+        onGoingNotification = findPreference(KEY_ONGOINGNOTIFICATION);
         onGoingNotification.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -569,7 +565,7 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
             }
         });
 
-        notificationIcon = (ListPreference) findPreference(KEY_NOTIFICATIONICON);
+        notificationIcon = findPreference(KEY_NOTIFICATIONICON);
         notificationIcon.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -585,7 +581,7 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
             notCategory.removePreference(notificationIcon);
         }
 
-        alertNotification = (SwitchPreferenceCompat) findPreference(KEY_USEALERTS);
+        alertNotification = findPreference(KEY_USEALERTS);
         alertNotification.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -609,10 +605,8 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 // Display the fragment as the main content.
-                getAppCompatActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, new FeaturesFragment())
-                        .addToBackStack(null)
-                        .commit();
+                Navigation.findNavController(getAppCompatActivity(), R.id.fragment_container)
+                        .navigate(SettingsFragmentDirections.actionSettingsFragmentToFeaturesFragment2());
                 return true;
             }
         });
@@ -638,7 +632,7 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
     public void onDisplayPreferenceDialog(Preference preference) {
         final String TAG = "KeyEntryPreferenceDialogFragment";
 
-        if (getAppCompatActivity().getSupportFragmentManager().findFragmentByTag(TAG) != null) {
+        if (getParentFragmentManager().findFragmentByTag(TAG) != null) {
             return;
         }
 
@@ -669,7 +663,7 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
             });
 
             fragment.setTargetFragment(this, 0);
-            fragment.show(getAppCompatActivity().getSupportFragmentManager(), TAG);
+            fragment.show(getParentFragmentManager(), TAG);
         } else {
             super.onDisplayPreferenceDialog(preference);
         }
@@ -981,11 +975,8 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     // Display the fragment as the main content.
-                    getAppCompatActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, new CreditsFragment())
-                            .addToBackStack(null)
-                            .commit();
-
+                    Navigation.findNavController(getAppCompatActivity(), R.id.fragment_container)
+                            .navigate(SettingsFragment$AboutAppFragmentDirections.actionAboutAppFragmentToCreditsFragment());
                     return true;
                 }
             });
@@ -994,11 +985,8 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     // Display the fragment as the main content.
-                    getAppCompatActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, new OSSCreditsFragment())
-                            .addToBackStack(null)
-                            .commit();
-
+                    Navigation.findNavController(getAppCompatActivity(), R.id.fragment_container)
+                            .navigate(SettingsFragment$AboutAppFragmentDirections.actionAboutAppFragmentToOSSCreditsFragment());
                     return true;
                 }
             });

@@ -61,12 +61,12 @@ import androidx.databinding.DataBindingComponent;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.Observable;
 import androidx.databinding.library.baseAdapters.BR;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.navigation.Navigation;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
@@ -257,7 +257,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 public Void call() {
                     weatherView.updateView(weather);
                     weatherView.updateBackground();
-                    if (binding.imageView.getDrawable() == null || binding.imageView.getTag(R.id.glide_custom_view_target_tag) == null) {
+                    if (FeatureSettings.isBackgroundImageEnabled() && (binding.imageView.getDrawable() == null || binding.imageView.getTag(R.id.glide_custom_view_target_tag) == null)) {
                         String backgroundUri = weatherView.getImageData() != null ? weatherView.getImageData().getImageURI() : null;
                         loadBackgroundImage(backgroundUri, false);
                     } else {
@@ -266,6 +266,9 @@ public class WeatherNowFragment extends WindowColorFragment
                             public void run() {
                                 if (!isAlive()) return;
                                 binding.refreshLayout.setRefreshing(false);
+                                if (weatherView.isValid()) {
+                                    binding.scrollView.setVisibility(View.VISIBLE);
+                                }
                             }
                         });
                     }
@@ -650,13 +653,12 @@ public class WeatherNowFragment extends WindowColorFragment
             public void onClick(View v) {
                 AnalyticsLogger.logEvent("WeatherNowFragment: alerts click");
                 // Show Alert Fragment
-                if (isAlive())
-                    getAppCompatActivity().getSupportFragmentManager().beginTransaction()
-                            .add(R.id.fragment_container, WeatherListFragment.newInstance(location, WeatherListType.ALERTS))
-                            .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_right, R.anim.slide_out_left)
-                            .hide(WeatherNowFragment.this)
-                            .addToBackStack(null)
-                            .commit();
+                if (isAlive()) {
+                    WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
+                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment(JSONParser.serializer(location, LocationData.class))
+                                    .setWeatherListType(WeatherListType.ALERTS);
+                    Navigation.findNavController(binding.getRoot()).navigate(args);
+                }
             }
         });
 
@@ -680,7 +682,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.forecastGraphPanel.setOnInflateListener(new ViewStub.OnInflateListener() {
             @Override
             public void onInflate(ViewStub stub, View inflated) {
-                WeathernowForecastgraphpanelBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
+                final WeathernowForecastgraphpanelBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
                 binding.setForecastsView(forecastsView);
                 binding.setLifecycleOwner(WeatherNowFragment.this);
 
@@ -688,17 +690,13 @@ public class WeatherNowFragment extends WindowColorFragment
                     @Override
                     public void onClick(View view, int position) {
                         AnalyticsLogger.logEvent("WeatherNowFragment: fcast graph click");
-                        Fragment fragment = WeatherListFragment.newInstance(location, WeatherListType.FORECAST);
-                        Bundle args = new Bundle();
-                        args.putInt(Constants.KEY_POSITION, position);
-                        fragment.setArguments(args);
 
                         if (isAlive()) {
-                            getAppCompatActivity().getSupportFragmentManager().beginTransaction()
-                                    .add(R.id.fragment_container, fragment)
-                                    .hide(WeatherNowFragment.this)
-                                    .addToBackStack(null)
-                                    .commit();
+                            WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
+                                    WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment(JSONParser.serializer(location, LocationData.class))
+                                            .setWeatherListType(WeatherListType.FORECAST)
+                                            .setPosition(position);
+                            Navigation.findNavController(binding.getRoot()).navigate(args);
                         }
                     }
                 });
@@ -709,7 +707,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.hourlyForecastGraphPanel.setOnInflateListener(new ViewStub.OnInflateListener() {
             @Override
             public void onInflate(ViewStub stub, View inflated) {
-                WeathernowHrforecastgraphpanelBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
+                final WeathernowHrforecastgraphpanelBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
                 binding.setForecastsView(forecastsView);
                 binding.setLifecycleOwner(WeatherNowFragment.this);
 
@@ -718,17 +716,12 @@ public class WeatherNowFragment extends WindowColorFragment
                     public void onClick(View view, int position) {
                         AnalyticsLogger.logEvent("WeatherNowFragment: hrf graph click");
                         if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
-                            Fragment fragment = WeatherListFragment.newInstance(location, WeatherListType.HOURLYFORECAST);
-                            Bundle args = new Bundle();
-                            args.putInt(Constants.KEY_POSITION, position);
-                            fragment.setArguments(args);
-
                             if (isAlive()) {
-                                getAppCompatActivity().getSupportFragmentManager().beginTransaction()
-                                        .add(R.id.fragment_container, fragment)
-                                        .hide(WeatherNowFragment.this)
-                                        .addToBackStack(null)
-                                        .commit();
+                                WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
+                                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment(JSONParser.serializer(location, LocationData.class))
+                                                .setWeatherListType(WeatherListType.HOURLYFORECAST)
+                                                .setPosition(position);
+                                Navigation.findNavController(binding.getRoot()).navigate(args);
                             }
                         }
                     }
@@ -817,18 +810,15 @@ public class WeatherNowFragment extends WindowColorFragment
             binding.radarControl.setOnInflateListener(new ViewStub.OnInflateListener() {
                 @Override
                 public void onInflate(ViewStub stub, View inflated) {
-                    WeathernowRadarcontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
+                    final WeathernowRadarcontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
 
                     binding.radarWebviewCover.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             AnalyticsLogger.logEvent("WeatherNowFragment: radar view click");
                             if (isAlive()) {
-                                getAppCompatActivity().getSupportFragmentManager().beginTransaction()
-                                        .add(R.id.fragment_container, new WeatherRadarFragment())
-                                        .hide(WeatherNowFragment.this)
-                                        .addToBackStack(null)
-                                        .commit();
+                                Navigation.findNavController(binding.getRoot())
+                                        .navigate(WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherRadarFragment());
                             }
                         }
                     });
@@ -965,37 +955,52 @@ public class WeatherNowFragment extends WindowColorFragment
                 @Override
                 public void run() {
                     // Reload background image
-                    if (isAlive() && (!ObjectsCompat.equals(binding.imageView.getTag(), imageURI) || binding.imageView.getDrawable() == null)) {
-                        binding.imageView.setTag(imageURI);
-                        if (!StringUtils.isNullOrWhitespace(imageURI)) {
-                            Glide.with(WeatherNowFragment.this)
-                                    .load(imageURI)
-                                    .apply(RequestOptions.centerCropTransform()
-                                            .format(DecodeFormat.PREFER_RGB_565)
-                                            .skipMemoryCache(skipCache))
-                                    .transition(DrawableTransitionOptions.withCrossFade())
-                                    .addListener(new RequestListener<Drawable>() {
-                                        @Override
-                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                            return false;
-                                        }
-
-                                        @Override
-                                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                            binding.refreshLayout.postOnAnimation(new Runnable() {
+                    if (isAlive()) {
+                        if (FeatureSettings.isBackgroundImageEnabled()) {
+                            if (!ObjectsCompat.equals(binding.imageView.getTag(), imageURI) || binding.imageView.getDrawable() == null) {
+                                binding.imageView.setTag(imageURI);
+                                if (!StringUtils.isNullOrWhitespace(imageURI)) {
+                                    Glide.with(WeatherNowFragment.this)
+                                            .load(imageURI)
+                                            .apply(RequestOptions.centerCropTransform()
+                                                    .format(DecodeFormat.PREFER_RGB_565)
+                                                    .skipMemoryCache(skipCache))
+                                            .transition(DrawableTransitionOptions.withCrossFade())
+                                            .addListener(new RequestListener<Drawable>() {
                                                 @Override
-                                                public void run() {
-                                                    if (!isAlive()) return;
-                                                    binding.refreshLayout.setRefreshing(false);
+                                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                                    binding.scrollView.setVisibility(View.VISIBLE);
+                                                    return false;
                                                 }
-                                            });
-                                            return false;
-                                        }
-                                    })
-                                    .into(binding.imageView);
+
+                                                @Override
+                                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                                    binding.refreshLayout.postOnAnimation(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            if (!isAlive()) return;
+                                                            binding.scrollView.setVisibility(View.VISIBLE);
+                                                            binding.refreshLayout.setRefreshing(false);
+                                                        }
+                                                    });
+                                                    return false;
+                                                }
+                                            })
+                                            .into(binding.imageView);
+                                } else {
+                                    Glide.with(WeatherNowFragment.this).clear(binding.imageView);
+                                    binding.imageView.setTag(null);
+                                    if (weatherView.isValid()) {
+                                        binding.scrollView.setVisibility(View.VISIBLE);
+                                    }
+                                }
+                            }
                         } else {
                             Glide.with(WeatherNowFragment.this).clear(binding.imageView);
                             binding.imageView.setTag(null);
+                            if (weatherView.isValid()) {
+                                binding.scrollView.setVisibility(View.VISIBLE);
+                            }
                         }
                     }
                 }
@@ -1128,7 +1133,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     webView.post(new Runnable() {
                         @Override
                         public void run() {
-                            webView.resumeTimers();
+                            webView.onResume();
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                                 navigateToRadarURL();
                             }
@@ -1159,7 +1164,7 @@ public class WeatherNowFragment extends WindowColorFragment
             if (binding != null) {
                 WebView webView = getRadarWebView();
                 if (webView != null) {
-                    webView.pauseTimers();
+                    webView.onPause();
                 }
             }
         }
@@ -1179,7 +1184,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     webView.post(new Runnable() {
                         @Override
                         public void run() {
-                            webView.resumeTimers();
+                            webView.onResume();
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                                 navigateToRadarURL();
                             }
@@ -1206,7 +1211,7 @@ public class WeatherNowFragment extends WindowColorFragment
         if (binding != null) {
             WebView webView = getRadarWebView();
             if (webView != null) {
-                webView.pauseTimers();
+                webView.onPause();
             }
         }
 
@@ -1629,7 +1634,7 @@ public class WeatherNowFragment extends WindowColorFragment
                             radarcontrolBinding.radarWebviewContainer.removeAllViews();
                             wv = null;
                             view.loadUrl("about:blank");
-                            view.pauseTimers();
+                            view.onPause();
                             view.destroy();
                             navigateToRadarURL();
                             return true;

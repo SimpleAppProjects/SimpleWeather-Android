@@ -2,7 +2,6 @@ package com.thewizrd.simpleweather.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -23,7 +22,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,17 +31,32 @@ import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.AsyncTaskEx;
+import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
+import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.CustomException;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.shared_resources.utils.WeatherException;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.weatherdata.Forecasts;
+import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
+import com.thewizrd.shared_resources.weatherdata.HourlyForecasts;
+import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentLocationSearchBinding;
@@ -51,9 +65,12 @@ import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
@@ -146,7 +163,132 @@ public class LocationSearchFragment extends CustomFragment {
         return mAdapter;
     }
 
-    private RecyclerOnClickListenerInterface recyclerClickListener;
+    private RecyclerOnClickListenerInterface recyclerClickListener = new RecyclerOnClickListenerInterface() {
+        @Override
+        public void onClick(final View view, final int position) {
+            AnalyticsLogger.logEvent("LocationsFragment: searchFragment click");
+
+            if (!isAlive()) return;
+
+            showLoading(true);
+            enableRecyclerView(false);
+
+            AsyncTask.create(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws CustomException, InterruptedException, WeatherException {
+                    LocationQueryViewModel queryResult = new LocationQueryViewModel();
+
+                    if (!StringUtils.isNullOrEmpty(mAdapter.getDataset().get(position).getLocationQuery()))
+                        queryResult = mAdapter.getDataset().get(position);
+
+                    if (StringUtils.isNullOrWhitespace(queryResult.getLocationQuery())) {
+                        // Stop since there is no valid query
+                        throw new CustomException(R.string.error_retrieve_location);
+                    }
+
+                    // Cancel other tasks
+                    ctsCancel();
+
+                    if (ctsCancelRequested()) throw new InterruptedException();
+
+                    String country_code = queryResult.getLocationCountry();
+                    if (!StringUtils.isNullOrWhitespace(country_code))
+                        country_code = country_code.toLowerCase();
+
+                    if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
+                        throw new CustomException(R.string.error_message_weather_us_only);
+                    }
+
+                    // Need to get FULL location data for HERE API
+                    // Data provided is incomplete
+                    if (WeatherAPI.HERE.equals(queryResult.getLocationSource())
+                            && queryResult.getLocationLat() == -1 && queryResult.getLocationLong() == -1
+                            && queryResult.getLocationTZLong() == null) {
+                        final LocationQueryViewModel loc = queryResult;
+                        queryResult = new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
+                            @Override
+                            public LocationQueryViewModel call() throws WeatherException {
+                                return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
+                            }
+                        });
+                    }
+
+                    // Check if location already exists
+                    List<LocationData> locData = Settings.getLocationData();
+                    final LocationQueryViewModel finalQueryResult = queryResult;
+                    LocationData loc = Iterables.find(locData, new Predicate<LocationData>() {
+                        @Override
+                        public boolean apply(@NullableDecl LocationData input) {
+                            return input != null && input.getQuery().equals(finalQueryResult.getLocationQuery());
+                        }
+                    }, null);
+
+                    if (loc != null) {
+                        // Location exists; return
+                        return true;
+                    }
+
+                    if (ctsCancelRequested()) throw new InterruptedException();
+
+                    LocationData location = new LocationData(queryResult);
+                    if (!location.isValid()) {
+                        throw new CustomException(R.string.werror_noweather);
+                    }
+                    Weather weather = Settings.getWeatherData(location.getQuery());
+                    if (weather == null) {
+                        weather = wm.getWeather(location);
+                    }
+
+                    if (weather == null) {
+                        throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
+                    }
+
+                    // Save data
+                    Settings.addLocation(location);
+                    if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
+                        Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
+                    Settings.saveWeatherData(weather);
+                    Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
+                    final Weather finalWeather = weather;
+                    Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
+                            Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
+                                @NonNull
+                                @Override
+                                public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
+                                    return new HourlyForecasts(finalWeather.getQuery(), input);
+                                }
+                            }));
+
+                    return true;
+                }
+            }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Boolean>() {
+                @Override
+                public void onSuccess(Boolean success) {
+                    // Go back to where we started
+                    Navigation.findNavController(binding.getRoot()).navigateUp();
+                }
+            }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    if (e instanceof WeatherException || e instanceof CustomException) {
+                        if (isAlive()) {
+                            showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
+                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                            showLoading(false);
+                            enableRecyclerView(true);
+                        }
+                    } else {
+                        if (isAlive()) {
+                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
+                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                            showLoading(false);
+                            enableRecyclerView(true);
+                        }
+                    }
+                }
+            });
+        }
+    };
 
     public void showLoading(final boolean show) {
         runOnUiThread(new Runnable() {
@@ -188,10 +330,33 @@ public class LocationSearchFragment extends CustomFragment {
         View view = binding.getRoot();
 
         // Initialize
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Navigation.findNavController(v).navigateUp();
+            }
+        });
         searchBarBinding.searchBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getAppCompatActivity() != null) getAppCompatActivity().onBackPressed();
+                Navigation.findNavController(v).navigateUp();
+            }
+        });
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), new OnApplyWindowInsetsListener() {
+            private int paddingStart = ViewCompat.getPaddingStart(binding.getRoot());
+            private int paddingTop = binding.getRoot().getPaddingTop();
+            private int paddingEnd = ViewCompat.getPaddingEnd(binding.getRoot());
+            private int paddingBottom = binding.getRoot().getPaddingBottom();
+
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                ViewCompat.setPaddingRelative(v,
+                        paddingStart + insets.getSystemWindowInsetLeft(),
+                        paddingTop + insets.getSystemWindowInsetTop(),
+                        paddingEnd + insets.getSystemWindowInsetRight(),
+                        paddingBottom);
+                return insets;
             }
         });
 
@@ -317,6 +482,18 @@ public class LocationSearchFragment extends CustomFragment {
                 return false;
             }
         });
+        binding.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if (recyclerView.computeVerticalScrollOffset() > 0) {
+                    ViewCompat.setElevation(searchBarBinding.getRoot(), ActivityUtils.dpToPx(getAppCompatActivity(), 4f));
+                } else {
+                    ViewCompat.setElevation(searchBarBinding.getRoot(), 0f);
+                }
+            }
+        });
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.recyclerView, new OnApplyWindowInsetsListener() {
             private int paddingStart = ViewCompat.getPaddingStart(binding.recyclerView);
@@ -377,6 +554,7 @@ public class LocationSearchFragment extends CustomFragment {
         int bg_color = Settings.getUserThemeMode() != UserThemeMode.AMOLED_DARK ?
                 ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground) : Colors.BLACK;
         view.setBackgroundColor(bg_color);
+        searchBarBinding.getRoot().setBackgroundColor(bg_color);
     }
 
     @Override
@@ -423,17 +601,6 @@ public class LocationSearchFragment extends CustomFragment {
         }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        final View root = getView();
-        if (root != null) {
-            final View searchBarContainer = searchBarBinding.getRoot();
-            searchBarContainer.setVisibility(View.VISIBLE);
-        }
-    }
-
     public void requestSearchbarFocus() {
         if (searchBarBinding != null)
             searchBarBinding.searchView.requestFocus();
@@ -457,16 +624,6 @@ public class LocationSearchFragment extends CustomFragment {
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
         }
-    }
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        final FragmentTransaction ft = getParentFragmentManager().beginTransaction();
-        ft.detach(this);
-        ft.attach(this);
-        ft.commit();
     }
 
     @Override

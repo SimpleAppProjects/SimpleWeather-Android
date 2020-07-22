@@ -21,6 +21,7 @@ import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
@@ -74,7 +75,7 @@ public class WeatherRadarFragment extends ToolbarFragment {
         getToolbar().setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getAppCompatActivity() != null) getAppCompatActivity().onBackPressed();
+                Navigation.findNavController(v).navigateUp();
             }
         });
 
@@ -126,7 +127,7 @@ public class WeatherRadarFragment extends ToolbarFragment {
             if (binding != null) {
                 WebView webView = getRadarWebView();
                 if (webView != null) {
-                    webView.resumeTimers();
+                    webView.onResume();
                 }
             }
 
@@ -140,7 +141,7 @@ public class WeatherRadarFragment extends ToolbarFragment {
         if (binding != null) {
             WebView webView = getRadarWebView();
             if (webView != null) {
-                webView.pauseTimers();
+                webView.onPause();
             }
         }
 
@@ -155,7 +156,7 @@ public class WeatherRadarFragment extends ToolbarFragment {
             if (binding != null) {
                 WebView webView = getRadarWebView();
                 if (webView != null) {
-                    webView.pauseTimers();
+                    webView.onPause();
                 }
             }
         }
@@ -164,7 +165,7 @@ public class WeatherRadarFragment extends ToolbarFragment {
             if (binding != null) {
                 WebView webView = getRadarWebView();
                 if (webView != null) {
-                    webView.resumeTimers();
+                    webView.onResume();
                 }
             }
 
@@ -246,7 +247,7 @@ public class WeatherRadarFragment extends ToolbarFragment {
                         binding.radarWebviewContainer.removeAllViews();
                         wv = null;
                         view.loadUrl("about:blank");
-                        view.pauseTimers();
+                        view.onPause();
                         view.destroy();
                         navigateToRadarURL();
                         return true;

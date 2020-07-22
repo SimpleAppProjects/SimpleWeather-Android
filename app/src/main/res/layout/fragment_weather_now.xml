@@ -111,7 +111,7 @@
                     android:layout_height="wrap_content"
                     android:fillViewport="true"
                     android:scrollbars="vertical"
-                    app:hideIfNullOrWhitespace="@{weatherView.location}"
+                    android:visibility="invisible"
                     tools:visibility="visible">
 
                     <LinearLayout

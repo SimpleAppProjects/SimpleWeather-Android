@@ -3,21 +3,24 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_weathernow"
+            android:id="@id/weatherNowFragment"
             android:icon="@drawable/day_cloudy"
             android:title="@string/label_nav_weathernow" />
         <item
-            android:id="@+id/nav_radar"
+            android:id="@id/weatherRadarFragment"
             android:icon="@drawable/ic_radar"
-            android:title="@string/label_radar" />
+            android:title="@string/label_radar"
+            android:menuCategory="secondary" />
         <item
-            android:id="@+id/nav_locations"
+            android:id="@id/locationsFragment"
             android:icon="@drawable/ic_star_border"
-            android:title="@string/label_nav_locations" />
+            android:title="@string/label_nav_locations"
+            android:menuCategory="secondary" />
         <item
-            android:id="@+id/nav_settings"
+            android:id="@id/settingsFragment"
             android:icon="@drawable/ic_settings_black_24dp"
-            android:title="@string/action_settings" />
+            android:title="@string/action_settings"
+            android:menuCategory="secondary" />
     </group>
 
 </menu>

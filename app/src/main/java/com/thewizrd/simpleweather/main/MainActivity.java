@@ -1,19 +1,28 @@
 package com.thewizrd.simpleweather.main;
 
+import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.WebView;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.ObjectsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Lifecycle;
+import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
+import androidx.navigation.NavOptions;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.thewizrd.shared_resources.Constants;
@@ -38,8 +47,8 @@ public class MainActivity extends AppCompatActivity
 
     private ActivityMainBinding binding;
     private BottomNavigationView mBottomNavView;
-    private View mFragmentContainer;
     private View mRootView;
+    private NavController mNavController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,11 +57,9 @@ public class MainActivity extends AppCompatActivity
         AnalyticsLogger.logEvent("MainActivity: onCreate");
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
-        View view = binding.getRoot();
-        setContentView(view);
+        setContentView(binding.getRoot());
 
-        mFragmentContainer = binding.fragmentContainer;
-        mRootView = (View) mFragmentContainer.getParent();
+        mRootView = (View) binding.fragmentContainer.getParent();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
             mRootView.setFitsSystemWindows(true);
 
@@ -69,62 +76,47 @@ public class MainActivity extends AppCompatActivity
 
         updateWindowColors();
 
-        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        // Shortcut intent: from app shortcuts
+        Bundle args = new Bundle();
+        if (getIntent() != null && getIntent().hasExtra(Constants.KEY_SHORTCUTDATA)) {
+            args.putString(Constants.KEY_DATA, getIntent().getStringExtra(Constants.KEY_SHORTCUTDATA));
+
+            LocationData locData = JSONParser.deserializer(
+                    getIntent().getStringExtra(Constants.KEY_SHORTCUTDATA), LocationData.class);
+
+            args.putBoolean(Constants.FRAGTAG_HOME, ObjectsCompat.equals(locData, Settings.getHomeData()));
+        }
+
+        NavHostFragment hostFragment = NavHostFragment.create(R.navigation.nav_graph, args);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, hostFragment)
+                .setPrimaryNavigationFragment(hostFragment)
+                .commit();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        mNavController = Navigation.findNavController(this, R.id.fragment_container);
+
+        NavigationUI.setupWithNavController(mBottomNavView, mNavController);
+        mNavController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
+            @Override
+            public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
+                refreshNavViewCheckedItem();
+
+                mBottomNavView.setVisibility(destination.getId() == R.id.locationSearchFragment ? View.GONE : View.VISIBLE);
+            }
+        });
 
         // Alerts: from weather alert notification
         if (getIntent() != null && WeatherWidgetService.ACTION_SHOWALERTS.equals(getIntent().getAction())) {
             LocationData locationData = Settings.getHomeData();
-            Fragment newFragment = WeatherListFragment.newInstance(locationData, WeatherListType.ALERTS);
-
-            if (fragment == null) {
-                fragment = newFragment;
-                // Navigate to WeatherNowFragment
-                // Make sure we exit if location is not home
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, fragment, Constants.FRAGTAG_NOTIFICATION)
-                        .setReorderingAllowed(true)
-                        .commit();
-            } else {
-                // Navigate to WeatherNowFragment
-                // Make sure we exit if location is not home
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container, newFragment, Constants.FRAGTAG_NOTIFICATION)
-                        .setReorderingAllowed(true)
-                        .addToBackStack(null) // allow exit
-                        .commit();
-            }
-        }
-
-        // Check if fragment exists
-        if (fragment == null) {
-            if (getIntent() != null && getIntent().hasExtra(Constants.KEY_DATA))
-                fragment = WeatherNowFragment.newInstance(getIntent().getExtras());
-            else
-                fragment = new WeatherNowFragment();
-
-            // Navigate to WeatherNowFragment
-            fragment.requireArguments()
-                    .putBoolean(Constants.FRAGTAG_HOME, true);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, fragment, Constants.FRAGTAG_HOME)
-                    .setReorderingAllowed(true)
-                    .commit();
-        }
-
-        // Shortcut intent: from app shortcuts
-        if (getIntent() != null && getIntent().hasExtra(Constants.KEY_SHORTCUTDATA)) {
-            LocationData locData = JSONParser.deserializer(
-                    getIntent().getStringExtra(Constants.KEY_SHORTCUTDATA), LocationData.class);
-
-            // Navigate to WeatherNowFragment
-            Fragment newFragment = WeatherNowFragment.newInstance(locData);
-            fragment.requireArguments()
-                    .putBoolean(Constants.FRAGTAG_HOME, ObjectsCompat.equals(locData, Settings.getHomeData()));
-
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, newFragment, Constants.FRAGTAG_SHORTCUT)
-                    .setReorderingAllowed(true)
-                    .commit();
+            WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
+                    WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment(JSONParser.serializer(locationData, LocationData.class))
+                            .setWeatherListType(WeatherListType.ALERTS);
+            mNavController.navigate(args);
         }
 
         // Check nav item in bottom nav view
@@ -147,40 +139,16 @@ public class MainActivity extends AppCompatActivity
             // Go back to WeatherNow if we started from an alert notification
             if (current instanceof WeatherListFragment &&
                     getSupportFragmentManager().getBackStackEntryCount() == 0) {
-                WeatherNowFragment fragment = new WeatherNowFragment();
-                fragment.requireArguments()
-                        .putBoolean(Constants.FRAGTAG_HOME, true);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, fragment, Constants.FRAGTAG_HOME)
-                        .setReorderingAllowed(true)
-                        .commit();
+                Bundle args = new Bundle();
+                args.putBoolean(Constants.FRAGTAG_HOME, true);
+                mNavController.navigate(R.id.weatherNowFragment, args,
+                        new NavOptions.Builder()
+                                .setPopUpTo(R.id.weatherNowFragment, true)
+                                .build());
                 return;
             }
 
-            // Destroy untagged fragments onbackpressed
-            if (current != null) {
-                if (current.getTag() == null) {
-                    getSupportFragmentManager().beginTransaction()
-                            .remove(current)
-                            .commit();
-                } else {
-                    getSupportFragmentManager().beginTransaction()
-                            .detach(current)
-                            .commit();
-                }
-            }
-
-            // If sub-fragment exist: pop those one by one
-            int backstackCount = getSupportFragmentManager().getBackStackEntryCount();
-            if (current != null &&
-                    (current.getClass().getName().contains(SettingsFragment.class.getName() + "$") ||
-                            current instanceof WeatherListFragment || current instanceof WeatherRadarFragment)) {
-                getSupportFragmentManager().popBackStack();
-            } else if (backstackCount >= 1) { // If backstack entry exists pop all and goto first (home) fragment
-                getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            } else { // Otherwise fallback
-                super.onBackPressed();
-            }
+            super.onBackPressed();
         }
     }
 
@@ -188,142 +156,10 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         final int id = item.getItemId();
-        final int currentId;
+        final int currentId = mNavController.getCurrentDestination().getId();
 
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        Fragment fragment = null;
-
-        if (current instanceof WeatherNowFragment) {
-            currentId = R.id.nav_weathernow;
-        } else if (current instanceof WeatherRadarFragment) {
-            currentId = R.id.nav_radar;
-        } else if (current instanceof LocationsFragment) {
-            currentId = R.id.nav_locations;
-        } else if (current instanceof SettingsFragment) {
-            currentId = R.id.nav_settings;
-        } else {
-            currentId = -1;
-        }
-
-        // Make sure we're not navigating to the same type of fragment
-        if (current != null && currentId != id) {
-            if (id == R.id.nav_weathernow) {
-                // Pop all since we're going home
-                getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            } else if (id == R.id.nav_locations) {
-                /* NOTE: KEEP THIS IT WORKS FINE */
-                if (current instanceof WeatherNowFragment) {
-                    int backstackCount = getSupportFragmentManager().getBackStackEntryCount();
-
-                    // Hide home frag
-                    if (Constants.FRAGTAG_HOME.equals(current.getTag()) || backstackCount == 0) {
-                        transaction.hide(current);
-                    } else {
-                        /*
-                         * NOTE
-                         * Destroy lingering WNow frag and commit transaction
-                         * This is to avoid adding the fragment again from the backstack
-                         */
-                        getSupportFragmentManager().beginTransaction()
-                                .remove(current)
-                                .commitAllowingStateLoss();
-                        getSupportFragmentManager().popBackStack();
-                    }
-                }
-                /* NOTE: KEEP ABOVE */
-                else {
-                    // If current frag is Settings sub-fragment pop all off
-                    if (current.getClass().getName().contains(SettingsFragment.class.getName() + "$"))
-                        getSupportFragmentManager().popBackStack(Constants.FRAGTAG_SETTINGS, 0);
-                    /* NOTE: Don't pop here so we don't trigger onResume/onHiddenChanged of root fragment */
-                    // If a Settings fragment exists remove it
-                    if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGTAG_SETTINGS) != null) {
-                        current = getSupportFragmentManager().findFragmentByTag(Constants.FRAGTAG_SETTINGS);
-                        getSupportFragmentManager().beginTransaction()
-                                .remove(current)
-                                .commitAllowingStateLoss();
-                    }
-                    // If an extra WeatherNowFragment exists remove it
-                    if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGTAG_FAVORITES) != null) {
-                        current = getSupportFragmentManager().findFragmentByTag(Constants.FRAGTAG_FAVORITES);
-                        getSupportFragmentManager().beginTransaction()
-                                .remove(current)
-                                .commitAllowingStateLoss();
-                    }
-                    // If current frag is Weather(Alerts||Details)Fragment remove it
-                    if (current instanceof WeatherListFragment || current instanceof WeatherRadarFragment) {
-                        getSupportFragmentManager().beginTransaction()
-                                .remove(current)
-                                .commitAllowingStateLoss();
-                    }
-                }
-
-                fragment = getSupportFragmentManager().findFragmentByTag(Constants.FRAGTAG_LOCATIONS);
-                if (fragment != null) {
-                    /*
-                     * If the fragment exists and has not yet at least started,
-                     * remove and create a new instance
-                     *
-                     * This avoids the following exception:
-                     * java.lang.IllegalStateException: Restarter must be created only during owner's initialization stage
-                     * https://stackoverflow.com/a/56783167
-                     */
-                    if (!fragment.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
-                        getSupportFragmentManager().beginTransaction()
-                                .remove(fragment)
-                                .commitAllowingStateLoss();
-                        fragment = new LocationsFragment();
-                    }
-
-                    if (fragment.isAdded()) {
-                        // Show LocationsFragment if it exists
-                        transaction
-                                .show(fragment)
-                                .addToBackStack(null);
-                    } else {
-                        transaction
-                                .add(R.id.fragment_container, fragment, Constants.FRAGTAG_LOCATIONS)
-                                .addToBackStack(null);
-                    }
-                } else {
-                    // Add LocFrag if not in backstack/DNE
-                    fragment = new LocationsFragment();
-                    transaction
-                            .add(R.id.fragment_container, fragment, Constants.FRAGTAG_LOCATIONS)
-                            .addToBackStack(null);
-                }
-
-                // Commit the transaction
-                transaction.commit();
-            } else if (id == R.id.nav_radar) {
-                fragment = new WeatherRadarFragment();
-                transaction
-                        .add(R.id.fragment_container, fragment)
-                        .hide(current)
-                        .addToBackStack(null)
-                        .commit();
-            } else if (id == R.id.nav_settings) {
-                // Commit the transaction if current frag is not a SettingsFragment sub-fragment
-                if (!current.getClass().getName().contains(SettingsFragment.class.getName())) {
-                    transaction.hide(current);
-                    /*
-                     * NOTE
-                     * If current fragment is not WNow Fragment commit and recreate transaction
-                     * This is to avoid showing the fragment again from the backstack
-                     */
-                    if (!(current instanceof WeatherNowFragment)) {
-                        transaction.commit();
-                        transaction = getSupportFragmentManager().beginTransaction();
-                    }
-
-                    fragment = new SettingsFragment();
-                    transaction
-                            .add(R.id.fragment_container, fragment, Constants.FRAGTAG_SETTINGS)
-                            .addToBackStack(Constants.FRAGTAG_SETTINGS)
-                            .commit();
-                }
-            }
+        if (id != currentId) {
+            NavigationUI.onNavDestinationSelected(item, mNavController);
         }
 
         return true;
@@ -338,12 +174,22 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         AnalyticsLogger.logEvent("MainActivity: onResume");
+        View container = binding.fragmentContainer.findViewById(R.id.radar_webview_container);
+        if (container instanceof ViewGroup && ((ViewGroup) container).getChildAt(0) instanceof WebView) {
+            WebView webView = (WebView) ((ViewGroup) container).getChildAt(0);
+            webView.resumeTimers();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         AnalyticsLogger.logEvent("MainActivity: onPause");
+        View container = binding.fragmentContainer.findViewById(R.id.radar_webview_container);
+        if (container instanceof ViewGroup && ((ViewGroup) container).getChildAt(0) instanceof WebView) {
+            WebView webView = (WebView) ((ViewGroup) container).getChildAt(0);
+            webView.pauseTimers();
+        }
     }
 
     @Override
@@ -356,18 +202,25 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint("RestrictedApi")
     private void refreshNavViewCheckedItem() {
-        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        final int currentId = mNavController.getCurrentDestination().getId();
+        final String currentName;
+        if (mNavController.getCurrentDestination() instanceof FragmentNavigator.Destination) {
+            currentName = ((FragmentNavigator.Destination) mNavController.getCurrentDestination()).getClassName();
+        } else {
+            currentName = mNavController.getCurrentDestination().getDisplayName();
+        }
         int checkedItemId = -1;
 
-        if (fragment instanceof WeatherNowFragment || fragment instanceof WeatherListFragment) {
-            checkedItemId = R.id.nav_weathernow;
-        } else if (fragment instanceof WeatherRadarFragment) {
-            checkedItemId = R.id.nav_radar;
-        } else if (fragment instanceof LocationsFragment) {
-            checkedItemId = R.id.nav_locations;
-        } else if (fragment != null && fragment.getClass().getName().contains(SettingsFragment.class.getName())) {
-            checkedItemId = R.id.nav_settings;
+        if (currentId == R.id.weatherNowFragment || currentId == R.id.weatherListFragment) {
+            checkedItemId = R.id.weatherNowFragment;
+        } else if (currentId == R.id.weatherRadarFragment) {
+            checkedItemId = R.id.weatherRadarFragment;
+        } else if (currentId == R.id.locationsFragment) {
+            checkedItemId = R.id.locationsFragment;
+        } else if (currentName.contains(SettingsFragment.class.getName())) {
+            checkedItemId = R.id.settingsFragment;
         }
 
         MenuItem item = mBottomNavView.getMenu().findItem(checkedItemId);
@@ -405,11 +258,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        // Update before we send the configuration to all other fragments
-        final int currentNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-
         super.onConfigurationChanged(newConfig);
-
         updateWindowColors();
     }
 

@@ -22,6 +22,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -122,6 +123,13 @@ public class WeatherListFragment extends ToolbarFragment {
             if (savedInstanceState.containsKey(Constants.KEY_DATA)) {
                 location = JSONParser.deserializer(savedInstanceState.getString(Constants.KEY_DATA), LocationData.class);
             }
+        } else if (getArguments() != null) {
+            if (getArguments().containsKey(Constants.ARGS_WEATHERLISTTYPE)) {
+                weatherType = (WeatherListType) getArguments().getSerializable(Constants.ARGS_WEATHERLISTTYPE);
+            }
+            if (getArguments().containsKey(Constants.KEY_DATA)) {
+                location = JSONParser.deserializer(getArguments().getString(Constants.KEY_DATA), LocationData.class);
+            }
         }
 
         if (location == null)
@@ -148,7 +156,7 @@ public class WeatherListFragment extends ToolbarFragment {
         getToolbar().setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getAppCompatActivity() != null) getAppCompatActivity().onBackPressed();
+                Navigation.findNavController(v).navigateUp();
             }
         });
 
@@ -277,9 +285,12 @@ public class WeatherListFragment extends ToolbarFragment {
                     .addOnSuccessListener(requireActivity(), new OnSuccessListener<Weather>() {
                         @Override
                         public void onSuccess(Weather weather) {
-                            weatherView.updateView(weather);
-                            forecastsView.updateForecasts(location);
-                            alertsView.updateAlerts(location);
+                            if (isAlive()) {
+                                weatherView.updateView(weather);
+                                forecastsView.updateForecasts(location);
+                                alertsView.updateAlerts(location);
+                                binding.locationName.setText(weatherView.getLocation());
+                            }
                         }
                     });
         }

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/weatherNowFragment">
+    <fragment
+        android:id="@+id/weatherNowFragment"
+        android:name="com.thewizrd.simpleweather.main.WeatherNowFragment"
+        android:label="WeatherNowFragment">
+        <action
+            android:id="@+id/action_weatherNowFragment_to_weatherListFragment"
+            app:destination="@id/weatherListFragment" />
+        <action
+            android:id="@+id/action_weatherNowFragment_to_weatherRadarFragment"
+            app:destination="@id/weatherRadarFragment" />
+        <action
+            android:id="@+id/action_weatherNowFragment_to_locationsFragment"
+            app:destination="@id/locationsFragment" />
+        <action
+            android:id="@+id/action_weatherNowFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+        <argument
+            android:name="data"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="home"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="background"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/weatherListFragment"
+        android:name="com.thewizrd.simpleweather.main.WeatherListFragment"
+        android:label="WeatherListFragment">
+        <argument
+            android:name="data"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="WeatherListType"
+            app:argType="com.thewizrd.simpleweather.main.WeatherListType"
+            android:defaultValue="FORECAST" />
+        <argument
+            android:name="position"
+            app:argType="integer"
+            android:defaultValue="0" />
+    </fragment>
+    <fragment
+        android:id="@+id/weatherRadarFragment"
+        android:name="com.thewizrd.simpleweather.main.WeatherRadarFragment"
+        android:label="WeatherRadarFragment" />
+    <fragment
+        android:id="@+id/locationsFragment"
+        android:name="com.thewizrd.simpleweather.main.LocationsFragment"
+        android:label="LocationsFragment">
+        <action
+            android:id="@+id/action_locationsFragment_to_weatherNowFragment"
+            app:destination="@id/weatherNowFragment"
+            app:popUpTo="@id/weatherNowFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_locationsFragment_to_locationSearchFragment"
+            app:destination="@id/locationSearchFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.thewizrd.simpleweather.preferences.SettingsFragment"
+        android:label="SettingsFragment"
+        tools:layout="@layout/fragment_settings">
+        <action
+            android:id="@+id/action_settingsFragment_to_featuresFragment2"
+            app:destination="@id/featuresFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_aboutAppFragment"
+            app:destination="@id/aboutAppFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_aboutAppFragment2"
+            app:destination="@id/aboutAppFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/aboutAppFragment"
+        android:name="com.thewizrd.simpleweather.preferences.SettingsFragment$AboutAppFragment"
+        android:label="AboutAppFragment">
+        <action
+            android:id="@+id/action_aboutAppFragment_to_OSSCreditsFragment"
+            app:destination="@id/OSSCreditsFragment" />
+        <action
+            android:id="@+id/action_aboutAppFragment_to_creditsFragment"
+            app:destination="@id/creditsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/creditsFragment"
+        android:name="com.thewizrd.simpleweather.preferences.SettingsFragment$CreditsFragment"
+        android:label="CreditsFragment" />
+    <fragment
+        android:id="@+id/featuresFragment"
+        android:name="com.thewizrd.simpleweather.preferences.SettingsFragment$FeaturesFragment"
+        android:label="FeaturesFragment" />
+    <fragment
+        android:id="@+id/OSSCreditsFragment"
+        android:name="com.thewizrd.simpleweather.preferences.SettingsFragment$OSSCreditsFragment"
+        android:label="OSSCreditsFragment" />
+    <fragment
+        android:id="@+id/locationSearchFragment"
+        android:name="com.thewizrd.simpleweather.fragments.LocationSearchFragment"
+        android:label="LocationSearchFragment" />
+</navigation>

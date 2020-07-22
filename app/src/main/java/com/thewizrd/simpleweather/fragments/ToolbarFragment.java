@@ -18,6 +18,7 @@ import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewGroupCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.Transition;
 
@@ -74,7 +75,7 @@ public abstract class ToolbarFragment extends WindowColorFragment
         binding.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getAppCompatActivity().onBackPressed();
+                Navigation.findNavController(v).navigateUp();
             }
         });
 
