@@ -129,7 +129,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        Fragment current = null;
+        if (getSupportFragmentManager().getPrimaryNavigationFragment() != null) {
+            current = getSupportFragmentManager().getPrimaryNavigationFragment().getChildFragmentManager().getPrimaryNavigationFragment();
+        }
         OnBackPressedFragmentListener fragBackPressedListener = null;
         if (current instanceof OnBackPressedFragmentListener)
             fragBackPressedListener = (OnBackPressedFragmentListener) current;

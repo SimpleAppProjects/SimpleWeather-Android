@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
@@ -127,6 +128,8 @@ public class LocationsFragment extends ToolbarFragment
 
     // OptionsMenu
     private Menu optionsMenu;
+
+    private OnBackPressedCallback onBackPressedCallback;
 
     private WeatherManager wm;
 
@@ -354,6 +357,16 @@ public class LocationsFragment extends ToolbarFragment
         }
 
         mRequestingLocationUpdates = false;
+
+        onBackPressedCallback = new OnBackPressedCallback(mEditMode) {
+            @Override
+            public void handleOnBackPressed() {
+                if (mEditMode) {
+                    toggleEditMode();
+                }
+            }
+        };
+        getAppCompatActivity().getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
     }
 
     /**
@@ -375,15 +388,6 @@ public class LocationsFragment extends ToolbarFragment
                         mRequestingLocationUpdates = false;
                     }
                 });
-    }
-
-    @Override
-    public boolean onBackPressed() {
-        if (mEditMode) {
-            toggleEditMode();
-            return true;
-        }
-        return false;
     }
 
     @Override
@@ -1031,6 +1035,7 @@ public class LocationsFragment extends ToolbarFragment
     private void toggleEditMode() {
         // Toggle EditMode
         mEditMode = !mEditMode;
+        onBackPressedCallback.setEnabled(mEditMode);
 
         MenuItem editMenuBtn = optionsMenu.findItem(R.id.action_editmode);
         if (editMenuBtn != null) {
