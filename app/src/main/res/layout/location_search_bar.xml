@@ -3,17 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/search_view_container"
         android:layout_width="match_parent"
         android:layout_height="@dimen/searchview_height_region_search"
+        style="@style/Widget.MaterialComponents.CardView"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:clickable="true"
-        android:elevation="@dimen/appbar_elevation"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        app:cardElevation="@dimen/appbar_elevation"
+        app:cardBackgroundColor="?attr/colorSurface">
 
         <LinearLayout
             android:id="@+id/search_box_collapsed"
@@ -50,5 +52,5 @@
                 android:textColor="@color/invButtonColorText"
                 android:textSize="14sp" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 </layout>

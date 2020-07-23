@@ -9,7 +9,8 @@
         android:layout_height="match_parent"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        tools:context=".setup.SetupLocationFragment">
+        tools:context=".setup.SetupLocationFragment"
+        tools:background="@color/colorPrimaryBackground">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/main_logo"
@@ -57,12 +58,13 @@
             android:layout_height="56dp"
             android:layout_marginTop="8dp"
             android:text="@string/label_gpsfollow"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="@color/invButtonColorText"
             style="@style/Widget.MaterialComponents.Button"
-            app:backgroundTint="@android:color/white"
+            app:backgroundTint="?attr/colorSurface"
+            app:elevation="@dimen/appbar_elevation"
             app:icon="@drawable/ic_my_location_white_24dp"
             app:iconPadding="8dp"
-            app:iconTint="?attr/colorPrimary"
+            app:iconTint="@color/invButtonColorText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/search_bar" />
