@@ -249,6 +249,7 @@ public class SetupActivity extends AppCompatActivity implements SystemBarColorMa
 
     private void onCompleted() {
         // Completion
+        Settings.setWeatherLoaded(true);
         Settings.setOnBoardingComplete(true);
 
         if (mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {

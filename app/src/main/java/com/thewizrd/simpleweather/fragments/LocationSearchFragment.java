@@ -265,6 +265,8 @@ public class LocationSearchFragment extends WindowColorFragment {
                                 }
                             }));
 
+                    Settings.setWeatherLoaded(true);
+
                     return location;
                 }
             }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<LocationData>() {
