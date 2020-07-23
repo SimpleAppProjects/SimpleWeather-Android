@@ -3,6 +3,7 @@
     <color name="colorPrimaryDark">#00468f</color>
     <color name="colorPrimaryLight">#599ef3</color>
     <color name="colorPrimaryMedium">#007dd6</color>
+    <color name="colorPrimaryBackground">@color/colorPrimary</color>
 
     <!--colorBackground appears behind scrollable content and is used for the default window-->
     <!--background. colorSurface is mapped to the surface of components such as cards, sheets-->

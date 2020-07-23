@@ -103,7 +103,6 @@ dependencies {
     implementation 'com.google.guava:guava:29.0-android'
     implementation 'com.ibm.icu:icu4j:62.1' // Keep @ 62.1 - 63.1 requires Java 7 (API 21+)
     implementation 'com.jakewharton.threetenabp:threetenabp:1.2.4'
-    implementation 'com.stepstone.stepper:material-stepper:4.3.1'
 
     implementation("com.vimeo.stag:stag-library:2.6.0") {
         exclude group: "org.jetbrains", module: "annotations-java5"

@@ -46,8 +46,6 @@ public class MainActivity extends AppCompatActivity
         SystemBarColorManager, UserThemeMode.OnThemeChangeListener {
 
     private ActivityMainBinding binding;
-    private BottomNavigationView mBottomNavView;
-    private View mRootView;
     private NavController mNavController;
 
     @Override
@@ -59,12 +57,10 @@ public class MainActivity extends AppCompatActivity
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        mRootView = (View) binding.fragmentContainer.getParent();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-            mRootView.setFitsSystemWindows(true);
+            binding.getRoot().setFitsSystemWindows(true);
 
-        mBottomNavView = binding.bottomNavBar;
-        mBottomNavView.setOnNavigationItemSelectedListener(this);
+        binding.bottomNavBar.setOnNavigationItemSelectedListener(this);
 
         // Back stack listener
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
@@ -76,13 +72,22 @@ public class MainActivity extends AppCompatActivity
 
         updateWindowColors();
 
-        // Shortcut intent: from app shortcuts
         Bundle args = new Bundle();
-        if (getIntent() != null && getIntent().hasExtra(Constants.KEY_SHORTCUTDATA)) {
-            args.putString(Constants.KEY_DATA, getIntent().getStringExtra(Constants.KEY_SHORTCUTDATA));
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            args.putAll(getIntent().getExtras());
+        }
 
+        // Shortcut intent: from app shortcuts
+        if (getIntent() != null && getIntent().hasExtra(Constants.KEY_SHORTCUTDATA)) {
             LocationData locData = JSONParser.deserializer(
                     getIntent().getStringExtra(Constants.KEY_SHORTCUTDATA), LocationData.class);
+
+            args.putBoolean(Constants.FRAGTAG_HOME, ObjectsCompat.equals(locData, Settings.getHomeData()));
+        }
+
+        if (getIntent() != null && getIntent().hasExtra(Constants.KEY_DATA)) {
+            LocationData locData = JSONParser.deserializer(
+                    getIntent().getStringExtra(Constants.KEY_DATA), LocationData.class);
 
             args.putBoolean(Constants.FRAGTAG_HOME, ObjectsCompat.equals(locData, Settings.getHomeData()));
         }
@@ -100,13 +105,13 @@ public class MainActivity extends AppCompatActivity
 
         mNavController = Navigation.findNavController(this, R.id.fragment_container);
 
-        NavigationUI.setupWithNavController(mBottomNavView, mNavController);
+        NavigationUI.setupWithNavController(binding.bottomNavBar, mNavController);
         mNavController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
             @Override
             public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
                 refreshNavViewCheckedItem();
 
-                mBottomNavView.setVisibility(destination.getId() == R.id.locationSearchFragment ? View.GONE : View.VISIBLE);
+                binding.bottomNavBar.setVisibility(destination.getId() == R.id.locationSearchFragment ? View.GONE : View.VISIBLE);
             }
         });
 
@@ -226,7 +231,7 @@ public class MainActivity extends AppCompatActivity
             checkedItemId = R.id.settingsFragment;
         }
 
-        MenuItem item = mBottomNavView.getMenu().findItem(checkedItemId);
+        MenuItem item = binding.bottomNavBar.getMenu().findItem(checkedItemId);
         if (item != null) {
             item.setChecked(true);
         }
@@ -244,8 +249,8 @@ public class MainActivity extends AppCompatActivity
 
                 // Actionbar, BottomNavBar & StatusBar
                 ActivityUtils.setTransparentWindow(getWindow(), color, Colors.TRANSPARENT, isLandscapeMode ? color : Colors.TRANSPARENT, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
-                mRootView.setBackgroundColor(color);
-                mBottomNavView.setBackgroundColor(color);
+                binding.getRoot().setBackgroundColor(color);
+                binding.bottomNavBar.setBackgroundColor(color);
             }
         });
     }
@@ -271,6 +276,6 @@ public class MainActivity extends AppCompatActivity
         if (mode == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK;
         }
-        mRootView.setBackgroundColor(color);
+        binding.getRoot().setBackgroundColor(color);
     }
 }

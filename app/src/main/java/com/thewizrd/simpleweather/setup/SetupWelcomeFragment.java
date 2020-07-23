@@ -7,34 +7,34 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
 
-import com.stepstone.stepper.Step;
-import com.stepstone.stepper.VerificationError;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.FragmentSetupWelcomeBinding;
+import com.thewizrd.simpleweather.fragments.WindowColorFragment;
+import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 
-public class SetupWelcomeFragment extends Fragment implements Step {
+public class SetupWelcomeFragment extends WindowColorFragment {
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_setup_welcome, container, false);
+        return FragmentSetupWelcomeBinding.inflate(inflater, container, false).getRoot();
     }
 
     @Nullable
     @Override
-    public VerificationError verifyStep() {
+    public SnackbarManager createSnackManager() {
         return null;
     }
 
     @Override
-    public void onSelected() {
-
-    }
-
-    @Override
-    public void onError(@NonNull VerificationError error) {
-
+    public void updateWindowColors() {
+        if (isAlive()) {
+            if (getSysBarColorMgr() != null) {
+                getSysBarColorMgr().setSystemBarColors(ContextCompat.getColor(getAppCompatActivity(), R.color.colorPrimaryBackground));
+            }
+        }
     }
 }

@@ -22,6 +22,9 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -78,7 +81,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
 
-public class LocationSearchFragment extends CustomFragment {
+public class LocationSearchFragment extends WindowColorFragment {
     private FragmentLocationSearchBinding binding;
     private SearchActionBarBinding searchBarBinding;
     private LocationQueryAdapter mAdapter;
@@ -553,19 +556,32 @@ public class LocationSearchFragment extends CustomFragment {
             }
         }
 
+        getLifecycle().addObserver(new LifecycleObserver() {
+            @OnLifecycleEvent(Lifecycle.Event.ON_START)
+            private void onLifeStarted() {
+                updateWindowColors();
+            }
+        });
+
         return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        int bg_color = Settings.getUserThemeMode() != UserThemeMode.AMOLED_DARK ?
-                ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground) : Colors.BLACK;
-        view.setBackgroundColor(bg_color);
-        searchBarBinding.getRoot().setBackgroundColor(bg_color);
-
         requestSearchbarFocus();
+    }
+
+    @Override
+    public void updateWindowColors() {
+        if (isAlive()) {
+            int bg_color = Settings.getUserThemeMode() != UserThemeMode.AMOLED_DARK ?
+                    ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground) : Colors.BLACK;
+            binding.getRoot().setBackgroundColor(bg_color);
+            searchBarBinding.getRoot().setBackgroundColor(bg_color);
+
+            ActivityUtils.setTransparentWindow(getAppCompatActivity().getWindow(), bg_color, Colors.TRANSPARENT, Colors.TRANSPARENT, true);
+        }
     }
 
     @Override

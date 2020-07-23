@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
@@ -32,7 +33,7 @@ public abstract class CustomFragment extends Fragment implements SnackbarManager
             });
     }
 
-    @NonNull
+    @Nullable
     public abstract SnackbarManager createSnackManager();
 
     @CallSuper

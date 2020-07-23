@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BottomStepperNavigationBar">
+        <attr name="nav_backgroundColor" format="color|reference" />
+        <attr name="nav_foregroundColor" format="color|reference" />
+
+        <attr name="nav_startButtonText" format="string|reference" />
+        <attr name="nav_backButtonText" format="string|reference" />
+        <attr name="nav_nextButtonText" format="string|reference" />
+        <attr name="nav_completeButtonText" format="string|reference" />
+
+        <attr name="nav_backButtonIcon" format="reference" />
+        <attr name="nav_nextButtonIcon" format="reference" />
+        <attr name="nav_completeButtonIcon" format="reference" />
+    </declare-styleable>
+</resources>

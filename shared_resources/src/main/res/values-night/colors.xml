@@ -1,4 +1,6 @@
 <resources>
+    <color name="colorPrimaryBackground">@color/colorPrimaryDark</color>
+
     <!--colorBackground appears behind scrollable content and is used for the default window-->
     <!--background. colorSurface is mapped to the surface of components such as cards, sheets-->
     <!--and menus. colorError is used to indicate an error state for components such as-->

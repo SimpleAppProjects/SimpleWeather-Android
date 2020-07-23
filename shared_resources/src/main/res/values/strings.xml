@@ -19,7 +19,8 @@
     <string name="setup_welcome_tagline_prompt">Just a simple weather app</string>
     <string name="setup_location_prompt">Add a location to start</string>
     <string name="setup_preferences_prompt">Customize your settings below</string>
-    <string name="label_continue">Continue</string>
+    <string name="label_next">Next</string>
+    <string name="label_back">Back</string>
     <!-- MainActivity -->
     <string name="title_activity_weather_now">Weather</string>
     <string name="action_settings">Settings</string>

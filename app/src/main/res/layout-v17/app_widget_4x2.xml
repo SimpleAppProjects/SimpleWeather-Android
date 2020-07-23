@@ -77,7 +77,7 @@
                 android:paddingLeft="8dp"
                 android:paddingStart="8dp"
                 android:scaleType="center"
-                android:src="@drawable/ms_ic_chevron_left"
+                android:src="@drawable/ic_chevron_left"
                 android:tint="@android:color/white"
                 android:visibility="gone"
                 tools:visibility="visible" />
@@ -92,7 +92,7 @@
                 android:paddingEnd="8dp"
                 android:paddingRight="8dp"
                 android:scaleType="center"
-                android:src="@drawable/ms_ic_chevron_right"
+                android:src="@drawable/ic_chevron_right"
                 android:tint="@android:color/white"
                 android:visibility="gone"
                 tools:visibility="visible" />

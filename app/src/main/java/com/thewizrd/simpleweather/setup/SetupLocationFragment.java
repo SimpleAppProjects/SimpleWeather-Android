@@ -16,17 +16,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.transition.Transition;
-import androidx.transition.TransitionManager;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
@@ -42,22 +43,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.transition.MaterialContainerTransform;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import com.stepstone.stepper.Step;
-import com.stepstone.stepper.StepperLayout;
-import com.stepstone.stepper.VerificationError;
 import com.thewizrd.shared_resources.AsyncTask;
-import com.thewizrd.shared_resources.AsyncTaskEx;
-import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.Constants;
-import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
-import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
-import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CustomException;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -75,8 +66,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentSetupLocationBinding;
-import com.thewizrd.simpleweather.fragments.CustomFragment;
-import com.thewizrd.simpleweather.fragments.LocationSearchFragment;
+import com.thewizrd.simpleweather.fragments.WindowColorFragment;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
@@ -88,10 +78,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public class SetupLocationFragment extends CustomFragment implements Step, OnBackPressedFragmentListener {
-
-    private LocationSearchFragment mSearchFragment;
-    private boolean inSearchUI;
+public class SetupLocationFragment extends WindowColorFragment {
 
     // Views
     private FragmentSetupLocationBinding binding;
@@ -100,16 +87,13 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
     private LocationCallback mLocCallback;
     private LocationListener mLocListnr;
     private CancellationTokenSource cts;
-    private LocationData location = null;
 
     /**
      * Tracks the status of the location updates request.
      */
     private boolean mRequestingLocationUpdates;
 
-    private StepperDataManager mDataManager;
-    private View mStepperNavBar;
-    private StepperLayout mStepperLayout;
+    private SetupViewModel viewModel;
 
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
 
@@ -118,11 +102,17 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
     @NonNull
     @Override
     public SnackbarManager createSnackManager() {
+        View mStepperNavBar = getAppCompatActivity().findViewById(R.id.bottom_nav_bar);
         SnackbarManager mSnackMgr = new SnackbarManager(binding.getRoot());
         mSnackMgr.setSwipeDismissEnabled(true);
         mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
         mSnackMgr.setAnchorView(mStepperNavBar);
         return mSnackMgr;
+    }
+
+    @Override
+    public boolean isAlive() {
+        return binding != null && super.isAlive();
     }
 
     @Override
@@ -137,8 +127,13 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
         binding = FragmentSetupLocationBinding.inflate(inflater, container, false);
         wm = WeatherManager.getInstance();
 
-        mStepperLayout = getAppCompatActivity().findViewById(R.id.stepperLayout);
-        mStepperNavBar = getAppCompatActivity().findViewById(R.id.ms_bottomNavigation);
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), new OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), 0);
+                return insets;
+            }
+        });
 
         binding.progressBar.setVisibility(View.GONE);
 
@@ -151,14 +146,8 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
             @Override
             public void onClick(View v) {
                 // Setup search UI
-                prepareSearchUI();
-            }
-        });
-
-        binding.searchFragmentContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                exitSearchUi(false);
+                Navigation.findNavController(v)
+                        .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToLocationSearchFragment3());
             }
         });
 
@@ -258,15 +247,35 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
             Settings.setKeyVerified(true);
         }
 
-        // Get SearchUI state
-        if (savedInstanceState != null && savedInstanceState.getBoolean(Constants.KEY_SEARCHUI, false)) {
-            inSearchUI = true;
-
-            // Restart SearchUI
-            prepareSearchUI();
-        }
-
         return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        viewModel = new ViewModelProvider(getAppCompatActivity()).get(SetupViewModel.class);
+
+        MutableLiveData<String> liveData =
+                Navigation.findNavController(view).getCurrentBackStackEntry()
+                        .getSavedStateHandle()
+                        .getLiveData(Constants.KEY_DATA);
+        liveData.observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String result) {
+                // Do something with the result.
+                if (result != null) {
+                    // Save data
+                    LocationData data = JSONParser.deserializer(result, LocationData.class);
+                    if (data != null) {
+                        // Setup complete
+                        viewModel.setLocationData(data);
+                        Navigation.findNavController(binding.getRoot())
+                                .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment());
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -302,18 +311,6 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
     }
 
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        mDataManager = (StepperDataManager) context;
-    }
-
-    @Override
-    public void onDetach() {
-        mDataManager = null;
-        super.onDetach();
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         AnalyticsLogger.logEvent("SetupLocation: onResume");
@@ -332,19 +329,7 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
     public void onDestroy() {
         // Cancel pending actions
         ctsCancel();
-        mDataManager = null;
         super.onDestroy();
-    }
-
-    @Override
-    public boolean onBackPressed() {
-        if (inSearchUI) {
-            // We should let the user go back to usual screens with tabs.
-            exitSearchUi(false);
-            return true;
-        }
-
-        return false;
     }
 
     private void enableControls(final boolean enable) {
@@ -358,155 +343,6 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
             }
         });
     }
-
-    private RecyclerOnClickListenerInterface recyclerClickInterface = new RecyclerOnClickListenerInterface() {
-        @Override
-        public void onClick(final View view, final int position) {
-            AnalyticsLogger.logEvent("SetupLocFragment: searchFragment click");
-
-            if (mSearchFragment == null || !isAlive())
-                return;
-
-            mSearchFragment.showLoading(true);
-            mSearchFragment.enableRecyclerView(false);
-
-            AsyncTask.create(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws CustomException, InterruptedException, WeatherException {
-                    // Get selected query view
-                    final LocationQueryAdapter adapter = mSearchFragment.getAdapter();
-                    LocationQueryViewModel queryResult = new LocationQueryViewModel();
-
-                    if (!StringUtils.isNullOrEmpty(adapter.getDataset().get(position).getLocationQuery()))
-                        queryResult = adapter.getDataset().get(position);
-
-                    if (StringUtils.isNullOrWhitespace(queryResult.getLocationQuery())) {
-                        // Stop since there is no valid query
-                        throw new CustomException(R.string.error_retrieve_location);
-                    }
-
-                    // Cancel pending search
-                    mSearchFragment.ctsCancel();
-                    CancellationToken ctsToken = mSearchFragment.getCancellationTokenSource().getToken();
-
-                    if (ctsToken.isCancellationRequested()) throw new InterruptedException();
-
-                    String country_code = queryResult.getLocationCountry();
-                    if (!StringUtils.isNullOrWhitespace(country_code))
-                        country_code = country_code.toLowerCase();
-
-                    if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
-                        throw new CustomException(R.string.error_message_weather_us_only);
-                    }
-
-                    // Need to get FULL location data for HERE API
-                    // Data provided is incomplete
-                    if (WeatherAPI.HERE.equals(queryResult.getLocationSource())
-                            && queryResult.getLocationLat() == -1 && queryResult.getLocationLong() == -1
-                            && queryResult.getLocationTZLong() == null) {
-                        final LocationQueryViewModel loc = queryResult;
-                        queryResult = new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
-                            @Override
-                            public LocationQueryViewModel call() throws WeatherException {
-                                return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
-                            }
-                        });
-                    }
-
-                    // Get weather data
-                    location = new LocationData(queryResult);
-                    if (!location.isValid()) {
-                        throw new CustomException(R.string.werror_noweather);
-                    }
-                    Weather weather = Settings.getWeatherData(location.getQuery());
-                    if (weather == null) {
-                        weather = wm.getWeather(location);
-                    }
-
-                    if (weather == null) {
-                        throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
-                    }
-
-                    // Save weather data
-                    Settings.deleteLocations();
-                    Settings.addLocation(location);
-                    if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
-                        Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
-                    Settings.saveWeatherData(weather);
-                    Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
-                    final Weather finalWeather = weather;
-                    Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
-                            Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
-                                @NonNull
-                                @Override
-                                public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
-                                    return new HourlyForecasts(finalWeather.getQuery(), input);
-                                }
-                            }));
-
-                    // If we're using search
-                    // make sure gps feature is off
-                    Settings.setFollowGPS(false);
-                    Settings.setWeatherLoaded(true);
-
-                    // Send data for wearables
-                    if (getAppCompatActivity() != null) {
-                        WearableDataListenerService.enqueueWork(getAppCompatActivity(),
-                                new Intent(getAppCompatActivity(), WearableDataListenerService.class)
-                                        .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
-                        WearableDataListenerService.enqueueWork(getAppCompatActivity(),
-                                new Intent(getAppCompatActivity(), WearableDataListenerService.class)
-                                        .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
-                        WearableDataListenerService.enqueueWork(getAppCompatActivity(),
-                                new Intent(getAppCompatActivity(), WearableDataListenerService.class)
-                                        .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
-                    }
-
-                    return true;
-                }
-            }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Boolean>() {
-                @Override
-                public void onSuccess(Boolean success) {
-                    if (success) {
-                        // Setup complete
-                        mDataManager.getArguments().putString(Constants.KEY_DATA, new AsyncTask<String>().await(new Callable<String>() {
-                            @Override
-                            public String call() {
-                                return JSONParser.serializer(location, LocationData.class);
-                            }
-                        }));
-                        mStepperLayout.proceed();
-                    } else {
-                        if (mSearchFragment != null) {
-                            mSearchFragment.showLoading(false);
-                            mSearchFragment.enableRecyclerView(true);
-                        }
-                    }
-                }
-            }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    // Restore controls
-                    Settings.setFollowGPS(false);
-                    Settings.setWeatherLoaded(false);
-
-                    if (e instanceof WeatherException || e instanceof CustomException) {
-                        if (mSearchFragment != null) {
-                            mSearchFragment.showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
-                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                            mSearchFragment.showLoading(false);
-                            mSearchFragment.enableRecyclerView(true);
-                        }
-                    } else {
-                        mSearchFragment.showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
-                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                        mSearchFragment.showLoading(false);
-                        mSearchFragment.enableRecyclerView(true);
-                    }
-                }
-            });
-        }
-    };
 
     private void fetchGeoLocation() {
         if (!isAlive()) return;
@@ -541,9 +377,9 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
                 }
             });
         } else {
-            AsyncTask.create(new Callable<Boolean>() {
+            AsyncTask.create(new Callable<LocationData>() {
                 @Override
-                public Boolean call() throws InterruptedException, WeatherException, ExecutionException, CustomException {
+                public LocationData call() throws InterruptedException, WeatherException, ExecutionException, CustomException {
                     LocationQueryViewModel view;
 
                     // Cancel other tasks
@@ -576,7 +412,7 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
                     }
 
                     // Get Weather Data
-                    location = new LocationData(view, mLocation);
+                    LocationData location = new LocationData(view, mLocation);
                     if (!location.isValid()) {
                         throw new CustomException(R.string.werror_noweather);
                     }
@@ -630,15 +466,16 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
                                 .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
                     }
 
-                    return true;
+                    return location;
                 }
-            }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Boolean>() {
+            }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<LocationData>() {
                 @Override
-                public void onSuccess(Boolean success) {
-                    if (success) {
+                public void onSuccess(LocationData data) {
+                    if (data != null && data.isValid()) {
                         // Setup complete
-                        mDataManager.getArguments().putString(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class));
-                        mStepperLayout.proceed();
+                        viewModel.setLocationData(data);
+                        Navigation.findNavController(binding.getRoot())
+                                .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment());
                     } else {
                         enableControls(true);
                         Settings.setFollowGPS(false);
@@ -778,254 +615,11 @@ public class SetupLocationFragment extends CustomFragment implements Step, OnBac
     }
 
     @Override
-    public void onAttachFragment(@NonNull Fragment childFragment) {
-        if (childFragment instanceof LocationSearchFragment) {
-            mSearchFragment = (LocationSearchFragment) childFragment;
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        // Save SearchUI state
-        outState.putBoolean(Constants.KEY_SEARCHUI, inSearchUI);
-
-        super.onSaveInstanceState(outState);
-    }
-
-    private void prepareSearchUI() {
-        ctsCancel();
-
-        enterSearchUi();
-        enterSearchUiTransition(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                if (mSearchFragment != null)
-                    mSearchFragment.requestSearchbarFocus();
-                // Hide stepper nav bar
-                mStepperLayout.setShowBottomNavigation(false);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-    }
-
-    private void enterSearchUi() {
-        inSearchUI = true;
-        if (mSearchFragment == null) {
-            addSearchFragment();
-            return;
-        }
-        if (mSearchFragment.getRecyclerOnClickListener() == null)
-            mSearchFragment.setRecyclerOnClickListener(recyclerClickInterface);
-        mSearchFragment.setUserVisibleHint(true);
-        final FragmentTransaction transaction = getChildFragmentManager()
-                .beginTransaction();
-        transaction.show(mSearchFragment);
-        transaction.commitAllowingStateLoss();
-        getChildFragmentManager().executePendingTransactions();
-    }
-
-    private void enterSearchUiTransition(final Animation.AnimationListener enterAnimationListener) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            MaterialContainerTransform transition = new MaterialContainerTransform();
-            transition.setStartView(binding.searchBar.searchViewContainer);
-            transition.setEndView(binding.searchFragmentContainer);
-            transition.setPathMotion(null);
-            transition.addListener(new Transition.TransitionListener() {
-                @Override
-                public void onTransitionStart(Transition transition) {
-
-                }
-
-                @Override
-                public void onTransitionEnd(Transition transition) {
-                    if (enterAnimationListener != null)
-                        enterAnimationListener.onAnimationEnd(null);
-                }
-
-                @Override
-                public void onTransitionCancel(Transition transition) {
-
-                }
-
-                @Override
-                public void onTransitionPause(Transition transition) {
-
-                }
-
-                @Override
-                public void onTransitionResume(Transition transition) {
-
-                }
-            });
-
-            TransitionManager.beginDelayedTransition((ViewGroup) binding.getRoot(), transition);
-            binding.searchFragmentContainer.setVisibility(View.VISIBLE);
-            binding.searchBar.searchViewContainer.setVisibility(View.INVISIBLE);
-        } else {
-            binding.searchFragmentContainer.setVisibility(View.VISIBLE);
-            if (enterAnimationListener != null)
-                enterAnimationListener.onAnimationEnd(null);
-        }
-    }
-
-    private void addSearchFragment() {
-        if (mSearchFragment != null) {
-            return;
-        }
-        final FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-        final LocationSearchFragment searchFragment = new LocationSearchFragment();
-        searchFragment.setRecyclerOnClickListener(recyclerClickInterface);
-        searchFragment.setUserVisibleHint(false);
-        ft.add(R.id.search_fragment_container, searchFragment);
-        ft.commitNowAllowingStateLoss();
-    }
-
-    private void removeSearchFragment() {
-        if (mSearchFragment != null) {
-            mSearchFragment.setUserVisibleHint(false);
-            final FragmentTransaction transaction = getChildFragmentManager()
-                    .beginTransaction();
-            transaction.remove(mSearchFragment);
-            transaction.commitAllowingStateLoss();
-            mSearchFragment = null;
-        }
-    }
-
-    private void exitSearchUi(boolean skipAnimation) {
-        if (mSearchFragment != null) {
-            // Exit transition
-            if (skipAnimation) {
-                removeSearchFragment();
-            } else {
-                exitSearchUiTransition(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        // Remove fragment once animation ends
-                        removeSearchFragment();
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                });
+    public void updateWindowColors() {
+        if (isAlive()) {
+            if (getSysBarColorMgr() != null) {
+                getSysBarColorMgr().setSystemBarColors(ContextCompat.getColor(getAppCompatActivity(), R.color.colorPrimaryBackground));
             }
         }
-
-        hideInputMethod(getAppCompatActivity() == null ? null : getAppCompatActivity().getCurrentFocus());
-        mStepperLayout.setShowBottomNavigation(true);
-        if (binding.getRoot() != null) binding.getRoot().requestFocus();
-        inSearchUI = false;
-    }
-
-    private void exitSearchUiTransition(final Animation.AnimationListener exitAnimationListener) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            MaterialContainerTransform transition = new MaterialContainerTransform();
-            transition.setStartView(binding.searchFragmentContainer);
-            transition.setEndView(binding.searchBar.searchViewContainer);
-            transition.setPathMotion(null);
-            transition.addListener(new Transition.TransitionListener() {
-                @Override
-                public void onTransitionStart(Transition transition) {
-
-                }
-
-                @Override
-                public void onTransitionEnd(Transition transition) {
-                    if (exitAnimationListener != null)
-                        exitAnimationListener.onAnimationEnd(null);
-                }
-
-                @Override
-                public void onTransitionCancel(Transition transition) {
-
-                }
-
-                @Override
-                public void onTransitionPause(Transition transition) {
-
-                }
-
-                @Override
-                public void onTransitionResume(Transition transition) {
-
-                }
-            });
-
-            TransitionManager.beginDelayedTransition((ViewGroup) binding.getRoot(), transition);
-            binding.searchFragmentContainer.setVisibility(View.GONE);
-            binding.searchBar.searchViewContainer.setVisibility(View.VISIBLE);
-        } else {
-            binding.searchFragmentContainer.setVisibility(View.GONE);
-            binding.searchBar.searchViewContainer.setVisibility(View.VISIBLE);
-            if (exitAnimationListener != null)
-                exitAnimationListener.onAnimationEnd(null);
-        }
-    }
-
-    private void showInputMethod(View view) {
-        if (getAppCompatActivity() != null) {
-            InputMethodManager imm = (InputMethodManager) getAppCompatActivity().getSystemService(
-                    Context.INPUT_METHOD_SERVICE);
-            if (imm != null && view != null) {
-                imm.showSoftInput(view, 0);
-            }
-        }
-    }
-
-    private void hideInputMethod(View view) {
-        if (getAppCompatActivity() != null) {
-            InputMethodManager imm = (InputMethodManager) getAppCompatActivity().getSystemService(
-                    Context.INPUT_METHOD_SERVICE);
-            if (imm != null && view != null) {
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-            }
-        }
-    }
-
-    @Nullable
-    @Override
-    public VerificationError verifyStep() {
-        if (mDataManager != null) {
-            if (Settings.isWeatherLoaded()) {
-                if (location != null)
-                    mDataManager.getArguments().putString(Constants.KEY_DATA, new AsyncTask<String>().await(new Callable<String>() {
-                        @Override
-                        public String call() {
-                            return JSONParser.serializer(location, LocationData.class);
-                        }
-                    }));
-
-                if (inSearchUI) {
-                    exitSearchUi(true);
-                }
-                return null;
-            }
-        }
-        return new VerificationError("Invalid activity");
-    }
-
-    @Override
-    public void onSelected() {
-
-    }
-
-    @Override
-    public void onError(@NonNull VerificationError error) {
-
     }
 }

@@ -3,32 +3,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/root_view"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?android:attr/windowBackground"
+        android:orientation="vertical"
+        android:background="@color/colorPrimaryBackground"
         android:focusable="true"
-        android:focusableInTouchMode="true"
-        tools:context=".setup.SetupActivity">
+        android:focusableInTouchMode="true">
 
         <com.thewizrd.simpleweather.helpers.WindowInsetsFrameLayout
+            android:id="@+id/fragment_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-            <com.stepstone.stepper.StepperLayout
-                android:id="@+id/stepperLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:ms_stepperType="dots"
-                app:ms_bottomNavigationBackground="?android:attr/windowBackground"
-                app:ms_activeStepColor="#fff"
-                app:ms_inactiveStepColor="#aaa"
-                app:ms_backButtonBackground="@android:color/transparent"
-                app:ms_backButtonColor="@android:color/white"
-                app:ms_nextButtonColor="@android:color/white" />
+        <com.thewizrd.simpleweather.stepper.BottomStepperNavigationBar
+            android:id="@+id/bottom_nav_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:nav_backgroundColor="@color/colorPrimaryBackground"
+            app:nav_startButtonText="@string/label_getstarted"
+            app:nav_foregroundColor="@android:color/white"
+            tools:context=".setup.SetupActivity" />
 
-        </com.thewizrd.simpleweather.helpers.WindowInsetsFrameLayout>
+    </LinearLayout>
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

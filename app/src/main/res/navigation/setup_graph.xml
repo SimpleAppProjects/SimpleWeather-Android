@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/setup_graph"
+    app:startDestination="@id/setupWelcomeFragment">
+    <fragment
+        android:id="@+id/setupWelcomeFragment"
+        android:name="com.thewizrd.simpleweather.setup.SetupWelcomeFragment"
+        android:label="SetupWelcomeFragment">
+        <action
+            android:id="@+id/action_setupWelcomeFragment_to_setupLocationFragment"
+            app:destination="@id/setupLocationFragment"
+            app:popUpTo="@id/setupWelcomeFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/setupLocationFragment"
+        android:name="com.thewizrd.simpleweather.setup.SetupLocationFragment"
+        android:label="SetupLocationFragment">
+        <action
+            android:id="@+id/action_setupLocationFragment_to_setupSettingsFragment"
+            app:destination="@id/setupSettingsFragment"
+            app:popUpTo="@id/setupLocationFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_setupLocationFragment_to_locationSearchFragment3"
+            app:destination="@id/locationSearchFragment3" />
+    </fragment>
+    <fragment
+        android:id="@+id/setupSettingsFragment"
+        android:name="com.thewizrd.simpleweather.setup.SetupSettingsFragment"
+        android:label="SetupSettingsFragment">
+        <action
+            android:id="@+id/action_setupSettingsFragment_to_mainActivity"
+            app:destination="@id/mainActivity"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/setupSettingsFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="com.thewizrd.simpleweather.main.MainActivity"
+        android:label="MainActivity">
+        <argument
+            android:name="data"
+            app:argType="string"
+            app:nullable="true" />
+    </activity>
+    <fragment
+        android:id="@+id/locationSearchFragment3"
+        android:name="com.thewizrd.simpleweather.fragments.LocationSearchFragment"
+        android:label="LocationSearchFragment" />
+    <action
+        android:id="@+id/action_global_mainActivity"
+        app:destination="@id/mainActivity"
+        app:launchSingleTop="true" />
+</navigation>

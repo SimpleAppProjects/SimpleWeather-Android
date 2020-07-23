@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Lifecycle;
 import androidx.preference.PreferenceFragmentCompat;
@@ -32,7 +33,7 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
             });
     }
 
-    @NonNull
+    @Nullable
     public abstract SnackbarManager createSnackManager();
 
     @CallSuper

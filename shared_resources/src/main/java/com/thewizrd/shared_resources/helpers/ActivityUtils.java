@@ -1,6 +1,7 @@
 package com.thewizrd.shared_resources.helpers;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Build;
@@ -138,6 +139,14 @@ public class ActivityUtils {
     public static int getColor(@NonNull Context activityContext, @AttrRes int resId) {
         final TypedArray array = activityContext.getTheme().obtainStyledAttributes(new int[]{resId});
         @ColorInt int color = array.getColor(0, 0);
+        array.recycle();
+
+        return color;
+    }
+
+    public static ColorStateList getColorStateList(@NonNull Context activityContext, @AttrRes int resId) {
+        final TypedArray array = activityContext.getTheme().obtainStyledAttributes(new int[]{resId});
+        ColorStateList color = array.getColorStateList(0);
         array.recycle();
 
         return color;

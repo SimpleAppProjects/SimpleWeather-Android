@@ -8,22 +8,33 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
-import com.stepstone.stepper.Step;
-import com.stepstone.stepper.VerificationError;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentSetupSettingsBinding;
+import com.thewizrd.simpleweather.preferences.WindowColorPreferenceFragmentCompat;
+import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 
-public class SetupSettingsFragment extends PreferenceFragmentCompat implements Step {
+public class SetupSettingsFragment extends WindowColorPreferenceFragmentCompat {
 
     private WeatherManager wm;
     private FragmentSetupSettingsBinding binding;
+
+    @Override
+    public boolean isAlive() {
+        return binding != null && super.isAlive();
+    }
+
+    @Nullable
+    @Override
+    public SnackbarManager createSnackManager() {
+        return null;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,19 +82,13 @@ public class SetupSettingsFragment extends PreferenceFragmentCompat implements S
         notIconPref.setVisible(onGoingPref.isChecked());
     }
 
-    @Nullable
     @Override
-    public VerificationError verifyStep() {
-        return null;
-    }
-
-    @Override
-    public void onSelected() {
-
-    }
-
-    @Override
-    public void onError(@NonNull VerificationError error) {
-
+    public void updateWindowColors() {
+        super.updateWindowColors();
+        if (isAlive()) {
+            if (getSysBarColorMgr() != null) {
+                getSysBarColorMgr().setSystemBarColors(ContextCompat.getColor(getAppCompatActivity(), R.color.colorPrimaryBackground));
+            }
+        }
     }
 }

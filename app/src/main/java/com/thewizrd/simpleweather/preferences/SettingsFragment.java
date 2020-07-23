@@ -79,7 +79,7 @@ import static com.thewizrd.shared_resources.utils.Settings.KEY_USECELSIUS;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_USEPERSONALKEY;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_USERTHEME;
 
-public class SettingsFragment extends WindowColorPreferenceFragmentCompat
+public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener, UserThemeMode.OnThemeChangeListener {
 
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
@@ -944,7 +944,7 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
         }
     }
 
-    public static class FeaturesFragment extends WindowColorPreferenceFragmentCompat {
+    public static class FeaturesFragment extends ToolbarPreferenceFragmentCompat {
         @Override
         protected int getTitle() {
             return R.string.pref_title_features;
@@ -956,7 +956,7 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
         }
     }
 
-    public static class AboutAppFragment extends WindowColorPreferenceFragmentCompat {
+    public static class AboutAppFragment extends ToolbarPreferenceFragmentCompat {
         // Preference Keys
         private static final String KEY_ABOUTCREDITS = "key_aboutcredits";
         private static final String KEY_ABOUTOSLIBS = "key_aboutoslibs";
@@ -1000,7 +1000,7 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
         }
     }
 
-    public static class CreditsFragment extends WindowColorPreferenceFragmentCompat {
+    public static class CreditsFragment extends ToolbarPreferenceFragmentCompat {
         @Override
         protected int getTitle() {
             return R.string.pref_title_credits;
@@ -1012,7 +1012,7 @@ public class SettingsFragment extends WindowColorPreferenceFragmentCompat
         }
     }
 
-    public static class OSSCreditsFragment extends WindowColorPreferenceFragmentCompat {
+    public static class OSSCreditsFragment extends ToolbarPreferenceFragmentCompat {
         @Override
         protected int getTitle() {
             return R.string.pref_title_oslibs;
