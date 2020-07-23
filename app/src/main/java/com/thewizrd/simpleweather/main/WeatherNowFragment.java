@@ -165,6 +165,7 @@ public class WeatherNowFragment extends WindowColorFragment
         implements WeatherRequest.WeatherErrorListener {
     private LocationData location = null;
     private boolean loaded = false;
+    private WeatherNowFragmentArgs args;
 
     private WeatherManager wm;
     private WeatherDataLoader wLoader = null;
@@ -393,10 +394,12 @@ public class WeatherNowFragment extends WindowColorFragment
         super.onCreate(savedInstanceState);
         AnalyticsLogger.logEvent("WeatherNowFragment: onCreate");
 
+        args = WeatherNowFragmentArgs.fromBundle(requireArguments());
+
         if (savedInstanceState != null && savedInstanceState.containsKey(Constants.KEY_DATA)) {
             location = JSONParser.deserializer(savedInstanceState.getString(Constants.KEY_DATA), LocationData.class);
-        } else if (requireArguments().containsKey(Constants.KEY_DATA)) {
-            location = JSONParser.deserializer(requireArguments().getString(Constants.KEY_DATA), LocationData.class);
+        } else if (args.getData() != null) {
+            location = JSONParser.deserializer(args.getData(), LocationData.class);
             requireArguments().remove(Constants.KEY_DATA);
         }
 
@@ -655,7 +658,8 @@ public class WeatherNowFragment extends WindowColorFragment
                 // Show Alert Fragment
                 if (isAlive()) {
                     WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
-                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment(JSONParser.serializer(location, LocationData.class))
+                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                                    .setData(JSONParser.serializer(location, LocationData.class))
                                     .setWeatherListType(WeatherListType.ALERTS);
                     Navigation.findNavController(binding.getRoot()).navigate(args);
                 }
@@ -693,7 +697,8 @@ public class WeatherNowFragment extends WindowColorFragment
 
                         if (isAlive()) {
                             WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
-                                    WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment(JSONParser.serializer(location, LocationData.class))
+                                    WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                                            .setData(JSONParser.serializer(location, LocationData.class))
                                             .setWeatherListType(WeatherListType.FORECAST)
                                             .setPosition(position);
                             Navigation.findNavController(binding.getRoot()).navigate(args);
@@ -718,7 +723,8 @@ public class WeatherNowFragment extends WindowColorFragment
                         if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
                             if (isAlive()) {
                                 WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
-                                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment(JSONParser.serializer(location, LocationData.class))
+                                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                                                .setData(JSONParser.serializer(location, LocationData.class))
                                                 .setWeatherListType(WeatherListType.HOURLYFORECAST)
                                                 .setPosition(position);
                                 Navigation.findNavController(binding.getRoot()).navigate(args);
@@ -853,6 +859,8 @@ public class WeatherNowFragment extends WindowColorFragment
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        args = WeatherNowFragmentArgs.fromBundle(requireArguments());
 
         binding.refreshLayout.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
@@ -1054,11 +1062,11 @@ public class WeatherNowFragment extends WindowColorFragment
                         }
                     }
                     // Load new favorite location if argument data is present
-                    if (requireArguments().containsKey(Constants.KEY_DATA)) {
+                    if (args.getData() != null) {
                         LocationData locationData = new AsyncTask<LocationData>().await(new Callable<LocationData>() {
                             @Override
                             public LocationData call() {
-                                return JSONParser.deserializer(requireArguments().getString(Constants.KEY_DATA), LocationData.class);
+                                return JSONParser.deserializer(args.getData(), LocationData.class);
                             }
                         });
 
@@ -1068,7 +1076,7 @@ public class WeatherNowFragment extends WindowColorFragment
                             weatherView.reset();
                             locationChanged = true;
                         }
-                    } else if (requireArguments().getBoolean(Constants.FRAGTAG_HOME)) {
+                    } else if (args.getHome()) {
                         // Check if home location changed
                         // For ex. due to GPS setting change
                         LocationData homeData = Settings.getHomeData();
@@ -1173,8 +1181,8 @@ public class WeatherNowFragment extends WindowColorFragment
             AnalyticsLogger.logEvent("WeatherNowFragment: onHiddenChanged");
             adjustConditionPanelLayout();
 
-            if (requireArguments().containsKey(Constants.ARGS_BACKGROUND)) {
-                loadBackgroundImage(requireArguments().getString(Constants.ARGS_BACKGROUND), false);
+            if (args.getBackground() != null) {
+                loadBackgroundImage(args.getBackground(), false);
                 requireArguments().remove(Constants.ARGS_BACKGROUND);
             }
 

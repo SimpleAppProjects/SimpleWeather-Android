@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
-import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.R;
 
 public class WeatherWidgetConfigActivity extends AppCompatActivity {
@@ -46,12 +45,8 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
 
         Bundle args = new Bundle();
         args.putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-        if (getIntent() != null
-                && !StringUtils.isNullOrWhitespace(getIntent().getStringExtra(WeatherWidgetService.EXTRA_LOCATIONQUERY))) {
-            String locName = getIntent().getStringExtra(WeatherWidgetService.EXTRA_LOCATIONNAME);
-            String locQuery = getIntent().getStringExtra(WeatherWidgetService.EXTRA_LOCATIONQUERY);
-            args.putString(WeatherWidgetService.EXTRA_LOCATIONNAME, locName);
-            args.putString(WeatherWidgetService.EXTRA_LOCATIONQUERY, locQuery);
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            args.putAll(getIntent().getExtras());
         }
 
         NavHostFragment hostFragment = NavHostFragment.create(R.navigation.widget_graph, args);

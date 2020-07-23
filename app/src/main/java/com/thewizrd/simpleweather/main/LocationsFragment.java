@@ -268,10 +268,10 @@ public class LocationsFragment extends ToolbarFragment
                 boolean isHome = ObjectsCompat.equals(locData, Settings.getHomeData());
 
                 LocationsFragmentDirections.ActionLocationsFragmentToWeatherNowFragment args =
-                        LocationsFragmentDirections.actionLocationsFragmentToWeatherNowFragment(
-                                JSONParser.serializer(locData, LocationData.class),
-                                vm.getImageData() != null ? vm.getImageData().getImageURI() : null
-                        ).setHome(isHome);
+                        LocationsFragmentDirections.actionLocationsFragmentToWeatherNowFragment()
+                                .setData(JSONParser.serializer(locData, LocationData.class))
+                                .setBackground(vm.getImageData() != null ? vm.getImageData().getImageURI() : null)
+                                .setHome(isHome);
 
                 Navigation.findNavController(binding.getRoot()).navigate(args);
             }

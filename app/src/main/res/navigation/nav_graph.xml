@@ -23,7 +23,8 @@
         <argument
             android:name="data"
             app:argType="string"
-            app:nullable="true" />
+            app:nullable="true"
+            android:defaultValue="@null" />
         <argument
             android:name="home"
             app:argType="boolean"
@@ -31,7 +32,8 @@
         <argument
             android:name="background"
             app:argType="string"
-            app:nullable="true" />
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
     <fragment
         android:id="@+id/weatherListFragment"
@@ -40,7 +42,8 @@
         <argument
             android:name="data"
             app:argType="string"
-            app:nullable="true" />
+            app:nullable="true"
+            android:defaultValue="@null" />
         <argument
             android:name="WeatherListType"
             app:argType="com.thewizrd.simpleweather.main.WeatherListType"

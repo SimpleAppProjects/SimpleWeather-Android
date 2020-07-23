@@ -77,6 +77,12 @@ public class WeatherListFragment extends ToolbarFragment {
         return weatherType;
     }
 
+    private WeatherListFragmentArgs args;
+
+    public WeatherListFragment() {
+        setArguments(new Bundle());
+    }
+
     public static WeatherListFragment newInstance(WeatherListType type) {
         WeatherListFragment fragment = new WeatherListFragment();
         fragment.weatherType = type;
@@ -116,6 +122,8 @@ public class WeatherListFragment extends ToolbarFragment {
             }
         }
 
+        args = WeatherListFragmentArgs.fromBundle(requireArguments());
+
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(Constants.ARGS_WEATHERLISTTYPE)) {
                 weatherType = WeatherListType.valueOf(savedInstanceState.getInt(Constants.ARGS_WEATHERLISTTYPE));
@@ -123,12 +131,10 @@ public class WeatherListFragment extends ToolbarFragment {
             if (savedInstanceState.containsKey(Constants.KEY_DATA)) {
                 location = JSONParser.deserializer(savedInstanceState.getString(Constants.KEY_DATA), LocationData.class);
             }
-        } else if (getArguments() != null) {
-            if (getArguments().containsKey(Constants.ARGS_WEATHERLISTTYPE)) {
-                weatherType = (WeatherListType) getArguments().getSerializable(Constants.ARGS_WEATHERLISTTYPE);
-            }
-            if (getArguments().containsKey(Constants.KEY_DATA)) {
-                location = JSONParser.deserializer(getArguments().getString(Constants.KEY_DATA), LocationData.class);
+        } else {
+            weatherType = args.getWeatherListType();
+            if (args.getData() != null) {
+                location = JSONParser.deserializer(args.getData(), LocationData.class);
             }
         }
 
@@ -192,6 +198,8 @@ public class WeatherListFragment extends ToolbarFragment {
         weatherView = vmProvider.get(WeatherNowViewModel.class);
         alertsView = vmProvider.get(WeatherAlertsViewModel.class);
         forecastsView = new ViewModelProvider(this).get(ForecastsViewModel.class);
+
+        args = WeatherListFragmentArgs.fromBundle(requireArguments());
 
         binding.locationHeader.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
@@ -333,10 +341,7 @@ public class WeatherListFragment extends ToolbarFragment {
                     });
                 }
 
-                if (getArguments() != null) {
-                    int scrollToPosition = getArguments().getInt(Constants.KEY_POSITION, 0);
-                    layoutManager.scrollToPositionWithOffset(scrollToPosition, 0);
-                }
+                layoutManager.scrollToPositionWithOffset(args.getPosition(), 0);
                 break;
             case ALERTS:
                 final WeatherAlertPanelAdapter alertAdapter;

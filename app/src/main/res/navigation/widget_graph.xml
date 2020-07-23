@@ -18,11 +18,13 @@
         <argument
             android:name="SimpleWeather.Droid.extra.LOCATION_NAME"
             app:argType="string"
-            app:nullable="true" />
+            app:nullable="true"
+            android:defaultValue="@null" />
         <argument
             android:name="SimpleWeather.Droid.extra.LOCATION_QUERY"
             app:argType="string"
-            app:nullable="true" />
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
     <fragment
         android:id="@+id/locationSearchFragment2"

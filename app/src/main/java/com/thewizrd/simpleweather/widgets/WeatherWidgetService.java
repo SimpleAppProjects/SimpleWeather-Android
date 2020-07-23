@@ -1191,8 +1191,10 @@ public class WeatherWidgetService extends JobIntentService {
         Intent onClickIntent = new Intent(context.getApplicationContext(), MainActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
-        if (!Settings.getHomeData().equals(location))
-            onClickIntent.putExtra(Constants.KEY_SHORTCUTDATA, JSONParser.serializer(location, LocationData.class));
+        if (!Settings.getHomeData().equals(location)) {
+            onClickIntent.putExtra(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class));
+            onClickIntent.putExtra(Constants.FRAGTAG_HOME, false);
+        }
 
         PendingIntent clickPendingIntent =
                 PendingIntent.getActivity(context, location.hashCode(), onClickIntent, PendingIntent.FLAG_UPDATE_CURRENT);

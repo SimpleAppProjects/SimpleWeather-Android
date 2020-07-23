@@ -260,8 +260,8 @@ public class SetupActivity extends AppCompatActivity implements SystemBarColorMa
                 opts.setPopUpTo(currentDestination.getId(), true);
             }
             mNavController.navigate(
-                    SetupGraphDirections.actionGlobalMainActivity(
-                            JSONParser.serializer(viewModel.getLocationData(), LocationData.class)),
+                    SetupGraphDirections.actionGlobalMainActivity()
+                            .setData(JSONParser.serializer(viewModel.getLocationData(), LocationData.class)),
                     opts.build());
             finishAffinity();
         } else {

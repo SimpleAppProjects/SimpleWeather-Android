@@ -128,6 +128,8 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
     private WidgetType mWidgetType = WidgetType.Unknown;
     private Intent resultValue;
 
+    private WeatherWidgetPreferenceFragmentArgs args;
+
     // Location Search
     private Collection<LocationData> favorites;
     private LocationQueryViewModel query_vm = null;
@@ -175,6 +177,10 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
     private static final String KEY_BGCOLOR = "key_bgcolor";
     private static final String KEY_BGSTYLE = "key_bgstyle";
     private static final String KEY_HRFLIPBUTTON = "key_hrflipbutton";
+
+    public WeatherWidgetPreferenceFragment() {
+        setArguments(new Bundle());
+    }
 
     public static WeatherWidgetPreferenceFragment newInstance(Bundle args) {
         WeatherWidgetPreferenceFragment fragment = new WeatherWidgetPreferenceFragment();
@@ -228,15 +234,13 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
          * This should be before the super call,
          * so this is setup before onCreatePreferences is called
          */
-        if (getArguments() != null) {
-            // Find the widget id from the intent.
-            mAppWidgetId = getArguments().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+        args = WeatherWidgetPreferenceFragmentArgs.fromBundle(requireArguments());
 
-            mWidgetType = getWidgetTypeFromID(mAppWidgetId);
-
-            // Set the result value for WidgetConfigActivity
-            resultValue = new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-        }
+        // Find the widget id from the intent.
+        mAppWidgetId = args.getAppWidgetId();
+        mWidgetType = getWidgetTypeFromID(mAppWidgetId);
+        // Set the result value for WidgetConfigActivity
+        resultValue = new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
 
         wm = WeatherManager.getInstance();
 
@@ -435,10 +439,9 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
             }
         });
 
-        if (getArguments() != null
-                && !StringUtils.isNullOrWhitespace(getArguments().getString(WeatherWidgetService.EXTRA_LOCATIONQUERY))) {
-            String locName = getArguments().getString(WeatherWidgetService.EXTRA_LOCATIONNAME);
-            String locQuery = getArguments().getString(WeatherWidgetService.EXTRA_LOCATIONQUERY);
+        if (!StringUtils.isNullOrWhitespace(args.getSimpleWeatherDroidExtraLOCATIONQUERY())) {
+            String locName = args.getSimpleWeatherDroidExtraLOCATIONNAME();
+            String locQuery = args.getSimpleWeatherDroidExtraLOCATIONQUERY();
 
             if (locName != null) {
                 mLastSelectedValue = locQuery;
@@ -509,6 +512,8 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        args = WeatherWidgetPreferenceFragmentArgs.fromBundle(requireArguments());
 
         MutableLiveData<String> liveData =
                 Navigation.findNavController(view).getCurrentBackStackEntry()

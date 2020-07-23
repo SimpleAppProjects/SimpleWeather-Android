@@ -78,18 +78,19 @@ public class MainActivity extends AppCompatActivity
         }
 
         // Shortcut intent: from app shortcuts
-        if (getIntent() != null && getIntent().hasExtra(Constants.KEY_SHORTCUTDATA)) {
-            LocationData locData = JSONParser.deserializer(
-                    getIntent().getStringExtra(Constants.KEY_SHORTCUTDATA), LocationData.class);
-
-            args.putBoolean(Constants.FRAGTAG_HOME, ObjectsCompat.equals(locData, Settings.getHomeData()));
+        if (args.containsKey(Constants.KEY_SHORTCUTDATA)) {
+            String data = args.getString(Constants.KEY_SHORTCUTDATA);
+            args.remove(Constants.KEY_SHORTCUTDATA);
+            args.putString(Constants.KEY_DATA, data);
         }
 
-        if (getIntent() != null && getIntent().hasExtra(Constants.KEY_DATA)) {
-            LocationData locData = JSONParser.deserializer(
-                    getIntent().getStringExtra(Constants.KEY_DATA), LocationData.class);
+        if (args.containsKey(Constants.KEY_DATA)) {
+            if (!args.containsKey(Constants.FRAGTAG_HOME)) {
+                LocationData locData = JSONParser.deserializer(
+                        args.getString(Constants.KEY_DATA), LocationData.class);
 
-            args.putBoolean(Constants.FRAGTAG_HOME, ObjectsCompat.equals(locData, Settings.getHomeData()));
+                args.putBoolean(Constants.FRAGTAG_HOME, ObjectsCompat.equals(locData, Settings.getHomeData()));
+            }
         }
 
         NavHostFragment hostFragment = NavHostFragment.create(R.navigation.nav_graph, args);
@@ -119,7 +120,8 @@ public class MainActivity extends AppCompatActivity
         if (getIntent() != null && WeatherWidgetService.ACTION_SHOWALERTS.equals(getIntent().getAction())) {
             LocationData locationData = Settings.getHomeData();
             WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
-                    WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment(JSONParser.serializer(locationData, LocationData.class))
+                    WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                            .setData(JSONParser.serializer(locationData, LocationData.class))
                             .setWeatherListType(WeatherListType.ALERTS);
             mNavController.navigate(args);
         }
