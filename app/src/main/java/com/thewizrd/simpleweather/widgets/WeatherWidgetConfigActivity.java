@@ -11,7 +11,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
+import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
 
 public class WeatherWidgetConfigActivity extends AppCompatActivity {
@@ -38,6 +42,13 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_widget_setup);
+
+        int color = ActivityUtils.getColor(this, android.R.attr.colorBackground);
+        if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+            color = Colors.BLACK;
+        }
+
+        ActivityUtils.setTransparentWindow(getWindow(), color, Colors.TRANSPARENT, Colors.TRANSPARENT, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
 
         View mRootView = (View) findViewById(R.id.fragment_container).getParent();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)

@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:viewBindingIgnore="true">
 
-    <com.thewizrd.simpleweather.helpers.WindowInsetsFrameLayout
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather.fragments;
 
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.CallSuper;
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -79,16 +77,18 @@ public abstract class ToolbarFragment extends WindowColorFragment
             }
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.appBar, new OnApplyWindowInsetsListener() {
+        // Toolbar
+        binding.toolbar.setTitle(getTitle());
+
+        // For landscape orientation
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), new OnApplyWindowInsetsListener() {
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
+                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                layoutParams.setMargins(insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), 0);
                 return insets;
             }
         });
-
-        // Toolbar
-        binding.toolbar.setTitle(getTitle());
 
         return root;
     }
@@ -137,22 +137,13 @@ public abstract class ToolbarFragment extends WindowColorFragment
     public void updateWindowColors() {
         if (!isAlive()) return;
 
-        Configuration config = getCurrentConfiguration();
-        final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        int color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
+        if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+            color = Colors.BLACK;
+        }
 
-        @ColorInt int bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-        if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
-            if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
-                bg_color = Colors.BLACK;
-            } else {
-                bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-            }
-        }
-        binding.rootView.setBackgroundColor(bg_color);
-        binding.appBar.setBackgroundColor(bg_color);
-        binding.rootView.setStatusBarBackgroundColor(bg_color);
-        if (getSysBarColorMgr() != null) {
-            getSysBarColorMgr().setSystemBarColors(bg_color);
-        }
+        binding.rootView.setBackgroundColor(color);
+        binding.appBar.setBackgroundColor(color);
+        binding.rootView.setStatusBarBackgroundColor(color);
     }
 }

@@ -255,7 +255,6 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable final Bundle savedInstanceState) {
-        updateWindowColors();
         super.onViewCreated(view, savedInstanceState);
     }
 

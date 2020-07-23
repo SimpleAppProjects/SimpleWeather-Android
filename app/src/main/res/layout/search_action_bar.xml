@@ -7,9 +7,7 @@
         android:id="@+id/search_action_bar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@android:color/transparent"
-        android:visibility="gone"
-        tools:visibility="visible">
+        android:background="@android:color/transparent">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/search_back_button"

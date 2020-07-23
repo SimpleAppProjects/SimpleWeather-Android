@@ -30,25 +30,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.location.LocationManagerCompat;
 import androidx.core.view.MenuItemCompat;
-import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.navigation.Navigation;
@@ -74,8 +68,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.AsyncTask;
@@ -95,7 +87,6 @@ import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.TransparentOverlay;
-import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
@@ -103,11 +94,11 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.FragmentWidgetSetupBinding;
 import com.thewizrd.simpleweather.preferences.ArrayListPreference;
-import com.thewizrd.simpleweather.preferences.CustomPreferenceFragmentCompat;
+import com.thewizrd.simpleweather.preferences.ToolbarPreferenceFragmentCompat;
 import com.thewizrd.simpleweather.setup.SetupActivity;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
-import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.threeten.bp.LocalDateTime;
@@ -122,7 +113,7 @@ import java.util.concurrent.TimeUnit;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.getWidgetTypeFromID;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.isForecastWidget;
 
-public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCompat {
+public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCompat {
     // Widget id for ConfigurationActivity
     private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
     private WidgetType mWidgetType = WidgetType.Unknown;
@@ -148,13 +139,10 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
     private WeatherManager wm;
 
     // Views
-    private View mRootView;
-    private AppBarLayout appBarLayout;
-    private Toolbar mToolbar;
-    private NestedScrollView mScrollView;
+    private FragmentWidgetSetupBinding binding;
+
     private CharSequence mLastSelectedValue;
 
-    private ViewGroup widgetContainer;
     private boolean isWidgetInit;
     private WidgetUtils.WidgetBackground mWidgetBackground;
     private WidgetUtils.WidgetBackgroundStyle mWidgetBGStyle;
@@ -219,13 +207,9 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
         cts = new CancellationTokenSource();
     }
 
-    @NonNull
     @Override
-    public SnackbarManager createSnackManager() {
-        SnackbarManager mSnackMgr = new SnackbarManager(mRootView);
-        mSnackMgr.setSwipeDismissEnabled(true);
-        mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
-        return mSnackMgr;
+    protected int getTitle() {
+        return R.string.widget_configure_prompt;
     }
 
     @Override
@@ -249,13 +233,11 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_widget_setup, container, false);
-
-        View inflatedView = super.onCreateView(inflater, container, savedInstanceState);
-
-        mScrollView = root.findViewById(R.id.scrollView);
-        ViewGroup layoutContainer = root.findViewById(R.id.layout_container);
-        layoutContainer.addView(inflatedView);
+        ViewGroup root = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
+        View inflatedView = root.getChildAt(root.getChildCount() - 1);
+        root.removeView(inflatedView);
+        binding = FragmentWidgetSetupBinding.inflate(inflater, root, true);
+        binding.layoutContainer.addView(inflatedView);
 
         if (getListView() != null)
             ViewCompat.setNestedScrollingEnabled(getListView(), false);
@@ -263,31 +245,7 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
         // Set fragment view
         setHasOptionsMenu(true);
 
-        appBarLayout = root.findViewById(R.id.app_bar);
-        mToolbar = root.findViewById(R.id.toolbar);
-
-        mRootView = (View) getAppCompatActivity().findViewById(R.id.fragment_container).getParent();
-        // Make full transparent statusBar
-        updateWindowColors();
-
-        ViewCompat.setOnApplyWindowInsetsListener(mScrollView, new OnApplyWindowInsetsListener() {
-            private int paddingStart = ViewCompat.getPaddingStart(mScrollView);
-            private int paddingTop = mScrollView.getPaddingTop();
-            private int paddingEnd = ViewCompat.getPaddingEnd(mScrollView);
-            private int paddingBottom = mScrollView.getPaddingBottom();
-
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewCompat.setPaddingRelative(v,
-                        paddingStart + insets.getSystemWindowInsetLeft(),
-                        paddingTop,
-                        paddingEnd + insets.getSystemWindowInsetRight(),
-                        paddingBottom + insets.getSystemWindowInsetBottom());
-                return insets;
-            }
-        });
-
-        getAppCompatActivity().setSupportActionBar(mToolbar);
+        getAppCompatActivity().setSupportActionBar(getToolbar());
         getAppCompatActivity().getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Context context = root.getContext();
@@ -546,13 +504,12 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
             }
         });
 
-        widgetContainer = view.findViewById(R.id.widget_container);
         initializeWidget();
         // Resize necessary views
-        mRootView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+        binding.getRoot().getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
-                mRootView.getViewTreeObserver().removeOnPreDrawListener(this);
+                binding.getRoot().getViewTreeObserver().removeOnPreDrawListener(this);
                 resizeWidgetContainer();
                 return true;
             }
@@ -560,7 +517,7 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
     }
 
     private void initializeWidget() {
-        widgetContainer.removeAllViews();
+        binding.widgetContainer.removeAllViews();
 
         int widgetLayoutRes = 0;
         float viewWidth = 0;
@@ -594,13 +551,13 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
         }
 
         if (widgetLayoutRes == 0) {
-            widgetContainer.setVisibility(View.GONE);
+            binding.widgetContainer.setVisibility(View.GONE);
             return;
         }
 
         LocalDateTime now = LocalDateTime.now();
 
-        View widgetView = View.inflate(getAppCompatActivity(), widgetLayoutRes, widgetContainer);
+        View widgetView = View.inflate(getAppCompatActivity(), widgetLayoutRes, binding.widgetContainer);
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) widgetView.getLayoutParams();
 
         layoutParams.height = (int) viewHeight;
@@ -686,7 +643,7 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
         }
 
         if (isForecastWidget(mWidgetType)) {
-            ViewGroup forecastLayout = widgetContainer.findViewById(R.id.forecast_layout);
+            ViewGroup forecastLayout = binding.widgetContainer.findViewById(R.id.forecast_layout);
             forecastLayout.removeAllViews();
 
             int forecastLength = 3;
@@ -734,8 +691,8 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
     }
 
     private void updateLocationView() {
-        if (widgetContainer == null) return;
-        TextView locationView = widgetContainer.findViewById(R.id.location_name);
+        if (binding == null) return;
+        TextView locationView = binding.widgetContainer.findViewById(R.id.location_name);
         locationView.setText(mLastSelectedValue != null ? locationPref.findEntryFromValue(mLastSelectedValue) : this.getString(R.string.pref_location));
     }
 
@@ -749,8 +706,8 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
 
         if (WidgetUtils.isBackgroundOptionalWidget(mWidgetType)) {
             int backgroundColor = WidgetUtils.getBackgroundColor(getAppCompatActivity(), mWidgetBackground);
-            ImageView pandaBG = widgetContainer.findViewById(R.id.panda_background);
-            ImageView widgetBG = widgetContainer.findViewById(R.id.widgetBackground);
+            ImageView pandaBG = binding.widgetContainer.findViewById(R.id.panda_background);
+            ImageView widgetBG = binding.widgetContainer.findViewById(R.id.widgetBackground);
 
             if (mWidgetBackground == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
                 if (pandaBG != null) {
@@ -803,31 +760,31 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
         int panelTextColor = WidgetUtils.getPanelTextColor(mWidgetBackground, mWidgetBGStyle, isNightMode);
 
         if (mWidgetType != WidgetType.Widget2x2 && mWidgetType != WidgetType.Widget4x1Google) {
-            ImageView tempView = widgetContainer.findViewById(R.id.condition_temp);
+            ImageView tempView = binding.widgetContainer.findViewById(R.id.condition_temp);
             tempView.setColorFilter(textColor);
         }
 
         if (mWidgetType == WidgetType.Widget4x1) {
-            TextView nowDate = widgetContainer.findViewById(R.id.now_date);
+            TextView nowDate = binding.widgetContainer.findViewById(R.id.now_date);
             nowDate.setTextColor(textColor);
         }
 
         if (mWidgetType != WidgetType.Widget4x1Google && mWidgetType != WidgetType.Widget1x1) {
-            TextView update_time = widgetContainer.findViewById(R.id.update_time);
+            TextView update_time = binding.widgetContainer.findViewById(R.id.update_time);
             update_time.setTextColor(textColor);
         }
 
         boolean is4x2 = mWidgetType == WidgetType.Widget4x2;
 
-        ImageView iconView = widgetContainer.findViewById(R.id.weather_icon);
+        ImageView iconView = binding.widgetContainer.findViewById(R.id.weather_icon);
         iconView.setColorFilter(is4x2 ? textColor : panelTextColor);
 
-        TextView locationView = widgetContainer.findViewById(R.id.location_name);
+        TextView locationView = binding.widgetContainer.findViewById(R.id.location_name);
         locationView.setTextColor(is4x2 ? textColor : panelTextColor);
 
         if (mWidgetType != WidgetType.Widget4x1Google && mWidgetType != WidgetType.Widget4x1 && mWidgetType != WidgetType.Widget1x1) {
-            TextView conditionText = widgetContainer.findViewById(R.id.condition_weather);
-            TextView conditionDetails = widgetContainer.findViewById(R.id.condition_details);
+            TextView conditionText = binding.widgetContainer.findViewById(R.id.condition_weather);
+            TextView conditionDetails = binding.widgetContainer.findViewById(R.id.condition_details);
 
             conditionText.setTextColor(is4x2 ? textColor : panelTextColor);
             if (conditionDetails != null)
@@ -835,24 +792,24 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
         }
 
         if (WidgetUtils.isDateWidget(mWidgetType)) {
-            TextView dateText = widgetContainer.findViewById(R.id.date_panel);
+            TextView dateText = binding.widgetContainer.findViewById(R.id.date_panel);
             dateText.setTextColor(textColor);
         }
 
         if (WidgetUtils.isClockWidget(mWidgetType)) {
-            TextView clockView = widgetContainer.findViewById(R.id.clock_panel);
+            TextView clockView = binding.widgetContainer.findViewById(R.id.clock_panel);
             clockView.setTextColor(textColor);
         }
 
         if (WidgetUtils.isForecastWidget(mWidgetType)) {
-            ViewGroup forecastLayout = widgetContainer.findViewById(R.id.forecast_layout);
+            ViewGroup forecastLayout = binding.widgetContainer.findViewById(R.id.forecast_layout);
             if (forecastLayout != null) {
                 updateTextViewColor(forecastLayout, panelTextColor);
             }
         }
 
-        ImageView refreshButton = widgetContainer.findViewById(R.id.refresh_button);
-        ImageView settButton = widgetContainer.findViewById(R.id.settings_button);
+        ImageView refreshButton = binding.widgetContainer.findViewById(R.id.refresh_button);
+        ImageView settButton = binding.widgetContainer.findViewById(R.id.settings_button);
         refreshButton.setColorFilter(textColor);
         settButton.setColorFilter(textColor);
     }
@@ -883,49 +840,27 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
         super.onSaveInstanceState(outState);
     }
 
-    private void updateWindowColors() {
-        final Configuration config = this.getResources().getConfiguration();
-        final boolean isLandscapeMode = config.orientation != Configuration.ORIENTATION_PORTRAIT && !ActivityUtils.isLargeTablet(getAppCompatActivity());
-
-        // Set user theme
-        final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        @ColorInt int bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-        if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
-            if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
-                bg_color = Colors.BLACK;
-            } else {
-                bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-            }
-        }
-
-        // Actionbar, BottomNavBar & StatusBar
-        mRootView.setBackgroundColor(bg_color);
-        ActivityUtils.setTransparentWindow(getAppCompatActivity().getWindow(), bg_color, Colors.TRANSPARENT, isLandscapeMode ? bg_color : Colors.TRANSPARENT, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
-    }
-
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
         // Resize necessary views
-        ViewTreeObserver observer = mRootView.getViewTreeObserver();
+        ViewTreeObserver observer = binding.getRoot().getViewTreeObserver();
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                mRootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                binding.getRoot().getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 resizeWidgetContainer();
             }
         });
-
-        updateWindowColors();
     }
 
     private void resizeWidgetContainer() {
-        final View widgetFrameContainer = mScrollView.findViewById(R.id.widget_frame_container);
-        final View widgetView = widgetContainer.findViewById(R.id.widget);
+        final View widgetFrameContainer = binding.scrollView.findViewById(R.id.widget_frame_container);
+        final View widgetView = binding.widgetContainer.findViewById(R.id.widget);
 
-        int height = mScrollView.getMeasuredHeight();
-        int width = mScrollView.getMeasuredWidth();
+        int height = binding.scrollView.getMeasuredHeight();
+        int width = binding.scrollView.getMeasuredWidth();
 
         int preferredHeight = (int) ActivityUtils.dpToPx(getAppCompatActivity(), 225);
         int minHeight = (int) (ActivityUtils.dpToPx(getAppCompatActivity(), 90));
@@ -935,7 +870,7 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            TransitionManager.beginDelayedTransition(mScrollView, new AutoTransition());
+            TransitionManager.beginDelayedTransition(binding.scrollView, new AutoTransition());
         }
 
         ViewGroup.LayoutParams layoutParams = widgetFrameContainer.getLayoutParams();
@@ -1313,26 +1248,6 @@ public class WeatherWidgetPreferenceFragment extends CustomPreferenceFragmentCom
             }
             default:
                 break;
-        }
-    }
-
-    private void showInputMethod(View view) {
-        if (getAppCompatActivity() != null) {
-            InputMethodManager imm = (InputMethodManager) getAppCompatActivity().getSystemService(
-                    Context.INPUT_METHOD_SERVICE);
-            if (imm != null && view != null) {
-                imm.showSoftInput(view, 0);
-            }
-        }
-    }
-
-    private void hideInputMethod(View view) {
-        if (getAppCompatActivity() != null) {
-            InputMethodManager imm = (InputMethodManager) getAppCompatActivity().getSystemService(
-                    Context.INPUT_METHOD_SERVICE);
-            if (imm != null && view != null) {
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-            }
         }
     }
 }

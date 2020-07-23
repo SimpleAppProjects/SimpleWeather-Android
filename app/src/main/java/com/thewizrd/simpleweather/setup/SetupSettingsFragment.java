@@ -8,33 +8,20 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentSetupSettingsBinding;
-import com.thewizrd.simpleweather.preferences.WindowColorPreferenceFragmentCompat;
-import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 
-public class SetupSettingsFragment extends WindowColorPreferenceFragmentCompat {
+public class SetupSettingsFragment extends PreferenceFragmentCompat {
 
     private WeatherManager wm;
     private FragmentSetupSettingsBinding binding;
-
-    @Override
-    public boolean isAlive() {
-        return binding != null && super.isAlive();
-    }
-
-    @Nullable
-    @Override
-    public SnackbarManager createSnackManager() {
-        return null;
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,15 +67,5 @@ public class SetupSettingsFragment extends WindowColorPreferenceFragmentCompat {
         });
 
         notIconPref.setVisible(onGoingPref.isChecked());
-    }
-
-    @Override
-    public void updateWindowColors() {
-        super.updateWindowColors();
-        if (isAlive()) {
-            if (getSysBarColorMgr() != null) {
-                getSysBarColorMgr().setSystemBarColors(ContextCompat.getColor(getAppCompatActivity(), R.color.colorPrimaryBackground));
-            }
-        }
     }
 }

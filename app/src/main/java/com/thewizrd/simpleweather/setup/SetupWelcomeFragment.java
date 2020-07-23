@@ -7,14 +7,12 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 
-import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentSetupWelcomeBinding;
-import com.thewizrd.simpleweather.fragments.WindowColorFragment;
+import com.thewizrd.simpleweather.fragments.CustomFragment;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 
-public class SetupWelcomeFragment extends WindowColorFragment {
+public class SetupWelcomeFragment extends CustomFragment {
 
     @Nullable
     @Override
@@ -27,14 +25,5 @@ public class SetupWelcomeFragment extends WindowColorFragment {
     @Override
     public SnackbarManager createSnackManager() {
         return null;
-    }
-
-    @Override
-    public void updateWindowColors() {
-        if (isAlive()) {
-            if (getSysBarColorMgr() != null) {
-                getSysBarColorMgr().setSystemBarColors(ContextCompat.getColor(getAppCompatActivity(), R.color.colorPrimaryBackground));
-            }
-        }
     }
 }

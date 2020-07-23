@@ -1,19 +1,22 @@
 package com.thewizrd.simpleweather.main;
 
 import android.annotation.SuppressLint;
-import android.content.res.Configuration;
+import android.graphics.Outline;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
 import android.webkit.WebView;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.ObjectsCompat;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
@@ -36,14 +39,13 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.ActivityMainBinding;
-import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
 import com.thewizrd.simpleweather.preferences.SettingsFragment;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener,
-        SystemBarColorManager, UserThemeMode.OnThemeChangeListener {
+        UserThemeMode.OnThemeChangeListener {
 
     private ActivityMainBinding binding;
     private NavController mNavController;
@@ -57,10 +59,37 @@ public class MainActivity extends AppCompatActivity
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-            binding.getRoot().setFitsSystemWindows(true);
-
         binding.bottomNavBar.setOnNavigationItemSelectedListener(this);
+
+        // For landscape orientation
+        ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavBar, new OnApplyWindowInsetsListener() {
+            private int paddingStart = ViewCompat.getPaddingStart(binding.bottomNavBar);
+            private int paddingTop = binding.bottomNavBar.getPaddingTop();
+            private int paddingEnd = ViewCompat.getPaddingEnd(binding.bottomNavBar);
+            private int paddingBottom = binding.bottomNavBar.getPaddingBottom();
+
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(View v, final WindowInsetsCompat insets) {
+                ViewCompat.setPaddingRelative(v,
+                        paddingStart + insets.getSystemWindowInsetLeft(),
+                        paddingTop,
+                        paddingEnd + insets.getSystemWindowInsetRight(),
+                        paddingBottom + insets.getSystemWindowInsetBottom());
+                return insets;
+            }
+        });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            binding.bottomNavBar.setOutlineProvider(new ViewOutlineProvider() {
+                @Override
+                public void getOutline(View view, Outline outline) {
+                    outline.setRect(view.getPaddingLeft(),
+                            0,
+                            view.getWidth() - view.getPaddingRight(),
+                            view.getHeight());
+                }
+            });
+        }
 
         // Back stack listener
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
@@ -70,7 +99,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        updateWindowColors();
+        updateWindowColors(Settings.getUserThemeMode());
 
         Bundle args = new Bundle();
         if (getIntent() != null && getIntent().getExtras() != null) {
@@ -240,44 +269,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void setSystemBarColors(@ColorInt final int color) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (binding == null) return;
-
-                Configuration config = getResources().getConfiguration();
-                final boolean isLandscapeMode = config.orientation != Configuration.ORIENTATION_PORTRAIT && !ActivityUtils.isLargeTablet(MainActivity.this);
-
-                // Actionbar, BottomNavBar & StatusBar
-                ActivityUtils.setTransparentWindow(getWindow(), color, Colors.TRANSPARENT, isLandscapeMode ? color : Colors.TRANSPARENT, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
-                binding.getRoot().setBackgroundColor(color);
-                binding.bottomNavBar.setBackgroundColor(color);
-            }
-        });
-    }
-
-    private void updateWindowColors() {
-        int color = ActivityUtils.getColor(this, android.R.attr.colorBackground);
-        if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
-            color = Colors.BLACK;
-        }
-        getWindow().getDecorView().setBackgroundColor(color);
-        setSystemBarColors(color);
-    }
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        updateWindowColors();
-    }
-
-    @Override
     public void onThemeChanged(UserThemeMode mode) {
-        int color = ActivityUtils.getColor(MainActivity.this, android.R.attr.colorBackground);
+        updateWindowColors(mode);
+    }
+
+    private void updateWindowColors(UserThemeMode mode) {
+        int color = ActivityUtils.getColor(this, android.R.attr.colorBackground);
         if (mode == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK;
         }
+
+        ActivityUtils.setTransparentWindow(getWindow(), color, Colors.TRANSPARENT, Colors.TRANSPARENT, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
         binding.getRoot().setBackgroundColor(color);
+        binding.bottomNavBar.setBackgroundColor(color);
     }
 }

@@ -28,12 +28,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
 import androidx.core.util.ObjectsCompat;
-import androidx.core.view.MarginLayoutParamsCompat;
 import androidx.core.view.MenuItemCompat;
-import androidx.core.view.OnApplyWindowInsetsListener;
-import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewGroupCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -434,22 +430,6 @@ public class LocationsFragment extends ToolbarFragment
             }
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.recyclerView, new OnApplyWindowInsetsListener() {
-            private int paddingStart = ViewCompat.getPaddingStart(binding.recyclerView);
-            private int paddingTop = binding.recyclerView.getPaddingTop();
-            private int paddingEnd = ViewCompat.getPaddingEnd(binding.recyclerView);
-            private int paddingBottom = binding.recyclerView.getPaddingBottom();
-
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewCompat.setPaddingRelative(v,
-                        paddingStart + insets.getSystemWindowInsetLeft(),
-                        paddingTop,
-                        paddingEnd + insets.getSystemWindowInsetRight(), paddingBottom);
-                return insets;
-            }
-        });
-
         getToolbar().setOnMenuItemClickListener(menuItemClickListener);
 
         // FAB
@@ -458,23 +438,6 @@ public class LocationsFragment extends ToolbarFragment
             public void onClick(View v) {
                 Navigation.findNavController(binding.getRoot())
                         .navigate(LocationsFragmentDirections.actionLocationsFragmentToLocationSearchFragment());
-            }
-        });
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.fab, new OnApplyWindowInsetsListener() {
-            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.fab.getLayoutParams();
-            private int marginStart = MarginLayoutParamsCompat.getMarginStart(layoutParams);
-            private int marginEnd = MarginLayoutParamsCompat.getMarginEnd(layoutParams);
-
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-
-                MarginLayoutParamsCompat.setMarginStart(layoutParams, marginStart + insets.getSystemWindowInsetLeft());
-                MarginLayoutParamsCompat.setMarginEnd(layoutParams, marginEnd + insets.getSystemWindowInsetRight());
-
-                v.setLayoutParams(layoutParams);
-                return insets;
             }
         });
 

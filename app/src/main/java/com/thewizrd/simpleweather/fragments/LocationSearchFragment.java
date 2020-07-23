@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
@@ -22,9 +21,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.OnLifecycleEvent;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -144,7 +140,6 @@ public class LocationSearchFragment extends WindowColorFragment {
 
     @Override
     public void onDestroy() {
-        getAppCompatActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
         ctsCancel();
         super.onDestroy();
     }
@@ -357,19 +352,12 @@ public class LocationSearchFragment extends WindowColorFragment {
             }
         });
 
+        // For landscape orientation
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), new OnApplyWindowInsetsListener() {
-            private int paddingStart = ViewCompat.getPaddingStart(binding.getRoot());
-            private int paddingTop = binding.getRoot().getPaddingTop();
-            private int paddingEnd = ViewCompat.getPaddingEnd(binding.getRoot());
-            private int paddingBottom = binding.getRoot().getPaddingBottom();
-
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewCompat.setPaddingRelative(v,
-                        paddingStart + insets.getSystemWindowInsetLeft(),
-                        paddingTop + insets.getSystemWindowInsetTop(),
-                        paddingEnd + insets.getSystemWindowInsetRight(),
-                        paddingBottom);
+                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                layoutParams.setMargins(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
                 return insets;
             }
         });
@@ -509,35 +497,6 @@ public class LocationSearchFragment extends WindowColorFragment {
             }
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.recyclerView, new OnApplyWindowInsetsListener() {
-            private int paddingStart = ViewCompat.getPaddingStart(binding.recyclerView);
-            private int paddingTop = binding.recyclerView.getPaddingTop();
-            private int paddingEnd = ViewCompat.getPaddingEnd(binding.recyclerView);
-            private int paddingBottom = binding.recyclerView.getPaddingBottom();
-
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewCompat.setPaddingRelative(v,
-                        paddingStart,
-                        paddingTop,
-                        paddingEnd,
-                        paddingBottom + insets.getSystemWindowInsetBottom());
-                return insets;
-            }
-        });
-
-        binding.recyclerView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-            @Override
-            public void onViewAttachedToWindow(View v) {
-                ViewCompat.requestApplyInsets(v);
-            }
-
-            @Override
-            public void onViewDetachedFromWindow(View v) {
-
-            }
-        });
-
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         binding.recyclerView.setHasFixedSize(true);
@@ -558,13 +517,6 @@ public class LocationSearchFragment extends WindowColorFragment {
             }
         }
 
-        getLifecycle().addObserver(new LifecycleObserver() {
-            @OnLifecycleEvent(Lifecycle.Event.ON_START)
-            private void onLifeStarted() {
-                updateWindowColors();
-            }
-        });
-
         return view;
     }
 
@@ -579,10 +531,10 @@ public class LocationSearchFragment extends WindowColorFragment {
         if (isAlive()) {
             int bg_color = Settings.getUserThemeMode() != UserThemeMode.AMOLED_DARK ?
                     ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground) : Colors.BLACK;
-            binding.getRoot().setBackgroundColor(bg_color);
-            searchBarBinding.getRoot().setBackgroundColor(bg_color);
 
-            ActivityUtils.setTransparentWindow(getAppCompatActivity().getWindow(), bg_color, Colors.TRANSPARENT, Colors.TRANSPARENT, true);
+            binding.rootView.setBackgroundColor(bg_color);
+            binding.rootView.setStatusBarBackgroundColor(bg_color);
+            searchBarBinding.getRoot().setBackgroundColor(bg_color);
         }
     }
 

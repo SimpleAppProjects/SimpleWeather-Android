@@ -1,68 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".widgets.WeatherWidgetConfigActivity"
-    tools:background="?android:attr/colorBackground"
-    tools:viewBindingIgnore="true">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/Widget.MaterialComponents.AppBarLayout.Surface"
-        android:fitsSystemWindows="true"
-        android:stateListAnimator="@animator/design_appbar_state_list_animator"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        app:liftOnScroll="true"
-        tools:stateListAnimator="@null">
+    <merge
+        tools:parentTag="androidx.coordinatorlayout.widget.CoordinatorLayout"
+        tools:showIn="@layout/fragment_settings"
+        tools:context=".widgets.WeatherWidgetConfigActivity">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollView"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:layout_collapseMode="pin"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:titleTextColor="@color/invButtonColorText"
-            tools:title="@string/widget_configure_prompt" />
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:fillViewport="true"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clipToPadding="false"
-        android:fillViewport="true"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
-
-        <LinearLayout
-            android:id="@+id/layout_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:descendantFocusability="blocksDescendants">
-
-            <FrameLayout
-                android:id="@+id/widget_frame_container"
+            <LinearLayout
+                android:id="@+id/layout_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#242424">
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:descendantFocusability="blocksDescendants">
 
                 <FrameLayout
-                    android:id="@+id/widget_container"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/widget_frame_container"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center">
+                    android:background="#242424">
+
+                    <FrameLayout
+                        android:id="@+id/widget_container"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center">
+
+                    </FrameLayout>
 
                 </FrameLayout>
 
-            </FrameLayout>
+            </LinearLayout>
 
-        </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
 
-    </androidx.core.widget.NestedScrollView>
+    </merge>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

@@ -9,7 +9,7 @@
         android:orientation="vertical"
         tools:context=".main.MainActivity">
 
-        <com.thewizrd.simpleweather.helpers.WindowInsetsFrameLayout
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"

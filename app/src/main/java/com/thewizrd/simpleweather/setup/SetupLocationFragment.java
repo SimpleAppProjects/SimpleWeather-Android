@@ -21,9 +21,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
-import androidx.core.view.OnApplyWindowInsetsListener;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -66,7 +63,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentSetupLocationBinding;
-import com.thewizrd.simpleweather.fragments.WindowColorFragment;
+import com.thewizrd.simpleweather.fragments.CustomFragment;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
@@ -78,7 +75,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public class SetupLocationFragment extends WindowColorFragment {
+public class SetupLocationFragment extends CustomFragment {
 
     // Views
     private FragmentSetupLocationBinding binding;
@@ -126,14 +123,6 @@ public class SetupLocationFragment extends WindowColorFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentSetupLocationBinding.inflate(inflater, container, false);
         wm = WeatherManager.getInstance();
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), 0);
-                return insets;
-            }
-        });
 
         binding.progressBar.setVisibility(View.GONE);
 
@@ -610,15 +599,6 @@ public class SetupLocationFragment extends WindowColorFragment {
                     showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT),
                             new SnackbarWindowAdjustCallback(getAppCompatActivity()));
                 }
-            }
-        }
-    }
-
-    @Override
-    public void updateWindowColors() {
-        if (isAlive()) {
-            if (getSysBarColorMgr() != null) {
-                getSysBarColorMgr().setSystemBarColors(ContextCompat.getColor(getAppCompatActivity(), R.color.colorPrimaryBackground));
             }
         }
     }

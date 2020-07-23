@@ -1,7 +1,6 @@
 package com.thewizrd.simpleweather.main;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,12 +13,8 @@ import android.view.ViewTreeObserver;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.core.view.OnApplyWindowInsetsListener;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
@@ -172,22 +167,6 @@ public class WeatherListFragment extends ToolbarFragment {
         // use a linear layout manager
         binding.recyclerView.setLayoutManager(layoutManager = new LinearLayoutManager(getAppCompatActivity()));
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.locationHeader, new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                binding.locationHeader.setContentPadding(insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), 0);
-                return insets;
-            }
-        });
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.recyclerView, new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), 0);
-                return insets;
-            }
-        });
-
         return root;
     }
 
@@ -252,8 +231,6 @@ public class WeatherListFragment extends ToolbarFragment {
     // Initialize views here
     @CallSuper
     protected void initialize() {
-        updateWindowColors();
-
         if (!weatherView.isValid()) {
             new WeatherDataLoader(location)
                     .loadWeatherData(new WeatherRequest.Builder()
@@ -368,21 +345,12 @@ public class WeatherListFragment extends ToolbarFragment {
     public void updateWindowColors() {
         super.updateWindowColors();
 
-        int currentNightMode = AppCompatDelegate.getDefaultNightMode();
-        int bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-        if (currentNightMode == AppCompatDelegate.MODE_NIGHT_YES && Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
-            bg_color = Colors.BLACK;
+        int color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
+        if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+            color = Colors.BLACK;
         }
-        binding.locationHeader.setCardBackgroundColor(bg_color);
-        binding.recyclerView.setBackgroundColor(bg_color);
-    }
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        binding.recyclerView.setAdapter(binding.recyclerView.getAdapter());
-        updateWindowColors();
+        binding.locationHeader.setCardBackgroundColor(color);
+        binding.recyclerView.setBackgroundColor(color);
     }
 
     @NonNull

@@ -1,14 +1,12 @@
 package com.thewizrd.simpleweather.preferences;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -101,22 +99,16 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
         DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText));
         binding.toolbar.setNavigationIcon(navIcon);
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.appBar, new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
-                return insets.replaceSystemWindowInsets(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
-            }
-        });
-
         CoordinatorLayout.LayoutParams lp = new CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         lp.setBehavior(new AppBarLayout.ScrollingViewBehavior());
         root.addView(inflatedView, lp);
 
-        ViewCompat.setOnApplyWindowInsetsListener(inflatedView, new OnApplyWindowInsetsListener() {
+        // For landscape orientation
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), new OnApplyWindowInsetsListener() {
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewCompat.setPaddingRelative(v, insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), 0);
+                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                layoutParams.setMargins(insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), 0);
                 return insets;
             }
         });
@@ -127,17 +119,6 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        binding.getRoot().getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                if (isAlive()) {
-                    binding.getRoot().getViewTreeObserver().removeOnPreDrawListener(this);
-                    updateWindowColors();
-                }
-                return true;
-            }
-        });
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ViewGroupCompat.setTransitionGroup(getRootView(), false);
@@ -179,21 +160,14 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
 
     protected final void updateWindowColors(UserThemeMode mode) {
         if (!isAlive()) return;
-        final int currentNightMode = getCurrentConfig().uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
-        int bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-        if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
-            if (mode == UserThemeMode.AMOLED_DARK) {
-                bg_color = Colors.BLACK;
-            } else {
-                bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-            }
+        int color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
+        if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+            color = Colors.BLACK;
         }
-        binding.coordinatorLayout.setBackgroundColor(bg_color);
-        binding.appBar.setBackgroundColor(bg_color);
-        binding.coordinatorLayout.setStatusBarBackgroundColor(bg_color);
-        if (getSysBarColorMgr() != null) {
-            getSysBarColorMgr().setSystemBarColors(bg_color);
-        }
+
+        binding.coordinatorLayout.setBackgroundColor(color);
+        binding.appBar.setBackgroundColor(color);
+        binding.coordinatorLayout.setStatusBarBackgroundColor(color);
     }
 }

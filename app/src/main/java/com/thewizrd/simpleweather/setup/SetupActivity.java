@@ -3,13 +3,11 @@ package com.thewizrd.simpleweather.setup;
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,15 +27,13 @@ import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.SetupGraphDirections;
 import com.thewizrd.simpleweather.databinding.ActivitySetupBinding;
-import com.thewizrd.simpleweather.helpers.SystemBarColorManager;
 
-public class SetupActivity extends AppCompatActivity implements SystemBarColorManager {
+public class SetupActivity extends AppCompatActivity {
 
     private ActivitySetupBinding binding;
     private SetupViewModel viewModel;
@@ -82,31 +78,22 @@ public class SetupActivity extends AppCompatActivity implements SystemBarColorMa
         }
 
         binding = ActivitySetupBinding.inflate(getLayoutInflater());
-        View mRootView = binding.getRoot();
-        setContentView(mRootView);
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-            mRootView.setFitsSystemWindows(true);
-
-        updateWindowColors();
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.fragmentContainer, new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-                layoutParams.setMargins(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
-                return insets;
-            }
-        });
+        setContentView(binding.getRoot());
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavBar, new OnApplyWindowInsetsListener() {
             @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+            public WindowInsetsCompat onApplyWindowInsets(View v, final WindowInsetsCompat insets) {
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
                 layoutParams.setMargins(insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
                 return insets;
             }
         });
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            binding.getRoot().setFitsSystemWindows(true);
+
+        int color = ContextCompat.getColor(this, R.color.colorPrimaryBackground);
+        ActivityUtils.setTransparentWindow(getWindow(), color);
 
         viewModel = new ViewModelProvider(this).get(SetupViewModel.class);
 
@@ -278,31 +265,5 @@ public class SetupActivity extends AppCompatActivity implements SystemBarColorMa
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-    }
-
-    @Override
-    public void setSystemBarColors(@ColorInt final int color) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (binding == null) return;
-
-                // Actionbar, BottomNavBar & StatusBar
-                ActivityUtils.setTransparentWindow(getWindow(), color, Colors.TRANSPARENT, Colors.TRANSPARENT, Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP);
-                binding.getRoot().setBackgroundColor(color);
-                binding.bottomNavBar.setBackgroundColor(color);
-            }
-        });
-    }
-
-    private void updateWindowColors() {
-        int color = ContextCompat.getColor(this, R.color.colorPrimaryBackground);
-        setSystemBarColors(color);
-    }
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        updateWindowColors();
     }
 }

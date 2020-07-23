@@ -61,9 +61,6 @@ import androidx.databinding.DataBindingComponent;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.Observable;
 import androidx.databinding.library.baseAdapters.BR;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.Navigation;
@@ -496,11 +493,12 @@ public class WeatherNowFragment extends WindowColorFragment
                         paddingTop + insets.getSystemWindowInsetTop(),
                         paddingEnd + insets.getSystemWindowInsetRight(),
                         paddingBottom);
-                return insets.replaceSystemWindowInsets(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
+                return insets;
             }
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.refreshLayout, new OnApplyWindowInsetsListener() {
+        // For landscape orientation
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), new OnApplyWindowInsetsListener() {
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
@@ -845,13 +843,6 @@ public class WeatherNowFragment extends WindowColorFragment
         }
 
         loaded = true;
-
-        getLifecycle().addObserver(new LifecycleObserver() {
-            @OnLifecycleEvent(Lifecycle.Event.ON_START)
-            private void onLifeStarted() {
-                updateWindowColors();
-            }
-        });
 
         return view;
     }
@@ -1338,26 +1329,16 @@ public class WeatherNowFragment extends WindowColorFragment
 
     @Override
     public void updateWindowColors() {
-        if (isCtsCancelRequested() || !isAlive()) return;
+        if (!isAlive()) return;
 
-        Configuration config = getAppCompatActivity().getResources().getConfiguration();
-        final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-
-        @ColorInt int bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-        if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
-            if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
-                bg_color = Colors.BLACK;
-            } else {
-                bg_color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-            }
+        int color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
+        if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+            color = Colors.BLACK;
         }
 
-        if (getSysBarColorMgr() != null) {
-            getSysBarColorMgr().setSystemBarColors(bg_color);
-        }
-
-        binding.toolbar.setBackgroundColor(bg_color);
-        binding.getRoot().setBackgroundColor(bg_color);
+        binding.toolbar.setBackgroundColor(color);
+        binding.rootView.setBackgroundColor(color);
+        binding.rootView.setStatusBarBackgroundColor(color);
     }
 
     private void updateView() {
