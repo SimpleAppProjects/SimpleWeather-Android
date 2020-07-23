@@ -1207,7 +1207,7 @@ public class WeatherWidgetService extends JobIntentService {
         Intent onClickIntent = new Intent(context.getApplicationContext(), WeatherWidgetConfigActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
-        if (Settings.getHomeData().equals(location)) {
+        if (WidgetUtils.isGPS(appWidgetId)) {
             onClickIntent.putExtra(EXTRA_LOCATIONQUERY, Constants.KEY_GPS);
         } else {
             onClickIntent.putExtra(EXTRA_LOCATIONNAME, location == null ? null : location.getName());
