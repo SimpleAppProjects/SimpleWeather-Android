@@ -72,16 +72,6 @@ public abstract class WindowColorPreferenceFragmentCompat extends CustomPreferen
         });
     }
 
-    @CallSuper
-    @Override
-    public void onHiddenChanged(boolean hidden) {
-        super.onHiddenChanged(hidden);
-
-        if (!hidden && this.isVisible()) {
-            updateWindowColors();
-        }
-    }
-
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);

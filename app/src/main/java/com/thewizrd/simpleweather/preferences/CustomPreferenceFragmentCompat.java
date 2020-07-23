@@ -100,17 +100,6 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
     }
 
     @Override
-    public void onHiddenChanged(boolean hidden) {
-        super.onHiddenChanged(hidden);
-
-        if (!hidden && isVisible()) {
-            initSnackManager();
-        } else if (hidden) {
-            unloadSnackManager();
-        }
-    }
-
-    @Override
     public void onPause() {
         unloadSnackManager();
         super.onPause();

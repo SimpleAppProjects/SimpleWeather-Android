@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
-import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -170,16 +169,6 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
     public void onDestroyView() {
         binding = null;
         super.onDestroyView();
-    }
-
-    @CallSuper
-    @Override
-    public void onHiddenChanged(boolean hidden) {
-        super.onHiddenChanged(hidden);
-
-        if (!hidden && this.isVisible()) {
-            updateWindowColors();
-        }
     }
 
     @Override

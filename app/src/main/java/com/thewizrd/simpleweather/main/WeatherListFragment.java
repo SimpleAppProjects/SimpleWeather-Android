@@ -231,16 +231,6 @@ public class WeatherListFragment extends ToolbarFragment {
     }
 
     @Override
-    public void onHiddenChanged(boolean hidden) {
-        super.onHiddenChanged(hidden);
-
-        if (!hidden && isVisible()) {
-            AnalyticsLogger.logEvent("WeatherListFragment: onHiddenChanged");
-            initialize();
-        }
-    }
-
-    @Override
     public void onPause() {
         AnalyticsLogger.logEvent("WeatherListFragment: onPause");
         super.onPause();

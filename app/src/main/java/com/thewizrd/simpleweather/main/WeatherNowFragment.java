@@ -1157,57 +1157,6 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     @Override
-    public void onHiddenChanged(boolean hidden) {
-        super.onHiddenChanged(hidden);
-
-        if (hidden) {
-            // Cancel pending actions
-            if (cts != null) {
-                cts.cancel();
-                if (binding != null) {
-                    binding.refreshLayout.setRefreshing(false);
-                }
-            }
-
-            if (binding != null) {
-                WebView webView = getRadarWebView();
-                if (webView != null) {
-                    webView.onPause();
-                }
-            }
-        }
-
-        if (!hidden && weatherView != null && this.isVisible()) {
-            AnalyticsLogger.logEvent("WeatherNowFragment: onHiddenChanged");
-            adjustConditionPanelLayout();
-
-            if (args.getBackground() != null) {
-                loadBackgroundImage(args.getBackground(), false);
-                requireArguments().remove(Constants.ARGS_BACKGROUND);
-            }
-
-            if (binding != null) {
-                final WebView webView = getRadarWebView();
-                if (webView != null) {
-                    webView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            webView.onResume();
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                                navigateToRadarURL();
-                            }
-                        }
-                    });
-                }
-            }
-
-            resume();
-        } else if (hidden) {
-            loaded = false;
-        }
-    }
-
-    @Override
     public void onPause() {
         AnalyticsLogger.logEvent("WeatherNowFragment: onPause");
         // Cancel pending actions

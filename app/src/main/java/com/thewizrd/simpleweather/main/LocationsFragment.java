@@ -624,26 +624,6 @@ public class LocationsFragment extends ToolbarFragment
         super.onPause();
     }
 
-    @Override
-    public void onHiddenChanged(boolean hidden) {
-        super.onHiddenChanged(hidden);
-
-        if (hidden) {
-            // Cancel pending actions
-            if (cts != null) cts.cancel();
-        }
-
-        if (!hidden && this.isVisible()) {
-            AnalyticsLogger.logEvent("LocationsFragment: onHiddenChanged");
-            resume();
-        } else if (hidden) {
-            if (mEditMode) toggleEditMode();
-            mLoaded = false;
-            // Reset error counter
-            Arrays.fill(mErrorCounter, 0, mErrorCounter.length, false);
-        }
-    }
-
     private void loadLocations() {
         if (getAppCompatActivity() != null) {
             // Load up saved locations

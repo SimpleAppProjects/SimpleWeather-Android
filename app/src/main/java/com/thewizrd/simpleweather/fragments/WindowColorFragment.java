@@ -6,7 +6,6 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -57,21 +56,6 @@ public abstract class WindowColorFragment extends CustomFragment implements Wind
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         updateWindowColors();
-    }
-
-    @CallSuper
-    @Override
-    public void onHiddenChanged(boolean hidden) {
-        super.onHiddenChanged(hidden);
-
-        if (!hidden && this.isVisible()) {
-            postToViewQueue(new Runnable() {
-                @Override
-                public void run() {
-                    updateWindowColors();
-                }
-            });
-        }
     }
 
     public final Configuration getCurrentConfiguration() {

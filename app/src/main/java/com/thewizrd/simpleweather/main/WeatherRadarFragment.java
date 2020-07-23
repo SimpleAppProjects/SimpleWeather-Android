@@ -149,31 +149,6 @@ public class WeatherRadarFragment extends ToolbarFragment {
     }
 
     @Override
-    public void onHiddenChanged(boolean hidden) {
-        super.onHiddenChanged(hidden);
-
-        if (hidden) {
-            if (binding != null) {
-                WebView webView = getRadarWebView();
-                if (webView != null) {
-                    webView.onPause();
-                }
-            }
-        }
-
-        if (!hidden && isVisible()) {
-            if (binding != null) {
-                WebView webView = getRadarWebView();
-                if (webView != null) {
-                    webView.onResume();
-                }
-            }
-
-            initialize();
-        }
-    }
-
-    @Override
     protected int getTitle() {
         return R.string.label_radar;
     }
