@@ -122,11 +122,15 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
-        NavHostFragment hostFragment = NavHostFragment.create(R.navigation.nav_graph, args);
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, hostFragment)
-                .setPrimaryNavigationFragment(hostFragment)
-                .commit();
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
+        if (fragment == null) {
+            NavHostFragment hostFragment = NavHostFragment.create(R.navigation.nav_graph, args);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, hostFragment)
+                    .setPrimaryNavigationFragment(hostFragment)
+                    .commit();
+        }
     }
 
     @Override

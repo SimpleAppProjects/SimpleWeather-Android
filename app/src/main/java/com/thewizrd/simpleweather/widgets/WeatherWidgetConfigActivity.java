@@ -9,6 +9,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -60,11 +61,15 @@ public class WeatherWidgetConfigActivity extends AppCompatActivity {
             args.putAll(getIntent().getExtras());
         }
 
-        NavHostFragment hostFragment = NavHostFragment.create(R.navigation.widget_graph, args);
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, hostFragment)
-                .setPrimaryNavigationFragment(hostFragment)
-                .commit();
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
+        if (fragment == null) {
+            NavHostFragment hostFragment = NavHostFragment.create(R.navigation.widget_graph, args);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, hostFragment)
+                    .setPrimaryNavigationFragment(hostFragment)
+                    .commit();
+        }
     }
 
     @Override

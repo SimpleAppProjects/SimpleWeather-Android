@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
@@ -97,11 +98,15 @@ public class SetupActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(SetupViewModel.class);
 
-        NavHostFragment hostFragment = NavHostFragment.create(R.navigation.setup_graph);
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, hostFragment)
-                .setPrimaryNavigationFragment(hostFragment)
-                .commit();
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
+        if (fragment == null) {
+            NavHostFragment hostFragment = NavHostFragment.create(R.navigation.setup_graph);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, hostFragment)
+                    .setPrimaryNavigationFragment(hostFragment)
+                    .commit();
+        }
 
         setupBottomNavBar();
 
