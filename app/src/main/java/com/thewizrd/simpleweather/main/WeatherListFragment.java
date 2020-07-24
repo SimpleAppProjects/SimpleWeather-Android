@@ -308,7 +308,48 @@ public class WeatherListFragment extends ToolbarFragment {
                     });
                 }
 
-                layoutManager.scrollToPositionWithOffset(args.getPosition(), 0);
+                detailsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                    @Override
+                    public void onChanged() {
+                        if (detailsAdapter.getCurrentList() != null) {
+                            detailsAdapter.unregisterAdapterDataObserver(this);
+
+                            detailsAdapter.getCurrentList().loadAround(args.getPosition());
+                            binding.recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                                @Override
+                                public void onGlobalLayout() {
+                                    binding.recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                                    layoutManager.scrollToPositionWithOffset(args.getPosition(), 0);
+                                }
+                            });
+                        }
+                    }
+
+                    @Override
+                    public void onItemRangeChanged(int positionStart, int itemCount) {
+                        onChanged();
+                    }
+
+                    @Override
+                    public void onItemRangeChanged(int positionStart, int itemCount, @Nullable Object payload) {
+                        onChanged();
+                    }
+
+                    @Override
+                    public void onItemRangeInserted(int positionStart, int itemCount) {
+                        onChanged();
+                    }
+
+                    @Override
+                    public void onItemRangeRemoved(int positionStart, int itemCount) {
+                        onChanged();
+                    }
+
+                    @Override
+                    public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+                        onChanged();
+                    }
+                });
                 break;
             case ALERTS:
                 final WeatherAlertPanelAdapter alertAdapter;
