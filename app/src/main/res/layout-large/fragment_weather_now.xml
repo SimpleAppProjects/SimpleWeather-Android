@@ -195,7 +195,7 @@
                                 app:fontFamily="@font/weathericons"
                                 tools:text="@string/wi_wu_sunny" />
 
-                            <TextView
+                            <androidx.appcompat.widget.AppCompatTextView
                                 android:id="@+id/weather_condition"
                                 style="@style/ShadowTextHeavy"
                                 android:layout_width="match_parent"
@@ -245,7 +245,7 @@
                                 tools:text="75*F &#xf058; | 65*F &#xf044;"
                                 tools:visibility="visible" />
 
-                            <TextView
+                            <androidx.appcompat.widget.AppCompatTextView
                                 android:id="@+id/bg_attribution"
                                 style="@style/ShadowText"
                                 android:layout_width="match_parent"
@@ -271,7 +271,7 @@
                             android:alpha="0.2"
                             android:background="@color/colorOnSurface" />
 
-                        <TextView
+                        <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/forecast_label"
                             style="@style/ShadowText"
                             android:layout_width="match_parent"
@@ -302,7 +302,7 @@
                             app:showIfNotEmpty="@{forecastsView.forecasts}"
                             app:showIfTrue="@{FeatureSettings.forecastEnabled}" />
 
-                        <TextView
+                        <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/hourly_forecast_label"
                             style="@style/ShadowText"
                             android:layout_width="match_parent"
@@ -333,7 +333,7 @@
                             app:showIfNotEmpty="@{forecastsView.hourlyForecasts}"
                             app:showIfTrue="@{FeatureSettings.hourlyForecastEnabled}" />
 
-                        <TextView
+                        <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/details_label"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -396,7 +396,7 @@
                             android:layout_height="wrap_content"
                             android:visibility="@{!FeatureSettings.moonPhaseEnabled || weatherView.moonPhase == null ? View.GONE : View.VISIBLE}" />
 
-                        <TextView
+                        <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/sunriseset_label"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -433,7 +433,7 @@
                             android:layout_height="wrap_content"
                             android:visibility="@{!FeatureSettings.radarEnabled || StringUtils.isNullOrWhitespace(weatherView.radarURL) ? View.GONE : View.VISIBLE}" />
 
-                        <TextView
+                        <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/weather_credit"
                             style="@style/ShadowText"
                             android:layout_width="match_parent"
