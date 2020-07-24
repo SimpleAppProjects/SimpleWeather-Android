@@ -115,8 +115,8 @@ public class WeatherNotificationService extends Service {
                 } else if (intent != null && (ACTION_SHOWREFRESH.equals(intent.getAction()) || ACTION_STOPREFRESH.equals(intent.getAction()))) {
                     showRefresh(ACTION_SHOWREFRESH.equals(intent.getAction()));
                 } else if (intent != null && ACTION_REMOVENOTIFICATION.equals(intent.getAction())) {
-                    removeNotification();
                     ServiceCompat.stopForeground(WeatherNotificationService.this, ServiceCompat.STOP_FOREGROUND_REMOVE);
+                    removeNotification();
                     stopSelf();
                 } else if (intent != null) {
                     Logger.writeLine(Log.INFO, "%s: Unhandled action: %s", TAG, intent.getAction());
@@ -136,6 +136,14 @@ public class WeatherNotificationService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    @Override
+    public void onDestroy() {
+        // Remove notification if service destroyed by system
+        ServiceCompat.stopForeground(WeatherNotificationService.this, ServiceCompat.STOP_FOREGROUND_REMOVE);
+        removeNotification();
+        super.onDestroy();
     }
 
     static void initChannel(NotificationManager mNotifyMgr) {
