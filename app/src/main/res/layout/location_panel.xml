@@ -129,7 +129,7 @@
                 app:layout_constraintTop_toBottomOf="@id/location_name"
                 app:layout_constraintVertical_bias="0.5"
                 app:layout_constraintVertical_chainStyle="packed"
-                tools:text="78* &#xf058;" />
+                tools:text="78° &#xf058;" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_lo"
@@ -153,21 +153,20 @@
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toEndOf="@id/weather_condition"
                 app:layout_constraintTop_toBottomOf="@id/weather_hi"
-                tools:text="60* &#xf044;" />
+                tools:text="60° &#xf044;" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_popicon"
                 style="@style/ShadowText"
-                android:layout_width="36dp"
+                android:layout_width="40dp"
                 android:layout_height="0dp"
                 android:gravity="center"
                 android:paddingStart="8dp"
                 android:paddingLeft="8dp"
-                android:paddingEnd="0dp"
-                android:paddingRight="0dp"
+                android:paddingEnd="8dp"
+                android:paddingRight="8dp"
                 android:scrollbars="none"
                 android:text="@{viewModel.popIcon}"
-                android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
@@ -188,7 +187,12 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:gravity="start|center_vertical"
-                android:padding="8dp"
+                android:paddingStart="0dp"
+                android:paddingLeft="0dp"
+                android:paddingRight="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:scrollbars="none"
                 android:text="@{viewModel.pop}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
@@ -208,13 +212,14 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_windicon"
                 style="@style/ShadowText"
-                android:layout_width="36dp"
+                android:layout_width="40dp"
                 android:layout_height="0dp"
                 android:gravity="center"
                 android:paddingStart="8dp"
                 android:paddingLeft="8dp"
-                android:paddingEnd="0dp"
-                android:paddingRight="0dp"
+                android:paddingEnd="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="1dp"
                 android:rotation="@{viewModel.windDir}"
                 android:scrollbars="none"
                 android:text="@string/wi_direction_up"
@@ -229,7 +234,8 @@
                 app:layout_constraintEnd_toStartOf="@id/weather_windspeed"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toEndOf="@id/weather_lo"
-                app:layout_constraintTop_toTopOf="@id/weather_windspeed" />
+                app:layout_constraintTop_toTopOf="@id/weather_windspeed"
+                tools:rotation="0" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_windspeed"
@@ -237,7 +243,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="start|center_vertical"
-                android:padding="8dp"
+                android:paddingStart="0dp"
+                android:paddingLeft="0dp"
+                android:paddingRight="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:scrollbars="none"
                 android:text="@{viewModel.windSpeed}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
