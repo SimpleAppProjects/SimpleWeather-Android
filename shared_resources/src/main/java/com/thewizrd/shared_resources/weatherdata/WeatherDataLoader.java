@@ -6,6 +6,8 @@ import android.util.Log;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.tasks.Task;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
@@ -21,6 +23,7 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
@@ -258,7 +261,7 @@ public class WeatherDataLoader {
     private void checkForOutdatedObservation() {
         if (weather != null) {
             // Check for outdated observation
-            ZonedDateTime now = ZonedDateTime.now().withZoneSameInstant(location.getTzOffset());
+            final ZonedDateTime now = ZonedDateTime.now().withZoneSameInstant(location.getTzOffset());
             long duraMins = Duration.between(weather.getCondition().getObservationTime(), now).toMinutes();
             if (duraMins > 60) {
                 HourlyForecast hrf = Settings.getFirstHourlyForecastDataByDate(location.getQuery(), now.truncatedTo(ChronoUnit.HOURS));
@@ -283,10 +286,29 @@ public class WeatherDataLoader {
                     weather.getCondition().setObservationTime(hrf.getDate());
 
                     if (duraMins > 60 * 6) {
-                        weather.getCondition().setHighF(0f);
-                        weather.getCondition().setHighC(0f);
-                        weather.getCondition().setLowF(0f);
-                        weather.getCondition().setLowC(0f);
+                        Forecasts fcasts = Settings.getWeatherForecastData(location.getQuery());
+                        Forecast fcast = null;
+
+                        if (fcasts.getForecast() != null) {
+                            fcast = Iterables.find(fcasts.getForecast(), new Predicate<Forecast>() {
+                                @Override
+                                public boolean apply(@NullableDecl Forecast input) {
+                                    return input != null && input.getDate().toLocalDate().compareTo(now.toLocalDate()) == 0;
+                                }
+                            });
+                        }
+
+                        if (fcast != null) {
+                            weather.getCondition().setHighF(fcast.getHighF());
+                            weather.getCondition().setHighC(fcast.getHighC());
+                            weather.getCondition().setLowF(fcast.getLowF());
+                            weather.getCondition().setLowC(fcast.getLowC());
+                        } else {
+                            weather.getCondition().setHighF(0f);
+                            weather.getCondition().setHighC(0f);
+                            weather.getCondition().setLowF(0f);
+                            weather.getCondition().setLowC(0f);
+                        }
                     }
 
                     weather.getAtmosphere().setDewpointF(hrf.getExtras() != null && hrf.getExtras().getDewpointF() != null ? hrf.getExtras().getDewpointF() : null);
