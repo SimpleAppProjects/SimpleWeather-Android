@@ -6,4 +6,5 @@
 
     <!-- Notification -->
     <color name="not_icon_tint">@android:color/white</color>
+    <color name="not_secondary_text_color">#b2ffffff</color>
 </resources>

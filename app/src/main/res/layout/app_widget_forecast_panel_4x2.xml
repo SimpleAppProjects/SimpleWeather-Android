@@ -50,7 +50,6 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
             android:textSize="12sp"
-            android:textStyle="bold"
             tools:text="70°" />
 
         <TextView

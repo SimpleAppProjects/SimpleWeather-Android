@@ -448,7 +448,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             }
         });
 
-        if (mWidgetType != WidgetType.Widget4x1Google) {
+        if (WidgetUtils.isBackgroundOptionalWidget(mWidgetType)) {
             bgColorPref.setValueIndex(WidgetUtils.getWidgetBackground(mAppWidgetId).getValue());
             bgColorPref.callChangeListener(bgColorPref.getValue());
 
@@ -548,6 +548,11 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                 viewWidth = widgetBlockSize * 4;
                 viewHeight = widgetBlockSize * 1.5f;
                 break;
+            case Widget4x1Notification:
+                widgetLayoutRes = R.layout.app_widget_4x1_notification;
+                viewWidth = widgetBlockSize * 4;
+                viewHeight = widgetBlockSize * 1.5f;
+                break;
         }
 
         if (widgetLayoutRes == 0) {
@@ -566,40 +571,21 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
         widgetView.setLayoutParams(layoutParams);
 
-        if (mWidgetType == WidgetType.Widget4x1Google) {
-            View divider = widgetView.findViewById(R.id.divider);
-            divider.setVisibility(View.VISIBLE);
-        }
-
-        if (mWidgetType != WidgetType.Widget4x1Google && mWidgetType != WidgetType.Widget1x1) {
-            TextView updateTime = widgetView.findViewById(R.id.update_time);
-
-            String timeformat = now.format(DateTimeFormatter.ofPattern("h:mm a")).toLowerCase();
-
-            if (DateFormat.is24HourFormat(App.getInstance().getAppContext()))
-                timeformat = now.format(DateTimeFormatter.ofPattern("HH:mm")).toLowerCase();
-
-            String updatetime = String.format("%s %s", now.format(DateTimeFormatter.ofPattern("eee")), timeformat);
-
-            updateTime.setText(String.format("%s %s", getAppCompatActivity().getString(R.string.widget_updateprefix), updatetime));
-        }
-
         TextView conditionText = widgetView.findViewById(R.id.condition_weather);
-        if (mWidgetType == WidgetType.Widget2x2) {
-            TextView conditionDetails = widgetView.findViewById(R.id.condition_details);
+        if (mWidgetType == WidgetType.Widget2x2 || mWidgetType == WidgetType.Widget4x1Notification) {
+            TextView conditionHi = widgetView.findViewById(R.id.condition_hi);
+            TextView conditionlo = widgetView.findViewById(R.id.condition_lo);
 
-            conditionText.setText("70° - Sunny");
-            conditionDetails.setText("79° | 65°");
+            conditionText.setText("70°F - Sunny");
+            conditionHi.setText("79°");
+            conditionlo.setText("65°");
         } else if (mWidgetType == WidgetType.Widget4x2) {
             conditionText.setText("Sunny");
         } else if (mWidgetType == WidgetType.Widget4x1) {
             widgetView.findViewById(R.id.now_date).setVisibility(View.VISIBLE);
         }
 
-        if (mWidgetType != WidgetType.Widget2x2 && mWidgetType != WidgetType.Widget4x1Google) {
-            ImageView tempView = widgetView.findViewById(R.id.condition_temp);
-            tempView.setImageResource(R.drawable.notification_temp_pos70);
-        } else if (mWidgetType == WidgetType.Widget4x1Google) {
+        if (mWidgetType != WidgetType.Widget2x2 && mWidgetType != WidgetType.Widget4x1Notification) {
             TextView tempView = widgetView.findViewById(R.id.condition_temp);
             tempView.setText("70°F");
         }
@@ -607,7 +593,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         ImageView iconView = widgetView.findViewById(R.id.weather_icon);
         iconView.setImageResource(R.drawable.day_sunny);
 
-        if (WidgetUtils.isDateWidget(mWidgetType)) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 && WidgetUtils.isDateWidget(mWidgetType)) {
             DateTimeFormatter dtfm;
             if (mWidgetType == WidgetType.Widget2x2) {
                 dtfm = DateTimeFormatter.ofPattern("eeee, MMMM dd");
@@ -680,11 +666,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
             forecastLayout.addView(container);
         }
-
-        View refreshButton = widgetView.findViewById(R.id.refresh_button);
-        View refreshProg = widgetView.findViewById(R.id.refresh_progress);
-        refreshButton.setVisibility(View.VISIBLE);
-        refreshProg.setVisibility(View.GONE);
 
         isWidgetInit = true;
         updateWidgetView();
@@ -759,19 +740,14 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         int textColor = WidgetUtils.getTextColor(mWidgetBackground);
         int panelTextColor = WidgetUtils.getPanelTextColor(mWidgetBackground, mWidgetBGStyle, isNightMode);
 
-        if (mWidgetType != WidgetType.Widget2x2 && mWidgetType != WidgetType.Widget4x1Google) {
-            ImageView tempView = binding.widgetContainer.findViewById(R.id.condition_temp);
-            tempView.setColorFilter(textColor);
+        if (mWidgetType != WidgetType.Widget2x2 && mWidgetType != WidgetType.Widget4x1Google && mWidgetType != WidgetType.Widget4x1Notification) {
+            TextView tempView = binding.widgetContainer.findViewById(R.id.condition_temp);
+            tempView.setTextColor(textColor);
         }
 
         if (mWidgetType == WidgetType.Widget4x1) {
             TextView nowDate = binding.widgetContainer.findViewById(R.id.now_date);
             nowDate.setTextColor(textColor);
-        }
-
-        if (mWidgetType != WidgetType.Widget4x1Google && mWidgetType != WidgetType.Widget1x1) {
-            TextView update_time = binding.widgetContainer.findViewById(R.id.update_time);
-            update_time.setTextColor(textColor);
         }
 
         boolean is4x2 = mWidgetType == WidgetType.Widget4x2;
@@ -784,11 +760,21 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
         if (mWidgetType != WidgetType.Widget4x1Google && mWidgetType != WidgetType.Widget4x1 && mWidgetType != WidgetType.Widget1x1) {
             TextView conditionText = binding.widgetContainer.findViewById(R.id.condition_weather);
-            TextView conditionDetails = binding.widgetContainer.findViewById(R.id.condition_details);
-
             conditionText.setTextColor(is4x2 ? textColor : panelTextColor);
-            if (conditionDetails != null)
-                conditionDetails.setTextColor(is4x2 ? textColor : panelTextColor);
+        }
+
+        if (mWidgetType == WidgetType.Widget2x2 || mWidgetType == WidgetType.Widget4x1Notification) {
+            TextView conditionHi = binding.widgetContainer.findViewById(R.id.condition_hi);
+            TextView divider = binding.widgetContainer.findViewById(R.id.divider);
+            TextView conditionLo = binding.widgetContainer.findViewById(R.id.condition_lo);
+            ImageView hiIconView = binding.widgetContainer.findViewById(R.id.hi_icon);
+            ImageView loIconView = binding.widgetContainer.findViewById(R.id.lo_icon);
+
+            conditionHi.setTextColor(panelTextColor);
+            divider.setTextColor(panelTextColor);
+            conditionLo.setTextColor(panelTextColor);
+            hiIconView.setColorFilter(panelTextColor);
+            loIconView.setColorFilter(panelTextColor);
         }
 
         if (WidgetUtils.isDateWidget(mWidgetType)) {
@@ -808,9 +794,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             }
         }
 
-        ImageView refreshButton = binding.widgetContainer.findViewById(R.id.refresh_button);
         ImageView settButton = binding.widgetContainer.findViewById(R.id.settings_button);
-        refreshButton.setColorFilter(textColor);
         settButton.setColorFilter(textColor);
     }
 
@@ -1111,7 +1095,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         WidgetUtils.setTapToSwitchEnabled(mAppWidgetId, tap2SwitchPref.isChecked());
 
         // Trigger widget service to update widget
-        WeatherWidgetProvider.showRefreshForWidget(getAppCompatActivity(), mAppWidgetId);
         WeatherWidgetService.enqueueWork(getAppCompatActivity(),
                 new Intent(getAppCompatActivity(), WeatherWidgetService.class)
                         .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET)

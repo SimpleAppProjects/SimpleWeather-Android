@@ -267,7 +267,6 @@
 
         <ProgressBar
             android:id="@+id/progressBar"
-            style="@style/ShadowProgressBar"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_gravity="center"

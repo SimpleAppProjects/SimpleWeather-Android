@@ -134,6 +134,20 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/app_widget_4x1_google_info" />
         </receiver>
+        <receiver
+            android:name=".widgets.WeatherWidgetProvider4x1Notification"
+            android:label="Weather (4x1)">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+                <action android:name="SimpleWeather.Droid.action.UPDATEWIDGETS" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/app_widget_4x1_notification_info" />
+        </receiver>
         <receiver android:name=".widgets.WeatherWidgetBroadcastReceiver" />
         <receiver android:name=".notifications.WeatherNotificationBroadcastReceiver" />
         <receiver

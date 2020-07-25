@@ -195,6 +195,7 @@ public class WidgetUtils {
         WeatherWidgetProvider4x1 mAppWidget4x1 = WeatherWidgetProvider4x1.getInstance();
         WeatherWidgetProvider4x2 mAppWidget4x2 = WeatherWidgetProvider4x2.getInstance();
         WeatherWidgetProvider4x1Google mAppWidget4x1G = WeatherWidgetProvider4x1Google.getInstance();
+        WeatherWidgetProvider4x1Notification mAppWidget4x1N = WeatherWidgetProvider4x1Notification.getInstance();
 
         List<Integer> currentIds = new ArrayList<>();
         currentIds.addAll(ArrayUtils.toArrayList(
@@ -207,6 +208,8 @@ public class WidgetUtils {
                 ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName()))));
         currentIds.addAll(ArrayUtils.toArrayList(
                 ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x1G.getComponentName()))));
+        currentIds.addAll(ArrayUtils.toArrayList(
+                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x1N.getComponentName()))));
 
         return currentIds;
     }
@@ -537,6 +540,8 @@ public class WidgetUtils {
                 return WidgetType.Widget4x2;
             } else if (providerInfo.initialLayout == WeatherWidgetProvider4x1Google.getInstance().getWidgetLayoutId()) {
                 return WidgetType.Widget4x1Google;
+            } else if (providerInfo.initialLayout == WeatherWidgetProvider4x1Notification.getInstance().getWidgetLayoutId()) {
+                return WidgetType.Widget4x1Notification;
             }
         }
 
@@ -602,7 +607,7 @@ public class WidgetUtils {
     }
 
     public static boolean isBackgroundOptionalWidget(WidgetType widgetType) {
-        return widgetType != WidgetType.Unknown && widgetType != WidgetType.Widget4x1Google;
+        return widgetType != WidgetType.Unknown && widgetType != WidgetType.Widget4x1Google && widgetType != WidgetType.Widget4x1Notification;
     }
 
     public static @ColorInt

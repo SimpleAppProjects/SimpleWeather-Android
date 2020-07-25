@@ -20,20 +20,4 @@
         <item name="android:shadowRadius">10</item>
     </style>
 
-    <style name="ShadowProgressBar" parent="@style/Widget.AppCompat.ProgressBar">
-        <item name="android:shadowColor">@color/colorTextShadow</item>
-        <item name="android:shadowDx">1</item>
-        <item name="android:shadowDy">1</item>
-        <item name="android:shadowRadius">1</item>
-    </style>
-
-    <style name="ShadowProgressBarHorizontal" parent="@style/Widget.AppCompat.ProgressBar.Horizontal">
-        <item name="android:shadowColor">@color/colorTextShadow</item>
-        <item name="android:shadowDx">1</item>
-        <item name="android:shadowDy">1</item>
-        <item name="android:shadowRadius">1</item>
-        <item name="android:minHeight">4dp</item>
-        <item name="android:maxHeight">4dp</item>
-    </style>
-
 </resources>

@@ -7,10 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.RemoteViews;
-
-import androidx.annotation.NonNull;
 
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -18,14 +15,12 @@ import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.App;
-import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 
 public abstract class WeatherWidgetProvider extends AppWidgetProvider {
     private static final String TAG = "WeatherWidgetProvider";
 
     // Actions
-    public static final String ACTION_SHOWREFRESH = "SimpleWeather.Droid.action.SHOWREFRESH";
     public static final String ACTION_REFRESHWIDGETS = "SimpleWeather.Droid.action.UPDATEWIDGETS";
     public static final String ACTION_SHOWPREVIOUSFORECAST = "SimpleWeather.Droid.action.SHOW_PREVIOUS_FORECAST";
     public static final String ACTION_SHOWNEXTFORECAST = "SimpleWeather.Droid.action.SHOW_NEXT_FORECAST";
@@ -58,10 +53,6 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
                 WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEALARM);
             } else if (Intent.ACTION_LOCALE_CHANGED.equals(intent.getAction())) {
                 updateWidgets(context, null);
-            } else if (ACTION_SHOWREFRESH.equals(intent.getAction())) {
-                // Update widgets
-                int[] appWidgetIds = intent.getIntArrayExtra(EXTRA_WIDGET_IDS);
-                showRefresh(context, appWidgetIds);
             } else if (ACTION_REFRESHWIDGETS.equals(intent.getAction())) {
                 // Update widgets
                 int[] appWidgetIds = intent.getIntArrayExtra(EXTRA_WIDGET_IDS);
@@ -78,21 +69,7 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
         }
     }
 
-    protected void showRefresh(@NonNull Context context, int[] appWidgetIds) {
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        ComponentName componentname = new ComponentName(context.getPackageName(), getClassName());
-        if (appWidgetIds == null || appWidgetIds.length == 0)
-            appWidgetIds = appWidgetManager.getAppWidgetIds(componentname);
-
-        RemoteViews views = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
-        views.setViewVisibility(R.id.refresh_button, View.GONE);
-        views.setViewVisibility(R.id.refresh_progress, View.VISIBLE);
-        appWidgetManager.partiallyUpdateAppWidget(appWidgetIds, views);
-    }
-
     protected void updateWidgets(Context context, final int[] appWidgetIds) {
-        showRefresh(context, appWidgetIds);
-
         AsyncTask.run(new Runnable() {
             @Override
             public void run() {
@@ -104,7 +81,7 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
                         LocationData location = WidgetUtils.getLocationData(appWidgetId);
 
                         RemoteViews updateViews = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
-                        WeatherWidgetService.setOnRefreshIntent(context, WeatherWidgetProvider.this, appWidgetId, updateViews);
+
                         if (location != null) {
                             WeatherWidgetService.setOnSettingsClickIntent(context, updateViews, location, appWidgetId);
                         }
@@ -165,55 +142,6 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
         for (int i = 0; i < oldWidgetIds.length; i++) {
             // Remap widget ids
             WidgetUtils.remapWidget(oldWidgetIds[i], newWidgetIds[i]);
-        }
-    }
-
-    public static void showRefreshForAllWidgets(@NonNull Context context) {
-        context.sendBroadcast(new Intent(context, WeatherWidgetProvider1x1.class)
-                .setAction(WeatherWidgetProvider.ACTION_SHOWREFRESH));
-        context.sendBroadcast(new Intent(context, WeatherWidgetProvider2x2.class)
-                .setAction(WeatherWidgetProvider.ACTION_SHOWREFRESH));
-        context.sendBroadcast(new Intent(context, WeatherWidgetProvider4x1.class)
-                .setAction(WeatherWidgetProvider.ACTION_SHOWREFRESH));
-        context.sendBroadcast(new Intent(context, WeatherWidgetProvider4x2.class)
-                .setAction(WeatherWidgetProvider.ACTION_SHOWREFRESH));
-        context.sendBroadcast(new Intent(context, WeatherWidgetProvider4x1Google.class)
-                .setAction(WeatherWidgetProvider.ACTION_SHOWREFRESH));
-    }
-
-    public static void showRefreshForWidget(@NonNull Context context, int appWidgetId) {
-        WidgetType widgetType = WidgetUtils.getWidgetTypeFromID(appWidgetId);
-
-        switch (widgetType) {
-            case Widget1x1:
-                context.sendBroadcast(new Intent(context, WeatherWidgetProvider1x1.class)
-                        .setAction(WeatherWidgetProvider.ACTION_SHOWREFRESH)
-                        .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, new int[]{appWidgetId}));
-                break;
-            case Widget2x2:
-                context.sendBroadcast(new Intent(context, WeatherWidgetProvider2x2.class)
-                        .setAction(WeatherWidgetProvider.ACTION_SHOWREFRESH)
-                        .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, new int[]{appWidgetId}));
-                break;
-            case Widget4x1:
-                context.sendBroadcast(new Intent(context, WeatherWidgetProvider4x1.class)
-                        .setAction(WeatherWidgetProvider.ACTION_SHOWREFRESH)
-                        .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, new int[]{appWidgetId}));
-                break;
-            case Widget4x2:
-                context.sendBroadcast(new Intent(context, WeatherWidgetProvider4x2.class)
-                        .setAction(WeatherWidgetProvider.ACTION_SHOWREFRESH)
-                        .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, new int[]{appWidgetId}));
-                break;
-            case Widget4x1Google:
-                context.sendBroadcast(new Intent(context, WeatherWidgetProvider4x1Google.class)
-                        .setAction(WeatherWidgetProvider.ACTION_SHOWREFRESH)
-                        .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, new int[]{appWidgetId}));
-                break;
-            case Unknown:
-            default:
-                // no-op
-                break;
         }
     }
 }

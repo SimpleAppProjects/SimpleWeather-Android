@@ -51,7 +51,6 @@ import com.thewizrd.simpleweather.notifications.WeatherNotificationBroadcastRece
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetBroadcastReceiver;
-import com.thewizrd.simpleweather.widgets.WeatherWidgetProvider;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import org.threeten.bp.LocalDateTime;
@@ -194,10 +193,8 @@ public class WeatherUpdaterWorker extends Worker {
 
     @Override
     public void onStopped() {
-        super.onStopped();
-        mContext.sendBroadcast(new Intent(mContext, WeatherNotificationBroadcastReceiver.class)
-                .setAction(WeatherNotificationService.ACTION_STOPREFRESH));
         if (cts != null) cts.cancel();
+        super.onStopped();
     }
 
     @NonNull
@@ -206,17 +203,6 @@ public class WeatherUpdaterWorker extends Worker {
         Logger.writeLine(Log.INFO, "%s: Work started", TAG);
 
         if (Settings.isWeatherLoaded()) {
-            // Send broadcast to signal update
-            if (WeatherWidgetService.widgetsExist(mContext)) {
-                WeatherWidgetProvider.showRefreshForAllWidgets(mContext);
-            }
-            // NOTE: Don't try to show refresh for pre-M devices
-            // If app gets killed, instance of notif is lost & view is reset
-            // and might get stuck
-            if (Settings.showOngoingNotification() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                mContext.sendBroadcast(new Intent(mContext, WeatherNotificationBroadcastReceiver.class)
-                        .setAction(WeatherNotificationService.ACTION_SHOWREFRESH));
-
             // Update for home
             final Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
                 @Override

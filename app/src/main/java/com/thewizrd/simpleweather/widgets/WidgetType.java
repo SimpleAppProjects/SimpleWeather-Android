@@ -8,7 +8,8 @@ public enum WidgetType {
     Widget2x2(1),
     Widget4x1(2),
     Widget4x2(3),
-    Widget4x1Google(4);
+    Widget4x1Google(4),
+    Widget4x1Notification(5);
 
     private final int value;
 

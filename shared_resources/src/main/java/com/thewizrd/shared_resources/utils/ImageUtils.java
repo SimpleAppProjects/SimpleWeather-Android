@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -22,6 +23,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.widget.ImageView;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.FontRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -91,6 +93,7 @@ public class ImageUtils {
 
         Bitmap bmp = Bitmap.createBitmap(mTextLayout.getWidth(), mTextLayout.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas myCanvas = new Canvas(bmp);
+
         mTextLayout.draw(myCanvas);
 
         return bmp;
@@ -165,6 +168,12 @@ public class ImageUtils {
         Canvas canvas = new Canvas(bitmapResult);
         canvas.drawBitmap(bitmap, 0, 0, paint);
         return bitmapResult;
+    }
+
+    public static Bitmap rotateBitmap(Bitmap source, @FloatRange(from = 0, to = 360) float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
     public class CenterCropper {

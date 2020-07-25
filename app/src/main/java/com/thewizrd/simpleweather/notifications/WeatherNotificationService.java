@@ -11,7 +11,6 @@ import android.os.Build;
 import android.os.IBinder;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
-import android.view.View;
 import android.widget.RemoteViews;
 
 import androidx.annotation.Nullable;
@@ -39,8 +38,6 @@ public class WeatherNotificationService extends Service {
     // Actions
     public static final String ACTION_REFRESHNOTIFICATION = "SimpleWeather.Droid.action.REFRESH_NOTIFICATION";
     public static final String ACTION_REMOVENOTIFICATION = "SimpleWeather.Droid.action.REMOVE_NOTIFICATION";
-    public static final String ACTION_SHOWREFRESH = "SimpleWeather.Droid.action.SHOW_REFRESH";
-    public static final String ACTION_STOPREFRESH = "SimpleWeather.Droid.action.STOP_REFRESH";
 
     // Extras
     public static final String EXTRA_FORCEREFRESH = "SimpleWeather.Droid.extra.FORCE_REFRESH";
@@ -77,8 +74,6 @@ public class WeatherNotificationService extends Service {
             @Override
             public Void call() {
                 if (intent != null && ACTION_REFRESHNOTIFICATION.equals(intent.getAction())) {
-                    showRefresh(true);
-
                     final boolean forceRefresh = intent.getBooleanExtra(WeatherNotificationService.EXTRA_FORCEREFRESH, false);
 
                     if (Settings.isWeatherLoaded()) {
@@ -112,8 +107,6 @@ public class WeatherNotificationService extends Service {
                             isShowing = true;
                         }
                     }
-                } else if (intent != null && (ACTION_SHOWREFRESH.equals(intent.getAction()) || ACTION_STOPREFRESH.equals(intent.getAction()))) {
-                    showRefresh(ACTION_SHOWREFRESH.equals(intent.getAction()));
                 } else if (intent != null && ACTION_REMOVENOTIFICATION.equals(intent.getAction())) {
                     ServiceCompat.stopForeground(WeatherNotificationService.this, ServiceCompat.STOP_FOREGROUND_REMOVE);
                     removeNotification();
@@ -226,30 +219,6 @@ public class WeatherNotificationService extends Service {
         }
 
         return mNotification;
-    }
-
-    static void showRefresh(boolean show) {
-        // Gets an instance of the NotificationManager service
-        Context context = App.getInstance().getAppContext();
-        NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        getNotification();
-
-        // Build update
-        RemoteViews updateViews = null;
-
-        if (mNotification.contentView == null)
-            updateViews = new RemoteViews(context.getPackageName(), R.layout.weather_notification_layout);
-        else
-            updateViews = mNotification.contentView;
-
-        updateViews.setViewVisibility(R.id.refresh_button, show ? View.GONE : View.VISIBLE);
-        updateViews.setViewVisibility(R.id.refresh_progress, show ? View.VISIBLE : View.GONE);
-
-        mNotification.contentView = updateViews;
-
-        // Builds the notification and issues it.
-        mNotifyMgr.notify(PERSISTENT_NOT_ID, mNotification);
-        isShowing = true;
     }
 
     static void removeNotification() {

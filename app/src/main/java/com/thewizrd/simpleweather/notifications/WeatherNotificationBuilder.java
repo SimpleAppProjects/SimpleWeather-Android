@@ -4,14 +4,20 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.text.format.DateFormat;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.thewizrd.shared_resources.controls.DetailItemViewModel;
+import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
+import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -21,8 +27,7 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.main.MainActivity;
 
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 public class WeatherNotificationBuilder {
     private static final String TAG = "WeatherNotificationBuilder";
@@ -53,27 +58,49 @@ public class WeatherNotificationBuilder {
                 String.format("%s°%s - %s", !StringUtils.isNullOrWhitespace(temp) ? temp : "--", viewModel.getTempUnit(), condition));
 
         // Details
-        updateViews.setTextViewText(R.id.condition_details,
-                String.format("%s° ↑ | %s° ↓",
-                        !StringUtils.isNullOrWhitespace(hiTemp) ? hiTemp : "--",
-                        !StringUtils.isNullOrWhitespace(loTemp) ? loTemp : "--"));
+        updateViews.setTextViewText(R.id.condition_hi, !StringUtils.isNullOrWhitespace(hiTemp) ? hiTemp + "°" : "--");
+        updateViews.setTextViewText(R.id.condition_lo, !StringUtils.isNullOrWhitespace(loTemp) ? loTemp + "°" : "--");
 
-        // Update Time
-        String timeformat = LocalDateTime.now().format(DateTimeFormatter.ofPattern("h:mm a"));
+        // Extras
+        int textSize = (int) ActivityUtils.dpToPx(context, 24f);
+        DetailItemViewModel chanceModel = Iterables.find(viewModel.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
+            @Override
+            public boolean apply(@NullableDecl DetailItemViewModel input) {
+                return input != null && (input.getDetailsType() == WeatherDetailsType.POPCHANCE || input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS);
+            }
+        });
+        if (chanceModel != null) {
+            updateViews.setImageViewBitmap(R.id.weather_popicon,
+                    ImageUtils.weatherIconToBitmap(context, chanceModel.getIcon(), textSize, false)
+            );
+            updateViews.setTextViewText(R.id.weather_pop, chanceModel.getValue());
+            updateViews.setViewVisibility(R.id.weather_pop_layout, View.VISIBLE);
+        } else {
+            updateViews.setViewVisibility(R.id.weather_pop_layout, View.GONE);
+        }
+        DetailItemViewModel windModel = Iterables.find(viewModel.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
+            @Override
+            public boolean apply(@NullableDecl DetailItemViewModel input) {
+                return input != null && input.getDetailsType() == WeatherDetailsType.WINDSPEED;
+            }
+        });
+        if (windModel != null) {
+            if (windModel.getIconRotation() != 0) {
+                updateViews.setImageViewBitmap(R.id.weather_windicon,
+                        ImageUtils.rotateBitmap(ImageUtils.bitmapFromDrawable(context, R.drawable.direction_up), windModel.getIconRotation())
+                );
+            } else {
+                updateViews.setImageViewResource(R.id.weather_windicon, R.drawable.direction_up);
+            }
+            String speed = TextUtils.isEmpty(windModel.getValue()) ? "" : windModel.getValue().toString();
+            speed = speed.split(",")[0];
+            updateViews.setTextViewText(R.id.weather_windspeed, speed);
+            updateViews.setViewVisibility(R.id.weather_wind_layout, View.VISIBLE);
+        } else {
+            updateViews.setViewVisibility(R.id.weather_wind_layout, View.GONE);
+        }
 
-        if (DateFormat.is24HourFormat(context))
-            timeformat = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
-
-        updateViews.setTextViewText(R.id.update_time, timeformat);
-
-        // Progress bar
-        updateViews.setViewVisibility(R.id.refresh_button, View.VISIBLE);
-        updateViews.setViewVisibility(R.id.refresh_progress, View.GONE);
-        Intent refreshClickIntent = new Intent(context, WeatherNotificationBroadcastReceiver.class)
-                .setAction(WeatherNotificationService.ACTION_REFRESHNOTIFICATION)
-                .putExtra(WeatherNotificationService.EXTRA_FORCEREFRESH, true);
-        PendingIntent prgPendingIntent = PendingIntent.getBroadcast(context, 0, refreshClickIntent, 0);
-        updateViews.setOnClickPendingIntent(R.id.refresh_button, prgPendingIntent);
+        updateViews.setViewVisibility(R.id.extra_layout, chanceModel != null || windModel != null ? View.VISIBLE : View.GONE);
 
         int level = 0;
         try {

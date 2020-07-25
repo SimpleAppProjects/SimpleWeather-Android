@@ -3,7 +3,7 @@
     android:id="@+id/widget"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:layout_height="72dp"
+    tools:layout_height="288dp"
     tools:layout_width="288dp">
 
     <ImageView
@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:adjustViewBounds="true"
-        android:scaleType="fitXY"
+        android:scaleType="centerCrop"
         android:src="@drawable/background_overlay" />
 
     <LinearLayout
@@ -20,93 +20,106 @@
         android:layout_margin="4dp"
         android:orientation="vertical">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:orientation="horizontal">
 
             <LinearLayout
                 android:id="@+id/condition_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentTop="true"
                 android:layout_marginRight="8dp"
                 android:layout_marginEnd="8dp"
-                android:orientation="vertical">
+                android:layout_gravity="center_vertical"
+                android:orientation="vertical"
+                android:minHeight="30dp"
+                android:minWidth="75dp">
+
+                <TextView
+                    android:id="@+id/spacer_top"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
 
                 <TextView
                     android:id="@+id/now_date"
-                    style="@style/ShadowText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginLeft="4dp"
+                    android:layout_gravity="center"
                     android:maxLines="1"
                     android:padding="2dp"
                     android:text="@string/label_datenow"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="@android:color/white"
                     android:textSize="12sp"
-                    android:visibility="invisible"
-                    tools:visibility="visible" />
+                    style="@style/ShadowText" />
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1"
-                    android:orientation="horizontal">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_gravity="center">
 
                     <ImageView
                         android:id="@+id/weather_icon"
-                        style="@style/ShadowText"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
+                        android:layout_height="40dp"
+                        android:layout_alignEnd="@+id/spacer_middle"
+                        android:layout_alignRight="@+id/spacer_middle"
+                        android:layout_centerVertical="true"
                         android:layout_margin="4dp"
                         android:adjustViewBounds="true"
-                        android:gravity="center_vertical"
-                        android:maxWidth="40dp"
-                        android:maxHeight="40dp"
                         android:scaleType="fitCenter"
-                        tools:src="@drawable/ic_weather_icon" />
+                        android:src="@drawable/day_sunny_overcast" />
 
-                    <ImageView
+                    <TextView
+                        android:id="@+id/spacer_middle"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_centerInParent="true" />
+
+                    <TextView
                         android:id="@+id/condition_temp"
-                        style="@style/ShadowText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical|start"
-                        android:layout_margin="2dp"
-                        android:adjustViewBounds="true"
-                        android:maxWidth="40dp"
-                        android:scaleType="fitCenter"
-                        tools:src="@drawable/notification_temp_pos70" />
+                        android:layout_alignLeft="@+id/spacer_middle"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignStart="@+id/spacer_middle"
+                        android:layout_centerVertical="true"
+                        android:maxLines="1"
+                        android:padding="2dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                        android:textColor="@android:color/white"
+                        android:textSize="12sp"
+                        style="@style/ShadowText"
+                        tools:text="70°" />
 
-                </LinearLayout>
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/spacer_bottom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
 
             </LinearLayout>
 
             <ViewFlipper
                 android:id="@+id/forecast_layout"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@+id/condition_layout"
-                android:layout_toRightOf="@+id/condition_layout"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
                 android:minHeight="30dp"
                 android:minWidth="75dp"
                 android:autoStart="true"
                 android:flipInterval="10000"
                 android:loopViews="true" />
 
-        </RelativeLayout>
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -118,7 +131,7 @@
                 android:id="@+id/location_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start|center_vertical"
+                android:layout_gravity="start|top"
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-medium"
@@ -129,31 +142,18 @@
                 android:paddingRight="4dp"
                 android:paddingEnd="4dp"
                 android:paddingBottom="2dp"
+                android:shadowColor="#000000"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 style="@style/ShadowText"
                 tools:text="New York, NY" />
 
-            <TextView
-                android:id="@+id/update_time"
-                style="@style/ShadowText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|end"
-                android:fontFamily="sans-serif-condensed"
-                android:maxLines="1"
-                android:padding="4dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
-                android:textSize="10sp"
-                tools:text="Updated at 1:00 AM" />
-
             <ImageView
                 android:id="@+id/showPrevious"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:layout_gravity="center_vertical"
+                android:layout_gravity="top"
                 android:adjustViewBounds="true"
                 android:alpha="0.7"
                 android:paddingLeft="8dp"
@@ -168,7 +168,7 @@
                 android:id="@+id/showNext"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:layout_gravity="center_vertical"
+                android:layout_gravity="top"
                 android:adjustViewBounds="true"
                 android:alpha="0.7"
                 android:paddingRight="8dp"
@@ -180,33 +180,10 @@
                 tools:visibility="visible" />
 
             <ImageView
-                android:id="@+id/refresh_button"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center"
-                android:padding="2dp"
-                android:alpha="0.7"
-                android:src="@drawable/ic_refresh_white_24dp"
-                android:visibility="gone" />
-
-            <ProgressBar
-                android:id="@+id/refresh_progress"
-                style="@style/ShadowProgressBar"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center_vertical"
-                android:alpha="0.7"
-                android:indeterminate="true"
-                android:indeterminateTint="@android:color/white"
-                android:padding="4dp"
-                android:visibility="visible" />
-
-            <ImageView
                 android:id="@+id/settings_button"
-                style="@style/ShadowText"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center_vertical"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="top"
                 android:padding="4dp"
                 android:alpha="0.7"
                 android:src="@drawable/ic_settings_black_24dp"

@@ -5,14 +5,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:layout_height="180dp"
-    tools:layout_width="match_parent">
+    tools:layout_width="match_parent"
+    tools:targetApi="JELLY_BEAN_MR1">
 
     <ImageView
         android:id="@+id/widgetBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:adjustViewBounds="true"
-        android:scaleType="fitXY"
+        android:scaleType="centerCrop"
         android:src="@drawable/background_overlay" />
 
     <ImageView
@@ -47,34 +48,21 @@
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
-                android:padding="4dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:shadowColor="#000000"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="14sp"
                 tools:text="New York, NY" />
 
-            <TextView
-                android:id="@+id/update_time"
-                style="@style/ShadowText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:fontFamily="sans-serif-condensed"
-                android:maxLines="1"
-                android:padding="4dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
-                android:textSize="10sp"
-                tools:text="Updated at 1:00 AM" />
-
             <ImageView
                 android:id="@+id/showPrevious"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:layout_gravity="center_vertical"
                 android:adjustViewBounds="true"
                 android:alpha="0.7"
-                android:paddingLeft="8dp"
                 android:paddingStart="8dp"
                 android:scaleType="center"
                 android:src="@drawable/ic_chevron_left"
@@ -84,13 +72,12 @@
 
             <ImageView
                 android:id="@+id/showNext"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:layout_gravity="center_vertical"
                 android:adjustViewBounds="true"
                 android:alpha="0.7"
                 android:paddingEnd="8dp"
-                android:paddingRight="8dp"
                 android:scaleType="center"
                 android:src="@drawable/ic_chevron_right"
                 android:tint="@android:color/white"
@@ -98,36 +85,13 @@
                 tools:visibility="visible" />
 
             <ImageView
-                android:id="@+id/refresh_button"
-                style="@style/ShadowText"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center"
-                android:alpha="0.7"
-                android:padding="2dp"
-                android:src="@drawable/ic_refresh_white_24dp"
-                android:visibility="gone" />
-
-            <ProgressBar
-                android:id="@+id/refresh_progress"
-                style="@style/ShadowProgressBar"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center"
-                android:alpha="0.7"
-                android:indeterminate="true"
-                android:indeterminateTint="@android:color/white"
-                android:padding="4dp"
-                android:visibility="visible" />
-
-            <ImageView
                 android:id="@+id/settings_button"
-                style="@style/ShadowText"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:layout_gravity="center_vertical"
                 android:alpha="0.7"
-                android:padding="4dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
                 android:src="@drawable/ic_settings_black_24dp"
                 android:tint="@android:color/white" />
 
@@ -144,6 +108,7 @@
             android:paddingStart="4dp"
             android:paddingRight="4dp"
             android:paddingEnd="4dp"
+            android:shadowColor="#000000"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
             android:textSize="14sp"
@@ -164,11 +129,9 @@
 
                 <ImageView
                     android:id="@+id/weather_icon"
-                    style="@style/ShadowText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
-                    android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentBottom="true"
                     android:layout_gravity="center_vertical"
@@ -179,30 +142,29 @@
                     android:layout_marginBottom="4dp"
                     android:adjustViewBounds="true"
                     android:gravity="center_vertical"
-                    android:maxWidth="45dp"
-                    android:maxHeight="60dp"
+                    android:maxWidth="60dp"
+                    android:maxHeight="45dp"
                     android:scaleType="fitCenter"
                     tools:src="@drawable/ic_weather_icon" />
 
-                <ImageView
+                <TextView
                     android:id="@+id/condition_temp"
                     style="@style/ShadowText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignTop="@id/weather_icon"
+                    android:layout_alignParentTop="true"
                     android:layout_alignParentBottom="true"
                     android:layout_gravity="center_vertical|start"
+                    android:fontFamily="sans-serif-light"
+                    android:gravity="center_vertical"
                     android:layout_marginStart="2dp"
-                    android:layout_marginLeft="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:layout_marginRight="2dp"
                     android:layout_marginBottom="2dp"
                     android:layout_toEndOf="@id/weather_icon"
-                    android:layout_toRightOf="@id/weather_icon"
-                    android:adjustViewBounds="true"
-                    android:maxWidth="60dp"
-                    android:scaleType="fitCenter"
-                    tools:src="@drawable/notification_temp_pos70" />
+                    android:shadowColor="#000000"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                    android:textColor="@android:color/white"
+                    android:textSize="36sp"
+                    tools:text="70°F" />
 
             </RelativeLayout>
 
@@ -212,17 +174,21 @@
                 android:layout_gravity="center_vertical"
                 android:orientation="vertical">
 
-                <TextView
+                <TextClock
                     android:id="@+id/date_panel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
+                    android:format12Hour="@string/widget_long_date_format"
+                    android:format24Hour="@string/widget_long_date_format"
                     android:gravity="bottom"
+                    android:maxLines="1"
+                    android:shadowColor="#DD000000"
+                    android:shadowDy="2.0"
+                    android:shadowRadius="2.75"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="@android:color/white"
-                    android:textSize="@dimen/date_text_size"
-                    style="@style/ShadowText"
-                    tools:text="Sun, Oct 08" />
+                    android:textSize="@dimen/date_text_size" />
 
                 <TextClock
                     android:id="@+id/clock_panel"
@@ -230,7 +196,7 @@
                     android:layout_height="wrap_content"
                     android:baselineAligned="true"
                     android:fontFamily="sans-serif-light"
-                    android:format12Hour="@string/main_widget_12_hours_format"
+                    android:format12Hour="@string/clock_12_hours_format"
                     android:format24Hour="@string/clock_24_hours_format"
                     android:gravity="end"
                     android:maxLines="1"
@@ -238,8 +204,7 @@
                     android:shadowDy="2.0"
                     android:shadowRadius="2.75"
                     android:textColor="@android:color/white"
-                    android:textSize="@dimen/clock_text_size"
-                    tools:text="4:00 PM" />
+                    android:textSize="@dimen/clock_text_size" />
 
             </LinearLayout>
 

@@ -5,4 +5,5 @@
 
     <!-- Notification -->
     <color name="not_icon_tint">@android:color/black</color>
+    <color name="not_secondary_text_color">#8a000000</color>
 </resources>

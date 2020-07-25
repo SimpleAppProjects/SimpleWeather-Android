@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="72dp"
     android:background="@null"
+    android:gravity="center"
     android:paddingStart="@dimen/not_horiz_padding"
     android:paddingLeft="@dimen/not_horiz_padding"
     android:paddingTop="@dimen/not_vert_padding"
@@ -35,8 +36,8 @@
         android:id="@+id/condition_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toStartOf="@+id/update_layout"
-        android:layout_toLeftOf="@+id/update_layout"
+        android:layout_toStartOf="@+id/extra_layout"
+        android:layout_toLeftOf="@+id/extra_layout"
         android:layout_toEndOf="@+id/weather_icon"
         android:layout_toRightOf="@+id/weather_icon"
         android:orientation="vertical">
@@ -61,53 +62,144 @@
             android:textSize="@dimen/not_primary_textSize"
             tools:text="68° - Sunny" />
 
-        <TextView
-            android:id="@+id/condition_details"
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:textAppearance="@style/TextAppearance.Compat.Notification.Line2"
-            tools:text="74° / 65°" />
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/condition_hi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:textAppearance="@style/TextAppearance.Compat.Notification.Line2"
+                tools:text="74°" />
+
+            <ImageView
+                android:id="@+id/hi_icon"
+                android:layout_width="12dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="2dp"
+                android:layout_alignTop="@id/condition_hi"
+                android:layout_alignBottom="@id/condition_hi"
+                android:layout_toEndOf="@id/condition_hi"
+                android:layout_toRightOf="@id/condition_hi"
+                android:src="@drawable/direction_up"
+                android:tint="@color/not_secondary_text_color"
+                android:tintMode="src_in" />
+
+            <TextView
+                android:id="@+id/divider"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:layout_toEndOf="@id/hi_icon"
+                android:layout_toRightOf="@id/hi_icon"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
+                android:text="|"
+                android:textAppearance="@style/TextAppearance.Compat.Notification.Line2" />
+
+            <TextView
+                android:id="@+id/condition_lo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:textAppearance="@style/TextAppearance.Compat.Notification.Line2"
+                android:layout_toEndOf="@id/divider"
+                android:layout_toRightOf="@id/divider"
+                android:layout_marginLeft="2dp"
+                android:layout_marginStart="2dp"
+                tools:text="65°" />
+
+            <ImageView
+                android:id="@+id/lo_icon"
+                android:layout_width="12dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="2dp"
+                android:layout_alignTop="@id/condition_lo"
+                android:layout_alignBottom="@id/condition_lo"
+                android:layout_toEndOf="@id/condition_lo"
+                android:layout_toRightOf="@id/condition_lo"
+                android:src="@drawable/direction_down"
+                android:tint="@color/not_secondary_text_color"
+                android:tintMode="src_in" />
+
+        </RelativeLayout>
 
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/update_layout"
+        android:id="@+id/extra_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/refresh_button"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="end"
-            android:padding="2dp"
-            android:src="@drawable/ic_refresh_white_24dp"
-            android:tint="@color/not_icon_tint"
-            android:visibility="gone" />
-
-        <ProgressBar
-            android:id="@+id/refresh_progress"
-            style="@style/Widget.AppCompat.ProgressBar"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="end"
-            android:indeterminate="true"
-            android:indeterminateTint="@color/not_icon_tint"
-            android:padding="4dp"
-            android:visibility="visible" />
-
-        <TextView
-            android:id="@+id/update_time"
+        <RelativeLayout
+            android:id="@+id/weather_pop_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|end"
-            android:padding="4dp"
-            android:textAppearance="@style/TextAppearance.Compat.Notification.Time"
-            tools:text="1:00 AM" />
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageView
+                android:id="@+id/weather_popicon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="end"
+                android:padding="2dp"
+                android:src="@drawable/cloudy"
+                android:tint="@color/not_icon_tint" />
+
+            <TextView
+                android:id="@+id/weather_pop"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:paddingStart="4dp"
+                android:paddingLeft="4dp"
+                android:textAppearance="@style/TextAppearance.Compat.Notification"
+                android:textSize="@dimen/not_primary_textSize"
+                android:layout_toEndOf="@id/weather_popicon"
+                android:layout_toRightOf="@id/weather_popicon"
+                tools:text="60%" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/weather_wind_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/weather_windicon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="end"
+                android:padding="2dp"
+                android:src="@drawable/direction_up"
+                android:tint="@color/not_icon_tint" />
+
+            <TextView
+                android:id="@+id/weather_windspeed"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:paddingStart="4dp"
+                android:paddingLeft="4dp"
+                android:textAppearance="@style/TextAppearance.Compat.Notification"
+                android:textSize="@dimen/not_primary_textSize"
+                android:layout_toEndOf="@id/weather_windicon"
+                android:layout_toRightOf="@id/weather_windicon"
+                tools:text="10 mph" />
+
+        </RelativeLayout>
 
     </LinearLayout>
 </RelativeLayout>
