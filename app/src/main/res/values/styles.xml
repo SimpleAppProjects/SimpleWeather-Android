@@ -85,12 +85,7 @@
 
         <!-- SnackBar Style -->
         <item name="snackbarStyle">@style/SnackBarStyle</item>
-        <!--
-            Workaround: Remove the Material Style for the SnackBar Button
-            to allow us to override the TextAppearance for the SnackBar
-        -->
-        <item name="snackbarButtonStyle">@null</item>
-        <!--<item name="snackbarButtonStyle">@style/SnackBarButtonStyle</item>-->
+        <item name="snackbarButtonStyle">@style/SnackBarButtonStyle</item>
     </style>
 
     <style name="AppTheme.Base" parent="Base.AppTheme">
@@ -98,6 +93,29 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorPrimary</item>
+
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="windowActionModeOverlay">true</item>
+
+        <item name="android:actionModeCloseButtonStyle">@style/CloseButton</item>
+        <item name="actionModeCloseButtonStyle">@style/CloseButton</item>
+        <item name="actionModeStyle">@style/ActionModeStyle</item>
+        <item name="android:actionModeStyle">@style/ActionModeStyle</item>
+        <item name="android:actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>
+    </style>
+
+    <style name="CloseButton" parent="Widget.AppCompat.Light.ActionButton.CloseMode">
+        <item name="android:tint">@color/invButtonColorText</item>
+    </style>
+
+    <style name="ActionModeStyle" parent="Widget.AppCompat.ActionMode">
+        <item name="titleTextStyle">@style/TextAppearance.OpenSans.ActionModeTitle</item>
+    </style>
+
+    <style name="TextAppearance.OpenSans.ActionModeTitle" parent="TextAppearance.OpenSans.Title">
+        <item name="android:textColor">@color/invButtonColorText</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <style name="AppTheme" parent="AppTheme.Base">
@@ -353,7 +371,7 @@
     </style>
 
     <style name="SnackBarButtonStyle" parent="@style/Widget.MaterialComponents.Button.TextButton.Snackbar">
-        <item name="android:textColor">?attr/colorAccent</item>
+        <item name="android:textColor">@color/colorPrimaryLight</item>
     </style>
 
     <style name="TextAppearance.Design.Snackbar.Message" parent="TextAppearance.OpenSans.Body2" tools:override="true">

@@ -55,7 +55,7 @@ public class SwipeToDeleteOffSetItemDecoration extends LocationPanelOffsetDecora
 
     private void initialize(@NonNull Context context) {
         mSwipeBackground = ContextCompat.getDrawable(context, R.drawable.swipe_delete);
-        deleteIcon = ContextCompat.getDrawable(context, R.drawable.ic_delete_white_24dp);
+        deleteIcon = ContextCompat.getDrawable(context, R.drawable.ic_delete_outline_24dp);
         iconMargin = context.getResources().getDimensionPixelSize(R.dimen.delete_icon_margin);
         swipeDirs = new ArrayList<>();
     }
@@ -76,6 +76,14 @@ public class SwipeToDeleteOffSetItemDecoration extends LocationPanelOffsetDecora
             default:
                 break;
         }
+    }
+
+    @Override
+    public void onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+    }
+
+    @Override
+    public void onClearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
     }
 
     @Override

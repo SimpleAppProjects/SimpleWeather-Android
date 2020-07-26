@@ -292,6 +292,7 @@ public class LocationData extends CustomJsonObject {
         return !StringUtils.isNullOrWhitespace(query) && !StringUtils.isNullOrWhitespace(weatherSource) && !StringUtils.isNullOrWhitespace(locationSource);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return String.format("%s|%s|%s", this.query, this.name, this.locationType.toString());

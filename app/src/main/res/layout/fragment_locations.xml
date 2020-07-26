@@ -6,7 +6,8 @@
     <merge
         tools:parentTag="androidx.coordinatorlayout.widget.CoordinatorLayout"
         tools:showIn="@layout/fragment_toolbar_layout"
-        tools:context=".main.LocationsFragment">
+        tools:context=".main.LocationsFragment"
+        tools:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
@@ -20,32 +21,18 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:listitem="@layout/location_panel" />
 
-        <FrameLayout
-            android:id="@+id/fab_container"
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:paddingTop="32dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-                android:id="@+id/fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginBottom="8dp"
-                android:minHeight="@dimen/fab_size"
-                android:text="@string/label_fab_add_location"
-                android:textColor="@android:color/white"
-                app:icon="@drawable/ic_add_location_white_24dp"
-                app:iconTint="@android:color/white" />
-
-        </FrameLayout>
+            android:layout_margin="16dp"
+            android:minHeight="@dimen/fab_size"
+            android:scrollbars="none"
+            android:text="@string/label_fab_add_location"
+            android:textColor="@android:color/white"
+            app:icon="@drawable/ic_add_location_white_24dp"
+            app:iconTint="@android:color/white" />
 
     </merge>
 </layout>

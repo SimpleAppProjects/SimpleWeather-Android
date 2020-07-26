@@ -37,6 +37,7 @@ public class LocationPanelViewModel {
     private String weatherSource;
 
     private boolean editMode = false;
+    private boolean checked = false;
 
     public String getLocationName() {
         return locationName;
@@ -94,12 +95,20 @@ public class LocationPanelViewModel {
         return editMode;
     }
 
+    public boolean isChecked() {
+        return checked;
+    }
+
     public void setLocationData(LocationData locationData) {
         this.locationData = locationData;
     }
 
     public void setEditMode(boolean editMode) {
         this.editMode = editMode;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
     }
 
     public int getLocationType() {

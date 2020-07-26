@@ -129,7 +129,9 @@
     <string name="error_noresults">No results found</string>
     <string name="label_fab_add_location">Add a location</string>
     <string name="message_locationremoved">Location removed</string>
+    <string name="message_needfavorite">Must have at least one favorite location</string>
     <string name="undo">Undo</string>
+    <string name="delete">Delete</string>
 
     <!-- Weather Exceptions -->
     <string name="werror_noweather">Unable to load weather data</string>

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import android.widget.Space;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -37,6 +39,8 @@ import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -57,10 +61,16 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public interface HeaderSetterInterface {
         void setHeader();
+
         void setHeaderTextColor();
     }
 
+    public interface ViewHolderLongClickListener {
+        void onLongClick(RecyclerView.ViewHolder holder);
+    }
+
     private final ObservableArrayList<LocationPanelViewModel> mDataset;
+    private final ObservableArrayList<LocationPanelViewModel> mSelectedItems;
     private Handler mMainHandler;
 
     private GPSHeaderViewHolder gpsVH;
@@ -71,11 +81,14 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     private RecyclerView mParentRecyclerView;
     private SnackbarManager mSnackMgr;
     private boolean isFragmentAlive;
+    private boolean isInEditMode;
 
     // Event listeners
     private RecyclerOnClickListenerInterface onClickListener;
     private RecyclerOnClickListenerInterface onLongClickListener;
+    private ViewHolderLongClickListener onLongClickToDragListener;
     private OnListChangedListener<LocationPanelViewModel> onListChangedCallback;
+    private OnListChangedListener<LocationPanelViewModel> onSelectionChangedCallback;
 
     public void setOnClickListener(RecyclerOnClickListenerInterface onClickListener) {
         this.onClickListener = onClickListener;
@@ -86,10 +99,25 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     public void setOnListChangedCallback(OnListChangedListener<LocationPanelViewModel> onListChangedCallback) {
+        if (this.onListChangedCallback != null) {
+            mDataset.removeOnListChangedCallback(this.onListChangedCallback);
+        }
+
         this.onListChangedCallback = onListChangedCallback;
 
         if (onListChangedCallback != null)
             mDataset.addOnListChangedCallback(onListChangedCallback);
+    }
+
+    public void setOnSelectionChangedCallback(OnListChangedListener<LocationPanelViewModel> onSelectionChangedCallback) {
+        if (this.onSelectionChangedCallback != null) {
+            mSelectedItems.removeOnListChangedCallback(this.onSelectionChangedCallback);
+        }
+
+        this.onSelectionChangedCallback = onSelectionChangedCallback;
+
+        if (onSelectionChangedCallback != null)
+            mSelectedItems.addOnListChangedCallback(onSelectionChangedCallback);
     }
 
     public List<LocationPanelViewModel> getDataset() {
@@ -110,6 +138,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     // you provide access to all the views for a data item in a view holder
     public class LocationPanelViewHolder extends RecyclerView.ViewHolder {
         private LocationPanel mLocView;
+        private LocationPanelViewModel model;
 
         LocationPanelViewHolder(LocationPanel v) {
             super(v);
@@ -121,11 +150,29 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
                 public void onClick(View v) {
                     if (onClickListener != null)
                         onClickListener.onClick(v, getAdapterPosition());
+                    if (model != null && getItemViewType() == ItemType.SEARCH_PANEL && model.isEditMode()) {
+                        if (model.isChecked()) {
+                            model.setChecked(false);
+                            mSelectedItems.remove(model);
+                        } else {
+                            model.setChecked(true);
+                            mSelectedItems.add(model);
+                        }
+                        notifyItemChanged(getViewPosition(model));
+                    }
                 }
             });
             mLocView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
+                    if (model.getLocationType() == LocationType.SEARCH.getValue()) {
+                        if (onLongClickToDragListener != null)
+                            onLongClickToDragListener.onLongClick(LocationPanelViewHolder.this);
+
+                        if (!model.isEditMode() && !model.isChecked() && !mSelectedItems.contains(model)) {
+                            mSelectedItems.add(model);
+                        }
+                    }
                     if (onLongClickListener != null)
                         onLongClickListener.onClick(v, getAdapterPosition());
                     return true;
@@ -134,14 +181,31 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
 
         public void bind(LocationPanelViewModel model) {
+            this.model = model;
+            if (!model.isEditMode())
+                model.setChecked(false);
             mLocView.bindModel(model);
         }
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public LocationPanelAdapter() {
+    public LocationPanelAdapter(ViewHolderLongClickListener longClickListener) {
         mMainHandler = new Handler(Looper.getMainLooper());
-        mDataset = new ObservableArrayList<>();
+        mDataset = new ObservableArrayList<>(Settings.getMaxLocations());
+        mSelectedItems = new ObservableArrayList<>(Settings.getMaxLocations());
+        onLongClickToDragListener = longClickListener;
+    }
+
+    public void clearSelection() {
+        mSelectedItems.clear();
+    }
+
+    public List<LocationPanelViewModel> getSelectedItems() {
+        return Collections.unmodifiableList(mSelectedItems);
+    }
+
+    public void setInEditMode(boolean value) {
+        isInEditMode = value;
     }
 
     @Override
@@ -189,8 +253,8 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
                 return favVH;
             case ItemType.FOOTER_SPACER:
                 Space spacer = new Space(parent.getContext());
-                int height = context.getResources().getDimensionPixelSize(R.dimen.location_panel_height);
-                spacer.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
+                int height = context.getResources().getDimensionPixelSize(R.dimen.fab_size);
+                spacer.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (height * 1.5f)));
                 return new ViewHolder(spacer);
             default:
                 // create a new view
@@ -272,7 +336,8 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         else if (position == getItemCount() - 1)
             return ItemType.FOOTER_SPACER;
 
-        return getPanelViewModel(position).getLocationType();
+        LocationPanelViewModel model = getPanelViewModel(position);
+        return model != null ? model.getLocationType() : 0;
     }
 
     public synchronized int getViewPosition(LocationPanelViewModel item) {
@@ -328,8 +393,12 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     public LocationPanelViewModel getGPSPanel() {
-        if (hasGPSPanel && getPanelData(0).getLocationType() == LocationType.GPS)
-            return getPanelViewModel(0);
+        if (hasGPSPanel) {
+            LocationData data = getPanelData(0);
+            if (data != null && data.getLocationType() == LocationType.GPS) {
+                return getPanelViewModel(0);
+            }
+        }
         return null;
     }
 
@@ -398,8 +467,9 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         hasSearchPanel = false;
     }
 
+    @Nullable
     public synchronized LocationPanelViewModel getPanelViewModel(int position) {
-        if (position >= getItemCount() || mDataset.size() == 0)
+        if (position >= getItemCount() || position < 0 || mDataset.size() == 0)
             return null;
 
         int dataPosition = getDataPosition(position);
@@ -411,6 +481,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         return mDataset.get(dataPosition);
     }
 
+    @Nullable
     public synchronized LocationData getPanelData(int position) {
         if (position >= getItemCount() || mDataset.size() == 0)
             return null;
@@ -444,6 +515,10 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         AnalyticsLogger.logEvent("LocationPanelAdapter: onItemDismiss");
 
         final LocationPanelViewModel dismissedPanel = getPanelViewModel(position);
+        if (dismissedPanel == null) return;
+
+        dismissedPanel.setChecked(false);
+        mSelectedItems.remove(dismissedPanel);
 
         AsyncTask.create(new Callable<Void>() {
             @Override
@@ -452,7 +527,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
                     mMainHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            new PanelDeleteHandler(dismissedPanel).deletePanel();
+                            new PanelDeleteHandler(dismissedPanel).deletePanels();
                         }
                     });
                 } else {
@@ -512,25 +587,84 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
+    public void removeSelectedItems() {
+        mMainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                new PanelDeleteHandler(mSelectedItems).deletePanels();
+            }
+        });
+    }
+
     private class PanelDeleteHandler {
         // For undo
-        private int mDataPosition;
-        private LocationPanelViewModel mDeletedPanel;
+        private List<Pair<Integer, LocationPanelViewModel>> panelPairs;
 
         PanelDeleteHandler(LocationPanelViewModel panel) {
-            mDeletedPanel = panel;
+            panelPairs = Collections.singletonList(new Pair<>(mDataset.indexOf(panel), panel));
         }
 
-        void deletePanel() {
+        PanelDeleteHandler(List<LocationPanelViewModel> panels) {
+            panelPairs = new ArrayList<>(panels.size());
+
+            for (LocationPanelViewModel panel : panels) {
+                panelPairs.add(new Pair<>(mDataset.indexOf(panel), panel));
+            }
+        }
+
+        Runnable undoAction = new Runnable() {
+            @Override
+            public void run() {
+                Collections.sort(panelPairs, new Comparator<Pair<Integer, LocationPanelViewModel>>() {
+                    @Override
+                    public int compare(Pair<Integer, LocationPanelViewModel> o1, Pair<Integer, LocationPanelViewModel> o2) {
+                        return o1.first.compareTo(o2.first);
+                    }
+                });
+                for (Pair<Integer, LocationPanelViewModel> panelPair : panelPairs) {
+                    if (panelPair.second != null && !mDataset.contains(panelPair.second)) {
+                        panelPair.second.setEditMode(isInEditMode);
+                        if (panelPair.first >= mDataset.size()) {
+                            add(panelPair.second);
+                        } else {
+                            add(panelPair.first, panelPair.second);
+                        }
+
+                        // End active removal animations if we're undoing the action
+                        RecyclerView.ViewHolder holder = mParentRecyclerView.findViewHolderForAdapterPosition(getViewPosition(panelPair.second));
+                        if (mParentRecyclerView.getItemAnimator() != null) {
+                            if (holder != null) {
+                                mParentRecyclerView.getItemAnimator().endAnimation(holder);
+                            } else {
+                                mParentRecyclerView.getItemAnimator().endAnimations();
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        void deletePanels() {
+            if (panelPairs.isEmpty()) return;
+
             mMainHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    mDataPosition = mDataset.indexOf(mDeletedPanel);
-                    remove(mDeletedPanel);
+                    for (Pair<Integer, LocationPanelViewModel> panelPair : panelPairs) {
+                        panelPair.second.setEditMode(false);
+                        panelPair.second.setChecked(false);
+                        mSelectedItems.remove(panelPair.second);
+                        remove(panelPair.second);
+                    }
 
                     // If only a single favorite location is left, revert the deletion
-                    if ((hasGPSPanel && mDataset.size() <= 1) || (!hasGPSPanel && hasSearchPanel && mDataset.size() <= 0)) {
-                        performUndoAction(mDataPosition, mDeletedPanel);
+                    if (getFavoritesCount() <= 0) {
+                        undoAction.run();
+                        if (mParentRecyclerView != null && isFragmentAlive) {
+                            if (mSnackMgr == null)
+                                mSnackMgr = new SnackbarManager(mParentRecyclerView);
+                            mSnackMgr.show(Snackbar.make(R.string.message_needfavorite, Snackbar.Duration.SHORT), null);
+                        }
                         return;
                     }
 
@@ -540,17 +674,13 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
 
         private void showUndoSnackbar() {
-            final LocationPanelViewModel pendingVMForRemoval = mDeletedPanel;
-            final int dataPosition = mDataPosition;
             if (mParentRecyclerView != null && isFragmentAlive) {
                 // Make SnackBar
                 final Snackbar snackbar = Snackbar.make(R.string.message_locationremoved, Snackbar.Duration.SHORT);
                 snackbar.setAction(R.string.undo, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mDeletedPanel = null;
-
-                        performUndoAction(dataPosition, pendingVMForRemoval);
+                        undoAction.run();
                     }
                 });
                 final com.google.android.material.snackbar.Snackbar.Callback callback = new com.google.android.material.snackbar.Snackbar.Callback() {
@@ -562,11 +692,11 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
                             AsyncTask.run(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (pendingVMForRemoval == null)
-                                        return;
-
-                                    String key = pendingVMForRemoval.getLocationData().getQuery();
-                                    Settings.deleteLocation(key);
+                                    for (Pair<Integer, LocationPanelViewModel> panelPair : panelPairs) {
+                                        if (panelPair.second == null) return;
+                                        String key = panelPair.second.getLocationData().getQuery();
+                                        Settings.deleteLocation(key);
+                                    }
                                 }
                             });
                         }
@@ -582,21 +712,6 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
                         mSnackMgr.show(snackbar, callback);
                     }
                 });
-            }
-        }
-
-        private void performUndoAction(final int dataPosition, final LocationPanelViewModel pendingVMForRemoval) {
-            if (pendingVMForRemoval != null && !mDataset.contains(pendingVMForRemoval)) {
-                add(dataPosition, pendingVMForRemoval);
-                // End active removal animations if we're undoing the action
-                RecyclerView.ViewHolder holder = mParentRecyclerView.findViewHolderForAdapterPosition(getViewPosition(pendingVMForRemoval));
-                if (mParentRecyclerView.getItemAnimator() != null) {
-                    if (holder != null) {
-                        mParentRecyclerView.getItemAnimator().endAnimation(holder);
-                    } else {
-                        mParentRecyclerView.getItemAnimator().endAnimations();
-                    }
-                }
             }
         }
     }

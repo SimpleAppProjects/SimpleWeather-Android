@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.controls;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
@@ -64,7 +65,7 @@ public class LocationPanel extends MaterialCardView {
         int height = context.getResources().getDimensionPixelSize(R.dimen.location_panel_height);
         this.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
 
-        colorDrawable = new ColorDrawable(Colors.SIMPLEBLUEMEDIUM);
+        colorDrawable = new ColorDrawable(ContextCompat.getColor(context, R.color.colorSurface));
         overlayDrawable = ContextCompat.getDrawable(context, R.drawable.background_overlay);
 
         // NOTE: Bug: Explicitly set tintmode on Lollipop devices
@@ -74,9 +75,17 @@ public class LocationPanel extends MaterialCardView {
         // Remove extra (compat) padding on pre-Lollipop devices
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             setPreventCornerOverlap(false);
-            setCardElevation(0f);
-            setMaxCardElevation(0f);
         }
+        setCardElevation(0f);
+        setMaxCardElevation(0f);
+        setStrokeWidth((int) ActivityUtils.dpToPx(context, 1f));
+        setStrokeColor(ContextCompat.getColorStateList(context, FeatureSettings.isLocationPanelImageEnabled() ? R.color.location_panel_card_stroke_imageon : R.color.location_panel_card_stroke_imageoff));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setStateListAnimator(null);
+        }
+        setCheckedIconTint(FeatureSettings.isLocationPanelImageEnabled() ? ColorStateList.valueOf(Colors.WHITE) : ActivityUtils.getColorStateList(context, R.attr.colorPrimary));
+        setRippleColorResource(FeatureSettings.isLocationPanelImageEnabled() ? R.color.location_panel_ripple_imageon : R.color.location_panel_ripple_imageoff);
+        setCardForegroundColor(ContextCompat.getColorStateList(context, FeatureSettings.isLocationPanelImageEnabled() ? R.color.location_panel_foreground_imageon : R.color.location_panel_foreground_imageoff));
 
         mGlide = Glide.with(this);
         showLoading(true);
@@ -143,6 +152,12 @@ public class LocationPanel extends MaterialCardView {
         binding.setViewModel(model);
         binding.executePendingBindings();
 
+        // Do this before checkable state is changed to disable check state
+        this.setChecked(model.isChecked());
+        this.setCheckable(model.isEditMode());
+        // Do this after if checkable state is now enabled
+        this.setChecked(model.isChecked());
+
         this.setTag(model.getLocationData());
 
         if (model.getLocationName() != null && getTag() != null)
@@ -157,8 +172,27 @@ public class LocationPanel extends MaterialCardView {
     @Override
     public void setDragged(boolean dragged) {
         super.setDragged(dragged);
-        setStrokeColor(ActivityUtils.getColor(getContext(), R.attr.colorOnSurface));
-        setStrokeWidth(dragged ? (int) ActivityUtils.dpToPx(getContext(), 2) : 0);
+        setStroke();
+    }
+
+    @Override
+    public void setChecked(boolean checked) {
+        super.setChecked(checked);
+        setStroke();
+    }
+
+    private void setStroke() {
+        float strokeDp = 1f;
+        if (FeatureSettings.isLocationPanelImageEnabled()) {
+            if (isDragged()) {
+                strokeDp = 3f;
+            } else if (isChecked()) {
+                strokeDp = 2f;
+            }
+        } else {
+            strokeDp = isDragged() ? 2f : 1f;
+        }
+        setStrokeWidth((int) ActivityUtils.dpToPx(getContext(), strokeDp));
     }
 
     public class LocationPanelDataBindingComponent implements androidx.databinding.DataBindingComponent {

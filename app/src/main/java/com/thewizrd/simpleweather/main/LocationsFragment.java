@@ -17,6 +17,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ import android.view.ViewGroup;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
@@ -78,6 +80,7 @@ import com.thewizrd.simpleweather.adapters.LocationPanelAdapter;
 import com.thewizrd.simpleweather.controls.LocationPanelViewModel;
 import com.thewizrd.simpleweather.databinding.FragmentLocationsBinding;
 import com.thewizrd.simpleweather.fragments.ToolbarFragment;
+import com.thewizrd.simpleweather.helpers.ItemTouchCallbackListener;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperCallback;
 import com.thewizrd.simpleweather.helpers.OffsetMargin;
 import com.thewizrd.simpleweather.helpers.SwipeToDeleteOffSetItemDecoration;
@@ -106,6 +109,7 @@ public class LocationsFragment extends ToolbarFragment
     private ItemTouchHelper mItemTouchHelper;
     private ItemTouchHelperCallback mITHCallback;
     private BottomNavigationView mBottomNavView;
+    private ActionMode actionMode;
 
     // GPS Location
     private FusedLocationProviderClient mFusedLocationClient;
@@ -271,6 +275,52 @@ public class LocationsFragment extends ToolbarFragment
 
                 Navigation.findNavController(binding.getRoot()).navigate(args);
             }
+        }
+    };
+
+    private ActionMode.Callback actionModeCallback = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mode.setTitle(!mAdapter.getSelectedItems().isEmpty() ? Integer.toString(mAdapter.getSelectedItems().size()) : "");
+
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.locations_context, menu);
+
+            MenuItem deleteBtnItem = menu.findItem(R.id.action_delete);
+            if (deleteBtnItem != null) {
+                deleteBtnItem.setVisible(!mAdapter.getSelectedItems().isEmpty());
+            }
+
+            if (!mEditMode) toggleEditMode();
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            for (int i = 0; i < menu.size(); i++) {
+                MenuItemCompat.setIconTintList(menu.getItem(i), ColorStateList.valueOf(ContextCompat.getColor(getAppCompatActivity(), R.color.invButtonColorText)));
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_delete:
+                    mAdapter.removeSelectedItems();
+                    return true;
+                case R.id.action_done:
+                    mode.finish();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            actionMode = null;
+            if (mEditMode) toggleEditMode();
         }
     };
 
@@ -455,11 +505,17 @@ public class LocationsFragment extends ToolbarFragment
         };
         binding.recyclerView.setLayoutManager(mLayoutManager);
 
-        // specify an adapter (see also next example)
-        mAdapter = new LocationPanelAdapter();
+        // Setup RecyclerView
+        mAdapter = new LocationPanelAdapter(new LocationPanelAdapter.ViewHolderLongClickListener() {
+            @Override
+            public void onLongClick(RecyclerView.ViewHolder holder) {
+                mItemTouchHelper.startDrag(holder);
+            }
+        });
         mAdapter.setOnClickListener(onRecyclerClickListener);
         mAdapter.setOnLongClickListener(onRecyclerLongClickListener);
         mAdapter.setOnListChangedCallback(onListChangedListener);
+        mAdapter.setOnSelectionChangedCallback(onSelectionChangedListener);
         binding.recyclerView.setAdapter(mAdapter);
         mITHCallback = new ItemTouchHelperCallback(mAdapter);
         mItemTouchHelper = new ItemTouchHelper(mITHCallback);
@@ -467,14 +523,38 @@ public class LocationsFragment extends ToolbarFragment
         SwipeToDeleteOffSetItemDecoration swipeDecor =
                 new SwipeToDeleteOffSetItemDecoration(binding.recyclerView.getContext(), 2f,
                         OffsetMargin.TOP | OffsetMargin.BOTTOM);
-        mITHCallback.setItemTouchHelperCallbackListener(swipeDecor);
+        mITHCallback.addItemTouchHelperCallbackListener(swipeDecor);
+        mITHCallback.addItemTouchHelperCallbackListener(new ItemTouchCallbackListener() {
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+
+            }
+
+            @Override
+            public void onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                mDataChanged = true;
+                if (mEditMode) {
+                    toggleEditMode();
+                } else {
+                    final List<LocationPanelViewModel> dataSet = mAdapter.getDataset();
+                    for (LocationPanelViewModel view : dataSet) {
+                        if (view.getLocationType() != LocationType.GPS.getValue()) {
+                            updateFavoritesPosition(view);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onClearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+            }
+        });
         binding.recyclerView.addItemDecoration(swipeDecor);
         SimpleItemAnimator animator = new DefaultItemAnimator();
         animator.setSupportsChangeAnimations(false);
         binding.recyclerView.setItemAnimator(animator);
 
-        // Turn off by default
-        mITHCallback.setLongPressDragEnabled(false);
+        // Enable touch actions
         mITHCallback.setItemViewSwipeEnabled(false);
 
         mLoaded = true;
@@ -520,10 +600,6 @@ public class LocationsFragment extends ToolbarFragment
         MenuItem editMenuBtn = optionsMenu.findItem(R.id.action_editmode);
         if (editMenuBtn != null) {
             editMenuBtn.setVisible(!onlyHomeIsLeft);
-            // Change EditMode button drwble
-            editMenuBtn.setIcon(mEditMode ? R.drawable.ic_done_white_24dp : R.drawable.ic_mode_edit_white_24dp);
-            // Change EditMode button label
-            editMenuBtn.setTitle(mEditMode ? R.string.abc_action_mode_done : R.string.action_editmode);
             MenuItemCompat.setIconTintList(editMenuBtn, ColorStateList.valueOf(ContextCompat.getColor(getAppCompatActivity(), R.color.invButtonColorText)));
         }
     }
@@ -538,7 +614,7 @@ public class LocationsFragment extends ToolbarFragment
 
             //noinspection SimplifiableIfStatement
             if (id == R.id.action_editmode) {
-                toggleEditMode();
+                actionMode = getAppCompatActivity().startSupportActionMode(actionModeCallback);
                 return true;
             }
 
@@ -577,6 +653,11 @@ public class LocationsFragment extends ToolbarFragment
         AnalyticsLogger.logEvent("LocationsFragment: onPause");
         // Cancel pending actions
         if (cts != null) cts.cancel();
+
+        // End actionmode
+        if (actionMode != null) {
+            actionMode.finish();
+        }
 
         // Remove location updates to save battery.
         stopLocationUpdates();
@@ -966,11 +1047,38 @@ public class LocationsFragment extends ToolbarFragment
         }
     };
 
+    private OnListChangedListener<LocationPanelViewModel> onSelectionChangedListener = new OnListChangedListener<LocationPanelViewModel>() {
+        @Override
+        public void onChanged(final ArrayList<LocationPanelViewModel> sender, ListChangedArgs<LocationPanelViewModel> args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (actionMode != null) {
+                        actionMode.setTitle(!sender.isEmpty() ? Integer.toString(sender.size()) : "");
+
+                        MenuItem deleteBtnItem = actionMode.getMenu().findItem(R.id.action_delete);
+                        if (deleteBtnItem != null) {
+                            deleteBtnItem.setVisible(!sender.isEmpty());
+                        }
+                    }
+                }
+            });
+        }
+    };
+
     private RecyclerOnClickListenerInterface onRecyclerLongClickListener = new RecyclerOnClickListenerInterface() {
         @Override
         public void onClick(View view, int position) {
             if (mAdapter.getItemViewType(position) == LocationPanelAdapter.ItemType.SEARCH_PANEL) {
-                if (!mEditMode && mAdapter.getFavoritesCount() > 1) toggleEditMode();
+                if (!mEditMode && mAdapter.getFavoritesCount() > 1) {
+                    actionMode = getAppCompatActivity().startSupportActionMode(actionModeCallback);
+
+                    LocationPanelViewModel model = mAdapter.getPanelViewModel(position);
+                    if (model != null) {
+                        model.setChecked(true);
+                        mAdapter.notifyItemChanged(position);
+                    }
+                }
             }
         }
     };
@@ -979,18 +1087,9 @@ public class LocationsFragment extends ToolbarFragment
         // Toggle EditMode
         mEditMode = !mEditMode;
         onBackPressedCallback.setEnabled(mEditMode);
-
-        MenuItem editMenuBtn = optionsMenu.findItem(R.id.action_editmode);
-        if (editMenuBtn != null) {
-            // Change EditMode button drwble
-            editMenuBtn.setIcon(mEditMode ? R.drawable.ic_done_white_24dp : R.drawable.ic_mode_edit_white_24dp);
-            // Change EditMode button label
-            editMenuBtn.setTitle(mEditMode ? R.string.abc_action_mode_done : R.string.action_editmode);
-            MenuItemCompat.setIconTintList(editMenuBtn, ColorStateList.valueOf(ContextCompat.getColor(getAppCompatActivity(), R.color.invButtonColorText)));
-        }
+        mAdapter.setInEditMode(mEditMode);
 
         // Set Drag & Swipe ability
-        mITHCallback.setLongPressDragEnabled(mEditMode);
         mITHCallback.setItemViewSwipeEnabled(mEditMode);
 
         if (mEditMode) {
@@ -1001,22 +1100,24 @@ public class LocationsFragment extends ToolbarFragment
             // Register events
             mAdapter.setOnClickListener(onRecyclerClickListener);
             mAdapter.setOnLongClickListener(onRecyclerLongClickListener);
+            mAdapter.clearSelection();
+            if (actionMode != null) actionMode.finish();
         }
 
-        for (LocationPanelViewModel view : mAdapter.getDataset()) {
+        for (final LocationPanelViewModel view : mAdapter.getDataset()) {
             view.setEditMode(mEditMode);
-            mAdapter.notifyItemChanged(mAdapter.getViewPosition(view));
+            if (!mEditMode) view.setChecked(false);
+            binding.recyclerView.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (isAlive()) {
+                        mAdapter.notifyItemChanged(mAdapter.getViewPosition(view));
+                    }
+                }
+            });
 
             if (view.getLocationType() != LocationType.GPS.getValue() && !mEditMode && (mDataChanged || mHomeChanged)) {
-                final String query = view.getLocationData().getQuery();
-                int dataPosition = mAdapter.getDataset().indexOf(view);
-                final int pos = mAdapter.hasGPSHeader() ? --dataPosition : dataPosition;
-                AsyncTask.run(new Runnable() {
-                    @Override
-                    public void run() {
-                        Settings.moveLocation(query, pos);
-                    }
-                });
+                updateFavoritesPosition(view);
             }
         }
 
@@ -1029,5 +1130,17 @@ public class LocationsFragment extends ToolbarFragment
 
         mDataChanged = false;
         mHomeChanged = false;
+    }
+
+    private void updateFavoritesPosition(@NonNull LocationPanelViewModel view) {
+        final String query = view.getLocationData().getQuery();
+        int dataPosition = mAdapter.getDataset().indexOf(view);
+        final int pos = mAdapter.hasGPSHeader() ? --dataPosition : dataPosition;
+        AsyncTask.run(new Runnable() {
+            @Override
+            public void run() {
+                Settings.moveLocation(query, pos);
+            }
+        });
     }
 }

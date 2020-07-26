@@ -22,7 +22,7 @@
             android:id="@+id/image_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:srcCompat="@color/colorPrimary" />
+            app:srcCompat="@color/colorSurface" />
 
         <View
             android:id="@+id/image_overlay"
@@ -43,16 +43,18 @@
                 android:gravity="center_vertical"
                 android:padding="8dp"
                 android:scrollbars="none"
+                android:shadowRadius="@{FeatureSettings.locationPanelImageEnabled ? 1 : 0}"
                 android:singleLine="true"
                 android:text="@{viewModel.locationName}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="New York, NY" />
+                tools:text="New York, NY"
+                tools:textColor="@color/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_temp"
@@ -65,10 +67,11 @@
                 android:paddingEnd="8dp"
                 android:paddingRight="8dp"
                 android:scrollbars="none"
+                android:shadowRadius="@{FeatureSettings.locationPanelImageEnabled ? 1 : 0}"
                 android:text="@{viewModel.currTemp}"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
                 android:textSize="36sp"
                 android:textStyle="normal"
                 app:autoSizeMaxTextSize="36sp"
@@ -80,7 +83,8 @@
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/location_name"
-                tools:text="50&#xf045;" />
+                tools:text="50&#xf045;"
+                tools:textColor="@color/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_condition"
@@ -92,10 +96,11 @@
                 android:marqueeRepeatLimit="marquee_forever"
                 android:padding="8dp"
                 android:scrollbars="none"
+                android:shadowRadius="@{FeatureSettings.locationPanelImageEnabled ? 1 : 0}"
                 android:singleLine="true"
                 android:text="@{viewModel.currWeather}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -103,7 +108,8 @@
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/weather_temp"
-                tools:text="Mostly Cloudy. Breezy. Chance of rain" />
+                tools:text="Mostly Cloudy. Breezy. Chance of rain"
+                tools:textColor="@color/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_hi"
@@ -113,11 +119,12 @@
                 android:gravity="center"
                 android:padding="8dp"
                 android:scrollbars="none"
+                android:shadowRadius="@{FeatureSettings.locationPanelImageEnabled ? 1 : 0}"
                 android:text="@{viewModel.hiTemp + ' ' + '\uf058'}"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
+                android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 app:fontFamily="@font/weathericons"
                 app:hideIfNull="@{viewModel.hiTemp}"
@@ -129,7 +136,8 @@
                 app:layout_constraintTop_toBottomOf="@id/location_name"
                 app:layout_constraintVertical_bias="0.5"
                 app:layout_constraintVertical_chainStyle="packed"
-                tools:text="78° &#xf058;" />
+                tools:text="78° &#xf058;"
+                tools:textColor="@color/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_lo"
@@ -139,11 +147,12 @@
                 android:gravity="center"
                 android:padding="8dp"
                 android:scrollbars="none"
+                android:shadowRadius="@{FeatureSettings.locationPanelImageEnabled ? 1 : 0}"
                 android:text="@{viewModel.loTemp + ' ' + '\uf044'}"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
+                android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 app:fontFamily="@font/weathericons"
                 app:hideIfNull="@{viewModel.loTemp}"
@@ -153,7 +162,8 @@
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toEndOf="@id/weather_condition"
                 app:layout_constraintTop_toBottomOf="@id/weather_hi"
-                tools:text="60° &#xf044;" />
+                tools:text="60° &#xf044;"
+                tools:textColor="@color/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_popicon"
@@ -166,9 +176,10 @@
                 android:paddingEnd="8dp"
                 android:paddingRight="8dp"
                 android:scrollbars="none"
+                android:shadowRadius="@{FeatureSettings.locationPanelImageEnabled ? 1 : 0}"
                 android:text="@{viewModel.popIcon}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:fontFamily="@font/weathericons"
@@ -179,7 +190,8 @@
                 app:layout_constraintStart_toEndOf="@id/weather_hi"
                 app:layout_constraintTop_toTopOf="@id/weather_pop"
                 app:layout_constraintVertical_chainStyle="packed"
-                tools:text="@string/wi_umbrella" />
+                tools:text="@string/wi_umbrella"
+                tools:textColor="@color/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_pop"
@@ -194,10 +206,11 @@
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 android:scrollbars="none"
+                android:shadowRadius="@{FeatureSettings.locationPanelImageEnabled ? 1 : 0}"
                 android:text="@{viewModel.pop}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
+                android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 app:hideIfNull="@{viewModel.pop}"
                 app:layout_constraintBottom_toTopOf="@id/weather_windspeed"
@@ -207,7 +220,8 @@
                 app:layout_constraintTop_toBottomOf="@id/location_name"
                 app:layout_constraintVertical_chainStyle="packed"
                 app:layout_constraintWidth_min="60dp"
-                tools:text="100%" />
+                tools:text="100%"
+                tools:textColor="@color/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_windicon"
@@ -222,10 +236,11 @@
                 android:paddingTop="1dp"
                 android:rotation="@{viewModel.windDir}"
                 android:scrollbars="none"
+                android:shadowRadius="@{FeatureSettings.locationPanelImageEnabled ? 1 : 0}"
                 android:text="@string/wi_direction_up"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:fontFamily="@font/weathericons"
@@ -235,7 +250,8 @@
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toEndOf="@id/weather_lo"
                 app:layout_constraintTop_toTopOf="@id/weather_windspeed"
-                tools:rotation="0" />
+                tools:rotation="0"
+                tools:textColor="@color/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_windspeed"
@@ -250,10 +266,11 @@
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 android:scrollbars="none"
+                android:shadowRadius="@{FeatureSettings.locationPanelImageEnabled ? 1 : 0}"
                 android:text="@{viewModel.windSpeed}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
+                android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 app:hideIfNull="@{viewModel.windSpeed}"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -261,7 +278,9 @@
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toEndOf="@id/weather_windicon"
                 app:layout_constraintTop_toBottomOf="@id/weather_pop"
-                tools:text="6 mph" />
+                app:layout_constraintWidth_min="60dp"
+                tools:text="6 mph"
+                tools:textColor="@color/colorOnSurface" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -271,7 +290,7 @@
             android:layout_height="24dp"
             android:layout_gravity="center"
             android:indeterminate="true"
-            android:indeterminateTint="@android:color/white"
+            android:indeterminateTint="@color/colorOnSurface"
             android:visibility="visible" />
 
     </merge>

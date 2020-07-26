@@ -17,8 +17,10 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.LocationPanelAdapter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
-    private boolean dragEnabled = true;
     private boolean swipeEnabled = true;
 
     private ItemTouchHelperAdapterInterface mAdapter;
@@ -27,11 +29,41 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     private Drawable deleteBackground;
     private int iconMargin;
     private int cornerRadius;
-    private ItemTouchCallbackListener mListener;
+
+    /* Callback Listener */
+    private List<ItemTouchCallbackListener> mCallbacks;
+
+    public void addItemTouchHelperCallbackListener(@NonNull ItemTouchCallbackListener listener) {
+        mCallbacks.add(listener);
+    }
+
+    public void removeItemTouchHelperCallbackListener(@NonNull ItemTouchCallbackListener listener) {
+        mCallbacks.remove(listener);
+    }
+
+    private void notifyOnMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+        for (int i = 0; i < mCallbacks.size(); i++) {
+            mCallbacks.get(i).onMove(recyclerView, viewHolder, target);
+        }
+    }
+
+    private void notifyOnSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, final int direction) {
+        for (int i = 0; i < mCallbacks.size(); i++) {
+            mCallbacks.get(i).onSwiped(viewHolder, direction);
+        }
+    }
+
+    private void notifyOnClearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+        for (int i = 0; i < mCallbacks.size(); i++) {
+            mCallbacks.get(i).onClearView(recyclerView, viewHolder);
+        }
+    }
+    /* Callbacks end */
 
     @Override
     public boolean isLongPressDragEnabled() {
-        return dragEnabled;
+        // We handle the long press on our side for better touch feedback.
+        return false;
     }
 
     @Override
@@ -41,16 +73,13 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     public ItemTouchHelperCallback(ItemTouchHelperAdapterInterface adapter) {
         Context context = App.getInstance().getAppContext();
+        mCallbacks = new ArrayList<>();
 
         mAdapter = adapter;
-        deleteIcon = ContextCompat.getDrawable(context, R.drawable.ic_delete_white_24dp);
+        deleteIcon = ContextCompat.getDrawable(context, R.drawable.ic_delete_outline_24dp);
         deleteBackground = ContextCompat.getDrawable(context, R.drawable.swipe_delete);
         iconMargin = context.getResources().getDimensionPixelSize(R.dimen.delete_icon_margin);
         cornerRadius = context.getResources().getDimensionPixelSize(R.dimen.shape_corner_radius);
-    }
-
-    public void setItemTouchHelperCallbackListener(ItemTouchCallbackListener listener) {
-        mListener = listener;
     }
 
     @Override
@@ -61,13 +90,12 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
         if (viewHolder.getItemViewType() != LocationPanelAdapter.ItemType.SEARCH_PANEL) {
             dragFlags = 0;
             swipeFlags = 0;
-        } else if (dragEnabled && swipeEnabled) {
+        } else {
             dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-            swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
-        } else if (dragEnabled)
-            dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-        else if (swipeEnabled)
-            swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+
+            if (swipeEnabled)
+                swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+        }
 
         return makeMovementFlags(dragFlags, swipeFlags);
     }
@@ -75,14 +103,13 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     @Override
     public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
         mAdapter.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+        notifyOnMove(recyclerView, viewHolder, target);
         return true;
     }
 
     @Override
     public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, final int direction) {
-        if (mListener != null) {
-            mListener.onSwiped(viewHolder, direction);
-        }
+        notifyOnSwiped(viewHolder, direction);
         mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
     }
 
@@ -135,10 +162,8 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
                 float upperLimit = 0;
                 LocationPanelAdapter adapter = (LocationPanelAdapter) recyclerView.getAdapter();
 
-                if (adapter != null && adapter.hasSearchHeader() && adapter.hasGPSHeader()) {
-                    upperLimit = adapter.getGPSViewHolder().itemView.getHeight() + viewHolder.itemView.getHeight() + adapter.getFavViewHolder().itemView.getHeight();
-                } else if (adapter != null && adapter.hasSearchHeader()) {
-                    upperLimit = adapter.getFavViewHolder().itemView.getHeight();
+                if (adapter != null) {
+                    upperLimit = adapter.getFavViewHolder().itemView.getTop();
                 }
 
                 if (topY < upperLimit) {
@@ -176,10 +201,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
         if (viewHolder.itemView instanceof MaterialCardView) {
             ((MaterialCardView) viewHolder.itemView).setDragged(false);
         }
-    }
-
-    public void setLongPressDragEnabled(boolean value) {
-        dragEnabled = value;
+        notifyOnClearView(recyclerView, viewHolder);
     }
 
     public void setItemViewSwipeEnabled(boolean value) {
