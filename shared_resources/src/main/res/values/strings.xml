@@ -169,6 +169,10 @@
     <string name="hrflipbtn_pref_summary_on">Tap forecast panel to switch between hourly and weekly forecast</string>
     <string name="hrflipbtn_pref_summary_off">Use arrow buttons to switch between hourly and weekly forecast</string>
     <string name="hrflipbtn_pref_title">Tap to switch Forecast</string>
+    <string name="locname_pref_title">Location Name</string>
+    <string name="locname_pref_summary">Hide location name from widget</string>
+    <string name="settingsbtn_pref_title">Settings Button</string>
+    <string name="settingsbtn_pref_summary">Hide settings button from widget</string>
     <!-- format strings for clocks -->
     <string name="clock_12_hours_format" translatable="false">h&#58;mm<font size="24">a</font></string>
     <string name="clock_24_hours_format" translatable="false">kk&#58;mm</string>

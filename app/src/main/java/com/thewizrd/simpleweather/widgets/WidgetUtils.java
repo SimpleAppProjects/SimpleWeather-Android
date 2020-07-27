@@ -51,6 +51,8 @@ public class WidgetUtils {
     private static final String KEY_WIDGETBACKGROUND = "key_widgetbackground";
     private static final String KEY_WIDGETBACKGROUNDSTYLE = "key_widgetbackgroundstyle";
     private static final String KEY_FORECASTTAPTOSWITCH = "key_forecasttaptoswitch";
+    private static final String KEY_HIDELOCATIONNAME = "key_hidelocationname";
+    private static final String KEY_HIDESETTINGSBUTTON = "key_hidesettingsbutton";
 
     private static final int FORECAST_LENGTH = 3; // 3-day
     private static final int MEDIUM_FORECAST_LENGTH = 4; // 4-day
@@ -610,6 +612,10 @@ public class WidgetUtils {
         return widgetType != WidgetType.Unknown && widgetType != WidgetType.Widget4x1Google && widgetType != WidgetType.Widget4x1Notification;
     }
 
+    public static boolean isLocationNameOptionalWidget(WidgetType widgetType) {
+        return widgetType == WidgetType.Widget1x1 || widgetType == WidgetType.Widget4x1 || widgetType == WidgetType.Widget4x1Google;
+    }
+
     public static @ColorInt
     int getTextColor(WidgetUtils.WidgetBackground background) {
         if (background == WidgetUtils.WidgetBackground.BLACK) {
@@ -654,5 +660,29 @@ public class WidgetUtils {
         } else {
             return Colors.TRANSPARENT;
         }
+    }
+
+    public static boolean isLocationNameHidden(int widgetId) {
+        SharedPreferences prefs = getPreferences(widgetId);
+        return prefs.getBoolean(KEY_HIDELOCATIONNAME, false);
+    }
+
+    public static void setLocationNameHidden(int widgetId, boolean value) {
+        SharedPreferences.Editor editor = getEditor(widgetId);
+
+        editor.putBoolean(KEY_HIDELOCATIONNAME, value);
+        editor.commit();
+    }
+
+    public static boolean isSettingsButtonHidden(int widgetId) {
+        SharedPreferences prefs = getPreferences(widgetId);
+        return prefs.getBoolean(KEY_HIDESETTINGSBUTTON, false);
+    }
+
+    public static void setSettingsButtonHidden(int widgetId, boolean value) {
+        SharedPreferences.Editor editor = getEditor(widgetId);
+
+        editor.putBoolean(KEY_HIDESETTINGSBUTTON, value);
+        editor.commit();
     }
 }

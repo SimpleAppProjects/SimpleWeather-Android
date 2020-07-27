@@ -9,14 +9,20 @@
         android:summary="%s"
         android:persistent="false" />
 
-    <ListPreference
-        android:defaultValue="60"
-        android:entries="@array/refreshinterval_entries"
-        android:entryValues="@array/refreshinterval_values"
-        android:key="key_refreshinterval"
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="key_hidelocname"
         android:persistent="false"
-        android:summary="%s"
-        android:title="@string/pref_title_refreshinterval" />
+        android:summary="@string/locname_pref_summary"
+        android:title="@string/locname_pref_title"
+        app:isPreferenceVisible="false" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="key_hidesettingsbtn"
+        android:persistent="false"
+        android:summary="@string/settingsbtn_pref_summary"
+        android:title="@string/settingsbtn_pref_title" />
 
     <ListPreference
         android:defaultValue="0"

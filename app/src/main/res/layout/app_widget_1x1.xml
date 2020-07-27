@@ -1,4 +1,4 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widget"
     android:layout_width="match_parent"
@@ -17,34 +17,34 @@
     <ImageView
         android:id="@+id/settings_button"
         style="@style/ShadowText"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="center"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_gravity="top|end"
         android:alpha="0.7"
         android:padding="4dp"
         android:src="@drawable/ic_settings_black_24dp"
-        android:tint="@android:color/white" />
+        android:tint="@android:color/white"
+        tools:visibility="visible" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/settings_button"
-        android:layout_alignParentBottom="true"
+        android:layout_height="match_parent"
         android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/spacer_top"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
         <ImageView
             android:id="@+id/weather_icon"
             style="@style/ShadowText"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
             android:layout_gravity="bottom|center_horizontal"
-            android:layout_weight="1"
             android:adjustViewBounds="true"
             android:maxWidth="36dp"
-            android:scaleType="fitEnd"
             tools:src="@drawable/day_sunny" />
 
         <TextView
@@ -65,18 +65,24 @@
             android:id="@+id/location_name"
             style="@style/ShadowText"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="top|center_vertical"
-            android:layout_margin="4dp"
-            android:layout_weight="1"
             android:ellipsize="end"
             android:gravity="center_horizontal"
             android:maxLines="1"
+            android:padding="2dp"
             android:shadowColor="#000000"
             android:textColor="@android:color/white"
             android:textSize="12sp"
-            tools:text="New York, NY" />
+            tools:text="New York, NY"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/spacer_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
     </LinearLayout>
 
-</RelativeLayout>
+</FrameLayout>

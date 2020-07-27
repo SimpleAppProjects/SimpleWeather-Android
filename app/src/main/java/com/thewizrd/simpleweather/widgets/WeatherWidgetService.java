@@ -1052,6 +1052,9 @@ public class WeatherWidgetService extends JobIntentService {
             refreshClock(new int[]{appWidgetId});
         }
 
+        updateViews.setViewVisibility(R.id.location_name, WidgetUtils.isLocationNameHidden(appWidgetId) ? View.GONE : View.VISIBLE);
+        updateViews.setViewVisibility(R.id.settings_button, WidgetUtils.isSettingsButtonHidden(appWidgetId) ? View.GONE : View.VISIBLE);
+
         setOnClickIntent(context, location, updateViews);
         setOnSettingsClickIntent(context, updateViews, location, appWidgetId);
 

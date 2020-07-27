@@ -83,7 +83,6 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CustomException;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.TransparentOverlay;
@@ -148,10 +147,11 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private WidgetUtils.WidgetBackgroundStyle mWidgetBGStyle;
 
     private ArrayListPreference locationPref;
-    private ListPreference refreshPref;
     private ListPreference bgColorPref;
     private ListPreference bgStylePref;
     private SwitchPreference tap2SwitchPref;
+    private SwitchPreference hideLocNamePref;
+    private SwitchPreference hideSettingsBtnPref;
 
     private static final int ANIMATION_DURATION = 240;
 
@@ -165,6 +165,8 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private static final String KEY_BGCOLOR = "key_bgcolor";
     private static final String KEY_BGSTYLE = "key_bgstyle";
     private static final String KEY_HRFLIPBUTTON = "key_hrflipbutton";
+    private static final String KEY_HIDELOCNAME = "key_hidelocname";
+    private static final String KEY_HIDESETTINGSBTN = "key_hidesettingsbtn";
 
     public WeatherWidgetPreferenceFragment() {
         setArguments(new Bundle());
@@ -411,10 +413,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             locationPref.setValueIndex(0);
         }
 
-        // Setup interval spinner
-        refreshPref = findPreference(KEY_REFRESHINTERVAL);
-        refreshPref.setValue(Integer.toString(Settings.getRefreshInterval()));
-
         // Setup widget background spinner
         bgColorPref = findPreference(KEY_BGCOLOR);
         bgStylePref = findPreference(KEY_BGSTYLE);
@@ -465,6 +463,37 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             tap2SwitchPref.setVisible(true);
             tap2SwitchPref.setChecked(WidgetUtils.isTapToSwitchEnabled(mAppWidgetId));
         }
+
+        hideLocNamePref = findPreference(KEY_HIDELOCNAME);
+        hideSettingsBtnPref = findPreference(KEY_HIDESETTINGSBTN);
+
+        hideLocNamePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                hideLocNamePref.setChecked((boolean) newValue);
+                updateLocationView();
+                return true;
+            }
+        });
+
+        hideSettingsBtnPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                hideSettingsBtnPref.setChecked((boolean) newValue);
+                updateWidgetView();
+                return true;
+            }
+        });
+
+        if (WidgetUtils.isLocationNameOptionalWidget(mWidgetType)) {
+            hideLocNamePref.setChecked(WidgetUtils.isLocationNameHidden(mAppWidgetId));
+            hideLocNamePref.setVisible(true);
+        } else {
+            hideLocNamePref.setChecked(false);
+            hideLocNamePref.setVisible(false);
+        }
+
+        hideSettingsBtnPref.setChecked(WidgetUtils.isSettingsButtonHidden(mAppWidgetId));
     }
 
     @Override
@@ -675,6 +704,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         if (binding == null) return;
         TextView locationView = binding.widgetContainer.findViewById(R.id.location_name);
         locationView.setText(mLastSelectedValue != null ? locationPref.findEntryFromValue(mLastSelectedValue) : this.getString(R.string.pref_location));
+        locationView.setVisibility(hideLocNamePref.isChecked() ? View.GONE : View.VISIBLE);
     }
 
     private void updateWidgetView() {
@@ -796,6 +826,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
         ImageView settButton = binding.widgetContainer.findViewById(R.id.settings_button);
         settButton.setColorFilter(textColor);
+        settButton.setVisibility(hideSettingsBtnPref.isChecked() ? View.GONE : View.VISIBLE);
     }
 
     private void updateTextViewColor(View view, int textColor) {
@@ -945,12 +976,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     }
 
     private void prepareWidget() {
-        // Update Settings
-        Integer refreshValue = NumberUtils.tryParseInt(refreshPref.getValue());
-        if (refreshValue != null) {
-            Settings.setRefreshInterval(refreshValue);
-        }
-
         if (!isAlive()) {
             if (getAppCompatActivity() != null) {
                 getAppCompatActivity().setResult(Activity.RESULT_CANCELED, resultValue);
@@ -1093,6 +1118,8 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         WidgetUtils.setWidgetBackground(mAppWidgetId, Integer.parseInt(bgColorPref.getValue()));
         WidgetUtils.setBackgroundStyle(mAppWidgetId, Integer.parseInt(bgStylePref.getValue()));
         WidgetUtils.setTapToSwitchEnabled(mAppWidgetId, tap2SwitchPref.isChecked());
+        WidgetUtils.setLocationNameHidden(mAppWidgetId, hideLocNamePref.isChecked());
+        WidgetUtils.setSettingsButtonHidden(mAppWidgetId, hideSettingsBtnPref.isChecked());
 
         // Trigger widget service to update widget
         WeatherWidgetService.enqueueWork(getAppCompatActivity(),

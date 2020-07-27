@@ -147,7 +147,8 @@
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 style="@style/ShadowText"
-                tools:text="New York, NY" />
+                tools:text="New York, NY"
+                tools:visibility="gone" />
 
             <ImageView
                 android:id="@+id/showPrevious"
@@ -187,7 +188,8 @@
                 android:padding="4dp"
                 android:alpha="0.7"
                 android:src="@drawable/ic_settings_black_24dp"
-                android:tint="@android:color/white" />
+                android:tint="@android:color/white"
+                tools:visibility="gone" />
 
         </LinearLayout>
 

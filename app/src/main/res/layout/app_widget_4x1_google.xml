@@ -14,14 +14,15 @@
         android:alpha="0.7"
         android:padding="4dp"
         android:src="@drawable/ic_settings_black_24dp"
-        android:tint="@android:color/white" />
+        android:tint="@android:color/white"
+        tools:visibility="visible" />
 
     <RelativeLayout
         android:id="@+id/layout_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:gravity="bottom|center_horizontal"
+        android:gravity="center"
         android:orientation="horizontal"
         android:paddingTop="12dp"
         android:paddingBottom="12dp">
@@ -96,6 +97,7 @@
         android:textColor="@android:color/white"
         android:textSize="14sp"
         android:textStyle="bold"
-        tools:text="New York, NY" />
+        tools:text="New York, NY"
+        tools:visibility="visible" />
 
 </LinearLayout>
