@@ -42,7 +42,9 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.location.LocationManagerCompat;
 import androidx.core.view.MenuItemCompat;
+import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.navigation.Navigation;
@@ -240,6 +242,16 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         root.removeView(inflatedView);
         binding = FragmentWidgetSetupBinding.inflate(inflater, root, true);
         binding.layoutContainer.addView(inflatedView);
+
+        // For landscape orientation
+        ViewCompat.setOnApplyWindowInsetsListener(root, new OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                layoutParams.setMargins(insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
+                return insets;
+            }
+        });
 
         if (getListView() != null)
             ViewCompat.setNestedScrollingEnabled(getListView(), false);
