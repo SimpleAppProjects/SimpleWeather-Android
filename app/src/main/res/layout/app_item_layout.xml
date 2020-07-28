@@ -1,0 +1,60 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="appViewModel"
+            type="com.thewizrd.simpleweather.widgets.AppChoiceDialogBuilder.AppsViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/app_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/app_icon"
+            android:layout_width="56dp"
+            android:layout_height="0dp"
+            android:adjustViewBounds="true"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toBottomOf="@id/app_name"
+            app:layout_constraintEnd_toStartOf="@id/app_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/app_name"
+            app:layout_constraintVertical_bias="0.5"
+            app:srcCompat="@{appViewModel.drawable}" />
+
+        <TextView
+            android:id="@+id/app_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:maxLines="2"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+            android:text="@{appViewModel.appLabel}"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_min="56dp"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@id/app_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5"
+            tools:text="Music Player" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

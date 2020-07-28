@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -895,16 +896,28 @@ public class WeatherWidgetService extends JobIntentService {
         Logger.writeLine(Log.INFO, "%s: Refreshed date", TAG);
     }
 
-    private static PendingIntent getDefaultCalendarIntent(Context context) {
-        Intent onClickIntent = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_CALENDAR);
-        return PendingIntent.getActivity(context, 0, onClickIntent, 0);
+    private static PendingIntent getCalendarAppIntent(Context context) {
+        ComponentName componentName = WidgetUtils.getCalendarAppComponent(context);
+        if (componentName != null) {
+            Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(componentName.getPackageName());
+            return PendingIntent.getActivity(context, 0, launchIntent, 0);
+        } else {
+            Intent onClickIntent = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_CALENDAR);
+            return PendingIntent.getActivity(context, 0, onClickIntent, 0);
+        }
     }
 
-    private static PendingIntent getDefaultClockIntent(Context context) {
-        String clockAction = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ?
-                AlarmClock.ACTION_SHOW_ALARMS : AlarmClock.ACTION_SET_ALARM;
-        Intent onClickIntent = new Intent(clockAction);
-        return PendingIntent.getActivity(context, 0, onClickIntent, 0);
+    private static PendingIntent getClockAppIntent(Context context) {
+        ComponentName componentName = WidgetUtils.getClockAppComponent(context);
+        if (componentName != null) {
+            Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(componentName.getPackageName());
+            return PendingIntent.getActivity(context, 0, launchIntent, 0);
+        } else {
+            String clockAction = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ?
+                    AlarmClock.ACTION_SHOW_ALARMS : AlarmClock.ACTION_SET_ALARM;
+            Intent onClickIntent = new Intent(clockAction);
+            return PendingIntent.getActivity(context, 0, onClickIntent, 0);
+        }
     }
 
     private RemoteViews buildUpdate(Context context, final WeatherWidgetProvider provider, final int appWidgetId, LocationData location, final WeatherNowViewModel weather) {
@@ -1042,13 +1055,13 @@ public class WeatherWidgetService extends JobIntentService {
 
         if (isDateWidget(provider.getWidgetType())) {
             // Open default clock/calendar app
-            updateViews.setOnClickPendingIntent(R.id.date_panel, getDefaultCalendarIntent(context));
+            updateViews.setOnClickPendingIntent(R.id.date_panel, getCalendarAppIntent(context));
             refreshDate(new int[]{appWidgetId});
         }
 
         if (isClockWidget(provider.getWidgetType())) {
             // Open default clock/calendar app
-            updateViews.setOnClickPendingIntent(R.id.clock_panel, getDefaultClockIntent(context));
+            updateViews.setOnClickPendingIntent(R.id.clock_panel, getClockAppIntent(context));
             refreshClock(new int[]{appWidgetId});
         }
 

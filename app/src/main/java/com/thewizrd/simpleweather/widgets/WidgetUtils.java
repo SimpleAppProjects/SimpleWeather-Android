@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.widgets;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -16,6 +17,7 @@ import androidx.core.content.ContextCompat;
 import com.google.android.gms.common.util.ArrayUtils;
 import com.google.gson.reflect.TypeToken;
 import com.thewizrd.shared_resources.Constants;
+import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -53,6 +55,8 @@ public class WidgetUtils {
     private static final String KEY_FORECASTTAPTOSWITCH = "key_forecasttaptoswitch";
     private static final String KEY_HIDELOCATIONNAME = "key_hidelocationname";
     private static final String KEY_HIDESETTINGSBUTTON = "key_hidesettingsbutton";
+    private static final String KEY_CLOCKAPP = "key_clockapp";
+    private static final String KEY_CALENDARAPP = "key_calendarapp";
 
     private static final int FORECAST_LENGTH = 3; // 3-day
     private static final int MEDIUM_FORECAST_LENGTH = 4; // 4-day
@@ -684,5 +688,79 @@ public class WidgetUtils {
 
         editor.putBoolean(KEY_HIDESETTINGSBUTTON, value);
         editor.commit();
+    }
+
+    public static String getOnClickClockApp() {
+        SharedPreferences prefs = App.getInstance().getPreferences();
+        return prefs.getString(KEY_CLOCKAPP, null);
+    }
+
+    public static void setOnClickClockApp(String value) {
+        SharedPreferences.Editor editor = App.getInstance().getPreferences().edit();
+
+        editor.putString(KEY_CLOCKAPP, value);
+        editor.commit();
+    }
+
+    public static String getOnClickCalendarApp() {
+        SharedPreferences prefs = App.getInstance().getPreferences();
+        return prefs.getString(KEY_CALENDARAPP, null);
+    }
+
+    public static void setOnClickCalendarApp(String value) {
+        SharedPreferences.Editor editor = App.getInstance().getPreferences().edit();
+
+        editor.putString(KEY_CALENDARAPP, value);
+        editor.commit();
+    }
+
+    @Nullable
+    public static ComponentName getClockAppComponent(@NonNull Context context) {
+        String key = WidgetUtils.getOnClickClockApp();
+
+        if (key != null) {
+            String[] data = key.split("/");
+            if (data.length == 2) {
+                String pkgName = data[0];
+                String activityName = data[1];
+
+                if (!StringUtils.isNullOrWhitespace(pkgName) && !StringUtils.isNullOrWhitespace(activityName)) {
+                    ComponentName componentName = new ComponentName(pkgName, activityName);
+                    if (ActivityUtils.verifyActivityInfo(context, componentName)) {
+                        return componentName;
+                    }
+                }
+            }
+
+            // App not available
+            WidgetUtils.setOnClickClockApp(null);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    public static ComponentName getCalendarAppComponent(@NonNull Context context) {
+        String key = WidgetUtils.getOnClickCalendarApp();
+
+        if (key != null) {
+            String[] data = key.split("/");
+            if (data.length == 2) {
+                String pkgName = data[0];
+                String activityName = data[1];
+
+                if (!StringUtils.isNullOrWhitespace(pkgName) && !StringUtils.isNullOrWhitespace(activityName)) {
+                    ComponentName componentName = new ComponentName(pkgName, activityName);
+                    if (ActivityUtils.verifyActivityInfo(context, componentName)) {
+                        return componentName;
+                    }
+                }
+            }
+
+            // App not available
+            WidgetUtils.setOnClickCalendarApp(null);
+        }
+
+        return null;
     }
 }

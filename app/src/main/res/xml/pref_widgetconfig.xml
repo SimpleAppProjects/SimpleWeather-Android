@@ -24,6 +24,22 @@
         android:summary="@string/settingsbtn_pref_summary"
         android:title="@string/settingsbtn_pref_title" />
 
+    <Preference
+        android:defaultValue="@null"
+        android:key="key_clockapp"
+        android:persistent="false"
+        android:summary="@string/summary_default"
+        android:title="@string/clock_pref_title"
+        app:isPreferenceVisible="false" />
+
+    <Preference
+        android:defaultValue="@null"
+        android:key="key_calendarapp"
+        android:persistent="false"
+        android:summary="@string/summary_default"
+        android:title="@string/calendar_pref_title"
+        app:isPreferenceVisible="false" />
+
     <ListPreference
         android:defaultValue="0"
         android:entries="@array/bgcolor_entries"

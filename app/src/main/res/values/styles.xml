@@ -69,7 +69,7 @@
         <item name="android:alertDialogTheme">@style/AlertDialogTheme</item>
         <item name="alertDialogTheme">@style/AlertDialogTheme</item>
         <item name="materialAlertDialogTheme">
-            @style/ThemeOverlay.MaterialComponents.MaterialAlertDialog
+            @style/ThemeOverlay.App.MaterialAlertDialog
         </item>
         <item name="android:alertDialogStyle">@style/AlertDialogStyle</item>
         <item name="alertDialogStyle">@style/AlertDialogStyle</item>
@@ -160,6 +160,15 @@
 
     <style name="BottomNavTextAppearance.Active">
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="ThemeOverlay.App.MaterialAlertDialog" parent="@style/ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="alertDialogStyle">@style/MaterialAlertDialog.App</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/AlertTitleStyle</item>
+    </style>
+
+    <style name="MaterialAlertDialog.App" parent="MaterialAlertDialog.MaterialComponents">
+        <item name="shapeAppearance">@style/ShapeAppearance.Material.MediumComponent</item>
     </style>
 
     <style name="AlertDialogStyle" parent="@style/AlertDialog.AppCompat">

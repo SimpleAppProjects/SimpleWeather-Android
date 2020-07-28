@@ -1,6 +1,8 @@
 package com.thewizrd.shared_resources.helpers;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
@@ -160,5 +162,15 @@ public class ActivityUtils {
         array.recycle();
 
         return resourceId;
+    }
+
+    public static boolean verifyActivityInfo(@NonNull Context context, @NonNull ComponentName componentName) {
+        try {
+            context.getPackageManager().getActivityInfo(componentName, PackageManager.MATCH_DEFAULT_ONLY);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+        }
+
+        return false;
     }
 }

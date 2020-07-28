@@ -126,6 +126,7 @@ import com.thewizrd.simpleweather.controls.ForecastGraphPanel;
 import com.thewizrd.simpleweather.controls.ForecastGraphViewModel;
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView;
 import com.thewizrd.simpleweather.controls.SunPhaseView;
+import com.thewizrd.simpleweather.databinding.AppCompatImageViewBindingAdapter;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding;
 import com.thewizrd.simpleweather.databinding.ViewBindingAdapter;
 import com.thewizrd.simpleweather.databinding.WeathernowAqicontrolBinding;
@@ -1603,10 +1604,12 @@ public class WeatherNowFragment extends WindowColorFragment
     public class WeatherFragmentDataBindingComponent implements androidx.databinding.DataBindingComponent {
         private final WeatherNowFragmentBindingAdapter mAdapter;
         private final ViewBindingAdapter viewBindingAdapter;
+        private final AppCompatImageViewBindingAdapter imageViewBindingAdapter;
 
         public WeatherFragmentDataBindingComponent(WeatherNowFragment fragment) {
             this.mAdapter = new WeatherNowFragmentBindingAdapter(fragment);
             this.viewBindingAdapter = new ViewBindingAdapter();
+            this.imageViewBindingAdapter = new AppCompatImageViewBindingAdapter();
         }
 
         @Override
@@ -1617,6 +1620,11 @@ public class WeatherNowFragment extends WindowColorFragment
         @Override
         public ViewBindingAdapter getViewBindingAdapter() {
             return viewBindingAdapter;
+        }
+
+        @Override
+        public AppCompatImageViewBindingAdapter getAppCompatImageViewBindingAdapter() {
+            return imageViewBindingAdapter;
         }
     }
 

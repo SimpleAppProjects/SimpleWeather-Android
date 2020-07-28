@@ -4,8 +4,10 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
@@ -154,6 +156,8 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private SwitchPreference tap2SwitchPref;
     private SwitchPreference hideLocNamePref;
     private SwitchPreference hideSettingsBtnPref;
+    private Preference clockPref;
+    private Preference calPref;
 
     private static final int ANIMATION_DURATION = 240;
 
@@ -169,6 +173,8 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private static final String KEY_HRFLIPBUTTON = "key_hrflipbutton";
     private static final String KEY_HIDELOCNAME = "key_hidelocname";
     private static final String KEY_HIDESETTINGSBTN = "key_hidesettingsbtn";
+    private static final String KEY_CLOCKAPP = "key_clockapp";
+    private static final String KEY_CALENDARAPP = "key_calendarapp";
 
     public WeatherWidgetPreferenceFragment() {
         setArguments(new Bundle());
@@ -506,6 +512,52 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         }
 
         hideSettingsBtnPref.setChecked(WidgetUtils.isSettingsButtonHidden(mAppWidgetId));
+
+        clockPref = findPreference(KEY_CLOCKAPP);
+        calPref = findPreference(KEY_CALENDARAPP);
+
+        clockPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                new AppChoiceDialogBuilder(requireContext())
+                        .setOnItemSelectedListener(new AppChoiceDialogBuilder.OnAppSelectedListener() {
+                            @Override
+                            public void onItemSelected(@Nullable String key) {
+                                WidgetUtils.setOnClickClockApp(key);
+                                updateClockPreference();
+                            }
+                        }).show();
+                return true;
+            }
+        });
+        calPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                new AppChoiceDialogBuilder(requireContext())
+                        .setOnItemSelectedListener(new AppChoiceDialogBuilder.OnAppSelectedListener() {
+                            @Override
+                            public void onItemSelected(@Nullable String key) {
+                                WidgetUtils.setOnClickCalendarApp(key);
+                                updateCalPreference();
+                            }
+                        }).show();
+                return true;
+            }
+        });
+
+        if (WidgetUtils.isClockWidget(mWidgetType)) {
+            updateClockPreference();
+            clockPref.setVisible(true);
+        } else {
+            clockPref.setVisible(false);
+        }
+
+        if (WidgetUtils.isDateWidget(mWidgetType)) {
+            updateCalPreference();
+            calPref.setVisible(true);
+        } else {
+            calPref.setVisible(false);
+        }
     }
 
     @Override
@@ -555,6 +607,40 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                 return true;
             }
         });
+    }
+
+    private void updateClockPreference() {
+        ComponentName componentName = WidgetUtils.getClockAppComponent(getAppCompatActivity());
+        if (componentName != null) {
+            try {
+                ApplicationInfo appInfo = getContext().getPackageManager().getApplicationInfo(componentName.getPackageName(), 0);
+                CharSequence appLabel = getContext().getPackageManager().getApplicationLabel(appInfo);
+                clockPref.setSummary(appLabel);
+                return;
+            } catch (PackageManager.NameNotFoundException e) {
+                // App not available
+                WidgetUtils.setOnClickClockApp(null);
+            }
+        }
+
+        clockPref.setSummary(R.string.summary_default);
+    }
+
+    private void updateCalPreference() {
+        ComponentName componentName = WidgetUtils.getCalendarAppComponent(getAppCompatActivity());
+        if (componentName != null) {
+            try {
+                ApplicationInfo appInfo = getContext().getPackageManager().getApplicationInfo(componentName.getPackageName(), 0);
+                CharSequence appLabel = getContext().getPackageManager().getApplicationLabel(appInfo);
+                calPref.setSummary(appLabel);
+                return;
+            } catch (PackageManager.NameNotFoundException e) {
+                // App not available
+                WidgetUtils.setOnClickClockApp(null);
+            }
+        }
+
+        calPref.setSummary(R.string.summary_default);
     }
 
     private void initializeWidget() {

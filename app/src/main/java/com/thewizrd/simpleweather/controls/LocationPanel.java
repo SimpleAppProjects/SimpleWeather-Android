@@ -27,6 +27,7 @@ import com.google.android.material.card.MaterialCardView;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.AppCompatImageViewBindingAdapter;
 import com.thewizrd.simpleweather.databinding.LocationPanelBinding;
 import com.thewizrd.simpleweather.databinding.ViewBindingAdapter;
 import com.thewizrd.simpleweather.main.WeatherNowFragment;
@@ -195,11 +196,13 @@ public class LocationPanel extends MaterialCardView {
         setStrokeWidth((int) ActivityUtils.dpToPx(getContext(), strokeDp));
     }
 
-    public class LocationPanelDataBindingComponent implements androidx.databinding.DataBindingComponent {
+    public static class LocationPanelDataBindingComponent implements androidx.databinding.DataBindingComponent {
         private final ViewBindingAdapter viewBindingAdapter;
+        private final AppCompatImageViewBindingAdapter imageViewBindingAdapter;
 
         public LocationPanelDataBindingComponent() {
             this.viewBindingAdapter = new ViewBindingAdapter();
+            this.imageViewBindingAdapter = new AppCompatImageViewBindingAdapter();
         }
 
         @Override
@@ -210,6 +213,11 @@ public class LocationPanel extends MaterialCardView {
         @Override
         public WeatherNowFragment.WeatherNowFragmentBindingAdapter getWeatherNowFragmentBindingAdapter() {
             return null;
+        }
+
+        @Override
+        public AppCompatImageViewBindingAdapter getAppCompatImageViewBindingAdapter() {
+            return imageViewBindingAdapter;
         }
     }
 }
