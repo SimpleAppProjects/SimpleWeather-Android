@@ -22,7 +22,6 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
 
     // Actions
     public static final String ACTION_REFRESHWIDGETS = "SimpleWeather.Droid.action.UPDATEWIDGETS";
-    public static final String ACTION_SHOWPREVIOUSFORECAST = "SimpleWeather.Droid.action.SHOW_PREVIOUS_FORECAST";
     public static final String ACTION_SHOWNEXTFORECAST = "SimpleWeather.Droid.action.SHOW_NEXT_FORECAST";
 
     // Extras

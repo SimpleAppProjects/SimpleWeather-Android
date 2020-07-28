@@ -151,36 +151,6 @@
                 tools:visibility="gone" />
 
             <ImageView
-                android:id="@+id/showPrevious"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="top"
-                android:adjustViewBounds="true"
-                android:alpha="0.7"
-                android:paddingLeft="8dp"
-                android:paddingStart="8dp"
-                android:scaleType="center"
-                android:src="@drawable/ic_chevron_left"
-                android:tint="@android:color/white"
-                android:visibility="gone"
-                tools:visibility="visible" />
-
-            <ImageView
-                android:id="@+id/showNext"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="top"
-                android:adjustViewBounds="true"
-                android:alpha="0.7"
-                android:paddingRight="8dp"
-                android:paddingEnd="8dp"
-                android:scaleType="center"
-                android:src="@drawable/ic_chevron_right"
-                android:tint="@android:color/white"
-                android:visibility="gone"
-                tools:visibility="visible" />
-
-            <ImageView
                 android:id="@+id/settings_button"
                 android:layout_width="24dp"
                 android:layout_height="24dp"

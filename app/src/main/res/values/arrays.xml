@@ -46,4 +46,14 @@
         <item>3</item>
         <item>4</item>
     </string-array>
+    <string-array name="fcastopt_entries">
+        <item>@string/label_fcast_full</item>
+        <item>@string/label_fcast_daily</item>
+        <item>@string/label_fcast_hourly</item>
+    </string-array>
+    <string-array name="fcastopt_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
 </resources>

@@ -1249,11 +1249,6 @@ public class WeatherWidgetService extends JobIntentService {
             }
         }
 
-        if (isForecastWidget(provider.getWidgetType())) {
-            updateViews.setInt(R.id.showPrevious, "setColorFilter", textColor);
-            updateViews.setInt(R.id.showNext, "setColorFilter", textColor);
-        }
-
         updateViews.setInt(R.id.settings_button, "setColorFilter", textColor);
     }
 
@@ -1514,45 +1509,46 @@ public class WeatherWidgetService extends JobIntentService {
             WidgetUtils.WidgetBackgroundStyle style = WidgetUtils.getBackgroundStyle(appWidgetId);
             int textColor = getPanelTextColor(background, style, isNightMode);
             int tempTextSize = 36;
-            boolean tap2SwitchEnabled = WidgetUtils.isTapToSwitchEnabled(appWidgetId);
 
-            RemoteViews forecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_layout_container);
+            RemoteViews forecastPanel = null;
             RemoteViews hrForecastPanel = null;
 
             List<ForecastItemViewModel> forecasts = getForecasts(appWidgetId, forecastLength);
             List<HourlyForecastItemViewModel> hourlyForecasts = getHourlyForecasts(appWidgetId, forecastLength);
+            WidgetUtils.ForecastOption forecastOption = WidgetUtils.getForecastOption(appWidgetId);
 
-            if (hourlyForecasts.size() > 0) {
-                updateViews.setViewVisibility(R.id.showPrevious, tap2SwitchEnabled ? View.GONE : View.VISIBLE);
-                updateViews.setViewVisibility(R.id.showNext, tap2SwitchEnabled ? View.GONE : View.VISIBLE);
-                hrForecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_layout_container);
+            if (forecastOption == WidgetUtils.ForecastOption.DAILY) {
+                forecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_layout_container);
+            } else if (forecastOption == WidgetUtils.ForecastOption.HOURLY) {
+                if (hourlyForecasts.size() > 0)
+                    hrForecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_layout_container);
             } else {
-                updateViews.setViewVisibility(R.id.showPrevious, View.GONE);
-                updateViews.setViewVisibility(R.id.showNext, View.GONE);
+                forecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_layout_container);
+                if (hourlyForecasts.size() > 0)
+                    hrForecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_layout_container);
             }
 
             for (int i = 0; i < Math.min(forecastLength, forecasts.size()); i++) {
-                ForecastItemViewModel forecast = forecasts.get(i);
-                addForecastItem(forecastPanel, provider, appWidgetId, forecast, newOptions, textColor, tempTextSize);
+                if (forecastPanel != null) {
+                    addForecastItem(forecastPanel, provider, appWidgetId, forecasts.get(i), newOptions, textColor, tempTextSize);
+                }
 
                 if (hrForecastPanel != null) {
                     addForecastItem(hrForecastPanel, provider, appWidgetId, hourlyForecasts.get(i), newOptions, textColor, tempTextSize);
                 }
             }
 
-            updateViews.addView(R.id.forecast_layout, forecastPanel);
+            if (forecastPanel != null) {
+                updateViews.addView(R.id.forecast_layout, forecastPanel);
+            }
             if (hrForecastPanel != null) {
                 updateViews.addView(R.id.forecast_layout, hrForecastPanel);
             }
 
-            if (tap2SwitchEnabled) {
+            if (forecastPanel != null && hrForecastPanel != null) {
                 updateViews.setOnClickPendingIntent(R.id.forecast_layout,
                         getShowNextIntent(mContext, provider, appWidgetId));
             } else {
-                updateViews.setOnClickPendingIntent(R.id.showPrevious,
-                        getShowPreviousIntent(mContext, provider, appWidgetId));
-                updateViews.setOnClickPendingIntent(R.id.showNext,
-                        getShowNextIntent(mContext, provider, appWidgetId));
                 updateViews.setOnClickPendingIntent(R.id.forecast_layout, null);
             }
         }
@@ -1604,13 +1600,6 @@ public class WeatherWidgetService extends JobIntentService {
         }
 
         return Collections.emptyList();
-    }
-
-    private static PendingIntent getShowPreviousIntent(Context context, WeatherWidgetProvider provider, int appWidgetId) {
-        Intent showPrevious = new Intent(context, provider.getClass())
-                .setAction(WeatherWidgetProvider.ACTION_SHOWPREVIOUSFORECAST)
-                .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_ID, appWidgetId);
-        return PendingIntent.getBroadcast(context, appWidgetId, showPrevious, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private static PendingIntent getShowNextIntent(Context context, WeatherWidgetProvider provider, int appWidgetId) {
@@ -1710,20 +1699,6 @@ public class WeatherWidgetService extends JobIntentService {
         }
 
         forecastPanel.addView(R.id.forecast_container, forecastItem);
-    }
-
-    private String getUpdateTimeText(LocalDateTime now, boolean shortFormat) {
-        String timeformat = now.format(DateTimeFormatter.ofPattern("h:mm a")).toLowerCase();
-
-        if (DateFormat.is24HourFormat(App.getInstance().getAppContext()))
-            timeformat = now.format(DateTimeFormatter.ofPattern("HH:mm")).toLowerCase();
-
-        String updatetime = String.format("%s %s", now.format(DateTimeFormatter.ofPattern("eee")), timeformat);
-
-        if (shortFormat)
-            return updatetime;
-        else
-            return String.format("%s %s", mContext.getString(R.string.widget_updateprefix), updatetime);
     }
 
     @Override

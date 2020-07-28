@@ -52,11 +52,11 @@ public class WidgetUtils {
     private static final String KEY_LOCATIONQUERY = "key_locationquery";
     private static final String KEY_WIDGETBACKGROUND = "key_widgetbackground";
     private static final String KEY_WIDGETBACKGROUNDSTYLE = "key_widgetbackgroundstyle";
-    private static final String KEY_FORECASTTAPTOSWITCH = "key_forecasttaptoswitch";
     private static final String KEY_HIDELOCATIONNAME = "key_hidelocationname";
     private static final String KEY_HIDESETTINGSBUTTON = "key_hidesettingsbutton";
     private static final String KEY_CLOCKAPP = "key_clockapp";
     private static final String KEY_CALENDARAPP = "key_calendarapp";
+    private static final String KEY_FORECASTOPTION = "key_fcastoption";
 
     private static final int FORECAST_LENGTH = 3; // 3-day
     private static final int MEDIUM_FORECAST_LENGTH = 4; // 4-day
@@ -121,6 +121,34 @@ public class WidgetUtils {
         }
 
         public static WidgetBackgroundStyle valueOf(int value) {
+            return map.get(value);
+        }
+    }
+
+    enum ForecastOption {
+        FULL(0),
+        DAILY(1),
+        HOURLY(2);
+
+        private final int value;
+
+        public int getValue() {
+            return value;
+        }
+
+        private ForecastOption(int value) {
+            this.value = value;
+        }
+
+        private static SparseArray<ForecastOption> map = new SparseArray<>();
+
+        static {
+            for (ForecastOption opt : values()) {
+                map.put(opt.value, opt);
+            }
+        }
+
+        public static ForecastOption valueOf(int value) {
             return map.get(value);
         }
     }
@@ -588,18 +616,6 @@ public class WidgetUtils {
         editor.commit();
     }
 
-    public static boolean isTapToSwitchEnabled(int widgetId) {
-        SharedPreferences prefs = getPreferences(widgetId);
-        return prefs.getBoolean(KEY_FORECASTTAPTOSWITCH, true);
-    }
-
-    public static void setTapToSwitchEnabled(int widgetId, boolean value) {
-        SharedPreferences.Editor editor = getEditor(widgetId);
-
-        editor.putBoolean(KEY_FORECASTTAPTOSWITCH, value);
-        editor.commit();
-    }
-
     public static boolean isClockWidget(WidgetType widgetType) {
         return (widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2);
     }
@@ -762,5 +778,22 @@ public class WidgetUtils {
         }
 
         return null;
+    }
+
+    public static ForecastOption getForecastOption(int widgetId) {
+        SharedPreferences prefs = getPreferences(widgetId);
+
+        String value = prefs.getString(KEY_FORECASTOPTION, "0");
+        if (StringUtils.isNullOrWhitespace(value))
+            value = "0";
+
+        return ForecastOption.valueOf(Integer.parseInt(value));
+    }
+
+    public static void setForecastOption(int widgetId, int value) {
+        SharedPreferences.Editor editor = getEditor(widgetId);
+
+        editor.putString(KEY_FORECASTOPTION, Integer.toString(value));
+        editor.commit();
     }
 }

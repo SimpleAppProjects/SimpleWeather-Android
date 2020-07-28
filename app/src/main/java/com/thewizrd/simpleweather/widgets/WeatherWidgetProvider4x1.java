@@ -55,13 +55,7 @@ public class WeatherWidgetProvider4x1 extends WeatherWidgetProvider {
         String action = intent == null ? null : intent.getAction();
 
         if (intent != null) {
-            if (ACTION_SHOWPREVIOUSFORECAST.equals(action)) {
-                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-                RemoteViews views = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
-                views.showPrevious(R.id.forecast_layout);
-                int appWidgetId = intent.getIntExtra(WeatherWidgetProvider.EXTRA_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
-                appWidgetManager.updateAppWidget(appWidgetId, views);
-            } else if (ACTION_SHOWNEXTFORECAST.equals(action)) {
+            if (ACTION_SHOWNEXTFORECAST.equals(action)) {
                 AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
                 RemoteViews views = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
                 views.showNext(R.id.forecast_layout);

@@ -57,34 +57,6 @@
                 tools:text="New York, NY" />
 
             <ImageView
-                android:id="@+id/showPrevious"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="center_vertical"
-                android:adjustViewBounds="true"
-                android:alpha="0.7"
-                android:paddingStart="8dp"
-                android:scaleType="center"
-                android:src="@drawable/ic_chevron_left"
-                android:tint="@android:color/white"
-                android:visibility="gone"
-                tools:visibility="visible" />
-
-            <ImageView
-                android:id="@+id/showNext"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="center_vertical"
-                android:adjustViewBounds="true"
-                android:alpha="0.7"
-                android:paddingEnd="8dp"
-                android:scaleType="center"
-                android:src="@drawable/ic_chevron_right"
-                android:tint="@android:color/white"
-                android:visibility="gone"
-                tools:visibility="visible" />
-
-            <ImageView
                 android:id="@+id/settings_button"
                 android:layout_width="24dp"
                 android:layout_height="24dp"

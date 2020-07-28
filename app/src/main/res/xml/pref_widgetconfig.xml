@@ -59,13 +59,14 @@
         android:title="@string/pref_title_bgstyle"
         app:isPreferenceVisible="false" />
 
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="key_hrflipbutton"
+    <ListPreference
+        android:defaultValue="0"
+        android:entries="@array/fcastopt_entries"
+        android:entryValues="@array/fcastopt_values"
+        android:key="key_fcastoption"
         android:persistent="false"
-        android:summaryOn="@string/hrflipbtn_pref_summary_on"
-        android:summaryOff="@string/hrflipbtn_pref_summary_off"
-        android:title="@string/hrflipbtn_pref_title"
+        android:summary="%s"
+        android:title="@string/pref_title_fcastoption"
         app:isPreferenceVisible="false" />
 
 </PreferenceScreen>

@@ -153,11 +153,11 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private ArrayListPreference locationPref;
     private ListPreference bgColorPref;
     private ListPreference bgStylePref;
-    private SwitchPreference tap2SwitchPref;
     private SwitchPreference hideLocNamePref;
     private SwitchPreference hideSettingsBtnPref;
     private Preference clockPref;
     private Preference calPref;
+    private ListPreference fcastOptPref;
 
     private static final int ANIMATION_DURATION = 240;
 
@@ -170,11 +170,11 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private static final String KEY_REFRESHINTERVAL = "key_refreshinterval";
     private static final String KEY_BGCOLOR = "key_bgcolor";
     private static final String KEY_BGSTYLE = "key_bgstyle";
-    private static final String KEY_HRFLIPBUTTON = "key_hrflipbutton";
     private static final String KEY_HIDELOCNAME = "key_hidelocname";
     private static final String KEY_HIDESETTINGSBTN = "key_hidesettingsbtn";
     private static final String KEY_CLOCKAPP = "key_clockapp";
     private static final String KEY_CALENDARAPP = "key_calendarapp";
+    private static final String KEY_FORECASTOPTION = "key_fcastoption";
 
     public WeatherWidgetPreferenceFragment() {
         setArguments(new Bundle());
@@ -475,13 +475,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             bgColorPref.setVisible(false);
         }
 
-        // Forecast Preferences
-        tap2SwitchPref = findPreference(KEY_HRFLIPBUTTON);
-        if (!WeatherAPI.YAHOO.equals(wm.getWeatherAPI()) && isForecastWidget(mWidgetType)) {
-            tap2SwitchPref.setVisible(true);
-            tap2SwitchPref.setChecked(WidgetUtils.isTapToSwitchEnabled(mAppWidgetId));
-        }
-
         hideLocNamePref = findPreference(KEY_HIDELOCNAME);
         hideSettingsBtnPref = findPreference(KEY_HIDESETTINGSBTN);
 
@@ -557,6 +550,25 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             calPref.setVisible(true);
         } else {
             calPref.setVisible(false);
+        }
+
+        // Forecast Preferences
+        fcastOptPref = findPreference(KEY_FORECASTOPTION);
+        fcastOptPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                updateWidgetView();
+                return true;
+            }
+        });
+
+        if (!WeatherAPI.YAHOO.equals(wm.getWeatherAPI()) && isForecastWidget(mWidgetType)) {
+            fcastOptPref.setValueIndex(WidgetUtils.getForecastOption(mAppWidgetId).getValue());
+            fcastOptPref.setVisible(true);
+            fcastOptPref.callChangeListener(fcastOptPref.getValue());
+        } else {
+            fcastOptPref.setValueIndex(WidgetUtils.ForecastOption.FULL.getValue());
+            fcastOptPref.setVisible(false);
         }
     }
 
@@ -1215,9 +1227,9 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         // Save widget preferences
         WidgetUtils.setWidgetBackground(mAppWidgetId, Integer.parseInt(bgColorPref.getValue()));
         WidgetUtils.setBackgroundStyle(mAppWidgetId, Integer.parseInt(bgStylePref.getValue()));
-        WidgetUtils.setTapToSwitchEnabled(mAppWidgetId, tap2SwitchPref.isChecked());
         WidgetUtils.setLocationNameHidden(mAppWidgetId, hideLocNamePref.isChecked());
         WidgetUtils.setSettingsButtonHidden(mAppWidgetId, hideSettingsBtnPref.isChecked());
+        WidgetUtils.setForecastOption(mAppWidgetId, Integer.parseInt(fcastOptPref.getValue()));
 
         // Trigger widget service to update widget
         WeatherWidgetService.enqueueWork(getAppCompatActivity(),

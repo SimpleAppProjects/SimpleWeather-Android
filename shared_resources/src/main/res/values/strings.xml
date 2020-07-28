@@ -176,6 +176,10 @@
     <string name="clock_pref_title">Clock</string>
     <string name="calendar_pref_title">Calendar</string>
     <string name="summary_default">Default</string>
+    <string name="pref_title_fcastoption">Forecast</string>
+    <string name="label_fcast_full">Daily Forecast and Hourly Forecast (if available)</string>
+    <string name="label_fcast_daily">Daily Forecast</string>
+    <string name="label_fcast_hourly">Hourly Forecast (if available)</string>
     <!-- format strings for clocks -->
     <string name="clock_12_hours_format" translatable="false">h&#58;mm<font size="24">a</font></string>
     <string name="clock_24_hours_format" translatable="false">kk&#58;mm</string>
