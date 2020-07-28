@@ -1007,7 +1007,7 @@ public class WeatherWidgetService extends JobIntentService {
                 public boolean apply(@NullableDecl DetailItemViewModel input) {
                     return input != null && (input.getDetailsType() == WeatherDetailsType.POPCHANCE || input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS);
                 }
-            });
+            }, null);
             if (chanceModel != null) {
                 updateViews.setTextViewText(R.id.weather_pop, chanceModel.getValue());
                 updateViews.setViewVisibility(R.id.weather_pop_layout, View.VISIBLE);
@@ -1019,7 +1019,7 @@ public class WeatherWidgetService extends JobIntentService {
                 public boolean apply(@NullableDecl DetailItemViewModel input) {
                     return input != null && input.getDetailsType() == WeatherDetailsType.WINDSPEED;
                 }
-            });
+            }, null);
             if (windModel != null) {
                 String speed = TextUtils.isEmpty(windModel.getValue()) ? "" : windModel.getValue().toString();
                 speed = speed.split(",")[0];
@@ -1225,7 +1225,7 @@ public class WeatherWidgetService extends JobIntentService {
                 public boolean apply(@NullableDecl DetailItemViewModel input) {
                     return input != null && (input.getDetailsType() == WeatherDetailsType.POPCHANCE || input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS);
                 }
-            });
+            }, null);
             if (chanceModel != null) {
                 updateViews.setImageViewBitmap(R.id.weather_popicon,
                         ImageUtils.weatherIconToBitmap(mContext, chanceModel.getIcon(), textSize, panelTextColor, shadowRadius)
@@ -1236,7 +1236,7 @@ public class WeatherWidgetService extends JobIntentService {
                 public boolean apply(@NullableDecl DetailItemViewModel input) {
                     return input != null && input.getDetailsType() == WeatherDetailsType.WINDSPEED;
                 }
-            });
+            }, null);
             if (windModel != null) {
                 if (windModel.getIconRotation() != 0) {
                     updateViews.setImageViewBitmap(R.id.weather_windicon,

@@ -295,7 +295,7 @@ public class WeatherDataLoader {
                                 public boolean apply(@NullableDecl Forecast input) {
                                     return input != null && input.getDate().toLocalDate().compareTo(now.toLocalDate()) == 0;
                                 }
-                            });
+                            }, null);
                         }
 
                         if (fcast != null) {

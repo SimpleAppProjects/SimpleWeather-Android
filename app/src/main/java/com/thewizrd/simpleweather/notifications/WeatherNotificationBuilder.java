@@ -68,7 +68,7 @@ public class WeatherNotificationBuilder {
             public boolean apply(@NullableDecl DetailItemViewModel input) {
                 return input != null && (input.getDetailsType() == WeatherDetailsType.POPCHANCE || input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS);
             }
-        });
+        }, null);
         if (chanceModel != null) {
             updateViews.setImageViewBitmap(R.id.weather_popicon,
                     ImageUtils.weatherIconToBitmap(context, chanceModel.getIcon(), textSize, false)
@@ -83,7 +83,7 @@ public class WeatherNotificationBuilder {
             public boolean apply(@NullableDecl DetailItemViewModel input) {
                 return input != null && input.getDetailsType() == WeatherDetailsType.WINDSPEED;
             }
-        });
+        }, null);
         if (windModel != null) {
             if (windModel.getIconRotation() != 0) {
                 updateViews.setImageViewBitmap(R.id.weather_windicon,
