@@ -7,7 +7,8 @@
         tools:parentTag="androidx.coordinatorlayout.widget.CoordinatorLayout"
         tools:showIn="@layout/fragment_toolbar_layout"
         tools:context=".main.LocationsFragment"
-        tools:layout_height="match_parent">
+        tools:layout_height="match_parent"
+        tools:layout_width="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
@@ -30,9 +31,10 @@
             android:minHeight="@dimen/fab_size"
             android:scrollbars="none"
             android:text="@string/label_fab_add_location"
-            android:textColor="@android:color/white"
+            android:textColor="@color/invButtonColorText"
+            app:backgroundTint="?attr/colorSurface"
             app:icon="@drawable/ic_add_location_white_24dp"
-            app:iconTint="@android:color/white" />
+            app:iconTint="@color/invButtonColorText" />
 
     </merge>
 </layout>

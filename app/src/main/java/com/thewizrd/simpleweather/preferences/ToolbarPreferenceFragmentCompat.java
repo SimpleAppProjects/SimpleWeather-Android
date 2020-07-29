@@ -2,7 +2,6 @@ package com.thewizrd.simpleweather.preferences;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,19 +16,17 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.ViewGroupCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.transition.Transition;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.transition.MaterialFadeThrough;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentSettingsBinding;
-import com.thewizrd.simpleweather.helpers.TransitionHelper;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 
 public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPreferenceFragmentCompat {
@@ -68,9 +65,8 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            TransitionHelper.onCreate(this);
-        }
+        setExitTransition(new MaterialFadeThrough());
+        setEnterTransition(new MaterialFadeThrough());
     }
 
     @Override
@@ -119,31 +115,6 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ViewGroupCompat.setTransitionGroup(getRootView(), false);
-            ViewGroupCompat.setTransitionGroup(getAppBarLayout(), false);
-            ViewGroupCompat.setTransitionGroup(getToolbar(), false);
-            ViewGroupCompat.setTransitionGroup(getListView(), true);
-
-            TransitionHelper.onViewCreated(this, (ViewGroup) view.getParent(), new TransitionHelper.OnPrepareTransitionListener() {
-                @Override
-                public void prepareTransitions(@Nullable Transition enterTransition, @Nullable Transition exitTransition, @Nullable Transition reenterTransition, @Nullable Transition returnTransition) {
-                    if (enterTransition != null) {
-                        enterTransition.addTarget(getListView());
-                    }
-                    if (exitTransition != null) {
-                        exitTransition.addTarget(getListView());
-                    }
-                    if (reenterTransition != null) {
-                        reenterTransition.addTarget(getListView());
-                    }
-                    if (returnTransition != null) {
-                        returnTransition.addTarget(getListView());
-                    }
-                }
-            });
-        }
     }
 
     @Override

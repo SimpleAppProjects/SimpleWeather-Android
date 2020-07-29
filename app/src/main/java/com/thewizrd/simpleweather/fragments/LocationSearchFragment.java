@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewGroupCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -31,6 +32,7 @@ import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.transition.MaterialContainerTransform;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -129,6 +131,7 @@ public class LocationSearchFragment extends WindowColorFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AnalyticsLogger.logEvent("LocationSearchFragment: onCreate");
+        setSharedElementEnterTransition(new MaterialContainerTransform().setDuration(Constants.ANIMATION_DURATION));
     }
 
     @Override
@@ -337,6 +340,9 @@ public class LocationSearchFragment extends WindowColorFragment {
         binding = FragmentLocationSearchBinding.inflate(inflater, container, false);
         searchBarBinding = binding.searchBar;
         View view = binding.getRoot();
+
+        ViewCompat.setTransitionName(view, Constants.SHARED_ELEMENT);
+        ViewGroupCompat.setTransitionGroup((ViewGroup) view, true);
 
         // Initialize
         view.setOnClickListener(new View.OnClickListener() {

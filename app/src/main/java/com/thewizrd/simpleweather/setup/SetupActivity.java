@@ -23,6 +23,7 @@ import androidx.navigation.NavDestination;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.transition.TransitionManager;
 
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -191,15 +192,23 @@ public class SetupActivity extends AppCompatActivity {
         }
     }
 
-    private void updateBottomNavigationBarForDestination(@IdRes int destinationId) {
+    private void updateBottomNavigationBarForDestination(@IdRes final int destinationId) {
         binding.bottomNavBar.setSelectedItem(getPosition(destinationId));
-        binding.bottomNavBar.setVisibility(destinationId == R.id.locationSearchFragment3 ? View.GONE : View.VISIBLE);
-        if (destinationId == R.id.setupLocationFragment) {
+        if (destinationId == R.id.setupLocationFragment || destinationId == R.id.locationSearchFragment3) {
             binding.bottomNavBar.showBackButton(false);
             binding.bottomNavBar.showNextButton(false);
         } else if (destinationId == R.id.setupSettingsFragment) {
             binding.bottomNavBar.showBackButton(false);
         }
+        binding.bottomNavBar.postOnAnimationDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (destinationId == R.id.setupLocationFragment || destinationId == R.id.locationSearchFragment3) {
+                    TransitionManager.beginDelayedTransition((ViewGroup) binding.getRoot());
+                }
+                binding.bottomNavBar.setVisibility(destinationId == R.id.locationSearchFragment3 ? View.GONE : View.VISIBLE);
+            }
+        }, (int) (Constants.ANIMATION_DURATION * 1.5f));
     }
 
     @Override

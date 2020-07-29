@@ -17,4 +17,7 @@ public final class Constants {
 
     public static final String ARGS_WEATHERLISTTYPE = "WeatherListType";
     public static final String ARGS_BACKGROUND = "background";
+
+    public static final String SHARED_ELEMENT = "shared_element_container";
+    public static final int ANIMATION_DURATION = 300;
 }

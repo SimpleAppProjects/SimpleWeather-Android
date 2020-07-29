@@ -2,9 +2,7 @@ package com.thewizrd.simpleweather.main;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,12 +20,10 @@ import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.transition.Fade;
-import androidx.transition.Slide;
-import androidx.transition.TransitionSet;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.transition.MaterialSharedAxis;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
@@ -105,19 +101,13 @@ public class WeatherListFragment extends ToolbarFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AnalyticsLogger.logEvent("WeatherListFragment: onCreate");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && weatherType == WeatherListType.ALERTS) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                setEnterTransition(new TransitionSet()
-                        .addTransition(new Slide(Gravity.START).setDuration(200))
-                        .addTransition(new Fade(Fade.IN).setDuration(200)));
-            } else {
-                setEnterTransition(new TransitionSet()
-                        .addTransition(new Slide(Gravity.LEFT).setDuration(200))
-                        .addTransition(new Fade(Fade.IN).setDuration(200)));
-            }
-        }
 
         args = WeatherListFragmentArgs.fromBundle(requireArguments());
+
+        if (args.getWeatherListType() == WeatherListType.ALERTS) {
+            setEnterTransition(new MaterialSharedAxis(MaterialSharedAxis.X, true));
+            setReturnTransition(new MaterialSharedAxis(MaterialSharedAxis.X, false));
+        }
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(Constants.ARGS_WEATHERLISTTYPE)) {

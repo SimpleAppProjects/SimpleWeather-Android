@@ -20,7 +20,8 @@
         android:id="@+id/root_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?android:attr/colorBackground">
+        android:background="?android:attr/colorBackground"
+        android:transitionName="shared_element_container">
 
         <LinearLayout
             android:layout_width="match_parent"

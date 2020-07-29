@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather.fragments;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,20 +13,17 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.ViewGroupCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.transition.Transition;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.transition.MaterialFadeThrough;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.databinding.FragmentToolbarLayoutBinding;
-import com.thewizrd.simpleweather.helpers.TransitionHelper;
 
 public abstract class ToolbarFragment extends WindowColorFragment
         implements OnBackPressedFragmentListener {
@@ -59,9 +55,8 @@ public abstract class ToolbarFragment extends WindowColorFragment
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            TransitionHelper.onCreate(this);
-        }
+        setEnterTransition(new MaterialFadeThrough());
+        setExitTransition(new MaterialFadeThrough());
     }
 
     @Override
@@ -97,34 +92,6 @@ public abstract class ToolbarFragment extends WindowColorFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ViewGroupCompat.setTransitionGroup(getRootView(), false);
-            ViewGroupCompat.setTransitionGroup(getAppBarLayout(), false);
-            ViewGroupCompat.setTransitionGroup(getToolbar(), false);
-
-            TransitionHelper.onViewCreated(this, (ViewGroup) view.getParent(), new TransitionHelper.OnPrepareTransitionListener() {
-                @Override
-                public void prepareTransitions(@Nullable Transition enterTransition, @Nullable Transition exitTransition, @Nullable Transition reenterTransition, @Nullable Transition returnTransition) {
-                    if (enterTransition != null) {
-                        enterTransition
-                                .addTarget(RecyclerView.class);
-                    }
-                    if (exitTransition != null) {
-                        exitTransition
-                                .addTarget(RecyclerView.class);
-                    }
-                    if (reenterTransition != null) {
-                        reenterTransition
-                                .addTarget(RecyclerView.class);
-                    }
-                    if (returnTransition != null) {
-                        returnTransition
-                                .addTarget(RecyclerView.class);
-                    }
-                }
-            });
-        }
     }
 
     @Override

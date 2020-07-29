@@ -8,11 +8,19 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.material.transition.MaterialSharedAxis;
 import com.thewizrd.simpleweather.databinding.FragmentSetupWelcomeBinding;
 import com.thewizrd.simpleweather.fragments.CustomFragment;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 
 public class SetupWelcomeFragment extends CustomFragment {
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setReenterTransition(new MaterialSharedAxis(MaterialSharedAxis.X, false));
+        setExitTransition(new MaterialSharedAxis(MaterialSharedAxis.X, true));
+    }
 
     @Nullable
     @Override

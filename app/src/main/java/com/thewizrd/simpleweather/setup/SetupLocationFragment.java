@@ -21,10 +21,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
+import androidx.core.view.ViewCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
@@ -40,6 +42,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.transition.Hold;
+import com.google.android.material.transition.MaterialSharedAxis;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.thewizrd.shared_resources.AsyncTask;
@@ -116,6 +120,12 @@ public class SetupLocationFragment extends CustomFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AnalyticsLogger.logEvent("SetupLocation: onCreate");
+
+        // Hold fragment in place for MaterialContainerTransform
+        setExitTransition(new Hold().setDuration(Constants.ANIMATION_DURATION));
+
+        setEnterTransition(new MaterialSharedAxis(MaterialSharedAxis.X, true));
+        setReturnTransition(new MaterialSharedAxis(MaterialSharedAxis.X, false));
     }
 
     @Nullable
@@ -135,10 +145,18 @@ public class SetupLocationFragment extends CustomFragment {
             @Override
             public void onClick(View v) {
                 // Setup search UI
+                View bottomNavBar = getAppCompatActivity().findViewById(R.id.bottom_nav_bar);
+                bottomNavBar.setVisibility(View.GONE);
+
                 Navigation.findNavController(v)
-                        .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToLocationSearchFragment3());
+                        .navigate(
+                                SetupLocationFragmentDirections.actionSetupLocationFragmentToLocationSearchFragment3(),
+                                new FragmentNavigator.Extras.Builder().addSharedElement(v, Constants.SHARED_ELEMENT)
+                                        .build()
+                        );
             }
         });
+        ViewCompat.setTransitionName(binding.searchBar.searchViewContainer, Constants.SHARED_ELEMENT);
 
         binding.gpsFollow.setOnClickListener(new View.OnClickListener() {
             @Override

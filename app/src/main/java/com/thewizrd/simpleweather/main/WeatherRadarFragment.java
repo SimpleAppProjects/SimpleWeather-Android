@@ -17,10 +17,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.transition.MaterialContainerTransform;
+import com.google.android.material.transition.MaterialFadeThrough;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
@@ -52,10 +55,9 @@ public class WeatherRadarFragment extends ToolbarFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AnalyticsLogger.logEvent("WeatherRadarFragment: onCreate");
-        setEnterTransition(null);
-        setExitTransition(null);
-        setReenterTransition(null);
-        setReturnTransition(null);
+        setExitTransition(new MaterialFadeThrough());
+        setEnterTransition(new MaterialFadeThrough());
+        setSharedElementEnterTransition(new MaterialContainerTransform());
     }
 
     @Override
@@ -63,6 +65,8 @@ public class WeatherRadarFragment extends ToolbarFragment {
         ViewGroup root = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
         // Use this to return your custom view for this Fragment
         binding = FragmentWeatherRadarBinding.inflate(inflater, root, true);
+
+        ViewCompat.setTransitionName(binding.radarWebviewContainer, "radar");
 
         // Setup Actionbar
         Context context = binding.getRoot().getContext();

@@ -31,9 +31,10 @@ import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.view.MenuItemCompat;
-import androidx.core.view.ViewGroupCompat;
+import androidx.core.view.ViewCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -52,7 +53,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.transition.MaterialFadeThrough;
 import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.ListChangedAction;
 import com.thewizrd.shared_resources.helpers.ListChangedArgs;
@@ -122,7 +125,6 @@ public class LocationsFragment extends ToolbarFragment
      */
     private boolean mRequestingLocationUpdates;
 
-    private static final int ANIMATION_DURATION = 240;
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
     private static final int MAX_LOCATIONS = Settings.getMaxLocations();
 
@@ -327,6 +329,9 @@ public class LocationsFragment extends ToolbarFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setExitTransition(new MaterialFadeThrough());
+        setEnterTransition(new MaterialFadeThrough());
+
         // Create your fragment here
         mLoaded = true;
         AnalyticsLogger.logEvent("LocationsFragment: onCreate");
@@ -487,9 +492,15 @@ public class LocationsFragment extends ToolbarFragment
             @Override
             public void onClick(View v) {
                 Navigation.findNavController(binding.getRoot())
-                        .navigate(LocationsFragmentDirections.actionLocationsFragmentToLocationSearchFragment());
+                        .navigate(
+                                LocationsFragmentDirections.actionLocationsFragmentToLocationSearchFragment(),
+                                new FragmentNavigator.Extras.Builder()
+                                        .addSharedElement(binding.fab, Constants.SHARED_ELEMENT)
+                                        .build()
+                        );
             }
         });
+        ViewCompat.setTransitionName(binding.fab, Constants.SHARED_ELEMENT);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -571,8 +582,6 @@ public class LocationsFragment extends ToolbarFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        ViewGroupCompat.setTransitionGroup(binding.recyclerView, true);
     }
 
     @Override

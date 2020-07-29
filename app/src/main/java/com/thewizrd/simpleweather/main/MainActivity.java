@@ -26,6 +26,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
+import androidx.transition.TransitionManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.thewizrd.shared_resources.Constants;
@@ -142,10 +143,22 @@ public class MainActivity extends AppCompatActivity
         NavigationUI.setupWithNavController(binding.bottomNavBar, mNavController);
         mNavController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
             @Override
-            public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
+            public void onDestinationChanged(@NonNull NavController controller, @NonNull final NavDestination destination, @Nullable Bundle arguments) {
                 refreshNavViewCheckedItem();
 
-                binding.bottomNavBar.setVisibility(destination.getId() == R.id.locationSearchFragment ? View.GONE : View.VISIBLE);
+                if (destination.getId() == R.id.weatherNowFragment || destination.getId() == R.id.locationsFragment) {
+                    binding.bottomNavBar.setVisibility(View.VISIBLE);
+                } else {
+                    binding.bottomNavBar.postOnAnimationDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (destination.getId() == R.id.locationSearchFragment3 || destination.getId() == R.id.weatherNowFragment) {
+                                TransitionManager.beginDelayedTransition((ViewGroup) binding.getRoot());
+                            }
+                            binding.bottomNavBar.setVisibility(destination.getId() == R.id.locationSearchFragment ? View.GONE : View.VISIBLE);
+                        }
+                    }, (int) (Constants.ANIMATION_DURATION * 1.5f));
+                }
             }
         });
 

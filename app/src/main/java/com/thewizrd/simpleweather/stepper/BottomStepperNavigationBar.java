@@ -19,8 +19,6 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
-import androidx.transition.Fade;
-import androidx.transition.TransitionManager;
 
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.simpleweather.R;
@@ -164,8 +162,6 @@ public class BottomStepperNavigationBar extends RelativeLayout {
 
     public void setSelectedItem(@IntRange(from = 0) int idx) {
         mSelectedIdx = idx;
-
-        TransitionManager.beginDelayedTransition(this, new Fade());
 
         for (int i = 0; i < mItemCount; i++) {
             View dot = binding.navStepslayout.getChildAt(i);

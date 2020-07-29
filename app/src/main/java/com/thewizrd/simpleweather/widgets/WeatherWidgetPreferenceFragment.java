@@ -159,8 +159,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private Preference calPref;
     private ListPreference fcastOptPref;
 
-    private static final int ANIMATION_DURATION = 240;
-
     private static final int MAX_LOCATIONS = Settings.getMaxLocations();
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
     private static final int SETUP_REQUEST_CODE = 10;
