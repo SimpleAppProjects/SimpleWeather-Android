@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.util.ObjectsCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
@@ -54,10 +55,10 @@ import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import java.util.List;
 
 public class WeatherListFragment extends ToolbarFragment {
-    private WeatherNowViewModel weatherView = null;
-    private ForecastsViewModel forecastsView = null;
-    private WeatherAlertsViewModel alertsView = null;
-    private LocationData location = null;
+    private WeatherNowViewModel weatherView;
+    private ForecastsViewModel forecastsView;
+    private WeatherAlertsViewModel alertsView;
+    private LocationData location;
 
     private FragmentWeatherListBinding binding;
     private LinearLayoutManager layoutManager;
@@ -133,7 +134,7 @@ public class WeatherListFragment extends ToolbarFragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
         // Use this to return your custom view for this Fragment
         binding = FragmentWeatherListBinding.inflate(inflater, root, true);
@@ -221,7 +222,7 @@ public class WeatherListFragment extends ToolbarFragment {
     // Initialize views here
     @CallSuper
     protected void initialize() {
-        if (!weatherView.isValid()) {
+        if (!weatherView.isValid() || (location != null && !ObjectsCompat.equals(location.getQuery(), weatherView.getQuery()))) {
             new WeatherDataLoader(location)
                     .loadWeatherData(new WeatherRequest.Builder()
                             .forceLoadSavedData()
@@ -258,11 +259,11 @@ public class WeatherListFragment extends ToolbarFragment {
                             }
                         }
                     });
+        } else {
+            forecastsView.updateForecasts(location);
+            alertsView.updateAlerts(location);
+            binding.locationName.setText(weatherView.getLocation());
         }
-        forecastsView.updateForecasts(location);
-        alertsView.updateAlerts(location);
-
-        binding.locationName.setText(weatherView.getLocation());
 
         // specify an adapter (see also next example)
         final RecyclerView.Adapter adapter = binding.recyclerView.getAdapter();

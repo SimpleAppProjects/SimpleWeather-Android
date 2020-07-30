@@ -29,7 +29,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.main.MainActivity;
-import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -55,11 +54,11 @@ public class WeatherAlertNotificationBuilder {
         // Create click intent
         // Start WeatherNow Activity with weather data
         Intent intent = new Intent(context, MainActivity.class)
-                .setAction(WeatherWidgetService.ACTION_SHOWALERTS)
+                .setAction(WeatherAlertNotificationService.ACTION_SHOWALERTS)
                 .putExtra(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class))
-                .putExtra(WeatherWidgetService.ACTION_SHOWALERTS, true)
-                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent clickPendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+                .putExtra(WeatherAlertNotificationService.ACTION_SHOWALERTS, true)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent clickPendingIntent = PendingIntent.getActivity(context, location.hashCode(), intent, 0);
 
         // Build update
         for (WeatherAlert alert : alerts) {
@@ -234,7 +233,7 @@ public class WeatherAlertNotificationBuilder {
         Context context = App.getInstance().getAppContext();
         Intent intent = new Intent(context, WeatherNotificationBroadcastReceiver.class)
                 .setAction(WeatherAlertNotificationService.ACTION_CANCELALLNOTIFICATIONS)
-                .putExtra(WeatherWidgetService.ACTION_SHOWALERTS, true);
+                .putExtra(WeatherAlertNotificationService.ACTION_SHOWALERTS, true);
 
         return PendingIntent.getBroadcast(context, 16, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }

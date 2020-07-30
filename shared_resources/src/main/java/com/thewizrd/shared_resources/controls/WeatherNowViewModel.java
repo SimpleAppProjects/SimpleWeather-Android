@@ -171,6 +171,14 @@ public class WeatherNowViewModel extends ObservableViewModel {
         return tempUnit;
     }
 
+    public String getQuery() {
+        if (weather != null) {
+            return weather.getQuery();
+        } else {
+            return null;
+        }
+    }
+
     private Weather weather;
     private String tempUnit;
 

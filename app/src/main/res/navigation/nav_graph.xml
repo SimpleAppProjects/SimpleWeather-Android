@@ -7,7 +7,8 @@
     <fragment
         android:id="@+id/weatherNowFragment"
         android:name="com.thewizrd.simpleweather.main.WeatherNowFragment"
-        android:label="WeatherNowFragment">
+        android:label="WeatherNowFragment"
+        tools:layout="@layout/fragment_weather_now">
         <action
             android:id="@+id/action_weatherNowFragment_to_weatherListFragment"
             app:destination="@id/weatherListFragment" />
@@ -38,7 +39,8 @@
     <fragment
         android:id="@+id/weatherListFragment"
         android:name="com.thewizrd.simpleweather.main.WeatherListFragment"
-        android:label="WeatherListFragment">
+        android:label="WeatherListFragment"
+        tools:layout="@layout/fragment_weather_list">
         <argument
             android:name="data"
             app:argType="string"
@@ -56,11 +58,13 @@
     <fragment
         android:id="@+id/weatherRadarFragment"
         android:name="com.thewizrd.simpleweather.main.WeatherRadarFragment"
-        android:label="WeatherRadarFragment" />
+        android:label="WeatherRadarFragment"
+        tools:layout="@layout/fragment_weather_radar" />
     <fragment
         android:id="@+id/locationsFragment"
         android:name="com.thewizrd.simpleweather.main.LocationsFragment"
-        android:label="LocationsFragment">
+        android:label="LocationsFragment"
+        tools:layout="@layout/fragment_locations">
         <action
             android:id="@+id/action_locationsFragment_to_weatherNowFragment"
             app:destination="@id/weatherNowFragment"
@@ -111,5 +115,6 @@
     <fragment
         android:id="@+id/locationSearchFragment"
         android:name="com.thewizrd.simpleweather.fragments.LocationSearchFragment"
-        android:label="LocationSearchFragment" />
+        android:label="LocationSearchFragment"
+        tools:layout="@layout/fragment_location_search" />
 </navigation>

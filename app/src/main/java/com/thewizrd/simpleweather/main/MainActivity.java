@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.main;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Outline;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,7 +22,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
-import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 import androidx.navigation.fragment.NavHostFragment;
@@ -40,9 +40,9 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.ActivityMainBinding;
+import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationService;
 import com.thewizrd.simpleweather.preferences.SettingsFragment;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
-import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener,
@@ -163,13 +163,16 @@ public class MainActivity extends AppCompatActivity
         });
 
         // Alerts: from weather alert notification
-        if (getIntent() != null && WeatherWidgetService.ACTION_SHOWALERTS.equals(getIntent().getAction())) {
-            LocationData locationData = Settings.getHomeData();
-            WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
-                    WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                            .setData(JSONParser.serializer(locationData, LocationData.class))
-                            .setWeatherListType(WeatherListType.ALERTS);
-            mNavController.navigate(args);
+        if (getIntent() != null && WeatherAlertNotificationService.ACTION_SHOWALERTS.equals(getIntent().getAction())) {
+            NavDestination destination = mNavController.getCurrentDestination();
+            if (destination != null && destination.getId() != R.id.weatherListFragment) {
+                LocationData locationData = Settings.getHomeData();
+                WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
+                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                                .setData(JSONParser.serializer(locationData, LocationData.class))
+                                .setWeatherListType(WeatherListType.ALERTS);
+                mNavController.navigate(args);
+            }
         }
 
         // Check nav item in bottom nav view
@@ -178,6 +181,21 @@ public class MainActivity extends AppCompatActivity
 
         // Update app shortcuts
         ShortcutCreatorWorker.requestUpdateShortcuts(this);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        // Alerts: from weather alert notification
+        if (intent != null && WeatherAlertNotificationService.ACTION_SHOWALERTS.equals(intent.getAction())) {
+            Bundle args = new Bundle();
+            if (intent.getExtras() != null) {
+                args.putAll(intent.getExtras());
+            }
+            args.putSerializable(Constants.ARGS_WEATHERLISTTYPE, WeatherListType.ALERTS);
+            mNavController.navigate(R.id.weatherListFragment, args);
+        }
     }
 
     @Override
@@ -192,18 +210,6 @@ public class MainActivity extends AppCompatActivity
 
         // If fragment doesn't handle onBackPressed event fallback to this impl
         if (fragBackPressedListener == null || !fragBackPressedListener.onBackPressed()) {
-            // Go back to WeatherNow if we started from an alert notification
-            if (current instanceof WeatherListFragment &&
-                    getSupportFragmentManager().getBackStackEntryCount() == 0) {
-                Bundle args = new Bundle();
-                args.putBoolean(Constants.FRAGTAG_HOME, true);
-                mNavController.navigate(R.id.weatherNowFragment, args,
-                        new NavOptions.Builder()
-                                .setPopUpTo(R.id.weatherNowFragment, true)
-                                .build());
-                return;
-            }
-
             super.onBackPressed();
         }
     }

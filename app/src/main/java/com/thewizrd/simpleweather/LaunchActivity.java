@@ -28,7 +28,8 @@ public class LaunchActivity extends AppCompatActivity {
             if (Settings.isWeatherLoaded() && Settings.isOnBoardingComplete()) {
                 intent = new Intent(this, MainActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                        .putExtra(Constants.KEY_DATA, JSONParser.serializer(Settings.getHomeData(), LocationData.class));
+                        .putExtra(Constants.KEY_DATA, JSONParser.serializer(Settings.getHomeData(), LocationData.class))
+                        .putExtra(Constants.FRAGTAG_HOME, true);
             } else {
                 intent = new Intent(this, SetupActivity.class);
             }

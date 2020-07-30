@@ -13,7 +13,6 @@ import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.main.MainActivity;
-import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -24,6 +23,8 @@ import java.util.Set;
 @SuppressLint("UseSparseArrays")
 public class WeatherAlertNotificationService extends JobIntentService {
     private static final String TAG = "WeatherAlertNotificationService";
+
+    public static final String ACTION_SHOWALERTS = "SimpleWeather.Droid.action.SHOW_ALERTS";
 
     public static final String ACTION_CANCELNOTIFICATION = "SimpleWeather.Droid.action.CANCEL_NOTIFICATION";
     public static final String ACTION_CANCELALLNOTIFICATIONS = "SimpleWeather.Droid.action.CANCEL_ALL_NOTIFICATIONS";
@@ -106,10 +107,10 @@ public class WeatherAlertNotificationService extends JobIntentService {
              * NOTE
              * Compat issue: Part of workaround for setAutoCancel not working for JellyBean
              */
-            if (intent.getBooleanExtra(WeatherWidgetService.ACTION_SHOWALERTS, false)) {
+            if (intent.getBooleanExtra(WeatherAlertNotificationService.ACTION_SHOWALERTS, false)) {
                 Intent appIntent = new Intent(this, MainActivity.class)
-                        .setAction(WeatherWidgetService.ACTION_SHOWALERTS)
-                        .putExtra(WeatherWidgetService.ACTION_SHOWALERTS, true)
+                        .setAction(WeatherAlertNotificationService.ACTION_SHOWALERTS)
+                        .putExtra(WeatherAlertNotificationService.ACTION_SHOWALERTS, true)
                         .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
                 this.startActivity(appIntent);
