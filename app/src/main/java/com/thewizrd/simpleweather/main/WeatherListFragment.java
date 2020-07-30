@@ -1,11 +1,14 @@
 package com.thewizrd.simpleweather.main;
 
 import android.content.Context;
+import android.graphics.Outline;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
 import android.view.ViewTreeObserver;
 
 import androidx.annotation.CallSuper;
@@ -140,7 +143,7 @@ public class WeatherListFragment extends ToolbarFragment {
         binding = FragmentWeatherListBinding.inflate(inflater, root, true);
 
         // Setup Actionbar
-        Context context = binding.getRoot().getContext();
+        final Context context = binding.getRoot().getContext();
         Drawable navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, ActivityUtils.getResourceId(getAppCompatActivity(), R.attr.homeAsUpIndicator)));
         DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText));
         getToolbar().setNavigationIcon(navIcon);
@@ -152,11 +155,43 @@ public class WeatherListFragment extends ToolbarFragment {
             }
         });
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            binding.locationHeader.setClipToOutline(false);
+            binding.locationHeader.setOutlineProvider(new ViewOutlineProvider() {
+                int elevation = context.getResources().getDimensionPixelSize(R.dimen.appbar_elevation);
+
+                @Override
+                public void getOutline(View view, Outline outline) {
+                    outline.setRect(0, view.getHeight() - elevation, view.getWidth(), view.getHeight());
+                }
+            });
+        }
+
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the binding.recyclerView
         binding.recyclerView.setHasFixedSize(true);
         // use a linear layout manager
         binding.recyclerView.setLayoutManager(layoutManager = new LinearLayoutManager(getAppCompatActivity()));
+
+        binding.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    if (recyclerView.computeVerticalScrollOffset() > 0) {
+                        binding.locationHeader.setCardElevation(ActivityUtils.dpToPx(context, 4f));
+                    } else {
+                        binding.locationHeader.setCardElevation(0);
+                    }
+                }
+            }
+        });
 
         return root;
     }
