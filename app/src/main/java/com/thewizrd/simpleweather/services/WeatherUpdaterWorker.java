@@ -8,8 +8,6 @@ import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Build;
-import android.os.PowerManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -295,25 +293,6 @@ public class WeatherUpdaterWorker extends Worker {
                     LocationManager locMan = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
                     if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                        boolean disable = true;
-
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            PowerManager pwrMan = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-                            // Some devices (ex. Pixel) disable location services if device is in Battery Saver mode
-                            // and the screen is off; don't disable this feature for this case
-                            boolean lowPwrMode = pwrMan != null && (pwrMan.isPowerSaveMode() && !pwrMan.isInteractive());
-
-                            // Disable if we're unable to access location
-                            // and we're not in Low Power (Battery Saver) mode
-                            disable = !lowPwrMode;
-                        }
-
-                        if (disable) {
-                            // Disable GPS feature if location is not enabled
-                            Settings.setFollowGPS(false);
-                            Logger.writeLine(Log.INFO, "%s: Disabled location feature", TAG);
-                        }
-
                         return false;
                     }
 

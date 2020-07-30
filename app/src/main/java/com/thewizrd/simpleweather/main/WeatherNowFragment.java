@@ -1037,7 +1037,15 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         }
         // Load new favorite location if argument data is present
-        if (args.getData() != null) {
+        if (args.getHome()) {
+            // Check if home location changed
+            // For ex. due to GPS setting change
+            LocationData homeData = Settings.getHomeData();
+            if (!ObjectsCompat.equals(locationData, homeData)) {
+                locationData = homeData;
+                locationChanged = true;
+            }
+        } else if (args.getData() != null) {
             LocationData location = new AsyncTask<LocationData>().await(new Callable<LocationData>() {
                 @Override
                 public LocationData call() {
@@ -1047,14 +1055,6 @@ public class WeatherNowFragment extends WindowColorFragment
 
             if (!ObjectsCompat.equals(location, locationData)) {
                 locationData = location;
-                locationChanged = true;
-            }
-        } else if (args.getHome()) {
-            // Check if home location changed
-            // For ex. due to GPS setting change
-            LocationData homeData = Settings.getHomeData();
-            if (!ObjectsCompat.equals(locationData, homeData)) {
-                locationData = homeData;
                 locationChanged = true;
             }
         }
@@ -1285,11 +1285,7 @@ public class WeatherNowFragment extends WindowColorFragment
                         locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
 
                     if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                        showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
-
-                        // Disable GPS feature if location is not enabled
-                        Settings.setFollowGPS(false);
-                        locationData = Settings.getHomeData();
+                        locationData = Settings.getLastGPSLocData();
                         return false;
                     }
 

@@ -760,7 +760,7 @@ public class Settings {
     }
 
     public static LocationData getHomeData() {
-        LocationData homeData = null;
+        LocationData homeData;
 
         if (IS_PHONE) {
             if (useFollowGPS())

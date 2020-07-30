@@ -961,15 +961,6 @@ public class WeatherNowFragment extends CustomFragment
                         locMan = (LocationManager) getFragmentActivity().getSystemService(Context.LOCATION_SERVICE);
 
                     if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(getFragmentActivity(), R.string.error_enable_location_services, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-
-                        // Disable GPS feature if location is not enabled
-                        Settings.setFollowGPS(false);
                         WeatherNowFragment.this.location = Settings.getHomeData();
                         return false;
                     }

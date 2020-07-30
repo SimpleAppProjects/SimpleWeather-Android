@@ -1119,8 +1119,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                             locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
 
                         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                            // Disable GPS feature if location is not enabled
-                            Settings.setFollowGPS(false);
                             throw new CustomException(R.string.error_enable_location_services);
                         }
 
@@ -1259,8 +1257,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                     locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
 
                 if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                    // Disable GPS feature if location is not enabled
-                    Settings.setFollowGPS(false);
                     throw new CustomException(R.string.error_enable_location_services);
                 }
 

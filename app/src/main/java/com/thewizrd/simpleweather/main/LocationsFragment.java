@@ -869,16 +869,6 @@ public class LocationsFragment extends ToolbarFragment
                         locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
 
                     if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
-                                removeGPSPanel();
-                            }
-                        });
-
-                        // Disable GPS feature if location is not enabled
-                        Settings.setFollowGPS(false);
                         return null;
                     }
 

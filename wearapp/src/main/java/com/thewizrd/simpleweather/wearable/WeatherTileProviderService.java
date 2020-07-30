@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.PowerManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -321,23 +320,6 @@ public class WeatherTileProviderService extends TileProviderService {
                     LocationManager locMan = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 
                     if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                        boolean disable = true;
-
-                        PowerManager pwrMan = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
-                        // Some devices (ex. Pixel) disable location services if device is in Battery Saver mode
-                        // and the screen is off; don't disable this feature for this case
-                        boolean lowPwrMode = pwrMan != null && (pwrMan.isPowerSaveMode() && !pwrMan.isInteractive());
-
-                        // Disable if we're unable to access location
-                        // and we're not in Low Power (Battery Saver) mode
-                        disable = !lowPwrMode;
-
-                        if (disable) {
-                            // Disable GPS feature if location is not enabled
-                            Settings.setFollowGPS(false);
-                            Logger.writeLine(Log.INFO, "%s: Disabled location feature", TAG);
-                        }
-
                         return false;
                     }
 
