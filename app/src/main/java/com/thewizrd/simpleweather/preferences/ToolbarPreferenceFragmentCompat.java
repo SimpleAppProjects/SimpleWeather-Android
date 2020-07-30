@@ -133,7 +133,7 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
         if (!isAlive()) return;
 
         int color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-        if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+        if (mode == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK;
         }
 
