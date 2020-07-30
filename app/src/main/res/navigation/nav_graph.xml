@@ -17,10 +17,12 @@
             app:destination="@id/weatherRadarFragment" />
         <action
             android:id="@+id/action_weatherNowFragment_to_locationsFragment"
-            app:destination="@id/locationsFragment" />
+            app:destination="@id/locationsFragment"
+            app:launchSingleTop="true" />
         <action
             android:id="@+id/action_weatherNowFragment_to_settingsFragment"
-            app:destination="@id/settingsFragment" />
+            app:destination="@id/settingsFragment"
+            app:launchSingleTop="true" />
         <argument
             android:name="data"
             app:argType="string"
