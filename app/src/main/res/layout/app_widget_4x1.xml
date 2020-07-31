@@ -17,14 +17,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="4dp"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="8dp">
 
             <LinearLayout
                 android:id="@+id/condition_layout"
@@ -45,16 +45,17 @@
 
                 <TextView
                     android:id="@+id/now_date"
+                    style="@style/ShadowText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:maxLines="1"
                     android:padding="2dp"
+                    android:shadowColor="@android:color/black"
                     android:text="@string/label_datenow"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="@android:color/white"
-                    android:textSize="12sp"
-                    style="@style/ShadowText" />
+                    android:textSize="12sp" />
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -82,6 +83,7 @@
 
                     <TextView
                         android:id="@+id/condition_temp"
+                        style="@style/ShadowText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignLeft="@+id/spacer_middle"
@@ -91,10 +93,10 @@
                         android:layout_centerVertical="true"
                         android:maxLines="1"
                         android:padding="2dp"
+                        android:shadowColor="@android:color/black"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                         android:textColor="@android:color/white"
                         android:textSize="12sp"
-                        style="@style/ShadowText"
                         tools:text="70°" />
 
                 </RelativeLayout>
@@ -125,10 +127,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="end"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingLeft="4dp"
+            android:paddingStart="4dp"
+            android:paddingRight="4dp"
+            android:paddingEnd="4dp">
 
             <TextView
                 android:id="@+id/location_name"
+                style="@style/ShadowText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start|top"
@@ -146,9 +153,7 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
-                style="@style/ShadowText"
-                tools:text="New York, NY"
-                tools:visibility="gone" />
+                tools:text="New York, NY" />
 
             <ImageView
                 android:id="@+id/settings_button"
@@ -158,8 +163,7 @@
                 android:padding="4dp"
                 android:alpha="0.7"
                 android:src="@drawable/ic_settings_black_24dp"
-                android:tint="@android:color/white"
-                tools:visibility="gone" />
+                android:tint="@android:color/white" />
 
         </LinearLayout>
 

@@ -17,15 +17,16 @@
 
     <TextView
         android:id="@+id/forecast_date"
+        style="@style/ShadowText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:maxLines="1"
         android:padding="2dp"
+        android:shadowColor="@android:color/black"
         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
         android:textColor="@android:color/white"
         android:textSize="12sp"
-        style="@style/ShadowText"
         tools:text="Mon" />
 
     <RelativeLayout
@@ -66,20 +67,22 @@
 
             <TextView
                 android:id="@+id/forecast_hi"
+                style="@style/ShadowText"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:gravity="start|center_vertical"
                 android:maxLines="1"
                 android:padding="2dp"
+                android:shadowColor="@android:color/black"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
-                style="@style/ShadowText"
                 tools:text="70°" />
 
             <TextView
                 android:id="@+id/forecast_lo"
+                style="@style/ShadowText"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_gravity="start|center_vertical"
@@ -87,10 +90,10 @@
                 android:gravity="start|center_vertical"
                 android:maxLines="1"
                 android:padding="2dp"
+                android:shadowColor="@android:color/black"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
-                style="@style/ShadowText"
                 tools:text="52°"
                 tools:visibility="gone" />
 

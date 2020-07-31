@@ -56,10 +56,7 @@ import androidx.preference.SwitchPreference;
 import androidx.transition.AutoTransition;
 import androidx.transition.TransitionManager;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DecodeFormat;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
@@ -96,6 +93,7 @@ import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
+import com.thewizrd.simpleweather.GlideApp;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentWidgetSetupBinding;
 import com.thewizrd.simpleweather.preferences.ArrayListPreference;
@@ -673,7 +671,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             case Widget4x1:
                 widgetLayoutRes = R.layout.app_widget_4x1;
                 viewWidth = widgetBlockSize * 4;
-                viewHeight = widgetBlockSize;
+                viewHeight = widgetBlockSize * 1.5f;
                 break;
             case Widget4x2:
                 widgetLayoutRes = R.layout.app_widget_4x2;
@@ -707,6 +705,11 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         layoutParams.gravity = Gravity.CENTER;
 
         widgetView.setLayoutParams(layoutParams);
+
+        if (mWidgetType == WidgetType.Widget2x2) {
+            ViewGroup notif_layout = widgetView.findViewById(R.id.weather_notif_layout);
+            View.inflate(getAppCompatActivity(), R.layout.app_widget_2x2_notif_layout, notif_layout);
+        }
 
         TextView conditionText = widgetView.findViewById(R.id.condition_weather);
         if (mWidgetType == WidgetType.Widget2x2 || mWidgetType == WidgetType.Widget4x1Notification) {
@@ -824,6 +827,12 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         boolean isNightMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
 
         if (WidgetUtils.isBackgroundOptionalWidget(mWidgetType)) {
+            ViewGroup bgContainer = binding.widgetContainer.findViewById(R.id.panda_container);
+            if (mWidgetType == WidgetType.Widget2x2 || mWidgetType == WidgetType.Widget4x2) {
+                bgContainer.removeAllViews();
+                View.inflate(getAppCompatActivity(), R.layout.layout_panda_bg, bgContainer);
+            }
+
             int backgroundColor = WidgetUtils.getBackgroundColor(getAppCompatActivity(), mWidgetBackground);
             ImageView pandaBG = binding.widgetContainer.findViewById(R.id.panda_background);
             ImageView widgetBG = binding.widgetContainer.findViewById(R.id.widgetBackground);
@@ -831,29 +840,31 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             if (mWidgetBackground == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
                 if (pandaBG != null) {
                     if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.PANDA) {
+                        pandaBG.setImageResource(R.drawable.widget_background);
                         pandaBG.setColorFilter(isNightMode ? Colors.BLACK : Colors.WHITE);
-                        pandaBG.setImageResource(R.drawable.widget_background);
                     } else if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.PENDINGCOLOR) {
-                        pandaBG.setColorFilter(0xff88b0c8);
                         pandaBG.setImageResource(R.drawable.widget_background);
+                        pandaBG.setColorFilter(0xFF698AC1);
                     } else if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.LIGHT) {
+                        pandaBG.setImageResource(R.drawable.widget_background);
                         pandaBG.setColorFilter(Colors.WHITE);
-                        pandaBG.setImageResource(R.drawable.widget_background);
                     } else if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.DARK) {
-                        pandaBG.setColorFilter(Colors.BLACK);
                         pandaBG.setImageResource(R.drawable.widget_background);
+                        pandaBG.setColorFilter(Colors.BLACK);
                     } else {
-                        pandaBG.setImageBitmap(null);
+                        if (bgContainer != null) bgContainer.removeAllViews();
                     }
                 }
 
                 widgetBG.setColorFilter(backgroundColor);
                 widgetBG.setImageAlpha(0xFF);
 
-                Glide.with(this)
+                GlideApp.with(this)
                         .load("file:///android_asset/backgrounds/day.jpg")
-                        .apply(RequestOptions.formatOf(DecodeFormat.PREFER_RGB_565)
-                                .transforms(new CenterCrop(), new TransparentOverlay(0x33)))
+                        .format(DecodeFormat.PREFER_RGB_565)
+                        .centerCrop()
+                        .transform(new TransparentOverlay(0x33))
+                        .thumbnail(0.75f)
                         .into(widgetBG);
             } else if (mWidgetBackground == WidgetUtils.WidgetBackground.TRANSPARENT) {
                 widgetBG.setImageResource(R.drawable.widget_background);

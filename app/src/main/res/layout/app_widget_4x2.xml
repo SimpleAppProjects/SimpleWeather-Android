@@ -15,14 +15,29 @@
         android:scaleType="centerCrop"
         android:src="@drawable/background_overlay" />
 
-    <ImageView
-        android:id="@+id/panda_background"
+    <FrameLayout
+        android:id="@+id/panda_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignTop="@id/forecast_layout"
         android:layout_alignBottom="@id/forecast_layout"
         android:adjustViewBounds="true"
-        android:scaleType="fitXY" />
+        android:scaleType="fitXY"
+        tools:background="@color/colorOnPrimary" />
+
+    <ImageView
+        android:id="@+id/settings_button"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center_vertical"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:alpha="0.7"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:src="@drawable/ic_settings_black_24dp"
+        android:tint="@android:color/white" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -30,7 +45,7 @@
         android:layout_alignParentTop="true"
         android:layout_above="@id/forecast_layout"
         android:orientation="vertical"
-        android:padding="4dp">
+        android:padding="8dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -55,21 +70,11 @@
                 android:textSize="14sp"
                 tools:text="New York, NY" />
 
-            <ImageView
-                android:id="@+id/settings_button"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="center_vertical"
-                android:alpha="0.7"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:src="@drawable/ic_settings_black_24dp"
-                android:tint="@android:color/white" />
-
         </LinearLayout>
 
         <TextView
             android:id="@+id/condition_weather"
+            style="@style/ShadowText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -83,7 +88,6 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
             android:textSize="14sp"
-            style="@style/ShadowText"
             tools:text="Mostly Sunny. Refreshingly cool." />
 
         <LinearLayout
@@ -150,6 +154,7 @@
 
                 <TextView
                     android:id="@+id/date_panel"
+                    style="@style/ShadowText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
@@ -158,7 +163,6 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/date_text_size"
-                    style="@style/ShadowText"
                     tools:text="Sun, Oct 08" />
 
                 <TextView

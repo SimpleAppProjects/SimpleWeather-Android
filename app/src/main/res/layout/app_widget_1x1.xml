@@ -16,7 +16,6 @@
 
     <ImageView
         android:id="@+id/settings_button"
-        style="@style/ShadowText"
         android:layout_width="22dp"
         android:layout_height="22dp"
         android:layout_gravity="top|end"
@@ -39,7 +38,6 @@
 
         <ImageView
             android:id="@+id/weather_icon"
-            style="@style/ShadowText"
             android:layout_width="match_parent"
             android:layout_height="36dp"
             android:layout_gravity="bottom|center_horizontal"
