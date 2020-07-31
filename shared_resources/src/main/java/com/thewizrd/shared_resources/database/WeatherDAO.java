@@ -123,12 +123,28 @@ public interface WeatherDAO {
     public List<HourlyForecast> getHourlyForecastsByQueryOrderByDateByLimit(String key, int loadSize);
 
     @Transaction
+    @Query("SELECT `hrforecastblob` FROM hr_forecasts WHERE `query` = :key AND `dateblob` >= :date ORDER BY `dateblob` LIMIT :loadSize")
+    public List<HourlyForecast> getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(String key, int loadSize, @TypeConverters(SortableDateTimeConverters.class) ZonedDateTime date);
+
+    @Transaction
+    @Query("SELECT `hrforecastblob` FROM hr_forecasts WHERE `query` = :key AND `dateblob` >= :date ORDER BY `dateblob` LIMIT :loadSize OFFSET :offset")
+    public List<HourlyForecast> getHourlyForecastsByQueryOrderByDateByLimitByOffsetFilterByDate(String key, int loadSize, int offset, @TypeConverters(SortableDateTimeConverters.class) ZonedDateTime date);
+
+    @Transaction
     @Query("SELECT `hrforecastblob` FROM hr_forecasts WHERE `query` = :key ORDER BY `dateblob` LIMIT :loadSize")
     public LiveData<List<HourlyForecast>> getLiveHourlyForecastsByQueryOrderByDateByLimit(String key, int loadSize);
 
     @Transaction
+    @Query("SELECT `hrforecastblob` FROM hr_forecasts WHERE `query` = :key AND `dateblob` >= :date ORDER BY `dateblob` LIMIT :loadSize")
+    public LiveData<List<HourlyForecast>> getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(String key, int loadSize, @TypeConverters(SortableDateTimeConverters.class) ZonedDateTime date);
+
+    @Transaction
     @Query("SELECT `hrforecastblob` FROM hr_forecasts WHERE `query` = :key ORDER BY `dateblob`")
     public DataSource.Factory<Integer, HourlyForecast> loadHourlyForecastsByQueryOrderByDate(String key);
+
+    @Transaction
+    @Query("SELECT `hrforecastblob` FROM hr_forecasts WHERE `query` = :key AND `dateblob` >= :date ORDER BY `dateblob`")
+    public DataSource.Factory<Integer, HourlyForecast> loadHourlyForecastsByQueryOrderByDateFilterByDate(String key, @TypeConverters(SortableDateTimeConverters.class) ZonedDateTime date);
 
     @Query("SELECT COUNT(*) FROM hr_forecasts WHERE `query` = :key")
     public int getHourlyForecastCountByQuery(String key);

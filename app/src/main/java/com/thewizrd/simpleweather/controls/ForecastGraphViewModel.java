@@ -16,12 +16,15 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.ChronoUnit;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class ForecastGraphViewModel extends ViewModel {
-    private String locationKey;
+    private LocationData locationData;
     private String tempUnit;
 
     private MutableLiveData<List<ForecastItemViewModel>> forecasts;
@@ -45,15 +48,15 @@ public class ForecastGraphViewModel extends ViewModel {
 
     @MainThread
     public void updateForecasts(@NonNull LocationData location) {
-        if (!ObjectsCompat.equals(this.locationKey, location.getQuery())) {
-            this.locationKey = location.getQuery();
+        if (this.locationData == null || !ObjectsCompat.equals(this.locationData.getQuery(), location.getQuery())) {
+            this.locationData = location;
 
             tempUnit = Settings.getTempUnit();
 
             if (currentForecastsData != null) {
                 currentForecastsData.removeObserver(forecastObserver);
             }
-            currentForecastsData = Settings.getWeatherDAO().getLiveForecastData(locationKey);
+            currentForecastsData = Settings.getWeatherDAO().getLiveForecastData(location.getQuery());
 
             currentForecastsData.observeForever(forecastObserver);
             if (forecasts != null)
@@ -62,7 +65,7 @@ public class ForecastGraphViewModel extends ViewModel {
             if (currentHrForecastsData != null) {
                 currentHrForecastsData.removeObserver(hrforecastObserver);
             }
-            currentHrForecastsData = Settings.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimit(locationKey, 24);
+            currentHrForecastsData = Settings.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.getQuery(), 24, ZonedDateTime.now(location.getTzOffset()).truncatedTo(ChronoUnit.HOURS));
             currentHrForecastsData.observeForever(hrforecastObserver);
             if (hourlyForecasts != null)
                 hourlyForecasts.postValue(hrForecastMapper.apply(currentHrForecastsData.getValue()));
@@ -151,7 +154,7 @@ public class ForecastGraphViewModel extends ViewModel {
     protected void onCleared() {
         super.onCleared();
 
-        locationKey = null;
+        locationData = null;
 
         if (currentForecastsData != null)
             currentForecastsData.removeObserver(forecastObserver);

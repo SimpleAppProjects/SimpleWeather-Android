@@ -331,6 +331,25 @@ public class WeatherDataLoader {
                     Settings.saveWeatherData(weather);
                 }
             }
+
+            // Check for outdated forecasts
+            if (weather.getForecast() != null && !weather.getForecast().isEmpty()) {
+                Iterables.removeIf(weather.getForecast(), new Predicate<Forecast>() {
+                    @Override
+                    public boolean apply(@NullableDecl Forecast input) {
+                        return input == null || input.getDate().truncatedTo(ChronoUnit.DAYS).compareTo(now.toLocalDateTime().truncatedTo(ChronoUnit.DAYS)) < 0;
+                    }
+                });
+            }
+
+            if (weather.getHrForecast() != null && !weather.getHrForecast().isEmpty()) {
+                Iterables.removeIf(weather.getHrForecast(), new Predicate<HourlyForecast>() {
+                    @Override
+                    public boolean apply(@NullableDecl HourlyForecast input) {
+                        return input == null || input.getDate().truncatedTo(ChronoUnit.HOURS).compareTo(now.truncatedTo(ChronoUnit.HOURS)) < 0;
+                    }
+                });
+            }
         }
     }
 

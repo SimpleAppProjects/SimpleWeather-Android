@@ -13,4 +13,6 @@ public class CommonActions {
     public static final String ACTION_WIDGET_RESETWIDGETS = "SimpleWeather.Droid.action.WIDGET_RESETWIDGETS";
     public static final String ACTION_WIDGET_REFRESHWIDGETS = "SimpleWeather.Droid.action.WIDGET_REFRESHWIDGETS";
     public static final String ACTION_IMAGES_UPDATEWORKER = "SimpleWeather.Droid.action.IMAGES_UPDATE_WORKER";
+
+    public static final String EXTRA_FORCEUPDATE = "SimpleWeather.Droid.extra.FORCE_UPDATE";
 }

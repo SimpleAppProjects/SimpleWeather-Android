@@ -70,6 +70,7 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.TransparentOverlay;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
@@ -81,7 +82,9 @@ import com.thewizrd.simpleweather.main.MainActivity;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.temporal.ChronoUnit;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -544,7 +547,7 @@ public class WeatherWidgetService extends JobIntentService {
                 // Build the widget update for provider
                 RemoteViews views = buildUpdate(mContext, provider, appWidgetId, locData, viewModel);
                 if (isForecastWidget(provider.getWidgetType())) {
-                    buildForecast(views, provider, viewModel, appWidgetId);
+                    buildForecast(views, provider, appWidgetId);
                 }
                 // Push update for this widget to the home screen
                 mAppWidgetManager.updateAppWidget(appWidgetId, views);
@@ -652,13 +655,13 @@ public class WeatherWidgetService extends JobIntentService {
                         } else if (ArrayUtils.contains(ids4x1, appWidgetId)) {
                             // Build the widget update for provider
                             RemoteViews views = buildUpdate(mContext, mAppWidget4x1, appWidgetId, locationData, viewModel);
-                            buildForecast(views, mAppWidget4x1, viewModel, appWidgetId);
+                            buildForecast(views, mAppWidget4x1, appWidgetId);
                             // Push update for this widget to the home screen
                             mAppWidgetManager.updateAppWidget(appWidgetId, views);
                         } else if (ArrayUtils.contains(ids4x2, appWidgetId)) {
                             // Build the widget update for provider
                             RemoteViews views = buildUpdate(mContext, mAppWidget4x2, appWidgetId, locationData, viewModel);
-                            buildForecast(views, mAppWidget4x2, viewModel, appWidgetId);
+                            buildForecast(views, mAppWidget4x2, appWidgetId);
                             // Push update for this widget to the home screen
                             mAppWidgetManager.updateAppWidget(appWidgetId, views);
                         } else if (ArrayUtils.contains(ids4x1G, appWidgetId)) {
@@ -1451,9 +1454,8 @@ public class WeatherWidgetService extends JobIntentService {
                     if (weather.getForecast().size() < forecastLength)
                         forecastLength = weather.getForecast().size();
 
-                    WeatherNowViewModel viewModel = new WeatherNowViewModel(weather);
                     updateViews.removeAllViews(R.id.forecast_layout);
-                    buildForecastPanel(updateViews, provider, viewModel, appWidgetId, forecastLength, newOptions);
+                    buildForecastPanel(updateViews, provider, appWidgetId, forecastLength, newOptions);
                 }
 
                 if (isClockWidget(provider.getWidgetType())) {
@@ -1469,10 +1471,7 @@ public class WeatherWidgetService extends JobIntentService {
         });
     }
 
-    private void buildForecast(RemoteViews updateViews, WeatherWidgetProvider provider, WeatherNowViewModel weather, int appWidgetId) {
-        if (weather == null)
-            return;
-
+    private void buildForecast(RemoteViews updateViews, WeatherWidgetProvider provider, int appWidgetId) {
         updateViews.removeAllViews(R.id.forecast_layout);
 
         Bundle newOptions = mAppWidgetManager.getAppWidgetOptions(appWidgetId);
@@ -1492,15 +1491,12 @@ public class WeatherWidgetService extends JobIntentService {
             updateViews.setTextColor(R.id.date_panel, textColor);
         }
 
-        buildForecastPanel(updateViews, provider, weather, appWidgetId, forecastLength, newOptions);
+        buildForecastPanel(updateViews, provider, appWidgetId, forecastLength, newOptions);
     }
 
     private void buildForecastPanel(
-            RemoteViews updateViews, WeatherWidgetProvider provider, WeatherNowViewModel weather, int appWidgetId,
+            RemoteViews updateViews, WeatherWidgetProvider provider, int appWidgetId,
             int forecastLength, Bundle newOptions) {
-        if (weather == null)
-            return;
-
         if (provider.getWidgetType() == WidgetType.Widget4x1 || provider.getWidgetType() == WidgetType.Widget4x2) {
             // Background & Text Color
             WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
@@ -1553,20 +1549,30 @@ public class WeatherWidgetService extends JobIntentService {
     }
 
     private List<ForecastItemViewModel> getForecasts(int appWidgetId, int forecastLength) {
-        LocationData locData = null;
+        LocationData locData;
         if (WidgetUtils.isGPS(appWidgetId))
             locData = Settings.getLastGPSLocData();
         else
             locData = WidgetUtils.getLocationData(appWidgetId);
 
         if (locData != null && locData.isValid()) {
-            Forecasts forecasts = Settings.getWeatherForecastData(locData.getQuery());
+            Weather weather = WidgetUtils.getWeatherData(appWidgetId);
+            List<Forecast> forecasts = null;
 
-            if (forecasts.getForecast() != null && forecasts.getForecast().size() > 0) {
+            if (weather != null && weather.getForecast() != null && !weather.getForecast().isEmpty()) {
+                forecasts = weather.getForecast();
+            } else {
+                Forecasts fcasts = Settings.getWeatherForecastData(locData.getQuery());
+                if (fcasts != null && fcasts.getForecast() != null && !fcasts.getForecast().isEmpty()) {
+                    forecasts = fcasts.getForecast();
+                }
+            }
+
+            if (forecasts != null && !forecasts.isEmpty()) {
                 List<ForecastItemViewModel> fcasts = new ArrayList<>();
 
-                for (int i = 0; i < Math.min(forecastLength, forecasts.getForecast().size()); i++) {
-                    fcasts.add(new ForecastItemViewModel(forecasts.getForecast().get(i)));
+                for (int i = 0; i < Math.min(forecastLength, forecasts.size()); i++) {
+                    fcasts.add(new ForecastItemViewModel(forecasts.get(i)));
                 }
 
                 return fcasts;
@@ -1577,20 +1583,34 @@ public class WeatherWidgetService extends JobIntentService {
     }
 
     private List<HourlyForecastItemViewModel> getHourlyForecasts(int appWidgetId, int forecastLength) {
-        LocationData locData = null;
+        LocationData locData;
         if (WidgetUtils.isGPS(appWidgetId))
             locData = Settings.getLastGPSLocData();
         else
             locData = WidgetUtils.getLocationData(appWidgetId);
 
         if (locData != null && locData.isValid()) {
-            List<HourlyForecast> forecasts = Settings.getHourlyWeatherForecastDataByLimit(locData.getQuery(), forecastLength);
+            Weather weather = WidgetUtils.getWeatherData(appWidgetId);
+            List<HourlyForecast> forecasts = null;
+            ZonedDateTime now = ZonedDateTime.now(locData.getTzOffset());
 
-            if (forecasts != null && forecasts.size() > 0) {
+            if (weather != null && weather.getHrForecast() != null && !weather.getHrForecast().isEmpty()) {
+                forecasts = weather.getHrForecast();
+            } else {
+                forecasts = Settings.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(locData.getQuery(), forecastLength, now);
+            }
+
+            if (forecasts != null && !forecasts.isEmpty()) {
                 List<HourlyForecastItemViewModel> fcasts = new ArrayList<>();
 
+                int count = 0;
                 for (HourlyForecast fcast : forecasts) {
-                    fcasts.add(new HourlyForecastItemViewModel(fcast));
+                    if (fcast.getDate().truncatedTo(ChronoUnit.HOURS).compareTo(now.truncatedTo(ChronoUnit.HOURS)) >= 0) {
+                        fcasts.add(new HourlyForecastItemViewModel(fcast));
+                        count++;
+                    }
+
+                    if (count >= forecastLength) break;
                 }
 
                 return fcasts;

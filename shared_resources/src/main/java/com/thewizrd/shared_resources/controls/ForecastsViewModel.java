@@ -21,13 +21,16 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.ChronoUnit;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 public class ForecastsViewModel extends ViewModel {
-    private String locationKey;
+    private LocationData locationData;
     private String tempUnit;
 
     private MutableLiveData<PagedList<ForecastItemViewModel>> forecasts;
@@ -51,8 +54,8 @@ public class ForecastsViewModel extends ViewModel {
 
     @MainThread
     public void updateForecasts(@NonNull LocationData location) {
-        if (!ObjectsCompat.equals(this.locationKey, location.getQuery())) {
-            this.locationKey = location.getQuery();
+        if (this.locationData == null || !ObjectsCompat.equals(this.locationData.getQuery(), location.getQuery())) {
+            this.locationData = location;
 
             tempUnit = Settings.getTempUnit();
 
@@ -61,7 +64,7 @@ public class ForecastsViewModel extends ViewModel {
             }
 
             currentForecastsData = new LivePagedListBuilder<>(
-                    new ForecastDataSourceFactory(locationKey, Settings.getWeatherDAO()),
+                    new ForecastDataSourceFactory(locationData, Settings.getWeatherDAO()),
                     new PagedList.Config.Builder()
                             .setEnablePlaceholders(true)
                             .setPageSize(7)
@@ -72,7 +75,7 @@ public class ForecastsViewModel extends ViewModel {
             if (forecasts != null)
                 forecasts.postValue(currentForecastsData.getValue());
 
-            DataSource.Factory<Integer, HourlyForecastItemViewModel> hrFactory = Settings.getWeatherDAO().loadHourlyForecastsByQueryOrderByDate(locationKey)
+            DataSource.Factory<Integer, HourlyForecastItemViewModel> hrFactory = Settings.getWeatherDAO().loadHourlyForecastsByQueryOrderByDateFilterByDate(location.getQuery(), ZonedDateTime.now(location.getTzOffset()).truncatedTo(ChronoUnit.HOURS))
                     .map(new Function<HourlyForecast, HourlyForecastItemViewModel>() {
                         @Override
                         public HourlyForecastItemViewModel apply(HourlyForecast input) {
@@ -129,7 +132,7 @@ public class ForecastsViewModel extends ViewModel {
     protected void onCleared() {
         super.onCleared();
 
-        locationKey = null;
+        locationData = null;
 
         if (currentForecastsData != null)
             currentForecastsData.removeObserver(forecastObserver);
@@ -144,27 +147,27 @@ public class ForecastsViewModel extends ViewModel {
     }
 
     private static class ForecastDataSourceFactory extends DataSource.Factory<Integer, ForecastItemViewModel> {
-        private final String locationKey;
+        private final LocationData location;
         private final WeatherDAO dao;
 
-        ForecastDataSourceFactory(@NonNull String locationKey, @NonNull WeatherDAO dao) {
-            this.locationKey = locationKey;
+        ForecastDataSourceFactory(@NonNull LocationData location, @NonNull WeatherDAO dao) {
+            this.location = location;
             this.dao = dao;
         }
 
         @NonNull
         @Override
         public DataSource<Integer, ForecastItemViewModel> create() {
-            return new ForecastDataSource(locationKey, dao);
+            return new ForecastDataSource(location, dao);
         }
     }
 
     private static class ForecastDataSource extends PositionalDataSource<ForecastItemViewModel> {
-        private final String locationKey;
+        private final LocationData location;
         private final WeatherDAO dao;
 
-        ForecastDataSource(@NonNull String locationKey, @NonNull WeatherDAO dao) {
-            this.locationKey = locationKey;
+        ForecastDataSource(@NonNull LocationData location, @NonNull WeatherDAO dao) {
+            this.location = location;
             this.dao = dao;
         }
 
@@ -173,7 +176,7 @@ public class ForecastsViewModel extends ViewModel {
             Forecasts forecasts = new AsyncTask<Forecasts>().await(new Callable<Forecasts>() {
                 @Override
                 public Forecasts call() {
-                    return dao.getForecastData(locationKey);
+                    return dao.getForecastData(location.getQuery());
                 }
             });
 
@@ -194,7 +197,7 @@ public class ForecastsViewModel extends ViewModel {
             Forecasts forecasts = new AsyncTask<Forecasts>().await(new Callable<Forecasts>() {
                 @Override
                 public Forecasts call() {
-                    return dao.getForecastData(locationKey);
+                    return dao.getForecastData(location.getQuery());
                 }
             });
 

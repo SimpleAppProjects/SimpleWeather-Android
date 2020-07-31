@@ -172,15 +172,10 @@ public class Settings {
     }
 
     static {
-        if (SimpleLibrary.getInstance().getApp().isPhone()) {
-            DEFAULT_UPDATE_INTERVAL = "60"; // 60 minutes (1hr)
-            DEFAULTINTERVAL = 60;
-            IS_PHONE = true;
-        } else {
-            DEFAULT_UPDATE_INTERVAL = "120"; // 120 minutes (2hrs)
-            DEFAULTINTERVAL = 120;
-            IS_PHONE = false;
-        }
+        IS_PHONE = SimpleLibrary.getInstance().getApp().isPhone();
+
+        DEFAULT_UPDATE_INTERVAL = "120"; // 120 minutes (2hrs)
+        DEFAULTINTERVAL = 120;
 
         appDataFolder = SimpleLibrary.getInstance().getAppContext().getFilesDir();
         preferences = SimpleLibrary.getInstance().getApp().getPreferences();
@@ -385,6 +380,17 @@ public class Settings {
                 loadIfNeeded();
 
                 return weatherDB.weatherDAO().getHourlyForecastsByQueryOrderByDateByLimit(key, loadSize);
+            }
+        });
+    }
+
+    public static List<HourlyForecast> getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(final String key, final int loadSize, final ZonedDateTime date) {
+        return new AsyncTask<List<HourlyForecast>>().await(new Callable<List<HourlyForecast>>() {
+            @Override
+            public List<HourlyForecast> call() {
+                loadIfNeeded();
+
+                return weatherDB.weatherDAO().getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(key, loadSize, date);
             }
         });
     }

@@ -97,13 +97,18 @@ public class WeatherUpdaterWorker extends Worker {
     public static void enqueueAction(@NonNull Context context, @NonNull String intentAction) {
         context = context.getApplicationContext();
 
-        if (ACTION_UPDATEALARM.equals(intentAction)) {
-            enqueueWork(context);
-        } else if (ACTION_UPDATEWEATHER.equals(intentAction) || ACTION_STARTALARM.equals(intentAction)) {
-            // For immediate action
-            startWork(context);
-        } else if (ACTION_CANCELALARM.equals(intentAction)) {
-            cancelWork(context);
+        switch (intentAction) {
+            case ACTION_UPDATEALARM:
+                enqueueWork(context);
+                break;
+            case ACTION_UPDATEWEATHER:
+            case ACTION_STARTALARM:
+                // For immediate action
+                startWork(context);
+                break;
+            case ACTION_CANCELALARM:
+                cancelWork(context);
+                break;
         }
     }
 
@@ -122,7 +127,6 @@ public class WeatherUpdaterWorker extends Worker {
 
         OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(WeatherUpdaterWorker.class)
                 .setConstraints(constraints)
-                .setInitialDelay(5, TimeUnit.SECONDS)
                 .build();
 
         WorkManager.getInstance(context)
@@ -148,7 +152,7 @@ public class WeatherUpdaterWorker extends Worker {
                 .build();
 
         PeriodicWorkRequest updateRequest =
-                new PeriodicWorkRequest.Builder(WeatherUpdaterWorker.class, Settings.getRefreshInterval(), TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
+                new PeriodicWorkRequest.Builder(WeatherUpdaterWorker.class, 60, TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
                         .setConstraints(constraints)
                         .setBackoffCriteria(BackoffPolicy.LINEAR, 1, TimeUnit.MINUTES)
                         .build();
@@ -221,12 +225,7 @@ public class WeatherUpdaterWorker extends Worker {
                 }
 
                 if (Settings.useAlerts() && wm.supportsAlerts()) {
-                    AsyncTask.run(new Runnable() {
-                        @Override
-                        public void run() {
-                            WeatherAlertHandler.postAlerts(Settings.getHomeData(), weather.getWeatherAlerts());
-                        }
-                    });
+                    WeatherAlertHandler.postAlerts(Settings.getHomeData(), weather.getWeatherAlerts());
                 }
 
                 // Update weather data for Wearables
@@ -242,7 +241,7 @@ public class WeatherUpdaterWorker extends Worker {
         return new AsyncTask<Weather>().await(new Callable<Weather>() {
             @Override
             public Weather call() {
-                Weather weather = null;
+                Weather weather;
 
                 try {
                     if (Settings.useFollowGPS())
@@ -303,7 +302,7 @@ public class WeatherUpdaterWorker extends Worker {
                             public Location call() {
                                 Location result = null;
                                 try {
-                                    result = Tasks.await(mFusedLocationClient.getLastLocation(), 5, TimeUnit.SECONDS);
+                                    result = Tasks.await(mFusedLocationClient.getLastLocation(), 20, TimeUnit.SECONDS);
                                 } catch (Exception e) {
                                     Logger.writeLine(Log.ERROR, e);
                                 }
@@ -327,7 +326,7 @@ public class WeatherUpdaterWorker extends Worker {
                     if (location != null && !isCtsCancelRequested()) {
                         LocationData lastGPSLocData = Settings.getLastGPSLocData();
 
-                        if (isCtsCancelRequested()) return locationChanged;
+                        if (isCtsCancelRequested()) return false;
 
                         // Check previous location difference
                         if (lastGPSLocData.getQuery() != null &&
@@ -336,7 +335,7 @@ public class WeatherUpdaterWorker extends Worker {
                             return false;
                         }
 
-                        LocationQueryViewModel query_vm = null;
+                        LocationQueryViewModel query_vm;
 
                         TaskCompletionSource<LocationQueryViewModel> tcs = new TaskCompletionSource<>(cts.getToken());
                         try {
@@ -346,7 +345,7 @@ public class WeatherUpdaterWorker extends Worker {
                             Logger.writeLine(Log.ERROR, e);
                             return false;
                         } catch (InterruptedException e) {
-                            return locationChanged;
+                            return false;
                         }
 
                         if (StringUtils.isNullOrEmpty(query_vm.getLocationQuery()))
@@ -357,14 +356,15 @@ public class WeatherUpdaterWorker extends Worker {
                             return false;
                         }
 
-                        if (isCtsCancelRequested()) return locationChanged;
+                        if (isCtsCancelRequested()) return false;
 
                         // Save location as last known
                         lastGPSLocData.setData(query_vm, location);
                         Settings.saveLastGPSLocData(lastGPSLocData);
 
                         LocalBroadcastManager.getInstance(context)
-                                .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
+                                .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
+                                        .putExtra(CommonActions.EXTRA_FORCEUPDATE, false));
 
                         locationChanged = true;
                     }
