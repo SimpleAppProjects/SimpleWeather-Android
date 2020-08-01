@@ -186,6 +186,10 @@
     <string name="widget_long_date_format">cccc, MMMM dd</string>
     <string name="widget4x1_date_format">cccc, MMM dd</string>
     <string name="widget_short_date_format">ccc, MMM dd</string>
+    <string name="pref_category_timeanddate">Time and Date</string>
+    <string name="pref_title_timezone">Time zone</string>
+    <string name="pref_timezone_summaryoff">Use system time zone for time and date</string>
+    <string name="pref_timezone_summaryon">Use location time zone for time and date</string>
     <string name="pref_location">Location</string>
     <string name="pref_item_gpslocation">Current GPS Location</string>
     <string name="prompt_setup_app_first">Please setup application first</string>

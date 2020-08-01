@@ -3,70 +3,114 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:iconSpaceReserved="false">
 
-    <com.thewizrd.simpleweather.preferences.ArrayListPreference
-        android:key="key_location"
-        android:title="@string/pref_location"
-        android:summary="%s"
-        android:persistent="false" />
+    <PreferenceCategory
+        android:key="key_catgeneral"
+        android:title="@string/pref_title_general"
+        app:iconSpaceReserved="false">
 
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="key_hidelocname"
-        android:persistent="false"
-        android:summary="@string/locname_pref_summary"
-        android:title="@string/locname_pref_title"
-        app:isPreferenceVisible="false" />
+        <com.thewizrd.simpleweather.preferences.ArrayListPreference
+            android:key="key_location"
+            android:title="@string/pref_location"
+            android:summary="%s"
+            android:persistent="false"
+            app:iconSpaceReserved="false" />
 
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="key_hidesettingsbtn"
-        android:persistent="false"
-        android:summary="@string/settingsbtn_pref_summary"
-        android:title="@string/settingsbtn_pref_title" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="key_hidelocname"
+            android:persistent="false"
+            android:summary="@string/locname_pref_summary"
+            android:title="@string/locname_pref_title"
+            app:iconSpaceReserved="false"
+            app:isPreferenceVisible="false" />
 
-    <Preference
-        android:defaultValue="@null"
-        android:key="key_clockapp"
-        android:persistent="false"
-        android:summary="@string/summary_default"
-        android:title="@string/clock_pref_title"
-        app:isPreferenceVisible="false" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="key_hidesettingsbtn"
+            android:persistent="false"
+            android:summary="@string/settingsbtn_pref_summary"
+            android:title="@string/settingsbtn_pref_title"
+            app:iconSpaceReserved="false" />
 
-    <Preference
-        android:defaultValue="@null"
-        android:key="key_calendarapp"
-        android:persistent="false"
-        android:summary="@string/summary_default"
-        android:title="@string/calendar_pref_title"
-        app:isPreferenceVisible="false" />
+    </PreferenceCategory>
 
-    <ListPreference
-        android:defaultValue="0"
-        android:entries="@array/bgcolor_entries"
-        android:entryValues="@array/bgcolor_values"
-        android:key="key_bgcolor"
-        android:persistent="false"
-        android:summary="%s"
-        android:title="@string/pref_title_bgcolor" />
+    <PreferenceCategory
+        android:key="key_catclockdate"
+        android:title="@string/pref_category_timeanddate"
+        app:iconSpaceReserved="false">
 
-    <ListPreference
-        android:defaultValue="0"
-        android:entries="@array/bgstyle_entries"
-        android:entryValues="@array/bgstyle_values"
-        android:key="key_bgstyle"
-        android:persistent="false"
-        android:summary="%s"
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="key_usetimezone"
+            android:persistent="false"
+            android:summaryOff="@string/pref_timezone_summaryoff"
+            android:summaryOn="@string/pref_timezone_summaryon"
+            android:title="@string/pref_title_timezone"
+            app:iconSpaceReserved="false" />
+
+        <Preference
+            android:defaultValue="@null"
+            android:key="key_clockapp"
+            android:persistent="false"
+            android:summary="@string/summary_default"
+            android:title="@string/clock_pref_title"
+            app:iconSpaceReserved="false"
+            app:isPreferenceVisible="false" />
+
+        <Preference
+            android:defaultValue="@null"
+            android:key="key_calendarapp"
+            android:persistent="false"
+            android:summary="@string/summary_default"
+            android:title="@string/calendar_pref_title"
+            app:iconSpaceReserved="false"
+            app:isPreferenceVisible="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="key_background"
         android:title="@string/pref_title_bgstyle"
-        app:isPreferenceVisible="false" />
+        app:iconSpaceReserved="false">
 
-    <ListPreference
-        android:defaultValue="0"
-        android:entries="@array/fcastopt_entries"
-        android:entryValues="@array/fcastopt_values"
-        android:key="key_fcastoption"
-        android:persistent="false"
-        android:summary="%s"
-        android:title="@string/pref_title_fcastoption"
-        app:isPreferenceVisible="false" />
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/bgcolor_entries"
+            android:entryValues="@array/bgcolor_values"
+            android:key="key_bgcolor"
+            android:persistent="false"
+            android:summary="%s"
+            android:title="@string/pref_title_bgcolor"
+            app:iconSpaceReserved="false" />
+
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/bgstyle_entries"
+            android:entryValues="@array/bgstyle_values"
+            android:key="key_bgstyle"
+            android:persistent="false"
+            android:summary="%s"
+            android:title="@string/pref_title_bgstyle"
+            app:iconSpaceReserved="false"
+            app:isPreferenceVisible="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="key_forecast"
+        android:title="@string/label_forecast"
+        app:iconSpaceReserved="false">
+
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/fcastopt_entries"
+            android:entryValues="@array/fcastopt_values"
+            android:key="key_fcastoption"
+            android:persistent="false"
+            android:summary="%s"
+            android:title="@string/pref_title_fcastoption"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

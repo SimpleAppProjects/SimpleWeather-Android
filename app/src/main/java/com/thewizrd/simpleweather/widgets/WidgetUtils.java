@@ -57,6 +57,7 @@ public class WidgetUtils {
     private static final String KEY_CLOCKAPP = "key_clockapp";
     private static final String KEY_CALENDARAPP = "key_calendarapp";
     private static final String KEY_FORECASTOPTION = "key_fcastoption";
+    private static final String KEY_USETIMEZONE = "key_usetimezone";
 
     private static final int FORECAST_LENGTH = 3; // 3-day
     private static final int MEDIUM_FORECAST_LENGTH = 4; // 4-day
@@ -794,6 +795,18 @@ public class WidgetUtils {
         SharedPreferences.Editor editor = getEditor(widgetId);
 
         editor.putString(KEY_FORECASTOPTION, Integer.toString(value));
+        editor.commit();
+    }
+
+    public static boolean useTimeZone(int widgetId) {
+        SharedPreferences prefs = getPreferences(widgetId);
+        return prefs.getBoolean(KEY_USETIMEZONE, false);
+    }
+
+    public static void setUseTimeZone(int widgetId, boolean value) {
+        SharedPreferences.Editor editor = getEditor(widgetId);
+
+        editor.putBoolean(KEY_USETIMEZONE, value);
         editor.commit();
     }
 }

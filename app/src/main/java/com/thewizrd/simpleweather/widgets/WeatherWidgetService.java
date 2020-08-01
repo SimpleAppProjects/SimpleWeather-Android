@@ -699,6 +699,7 @@ public class WeatherWidgetService extends JobIntentService {
                 @Override
                 public Void call() {
                     WidgetType widgetType = getWidgetTypeFromID(appWidgetId);
+                    LocationData locationData = WidgetUtils.getLocationData(appWidgetId);
 
                     RemoteViews views;
 
@@ -746,9 +747,21 @@ public class WeatherWidgetService extends JobIntentService {
 
                         views.setCharSequence(R.id.clock_panel, "setFormat24Hour",
                                 mContext.getText(R.string.clock_24_hours_format));
+
+                        if (WidgetUtils.useTimeZone(appWidgetId) && locationData != null) {
+                            views.setString(R.id.clock_panel, "setTimeZone", locationData.getTzLong());
+                        } else {
+                            views.setString(R.id.clock_panel, "setTimeZone", null);
+                        }
                     } else {
                         // TextView
-                        LocalDateTime now = LocalDateTime.now();
+                        LocalDateTime now;
+
+                        if (WidgetUtils.useTimeZone(appWidgetId) && locationData != null && locationData.getTzOffset() != null) {
+                            now = LocalDateTime.now(locationData.getTzOffset());
+                        } else {
+                            now = LocalDateTime.now();
+                        }
 
                         SpannableString timeStr;
                         String timeformat = now.format(DateTimeFormatter.ofPattern("h:mma"));
@@ -804,6 +817,7 @@ public class WeatherWidgetService extends JobIntentService {
                 public Void call() {
                     // Update clock widgets
                     WidgetType widgetType = getWidgetTypeFromID(appWidgetId);
+                    LocationData locationData = WidgetUtils.getLocationData(appWidgetId);
 
                     RemoteViews views;
 
@@ -851,6 +865,12 @@ public class WeatherWidgetService extends JobIntentService {
 
                         views.setCharSequence(R.id.date_panel, "setFormat12Hour", dtfm);
                         views.setCharSequence(R.id.date_panel, "setFormat24Hour", dtfm);
+
+                        if (WidgetUtils.useTimeZone(appWidgetId) && locationData != null) {
+                            views.setString(R.id.date_panel, "setTimeZone", locationData.getTzLong());
+                        } else {
+                            views.setString(R.id.date_panel, "setTimeZone", null);
+                        }
                     } else {
                         DateTimeFormatter dtfm;
                         if (widgetType == WidgetType.Widget2x2 && cellWidth >= 3) {
@@ -861,7 +881,15 @@ public class WeatherWidgetService extends JobIntentService {
                             dtfm = DateTimeFormatter.ofPattern("eee, MMM dd");
                         }
 
-                        views.setTextViewText(R.id.date_panel, LocalDateTime.now().format(dtfm));
+                        LocalDateTime now;
+
+                        if (WidgetUtils.useTimeZone(appWidgetId) && locationData != null && locationData.getTzOffset() != null) {
+                            now = LocalDateTime.now(locationData.getTzOffset());
+                        } else {
+                            now = LocalDateTime.now();
+                        }
+
+                        views.setTextViewText(R.id.date_panel, now.format(dtfm));
                     }
 
                     if (!(!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)))

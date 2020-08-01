@@ -11,7 +11,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -22,7 +21,7 @@ import android.os.Looper;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.format.DateFormat;
-import android.text.style.TextAppearanceSpan;
+import android.text.style.RelativeSizeSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -149,12 +148,16 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private WidgetUtils.WidgetBackgroundStyle mWidgetBGStyle;
 
     private ArrayListPreference locationPref;
-    private ListPreference bgColorPref;
-    private ListPreference bgStylePref;
     private SwitchPreference hideLocNamePref;
     private SwitchPreference hideSettingsBtnPref;
+
+    private SwitchPreference useTimeZonePref;
     private Preference clockPref;
     private Preference calPref;
+
+    private ListPreference bgColorPref;
+    private ListPreference bgStylePref;
+
     private ListPreference fcastOptPref;
 
     private static final int MAX_LOCATIONS = Settings.getMaxLocations();
@@ -162,14 +165,21 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private static final int SETUP_REQUEST_CODE = 10;
 
     // Preference Keys
+    private static final String KEY_CATGENERAL = "key_catgeneral";
     private static final String KEY_LOCATION = "key_location";
-    private static final String KEY_REFRESHINTERVAL = "key_refreshinterval";
-    private static final String KEY_BGCOLOR = "key_bgcolor";
-    private static final String KEY_BGSTYLE = "key_bgstyle";
     private static final String KEY_HIDELOCNAME = "key_hidelocname";
     private static final String KEY_HIDESETTINGSBTN = "key_hidesettingsbtn";
+
+    private static final String KEY_CATCLOCKDATE = "key_catclockdate";
+    private static final String KEY_USETIMEZONE = "key_usetimezone";
     private static final String KEY_CLOCKAPP = "key_clockapp";
     private static final String KEY_CALENDARAPP = "key_calendarapp";
+
+    private static final String KEY_BACKGROUND = "key_background";
+    private static final String KEY_BGCOLOR = "key_bgcolor";
+    private static final String KEY_BGSTYLE = "key_bgstyle";
+
+    private static final String KEY_FORECAST = "key_forecast";
     private static final String KEY_FORECASTOPTION = "key_fcastoption";
 
     public WeatherWidgetPreferenceFragment() {
@@ -427,50 +437,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             locationPref.setValueIndex(0);
         }
 
-        // Setup widget background spinner
-        bgColorPref = findPreference(KEY_BGCOLOR);
-        bgStylePref = findPreference(KEY_BGSTYLE);
-
-        bgColorPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                mWidgetBackground = WidgetUtils.WidgetBackground.valueOf(Integer.parseInt(newValue.toString()));
-                updateWidgetView();
-
-                if (mWidgetBackground == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
-                    if (mWidgetType == WidgetType.Widget4x2 || mWidgetType == WidgetType.Widget2x2) {
-                        bgStylePref.setVisible(true);
-                        return true;
-                    }
-                }
-
-                bgStylePref.setValueIndex(0);
-                bgStylePref.callChangeListener(bgStylePref.getValue());
-                bgStylePref.setVisible(false);
-                return true;
-            }
-        });
-
-        bgStylePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                mWidgetBGStyle = WidgetUtils.WidgetBackgroundStyle.valueOf(Integer.parseInt(newValue.toString()));
-                updateWidgetView();
-                return true;
-            }
-        });
-
-        if (WidgetUtils.isBackgroundOptionalWidget(mWidgetType)) {
-            bgColorPref.setValueIndex(WidgetUtils.getWidgetBackground(mAppWidgetId).getValue());
-            bgColorPref.callChangeListener(bgColorPref.getValue());
-
-            bgStylePref.setValueIndex(WidgetUtils.getBackgroundStyle(mAppWidgetId).getValue());
-            bgStylePref.callChangeListener(bgStylePref.getValue());
-        } else {
-            bgColorPref.setValueIndex(WidgetUtils.WidgetBackground.TRANSPARENT.getValue());
-            bgColorPref.setVisible(false);
-        }
-
         hideLocNamePref = findPreference(KEY_HIDELOCNAME);
         hideSettingsBtnPref = findPreference(KEY_HIDESETTINGSBTN);
 
@@ -502,8 +468,10 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
         hideSettingsBtnPref.setChecked(WidgetUtils.isSettingsButtonHidden(mAppWidgetId));
 
+        // Time and Date
         clockPref = findPreference(KEY_CLOCKAPP);
         calPref = findPreference(KEY_CALENDARAPP);
+        useTimeZonePref = findPreference(KEY_USETIMEZONE);
 
         clockPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -548,6 +516,58 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             calPref.setVisible(false);
         }
 
+        if (WidgetUtils.isClockWidget(mWidgetType) || WidgetUtils.isDateWidget(mWidgetType)) {
+            useTimeZonePref.setChecked(WidgetUtils.useTimeZone(mAppWidgetId));
+            findPreference(KEY_CATCLOCKDATE).setVisible(true);
+        } else {
+            findPreference(KEY_CATCLOCKDATE).setVisible(false);
+        }
+
+        // Widget background style
+        bgColorPref = findPreference(KEY_BGCOLOR);
+        bgStylePref = findPreference(KEY_BGSTYLE);
+
+        bgColorPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                mWidgetBackground = WidgetUtils.WidgetBackground.valueOf(Integer.parseInt(newValue.toString()));
+                updateWidgetView();
+
+                if (mWidgetBackground == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
+                    if (mWidgetType == WidgetType.Widget4x2 || mWidgetType == WidgetType.Widget2x2) {
+                        bgStylePref.setVisible(true);
+                        return true;
+                    }
+                }
+
+                bgStylePref.setValueIndex(0);
+                bgStylePref.callChangeListener(bgStylePref.getValue());
+                bgStylePref.setVisible(false);
+                return true;
+            }
+        });
+
+        bgStylePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                mWidgetBGStyle = WidgetUtils.WidgetBackgroundStyle.valueOf(Integer.parseInt(newValue.toString()));
+                updateWidgetView();
+                return true;
+            }
+        });
+
+        if (WidgetUtils.isBackgroundOptionalWidget(mWidgetType)) {
+            bgColorPref.setValueIndex(WidgetUtils.getWidgetBackground(mAppWidgetId).getValue());
+            bgColorPref.callChangeListener(bgColorPref.getValue());
+
+            bgStylePref.setValueIndex(WidgetUtils.getBackgroundStyle(mAppWidgetId).getValue());
+            bgStylePref.callChangeListener(bgStylePref.getValue());
+            findPreference(KEY_BACKGROUND).setVisible(true);
+        } else {
+            bgColorPref.setValueIndex(WidgetUtils.WidgetBackground.TRANSPARENT.getValue());
+            findPreference(KEY_BACKGROUND).setVisible(false);
+        }
+
         // Forecast Preferences
         fcastOptPref = findPreference(KEY_FORECASTOPTION);
         fcastOptPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -560,11 +580,11 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
         if (!WeatherAPI.YAHOO.equals(wm.getWeatherAPI()) && isForecastWidget(mWidgetType)) {
             fcastOptPref.setValueIndex(WidgetUtils.getForecastOption(mAppWidgetId).getValue());
-            fcastOptPref.setVisible(true);
             fcastOptPref.callChangeListener(fcastOptPref.getValue());
+            findPreference(KEY_FORECAST).setVisible(true);
         } else {
             fcastOptPref.setValueIndex(WidgetUtils.ForecastOption.FULL.getValue());
-            fcastOptPref.setVisible(false);
+            findPreference(KEY_FORECAST).setVisible(false);
         }
     }
 
@@ -695,7 +715,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             return;
         }
 
-        LocalDateTime now = LocalDateTime.now();
+        updateTimeAndDate();
 
         View widgetView = View.inflate(getAppCompatActivity(), widgetLayoutRes, binding.widgetContainer);
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) widgetView.getLayoutParams();
@@ -732,41 +752,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
         ImageView iconView = widgetView.findViewById(R.id.weather_icon);
         iconView.setImageResource(R.drawable.day_sunny);
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 && WidgetUtils.isDateWidget(mWidgetType)) {
-            DateTimeFormatter dtfm;
-            if (mWidgetType == WidgetType.Widget2x2) {
-                dtfm = DateTimeFormatter.ofPattern("eeee, MMMM dd");
-            } else if (mWidgetType == WidgetType.Widget4x1Google) {
-                dtfm = DateTimeFormatter.ofPattern("eeee, MMM dd");
-            } else {
-                dtfm = DateTimeFormatter.ofPattern("eee, MMM dd");
-            }
-
-            TextView dateText = widgetView.findViewById(R.id.date_panel);
-            dateText.setText(now.format(dtfm));
-        }
-
-        if (WidgetUtils.isClockWidget(mWidgetType) && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            SpannableString timeStr;
-            String timeformat = now.format(DateTimeFormatter.ofPattern("h:mma"));
-            int end = timeformat.length() - 2;
-
-            if (DateFormat.is24HourFormat(App.getInstance().getAppContext())) {
-                timeformat = now.format(DateTimeFormatter.ofPattern("HH:mm"));
-                end = timeformat.length() - 1;
-                timeStr = new SpannableString(timeformat);
-            } else {
-                timeStr = new SpannableString(timeformat);
-                timeStr.setSpan(new TextAppearanceSpan("sans-serif", Typeface.BOLD, 16,
-                                ContextCompat.getColorStateList(getAppCompatActivity(), android.R.color.white),
-                                ContextCompat.getColorStateList(getAppCompatActivity(), android.R.color.white)),
-                        end, timeformat.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-
-            TextView clockView = widgetView.findViewById(R.id.clock_panel);
-            clockView.setText(timeStr);
-        }
 
         if (isForecastWidget(mWidgetType)) {
             ViewGroup forecastLayout = binding.widgetContainer.findViewById(R.id.forecast_layout);
@@ -816,6 +801,47 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         TextView locationView = binding.widgetContainer.findViewById(R.id.location_name);
         locationView.setText(mLastSelectedValue != null ? locationPref.findEntryFromValue(mLastSelectedValue) : this.getString(R.string.pref_location));
         locationView.setVisibility(hideLocNamePref.isChecked() ? View.GONE : View.VISIBLE);
+    }
+
+    private void updateTimeAndDate() {
+        if (binding == null) return;
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (WidgetUtils.isDateWidget(mWidgetType)) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                DateTimeFormatter dtfm;
+                if (mWidgetType == WidgetType.Widget2x2) {
+                    dtfm = DateTimeFormatter.ofPattern("eeee, MMMM dd");
+                } else if (mWidgetType == WidgetType.Widget4x1Google) {
+                    dtfm = DateTimeFormatter.ofPattern("eeee, MMM dd");
+                } else {
+                    dtfm = DateTimeFormatter.ofPattern("eee, MMM dd");
+                }
+
+                TextView dateText = binding.widgetContainer.findViewById(R.id.date_panel);
+                dateText.setText(now.format(dtfm));
+            }
+        }
+
+        if (WidgetUtils.isClockWidget(mWidgetType)) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                SpannableString timeStr;
+                String timeformat = now.format(DateTimeFormatter.ofPattern("h:mma"));
+                int end = timeformat.length() - 2;
+
+                if (DateFormat.is24HourFormat(App.getInstance().getAppContext())) {
+                    timeformat = now.format(DateTimeFormatter.ofPattern("HH:mm"));
+                    timeStr = new SpannableString(timeformat);
+                } else {
+                    timeStr = new SpannableString(timeformat);
+                    timeStr.setSpan(new RelativeSizeSpan(0.875f), end, timeformat.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+
+                TextView clockView = binding.widgetContainer.findViewById(R.id.clock_panel);
+                clockView.setText(timeStr);
+            }
+        }
     }
 
     private void updateWidgetView() {
@@ -1237,6 +1263,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         WidgetUtils.setLocationNameHidden(mAppWidgetId, hideLocNamePref.isChecked());
         WidgetUtils.setSettingsButtonHidden(mAppWidgetId, hideSettingsBtnPref.isChecked());
         WidgetUtils.setForecastOption(mAppWidgetId, Integer.parseInt(fcastOptPref.getValue()));
+        WidgetUtils.setUseTimeZone(mAppWidgetId, useTimeZonePref.isChecked());
 
         // Trigger widget service to update widget
         WeatherWidgetService.enqueueWork(getAppCompatActivity(),
