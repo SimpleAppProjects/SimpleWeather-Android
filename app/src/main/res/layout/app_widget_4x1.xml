@@ -35,7 +35,7 @@
                 android:layout_gravity="center_vertical"
                 android:orientation="vertical"
                 android:minHeight="30dp"
-                android:minWidth="75dp">
+                android:minWidth="85dp">
 
                 <TextView
                     android:id="@+id/spacer_top"
@@ -97,7 +97,7 @@
                         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                         android:textColor="@android:color/white"
                         android:textSize="12sp"
-                        tools:text="70°" />
+                        tools:text="70°F" />
 
                 </RelativeLayout>
 

@@ -33,7 +33,6 @@ import androidx.core.util.ObjectsCompat;
 
 import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.request.FutureTarget;
-import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -70,6 +69,7 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.GlideApp;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.main.MainActivity;
+import com.thewizrd.simpleweather.utils.ArrayUtils;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.threeten.bp.LocalDateTime;
@@ -132,6 +132,10 @@ public class WeatherWidgetService extends JobIntentService {
             WeatherWidgetProvider4x1Google.getInstance();
     private WeatherWidgetProvider4x1Notification mAppWidget4x1Notif =
             WeatherWidgetProvider4x1Notification.getInstance();
+    private WeatherWidgetProvider4x2Clock mAppWidget4x2Clock =
+            WeatherWidgetProvider4x2Clock.getInstance();
+    private WeatherWidgetProvider4x2Huawei mAppWidget4x2Huawei =
+            WeatherWidgetProvider4x2Huawei.getInstance();
 
     private boolean isNightMode = false;
     private float maxBitmapSize;
@@ -210,6 +214,12 @@ public class WeatherWidgetService extends JobIntentService {
                     case Widget4x1Notification:
                         refreshWidget(mAppWidget4x1Notif, appWidgetIds);
                         break;
+                    case Widget4x2Clock:
+                        refreshWidget(mAppWidget4x2Clock, appWidgetIds);
+                        break;
+                    case Widget4x2Huawei:
+                        refreshWidget(mAppWidget4x2Huawei, appWidgetIds);
+                        break;
                     // We don't know the widget type to update,
                     // so just update all
                     case Unknown:
@@ -241,13 +251,21 @@ public class WeatherWidgetService extends JobIntentService {
                     case Widget4x1Notification:
                         resizeWidget(mAppWidget4x1Notif, appWidgetId, newOptions);
                         break;
+                    case Widget4x2Clock:
+                        resizeWidget(mAppWidget4x2Clock, appWidgetId, newOptions);
+                        break;
+                    case Widget4x2Huawei:
+                        resizeWidget(mAppWidget4x2Huawei, appWidgetId, newOptions);
+                        break;
                 }
             } else if (ACTION_STARTCLOCK.equals(intent.getAction())) {
                 // Schedule clock updates
                 startTickReceiver(mContext);
             } else if (ACTION_CANCELCLOCK.equals(intent.getAction())) {
-                // Cancel clock alarm
-                cancelClockAlarm(mContext);
+                if (!clockWidgetsExist(mContext)) {
+                    // Cancel clock alarm
+                    cancelClockAlarm(mContext);
+                }
             } else if (ACTION_UPDATECLOCK.equals(intent.getAction())) {
                 // Update clock widget instances
                 int[] appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS);
@@ -263,6 +281,10 @@ public class WeatherWidgetService extends JobIntentService {
                 refreshWidgets(Constants.KEY_GPS);
             } else if (ACTION_REFRESHWIDGETS.equals(intent.getAction())) {
                 refreshWidgets(intent.getStringExtra(EXTRA_LOCATIONQUERY));
+            } else if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()) || Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 && clockWidgetsExist(mContext)) {
+                    startTickReceiver(mContext);
+                }
             }
 
             Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent.getAction());
@@ -275,7 +297,7 @@ public class WeatherWidgetService extends JobIntentService {
         Intent intent = new Intent(context, WeatherWidgetBroadcastReceiver.class)
                 .setAction(ACTION_UPDATECLOCK);
 
-        return PendingIntent.getBroadcast(context, 0, intent, 0);
+        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private static void startTickReceiver(Context context) {
@@ -310,7 +332,14 @@ public class WeatherWidgetService extends JobIntentService {
                 AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                 PendingIntent pendingIntent = getClockRefreshIntent(context);
                 am.cancel(pendingIntent);
-                am.setRepeating(AlarmManager.RTC, System.currentTimeMillis(), 60000, pendingIntent);
+
+                long nowMillis = System.currentTimeMillis();
+                long dueTime = nowMillis - (nowMillis % 60000) + 60000;
+                am.setRepeating(AlarmManager.RTC, dueTime, 60000, pendingIntent);
+
+                // Request an update
+                context.sendBroadcast(new Intent(context, WeatherWidgetBroadcastReceiver.class)
+                        .setAction(ACTION_UPDATECLOCK));
 
                 stopTickReceiver(context);
 
@@ -325,7 +354,16 @@ public class WeatherWidgetService extends JobIntentService {
                 || WeatherWidgetProvider4x1.getInstance().hasInstances(context)
                 || WeatherWidgetProvider4x2.getInstance().hasInstances(context)
                 || WeatherWidgetProvider4x1Google.getInstance().hasInstances(context)
-                || WeatherWidgetProvider4x1Notification.getInstance().hasInstances(context);
+                || WeatherWidgetProvider4x1Notification.getInstance().hasInstances(context)
+                || WeatherWidgetProvider4x2Clock.getInstance().hasInstances(context)
+                || WeatherWidgetProvider4x2Huawei.getInstance().hasInstances(context);
+    }
+
+    public static boolean clockWidgetsExist(Context context) {
+        return WeatherWidgetProvider2x2.getInstance().hasInstances(context)
+                || WeatherWidgetProvider4x2.getInstance().hasInstances(context)
+                || WeatherWidgetProvider4x2Clock.getInstance().hasInstances(context)
+                || WeatherWidgetProvider4x2Huawei.getInstance().hasInstances(context);
     }
 
     private void resizeWidget(WeatherWidgetProvider provider, int appWidgetId, Bundle newOptions) throws InterruptedException {
@@ -477,7 +515,45 @@ public class WeatherWidgetService extends JobIntentService {
                         for (int id : appWidgetIds) {
                             refreshWidget(mAppWidget4x1Notif, id);
                         }
+                        return null;
+                    }
+                });
 
+                tasks.add(task);
+            }
+
+            if (mAppWidget4x2Clock.hasInstances(mContext)) {
+                Task<Void> task = AsyncTask.create(new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        Logger.writeLine(Log.DEBUG, "%s: refreshAllWidgets: started 4x2Clock", TAG);
+                        int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2Clock.getComponentName());
+
+                        for (int id : appWidgetIds) {
+                            refreshWidget(mAppWidget4x2Clock, id);
+                        }
+
+                        refreshClock(appWidgetIds);
+                        refreshDate(appWidgetIds);
+                        return null;
+                    }
+                });
+
+                tasks.add(task);
+            }
+
+            if (mAppWidget4x2Huawei.hasInstances(mContext)) {
+                Task<Void> task = AsyncTask.create(new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        Logger.writeLine(Log.DEBUG, "%s: refreshAllWidgets: started 4x2Huawei", TAG);
+                        int[] appWidgetIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2Huawei.getComponentName());
+
+                        for (int id : appWidgetIds) {
+                            refreshWidget(mAppWidget4x2Huawei, id);
+                        }
+
+                        refreshClock(appWidgetIds);
                         refreshDate(appWidgetIds);
                         return null;
                     }
@@ -495,7 +571,7 @@ public class WeatherWidgetService extends JobIntentService {
     }
 
     private void refreshWidget(final WeatherWidgetProvider provider, int appWidgetId) throws InterruptedException {
-        LocationData locData = null;
+        LocationData locData;
 
         if (WidgetUtils.isGPS(appWidgetId)) {
             if (!Settings.useFollowGPS()) {
@@ -510,7 +586,7 @@ public class WeatherWidgetService extends JobIntentService {
 
         if (isCtsCancelRequested()) throw new InterruptedException();
 
-        Weather weather = null;
+        Weather weather;
 
         if (locData != null) {
             if (isCtsCancelRequested()) throw new InterruptedException();
@@ -596,6 +672,8 @@ public class WeatherWidgetService extends JobIntentService {
         final int[] ids4x2 = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName());
         final int[] ids4x1G = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1Google.getComponentName());
         final int[] ids4x1N = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1Notif.getComponentName());
+        final int[] ids4x2C = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2Clock.getComponentName());
+        final int[] ids4x2H = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2Huawei.getComponentName());
         final LocationData locationData;
         if (Constants.KEY_GPS.equals(location_query)) {
             locationData = Settings.getLastGPSLocData();
@@ -665,6 +743,16 @@ public class WeatherWidgetService extends JobIntentService {
                             RemoteViews views = buildUpdate(mContext, mAppWidget4x1Notif, appWidgetId, locationData, viewModel);
                             // Push update for this widget to the home screen
                             mAppWidgetManager.updateAppWidget(appWidgetId, views);
+                        } else if (ArrayUtils.contains(ids4x2C, appWidgetId)) {
+                            // Build the widget update for provider
+                            RemoteViews views = buildUpdate(mContext, mAppWidget4x2Clock, appWidgetId, locationData, viewModel);
+                            // Push update for this widget to the home screen
+                            mAppWidgetManager.updateAppWidget(appWidgetId, views);
+                        } else if (ArrayUtils.contains(ids4x2H, appWidgetId)) {
+                            // Build the widget update for provider
+                            RemoteViews views = buildUpdate(mContext, mAppWidget4x2Huawei, appWidgetId, locationData, viewModel);
+                            // Push update for this widget to the home screen
+                            mAppWidgetManager.updateAppWidget(appWidgetId, views);
                         } else {
                             Logger.writeLine(Log.DEBUG, "%s: refreshWidgets: unable to find widget provider", TAG);
                         }
@@ -687,9 +775,9 @@ public class WeatherWidgetService extends JobIntentService {
         if (appWidgetIds == null || appWidgetIds.length == 0) {
             int[] appWidget2x2Ids = mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName());
             int[] appWidget4x2Ids = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName());
-            appWidgetIds = new int[appWidget2x2Ids.length + appWidget4x2Ids.length];
-            System.arraycopy(appWidget2x2Ids, 0, appWidgetIds, 0, appWidget2x2Ids.length);
-            System.arraycopy(appWidget4x2Ids, 0, appWidgetIds, appWidget2x2Ids.length, appWidget4x2Ids.length);
+            int[] appWidget4x2CIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2Clock.getComponentName());
+            int[] appWidget4x2HIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2Huawei.getComponentName());
+            appWidgetIds = ArrayUtils.concat(appWidget2x2Ids, appWidget4x2Ids, appWidget4x2CIds, appWidget4x2HIds);
         }
 
         List<Task<Void>> tasks = new ArrayList<>();
@@ -699,7 +787,11 @@ public class WeatherWidgetService extends JobIntentService {
                 @Override
                 public Void call() {
                     WidgetType widgetType = getWidgetTypeFromID(appWidgetId);
-                    LocationData locationData = WidgetUtils.getLocationData(appWidgetId);
+                    LocationData locationData;
+                    if (WidgetUtils.isGPS(appWidgetId))
+                        locationData = Settings.getLastGPSLocData();
+                    else
+                        locationData = WidgetUtils.getLocationData(appWidgetId);
 
                     RemoteViews views;
 
@@ -707,6 +799,10 @@ public class WeatherWidgetService extends JobIntentService {
                         views = new RemoteViews(mContext.getPackageName(), mAppWidget2x2.getWidgetLayoutId());
                     else if (widgetType == WidgetType.Widget4x2)
                         views = new RemoteViews(mContext.getPackageName(), mAppWidget4x2.getWidgetLayoutId());
+                    else if (widgetType == WidgetType.Widget4x2Clock)
+                        views = new RemoteViews(mContext.getPackageName(), mAppWidget4x2Clock.getWidgetLayoutId());
+                    else if (widgetType == WidgetType.Widget4x2Huawei)
+                        views = new RemoteViews(mContext.getPackageName(), mAppWidget4x2Huawei.getWidgetLayoutId());
                     else
                         return null;
 
@@ -724,23 +820,30 @@ public class WeatherWidgetService extends JobIntentService {
                     boolean isSmallHeight = ((float) maxCellHeight / cellHeight) <= 1.5f;
                     boolean isSmallWidth = ((float) maxCellWidth / cellWidth) <= 1.5f;
 
-                    float clockTextSize = mContext.getResources().getDimensionPixelSize(R.dimen.clock_text_size); // 36sp
+                    if (widgetType != WidgetType.Widget4x2Clock && widgetType != WidgetType.Widget4x2Huawei) {
+                        float clockTextSize = mContext.getResources().getDimensionPixelSize(R.dimen.clock_text_size); // 36sp
 
-                    if ((isSmallHeight && cellHeight <= 2) || cellWidth < 4) {
-                        clockTextSize *= (8f / 9); // 32sp
-                        if (cellWidth < 4 && widgetType == WidgetType.Widget4x2) {
-                            clockTextSize *= (7f / 8); // 28sp
+                        if ((isSmallHeight && cellHeight <= 2) || cellWidth < 4) {
+                            clockTextSize *= (8f / 9); // 32sp
+                            if (cellWidth < 4 && widgetType == WidgetType.Widget4x2) {
+                                clockTextSize *= (7f / 8); // 28sp
+                            }
                         }
-                    }
 
-                    views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_PX, clockTextSize);
+                        views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_PX, clockTextSize);
+                    } else if (widgetType == WidgetType.Widget4x2Huawei) {
+                        views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_SP, cellWidth <= 3 ? 48 : 60);
+                    }
 
                     // Update clock widgets
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                         // TextClock
-                        SpannableString timeStr12hr = new SpannableString(mContext.getText(R.string.clock_12_hours_format));
-                        int start12hr = timeStr12hr.length() - 2;
-                        timeStr12hr.setSpan(new RelativeSizeSpan(0.875f), start12hr, timeStr12hr.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        boolean useAmPm = !(widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei);
+                        SpannableString timeStr12hr = new SpannableString(mContext.getText(useAmPm ? R.string.clock_12_hours_ampm_format : R.string.clock_12_hours_format));
+                        if (useAmPm) {
+                            int start12hr = timeStr12hr.length() - 2;
+                            timeStr12hr.setSpan(new RelativeSizeSpan(0.875f), start12hr, timeStr12hr.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
 
                         views.setCharSequence(R.id.clock_panel, "setFormat12Hour",
                                 timeStr12hr);
@@ -755,6 +858,9 @@ public class WeatherWidgetService extends JobIntentService {
                         }
                     } else {
                         // TextView
+                        boolean useAmPm = !(widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei);
+                        String timeFormat12hr = mContext.getString(useAmPm ? R.string.clock_12_hours_ampm_format : R.string.clock_12_hours_format);
+                        String timeFormat24Hr = mContext.getString(R.string.clock_24_hours_format);
                         LocalDateTime now;
 
                         if (WidgetUtils.useTimeZone(appWidgetId) && locationData != null && locationData.getTzOffset() != null) {
@@ -764,16 +870,17 @@ public class WeatherWidgetService extends JobIntentService {
                         }
 
                         SpannableString timeStr;
-                        String timeformat = now.format(DateTimeFormatter.ofPattern("h:mma"));
-                        int end = timeformat.length() - 2;
+                        String timeformat = now.format(DateTimeFormatter.ofPattern(timeFormat12hr));
 
                         if (DateFormat.is24HourFormat(App.getInstance().getAppContext())) {
-                            timeformat = now.format(DateTimeFormatter.ofPattern("HH:mm"));
-                            end = timeformat.length() - 1;
+                            timeformat = now.format(DateTimeFormatter.ofPattern(timeFormat24Hr));
                             timeStr = new SpannableString(timeformat);
                         } else {
                             timeStr = new SpannableString(timeformat);
-                            timeStr.setSpan(new RelativeSizeSpan(0.875f), end, timeformat.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            if (useAmPm) {
+                                int start12hr = timeStr.length() - 2;
+                                timeStr.setSpan(new RelativeSizeSpan(0.5f), start12hr, timeStr.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            }
                         }
 
                         views.setTextViewText(R.id.clock_panel, timeStr);
@@ -803,10 +910,9 @@ public class WeatherWidgetService extends JobIntentService {
             int[] appWidget2x2Ids = mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName());
             int[] appWidget4x2Ids = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName());
             int[] appWidget4x1GIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x1Google.getComponentName());
-            appWidgetIds = new int[appWidget2x2Ids.length + appWidget4x2Ids.length + appWidget4x1GIds.length];
-            System.arraycopy(appWidget2x2Ids, 0, appWidgetIds, 0, appWidget2x2Ids.length);
-            System.arraycopy(appWidget4x2Ids, 0, appWidgetIds, appWidget2x2Ids.length, appWidget4x2Ids.length);
-            System.arraycopy(appWidget4x1GIds, 0, appWidgetIds, appWidget4x2Ids.length, appWidget4x1GIds.length);
+            int[] appWidget4x2CIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2Clock.getComponentName());
+            int[] appWidget4x2HIds = mAppWidgetManager.getAppWidgetIds(mAppWidget4x2Huawei.getComponentName());
+            appWidgetIds = ArrayUtils.concat(appWidget2x2Ids, appWidget4x2Ids, appWidget4x1GIds, appWidget4x2CIds, appWidget4x2HIds);
         }
 
         List<Task<Void>> tasks = new ArrayList<>();
@@ -817,7 +923,11 @@ public class WeatherWidgetService extends JobIntentService {
                 public Void call() {
                     // Update clock widgets
                     WidgetType widgetType = getWidgetTypeFromID(appWidgetId);
-                    LocationData locationData = WidgetUtils.getLocationData(appWidgetId);
+                    LocationData locationData;
+                    if (WidgetUtils.isGPS(appWidgetId))
+                        locationData = Settings.getLastGPSLocData();
+                    else
+                        locationData = WidgetUtils.getLocationData(appWidgetId);
 
                     RemoteViews views;
 
@@ -827,6 +937,10 @@ public class WeatherWidgetService extends JobIntentService {
                         views = new RemoteViews(mContext.getPackageName(), mAppWidget4x2.getWidgetLayoutId());
                     else if (widgetType == WidgetType.Widget4x1Google)
                         views = new RemoteViews(mContext.getPackageName(), mAppWidget4x1Google.getWidgetLayoutId());
+                    else if (widgetType == WidgetType.Widget4x2Clock)
+                        views = new RemoteViews(mContext.getPackageName(), mAppWidget4x2Clock.getWidgetLayoutId());
+                    else if (widgetType == WidgetType.Widget4x2Huawei)
+                        views = new RemoteViews(mContext.getPackageName(), mAppWidget4x2Huawei.getWidgetLayoutId());
                     else
                         return null;
 
@@ -844,7 +958,7 @@ public class WeatherWidgetService extends JobIntentService {
                     boolean isSmallHeight = ((float) maxCellHeight / cellHeight) <= 1.5f;
                     boolean isSmallWidth = ((float) maxCellWidth / cellWidth) <= 1.5f;
 
-                    if (widgetType != WidgetType.Widget4x1Google) {
+                    if (widgetType != WidgetType.Widget4x1Google && widgetType != WidgetType.Widget4x2Clock && widgetType != WidgetType.Widget4x2Huawei) {
                         float dateTextSize = mContext.getResources().getDimensionPixelSize(R.dimen.date_text_size); // 16sp
 
                         if ((isSmallHeight && cellHeight <= 2) || cellWidth < 4)
@@ -855,9 +969,10 @@ public class WeatherWidgetService extends JobIntentService {
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                         CharSequence dtfm;
-                        if ((widgetType == WidgetType.Widget2x2 && cellWidth >= 3) || (widgetType == WidgetType.Widget4x2 && cellWidth > 4)) {
+                        if ((widgetType == WidgetType.Widget2x2 && cellWidth >= 3) || (widgetType == WidgetType.Widget4x2 && cellWidth > 4) ||
+                                (widgetType == WidgetType.Widget4x2Clock && cellWidth >= 4) || (widgetType == WidgetType.Widget4x2Huawei && cellWidth >= 4)) {
                             dtfm = mContext.getText(R.string.widget_long_date_format);
-                        } else if (widgetType == WidgetType.Widget4x1Google) {
+                        } else if (widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock) {
                             dtfm = mContext.getText(R.string.widget4x1_date_format);
                         } else {
                             dtfm = mContext.getText(R.string.widget_short_date_format);
@@ -872,10 +987,11 @@ public class WeatherWidgetService extends JobIntentService {
                             views.setString(R.id.date_panel, "setTimeZone", null);
                         }
                     } else {
+                        // Update date
                         DateTimeFormatter dtfm;
                         if (widgetType == WidgetType.Widget2x2 && cellWidth >= 3) {
                             dtfm = DateTimeFormatter.ofPattern("eeee, MMMM dd");
-                        } else if (widgetType == WidgetType.Widget4x1Google) {
+                        } else if (widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock) {
                             dtfm = DateTimeFormatter.ofPattern("eeee, MMM dd");
                         } else {
                             dtfm = DateTimeFormatter.ofPattern("eee, MMM dd");
@@ -1058,11 +1174,20 @@ public class WeatherWidgetService extends JobIntentService {
             }
 
             updateViews.setViewVisibility(R.id.extra_layout, chanceModel != null || windModel != null ? View.VISIBLE : View.GONE);
-        } else if (provider.getWidgetType() == WidgetType.Widget4x2) {
+        } else if (provider.getWidgetType() == WidgetType.Widget4x2 || provider.getWidgetType() == WidgetType.Widget4x2Clock) {
             // Condition text
             updateViews.setTextViewText(R.id.condition_weather, weather.getCurCondition());
         } else if (provider.getWidgetType() == WidgetType.Widget4x1) {
             updateViews.setViewVisibility(R.id.forecast_lo, View.GONE);
+        } else if (provider.getWidgetType() == WidgetType.Widget4x2Huawei) {
+            String hiTemp = StringUtils.removeNonDigitChars(weather.getHiTemp());
+            String loTemp = StringUtils.removeNonDigitChars(weather.getLoTemp());
+
+            // Condition text
+            updateViews.setTextViewText(R.id.condition_hilo,
+                    String.format(Locale.ROOT, "%s° | %s°",
+                            !StringUtils.isNullOrWhitespace(hiTemp) ? hiTemp : "--",
+                            !StringUtils.isNullOrWhitespace(loTemp) ? loTemp : "--"));
         }
 
         if (provider.getWidgetType() != WidgetType.Widget2x2 && provider.getWidgetType() != WidgetType.Widget4x1Notification) {
@@ -1163,7 +1288,7 @@ public class WeatherWidgetService extends JobIntentService {
             float textSize = ActivityUtils.dpToPx(mContext, 36f);
 
             if ((isSmallHeight && cellHeight <= 2) || cellWidth < 4)
-                textSize = ActivityUtils.dpToPx(mContext, 32f);
+                textSize = ActivityUtils.dpToPx(mContext, 28f);
 
             updateViews.setTextViewTextSize(R.id.condition_temp, TypedValue.COMPLEX_UNIT_PX, textSize);
         } else if (provider.getWidgetType() == WidgetType.Widget4x1) {
@@ -1202,6 +1327,10 @@ public class WeatherWidgetService extends JobIntentService {
             updateViews.setTextViewTextSize(R.id.weather_windspeed, TypedValue.COMPLEX_UNIT_SP, largeText ? 14 : 12);
 
             updateViews.setViewVisibility(R.id.extra_layout, cellWidth <= 3 ? View.GONE : View.VISIBLE);
+        } else if (provider.getWidgetType() == WidgetType.Widget4x2Clock) {
+            updateViews.setViewVisibility(R.id.spacer_left, cellWidth <= 3 ? View.GONE : View.VISIBLE);
+            updateViews.setViewVisibility(R.id.spacer_right, cellWidth <= 3 ? View.GONE : View.VISIBLE);
+            updateViews.setTextViewTextSize(R.id.condition_temp, TypedValue.COMPLEX_UNIT_SP, cellWidth <= 3 ? 28f : 36f);
         }
     }
 
@@ -1220,7 +1349,11 @@ public class WeatherWidgetService extends JobIntentService {
                 (provider.getWidgetType() == WidgetType.Widget4x1 && (background == WidgetUtils.WidgetBackground.WHITE || background == WidgetUtils.WidgetBackground.BLACK)))
             shadowRadius = 0f;
 
-        if (provider.getWidgetType() != WidgetType.Widget2x2 && provider.getWidgetType() != WidgetType.Widget4x1Google && provider.getWidgetType() != WidgetType.Widget4x1Notification) {
+        if (provider.getWidgetType() != WidgetType.Widget2x2 &&
+                provider.getWidgetType() != WidgetType.Widget4x1Google &&
+                provider.getWidgetType() != WidgetType.Widget4x1Notification &&
+                provider.getWidgetType() != WidgetType.Widget4x2Clock &&
+                provider.getWidgetType() != WidgetType.Widget4x2Huawei) {
             updateViews.setTextColor(R.id.condition_temp, textColor);
         }
 

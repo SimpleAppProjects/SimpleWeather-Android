@@ -231,6 +231,8 @@ public class WidgetUtils {
         WeatherWidgetProvider4x2 mAppWidget4x2 = WeatherWidgetProvider4x2.getInstance();
         WeatherWidgetProvider4x1Google mAppWidget4x1G = WeatherWidgetProvider4x1Google.getInstance();
         WeatherWidgetProvider4x1Notification mAppWidget4x1N = WeatherWidgetProvider4x1Notification.getInstance();
+        WeatherWidgetProvider4x2Clock mAppWidget4x2C = WeatherWidgetProvider4x2Clock.getInstance();
+        WeatherWidgetProvider4x2Huawei mAppWidget4x2BC = WeatherWidgetProvider4x2Huawei.getInstance();
 
         List<Integer> currentIds = new ArrayList<>();
         currentIds.addAll(ArrayUtils.toArrayList(
@@ -245,6 +247,10 @@ public class WidgetUtils {
                 ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x1G.getComponentName()))));
         currentIds.addAll(ArrayUtils.toArrayList(
                 ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x1N.getComponentName()))));
+        currentIds.addAll(ArrayUtils.toArrayList(
+                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x2C.getComponentName()))));
+        currentIds.addAll(ArrayUtils.toArrayList(
+                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x2BC.getComponentName()))));
 
         return currentIds;
     }
@@ -577,6 +583,10 @@ public class WidgetUtils {
                 return WidgetType.Widget4x1Google;
             } else if (providerInfo.initialLayout == WeatherWidgetProvider4x1Notification.getInstance().getWidgetLayoutId()) {
                 return WidgetType.Widget4x1Notification;
+            } else if (providerInfo.initialLayout == WeatherWidgetProvider4x2Clock.getInstance().getWidgetLayoutId()) {
+                return WidgetType.Widget4x2Clock;
+            } else if (providerInfo.initialLayout == WeatherWidgetProvider4x2Huawei.getInstance().getWidgetLayoutId()) {
+                return WidgetType.Widget4x2Huawei;
             }
         }
 
@@ -618,11 +628,11 @@ public class WidgetUtils {
     }
 
     public static boolean isClockWidget(WidgetType widgetType) {
-        return (widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2);
+        return (widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei);
     }
 
     public static boolean isDateWidget(WidgetType widgetType) {
-        return (widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x1Google);
+        return (widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei);
     }
 
     public static boolean isForecastWidget(WidgetType widgetType) {
@@ -630,11 +640,11 @@ public class WidgetUtils {
     }
 
     public static boolean isBackgroundOptionalWidget(WidgetType widgetType) {
-        return widgetType != WidgetType.Unknown && widgetType != WidgetType.Widget4x1Google && widgetType != WidgetType.Widget4x1Notification;
+        return widgetType != WidgetType.Unknown && widgetType != WidgetType.Widget4x1Google && widgetType != WidgetType.Widget4x1Notification && widgetType != WidgetType.Widget4x2Clock && widgetType != WidgetType.Widget4x2Huawei;
     }
 
     public static boolean isLocationNameOptionalWidget(WidgetType widgetType) {
-        return widgetType == WidgetType.Widget1x1 || widgetType == WidgetType.Widget4x1 || widgetType == WidgetType.Widget4x1Google;
+        return widgetType == WidgetType.Widget1x1 || widgetType == WidgetType.Widget4x1 || widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock;
     }
 
     public static @ColorInt

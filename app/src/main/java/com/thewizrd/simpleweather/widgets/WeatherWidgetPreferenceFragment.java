@@ -19,9 +19,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.format.DateFormat;
 import android.text.style.RelativeSizeSpan;
+import android.text.style.SuperscriptSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -708,14 +710,22 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                 viewWidth = widgetBlockSize * 4;
                 viewHeight = widgetBlockSize * 1.5f;
                 break;
+            case Widget4x2Clock:
+                widgetLayoutRes = R.layout.app_widget_4x2_clock;
+                viewWidth = widgetBlockSize * 4;
+                viewHeight = widgetBlockSize * 2.25f;
+                break;
+            case Widget4x2Huawei:
+                widgetLayoutRes = R.layout.app_widget_4x2_huawei;
+                viewWidth = widgetBlockSize * 4;
+                viewHeight = widgetBlockSize * 2.25f;
+                break;
         }
 
         if (widgetLayoutRes == 0) {
             binding.widgetContainer.setVisibility(View.GONE);
             return;
         }
-
-        updateTimeAndDate();
 
         View widgetView = View.inflate(getAppCompatActivity(), widgetLayoutRes, binding.widgetContainer);
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) widgetView.getLayoutParams();
@@ -731,6 +741,8 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             View.inflate(getAppCompatActivity(), R.layout.app_widget_2x2_notif_layout, notif_layout);
         }
 
+        updateTimeAndDate();
+
         TextView conditionText = widgetView.findViewById(R.id.condition_weather);
         if (mWidgetType == WidgetType.Widget2x2 || mWidgetType == WidgetType.Widget4x1Notification) {
             TextView conditionHi = widgetView.findViewById(R.id.condition_hi);
@@ -739,15 +751,28 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             conditionText.setText("70°F - Sunny");
             conditionHi.setText("79°");
             conditionlo.setText("65°");
-        } else if (mWidgetType == WidgetType.Widget4x2) {
+        } else if (mWidgetType == WidgetType.Widget4x2 || mWidgetType == WidgetType.Widget4x2Clock) {
             conditionText.setText("Sunny");
         } else if (mWidgetType == WidgetType.Widget4x1) {
             widgetView.findViewById(R.id.now_date).setVisibility(View.VISIBLE);
+        } else if (mWidgetType == WidgetType.Widget4x2Huawei) {
+            TextView conditionHiLo = widgetView.findViewById(R.id.condition_hilo);
+            conditionHiLo.setText("79° | 65°");
         }
 
         if (mWidgetType != WidgetType.Widget2x2 && mWidgetType != WidgetType.Widget4x1Notification) {
             TextView tempView = widgetView.findViewById(R.id.condition_temp);
-            tempView.setText("70°F");
+
+            SpannableStringBuilder str = new SpannableStringBuilder()
+                    .append("70");
+            int idx = str.length();
+            str.append("°F");
+            if (mWidgetType != WidgetType.Widget4x1Google && mWidgetType != WidgetType.Widget4x1) {
+                str.setSpan(new RelativeSizeSpan(0.60f), idx, str.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                str.setSpan(new SuperscriptSpan(), idx, str.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+
+            tempView.setText(str);
         }
 
         ImageView iconView = widgetView.findViewById(R.id.weather_icon);
@@ -915,7 +940,10 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         int textColor = WidgetUtils.getTextColor(mWidgetBackground);
         int panelTextColor = WidgetUtils.getPanelTextColor(mWidgetBackground, mWidgetBGStyle, isNightMode);
 
-        if (mWidgetType != WidgetType.Widget2x2 && mWidgetType != WidgetType.Widget4x1Google && mWidgetType != WidgetType.Widget4x1Notification) {
+        if (mWidgetType != WidgetType.Widget2x2 &&
+                mWidgetType != WidgetType.Widget4x1Google &&
+                mWidgetType != WidgetType.Widget4x1Notification &&
+                mWidgetType != WidgetType.Widget4x2Clock) {
             TextView tempView = binding.widgetContainer.findViewById(R.id.condition_temp);
             tempView.setTextColor(textColor);
         }
@@ -933,7 +961,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         TextView locationView = binding.widgetContainer.findViewById(R.id.location_name);
         locationView.setTextColor(is4x2 ? textColor : panelTextColor);
 
-        if (mWidgetType != WidgetType.Widget4x1Google && mWidgetType != WidgetType.Widget4x1 && mWidgetType != WidgetType.Widget1x1) {
+        if (mWidgetType != WidgetType.Widget4x1Google && mWidgetType != WidgetType.Widget4x1 && mWidgetType != WidgetType.Widget1x1 && mWidgetType != WidgetType.Widget4x2Huawei) {
             TextView conditionText = binding.widgetContainer.findViewById(R.id.condition_weather);
             conditionText.setTextColor(is4x2 ? textColor : panelTextColor);
         }

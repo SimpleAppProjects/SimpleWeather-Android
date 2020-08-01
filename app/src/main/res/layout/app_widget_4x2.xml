@@ -171,6 +171,7 @@
                     android:layout_height="wrap_content"
                     android:baselineAligned="true"
                     android:fontFamily="sans-serif-light"
+                    android:layout_gravity="end"
                     android:gravity="end"
                     android:maxLines="1"
                     android:shadowColor="#DD000000"

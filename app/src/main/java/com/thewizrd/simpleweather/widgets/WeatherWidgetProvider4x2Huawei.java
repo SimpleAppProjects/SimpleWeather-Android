@@ -5,19 +5,18 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.widget.RemoteViews;
 
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 
-import static com.thewizrd.simpleweather.widgets.WidgetType.Widget4x2;
+import static com.thewizrd.simpleweather.widgets.WidgetType.Widget4x2Huawei;
 
-public class WeatherWidgetProvider4x2 extends WeatherWidgetProvider {
-    private static WeatherWidgetProvider4x2 sInstance;
+public class WeatherWidgetProvider4x2Huawei extends WeatherWidgetProvider {
+    private static WeatherWidgetProvider4x2Huawei sInstance;
 
-    public static synchronized WeatherWidgetProvider4x2 getInstance() {
+    public static synchronized WeatherWidgetProvider4x2Huawei getInstance() {
         if (sInstance == null)
-            sInstance = new WeatherWidgetProvider4x2();
+            sInstance = new WeatherWidgetProvider4x2Huawei();
 
         return sInstance;
     }
@@ -25,12 +24,12 @@ public class WeatherWidgetProvider4x2 extends WeatherWidgetProvider {
     // Overrides
     @Override
     public WidgetType getWidgetType() {
-        return Widget4x2;
+        return Widget4x2Huawei;
     }
 
     @Override
     public int getWidgetLayoutId() {
-        return R.layout.app_widget_4x2;
+        return R.layout.app_widget_4x2_huawei;
     }
 
     @Override
@@ -93,12 +92,6 @@ public class WeatherWidgetProvider4x2 extends WeatherWidgetProvider {
                     .setAction(WeatherWidgetService.ACTION_UPDATEDATE)
                     .putExtra(EXTRA_WIDGET_IDS, appWidgetIds)
                     .putExtra(EXTRA_WIDGET_TYPE, getWidgetType().getValue()));
-        } else if (ACTION_SHOWNEXTFORECAST.equals(action)) {
-            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            RemoteViews views = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
-            views.showNext(R.id.forecast_layout);
-            int appWidgetId = intent.getIntExtra(WeatherWidgetProvider.EXTRA_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
-            appWidgetManager.updateAppWidget(appWidgetId, views);
         } else {
             super.onReceive(context, intent);
         }
