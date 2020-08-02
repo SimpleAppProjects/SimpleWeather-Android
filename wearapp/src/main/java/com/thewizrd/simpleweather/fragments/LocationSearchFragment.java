@@ -19,6 +19,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.wear.widget.SwipeDismissFrameLayout;
 import androidx.wear.widget.WearableLinearLayoutManager;
@@ -32,7 +33,6 @@ import com.google.common.collect.Collections2;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.AsyncTaskEx;
 import com.thewizrd.shared_resources.CallableEx;
-import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
@@ -53,8 +53,8 @@ import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.SetupGraphDirections;
 import com.thewizrd.simpleweather.databinding.FragmentLocationSearchBinding;
-import com.thewizrd.simpleweather.main.MainActivity;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
@@ -242,15 +242,16 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                 public void onSuccess(final LocationData locationData) {
                     if (locationData != null) {
                         // Start WeatherNow Activity with weather data
-                        Intent intent = new Intent(getFragmentActivity(), MainActivity.class);
-                        intent.putExtra(Constants.KEY_DATA, new AsyncTask<String>().await(new Callable<String>() {
-                            @Override
-                            public String call() {
-                                return JSONParser.serializer(locationData, LocationData.class);
-                            }
-                        }));
+                        SetupGraphDirections.ActionGlobalMainActivity args =
+                                LocationSearchFragmentDirections.actionGlobalMainActivity()
+                                        .setData(new AsyncTask<String>().await(new Callable<String>() {
+                                            @Override
+                                            public String call() {
+                                                return JSONParser.serializer(locationData, LocationData.class);
+                                            }
+                                        }));
 
-                        getFragmentActivity().startActivity(intent);
+                        Navigation.findNavController(view).navigate(args);
                         getFragmentActivity().finishAffinity();
                     } else {
                         showLoading(false);

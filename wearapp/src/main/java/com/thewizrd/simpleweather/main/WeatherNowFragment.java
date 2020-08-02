@@ -95,6 +95,7 @@ public class WeatherNowFragment extends CustomFragment
         implements SharedPreferences.OnSharedPreferenceChangeListener, WeatherRequest.WeatherErrorListener {
     private LocationData location = null;
     private boolean loaded = false;
+    private WeatherNowFragmentArgs args;
 
     private WeatherManager wm;
     private WeatherDataLoader wLoader = null;
@@ -130,42 +131,6 @@ public class WeatherNowFragment extends CustomFragment
     public WeatherNowFragment() {
         wm = WeatherManager.getInstance();
         setArguments(new Bundle());
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param data Location for weather data
-     * @return A new instance of fragment WeatherNowFragment.
-     */
-    public static WeatherNowFragment newInstance(LocationData data) {
-        WeatherNowFragment fragment = new WeatherNowFragment();
-        if (data != null) {
-            if (fragment.getArguments() == null) {
-                fragment.setArguments(new Bundle());
-            }
-            fragment.getArguments()
-                    .putString(Constants.KEY_DATA, JSONParser.serializer(data, LocationData.class));
-        }
-        return fragment;
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param args Bundle to pass to fragment
-     * @return A new instance of fragment WeatherNowFragment.
-     */
-    public static WeatherNowFragment newInstance(Bundle args) {
-        WeatherNowFragment fragment = new WeatherNowFragment();
-        if (fragment.getArguments() == null) {
-            fragment.setArguments(args);
-        } else {
-            fragment.getArguments().putAll(args);
-        }
-        return fragment;
     }
 
     private boolean isCtsCancelRequested() {
@@ -292,11 +257,12 @@ public class WeatherNowFragment extends CustomFragment
 
         AnalyticsLogger.logEvent("WeatherNowFragment: onCreate");
 
+        args = WeatherNowFragmentArgs.fromBundle(requireArguments());
+
         if (savedInstanceState != null && savedInstanceState.containsKey(Constants.KEY_DATA)) {
             location = JSONParser.deserializer(savedInstanceState.getString(Constants.KEY_DATA), LocationData.class);
-        } else if (requireArguments().containsKey(Constants.KEY_DATA)) {
-            location = JSONParser.deserializer(requireArguments().getString(Constants.KEY_DATA), LocationData.class);
-            requireArguments().remove(Constants.KEY_DATA);
+        } else if (args.getData() != null) {
+            location = JSONParser.deserializer(args.getData(), LocationData.class);
         }
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {
@@ -618,34 +584,6 @@ public class WeatherNowFragment extends CustomFragment
             } else {
                 dataSyncResume();
             }
-        }
-    }
-
-    @Override
-    public void onHiddenChanged(boolean hidden) {
-        super.onHiddenChanged(hidden);
-
-        if (hidden) {
-            // Cancel pending actions
-            if (cts != null) {
-                cts.cancel();
-                binding.swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-
-        if (!hidden && weatherView != null && this.isVisible()) {
-            AnalyticsLogger.logEvent("WeatherNowFragment: onHiddenChanged");
-
-            binding.scrollView.requestFocus();
-
-            // Use normal if sync is off
-            if (Settings.getDataSync() == WearableDataSync.OFF) {
-                resume();
-            } else {
-                dataSyncResume();
-            }
-        } else if (hidden) {
-            loaded = false;
         }
     }
 

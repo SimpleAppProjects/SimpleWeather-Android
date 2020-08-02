@@ -16,7 +16,6 @@ public class LaunchActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.WearAppTheme);
         super.onCreate(savedInstanceState);
 
         Intent intent = null;

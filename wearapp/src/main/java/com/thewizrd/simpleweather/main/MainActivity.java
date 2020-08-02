@@ -13,16 +13,20 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.Observable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.paging.PagedList;
 import androidx.viewpager.widget.ViewPager;
 import androidx.wear.widget.drawer.WearableDrawerLayout;
@@ -30,6 +34,8 @@ import androidx.wear.widget.drawer.WearableDrawerView;
 import androidx.wear.widget.drawer.WearableNavigationDrawerView;
 
 import com.google.android.wearable.intent.RemoteIntent;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.BR;
 import com.thewizrd.shared_resources.Constants;
@@ -39,16 +45,19 @@ import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
+import com.thewizrd.simpleweather.NavGraphDirections;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.ActivityMainBinding;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
-import com.thewizrd.simpleweather.preferences.SettingsActivity;
-import com.thewizrd.simpleweather.setup.SetupActivity;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
+
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,10 +68,10 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
         WearableNavigationDrawerView.OnItemSelectedListener {
 
     private ActivityMainBinding binding;
+    private NavController mNavController;
     private NavDrawerAdapter mNavDrawerAdapter;
     private BroadcastReceiver mBroadcastReceiver;
 
-    private int mNavViewSelectedIdx = 0;
     private Runnable mItemSelectedRunnable;
 
     private WeatherNowViewModel weatherNowView;
@@ -225,40 +234,51 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
                 mNavDrawerAdapter.updateNavDrawerItems();
             }
         });
+
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
 
         // Check if fragment exists
         if (fragment == null) {
-            fragment = new WeatherNowFragment();
+            Bundle args = new Bundle();
+
+            if (getIntent() != null && getIntent().hasExtra(Constants.KEY_DATA)) {
+                args.putString(Constants.KEY_DATA, getIntent().getStringExtra(Constants.KEY_DATA));
+            }
+
+            NavHostFragment hostFragment = NavHostFragment.create(R.navigation.nav_graph, args);
 
             // Navigate to WeatherNowFragment
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, fragment, Constants.FRAGTAG_HOME)
+                    .replace(R.id.fragment_container, hostFragment)
+                    .setPrimaryNavigationFragment(hostFragment)
                     .commit();
         }
     }
 
     @Override
-    public void onBackPressed() {
-        Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        // Destroy untagged fragments onbackpressed
-        if (current != null) {
-            getSupportFragmentManager().beginTransaction()
-                    .remove(current)
-                    .commit();
-
-            // Reset to home
-            int drawerState = binding.topNavDrawer.getDrawerState();
-            binding.topNavDrawer.setCurrentItem(0, false);
-            if (mItemSelectedRunnable != null && drawerState == WearableNavigationDrawerView.STATE_IDLE) {
-                mItemSelectedRunnable.run();
+    protected void onStart() {
+        super.onStart();
+        mNavController = Navigation.findNavController(this, R.id.fragment_container);
+        mNavController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
+            @Override
+            public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
+                binding.topNavDrawer.setCurrentItem(mNavDrawerAdapter.getDestinationPosition(destination.getId()), false);
             }
-        }
+        });
+    }
 
-        // If backstack entry exists pop all and goto first (home) fragment
-        if (getSupportFragmentManager().getBackStackEntryCount() >= 1) {
-            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        } else { // Otherwise fallback
+    @Override
+    public void onBackPressed() {
+        Fragment current = null;
+        if (getSupportFragmentManager().getPrimaryNavigationFragment() != null) {
+            current = getSupportFragmentManager().getPrimaryNavigationFragment().getChildFragmentManager().getPrimaryNavigationFragment();
+        }
+        OnBackPressedFragmentListener fragBackPressedListener = null;
+        if (current instanceof OnBackPressedFragmentListener)
+            fragBackPressedListener = (OnBackPressedFragmentListener) current;
+
+        // If fragment doesn't handle onBackPressed event fallback to this impl
+        if (fragBackPressedListener == null || !fragBackPressedListener.onBackPressed()) {
             super.onBackPressed();
         }
     }
@@ -267,10 +287,10 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_changelocation:
-                startActivity(new Intent(this, SetupActivity.class));
+                mNavController.navigate(NavGraphDirections.actionGlobalSetupActivity());
                 break;
             case R.id.menu_settings:
-                startActivity(new Intent(this, SettingsActivity.class));
+                mNavController.navigate(NavGraphDirections.actionGlobalSettingsActivity());
                 break;
             case R.id.menu_openonphone:
                 startService(new Intent(this, WearableDataListenerService.class)
@@ -282,108 +302,29 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
     }
 
     public void onItemSelected(final int position) {
-        mNavViewSelectedIdx = position;
-
         mItemSelectedRunnable = new Runnable() {
             @Override
             public void run() {
                 if (!getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) return;
 
-                Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-                Class targetFragmentType = null;
-                WeatherListType weatherListType = WeatherListType.valueOf(0);
-
                 if (mNavDrawerAdapter != null) {
                     switch (mNavDrawerAdapter.getStringId(position)) {
                         case R.string.label_condition:
                         default:
-                            targetFragmentType = WeatherNowFragment.class;
+                            mNavController.popBackStack(R.id.weatherNowFragment, false);
                             break;
                         case R.string.title_fragment_alerts:
-                            targetFragmentType = WeatherListFragment.class;
-                            weatherListType = WeatherListType.ALERTS;
+                            mNavController.navigate(NavGraphDirections.actionGlobalWeatherAlertsFragment());
                             break;
                         case R.string.label_forecast:
-                            targetFragmentType = WeatherListFragment.class;
-                            weatherListType = WeatherListType.FORECAST;
+                            mNavController.navigate(NavGraphDirections.actionGlobalWeatherForecastFragment());
                             break;
                         case R.string.label_hourlyforecast:
-                            targetFragmentType = WeatherListFragment.class;
-                            weatherListType = WeatherListType.HOURLYFORECAST;
+                            mNavController.navigate(NavGraphDirections.actionGlobalWeatherHrForecastFragment());
                             break;
                         case R.string.label_details:
-                            targetFragmentType = WeatherDetailsFragment.class;
+                            mNavController.navigate(NavGraphDirections.actionGlobalWeatherDetailsFragment());
                             break;
-                    }
-                }
-
-                if (current == null) return;
-
-                if (WeatherNowFragment.class.equals(targetFragmentType)) {
-                    if (!WeatherNowFragment.class.equals(current.getClass())) {
-                        // Pop all since we're going home
-                        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                    }
-                } else if (WeatherListFragment.class.equals(targetFragmentType)) {
-                    if (!targetFragmentType.equals(current.getClass())) {
-                        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                        int backstackCount = getSupportFragmentManager().getBackStackEntryCount();
-
-                        /*
-                         * NOTE
-                         * Destroy lingering frag and commit transaction
-                         * This is to avoid adding the fragment again from the backstack
-                         */
-                        if (backstackCount > 0) {
-                            getSupportFragmentManager().beginTransaction()
-                                    .remove(current)
-                                    .commitAllowingStateLoss();
-                        } else {
-                            // Hide home frag
-                            ft.hide(current);
-                        }
-
-                        // Add fragment to backstack
-                        ft.add(R.id.fragment_container,
-                                WeatherListFragment.newInstance(weatherListType),
-                                null)
-                                .addToBackStack(null);
-
-                        ft.commit();
-                    } else if (current instanceof WeatherListFragment) {
-                        WeatherListFragment forecastFragment = (WeatherListFragment) current;
-                        if (forecastFragment.getArguments() != null) {
-                            Bundle args = forecastFragment.getArguments();
-                            if (WeatherListType.valueOf(args.getInt(Constants.ARGS_WEATHERLISTTYPE, 0)) != weatherListType) {
-                                args.putInt(Constants.ARGS_WEATHERLISTTYPE, weatherListType.getValue());
-                                // Note: Causes IllegalStateException if args already set (not null)
-                                // forecastFragment.setArguments(args);
-                                forecastFragment.initialize();
-                            }
-                        }
-                    }
-                } else if (WeatherDetailsFragment.class.equals(targetFragmentType)) {
-                    if (!WeatherDetailsFragment.class.equals(current.getClass())) {
-                        // Add fragment to backstack
-                        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                        ft.add(R.id.fragment_container, WeatherDetailsFragment.newInstance(), null)
-                                .addToBackStack(null);
-
-                        /*
-                         * NOTE
-                         * Destroy lingering frag and commit transaction
-                         * This is to avoid adding the fragment again from the backstack
-                         */
-                        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-                            getSupportFragmentManager().beginTransaction()
-                                    .remove(current)
-                                    .commitAllowingStateLoss();
-                        } else {
-                            // Hide home frag
-                            ft.hide(current);
-                        }
-
-                        ft.commit();
                     }
                 }
             }
@@ -428,11 +369,11 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
     private class NavDrawerAdapter extends WearableNavigationDrawerView.WearableNavigationDrawerAdapter {
         private Context mContext;
         private final List<NavDrawerItem> navDrawerItems = Arrays.asList(
-                new NavDrawerItem(R.string.label_condition, R.drawable.day_cloudy),
-                new NavDrawerItem(R.string.title_fragment_alerts, R.drawable.ic_error_white),
-                new NavDrawerItem(R.string.label_forecast, R.drawable.ic_date_range_black_24dp),
-                new NavDrawerItem(R.string.label_hourlyforecast, R.drawable.ic_access_time_black_24dp),
-                new NavDrawerItem(R.string.label_details, R.drawable.ic_list_black_24dp)
+                new NavDrawerItem(R.id.weatherNowFragment, R.string.label_condition, R.drawable.day_cloudy),
+                new NavDrawerItem(R.id.weatherAlertsFragment, R.string.title_fragment_alerts, R.drawable.ic_error_white),
+                new NavDrawerItem(R.id.weatherForecastFragment, R.string.label_forecast, R.drawable.ic_date_range_black_24dp),
+                new NavDrawerItem(R.id.weatherHrForecastFragment, R.string.label_hourlyforecast, R.drawable.ic_access_time_black_24dp),
+                new NavDrawerItem(R.id.weatherDetailsFragment, R.string.label_details, R.drawable.ic_list_black_24dp)
         );
         private List<NavDrawerItem> navItems;
 
@@ -449,7 +390,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
         @Override
         public Drawable getItemDrawable(int pos) {
             Drawable drawable = ContextCompat.getDrawable(mContext, navItems.get(pos).drawableIcon);
-            drawable.setTint(mContext.getColor(android.R.color.white));
+            drawable.setTint(ActivityUtils.getColor(mContext, R.attr.colorOnSurface));
             return drawable;
         }
 
@@ -460,6 +401,19 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
 
         public int getStringId(int pos) {
             return navItems.get(pos).titleString;
+        }
+
+        public int getDestinationId(int pos) {
+            return navItems.get(pos).destinationId;
+        }
+
+        public int getDestinationPosition(final int destinationId) {
+            return Iterables.indexOf(navItems, new Predicate<NavDrawerItem>() {
+                @Override
+                public boolean apply(@NullableDecl NavDrawerItem input) {
+                    return input.destinationId == destinationId;
+                }
+            });
         }
 
         public void updateNavDrawerItems() {
@@ -490,10 +444,12 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
     }
 
     private static class NavDrawerItem {
+        private int destinationId;
         private int titleString;
         private int drawableIcon;
 
-        public NavDrawerItem(int titleString, int drawableIcon) {
+        public NavDrawerItem(int destinationId, int titleString, int drawableIcon) {
+            this.destinationId = destinationId;
             this.titleString = titleString;
             this.drawableIcon = drawableIcon;
         }

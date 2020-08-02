@@ -45,17 +45,10 @@ public class WeatherListFragment extends SwipeDismissFragment {
     private WearableLinearLayoutManager mLayoutManager;
 
     private WeatherListType weatherType;
+    private WeatherListFragmentArgs args;
 
-    public static WeatherListFragment newInstance(WeatherListType weatherType) {
-        WeatherListFragment fragment = new WeatherListFragment();
-        fragment.weatherType = weatherType;
-        fragment.location = Settings.getHomeData();
-
-        Bundle args = new Bundle();
-        args.putInt(Constants.ARGS_WEATHERLISTTYPE, weatherType.getValue());
-        fragment.setArguments(args);
-
-        return fragment;
+    public WeatherListFragment() {
+        setArguments(new Bundle());
     }
 
     @Override
@@ -68,6 +61,8 @@ public class WeatherListFragment extends SwipeDismissFragment {
         super.onCreate(savedInstanceState);
         AnalyticsLogger.logEvent("WeatherList: onCreate");
 
+        args = WeatherListFragmentArgs.fromBundle(requireArguments());
+
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(Constants.ARGS_WEATHERLISTTYPE)) {
                 weatherType = WeatherListType.valueOf(savedInstanceState.getInt(Constants.ARGS_WEATHERLISTTYPE));
@@ -77,8 +72,14 @@ public class WeatherListFragment extends SwipeDismissFragment {
             }
         }
 
-        if (location == null)
+        weatherType = args.getWeatherListType();
+        if (args.getData() != null) {
+            location = JSONParser.deserializer(args.getData(), LocationData.class);
+        }
+
+        if (location == null) {
             location = Settings.getHomeData();
+        }
     }
 
     @Nullable
@@ -131,16 +132,6 @@ public class WeatherListFragment extends SwipeDismissFragment {
     }
 
     @Override
-    public void onHiddenChanged(boolean hidden) {
-        super.onHiddenChanged(hidden);
-
-        if (!hidden && this.isVisible()) {
-            AnalyticsLogger.logEvent("WeatherList: onHiddenChanged");
-            initialize();
-        }
-    }
-
-    @Override
     public void onPause() {
         AnalyticsLogger.logEvent("WeatherList: onPause");
         if (weatherView != null) {
@@ -167,15 +158,6 @@ public class WeatherListFragment extends SwipeDismissFragment {
         if (isAlive() && getView() != null) {
             getView().setBackgroundColor(weatherView != null ? weatherView.getPendingBackground() : ActivityUtils.getColor(getFragmentActivity(), android.R.attr.colorBackground));
             binding.recyclerView.requestFocus();
-
-            WeatherListType newWeatherListType = WeatherListType.FORECAST;
-
-            if (getArguments() != null) {
-                newWeatherListType = WeatherListType.valueOf(getArguments().getInt(Constants.ARGS_WEATHERLISTTYPE, 0));
-            }
-
-            if (weatherType != newWeatherListType)
-                weatherType = newWeatherListType;
 
             // specify an adapter (see also next example)
             final RecyclerView.Adapter adapter = binding.recyclerView.getAdapter();

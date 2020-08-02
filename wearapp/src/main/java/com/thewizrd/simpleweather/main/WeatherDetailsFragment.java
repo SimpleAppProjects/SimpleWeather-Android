@@ -24,8 +24,8 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
     private FragmentWeatherListBinding binding;
     private DetailItemAdapter mAdapter;
 
-    public static WeatherDetailsFragment newInstance() {
-        return new WeatherDetailsFragment();
+    public WeatherDetailsFragment() {
+        setArguments(new Bundle());
     }
 
     @Override
@@ -80,16 +80,6 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
             if (weatherView != null) {
                 weatherView.addOnPropertyChangedCallback(propertyChangedCallback);
             }
-            initialize();
-        }
-    }
-
-    @Override
-    public void onHiddenChanged(boolean hidden) {
-        super.onHiddenChanged(hidden);
-
-        if (!hidden && this.isVisible()) {
-            AnalyticsLogger.logEvent("WeatherDetails: onHiddenChanged");
             initialize();
         }
     }
