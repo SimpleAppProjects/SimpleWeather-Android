@@ -268,6 +268,11 @@ public class WeatherUtils {
     }
 
     public static int getColorFromTempF(float temp_f) {
+        return getColorFromTempF(temp_f, Colors.SIMPLEBLUE);
+    }
+
+    @ColorInt
+    public static int getColorFromTempF(float temp_f, @ColorInt int defaultColor) {
         int color;
 
         if (temp_f <= 47.5) {
@@ -277,7 +282,7 @@ public class WeatherUtils {
         } else if (temp_f >= 70) {
             color = Colors.ORANGE;
         } else {
-            color = Colors.SIMPLEBLUE;
+            color = defaultColor;
         }
 
         return color;

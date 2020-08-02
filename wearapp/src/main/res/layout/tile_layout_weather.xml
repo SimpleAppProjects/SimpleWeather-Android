@@ -13,8 +13,8 @@
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="4dp"
-        android:paddingEnd="4dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
         android:layout_marginStart="@dimen/horizontal_padding"
         android:layout_marginTop="@dimen/horizontal_padding"
         android:layout_marginEnd="@dimen/horizontal_padding">
@@ -26,8 +26,8 @@
             android:layout_weight="1"
             android:adjustViewBounds="true"
             android:maxHeight="72dp"
-            android:paddingEnd="4dp"
-            android:scaleType="fitStart"
+            android:paddingEnd="8dp"
+            android:scaleType="fitCenter"
             android:tint="@android:color/white"
             tools:srcCompat="@drawable/day_sunny" />
 
@@ -38,8 +38,8 @@
             android:layout_weight="1"
             android:adjustViewBounds="true"
             android:maxHeight="72dp"
-            android:paddingStart="4dp"
-            android:scaleType="fitEnd"
+            android:paddingStart="8dp"
+            android:scaleType="fitCenter"
             android:tint="@android:color/white"
             tools:srcCompat="@drawable/na" />
 
@@ -54,8 +54,24 @@
         android:loopViews="true"
         android:paddingStart="4dp"
         android:paddingEnd="4dp"
-        android:layout_marginStart="@dimen/horizontal_padding"
-        android:layout_marginBottom="@dimen/horizontal_padding"
-        android:layout_marginEnd="@dimen/horizontal_padding" />
+        android:layout_marginBottom="@dimen/horizontal_padding">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/forecast_container"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_gravity="center">
+
+            <include layout="@layout/tile_forecast_panel" />
+
+            <include layout="@layout/tile_forecast_panel" />
+
+            <include layout="@layout/tile_forecast_panel" />
+
+            <include layout="@layout/tile_forecast_panel" />
+        </LinearLayout>
+    </ViewFlipper>
 
 </LinearLayout>

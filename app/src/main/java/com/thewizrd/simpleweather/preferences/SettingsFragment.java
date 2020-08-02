@@ -653,10 +653,11 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                             updateAlertPreference(WeatherManager.getInstance().supportsAlerts());
 
                             fragment.getDialog().dismiss();
+                        } else {
+                            Toast.makeText(getAppCompatActivity(), R.string.message_keyinvalid, Toast.LENGTH_SHORT).show();
                         }
                     } catch (WeatherException e) {
                         Logger.writeLine(Log.ERROR, e);
-                        Toast.makeText(getAppCompatActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });

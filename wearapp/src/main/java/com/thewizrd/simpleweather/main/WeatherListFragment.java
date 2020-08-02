@@ -7,15 +7,16 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.databinding.Observable;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.wear.widget.CurvingLayoutCallback;
 import androidx.wear.widget.WearableLinearLayoutManager;
 
-import com.thewizrd.shared_resources.BR;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
@@ -24,7 +25,6 @@ import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -36,10 +36,10 @@ import com.thewizrd.simpleweather.fragments.SwipeDismissFragment;
 import java.util.List;
 
 public class WeatherListFragment extends SwipeDismissFragment {
-    private WeatherNowViewModel weatherView = null;
-    private ForecastsViewModel forecastsView = null;
-    private WeatherAlertsViewModel alertsView = null;
-    private LocationData location = null;
+    private WeatherNowViewModel weatherView;
+    private ForecastsViewModel forecastsView;
+    private WeatherAlertsViewModel alertsView;
+    private LocationData locationData;
 
     private FragmentWeatherListBinding binding;
     private WearableLinearLayoutManager mLayoutManager;
@@ -68,18 +68,25 @@ public class WeatherListFragment extends SwipeDismissFragment {
                 weatherType = WeatherListType.valueOf(savedInstanceState.getInt(Constants.ARGS_WEATHERLISTTYPE));
             }
             if (savedInstanceState.containsKey(Constants.KEY_DATA)) {
-                location = JSONParser.deserializer(savedInstanceState.getString(Constants.KEY_DATA), LocationData.class);
+                locationData = JSONParser.deserializer(savedInstanceState.getString(Constants.KEY_DATA), LocationData.class);
             }
         }
 
         weatherType = args.getWeatherListType();
         if (args.getData() != null) {
-            location = JSONParser.deserializer(args.getData(), LocationData.class);
+            locationData = JSONParser.deserializer(args.getData(), LocationData.class);
         }
 
-        if (location == null) {
-            location = Settings.getHomeData();
+        if (locationData == null) {
+            locationData = Settings.getHomeData();
         }
+
+        getLifecycle().addObserver(new LifecycleObserver() {
+            @OnLifecycleEvent(Lifecycle.Event.ON_START)
+            private void load() {
+                initialize();
+            }
+        });
     }
 
     @Nullable
@@ -120,43 +127,17 @@ public class WeatherListFragment extends SwipeDismissFragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        // Don't resume if fragment is hidden
-        if (!this.isHidden()) {
-            AnalyticsLogger.logEvent("WeatherList: onResume");
-            if (weatherView != null) {
-                weatherView.addOnPropertyChangedCallback(propertyChangedCallback);
-            }
-            initialize();
-        }
+        AnalyticsLogger.logEvent("WeatherList: onResume");
     }
 
     @Override
     public void onPause() {
         AnalyticsLogger.logEvent("WeatherList: onPause");
-        if (weatherView != null) {
-            weatherView.removeOnPropertyChangedCallback(propertyChangedCallback);
-        }
         super.onPause();
     }
 
-    private Observable.OnPropertyChangedCallback propertyChangedCallback = new Observable.OnPropertyChangedCallback() {
-        @Override
-        public void onPropertyChanged(Observable sender, final int propertyId) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (propertyId == BR.pendingBackground) {
-                        binding.getRoot().setBackgroundColor(weatherView.getPendingBackground());
-                    }
-                }
-            });
-        }
-    };
-
     public void initialize() {
         if (isAlive() && getView() != null) {
-            getView().setBackgroundColor(weatherView != null ? weatherView.getPendingBackground() : ActivityUtils.getColor(getFragmentActivity(), android.R.attr.colorBackground));
             binding.recyclerView.requestFocus();
 
             // specify an adapter (see also next example)
@@ -193,7 +174,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
                             }
                         });
                     }
-                    forecastsView.updateForecasts(location);
+                    forecastsView.updateForecasts(locationData);
                     break;
                 case ALERTS:
                     mLayoutManager.setLayoutCallback(null);
@@ -213,7 +194,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
                             alertAdapter.updateItems(alerts);
                         }
                     });
-                    alertsView.updateAlerts(location);
+                    alertsView.updateAlerts(locationData);
                     break;
                 default:
                     binding.recyclerView.setAdapter(null);
@@ -226,7 +207,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         // Save data
         outState.putInt(Constants.ARGS_WEATHERLISTTYPE, weatherType.getValue());
-        outState.putString(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class));
+        outState.putString(Constants.KEY_DATA, JSONParser.serializer(locationData, LocationData.class));
 
         super.onSaveInstanceState(outState);
     }

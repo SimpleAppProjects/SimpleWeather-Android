@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.setup;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -10,6 +11,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.wearable.view.AcceptDenyDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,6 +53,7 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
@@ -61,6 +64,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentSetupBinding;
 import com.thewizrd.simpleweather.fragments.CustomFragment;
+import com.thewizrd.simpleweather.helpers.AcceptDenyDialogBuilder;
 import com.thewizrd.simpleweather.main.MainActivity;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
@@ -68,6 +72,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+
+import static android.app.Activity.RESULT_OK;
 
 public class SetupFragment extends CustomFragment {
 
@@ -77,7 +83,9 @@ public class SetupFragment extends CustomFragment {
     private Location mLocation;
     private LocationCallback mLocCallback;
     private LocationListener mLocListnr;
+
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
+    private static final int REQUEST_CODE_SYNC_ACTIVITY = 10;
 
     /**
      * Tracks the status of the location updates request.
@@ -231,10 +239,45 @@ public class SetupFragment extends CustomFragment {
                 fetchGeoLocation();
             }
         });
+        binding.setupPhoneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AcceptDenyDialogBuilder(requireActivity(), new AcceptDenyDialog.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == DialogInterface.BUTTON_POSITIVE) {
+                            startActivityForResult(new Intent(requireActivity(), SetupSyncActivity.class), REQUEST_CODE_SYNC_ACTIVITY);
+                        }
+                    }
+                }).setMessage(R.string.prompt_confirmsetup)
+                        .show();
+            }
+        });
 
         binding.progressBar.setVisibility(View.GONE);
 
         return binding.getRoot();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case REQUEST_CODE_SYNC_ACTIVITY:
+                if (resultCode == RESULT_OK) {
+                    if (Settings.getHomeData() != null) {
+                        Settings.setDataSync(WearableDataSync.DEVICEONLY);
+                        Settings.setWeatherLoaded(true);
+                        // Start WeatherNow Activity
+                        startActivity(new Intent(requireActivity(), MainActivity.class));
+                        requireActivity().finishAffinity();
+                    }
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     @Override

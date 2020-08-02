@@ -27,11 +27,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.databinding.AppCompatImageViewBindingAdapter;
 import com.thewizrd.simpleweather.databinding.AppItemLayoutBinding;
 import com.thewizrd.simpleweather.databinding.DialogAppchooserBinding;
-import com.thewizrd.simpleweather.databinding.ViewBindingAdapter;
-import com.thewizrd.simpleweather.main.WeatherNowFragment;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -289,7 +286,7 @@ public class AppChoiceDialogBuilder {
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
-                binding = DataBindingUtil.bind(itemView, new AppItemDataBindingComponent());
+                binding = DataBindingUtil.bind(itemView);
 
                 itemView.setClickable(true);
                 itemView.setOnClickListener(new View.OnClickListener() {
@@ -310,38 +307,13 @@ public class AppChoiceDialogBuilder {
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            AppItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.app_item_layout, parent, false, new AppItemDataBindingComponent());
+            AppItemLayoutBinding binding = AppItemLayoutBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
             return new ViewHolder(binding.getRoot());
         }
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             holder.bindModel(getItem(position));
-        }
-    }
-
-    public static class AppItemDataBindingComponent implements androidx.databinding.DataBindingComponent {
-        private final ViewBindingAdapter viewBindingAdapter;
-        private final AppCompatImageViewBindingAdapter imageViewBindingAdapter;
-
-        public AppItemDataBindingComponent() {
-            this.viewBindingAdapter = new ViewBindingAdapter();
-            this.imageViewBindingAdapter = new AppCompatImageViewBindingAdapter();
-        }
-
-        @Override
-        public ViewBindingAdapter getViewBindingAdapter() {
-            return viewBindingAdapter;
-        }
-
-        @Override
-        public WeatherNowFragment.WeatherNowFragmentBindingAdapter getWeatherNowFragmentBindingAdapter() {
-            return null;
-        }
-
-        @Override
-        public AppCompatImageViewBindingAdapter getAppCompatImageViewBindingAdapter() {
-            return imageViewBindingAdapter;
         }
     }
 }

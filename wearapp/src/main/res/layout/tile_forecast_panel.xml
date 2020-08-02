@@ -1,12 +1,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="0dp"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:layout_weight="1"
     android:background="@null"
     android:orientation="vertical"
-    tools:layout_height="match_parent"
-    tools:layout_width="72dp">
+    android:minWidth="35dp">
 
     <TextView
         android:id="@+id/forecast_date"
@@ -41,7 +39,6 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
         android:textColor="@android:color/white"
         android:textSize="12sp"
-        android:textStyle="bold"
         tools:text="70°" />
 
     <TextView

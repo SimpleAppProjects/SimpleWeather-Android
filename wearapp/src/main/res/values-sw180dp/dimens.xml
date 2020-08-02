@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Setup -->
+    <dimen name="fab_custom_size">36dp</dimen>
+    <dimen name="fab_image_size">24dp</dimen>
+    <dimen name="divider_margin">8dp</dimen>
+
+    <!-- WeatherNow -->
+    <dimen name="details_icon_size">32dp</dimen>
+    <dimen name="details_text_size">14sp</dimen>
+
+</resources>

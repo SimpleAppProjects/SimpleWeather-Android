@@ -14,8 +14,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingStart="@dimen/item_padding"
-        android:paddingEnd="@dimen/list_item_padding">
+        android:gravity="center"
+        android:layout_gravity="center">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/hrforecast_date"
@@ -24,13 +24,11 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:padding="4dp"
-            android:text="@{viewModel != null ? viewModel.date : @string/placeholder_text}"
+            android:text="@{viewModel.shortDate}"
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white"
             android:textSize="16sp"
-            app:autoSizeMaxTextSize="16sp"
-            app:autoSizeTextType="uniform"
-            tools:text="Thu 10 PM" />
+            tools:text="10PM" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/hrforecast_icon"
@@ -40,12 +38,11 @@
             android:includeFontPadding="false"
             android:gravity="center"
             android:padding="4dp"
-            android:text="@{viewModel != null ? viewModel.weatherIcon : @string/placeholder_text}"
+            android:text="@{viewModel.weatherIcon}"
             android:textAlignment="center"
             android:textAppearance="?android:textAppearanceLargeInverse"
             android:textColor="@android:color/white"
             android:textSize="32sp"
-            app:autoSizeMaxTextSize="32sp"
             app:autoSizeTextType="uniform"
             app:fontFamily="@font/weathericons"
             tools:fontFamily="@font/weathericons"
@@ -56,13 +53,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:padding="2dp"
-            android:text="@{viewModel != null ? viewModel.hiTemp : @string/placeholder_text}"
+            android:padding="4dp"
+            android:text="@{viewModel.hiTemp}"
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white"
             android:textSize="16sp"
-            app:autoSizeMaxTextSize="16sp"
-            app:autoSizeTextType="uniform"
             tools:text="77°" />
 
     </LinearLayout>

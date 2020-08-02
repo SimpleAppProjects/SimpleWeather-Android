@@ -337,7 +337,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
             notifyPropertyChanged(BR.loTemp);
         }
 
-        hiLoTemp = new SpannableStringBuilder().append(hiTemp).append(" | ").append(loTemp);
+        hiLoTemp = new SpannableStringBuilder().append(hiTemp).append("  |  ").append(loTemp);
         notifyPropertyChanged(BR.hiLoTemp);
 
         // WeatherDetails

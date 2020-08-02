@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground"
+    android:padding="@dimen/inner_frame_layout_padding"
     tools:context=".fragments.LocationSearchFragment">
 
     <RelativeLayout
@@ -21,8 +22,9 @@
             android:paddingTop="8dp"
             android:paddingEnd="4dp"
             android:text="@string/location_search_hint"
-            android:textAppearance="?android:textAppearanceSmallInverse"
-            android:textColor="@android:color/white" />
+            android:textAppearance="?android:textAppearanceMediumInverse"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/voice_button"
@@ -31,6 +33,8 @@
             android:layout_centerVertical="true"
             android:layout_toStartOf="@id/spacer"
             android:tint="@android:color/white"
+            app:fabCustomSize="@dimen/fab_custom_size"
+            app:maxImageSize="@dimen/fab_image_size"
             app:srcCompat="@drawable/ic_keyboard_voice_black_24dp" />
 
         <Space
@@ -46,6 +50,8 @@
             android:layout_centerVertical="true"
             android:layout_toEndOf="@id/spacer"
             android:tint="@android:color/white"
+            app:fabCustomSize="@dimen/fab_custom_size"
+            app:maxImageSize="@dimen/fab_image_size"
             app:srcCompat="@drawable/ic_keyboard_black_24dp" />
 
     </RelativeLayout>

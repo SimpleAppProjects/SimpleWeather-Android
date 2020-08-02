@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.databinding;
+package com.thewizrd.shared_resources.databinding;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -8,12 +8,12 @@ import androidx.databinding.BindingAdapter;
 
 public class AppCompatImageViewBindingAdapter {
     @BindingAdapter("srcCompat")
-    public void setImageViewDrawable(AppCompatImageView view, Drawable drawable) {
+    public static void setImageViewDrawable(AppCompatImageView view, Drawable drawable) {
         view.setImageDrawable(drawable);
     }
 
     @BindingAdapter("srcCompat")
-    public void setImageViewBitmap(AppCompatImageView view, Bitmap bmp) {
+    public static void setImageViewBitmap(AppCompatImageView view, Bitmap bmp) {
         view.setImageBitmap(bmp);
     }
 }

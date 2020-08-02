@@ -11,11 +11,11 @@
         android:id="@+id/top_nav_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/colorPrimary"
+        android:background="?attr/colorSurface"
         android:focusableInTouchMode="true"
         app:navigationStyle="multiPage" />
 
-    <FrameLayout
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="bottom"
-        android:background="?attr/colorPrimary"
+        android:background="?attr/colorSurface"
         android:descendantFocusability="afterDescendants"
         android:focusableInTouchMode="true"
         app:actionMenu="@menu/main_botton_drawer_menu"

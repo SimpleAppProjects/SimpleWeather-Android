@@ -130,9 +130,7 @@ import com.thewizrd.simpleweather.controls.ForecastGraphPanel;
 import com.thewizrd.simpleweather.controls.ForecastGraphViewModel;
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView;
 import com.thewizrd.simpleweather.controls.SunPhaseView;
-import com.thewizrd.simpleweather.databinding.AppCompatImageViewBindingAdapter;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding;
-import com.thewizrd.simpleweather.databinding.ViewBindingAdapter;
 import com.thewizrd.simpleweather.databinding.WeathernowAqicontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowBeaufortcontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowDetailscontainerBinding;
@@ -1065,9 +1063,6 @@ public class WeatherNowFragment extends WindowColorFragment
     private void resume() {
         boolean locationChanged = verifyLocationData();
 
-        // New fragment instance -> loaded = true
-        // Navigating back to existing fragment instance => loaded = false
-        // Weather location changed (ex. due to GPS setting) -> locationChanged = true
         if (locationChanged || wLoader == null) {
             restore();
         } else {
@@ -1510,28 +1505,14 @@ public class WeatherNowFragment extends WindowColorFragment
 
     public static class WeatherFragmentDataBindingComponent implements androidx.databinding.DataBindingComponent {
         private final WeatherNowFragmentBindingAdapter mAdapter;
-        private final ViewBindingAdapter viewBindingAdapter;
-        private final AppCompatImageViewBindingAdapter imageViewBindingAdapter;
 
         public WeatherFragmentDataBindingComponent(WeatherNowFragment fragment) {
             this.mAdapter = new WeatherNowFragmentBindingAdapter(fragment);
-            this.viewBindingAdapter = new ViewBindingAdapter();
-            this.imageViewBindingAdapter = new AppCompatImageViewBindingAdapter();
         }
 
         @Override
         public WeatherNowFragmentBindingAdapter getWeatherNowFragmentBindingAdapter() {
             return mAdapter;
-        }
-
-        @Override
-        public ViewBindingAdapter getViewBindingAdapter() {
-            return viewBindingAdapter;
-        }
-
-        @Override
-        public AppCompatImageViewBindingAdapter getAppCompatImageViewBindingAdapter() {
-            return imageViewBindingAdapter;
         }
     }
 

@@ -41,6 +41,7 @@ public class DetailItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         public void bind(DetailItemViewModel model) {
             binding.setViewModel(model);
+            binding.detailIcon.setTextColor(Colors.SIMPLEBLUELIGHT);
             binding.executePendingBindings();
         }
     }

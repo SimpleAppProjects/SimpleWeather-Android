@@ -63,7 +63,7 @@ public class WeatherTileIntentService extends JobIntentService {
         if (ACTION_UPDATETILES.equals(intent.getAction())) {
             boolean force = intent.getBooleanExtra(EXTRA_FORCEUPDATE, false);
 
-            if (Duration.between(LocalDateTime.now(ZoneOffset.UTC), WeatherTileProviderService.getUpdateTime()).toMinutes() > Settings.getRefreshInterval())
+            if (!force && Duration.between(LocalDateTime.now(ZoneOffset.UTC), WeatherTileProviderService.getUpdateTime()).toMinutes() > Settings.getRefreshInterval())
                 force = true;
 
             if (force) {

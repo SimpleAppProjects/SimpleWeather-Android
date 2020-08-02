@@ -5,9 +5,22 @@
 
     <data>
 
+        <import type="android.text.TextUtils" />
+
+        <import type="android.view.View" />
+
         <variable
             name="weatherView"
             type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
+
+        <variable
+            name="alertsView"
+            type="com.thewizrd.shared_resources.controls.WeatherAlertsViewModel" />
+
+        <variable
+            name="forecastsView"
+            type="com.thewizrd.simpleweather.controls.ForecastPanelsViewModel" />
+
     </data>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -29,20 +42,258 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
+                <LinearLayout
+                    android:id="@+id/alert_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="?selectableItemBackground"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:visibility="gone"
+                    app:watchHideIfEmpty="@{alertsView.alerts}"
+                    tools:visibility="visible">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/MaterialIcon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:padding="4dp"
+                        android:text="@string/materialicon_error"
+                        android:textColor="#FFFF4500" />
+
+                </LinearLayout>
+
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/label_location_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:fontFamily="sans-serif-medium"
+                    android:fontFamily="sans-serif-light"
                     android:gravity="center_horizontal"
-                    android:paddingStart="@dimen/header_start_padding"
-                    android:paddingTop="@dimen/header_top_padding"
-                    android:paddingEnd="@dimen/header_end_padding"
+                    android:paddingStart="@dimen/wnow_horizontal_padding"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="@dimen/wnow_horizontal_padding"
                     android:text="@{weatherView.location}"
                     android:textAppearance="@android:style/TextAppearance.Material.Large.Inverse"
                     android:textColor="@android:color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
                     tools:text="New York, New York" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="true"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/weather_icon"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        android:layout_gravity="end|center_vertical"
+                        android:includeFontPadding="false"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="8dp"
+                        android:text="@{weatherView.weatherIcon}"
+                        android:textAppearance="?android:textAppearanceMediumInverse"
+                        android:textColor="@android:color/white"
+                        android:textSize="42sp"
+                        app:fontFamily="@font/weathericons"
+                        tools:fontFamily="@font/weathericons"
+                        tools:text="@string/wi_day_sunny" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/weather_temp"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-light"
+                        android:gravity="start|center_vertical"
+                        android:layout_gravity="start|center_vertical"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="0dp"
+                        android:text="@{weatherView.curTemp}"
+                        app:autoSizeMaxTextSize="42sp"
+                        app:autoSizeTextType="uniform"
+                        app:tempTextColor="@{weatherView.curTemp}"
+                        app:tempUnit="@{weatherView.tempUnit}"
+                        tools:textColor="@android:color/white"
+                        tools:text="70°F" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/weather_condition"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center"
+                    android:maxLines="2"
+                    android:paddingStart="@dimen/horizontal_padding"
+                    android:paddingEnd="@dimen/horizontal_padding"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:text="@{weatherView.curCondition}"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    tools:text="Mostly Cloudy. Breezy. Cool" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/weather_hilo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="sans-serif-light"
+                    android:includeFontPadding="false"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:text="@{weatherView.hiLoTemp}"
+                    android:textColor="@android:color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:visibility="@{!TextUtils.isEmpty(weatherView.hiLoTemp) ? View.VISIBLE : View.GONE}"
+                    tools:text="75° &#xf058; | 60° &#xf044;" />
+
+                <LinearLayout
+                    android:id="@+id/condition_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false"
+                    android:paddingStart="@dimen/list_item_padding"
+                    android:paddingEnd="@dimen/list_item_padding">
+
+                    <RelativeLayout
+                        android:id="@+id/condition_poplayout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        app:popData="@{weatherView.weatherDetails}">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/condition_popicon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_margin="4dp"
+                            android:fontFamily="@font/weathericons"
+                            android:includeFontPadding="false"
+                            android:layout_centerVertical="true"
+                            android:textColor="@color/colorPrimaryLight"
+                            android:textSize="18sp"
+                            app:fontFamily="@font/weathericons"
+                            tools:text="@string/wi_umbrella" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/condition_pop"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_toEndOf="@id/condition_popicon"
+                            android:layout_centerVertical="true"
+                            android:padding="4dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:textColor="@color/colorPrimaryLight"
+                            android:textSize="16sp"
+                            android:visibility="@{!TextUtils.isEmpty(weatherView.hiLoTemp) ? View.VISIBLE : View.GONE}"
+                            app:autoSizeMaxTextSize="16sp"
+                            app:autoSizeTextType="uniform"
+                            tools:text="50%" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/condition_windlayout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        app:windData="@{weatherView.weatherDetails}">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/condition_windicon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_margin="4dp"
+                            android:fontFamily="@font/weathericons"
+                            android:layout_centerVertical="true"
+                            android:includeFontPadding="false"
+                            android:textColor="@color/colorPrimaryLight"
+                            android:textSize="18sp"
+                            app:fontFamily="@font/weathericons"
+                            tools:text="@string/wi_wind_direction" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/condition_windspeed"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_toEndOf="@id/condition_windicon"
+                            android:layout_centerVertical="true"
+                            android:padding="4dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:includeFontPadding="false"
+                            android:maxLines="2"
+                            android:textColor="@color/colorPrimaryLight"
+                            android:textSize="16sp"
+                            app:autoSizeMaxTextSize="16sp"
+                            app:autoSizeTextType="uniform"
+                            tools:text="10 mph" />
+
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:alpha="0.25"
+                    android:background="?attr/colorOnSurface"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="4dp"
+                    app:hideIfNullOrWhitespace="@{weatherView.location}" />
+
+                <com.thewizrd.simpleweather.controls.ForecastPanel
+                    android:id="@+id/forecast_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="16dp"
+                    app:forecasts="@{forecastsView.forecasts}"
+                    app:hideIfEmpty="@{forecastsView.forecasts}" />
+
+                <com.thewizrd.simpleweather.controls.HourlyForecastPanel
+                    android:id="@+id/hourly_forecast_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:paddingStart="@dimen/header_start_padding"
+                    android:paddingEnd="@dimen/header_end_padding"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="16dp"
+                    app:forecasts="@{forecastsView.hourlyForecasts}"
+                    app:hideIfEmpty="@{forecastsView.hourlyForecasts}" />
 
                 <TextView
                     android:id="@+id/label_updatetime"
@@ -55,60 +306,17 @@
                     android:textAppearance="?android:textAppearanceSmallInverse"
                     android:textColor="@android:color/white"
                     android:textSize="12sp"
-                    tools:text="Updated on 11:12 PM" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/weather_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:paddingBottom="4dp"
-                    android:paddingTop="4dp"
-                    android:text="@{weatherView.weatherIcon}"
-                    android:textAlignment="center"
-                    android:textAppearance="?android:textAppearanceMediumInverse"
-                    android:textColor="@android:color/white"
-                    android:textSize="48sp"
-                    app:fontFamily="@font/weathericons"
-                    tools:fontFamily="@font/weathericons"
-                    tools:text="@string/wi_day_sunny" />
-
-                <TextView
-                    android:id="@+id/weather_condition"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:maxLines="2"
-                    android:padding="4dp"
-                    android:text="@{weatherView.curCondition}"
-                    android:textAllCaps="false"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp"
-                    tools:text="Mostly Cloudy. Breezy. Cool" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/weather_temp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:padding="4dp"
-                    android:text="@{weatherView.curTemp}"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp"
-                    app:fontFamily="@font/weathericons"
-                    tools:fontFamily="@font/weathericons"
-                    tools:text="70&#xF045;" />
+                    tools:text="Updated on Sun 11:12 PM" />
 
                 <TextView
                     android:id="@+id/weather_credit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
-                    android:paddingStart="@dimen/header_start_padding"
+                    android:paddingStart="@dimen/wnow_horizontal_padding"
                     android:paddingTop="4dp"
-                    android:paddingEnd="@dimen/header_end_padding"
-                    android:paddingBottom="@dimen/header_top_padding"
+                    android:paddingEnd="@dimen/wnow_horizontal_padding"
+                    android:paddingBottom="@dimen/wnow_vertical_padding"
                     android:text="@{weatherView.weatherCredit}"
                     android:textAppearance="?android:textAppearanceSmallInverse"
                     android:textColor="@android:color/white"

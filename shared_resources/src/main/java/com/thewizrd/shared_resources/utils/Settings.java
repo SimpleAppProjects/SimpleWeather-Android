@@ -495,21 +495,16 @@ public class Settings {
             @Override
             public Void call() {
                 weatherDB.weatherDAO().deleteHourlyForecastByKey(key);
+
+                if (forecasts != null) {
+                    for (HourlyForecasts fcast : forecasts) {
+                        weatherDB.weatherDAO().insertHourlyForecast(fcast);
+                    }
+                }
                 return null;
             }
         });
 
-        if (forecasts != null) {
-            new AsyncTask<Void>().await(new Callable<Void>() {
-                @Override
-                public Void call() {
-                    for (HourlyForecasts fcast : forecasts) {
-                        weatherDB.weatherDAO().insertHourlyForecast(fcast);
-                    }
-                    return null;
-                }
-            });
-        }
         AsyncTask.run(new Runnable() {
             @Override
             public void run() {

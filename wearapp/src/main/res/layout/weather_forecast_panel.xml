@@ -31,23 +31,25 @@
             android:text="@{viewModel != null ? viewModel.date : @string/placeholder_text}"
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:autoSizeMaxTextSize="16sp"
+            app:autoSizeTextType="uniform"
             tools:text="Thu 08" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/forecast_icon"
             android:layout_width="36dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:includeFontPadding="false"
             android:gravity="center"
-            android:paddingStart="@dimen/item_padding"
-            android:paddingEnd="@dimen/item_padding"
+            android:padding="4dp"
             android:text="@{viewModel != null ? viewModel.weatherIcon : @string/placeholder_text}"
+            android:textAlignment="center"
             android:textAppearance="?android:textAppearanceLargeInverse"
             android:textColor="@android:color/white"
-            android:textSize="14sp"
-            app:autoSizeMaxTextSize="14sp"
-            app:autoSizeMinTextSize="12sp"
-            app:autoSizeStepGranularity=".5sp"
+            android:textSize="32sp"
+            app:autoSizeMaxTextSize="32sp"
             app:autoSizeTextType="uniform"
             app:fontFamily="@font/weathericons"
             tools:fontFamily="@font/weathericons"
@@ -58,18 +60,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:padding="2dp"
             android:text="@{viewModel != null ? viewModel.hiTemp : @string/placeholder_text}"
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:autoSizeMaxTextSize="16sp"
+            app:autoSizeTextType="uniform"
             tools:text="77°" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="/"
+            android:text=" | "
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:autoSizeMaxTextSize="16sp"
+            app:autoSizeTextType="uniform"
             android:visibility="@{viewModel != null &amp;&amp; !StringUtils.isNullOrWhitespace(viewModel.loTemp) ? View.VISIBLE : View.GONE}"
             tools:ignore="HardcodedText" />
 
@@ -83,6 +92,9 @@
             android:text="@{viewModel.loTemp}"
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:autoSizeMaxTextSize="16sp"
+            app:autoSizeTextType="uniform"
             tools:text="66°" />
 
     </LinearLayout>

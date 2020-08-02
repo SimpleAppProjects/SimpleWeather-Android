@@ -382,8 +382,8 @@ public class LocationSearchFragment extends SwipeDismissFragment {
     public void onDestroyView() {
         hideInputMethod(binding.searchView);
         binding.recyclerViewLayout.removeCallback(swipeCallback);
-        super.onDestroyView();
         binding = null;
+        super.onDestroyView();
     }
 
     private void doSearchAction() {

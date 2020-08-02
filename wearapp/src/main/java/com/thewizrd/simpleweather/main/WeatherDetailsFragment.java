@@ -8,6 +8,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.Observable;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.wear.widget.WearableLinearLayoutManager;
 
@@ -37,6 +40,13 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AnalyticsLogger.logEvent("WeatherDetails: onCreate");
+
+        getLifecycle().addObserver(new LifecycleObserver() {
+            @OnLifecycleEvent(Lifecycle.Event.ON_START)
+            private void load() {
+                initialize();
+            }
+        });
     }
 
     @Nullable
@@ -66,22 +76,14 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
     @Override
     public void onDestroyView() {
         binding = null;
-        weatherView = null;
         super.onDestroyView();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
-        // Don't resume if fragment is hidden
-        if (!this.isHidden()) {
-            AnalyticsLogger.logEvent("WeatherDetails: onResume");
-            if (weatherView != null) {
-                weatherView.addOnPropertyChangedCallback(propertyChangedCallback);
-            }
-            initialize();
-        }
+        AnalyticsLogger.logEvent("WeatherDetails: onResume");
+        weatherView.addOnPropertyChangedCallback(propertyChangedCallback);
     }
 
     @Override
@@ -97,9 +99,7 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (propertyId == BR.pendingBackground) {
-                        binding.getRoot().setBackgroundColor(weatherView.getPendingBackground());
-                    } else if (propertyId == BR.weatherDetails) {
+                    if (propertyId == BR.weatherDetails) {
                         initialize();
                     }
                 }
@@ -109,7 +109,6 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
 
     public void initialize() {
         if (isAlive() && weatherView != null && getView() != null) {
-            getView().setBackgroundColor(weatherView.getPendingBackground());
             binding.recyclerView.requestFocus();
 
             // specify an adapter (see also next example)

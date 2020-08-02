@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.databinding.DataBindingUtil;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
@@ -27,10 +26,7 @@ import com.google.android.material.card.MaterialCardView;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.databinding.AppCompatImageViewBindingAdapter;
 import com.thewizrd.simpleweather.databinding.LocationPanelBinding;
-import com.thewizrd.simpleweather.databinding.ViewBindingAdapter;
-import com.thewizrd.simpleweather.main.WeatherNowFragment;
 import com.thewizrd.simpleweather.preferences.FeatureSettings;
 
 public class LocationPanel extends MaterialCardView {
@@ -60,8 +56,7 @@ public class LocationPanel extends MaterialCardView {
 
     private void initialize(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        binding = DataBindingUtil.inflate(inflater, R.layout.location_panel, this, true,
-                new LocationPanelDataBindingComponent());
+        binding = LocationPanelBinding.inflate(inflater, this, true);
 
         int height = context.getResources().getDimensionPixelSize(R.dimen.location_panel_height);
         this.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
@@ -194,30 +189,5 @@ public class LocationPanel extends MaterialCardView {
             strokeDp = isDragged() ? 2f : 1f;
         }
         setStrokeWidth((int) ActivityUtils.dpToPx(getContext(), strokeDp));
-    }
-
-    public static class LocationPanelDataBindingComponent implements androidx.databinding.DataBindingComponent {
-        private final ViewBindingAdapter viewBindingAdapter;
-        private final AppCompatImageViewBindingAdapter imageViewBindingAdapter;
-
-        public LocationPanelDataBindingComponent() {
-            this.viewBindingAdapter = new ViewBindingAdapter();
-            this.imageViewBindingAdapter = new AppCompatImageViewBindingAdapter();
-        }
-
-        @Override
-        public ViewBindingAdapter getViewBindingAdapter() {
-            return viewBindingAdapter;
-        }
-
-        @Override
-        public WeatherNowFragment.WeatherNowFragmentBindingAdapter getWeatherNowFragmentBindingAdapter() {
-            return null;
-        }
-
-        @Override
-        public AppCompatImageViewBindingAdapter getAppCompatImageViewBindingAdapter() {
-            return imageViewBindingAdapter;
-        }
     }
 }

@@ -30,11 +30,4 @@
     <action
         android:id="@+id/action_global_mainActivity"
         app:destination="@id/mainActivity" />
-    <activity
-        android:id="@+id/settingsActivity2"
-        android:name="com.thewizrd.simpleweather.preferences.SettingsActivity"
-        android:label="SettingsActivity" />
-    <action
-        android:id="@+id/action_global_settingsActivity2"
-        app:destination="@id/settingsActivity2" />
 </navigation>

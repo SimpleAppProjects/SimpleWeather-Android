@@ -22,8 +22,8 @@ public class KeyEntryPreference extends EditTextPreference {
         void beforeDialogCreated();
     }
 
-    private View.OnClickListener posButtonClickListener;
-    private View.OnClickListener negButtonClickListener;
+    private DialogInterface.OnClickListener posButtonClickListener;
+    private DialogInterface.OnClickListener negButtonClickListener;
     private DialogCreatedListener dialogCreatedListener;
 
     private String currentAPI;
@@ -112,11 +112,11 @@ public class KeyEntryPreference extends EditTextPreference {
         }
     };
 
-    public void setPositiveButtonOnClickListener(View.OnClickListener listener) {
+    public void setPositiveButtonOnClickListener(DialogInterface.OnClickListener listener) {
         posButtonClickListener = listener;
     }
 
-    public void setNegativeButtonOnClickListener(View.OnClickListener listener) {
+    public void setNegativeButtonOnClickListener(DialogInterface.OnClickListener listener) {
         negButtonClickListener = listener;
     }
 
@@ -125,25 +125,24 @@ public class KeyEntryPreference extends EditTextPreference {
     }
 
     @Override
+    protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
+        super.onPrepareDialogBuilder(builder);
+        builder.setPositiveButton(android.R.string.ok, posButtonClickListener);
+        builder.setNegativeButton(android.R.string.cancel, negButtonClickListener);
+    }
+
+    @Override
     protected void showDialog(Bundle state) {
         super.showDialog(state);
 
         final AlertDialog alertDialog = (AlertDialog) getDialog();
-        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onShow(final DialogInterface dialog) {
-                View posButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-                View negButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-                posButton.setOnClickListener(posButtonClickListener);
-                if (negButtonClickListener == null) {
-                    negButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            dialog.dismiss();
-                        }
-                    });
+            public void onClick(View v) {
+                if (posButtonClickListener != null) {
+                    posButtonClickListener.onClick(alertDialog, AlertDialog.BUTTON_POSITIVE);
                 } else {
-                    negButton.setOnClickListener(negButtonClickListener);
+                    alertDialog.dismiss();
                 }
             }
         });

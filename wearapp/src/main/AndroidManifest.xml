@@ -39,10 +39,15 @@
         <activity
             android:name=".setup.SetupSyncActivity"
             android:theme="@style/WearAppTheme" />
+        <!--
+         NOTE: Handle keyboard config changes as a workaround for odd inset issue which occurs
+         on the BottomNavigationView; Plus the keyboard won't open in this activity anyway
+         -->
         <activity
             android:name=".main.MainActivity"
             android:label="MainActivity"
-            android:theme="@style/WearAppTheme" />
+            android:theme="@style/WearAppTheme"
+            android:configChanges="keyboardHidden" />
         <activity
             android:name=".preferences.SettingsActivity"
             android:theme="@style/WearSettingsTheme" />

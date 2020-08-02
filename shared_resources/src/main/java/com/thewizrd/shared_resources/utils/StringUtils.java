@@ -74,6 +74,14 @@ public class StringUtils {
         }
     }
 
+    public static String removeDigitChars(String s) {
+        if (isNullOrWhitespace(s))
+            return "";
+        else {
+            return s.replaceAll("[0-9]", "").trim();
+        }
+    }
+
     public static String lineSeparator() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             return System.lineSeparator();

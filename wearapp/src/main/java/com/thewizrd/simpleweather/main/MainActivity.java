@@ -16,7 +16,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.databinding.Observable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle;
@@ -37,7 +36,6 @@ import com.google.android.wearable.intent.RemoteIntent;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.AsyncTask;
-import com.thewizrd.shared_resources.BR;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastsViewModel;
@@ -48,8 +46,6 @@ import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
-import com.thewizrd.shared_resources.utils.Settings;
-import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.simpleweather.NavGraphDirections;
 import com.thewizrd.simpleweather.R;
@@ -201,21 +197,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
         this.weatherNowView = vmProvider.get(WeatherNowViewModel.class);
         this.forecastsView = vmProvider.get(ForecastsViewModel.class);
         this.alertsView = vmProvider.get(WeatherAlertsViewModel.class);
-        weatherNowView.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
-            @Override
-            public void onPropertyChanged(Observable sender, final int propertyId) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (binding == null) return;
-                        if (propertyId == BR.pendingBackground) {
-                            binding.bottomActionDrawer.setBackgroundColor(weatherNowView.getPendingBackground());
-                            binding.topNavDrawer.setBackgroundColor(weatherNowView.getPendingBackground());
-                        }
-                    }
-                });
-            }
-        });
+
         forecastsView.getForecasts().observe(this, new Observer<PagedList<ForecastItemViewModel>>() {
             @Override
             public void onChanged(PagedList<ForecastItemViewModel> forecastItemViewModels) {
@@ -341,23 +323,6 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
     protected void onResume() {
         super.onResume();
         AnalyticsLogger.logEvent("MainActivity: onResume");
-
-        if (binding != null) {
-            MenuItem menuItem = null;
-
-            if (binding.bottomActionDrawer.getMenu() != null) {
-                menuItem = binding.bottomActionDrawer.getMenu().findItem(R.id.menu_changelocation);
-            }
-
-            if (Settings.getDataSync() != WearableDataSync.OFF && menuItem != null) {
-                // remove change location if exists
-                binding.bottomActionDrawer.getMenu().removeItem(R.id.menu_changelocation);
-            } else if (Settings.getDataSync() == WearableDataSync.OFF && menuItem == null) {
-                // restore all menu options
-                binding.bottomActionDrawer.getMenu().clear();
-                getMenuInflater().inflate(R.menu.main_botton_drawer_menu, binding.bottomActionDrawer.getMenu());
-            }
-        }
     }
 
     @Override
@@ -369,7 +334,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
     private class NavDrawerAdapter extends WearableNavigationDrawerView.WearableNavigationDrawerAdapter {
         private Context mContext;
         private final List<NavDrawerItem> navDrawerItems = Arrays.asList(
-                new NavDrawerItem(R.id.weatherNowFragment, R.string.label_condition, R.drawable.day_cloudy),
+                new NavDrawerItem(R.id.weatherNowFragment, R.string.label_nav_weathernow, R.drawable.day_cloudy),
                 new NavDrawerItem(R.id.weatherAlertsFragment, R.string.title_fragment_alerts, R.drawable.ic_error_white),
                 new NavDrawerItem(R.id.weatherForecastFragment, R.string.label_forecast, R.drawable.ic_date_range_black_24dp),
                 new NavDrawerItem(R.id.weatherHrForecastFragment, R.string.label_hourlyforecast, R.drawable.ic_access_time_black_24dp),
@@ -411,7 +376,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
             return Iterables.indexOf(navItems, new Predicate<NavDrawerItem>() {
                 @Override
                 public boolean apply(@NullableDecl NavDrawerItem input) {
-                    return input.destinationId == destinationId;
+                    return input != null && input.destinationId == destinationId;
                 }
             });
         }

@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -20,11 +21,15 @@ import com.google.android.clockwork.tiles.TileData;
 import com.google.android.clockwork.tiles.TileProviderService;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.Tasks;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
+import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -46,6 +51,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.LaunchActivity;
 import com.thewizrd.simpleweather.R;
 
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
@@ -64,6 +70,8 @@ public class WeatherTileProviderService extends TileProviderService {
     private WeatherManager wm;
     private FusedLocationProviderClient mFusedLocationClient;
     private int id = -1;
+
+    private static final int FORECAST_LENGTH = 4;
 
     private static LocalDateTime updateTime = DateTimeUtils.getLocalDateTimeMIN();
 
@@ -164,15 +172,56 @@ public class WeatherTileProviderService extends TileProviderService {
                 ImageUtils.weatherIconToBitmap(mContext, viewModel.getWeatherIcon(), 72, Colors.WHITE));
         updateViews.setTextViewText(R.id.weather_condition, viewModel.getCurCondition());
 
+        // Details
+        DetailItemViewModel chanceModel = Iterables.find(viewModel.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
+            @Override
+            public boolean apply(@NullableDecl DetailItemViewModel input) {
+                return input != null && (input.getDetailsType() == WeatherDetailsType.POPCHANCE || input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS);
+            }
+        }, null);
+        DetailItemViewModel windModel = Iterables.find(viewModel.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
+            @Override
+            public boolean apply(@NullableDecl DetailItemViewModel input) {
+                return input != null && input.getDetailsType() == WeatherDetailsType.WINDSPEED;
+            }
+        }, null);
+
+        if (chanceModel != null) {
+            updateViews.setImageViewBitmap(R.id.weather_popicon,
+                    ImageUtils.weatherIconToBitmap(this, chanceModel.getIcon(), 72, false)
+            );
+            updateViews.setTextViewText(R.id.weather_pop, chanceModel.getValue());
+            updateViews.setViewVisibility(R.id.weather_pop_layout, View.VISIBLE);
+        } else {
+            updateViews.setViewVisibility(R.id.weather_pop_layout, View.GONE);
+        }
+
+        if (windModel != null) {
+            if (windModel.getIconRotation() != 0) {
+                updateViews.setImageViewBitmap(R.id.weather_windicon,
+                        ImageUtils.rotateBitmap(ImageUtils.bitmapFromDrawable(this, R.drawable.direction_up), windModel.getIconRotation())
+                );
+            } else {
+                updateViews.setImageViewResource(R.id.weather_windicon, R.drawable.direction_up);
+            }
+            String speed = TextUtils.isEmpty(windModel.getValue()) ? "" : windModel.getValue().toString();
+            speed = speed.split(",")[0];
+            updateViews.setTextViewText(R.id.weather_windspeed, speed);
+            updateViews.setViewVisibility(R.id.weather_wind_layout, View.VISIBLE);
+        } else {
+            updateViews.setViewVisibility(R.id.weather_wind_layout, View.GONE);
+        }
+
+        updateViews.setViewVisibility(R.id.extra_layout, chanceModel != null || windModel != null ? View.VISIBLE : View.GONE);
+
         // Build forecast
-        final int FORECAST_LENGTH = 3;
         updateViews.removeAllViews(R.id.forecast_layout);
 
         RemoteViews forecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.tile_forecast_layout_container);
         RemoteViews hrForecastPanel = null;
 
-        List<ForecastItemViewModel> forecasts = getForecasts(FORECAST_LENGTH);
-        List<HourlyForecastItemViewModel> hrforecasts = getHourlyForecasts(FORECAST_LENGTH);
+        List<ForecastItemViewModel> forecasts = getForecasts();
+        List<HourlyForecastItemViewModel> hrforecasts = getHourlyForecasts();
 
         if (hrforecasts.size() > 0) {
             hrForecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.tile_forecast_layout_container);
@@ -195,16 +244,16 @@ public class WeatherTileProviderService extends TileProviderService {
         return updateViews;
     }
 
-    private List<ForecastItemViewModel> getForecasts(int forecastLength) {
+    private List<ForecastItemViewModel> getForecasts() {
         LocationData locationData = Settings.getHomeData();
 
         if (locationData != null && locationData.isValid()) {
             Forecasts forecasts = Settings.getWeatherForecastData(locationData.getQuery());
 
-            if (forecasts.getForecast() != null && forecasts.getForecast().size() >= forecastLength) {
+            if (forecasts.getForecast() != null && forecasts.getForecast().size() >= FORECAST_LENGTH) {
                 List<ForecastItemViewModel> fcasts = new ArrayList<>();
 
-                for (int i = 0; i < Math.min(forecastLength, forecasts.getForecast().size()); i++) {
+                for (int i = 0; i < Math.min(FORECAST_LENGTH, forecasts.getForecast().size()); i++) {
                     fcasts.add(new ForecastItemViewModel(forecasts.getForecast().get(i)));
                 }
 
@@ -215,11 +264,11 @@ public class WeatherTileProviderService extends TileProviderService {
         return Collections.emptyList();
     }
 
-    private List<HourlyForecastItemViewModel> getHourlyForecasts(int forecastLength) {
+    private List<HourlyForecastItemViewModel> getHourlyForecasts() {
         LocationData locationData = Settings.getHomeData();
 
         if (locationData != null && locationData.isValid()) {
-            List<HourlyForecast> forecasts = Settings.getHourlyWeatherForecastDataByLimit(locationData.getQuery(), forecastLength);
+            List<HourlyForecast> forecasts = Settings.getHourlyWeatherForecastDataByLimit(locationData.getQuery(), FORECAST_LENGTH);
 
             if (forecasts != null && forecasts.size() > 0) {
                 List<HourlyForecastItemViewModel> fcasts = new ArrayList<>();
@@ -238,7 +287,11 @@ public class WeatherTileProviderService extends TileProviderService {
     private void addForecastItem(RemoteViews forecastPanel, BaseForecastItemViewModel forecast) {
         RemoteViews forecastItem = new RemoteViews(mContext.getPackageName(), R.layout.tile_forecast_panel);
 
-        forecastItem.setTextViewText(R.id.forecast_date, forecast.getShortDate());
+        if (forecast instanceof ForecastItemViewModel) {
+            forecastItem.setTextViewText(R.id.forecast_date, StringUtils.removeDigitChars(forecast.getShortDate()));
+        } else {
+            forecastItem.setTextViewText(R.id.forecast_date, forecast.getShortDate());
+        }
         forecastItem.setTextViewText(R.id.forecast_hi, forecast.getHiTemp());
         if (forecast instanceof ForecastItemViewModel) {
             forecastItem.setTextViewText(R.id.forecast_lo, ((ForecastItemViewModel) forecast).getLoTemp());

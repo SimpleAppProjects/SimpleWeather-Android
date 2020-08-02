@@ -24,7 +24,7 @@
         android:layout_height="@dimen/ws_action_drawer_item_icon_size"
         android:layout_gravity="center_vertical"
         android:background="@drawable/ws_action_item_icon_background"
-        android:backgroundTint="@color/colorPrimaryLight"
+        android:backgroundTint="?attr/colorAccent"
         android:tint="?attr/colorOnSurface"
         android:padding="@dimen/ws_action_drawer_item_icon_padding"
         android:scaleType="fitCenter"
