@@ -70,7 +70,7 @@
         <receiver
             android:enabled="true"
             android:exported="true"
-            android:name=".wearable.WearableBroadcastReceiver">
+            android:name=".receivers.WeatherUpdateBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />

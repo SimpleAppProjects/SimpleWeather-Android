@@ -81,6 +81,7 @@ import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.ForecastPanelsViewModel;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding;
 import com.thewizrd.simpleweather.fragments.CustomFragment;
+import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 import com.thewizrd.simpleweather.wearable.WeatherComplicationIntentService;
 import com.thewizrd.simpleweather.wearable.WeatherTileIntentService;
@@ -160,24 +161,20 @@ public class WeatherNowFragment extends CustomFragment
                     @Override
                     public void run() {
                         Context context = App.getInstance().getAppContext();
-                        // Update complications if they haven't been already
-                        WeatherComplicationIntentService.enqueueWork(context,
-                                new Intent(context, WeatherComplicationIntentService.class)
-                                        .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS)
-                                        .putExtra(WeatherComplicationIntentService.EXTRA_FORCEUPDATE, true));
 
-                        // Update tile if it hasn't been already
-                        WeatherTileIntentService.enqueueWork(context,
-                                new Intent(context, WeatherTileIntentService.class)
-                                        .setAction(WeatherTileIntentService.ACTION_UPDATETILES)
-                                        .putExtra(WeatherTileIntentService.EXTRA_FORCEUPDATE, true));
-
-                        Duration span = Duration.between(ZonedDateTime.now(), weather.getUpdateTime()).abs();
+                        Duration span = Duration.between(ZonedDateTime.now(), Settings.getUpdateTime());
                         if (Settings.getDataSync() != WearableDataSync.OFF && span.toMinutes() > Settings.getRefreshInterval()) {
-                            // send request to refresh data on connected device
-                            context.startService(new Intent(context, WearableDataListenerService.class)
-                                    .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE)
-                                    .putExtra(WearableDataListenerService.EXTRA_FORCEUPDATE, true));
+                            WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
+                        } else {
+                            // Update complications if they haven't been already
+                            WeatherComplicationIntentService.enqueueWork(context,
+                                    new Intent(context, WeatherComplicationIntentService.class)
+                                            .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS));
+
+                            // Update tile if it hasn't been already
+                            WeatherTileIntentService.enqueueWork(context,
+                                    new Intent(context, WeatherTileIntentService.class)
+                                            .setAction(WeatherTileIntentService.ACTION_UPDATETILES));
                         }
                     }
                 });

@@ -635,14 +635,12 @@ public class WearableDataListenerService extends WearableListenerService {
                         // Update complications
                         WeatherComplicationIntentService.enqueueWork(WearableDataListenerService.this,
                                 new Intent(WearableDataListenerService.this, WeatherComplicationIntentService.class)
-                                        .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS)
-                                        .putExtra(WeatherComplicationIntentService.EXTRA_FORCEUPDATE, true));
+                                        .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS));
 
                         // Update tile
                         WeatherTileIntentService.enqueueWork(WearableDataListenerService.this,
                                 new Intent(WearableDataListenerService.this, WeatherTileIntentService.class)
-                                        .setAction(WeatherTileIntentService.ACTION_UPDATETILES)
-                                        .putExtra(WeatherTileIntentService.EXTRA_FORCEUPDATE, true));
+                                        .setAction(WeatherTileIntentService.ACTION_UPDATETILES));
                     }
                 } catch (ExecutionException | InterruptedException | IOException e) {
                     Logger.writeLine(Log.ERROR, e);

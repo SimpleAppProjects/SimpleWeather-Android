@@ -1,25 +1,15 @@
 package com.thewizrd.simpleweather.wearable;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import androidx.core.content.ContextCompat;
-import androidx.core.location.LocationManagerCompat;
-
 import com.google.android.clockwork.tiles.TileData;
 import com.google.android.clockwork.tiles.TileProviderService;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.Tasks;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -28,66 +18,43 @@ import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
-import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
-import com.thewizrd.shared_resources.utils.ConversionMethods;
-import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.ImageUtils;
-import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
-import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
-import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
-import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.LaunchActivity;
 import com.thewizrd.simpleweather.R;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
-import org.threeten.bp.Duration;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 
 public class WeatherTileProviderService extends TileProviderService {
     private static final String TAG = "WeatherTileProviderService";
 
     private Context mContext;
-    private WeatherManager wm;
-    private FusedLocationProviderClient mFusedLocationClient;
     private int id = -1;
 
     private static final int FORECAST_LENGTH = 4;
-
-    private static LocalDateTime updateTime = DateTimeUtils.getLocalDateTimeMIN();
-
-    public static LocalDateTime getUpdateTime() {
-        return updateTime;
-    }
 
     @Override
     public void onCreate() {
         super.onCreate();
         mContext = getApplicationContext();
-        wm = WeatherManager.getInstance();
-
-        if (WearableHelper.isGooglePlayServicesInstalled()) {
-            mFusedLocationClient = new FusedLocationProviderClient(this);
-        }
     }
 
     @Override
@@ -140,18 +107,32 @@ public class WeatherTileProviderService extends TileProviderService {
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
             public Void call() {
-                RemoteViews updateViews = buildUpdate(getWeather());
+                Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
+                    @Override
+                    public Weather call() {
+                        WeatherDataLoader wloader = new WeatherDataLoader(Settings.getHomeData());
+                        WeatherRequest.Builder request = new WeatherRequest.Builder();
+                        if (Settings.getDataSync() == WearableDataSync.OFF) {
+                            request.forceRefresh(false);
+                        } else {
+                            request.forceLoadSavedData();
+                        }
+                        try {
+                            return Tasks.await(wloader.loadWeatherData(request.build()));
+                        } catch (ExecutionException | InterruptedException e) {
+                            return null;
+                        }
+                    }
+                });
+
+                RemoteViews updateViews = buildUpdate(weather);
 
                 if (updateViews != null) {
                     TileData tileData = new TileData.Builder()
                             .setRemoteViews(updateViews)
                             .build();
 
-                    updateTime = LocalDateTime.now(ZoneOffset.UTC);
                     sendData(id, tileData);
-                    // Reset alarm
-                    WeatherTileIntentService.enqueueWork(mContext, new Intent(mContext, WeatherTileIntentService.class)
-                            .setAction(WeatherTileIntentService.ACTION_UPDATEALARM));
                 }
 
                 return null;
@@ -314,139 +295,5 @@ public class WeatherTileProviderService extends TileProviderService {
         Intent onClickIntent = new Intent(context.getApplicationContext(), LaunchActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         return PendingIntent.getActivity(context, 0, onClickIntent, 0);
-    }
-
-    private Weather getWeather() {
-        return new AsyncTask<Weather>().await(new Callable<Weather>() {
-            @Override
-            public Weather call() {
-                Weather weather = null;
-
-                try {
-                    if (Settings.getDataSync() == WearableDataSync.OFF && Settings.useFollowGPS())
-                        updateLocation();
-
-                    WeatherDataLoader wloader = new WeatherDataLoader(Settings.getHomeData());
-
-                    WeatherRequest.Builder request = new WeatherRequest.Builder();
-                    if (Settings.getDataSync() == WearableDataSync.OFF) {
-                        request.forceRefresh(false);
-                    } else {
-                        request.forceLoadSavedData();
-                    }
-
-                    weather = Tasks.await(wloader.loadWeatherData(request.build()));
-
-                    if (weather != null && Settings.getDataSync() != WearableDataSync.OFF) {
-                        int ttl = Math.max(weather.getTtl(), Settings.getRefreshInterval());
-
-                        // Check file age
-                        ZonedDateTime updateTime = Settings.getUpdateTime().atZone(ZoneOffset.UTC);
-
-                        Duration span = Duration.between(ZonedDateTime.now(), updateTime).abs();
-                        if (span.toMinutes() > ttl) {
-                            WearableDataListenerService.enqueueWork(mContext, new Intent(mContext, WearableDataListenerService.class)
-                                    .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE));
-                        }
-                    }
-                } catch (Exception ex) {
-                    Logger.writeLine(Log.ERROR, ex, "%s: GetWeather error", TAG);
-                    return null;
-                }
-
-                return weather;
-            }
-        });
-    }
-
-    private boolean updateLocation() {
-        return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
-            @Override
-            public Boolean call() {
-                boolean locationChanged = false;
-
-                if (Settings.useFollowGPS()) {
-                    if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                            ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        return false;
-                    }
-
-                    Location location = null;
-
-                    LocationManager locMan = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-
-                    if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                        return false;
-                    }
-
-                    if (WearableHelper.isGooglePlayServicesInstalled()) {
-                        location = new AsyncTask<Location>().await(new Callable<Location>() {
-                            @SuppressLint("MissingPermission")
-                            @Override
-                            public Location call() {
-                                Location result = null;
-                                try {
-                                    result = Tasks.await(mFusedLocationClient.getLastLocation(), 10, TimeUnit.SECONDS);
-                                } catch (Exception e) {
-                                    Logger.writeLine(Log.ERROR, e);
-                                }
-                                return result;
-                            }
-                        });
-                    } else {
-                        boolean isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                        boolean isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
-                        if (isGPSEnabled || isNetEnabled) {
-                            Criteria locCriteria = new Criteria();
-                            locCriteria.setAccuracy(Criteria.ACCURACY_COARSE);
-                            locCriteria.setCostAllowed(false);
-                            locCriteria.setPowerRequirement(Criteria.POWER_LOW);
-                            String provider = locMan.getBestProvider(locCriteria, true);
-                            location = locMan.getLastKnownLocation(provider);
-                        }
-                    }
-
-                    if (location != null) {
-                        LocationData lastGPSLocData = Settings.getLastGPSLocData();
-
-                        // Check previous location difference
-                        if (lastGPSLocData.getQuery() != null &&
-                                Math.abs(ConversionMethods.calculateHaversine(lastGPSLocData.getLatitude(), lastGPSLocData.getLongitude(),
-                                        location.getLatitude(), location.getLongitude())) < 1600) {
-                            return false;
-                        }
-
-                        LocationQueryViewModel query_vm = null;
-
-                        // TODO: task it
-                        try {
-                            query_vm = wm.getLocation(location);
-                        } catch (WeatherException e) {
-                            // Stop since there is no valid query
-                            Logger.writeLine(Log.ERROR, e);
-                            return false;
-                        }
-
-                        if (StringUtils.isNullOrEmpty(query_vm.getLocationQuery()))
-                            query_vm = new LocationQueryViewModel();
-                        // END TASK IT
-
-                        if (StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
-                            // Stop since there is no valid query
-                            return false;
-                        }
-
-                        // Save location as last known
-                        lastGPSLocData.setData(query_vm, location);
-                        Settings.saveLastGPSLocData(lastGPSLocData);
-
-                        locationChanged = true;
-                    }
-                }
-
-                return locationChanged;
-            }
-        });
     }
 }
