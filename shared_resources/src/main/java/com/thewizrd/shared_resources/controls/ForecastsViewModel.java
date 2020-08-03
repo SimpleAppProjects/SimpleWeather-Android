@@ -55,7 +55,8 @@ public class ForecastsViewModel extends ViewModel {
     @MainThread
     public void updateForecasts(@NonNull LocationData location) {
         if (this.locationData == null || !ObjectsCompat.equals(this.locationData.getQuery(), location.getQuery())) {
-            this.locationData = location;
+            // Clone location data
+            this.locationData = new LocationData(new LocationQueryViewModel(location));
 
             tempUnit = Settings.getTempUnit();
 

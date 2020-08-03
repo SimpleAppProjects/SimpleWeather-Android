@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
+import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
@@ -49,7 +50,8 @@ public class ForecastPanelsViewModel extends ViewModel {
     @MainThread
     public void updateForecasts(@NonNull LocationData location) {
         if (this.locationData == null || !ObjectsCompat.equals(this.locationData.getQuery(), location.getQuery())) {
-            this.locationData = location;
+            // Clone location data
+            this.locationData = new LocationData(new LocationQueryViewModel(location));
 
             tempUnit = Settings.getTempUnit();
 
