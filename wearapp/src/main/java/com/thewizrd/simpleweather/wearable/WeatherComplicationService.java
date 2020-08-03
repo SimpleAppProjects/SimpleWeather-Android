@@ -134,10 +134,12 @@ public class WeatherComplicationService extends ComplicationProviderService {
             return null;
         } else {
             // Temperature
-            String temp = String.format(Locale.getDefault(), "%d°",
-                    Settings.isFahrenheit() ?
-                            Math.round(weather.getCondition().getTempF()) :
-                            Math.round(weather.getCondition().getTempC()));
+            int tempVal = Settings.isFahrenheit() ?
+                    Math.round(weather.getCondition().getTempF()) :
+                    Math.round(weather.getCondition().getTempC());
+            String tempUnit = Settings.getTempUnit();
+
+            String temp = String.format(Locale.getDefault(), "%d°%s", tempVal, tempUnit);
             // Weather Icon
             int weatherIcon = WeatherUtils.getWeatherIconResource(weather.getCondition().getIcon());
             // Condition text
@@ -161,7 +163,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
         return new AsyncTask<Weather>().await(new Callable<Weather>() {
             @Override
             public Weather call() {
-                Weather weather = null;
+                Weather weather;
 
                 try {
                     if (Settings.getDataSync() == WearableDataSync.OFF && Settings.useFollowGPS())
@@ -258,9 +260,8 @@ public class WeatherComplicationService extends ComplicationProviderService {
                             return false;
                         }
 
-                        LocationQueryViewModel query_vm = null;
+                        LocationQueryViewModel query_vm;
 
-                        // TODO: task it
                         try {
                             query_vm = wm.getLocation(location);
                         } catch (WeatherException e) {
@@ -270,7 +271,6 @@ public class WeatherComplicationService extends ComplicationProviderService {
 
                         if (StringUtils.isNullOrEmpty(query_vm.getLocationQuery()))
                             query_vm = new LocationQueryViewModel();
-                        // END TASK IT
 
                         if (StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
                             // Stop since there is no valid query

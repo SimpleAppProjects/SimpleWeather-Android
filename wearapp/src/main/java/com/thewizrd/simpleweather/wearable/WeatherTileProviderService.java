@@ -137,9 +137,9 @@ public class WeatherTileProviderService extends TileProviderService {
 
     private void sendRemoteViews() {
         Log.d(TAG, "sendRemoteViews");
-        AsyncTask.run(new Runnable() {
+        new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
-            public void run() {
+            public Void call() {
                 RemoteViews updateViews = buildUpdate(getWeather());
 
                 if (updateViews != null) {
@@ -153,6 +153,8 @@ public class WeatherTileProviderService extends TileProviderService {
                     WeatherTileIntentService.enqueueWork(mContext, new Intent(mContext, WeatherTileIntentService.class)
                             .setAction(WeatherTileIntentService.ACTION_UPDATEALARM));
                 }
+
+                return null;
             }
         });
     }
@@ -250,7 +252,7 @@ public class WeatherTileProviderService extends TileProviderService {
         if (locationData != null && locationData.isValid()) {
             Forecasts forecasts = Settings.getWeatherForecastData(locationData.getQuery());
 
-            if (forecasts.getForecast() != null && forecasts.getForecast().size() >= FORECAST_LENGTH) {
+            if (forecasts.getForecast() != null && !forecasts.getForecast().isEmpty()) {
                 List<ForecastItemViewModel> fcasts = new ArrayList<>();
 
                 for (int i = 0; i < Math.min(FORECAST_LENGTH, forecasts.getForecast().size()); i++) {
@@ -268,9 +270,10 @@ public class WeatherTileProviderService extends TileProviderService {
         LocationData locationData = Settings.getHomeData();
 
         if (locationData != null && locationData.isValid()) {
-            List<HourlyForecast> forecasts = Settings.getHourlyWeatherForecastDataByLimit(locationData.getQuery(), FORECAST_LENGTH);
+            ZonedDateTime now = ZonedDateTime.now(locationData.getTzOffset());
+            List<HourlyForecast> forecasts = Settings.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(locationData.getQuery(), FORECAST_LENGTH, now);
 
-            if (forecasts != null && forecasts.size() > 0) {
+            if (forecasts != null && !forecasts.isEmpty()) {
                 List<HourlyForecastItemViewModel> fcasts = new ArrayList<>();
 
                 for (HourlyForecast fcast : forecasts) {
