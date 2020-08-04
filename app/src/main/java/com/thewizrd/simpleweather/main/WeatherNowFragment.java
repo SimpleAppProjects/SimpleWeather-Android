@@ -154,6 +154,7 @@ import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.util.List;
@@ -239,7 +240,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
                         if (Settings.getHomeData().equals(locationData)) {
                             // Update widgets if they haven't been already
-                            if (Duration.between(LocalDateTime.now(), Settings.getUpdateTime()).toMinutes() > Settings.getRefreshInterval()) {
+                            if (Duration.between(LocalDateTime.now(ZoneOffset.UTC), Settings.getUpdateTime()).toMinutes() > Settings.getRefreshInterval()) {
                                 WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
                             } else {
                                 // Update ongoing notification
@@ -288,6 +289,15 @@ public class WeatherNowFragment extends WindowColorFragment
                 showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG), null);
                 break;
         }
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (isAlive()) {
+                    binding.refreshLayout.setRefreshing(false);
+                }
+            }
+        });
     }
 
     @NonNull
@@ -1141,9 +1151,13 @@ public class WeatherNowFragment extends WindowColorFragment
 
     private void refreshWeather(final boolean forceRefresh) {
         if (isAlive()) {
-            binding.refreshLayout.setRefreshing(true);
+            if (wLoader == null && locationData != null) {
+                wLoader = new WeatherDataLoader(locationData);
+            }
 
             if (wLoader != null) {
+                binding.refreshLayout.setRefreshing(true);
+
                 wLoader.loadWeatherData(new WeatherRequest.Builder()
                         .forceRefresh(forceRefresh)
                         .setErrorListener(WeatherNowFragment.this)
@@ -1388,7 +1402,12 @@ public class WeatherNowFragment extends WindowColorFragment
 
                     // permission was granted, yay!
                     // Do the task you need to do.
-                    updateLocation();
+                    if (Settings.useFollowGPS() && updateLocation()) {
+                        // Setup loader from updated location
+                        wLoader = new WeatherDataLoader(locationData);
+                    }
+
+                    refreshWeather(false);
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.

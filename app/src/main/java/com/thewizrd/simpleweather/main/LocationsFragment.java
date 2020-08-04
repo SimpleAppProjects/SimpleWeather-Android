@@ -13,6 +13,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -536,6 +537,8 @@ public class LocationsFragment extends ToolbarFragment
                         OffsetMargin.TOP | OffsetMargin.BOTTOM);
         mITHCallback.addItemTouchHelperCallbackListener(swipeDecor);
         mITHCallback.addItemTouchHelperCallbackListener(new ItemTouchCallbackListener() {
+            private Handler mMainHandler = new Handler(Looper.getMainLooper());
+
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 
@@ -553,12 +556,33 @@ public class LocationsFragment extends ToolbarFragment
                             updateFavoritesPosition(view);
                         }
                     }
+
+                    if (!mAdapter.hasGPSHeader() && mAdapter.hasSearchHeader()) {
+                        int firstFavPosition = mAdapter.getViewPosition(mAdapter.getFirstFavPanel());
+
+                        if (viewHolder.getAdapterPosition() == firstFavPosition || target.getAdapterPosition() == firstFavPosition) {
+                            mMainHandler.removeCallbacks(sendUpdateRunner);
+                            mMainHandler.postDelayed(sendUpdateRunner, 2500);
+                        }
+                    }
                 }
             }
 
             @Override
             public void onClearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
             }
+
+            private Runnable sendUpdateRunner = new Runnable() {
+                @Override
+                public void run() {
+                    // Home has changed send notice
+                    Log.d("LocationsFragment", "Home changed; sending update");
+                    LocalBroadcastManager.getInstance(App.getInstance().getAppContext())
+                            .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
+                    LocalBroadcastManager.getInstance(App.getInstance().getAppContext())
+                            .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE));
+                }
+            };
         });
         binding.recyclerView.addItemDecoration(swipeDecor);
         SimpleItemAnimator animator = new DefaultItemAnimator();
@@ -988,6 +1012,7 @@ public class LocationsFragment extends ToolbarFragment
                         Settings.saveLastGPSLocData(locData);
                         refreshLocations();
 
+                        Log.d("LocationsFragment", "Location changed; sending update");
                         LocalBroadcastManager.getInstance(getAppCompatActivity())
                                 .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
                     } else {
@@ -1121,6 +1146,7 @@ public class LocationsFragment extends ToolbarFragment
         }
 
         if (!mEditMode && mHomeChanged) {
+            Log.d("LocationsFragment", "Home changed; sending update");
             LocalBroadcastManager.getInstance(App.getInstance().getAppContext())
                     .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
             LocalBroadcastManager.getInstance(App.getInstance().getAppContext())

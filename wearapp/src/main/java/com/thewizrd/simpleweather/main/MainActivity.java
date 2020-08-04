@@ -8,7 +8,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.wearable.input.RotaryEncoder;
-import android.support.wearable.view.ConfirmationOverlay;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,11 +16,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
@@ -32,7 +29,6 @@ import androidx.wear.widget.drawer.WearableDrawerLayout;
 import androidx.wear.widget.drawer.WearableDrawerView;
 import androidx.wear.widget.drawer.WearableNavigationDrawerView;
 
-import com.google.android.wearable.intent.RemoteIntent;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.AsyncTask;
@@ -46,12 +42,10 @@ import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
-import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.simpleweather.NavGraphDirections;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.ActivityMainBinding;
-import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
-import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
+import com.thewizrd.simpleweather.wearable.WearableListenerActivity;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
@@ -60,19 +54,31 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class MainActivity extends FragmentActivity implements MenuItem.OnMenuItemClickListener,
+public class MainActivity extends WearableListenerActivity implements MenuItem.OnMenuItemClickListener,
         WearableNavigationDrawerView.OnItemSelectedListener {
 
     private ActivityMainBinding binding;
     private NavController mNavController;
     private NavDrawerAdapter mNavDrawerAdapter;
-    private BroadcastReceiver mBroadcastReceiver;
 
     private Runnable mItemSelectedRunnable;
 
     private WeatherNowViewModel weatherNowView;
     private ForecastsViewModel forecastsView;
     private WeatherAlertsViewModel alertsView;
+
+    private BroadcastReceiver mBroadcastReceiver;
+    private IntentFilter intentFilter;
+
+    @Override
+    protected BroadcastReceiver getBroadcastReceiver() {
+        return mBroadcastReceiver;
+    }
+
+    @Override
+    protected IntentFilter getIntentFilter() {
+        return intentFilter;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,30 +174,6 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
         mNavDrawerAdapter = new NavDrawerAdapter(this);
         binding.topNavDrawer.setAdapter(mNavDrawerAdapter);
 
-        mBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (WearableDataListenerService.ACTION_SHOWSTORELISTING.equals(intent.getAction())) {
-                    Intent intentAndroid = new Intent(Intent.ACTION_VIEW)
-                            .addCategory(Intent.CATEGORY_BROWSABLE)
-                            .setData(WearableHelper.getPlayStoreURI());
-
-                    RemoteIntent.startRemoteActivity(MainActivity.this, intentAndroid,
-                            new ConfirmationResultReceiver(MainActivity.this));
-                } else if (WearableDataListenerService.ACTION_OPENONPHONE.equals(intent.getAction())) {
-                    boolean success = intent.getBooleanExtra(WearableDataListenerService.EXTRA_SUCCESS, false);
-
-                    new ConfirmationOverlay()
-                            .setType(success ? ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION : ConfirmationOverlay.FAILURE_ANIMATION)
-                            .showOn(MainActivity.this);
-                }
-            }
-        };
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(WearableDataListenerService.ACTION_SHOWSTORELISTING);
-        filter.addAction(WearableDataListenerService.ACTION_OPENONPHONE);
-        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, filter);
-
         // Create your application here
         final ViewModelProvider vmProvider = new ViewModelProvider(this);
         this.weatherNowView = vmProvider.get(WeatherNowViewModel.class);
@@ -216,6 +198,8 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
                 mNavDrawerAdapter.updateNavDrawerItems();
             }
         });
+
+        initWearableSyncReceiver();
 
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
 
@@ -275,8 +259,7 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
                 mNavController.navigate(NavGraphDirections.actionGlobalSettingsActivity());
                 break;
             case R.id.menu_openonphone:
-                startService(new Intent(this, WearableDataListenerService.class)
-                        .setAction(WearableDataListenerService.ACTION_OPENONPHONE));
+                openAppOnPhone(true);
                 break;
         }
 
@@ -314,12 +297,6 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
     }
 
     @Override
-    protected void onDestroy() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
-        super.onDestroy();
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         AnalyticsLogger.logEvent("MainActivity: onResume");
@@ -327,8 +304,8 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
 
     @Override
     protected void onPause() {
-        super.onPause();
         AnalyticsLogger.logEvent("MainActivity: onPause");
+        super.onPause();
     }
 
     private class NavDrawerAdapter extends WearableNavigationDrawerView.WearableNavigationDrawerAdapter {
@@ -418,5 +395,24 @@ public class MainActivity extends FragmentActivity implements MenuItem.OnMenuIte
             this.titleString = titleString;
             this.drawableIcon = drawableIcon;
         }
+    }
+
+    /* Data Sync */
+    private void initWearableSyncReceiver() {
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (ACTION_OPENONPHONE.equals(intent.getAction())) {
+                    final boolean showAni = intent.getBooleanExtra(EXTRA_SHOWANIMATION, false);
+                    openAppOnPhone(showAni);
+                } else if (ACTION_REQUESTSETUPSTATUS.equals(intent.getAction())) {
+                    sendSetupStatusRequest();
+                }
+            }
+        };
+
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(ACTION_OPENONPHONE);
+        intentFilter.addAction(ACTION_REQUESTSETUPSTATUS);
     }
 }

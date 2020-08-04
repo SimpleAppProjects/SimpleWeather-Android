@@ -3,7 +3,6 @@ package com.thewizrd.simpleweather.setup;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.location.Location;
@@ -71,7 +70,7 @@ import com.thewizrd.simpleweather.fragments.CustomFragment;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
-import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
+import com.thewizrd.simpleweather.wearable.WearableWorker;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
@@ -465,12 +464,7 @@ public class SetupLocationFragment extends CustomFragment {
 
                     // Send data for wearables
                     if (getAppCompatActivity() != null) {
-                        getAppCompatActivity().startService(new Intent(getAppCompatActivity(), WearableDataListenerService.class)
-                                .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
-                        getAppCompatActivity().startService(new Intent(getAppCompatActivity(), WearableDataListenerService.class)
-                                .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
-                        getAppCompatActivity().startService(new Intent(getAppCompatActivity(), WearableDataListenerService.class)
-                                .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
+                        WearableWorker.enqueueAction(getAppCompatActivity(), WearableWorker.ACTION_SENDUPDATE);
                     }
 
                     return location;

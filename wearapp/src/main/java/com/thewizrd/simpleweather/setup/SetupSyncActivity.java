@@ -1,12 +1,10 @@
 package com.thewizrd.simpleweather.setup;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.wearable.view.ConfirmationOverlay;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -14,6 +12,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.wear.widget.CircularProgressLayout;
 
 import com.google.android.wearable.intent.RemoteIntent;
+import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.wearable.WearConnectionStatus;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
@@ -21,15 +20,28 @@ import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.ActivitySetupSyncBinding;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
+import com.thewizrd.simpleweather.wearable.WearableListenerActivity;
+import com.thewizrd.simpleweather.wearable.WearableWorker;
 
-public class SetupSyncActivity extends Activity {
+public class SetupSyncActivity extends WearableListenerActivity {
     private boolean settingsDataReceived = false;
     private boolean locationDataReceived = false;
     private boolean weatherDataReceived = false;
 
     private ActivitySetupSyncBinding binding;
+
     private BroadcastReceiver mBroadcastReceiver;
     private IntentFilter intentFilter;
+
+    @Override
+    protected BroadcastReceiver getBroadcastReceiver() {
+        return mBroadcastReceiver;
+    }
+
+    @Override
+    protected IntentFilter getIntentFilter() {
+        return intentFilter;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,8 +77,8 @@ public class SetupSyncActivity extends Activity {
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (WearableDataListenerService.ACTION_UPDATECONNECTIONSTATUS.equals(intent.getAction())) {
-                    WearConnectionStatus connStatus = WearConnectionStatus.valueOf(intent.getIntExtra(WearableDataListenerService.EXTRA_CONNECTIONSTATUS, 0));
+                if (ACTION_UPDATECONNECTIONSTATUS.equals(intent.getAction())) {
+                    WearConnectionStatus connStatus = WearConnectionStatus.valueOf(intent.getIntExtra(EXTRA_CONNECTIONSTATUS, 0));
                     switch (connStatus) {
                         case DISCONNECTED:
                             binding.message.setText(R.string.status_disconnected);
@@ -94,28 +106,20 @@ public class SetupSyncActivity extends Activity {
                             binding.message.setText(R.string.status_connected);
                             resetTimer();
                             // Continue operation
-                            startService(new Intent(SetupSyncActivity.this, WearableDataListenerService.class)
-                                    .setAction(WearableDataListenerService.ACTION_REQUESTSETUPSTATUS));
+                            AsyncTask.run(new Runnable() {
+                                @Override
+                                public void run() {
+                                    sendSetupStatusRequest();
+                                }
+                            });
                             break;
                     }
                 } else if (WearableHelper.ErrorPath.equals(intent.getAction())) {
                     binding.message.setText(R.string.error_syncing);
                     errorProgress();
                 } else if (WearableHelper.IsSetupPath.equals(intent.getAction())) {
-                    boolean isDeviceSetup = intent.getBooleanExtra(WearableDataListenerService.EXTRA_DEVICESETUPSTATUS, false);
-
+                    boolean isDeviceSetup = intent.getBooleanExtra(EXTRA_DEVICESETUPSTATUS, false);
                     start(isDeviceSetup);
-                } else if (WearableDataListenerService.ACTION_OPENONPHONE.equals(intent.getAction())) {
-                    boolean success = intent.getBooleanExtra(WearableDataListenerService.EXTRA_SUCCESS, false);
-
-                    new ConfirmationOverlay()
-                            .setType(success ? ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION : ConfirmationOverlay.FAILURE_ANIMATION)
-                            .showOn(SetupSyncActivity.this);
-
-                    if (!success) {
-                        binding.message.setText(R.string.error_syncing);
-                        errorProgress();
-                    }
                 } else if (WearableHelper.SettingsPath.equals(intent.getAction())) {
                     binding.message.setText(R.string.message_settingsretrieved);
                     settingsDataReceived = true;
@@ -141,15 +145,11 @@ public class SetupSyncActivity extends Activity {
         binding.message.setText(R.string.message_gettingstatus);
 
         intentFilter = new IntentFilter();
-        intentFilter.addAction(WearableDataListenerService.ACTION_UPDATECONNECTIONSTATUS);
         intentFilter.addAction(WearableHelper.IsSetupPath);
         intentFilter.addAction(WearableHelper.LocationPath);
         intentFilter.addAction(WearableHelper.SettingsPath);
         intentFilter.addAction(WearableHelper.WeatherPath);
         intentFilter.addAction(WearableHelper.ErrorPath);
-
-        startService(new Intent(this, WearableDataListenerService.class)
-                .setAction(WearableDataListenerService.ACTION_UPDATECONNECTIONSTATUS));
     }
 
     @Override
@@ -161,7 +161,10 @@ public class SetupSyncActivity extends Activity {
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mBroadcastReceiver, intentFilter);
         // Allow service to parse OnDataChanged updates
+        this.setAcceptDataUpdates(true);
         WearableDataListenerService.setAcceptDataUpdates(true);
+
+        sendSetupStatusRequest();
     }
 
     @Override
@@ -177,6 +180,7 @@ public class SetupSyncActivity extends Activity {
 
         // Disallow service to parse OnDataChanged updates
         WearableDataListenerService.setAcceptDataUpdates(false);
+        this.setAcceptDataUpdates(false);
 
         super.onPause();
     }
@@ -207,18 +211,13 @@ public class SetupSyncActivity extends Activity {
     private void start(boolean isDeviceSetup) {
         if (isDeviceSetup) {
             binding.message.setText(R.string.message_retrievingdata);
-
-            startService(new Intent(this, WearableDataListenerService.class)
-                    .setAction(WearableDataListenerService.ACTION_REQUESTSETTINGSUPDATE));
-            startService(new Intent(this, WearableDataListenerService.class)
-                    .setAction(WearableDataListenerService.ACTION_REQUESTLOCATIONUPDATE));
-            startService(new Intent(this, WearableDataListenerService.class)
-                    .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE));
+            WearableWorker.enqueueAction(this, WearableWorker.ACTION_REQUESTUPDATE);
         } else {
             binding.message.setText(R.string.message_continueondevice);
-
-            startService(new Intent(this, WearableDataListenerService.class)
-                    .setAction(WearableDataListenerService.ACTION_OPENONPHONE));
+            if (!openAppOnPhone(true)) {
+                binding.message.setText(R.string.error_syncing);
+                errorProgress();
+            }
         }
     }
 }

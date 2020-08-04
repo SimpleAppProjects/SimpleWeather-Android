@@ -1,5 +1,6 @@
 package com.thewizrd.shared_resources.weatherdata;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -59,7 +60,7 @@ public class Weather extends CustomJsonObject {
     private Precipitation precipitation;
     @Ignore
     // Just for passing along to where its needed
-    private transient Collection<WeatherAlert> weather_alerts;
+    private Collection<WeatherAlert> weather_alerts;
     private int ttl;
     private String source;
     @PrimaryKey
@@ -544,6 +545,24 @@ public class Weather extends CustomJsonObject {
                         this.precipitation = new Precipitation();
                         this.precipitation.fromJson(reader);
                         break;
+                    case "weather_alerts":
+                        List<WeatherAlert> alerts = new ArrayList<>();
+                        if (reader.peek() == JsonToken.BEGIN_ARRAY)
+                            reader.beginArray(); // StartArray
+
+                        while (reader.hasNext() && reader.peek() != JsonToken.END_ARRAY) {
+                            if (reader.peek() == JsonToken.STRING || reader.peek() == JsonToken.BEGIN_OBJECT) {
+                                @SuppressLint("RestrictedApi") WeatherAlert alert = new WeatherAlert();
+                                alert.fromJson(reader);
+                                alerts.add(alert);
+                            }
+                        }
+                        this.weather_alerts = alerts;
+
+                        if (reader.peek() == JsonToken.END_ARRAY)
+                            reader.endArray(); // EndArray
+
+                        break;
                     case "ttl":
                         this.ttl = NumberUtils.tryParseInt(reader.nextString(), 120);
                         break;
@@ -652,6 +671,19 @@ public class Weather extends CustomJsonObject {
                     writer.nullValue();
                 else
                     precipitation.toJson(writer);
+            }
+
+            // "weather_alerts" : ""
+            if (weather_alerts != null) {
+                writer.name("weather_alerts");
+                writer.beginArray();
+                for (WeatherAlert alert : weather_alerts) {
+                    if (alert == null)
+                        writer.nullValue();
+                    else
+                        alert.toJson(writer);
+                }
+                writer.endArray();
             }
 
             // "ttl" : ""

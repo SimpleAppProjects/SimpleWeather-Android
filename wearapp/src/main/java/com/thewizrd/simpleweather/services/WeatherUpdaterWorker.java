@@ -42,13 +42,9 @@ import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
-import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
+import com.thewizrd.simpleweather.wearable.WearableWorker;
 import com.thewizrd.simpleweather.wearable.WeatherComplicationIntentService;
 import com.thewizrd.simpleweather.wearable.WeatherTileIntentService;
-
-import org.threeten.bp.Duration;
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.ZonedDateTime;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -142,7 +138,7 @@ public class WeatherUpdaterWorker extends Worker {
                 .build();
 
         PeriodicWorkRequest updateRequest =
-                new PeriodicWorkRequest.Builder(WeatherUpdaterWorker.class, 120, TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
+                new PeriodicWorkRequest.Builder(WeatherUpdaterWorker.class, 120, TimeUnit.MINUTES, 30, TimeUnit.MINUTES)
                         .setConstraints(constraints)
                         .setBackoffCriteria(BackoffPolicy.LINEAR, 1, TimeUnit.MINUTES)
                         .build();
@@ -207,16 +203,11 @@ public class WeatherUpdaterWorker extends Worker {
             WeatherTileIntentService.enqueueWork(mContext,
                     new Intent(mContext, WeatherTileIntentService.class)
                             .setAction(WeatherTileIntentService.ACTION_UPDATETILES));
+        }
 
-            if (weather != null) {
-                Duration span = Duration.between(ZonedDateTime.now(), weather.getUpdateTime()).abs();
-                if (Settings.getDataSync() != WearableDataSync.OFF && span.toMinutes() > Settings.getRefreshInterval()) {
-                    // send request to refresh data on connected device
-                    mContext.startService(new Intent(mContext, WearableDataListenerService.class)
-                            .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE)
-                            .putExtra(WearableDataListenerService.EXTRA_FORCEUPDATE, true));
-                }
-            }
+        if (Settings.getDataSync() != WearableDataSync.OFF) {
+            // Check if data has been updated
+            WearableWorker.enqueueAction(mContext, WearableWorker.ACTION_REQUESTWEATHERUPDATE);
         }
 
         return Result.success();
@@ -242,19 +233,6 @@ public class WeatherUpdaterWorker extends Worker {
                     }
 
                     weather = Tasks.await(wloader.loadWeatherData(request.build()));
-
-                    if (weather != null && Settings.getDataSync() != WearableDataSync.OFF) {
-                        int ttl = Math.max(weather.getTtl(), Settings.getRefreshInterval());
-
-                        // Check file age
-                        ZonedDateTime updateTime = Settings.getUpdateTime().atZone(ZoneOffset.UTC);
-
-                        Duration span = Duration.between(ZonedDateTime.now(), updateTime).abs();
-                        if (span.toMinutes() > ttl) {
-                            WearableDataListenerService.enqueueWork(mContext, new Intent(mContext, WearableDataListenerService.class)
-                                    .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE));
-                        }
-                    }
                 } catch (Exception ex) {
                     Logger.writeLine(Log.ERROR, ex, "%s: GetWeather error", TAG);
                     return null;

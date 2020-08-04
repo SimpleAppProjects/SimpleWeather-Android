@@ -25,7 +25,6 @@ import com.thewizrd.shared_resources.utils.WeatherUtils;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.threeten.bp.Duration;
-import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.ChronoUnit;
@@ -398,7 +397,7 @@ public class WeatherDataLoader {
                                     location.getLocationType() == LocationType.GPS ? Constants.KEY_GPS : location.getQuery())
                             .putExtra(Constants.WIDGETKEY_WEATHER, JSONParser.serializer(weather, Weather.class)));
         } else {
-            Settings.setUpdateTime(LocalDateTime.ofInstant(weather.getUpdateTime().toInstant(), ZoneOffset.UTC));
+            Settings.setUpdateTime(weather.getUpdateTime().withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
         }
     }
 

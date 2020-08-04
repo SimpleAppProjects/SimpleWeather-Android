@@ -11,6 +11,9 @@
     <string name="status_notinstalled">App not installed on device</string>
     <string name="status_connected">Connected</string>
 
+    <string name="status_node_unavailable">Device is not connected or app is not installed on device…</string>
+    <string name="status_node_notsupported">Connected device is not supported</string>
+
     <!-- Setup -->
     <string name="prompt_confirmsetup">"Do you want to setup and sync data from your phone/connected device?"</string>
     <string name="message_gettingstatus">Getting connection status…</string>

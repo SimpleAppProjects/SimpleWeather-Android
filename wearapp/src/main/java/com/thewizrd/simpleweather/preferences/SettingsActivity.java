@@ -3,11 +3,9 @@ package com.thewizrd.simpleweather.preferences;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -27,13 +25,22 @@ import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.core.location.LocationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.wear.widget.SwipeDismissFrameLayout;
 
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Tasks;
+import com.google.android.gms.wearable.CapabilityClient;
+import com.google.android.gms.wearable.CapabilityInfo;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.Wearable;
+import com.google.android.gms.wearable.WearableStatusCodes;
 import com.google.android.wearable.intent.RemoteIntent;
 import com.thewizrd.shared_resources.ApplicationLib;
+import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
@@ -51,10 +58,11 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.fragments.SwipeDismissPreferenceFragment;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
-import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import static com.thewizrd.shared_resources.utils.Settings.KEY_API;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_APIKEY;
@@ -99,7 +107,7 @@ public class SettingsActivity extends Activity {
     }
 
     public static class SettingsFragment extends SwipeDismissPreferenceFragment
-            implements SharedPreferences.OnSharedPreferenceChangeListener {
+            implements SharedPreferences.OnSharedPreferenceChangeListener, CapabilityClient.OnCapabilityChangedListener {
         private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
 
         // Preference Keys
@@ -120,10 +128,12 @@ public class SettingsActivity extends Activity {
 
         private PreferenceCategory apiCategory;
 
-        private BroadcastReceiver connStatusReceiver;
-
         // Intent queue
         private HashSet<Intent.FilterComparison> intentQueue;
+
+        // Wearable status
+        private Node mPhoneNodeWithApp;
+        private WearConnectionStatus mConnectionStatus = WearConnectionStatus.DISCONNECTED;
 
         @Override
         public void onResume() {
@@ -131,18 +141,16 @@ public class SettingsActivity extends Activity {
 
             AnalyticsLogger.logEvent("SettingsFragment: onResume");
 
-            LocalBroadcastManager.getInstance(getParentActivity())
-                    .registerReceiver(connStatusReceiver, new IntentFilter(WearableDataListenerService.ACTION_UPDATECONNECTIONSTATUS));
-            getParentActivity().startService(new Intent(getParentActivity(), WearableDataListenerService.class)
-                    .setAction(WearableDataListenerService.ACTION_UPDATECONNECTIONSTATUS));
-
             // Register listener
             ApplicationLib app = App.getInstance();
             app.getPreferences().unregisterOnSharedPreferenceChangeListener(app.getSharedPreferenceListener());
             app.getPreferences().registerOnSharedPreferenceChangeListener(this);
-
             // Initialize queue
             intentQueue = new HashSet<>();
+
+            // Wearable
+            Wearable.getCapabilityClient(getParentActivity()).addListener(this, WearableHelper.CAPABILITY_PHONE_APP);
+            sendSetupStatusRequest();
         }
 
         @Override
@@ -174,14 +182,15 @@ public class SettingsActivity extends Activity {
                 }
             }
 
-            LocalBroadcastManager mLocalBroadcastManager =
-                    LocalBroadcastManager.getInstance(getParentActivity());
-            mLocalBroadcastManager.unregisterReceiver(connStatusReceiver);
+            Wearable.getCapabilityClient(getParentActivity()).removeListener(this);
 
             // Unregister listener
             ApplicationLib app = App.getInstance();
             app.getPreferences().unregisterOnSharedPreferenceChangeListener(this);
             app.getPreferences().registerOnSharedPreferenceChangeListener(app.getSharedPreferenceListener());
+
+            LocalBroadcastManager mLocalBroadcastManager =
+                    LocalBroadcastManager.getInstance(getParentActivity());
 
             for (Intent.FilterComparison filter : intentQueue) {
                 if (CommonActions.ACTION_SETTINGS_UPDATEAPI.equals(filter.getIntent().getAction())) {
@@ -482,34 +491,6 @@ public class SettingsActivity extends Activity {
             enableSyncedSettings(Settings.getDataSync() == WearableDataSync.OFF);
 
             connStatusPref = findPreference(KEY_CONNSTATUS);
-            connStatusReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    if (WearableDataListenerService.ACTION_UPDATECONNECTIONSTATUS.equals(intent.getAction())) {
-                        WearConnectionStatus connStatus = WearConnectionStatus.valueOf(intent.getIntExtra(WearableDataListenerService.EXTRA_CONNECTIONSTATUS, 0));
-                        switch (connStatus) {
-                            case DISCONNECTED:
-                                connStatusPref.setSummary(R.string.status_disconnected);
-                                connStatusPref.setOnPreferenceClickListener(null);
-                                break;
-                            case CONNECTING:
-                                connStatusPref.setSummary(R.string.status_connecting);
-                                connStatusPref.setOnPreferenceClickListener(null);
-                                break;
-                            case APPNOTINSTALLED:
-                                connStatusPref.setSummary(R.string.status_notinstalled);
-                                connStatusPref.setOnPreferenceClickListener(connStatusPrefClickListener);
-                                break;
-                            case CONNECTED:
-                                connStatusPref.setSummary(R.string.status_connected);
-                                connStatusPref.setOnPreferenceClickListener(null);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-            };
         }
 
         private void enableSyncedSettings(boolean enable) {
@@ -638,6 +619,130 @@ public class SettingsActivity extends Activity {
                     break;
                 default:
                     break;
+            }
+        }
+
+        private void sendSetupStatusRequest() {
+            AsyncTask.run(new Runnable() {
+                @Override
+                public void run() {
+                    if (mPhoneNodeWithApp == null)
+                        mPhoneNodeWithApp = checkIfPhoneHasApp();
+                    if (mPhoneNodeWithApp == null) return;
+
+                    try {
+                        Tasks.await(Wearable.getMessageClient(getParentActivity())
+                                .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.IsSetupPath, new byte[0]));
+                    } catch (ExecutionException | InterruptedException e) {
+                        Logger.writeLine(Log.ERROR, e);
+                    }
+                }
+            });
+        }
+
+        @MainThread
+        private void updateConnectionPref() {
+            switch (mConnectionStatus) {
+                case DISCONNECTED:
+                    connStatusPref.setSummary(R.string.status_disconnected);
+                    connStatusPref.setOnPreferenceClickListener(null);
+                    break;
+                case CONNECTING:
+                    connStatusPref.setSummary(R.string.status_connecting);
+                    connStatusPref.setOnPreferenceClickListener(null);
+                    break;
+                case APPNOTINSTALLED:
+                    connStatusPref.setSummary(R.string.status_notinstalled);
+                    connStatusPref.setOnPreferenceClickListener(connStatusPrefClickListener);
+                    break;
+                case CONNECTED:
+                    connStatusPref.setSummary(R.string.status_connected);
+                    connStatusPref.setOnPreferenceClickListener(null);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        @Override
+        public void onCapabilityChanged(@NonNull final CapabilityInfo capabilityInfo) {
+            AsyncTask.run(new Runnable() {
+                @Override
+                public void run() {
+                    mPhoneNodeWithApp = pickBestNodeId(capabilityInfo.getNodes());
+                    updateConnectionStatus();
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateConnectionPref();
+                        }
+                    });
+                }
+            });
+        }
+
+        private void updateConnectionStatus() {
+            if (mPhoneNodeWithApp == null) {
+                mConnectionStatus = WearConnectionStatus.DISCONNECTED;
+            } else {
+                if (mPhoneNodeWithApp.isNearby()) {
+                    mConnectionStatus = WearConnectionStatus.CONNECTED;
+                } else {
+                    try {
+                        sendPing(mPhoneNodeWithApp.getId());
+                        mConnectionStatus = WearConnectionStatus.CONNECTED;
+                    } catch (ApiException e) {
+                        if (e.getStatusCode() == WearableStatusCodes.TARGET_NODE_NOT_CONNECTED) {
+                            mConnectionStatus = WearConnectionStatus.DISCONNECTED;
+                        }
+                    }
+                }
+            }
+        }
+
+        private Node checkIfPhoneHasApp() {
+            Node node = null;
+
+            try {
+                CapabilityInfo capabilityInfo = Tasks.await(Wearable.getCapabilityClient(getParentActivity())
+                        .getCapability(WearableHelper.CAPABILITY_PHONE_APP,
+                                CapabilityClient.FILTER_ALL));
+                node = pickBestNodeId(capabilityInfo.getNodes());
+            } catch (ExecutionException | InterruptedException e) {
+                Logger.writeLine(Log.ERROR, e);
+            }
+
+            return node;
+        }
+
+        /*
+         * There should only ever be one phone in a node set (much less w/ the correct capability), so
+         * I am just grabbing the first one (which should be the only one).
+         */
+        private static Node pickBestNodeId(Collection<Node> nodes) {
+            Node bestNode = null;
+
+            // Find a nearby node/phone or pick one arbitrarily. Realistically, there is only one phone.
+            for (Node node : nodes) {
+                if (node.isNearby()) {
+                    return node;
+                }
+                bestNode = node;
+            }
+            return bestNode;
+        }
+
+        private void sendPing(String nodeID) throws ApiException {
+            try {
+                Tasks.await(Wearable.getMessageClient(getParentActivity()).sendMessage(nodeID, WearableHelper.PingPath, null));
+            } catch (ExecutionException ex) {
+                if (ex.getCause() instanceof ApiException) {
+                    throw (ApiException) ex.getCause();
+                }
+                Logger.writeLine(Log.ERROR, ex);
+            } catch (Exception e) {
+                Logger.writeLine(Log.ERROR, e);
             }
         }
     }

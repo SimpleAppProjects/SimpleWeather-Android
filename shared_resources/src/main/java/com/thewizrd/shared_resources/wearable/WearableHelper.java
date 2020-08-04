@@ -29,6 +29,7 @@ public class WearableHelper {
     public static final String WeatherPath = "/data/weather";
     public static final String ErrorPath = "/error";
     public static final String IsSetupPath = "/isweatherloaded";
+    public static final String PingPath = "/ping";
 
     public static boolean isGooglePlayServicesInstalled() {
         int queryResult = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(SimpleLibrary.getInstance().getApp().getAppContext());

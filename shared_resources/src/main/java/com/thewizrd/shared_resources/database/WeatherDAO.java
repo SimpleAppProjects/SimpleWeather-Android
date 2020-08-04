@@ -48,6 +48,9 @@ public interface WeatherDAO {
     @Query("SELECT COUNT(*) FROM weatherdata")
     public int getWeatherDataCount();
 
+    @Query("SELECT COUNT(*) FROM weatherdata WHERE `query` = :query")
+    public int getWeatherDataCountByKey(String query);
+
     /* WeatherAlertData methods */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void insertWeatherAlertData(WeatherAlerts alert);

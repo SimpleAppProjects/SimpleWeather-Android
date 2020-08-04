@@ -52,6 +52,7 @@ import com.thewizrd.simpleweather.widgets.WeatherWidgetBroadcastReceiver;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneOffset;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -258,7 +259,7 @@ public class WeatherUpdaterWorker extends Worker {
                     if (weather != null) {
                         // Re-schedule alarm at selected interval from now
                         enqueueWork(App.getInstance().getAppContext());
-                        Settings.setUpdateTime(LocalDateTime.now());
+                        Settings.setUpdateTime(LocalDateTime.now(ZoneOffset.UTC));
                     }
                 } catch (InterruptedException cancelEx) {
                     Logger.writeLine(Log.ERROR, cancelEx, "%s: GetWeather cancelled", TAG);

@@ -61,7 +61,7 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
-import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
+import com.thewizrd.simpleweather.wearable.WearableWorker;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import java.util.ArrayList;
@@ -230,8 +230,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 WeatherWidgetService.enqueueWork(getAppCompatActivity(), filter.getIntent());
             } else if (WeatherUpdaterWorker.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
                 WeatherUpdaterWorker.enqueueAction(getAppCompatActivity(), filter.getIntent().getAction());
-            } else if (WearableDataListenerService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
-                WearableDataListenerService.enqueueWork(getAppCompatActivity(), filter.getIntent());
+            } else if (WearableWorker.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
+                WearableWorker.enqueueAction(getAppCompatActivity(), filter.getIntent().getAction());
             } else {
                 getAppCompatActivity().startService(filter.getIntent());
             }
@@ -772,29 +772,29 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             // Weather Provider changed
             case KEY_API:
                 enqueueIntent(new Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI));
-                enqueueIntent(new Intent(context, WearableDataListenerService.class)
-                        .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
+                enqueueIntent(new Intent(context, WearableWorker.class)
+                        .setAction(WearableWorker.ACTION_SENDSETTINGSUPDATE));
                 enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
                         .setAction(WeatherUpdaterWorker.ACTION_UPDATEWEATHER));
                 break;
             // FollowGPS changed
             case KEY_FOLLOWGPS:
                 boolean value = sharedPreferences.getBoolean(key, false);
-                enqueueIntent(new Intent(context, WearableDataListenerService.class)
-                        .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
-                enqueueIntent(new Intent(context, WearableDataListenerService.class)
-                        .setAction(WearableDataListenerService.ACTION_SENDLOCATIONUPDATE));
+                enqueueIntent(new Intent(context, WearableWorker.class)
+                        .setAction(WearableWorker.ACTION_SENDSETTINGSUPDATE));
+                enqueueIntent(new Intent(context, WearableWorker.class)
+                        .setAction(WearableWorker.ACTION_SENDLOCATIONUPDATE));
                 enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
                         .setAction(WeatherUpdaterWorker.ACTION_UPDATEWEATHER));
-                enqueueIntent(new Intent(context, WearableDataListenerService.class)
-                        .setAction(WearableDataListenerService.ACTION_SENDWEATHERUPDATE));
+                enqueueIntent(new Intent(context, WearableWorker.class)
+                        .setAction(WearableWorker.ACTION_SENDWEATHERUPDATE));
                 enqueueIntent(new Intent(context, WeatherWidgetService.class)
                         .setAction(value ? WeatherWidgetService.ACTION_REFRESHGPSWIDGETS : WeatherWidgetService.ACTION_RESETGPSWIDGETS));
                 break;
             // Settings unit changed
             case KEY_USECELSIUS:
-                enqueueIntent(new Intent(context, WearableDataListenerService.class)
-                        .setAction(WearableDataListenerService.ACTION_SENDSETTINGSUPDATE));
+                enqueueIntent(new Intent(context, WearableWorker.class)
+                        .setAction(WearableWorker.ACTION_SENDSETTINGSUPDATE));
                 enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
                         .setAction(WeatherUpdaterWorker.ACTION_UPDATEWEATHER));
                 break;

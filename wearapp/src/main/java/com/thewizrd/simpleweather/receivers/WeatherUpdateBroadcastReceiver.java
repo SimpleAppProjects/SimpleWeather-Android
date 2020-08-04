@@ -7,7 +7,7 @@ import android.content.Intent;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
-import com.thewizrd.simpleweather.wearable.WearableDataListenerService;
+import com.thewizrd.simpleweather.wearable.WearableWorker;
 
 public class WeatherUpdateBroadcastReceiver extends BroadcastReceiver {
     @Override
@@ -18,15 +18,7 @@ public class WeatherUpdateBroadcastReceiver extends BroadcastReceiver {
 
             if (Settings.getDataSync() != WearableDataSync.OFF) {
                 // Request a full update
-                WearableDataListenerService.enqueueWork(context,
-                        new Intent(context, WearableDataListenerService.class)
-                                .setAction(WearableDataListenerService.ACTION_REQUESTSETTINGSUPDATE));
-                WearableDataListenerService.enqueueWork(context,
-                        new Intent(context, WearableDataListenerService.class)
-                                .setAction(WearableDataListenerService.ACTION_REQUESTLOCATIONUPDATE));
-                WearableDataListenerService.enqueueWork(context,
-                        new Intent(context, WearableDataListenerService.class)
-                                .setAction(WearableDataListenerService.ACTION_REQUESTWEATHERUPDATE));
+                WearableWorker.enqueueAction(context, WearableWorker.ACTION_REQUESTUPDATE);
             }
         }
     }
