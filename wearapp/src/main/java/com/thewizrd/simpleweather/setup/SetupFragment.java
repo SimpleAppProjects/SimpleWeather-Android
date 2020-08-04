@@ -429,6 +429,7 @@ public class SetupFragment extends CustomFragment {
 
                     Settings.setFollowGPS(true);
                     Settings.setWeatherLoaded(true);
+                    Settings.setDataSync(WearableDataSync.OFF);
 
                     return location;
                 }

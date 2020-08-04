@@ -46,6 +46,7 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecasts;
@@ -231,6 +232,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                         // make sure gps feature is off
                         Settings.setFollowGPS(false);
                         Settings.setWeatherLoaded(true);
+                        Settings.setDataSync(WearableDataSync.OFF);
 
                         return location;
                     }

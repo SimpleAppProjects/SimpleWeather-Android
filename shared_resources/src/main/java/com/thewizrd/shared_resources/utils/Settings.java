@@ -485,7 +485,7 @@ public class Settings {
             @Override
             public void run() {
                 if (weatherDB.weatherDAO().getForecastDataCountGroupedByQuery() > CACHE_LIMIT / 2)
-                    cleanupWeatherData();
+                    cleanupWeatherForecastData();
             }
         });
     }
@@ -518,7 +518,7 @@ public class Settings {
         AsyncTask.run(new Runnable() {
             @Override
             public void run() {
-                List<LocationData> locs = null;
+                List<LocationData> locs;
 
                 if (IS_PHONE) {
                     locs = locationDB.locationsDAO().loadAllLocationData();
@@ -544,7 +544,7 @@ public class Settings {
         AsyncTask.run(new Runnable() {
             @Override
             public void run() {
-                List<LocationData> locs = null;
+                List<LocationData> locs;
 
                 if (IS_PHONE) {
                     locs = locationDB.locationsDAO().loadAllLocationData();
@@ -571,7 +571,7 @@ public class Settings {
         AsyncTask.run(new Runnable() {
             @Override
             public void run() {
-                List<LocationData> locs = null;
+                List<LocationData> locs;
 
                 if (IS_PHONE) {
                     locs = locationDB.locationsDAO().loadAllLocationData();
