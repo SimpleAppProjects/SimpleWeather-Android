@@ -179,17 +179,17 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
         // The time of day is set to max if the sun never sets/rises and
         // DateTime is set to min if not found
         // Don't change this if its set that way
-        if (weather.getAstronomy().getSunrise().compareTo(LocalDateTime.MIN) > 0 &&
-                weather.getAstronomy().getSunrise().toLocalTime().compareTo(LocalTime.MAX) < 0)
+        if (weather.getAstronomy().getSunrise().isAfter(LocalDateTime.MIN) &&
+                weather.getAstronomy().getSunrise().toLocalTime().isBefore(LocalTime.MAX))
             weather.getAstronomy().setSunrise(weather.getAstronomy().getSunrise().plusSeconds(offset.getTotalSeconds()));
-        if (weather.getAstronomy().getSunset().compareTo(LocalDateTime.MIN) > 0 &&
-                weather.getAstronomy().getSunset().toLocalTime().compareTo(LocalTime.MAX) < 0)
+        if (weather.getAstronomy().getSunset().isAfter(LocalDateTime.MIN) &&
+                weather.getAstronomy().getSunset().toLocalTime().isBefore(LocalTime.MAX))
             weather.getAstronomy().setSunset(weather.getAstronomy().getSunset().plusSeconds(offset.getTotalSeconds()));
-        if (weather.getAstronomy().getMoonrise().compareTo(LocalDateTime.MIN) > 0 &&
-                weather.getAstronomy().getMoonrise().toLocalTime().compareTo(LocalTime.MAX) < 0)
+        if (weather.getAstronomy().getMoonrise().isAfter(LocalDateTime.MIN) &&
+                weather.getAstronomy().getMoonrise().toLocalTime().isBefore(LocalTime.MAX))
             weather.getAstronomy().setMoonrise(weather.getAstronomy().getMoonrise().plusSeconds(offset.getTotalSeconds()));
-        if (weather.getAstronomy().getMoonset().compareTo(LocalDateTime.MIN) > 0 &&
-                weather.getAstronomy().getMoonset().toLocalTime().compareTo(LocalTime.MAX) < 0)
+        if (weather.getAstronomy().getMoonset().isAfter(LocalDateTime.MIN) &&
+                weather.getAstronomy().getMoonset().toLocalTime().isBefore(LocalTime.MAX))
             weather.getAstronomy().setMoonset(weather.getAstronomy().getMoonset().plusSeconds(offset.getTotalSeconds()));
 
         // Set condition here
@@ -198,7 +198,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
         LocalTime sunset = weather.getAstronomy().getSunset().toLocalTime();
 
         weather.getCondition().setWeather(getWeatherCondition(weather.getCondition().getIcon()));
-        weather.getCondition().setIcon(getWeatherIcon(now.compareTo(sunrise) < 0 || now.compareTo(sunset) > 0, weather.getCondition().getIcon()));
+        weather.getCondition().setIcon(getWeatherIcon(now.isBefore(sunrise) || now.isAfter(sunset), weather.getCondition().getIcon()));
         weather.getCondition().setObservationTime(weather.getCondition().getObservationTime().withZoneSameInstant(offset));
 
         for (Forecast forecast : weather.getForecast()) {
@@ -213,7 +213,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
 
             LocalTime hrf_localTime = hrf_date.toLocalTime();
             hr_forecast.setCondition(getWeatherCondition(hr_forecast.getIcon()));
-            hr_forecast.setIcon(getWeatherIcon(hrf_localTime.compareTo(sunrise) < 0 || hrf_localTime.compareTo(sunset) > 0, hr_forecast.getIcon()));
+            hr_forecast.setIcon(getWeatherIcon(hrf_localTime.isBefore(sunrise) || hrf_localTime.isAfter(sunset), hr_forecast.getIcon()));
         }
 
         return weather;

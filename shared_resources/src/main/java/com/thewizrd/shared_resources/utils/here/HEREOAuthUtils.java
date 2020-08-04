@@ -117,7 +117,7 @@ public class HEREOAuthUtils {
                     }
                 });
 
-                if (token != null && token.getExpirationDate().plusSeconds(-90).compareTo(ZonedDateTime.now(ZoneOffset.UTC)) > 0) {
+                if (token != null && token.getExpirationDate().plusSeconds(-90).isAfter(ZonedDateTime.now(ZoneOffset.UTC))) {
                     return token.getAccess_token();
                 }
             }

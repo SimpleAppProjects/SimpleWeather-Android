@@ -55,7 +55,7 @@ public class WeatherAlertsViewModel extends ObservableViewModel {
 
                                 for (WeatherAlert alert : weatherAlerts.getAlerts()) {
                                     // Skip if alert has expired
-                                    if (alert.getExpiresDate().compareTo(ZonedDateTime.now()) <= 0)
+                                    if (alert.getExpiresDate().isBefore(ZonedDateTime.now()))
                                         continue;
 
                                     WeatherAlertViewModel alertView = new WeatherAlertViewModel(alert);

@@ -292,7 +292,7 @@ public class WeatherDataLoader {
                             fcast = Iterables.find(fcasts.getForecast(), new Predicate<Forecast>() {
                                 @Override
                                 public boolean apply(@NullableDecl Forecast input) {
-                                    return input != null && input.getDate().toLocalDate().compareTo(now.toLocalDate()) == 0;
+                                    return input != null && input.getDate().toLocalDate().isEqual(now.toLocalDate());
                                 }
                             }, null);
                         }
@@ -336,7 +336,7 @@ public class WeatherDataLoader {
                 Iterables.removeIf(weather.getForecast(), new Predicate<Forecast>() {
                     @Override
                     public boolean apply(@NullableDecl Forecast input) {
-                        return input == null || input.getDate().truncatedTo(ChronoUnit.DAYS).compareTo(now.toLocalDateTime().truncatedTo(ChronoUnit.DAYS)) < 0;
+                        return input == null || input.getDate().truncatedTo(ChronoUnit.DAYS).isBefore(now.toLocalDateTime().truncatedTo(ChronoUnit.DAYS));
                     }
                 });
             }
@@ -345,7 +345,7 @@ public class WeatherDataLoader {
                 Iterables.removeIf(weather.getHrForecast(), new Predicate<HourlyForecast>() {
                     @Override
                     public boolean apply(@NullableDecl HourlyForecast input) {
-                        return input == null || input.getDate().truncatedTo(ChronoUnit.HOURS).compareTo(now.truncatedTo(ChronoUnit.HOURS)) < 0;
+                        return input == null || input.getDate().truncatedTo(ChronoUnit.HOURS).isBefore(now.truncatedTo(ChronoUnit.HOURS));
                     }
                 });
             }

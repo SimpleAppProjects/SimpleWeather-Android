@@ -493,8 +493,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
             }
 
             if (weather.getAstronomy().getMoonrise() != null && weather.getAstronomy().getMoonset() != null
-                    && weather.getAstronomy().getMoonrise().compareTo(DateTimeUtils.getLocalDateTimeMIN()) > 0
-                    && weather.getAstronomy().getMoonset().compareTo(DateTimeUtils.getLocalDateTimeMIN()) > 0) {
+                    && weather.getAstronomy().getMoonrise().isAfter(DateTimeUtils.getLocalDateTimeMIN())
+                    && weather.getAstronomy().getMoonset().isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
                 if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
                     weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONRISE,
                             weather.getAstronomy().getMoonrise().format(DateTimeFormatter.ofPattern("HH:mm"))));

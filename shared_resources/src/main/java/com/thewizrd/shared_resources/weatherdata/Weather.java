@@ -168,12 +168,12 @@ public class Weather extends CustomJsonObject {
             }
 
             // Add a new hour
-            if (date.compareTo(now.toLocalDateTime().truncatedTo(ChronoUnit.HOURS)) >= 0)
+            if (!date.truncatedTo(ChronoUnit.HOURS).isBefore(now.toLocalDateTime().truncatedTo(ChronoUnit.HOURS)))
                 hrForecast.add(new HourlyForecast(time));
 
             // Create new forecast
-            if (currentDate.toLocalDate().compareTo(date.toLocalDate()) != 0 &&
-                    date.compareTo(currentDate.plusDays(1)) >= 0) {
+            if (!currentDate.toLocalDate().isEqual(date.toLocalDate()) &&
+                    !date.isBefore(currentDate.plusDays(1))) {
                 // Last forecast for day; create forecast
                 if (fcast != null) {
                     // condition (set in provider GetWeather method)
@@ -251,7 +251,7 @@ public class Weather extends CustomJsonObject {
         }
         hrForecast = new ArrayList<>(root.getHourlyForecasts().getForecastLocation().getForecast().size());
         for (com.thewizrd.shared_resources.weatherdata.here.ForecastItem1 forecast1 : root.getHourlyForecasts().getForecastLocation().getForecast()) {
-            if (ZonedDateTime.parse(forecast1.getUtcTime()).compareTo(now.truncatedTo(ChronoUnit.HOURS)) < 0)
+            if (ZonedDateTime.parse(forecast1.getUtcTime()).truncatedTo(ChronoUnit.HOURS).isBefore(now.truncatedTo(ChronoUnit.HOURS)))
                 continue;
 
             hrForecast.add(new HourlyForecast(forecast1));
@@ -296,7 +296,7 @@ public class Weather extends CustomJsonObject {
         if (hourlyForecastResponse != null) {
             hrForecast = new ArrayList<>(hourlyForecastResponse.getPeriods().size());
             for (com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem period : hourlyForecastResponse.getPeriods()) {
-                if (ZonedDateTime.parse(period.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME).compareTo(now.truncatedTo(ChronoUnit.HOURS)) < 0)
+                if (ZonedDateTime.parse(period.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME).truncatedTo(ChronoUnit.HOURS).isBefore(now.truncatedTo(ChronoUnit.HOURS)))
                     continue;
 
                 hrForecast.add(new HourlyForecast(period));

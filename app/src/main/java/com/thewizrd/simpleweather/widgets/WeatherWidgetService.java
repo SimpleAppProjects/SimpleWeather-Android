@@ -1779,7 +1779,7 @@ public class WeatherWidgetService extends JobIntentService {
 
                 int count = 0;
                 for (HourlyForecast fcast : forecasts) {
-                    if (fcast.getDate().truncatedTo(ChronoUnit.HOURS).compareTo(now.truncatedTo(ChronoUnit.HOURS)) >= 0) {
+                    if (!fcast.getDate().truncatedTo(ChronoUnit.HOURS).isBefore(now.truncatedTo(ChronoUnit.HOURS))) {
                         fcasts.add(new HourlyForecastItemViewModel(fcast));
                         count++;
                     }

@@ -28,7 +28,7 @@ public class WeatherAlertHandler {
                 Collection<WeatherAlert> unotifiedAlerts = Collections2.filter(alerts, new Predicate<WeatherAlert>() {
                     @Override
                     public boolean apply(@NullableDecl WeatherAlert input) {
-                        return input != null && (BuildConfig.DEBUG || !input.isNotified() && input.getExpiresDate().compareTo(ZonedDateTime.now()) > 0);
+                        return input != null && (BuildConfig.DEBUG || !input.isNotified() && !input.getExpiresDate().isBefore(ZonedDateTime.now()));
                     }
                 });
 
