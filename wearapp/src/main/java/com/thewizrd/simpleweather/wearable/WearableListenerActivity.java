@@ -48,6 +48,7 @@ public abstract class WearableListenerActivity extends FragmentActivity implemen
     // Actions
     public static final String ACTION_OPENONPHONE = "SimpleWeather.Droid.Wear.action.OPEN_APP_ON_PHONE";
     public static final String ACTION_SHOWSTORELISTING = "SimpleWeather.Droid.Wear.action.SHOW_STORE_LISTING";
+    public static final String ACTION_SENDCONNECTIONSTATUS = "SimpleWeather.Droid.Wear.action.SEND_CONNECTION_STATUS";
     public static final String ACTION_UPDATECONNECTIONSTATUS = "SimpleWeather.Droid.Wear.action.UPDATE_CONNECTION_STATUS";
     public static final String ACTION_REQUESTSETUPSTATUS = "SimpleWeather.Droid.Wear.action.REQUEST_SETUP_STATUS";
 
