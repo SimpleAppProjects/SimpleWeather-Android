@@ -22,7 +22,6 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
-import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.main.MainActivity;
@@ -34,8 +33,6 @@ public class WeatherNotificationBuilder {
 
     static Notification updateNotification(String notificationID, final WeatherNowViewModel viewModel) {
         Context context = App.getInstance().getAppContext();
-
-        WeatherManager wm = WeatherManager.getInstance();
 
         // Build update
         RemoteViews updateViews = new RemoteViews(context.getPackageName(), R.layout.weather_notification_layout);

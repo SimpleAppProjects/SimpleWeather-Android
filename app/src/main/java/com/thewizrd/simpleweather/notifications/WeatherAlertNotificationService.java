@@ -24,10 +24,12 @@ import java.util.Set;
 public class WeatherAlertNotificationService extends JobIntentService {
     private static final String TAG = "WeatherAlertNotificationService";
 
+    // Actions
     public static final String ACTION_SHOWALERTS = "SimpleWeather.Droid.action.SHOW_ALERTS";
-
     public static final String ACTION_CANCELNOTIFICATION = "SimpleWeather.Droid.action.CANCEL_NOTIFICATION";
     public static final String ACTION_CANCELALLNOTIFICATIONS = "SimpleWeather.Droid.action.CANCEL_ALL_NOTIFICATIONS";
+
+    // Extras
     public static final String EXTRA_NOTIFICATIONID = "SimpleWeather.Droid.extra.NOTIFICATION_ID";
 
     private static final int JOB_ID = 1001;
