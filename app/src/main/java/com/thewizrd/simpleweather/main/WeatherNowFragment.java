@@ -403,9 +403,22 @@ public class WeatherNowFragment extends WindowColorFragment
         weatherLiveData.observe(this, weatherObserver);
 
         getLifecycle().addObserver(new LifecycleObserver() {
+            private boolean wasStarted = false;
+
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
-            private void load() {
+            private void onStart() {
                 resume();
+                wasStarted = true;
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            private void onResume() {
+                if (!wasStarted) onStart();
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+            private void onPause() {
+                wasStarted = false;
             }
         });
     }

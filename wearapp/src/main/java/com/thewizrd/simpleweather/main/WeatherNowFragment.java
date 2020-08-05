@@ -353,14 +353,28 @@ public class WeatherNowFragment extends CustomFragment
         weatherLiveData.observe(this, weatherObserver);
 
         getLifecycle().addObserver(new LifecycleObserver() {
+            private boolean wasStarted = false;
+
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
-            private void load() {
+            private void onStart() {
                 // Use normal if sync is off
                 if (Settings.getDataSync() == WearableDataSync.OFF) {
                     resume();
                 } else {
                     dataSyncResume();
                 }
+
+                wasStarted = true;
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            private void onResume() {
+                if (!wasStarted) onStart();
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+            private void onPause() {
+                wasStarted = false;
             }
         });
     }
