@@ -185,9 +185,9 @@ public class WeatherListFragment extends ToolbarFragment {
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     if (recyclerView.computeVerticalScrollOffset() > 0) {
-                        binding.locationHeader.setCardElevation(ActivityUtils.dpToPx(context, 4f));
+                        binding.locationHeader.setElevation(ActivityUtils.dpToPx(context, 4f));
                     } else {
-                        binding.locationHeader.setCardElevation(0);
+                        binding.locationHeader.setElevation(0);
                     }
                 }
             }
