@@ -304,12 +304,18 @@ public class WeatherNowFragment extends CustomFragment
                         locationDataReceived = true;
                     }
 
+                    Log.d("SyncDataReceiver", "Action: " + intent.getAction());
+
                     if (locationDataReceived && weatherDataReceived || (weatherDataReceived && locationData != null)) {
                         if (syncTimerEnabled)
                             cancelTimer();
 
+                        Log.d("SyncDataReceiver", "Loading data...");
+
                         // We got all our data; now load the weather
-                        binding.swipeRefreshLayout.setRefreshing(true);
+                        if (!binding.swipeRefreshLayout.isRefreshing()) {
+                            binding.swipeRefreshLayout.setRefreshing(true);
+                        }
                         wLoader = new WeatherDataLoader(locationData);
                         wLoader.loadWeatherData(new WeatherRequest.Builder()
                                 .forceLoadSavedData()
@@ -331,23 +337,6 @@ public class WeatherNowFragment extends CustomFragment
                     weatherDataReceived = false;
                     locationDataReceived = false;
                     cancelDataSync();
-                } else if (WearableHelper.SettingsPath.equals(intent.getAction())) {
-                    // Refresh weather in something changed
-                    locationData = Settings.getHomeData();
-                    if (locationData != null) {
-                        wLoader = new WeatherDataLoader(locationData);
-                        wLoader.loadWeatherData(new WeatherRequest.Builder()
-                                .forceLoadSavedData()
-                                .loadAlerts()
-                                .setErrorListener(WeatherNowFragment.this)
-                                .build())
-                                .addOnSuccessListener(getFragmentActivity(), new OnSuccessListener<Weather>() {
-                                    @Override
-                                    public void onSuccess(final Weather weather) {
-                                        weatherLiveData.setValue(weather);
-                                    }
-                                });
-                    }
                 }
             }
         };
@@ -693,7 +682,6 @@ public class WeatherNowFragment extends CustomFragment
 
         if (!syncReceiverRegistered) {
             IntentFilter filter = new IntentFilter();
-            filter.addAction(WearableHelper.SettingsPath);
             filter.addAction(WearableHelper.LocationPath);
             filter.addAction(WearableHelper.WeatherPath);
             filter.addAction(WearableHelper.IsSetupPath);

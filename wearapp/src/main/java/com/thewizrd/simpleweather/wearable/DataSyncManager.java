@@ -69,6 +69,8 @@ public class DataSyncManager {
                 Settings.setRefreshInterval(newInterval);
 
                 setSettingsUpdateTime(context, updateTimeMillis);
+
+                Log.d("DataSyncManager", "Updated settings");
             }
 
             // Send callback to receiver
@@ -95,6 +97,8 @@ public class DataSyncManager {
                     }
 
                     setLocationDataUpdateTime(context, updateTimeMillis);
+
+                    Log.d("DataSyncManager", "Updated location data");
 
                     // Send callback to receiver
                     LocalBroadcastManager.getInstance(context).sendBroadcast(
@@ -142,6 +146,8 @@ public class DataSyncManager {
                                     }));
                             Settings.setUpdateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(updateTimeMillis), ZoneOffset.UTC));
                             setWeatherUpdateTime(context, updateTimeMillis);
+
+                            Log.d("DataSyncManager", "Updated weather data");
 
                             // Update complications
                             WeatherComplicationIntentService.enqueueWork(context,
