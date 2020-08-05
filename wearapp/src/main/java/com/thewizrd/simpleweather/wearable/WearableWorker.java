@@ -35,7 +35,7 @@ public class WearableWorker extends Worker {
 
     // Actions
     private static final String KEY_ACTION = "action";
-    private static final String KEY_URGENTREQUEST = "urgent";
+    private static final String KEY_FORCEREFRESH = "refresh";
     public static final String ACTION_REQUESTUPDATE = "SimpleWeather.Droid.Wear.action.REQUEST_UPDATE";
     public static final String ACTION_REQUESTSETTINGSUPDATE = "SimpleWeather.Droid.Wear.action.REQUEST_SETTINGS_UPDATE";
     public static final String ACTION_REQUESTLOCATIONUPDATE = "SimpleWeather.Droid.Wear.action.REQUEST_LOCATION_UPDATE";
@@ -50,6 +50,10 @@ public class WearableWorker extends Worker {
     }
 
     public static void enqueueAction(@NonNull Context context, @NonNull String intentAction) {
+        enqueueAction(context, intentAction, false);
+    }
+
+    public static void enqueueAction(@NonNull Context context, @NonNull String intentAction, boolean forceRefresh) {
         context = context.getApplicationContext();
 
         switch (intentAction) {
@@ -57,12 +61,12 @@ public class WearableWorker extends Worker {
             case ACTION_REQUESTSETTINGSUPDATE:
             case ACTION_REQUESTLOCATIONUPDATE:
             case ACTION_REQUESTWEATHERUPDATE:
-                startWork(context, intentAction);
+                startWork(context, intentAction, forceRefresh);
                 break;
         }
     }
 
-    private static void startWork(@NonNull Context context, @NonNull String intentAction) {
+    private static void startWork(@NonNull Context context, @NonNull String intentAction, boolean forceRefesh) {
         context = context.getApplicationContext();
 
         Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG);
@@ -77,6 +81,7 @@ public class WearableWorker extends Worker {
                 .setInputData(
                         new Data.Builder()
                                 .putString(KEY_ACTION, intentAction)
+                                .putBoolean(KEY_FORCEREFRESH, forceRefesh)
                                 .build()
                 )
                 .build();
@@ -93,23 +98,24 @@ public class WearableWorker extends Worker {
         Logger.writeLine(Log.INFO, "%s: Work started", TAG);
 
         final String intentAction = getInputData().getString(KEY_ACTION);
+        final boolean forceRefresh = getInputData().getBoolean(KEY_FORCEREFRESH, false);
 
-        Logger.writeLine(Log.INFO, "%s: Action: %s", TAG, intentAction);
+        Logger.writeLine(Log.INFO, "%s: Action: %s; forceRefresh: %s", TAG, intentAction, forceRefresh);
 
         // Check if nodes are available
         mPhoneNodeWithApp = checkIfPhoneHasApp();
 
         if (mPhoneNodeWithApp != null) {
             if (ACTION_REQUESTUPDATE.equals(intentAction)) {
-                verifySettingsData();
-                verifyLocationData();
-                verifyWeatherData();
+                verifySettingsData(forceRefresh);
+                verifyLocationData(forceRefresh);
+                verifyWeatherData(forceRefresh);
             } else if (ACTION_REQUESTSETTINGSUPDATE.equals(intentAction)) {
-                verifySettingsData();
+                verifySettingsData(forceRefresh);
             } else if (ACTION_REQUESTLOCATIONUPDATE.equals(intentAction)) {
-                verifyLocationData();
+                verifyLocationData(forceRefresh);
             } else if (ACTION_REQUESTWEATHERUPDATE.equals(intentAction)) {
-                verifyWeatherData();
+                verifyWeatherData(forceRefresh);
             }
         } else {
             LocalBroadcastManager.getInstance(mContext)
@@ -121,13 +127,16 @@ public class WearableWorker extends Worker {
 
     /* Wearable Functions */
     @WorkerThread
-    private void verifySettingsData() {
+    private void verifySettingsData(boolean forceRefresh) {
         DataItem dataItem = null;
-        try {
-            dataItem = Tasks.await(Wearable.getDataClient(mContext)
-                    .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp.getId(), WearableHelper.SettingsPath)));
-        } catch (ExecutionException | InterruptedException e) {
-            Logger.writeLine(Log.ERROR, e);
+
+        if (!forceRefresh) {
+            try {
+                dataItem = Tasks.await(Wearable.getDataClient(mContext)
+                        .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp.getId(), WearableHelper.SettingsPath)));
+            } catch (ExecutionException | InterruptedException e) {
+                Logger.writeLine(Log.ERROR, e);
+            }
         }
 
         if (dataItem == null) {
@@ -150,13 +159,16 @@ public class WearableWorker extends Worker {
     }
 
     @WorkerThread
-    private void verifyLocationData() {
+    private void verifyLocationData(boolean forceRefresh) {
         DataItem dataItem = null;
-        try {
-            dataItem = Tasks.await(Wearable.getDataClient(mContext)
-                    .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp.getId(), WearableHelper.LocationPath)));
-        } catch (ExecutionException | InterruptedException e) {
-            Logger.writeLine(Log.ERROR, e);
+
+        if (!forceRefresh) {
+            try {
+                dataItem = Tasks.await(Wearable.getDataClient(mContext)
+                        .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp.getId(), WearableHelper.LocationPath)));
+            } catch (ExecutionException | InterruptedException e) {
+                Logger.writeLine(Log.ERROR, e);
+            }
         }
 
         if (dataItem == null) {
@@ -179,13 +191,16 @@ public class WearableWorker extends Worker {
     }
 
     @WorkerThread
-    private void verifyWeatherData() {
+    private void verifyWeatherData(boolean forceRefresh) {
         DataItem dataItem = null;
-        try {
-            dataItem = Tasks.await(Wearable.getDataClient(mContext)
-                    .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp.getId(), WearableHelper.WeatherPath)));
-        } catch (ExecutionException | InterruptedException e) {
-            Logger.writeLine(Log.ERROR, e);
+
+        if (!forceRefresh) {
+            try {
+                dataItem = Tasks.await(Wearable.getDataClient(mContext)
+                        .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp.getId(), WearableHelper.WeatherPath)));
+            } catch (ExecutionException | InterruptedException e) {
+                Logger.writeLine(Log.ERROR, e);
+            }
         }
 
         if (dataItem == null) {

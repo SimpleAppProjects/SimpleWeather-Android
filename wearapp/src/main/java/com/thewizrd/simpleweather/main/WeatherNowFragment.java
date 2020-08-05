@@ -643,136 +643,6 @@ public class WeatherNowFragment extends CustomFragment
         });
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (StringUtils.isNullOrWhitespace(key))
-            return;
-
-        switch (key) {
-            case Settings.KEY_DATASYNC:
-                // If data sync settings changes,
-                // reset so we can properly reload
-                wLoader = null;
-                locationData = null;
-                break;
-            default:
-                break;
-        }
-    }
-
-    private void dataSyncRestore() {
-        if (isAlive()) {
-            // Send request to service to get weather data
-            binding.swipeRefreshLayout.setRefreshing(true);
-
-            // Check data map if data is available to load
-            locationData = null;
-            WearableWorker.enqueueAction(getFragmentActivity(), WearableWorker.ACTION_REQUESTUPDATE);
-
-            // Start timeout timer
-            resetTimer();
-        }
-    }
-
-    private void dataSyncResume() {
-        if (!isAlive()) {
-            cancelDataSync();
-            return;
-        }
-
-        if (!syncReceiverRegistered) {
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(WearableHelper.LocationPath);
-            filter.addAction(WearableHelper.WeatherPath);
-            filter.addAction(WearableHelper.IsSetupPath);
-
-            LocalBroadcastManager.getInstance(getFragmentActivity())
-                    .registerReceiver(syncDataReceiver, filter);
-            syncReceiverRegistered = true;
-        }
-
-        if (wLoader == null) {
-            dataSyncRestore();
-        } else {
-            // Update weather if needed on resume
-            if (locationData == null || !locationData.equals(Settings.getHomeData()))
-                locationData = Settings.getHomeData();
-
-            binding.swipeRefreshLayout.setRefreshing(true);
-
-            wLoader = new WeatherDataLoader(locationData);
-            wLoader.loadWeatherData(new WeatherRequest.Builder()
-                    .forceLoadSavedData()
-                    .loadAlerts()
-                    .setErrorListener(WeatherNowFragment.this)
-                    .build())
-                    .addOnSuccessListener(getFragmentActivity(), new OnSuccessListener<Weather>() {
-                        @Override
-                        public void onSuccess(final Weather weather) {
-                            if (weather != null) {
-                                weatherLiveData.setValue(weather);
-                            } else {
-                                // Data is null; restore
-                                dataSyncRestore();
-                            }
-                        }
-                    });
-        }
-    }
-
-    private void cancelDataSync() {
-        if (syncTimerEnabled)
-            cancelTimer();
-
-        if (isAlive() && Settings.getDataSync() != WearableDataSync.OFF) {
-            if (locationData == null) {
-                // Load whatever we have available
-                locationData = Settings.getHomeData();
-            }
-
-            if (locationData != null) {
-                binding.swipeRefreshLayout.setRefreshing(true);
-                wLoader = new WeatherDataLoader(locationData);
-                wLoader.loadWeatherData(new WeatherRequest.Builder()
-                        .forceLoadSavedData()
-                        .loadAlerts()
-                        .setErrorListener(WeatherNowFragment.this)
-                        .build())
-                        .addOnSuccessListener(getFragmentActivity(), new OnSuccessListener<Weather>() {
-                            @Override
-                            public void onSuccess(final Weather weather) {
-                                weatherLiveData.setValue(weather);
-                            }
-                        });
-            } else {
-                binding.swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(getFragmentActivity(), R.string.error_syncing, Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    private void resetTimer() {
-        if (syncTimerEnabled)
-            cancelTimer();
-        syncTimer = new Timer();
-        syncTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                // We hit the interval
-                // Data syncing is taking a long time to setup
-                // Stop and load saved data
-                cancelDataSync();
-            }
-        }, 60000); // 30sec
-        syncTimerEnabled = true;
-    }
-
-    private void cancelTimer() {
-        syncTimer.cancel();
-        syncTimer.purge();
-        syncTimerEnabled = false;
-    }
-
     private void refreshWeather(final boolean forceRefresh) {
         if (isAlive()) {
             binding.swipeRefreshLayout.setRefreshing(true);
@@ -789,8 +659,9 @@ public class WeatherNowFragment extends CustomFragment
                                 weatherLiveData.setValue(weather);
                             }
                         });
-            else if (Settings.getDataSync() != WearableDataSync.OFF)
-                dataSyncResume();
+            else if (Settings.getDataSync() != WearableDataSync.OFF) {
+                dataSyncResume(forceRefresh);
+            }
         }
     }
 
@@ -949,5 +820,144 @@ public class WeatherNowFragment extends CustomFragment
             default:
                 break;
         }
+    }
+
+    /* Data Sync */
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (StringUtils.isNullOrWhitespace(key))
+            return;
+
+        switch (key) {
+            case Settings.KEY_DATASYNC:
+                // If data sync settings changes,
+                // reset so we can properly reload
+                wLoader = null;
+                locationData = null;
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void dataSyncRestore() {
+        dataSyncRestore(false);
+    }
+
+    private void dataSyncRestore(boolean forceRefresh) {
+        if (isAlive()) {
+            // Send request to service to get weather data
+            binding.swipeRefreshLayout.setRefreshing(true);
+
+            // Check data map if data is available to load
+            locationData = null;
+            WearableWorker.enqueueAction(getFragmentActivity(), WearableWorker.ACTION_REQUESTUPDATE, forceRefresh);
+
+            // Start timeout timer
+            resetTimer();
+        }
+    }
+
+    private void dataSyncResume() {
+        dataSyncResume(false);
+    }
+
+    private void dataSyncResume(boolean forceRefresh) {
+        if (!isAlive()) {
+            cancelDataSync();
+            return;
+        }
+
+        if (!syncReceiverRegistered) {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(WearableHelper.LocationPath);
+            filter.addAction(WearableHelper.WeatherPath);
+            filter.addAction(WearableHelper.IsSetupPath);
+
+            LocalBroadcastManager.getInstance(getFragmentActivity())
+                    .registerReceiver(syncDataReceiver, filter);
+            syncReceiverRegistered = true;
+        }
+
+        if (wLoader == null || forceRefresh) {
+            dataSyncRestore(forceRefresh);
+        } else {
+            // Update weather if needed on resume
+            if (locationData == null || !locationData.equals(Settings.getHomeData()))
+                locationData = Settings.getHomeData();
+
+            binding.swipeRefreshLayout.setRefreshing(true);
+
+            wLoader = new WeatherDataLoader(locationData);
+            wLoader.loadWeatherData(new WeatherRequest.Builder()
+                    .forceLoadSavedData()
+                    .loadAlerts()
+                    .setErrorListener(WeatherNowFragment.this)
+                    .build())
+                    .addOnSuccessListener(getFragmentActivity(), new OnSuccessListener<Weather>() {
+                        @Override
+                        public void onSuccess(final Weather weather) {
+                            if (weather != null) {
+                                weatherLiveData.setValue(weather);
+                            } else {
+                                // Data is null; restore
+                                dataSyncRestore();
+                            }
+                        }
+                    });
+        }
+    }
+
+    private void cancelDataSync() {
+        if (syncTimerEnabled)
+            cancelTimer();
+
+        if (isAlive() && Settings.getDataSync() != WearableDataSync.OFF) {
+            if (locationData == null) {
+                // Load whatever we have available
+                locationData = Settings.getHomeData();
+            }
+
+            if (locationData != null) {
+                binding.swipeRefreshLayout.setRefreshing(true);
+                wLoader = new WeatherDataLoader(locationData);
+                wLoader.loadWeatherData(new WeatherRequest.Builder()
+                        .forceLoadSavedData()
+                        .loadAlerts()
+                        .setErrorListener(WeatherNowFragment.this)
+                        .build())
+                        .addOnSuccessListener(getFragmentActivity(), new OnSuccessListener<Weather>() {
+                            @Override
+                            public void onSuccess(final Weather weather) {
+                                weatherLiveData.setValue(weather);
+                            }
+                        });
+            } else {
+                binding.swipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(getFragmentActivity(), R.string.error_syncing, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private void resetTimer() {
+        if (syncTimerEnabled)
+            cancelTimer();
+        syncTimer = new Timer();
+        syncTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                // We hit the interval
+                // Data syncing is taking a long time to setup
+                // Stop and load saved data
+                cancelDataSync();
+            }
+        }, 60000); // 30sec
+        syncTimerEnabled = true;
+    }
+
+    private void cancelTimer() {
+        syncTimer.cancel();
+        syncTimer.purge();
+        syncTimerEnabled = false;
     }
 }
