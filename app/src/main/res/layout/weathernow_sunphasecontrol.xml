@@ -17,7 +17,7 @@
         <com.thewizrd.simpleweather.controls.SunPhaseView
             android:id="@+id/sun_phase_view"
             android:layout_width="0dp"
-            android:layout_height="200dp"
+            android:layout_height="@dimen/sun_phase_view_height"
             android:layout_marginBottom="20dp"
             app:hideIfNull="@{weatherView.sunPhase}"
             app:sunPhase="@{weatherView.sunPhase}"

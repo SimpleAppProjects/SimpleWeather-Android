@@ -38,7 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="end"
-                android:fontFamily="sans-serif-thin"
+                android:fontFamily="sans-serif-light"
                 android:maxLines="1"
                 android:shadowColor="#DD000000"
                 android:textColor="@android:color/white"
@@ -142,7 +142,8 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="@android:color/white"
                     android:textSize="14sp"
-                    tools:text="70° | 60°" />
+                    tools:text="70° | 60°"
+                    tools:visibility="visible" />
 
             </LinearLayout>
 

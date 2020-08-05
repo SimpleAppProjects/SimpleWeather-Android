@@ -17,6 +17,7 @@
         android:layout_gravity="center"
         android:indeterminate="true"
         android:indeterminateOnly="true"
-        android:indeterminateTint="@color/colorOnSurface" />
+        android:indeterminateTint="@color/colorOnSurface"
+        android:indeterminateTintMode="src_in" />
 
 </FrameLayout>

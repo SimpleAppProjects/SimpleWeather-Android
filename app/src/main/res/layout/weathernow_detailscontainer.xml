@@ -11,30 +11,32 @@
 
     </data>
 
-    <com.thewizrd.simpleweather.controls.ExpandingGridView
-        android:id="@+id/details_container"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:background="@android:color/transparent"
-        android:columnWidth="@dimen/detail_grid_column_width"
-        android:gravity="center"
-        android:numColumns="auto_fit"
-        android:paddingStart="@dimen/activity_horizontal_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingTop="8dp"
-        android:paddingEnd="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingBottom="8dp"
-        android:stretchMode="columnWidth"
-        app:details_data="@{weatherView.weatherDetails}"
-        app:hideIfEmpty="@{weatherView.weatherDetails}"
-        app:layout_constraintBottom_toTopOf="@+id/details_border"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/details_label"
-        tools:layout_height="300dp"
-        tools:listitem="@layout/card_weather_detail"
-        tools:visibility="visible" />
+        android:layout_height="wrap_content">
+
+        <com.thewizrd.simpleweather.controls.ExpandingGridView
+            android:id="@+id/details_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:background="@android:color/transparent"
+            android:columnWidth="@dimen/detail_grid_column_width"
+            android:gravity="center"
+            android:numColumns="auto_fit"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingTop="8dp"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingBottom="8dp"
+            android:stretchMode="columnWidth"
+            app:details_data="@{weatherView.weatherDetails}"
+            app:hideIfEmpty="@{weatherView.weatherDetails}"
+            tools:layout_height="300dp"
+            tools:listitem="@layout/card_weather_detail"
+            tools:visibility="visible" />
+
+    </FrameLayout>
 
 </layout>

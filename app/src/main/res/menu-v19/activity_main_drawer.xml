@@ -7,6 +7,10 @@
             android:icon="@drawable/day_cloudy"
             android:title="@string/label_nav_weathernow" />
         <item
+            android:id="@id/weatherRadarFragment"
+            android:icon="@drawable/ic_radar"
+            android:title="@string/label_radar" />
+        <item
             android:id="@id/locationsFragment"
             android:icon="@drawable/ic_star_border"
             android:title="@string/label_nav_locations" />

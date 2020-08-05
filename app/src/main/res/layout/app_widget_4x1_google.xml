@@ -25,7 +25,9 @@
         android:gravity="center"
         android:orientation="horizontal"
         android:paddingTop="12dp"
-        android:paddingBottom="12dp">
+        android:paddingBottom="12dp"
+        android:clipToPadding="false"
+        android:clipChildren="false">
 
         <TextView
             android:id="@+id/date_panel"
@@ -37,7 +39,7 @@
             android:maxLines="1"
             android:shadowColor="#000000"
             android:textColor="@android:color/white"
-            android:textSize="24sp"
+            android:textSize="@dimen/widget4x1G_text_size"
             tools:text="Thursday, Sep 19"
             tools:visibility="visible" />
 
@@ -76,7 +78,7 @@
             android:paddingRight="2dp"
             android:shadowColor="#000000"
             android:textColor="@android:color/white"
-            android:textSize="24sp"
+            android:textSize="@dimen/widget4x1G_text_size"
             tools:text="77°F" />
 
     </RelativeLayout>

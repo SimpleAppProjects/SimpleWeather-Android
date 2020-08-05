@@ -3,6 +3,7 @@ package com.thewizrd.shared_resources.weatherdata;
 import android.content.Intent;
 import android.util.Log;
 
+import androidx.core.util.ObjectsCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.tasks.Task;
@@ -261,7 +262,7 @@ public class WeatherDataLoader {
         if (weather != null) {
             // Check for outdated observation
             final ZonedDateTime now = ZonedDateTime.now().withZoneSameInstant(location.getTzOffset());
-            long duraMins = Duration.between(weather.getCondition().getObservationTime(), now).toMinutes();
+            long duraMins = weather.getCondition().getObservationTime() == null ? 61 : Duration.between(weather.getCondition().getObservationTime(), now).toMinutes();
             if (duraMins > 60) {
                 HourlyForecast hrf = Settings.getFirstHourlyForecastDataByDate(location.getQuery(), now.truncatedTo(ChronoUnit.HOURS));
                 if (hrf != null) {
@@ -284,7 +285,7 @@ public class WeatherDataLoader {
 
                     weather.getCondition().setObservationTime(hrf.getDate());
 
-                    if (duraMins > 60 * 6) {
+                    if (duraMins > 60 * 6 || (weather.getCondition().getHighF() == null || ObjectsCompat.equals(weather.getCondition().getHighF(), weather.getCondition().getLowF()))) {
                         Forecasts fcasts = Settings.getWeatherForecastData(location.getQuery());
                         Forecast fcast = null;
 

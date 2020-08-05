@@ -124,8 +124,10 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
+                            android:weightSum="2"
                             app:hideIfNullOrWhitespace="@{weatherView.location}"
-                            tools:layout_height="650dp">
+                            android:layout_gravity="center"
+                            tools:layout_height="wrap_content">
 
                             <LinearLayout
                                 android:id="@+id/alert_button"
@@ -174,21 +176,24 @@
 
                             </LinearLayout>
 
+                            <Space
+                                android:layout_width="wrap_content"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
+
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:id="@+id/weather_icon"
                                 style="@style/ShadowTextHeavy"
                                 android:layout_width="match_parent"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:gravity="bottom|center_horizontal"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_horizontal"
                                 android:scrollbars="none"
                                 android:shadowColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/black : @android:color/transparent}"
                                 android:text="@{weatherView.weatherIcon}"
-                                android:textAlignment="center"
                                 android:textAppearance="?android:textAppearanceLargeInverse"
                                 android:textColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
-                                android:textSize="@dimen/weather_icon_size"
-                                app:autoSizeMaxTextSize="@dimen/weather_icon_size"
+                                android:textSize="108sp"
+                                app:autoSizeMaxTextSize="108sp"
                                 app:autoSizeMinTextSize="12sp"
                                 app:autoSizeTextType="uniform"
                                 app:fontFamily="@font/weathericons"
@@ -200,14 +205,17 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:gravity="center_horizontal"
-                                android:maxLines="2"
+                                android:maxLines="1"
                                 android:padding="4dp"
                                 android:shadowColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/black : @android:color/transparent}"
                                 android:text="@{weatherView.curCondition}"
                                 android:textAlignment="center"
                                 android:textColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
-                                android:textSize="@dimen/weather_condition_size"
-                                android:textStyle="bold"
+                                android:textSize="32sp"
+                                app:fontFamily="@font/open_sans_semibold"
+                                app:autoSizeMaxTextSize="32sp"
+                                app:autoSizeMinTextSize="12sp"
+                                app:autoSizeTextType="uniform"
                                 tools:text="Sunny" />
 
                             <androidx.appcompat.widget.AppCompatTextView
@@ -221,7 +229,10 @@
                                 android:shadowColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/black : @android:color/transparent}"
                                 android:text="@{weatherView.curTemp}"
                                 android:textColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
-                                android:textSize="@dimen/weather_condition_size"
+                                android:textSize="48sp"
+                                app:autoSizeMaxTextSize="48sp"
+                                app:autoSizeMinTextSize="12sp"
+                                app:autoSizeTextType="uniform"
                                 app:fontFamily="@font/open_sans_semibold"
                                 tools:text="70&#xF045;" />
 
@@ -229,20 +240,27 @@
                                 android:id="@+id/weather_hilo"
                                 style="@style/ShadowTextHeavy"
                                 android:layout_width="match_parent"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:gravity="top|center_horizontal"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_horizontal"
                                 android:padding="4dp"
                                 android:scrollbars="none"
                                 android:shadowColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/black : @android:color/transparent}"
                                 android:text="@{weatherView.hiLoTemp}"
                                 android:textColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
-                                android:textSize="@dimen/weather_condition_size"
-                                android:textStyle="bold"
-                                android:visibility="@{!TextUtils.isEmpty(weatherView.hiLoTemp) ? View.VISIBLE : View.INVISIBLE}"
+                                android:textSize="32sp"
+                                app:fontFamily="@font/open_sans_semibold"
+                                app:autoSizeMaxTextSize="32sp"
+                                app:autoSizeMinTextSize="12sp"
+                                app:autoSizeTextType="uniform"
+                                app:showIfTrue="@{weatherView.showHiLo}"
                                 tools:fontFamily="@font/weathericons"
-                                tools:text="75*F &#xf058; | 65*F &#xf044;"
+                                tools:text="75°F &#xf058; | 65°F &#xf044;"
                                 tools:visibility="visible" />
+
+                            <Space
+                                android:layout_width="wrap_content"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:id="@+id/bg_attribution"
@@ -258,6 +276,7 @@
                                 android:textColorLink="@android:color/white"
                                 android:textSize="12sp"
                                 app:imageData="@{weatherView.imageData}"
+                                app:showIfTrue="@{FeatureSettings.backgroundImageEnabled}"
                                 tools:text="Attribution text goes here"
                                 tools:visibility="visible" />
 
@@ -412,7 +431,7 @@
                             android:inflatedId="@id/sunphase_control"
                             android:layout="@layout/weathernow_sunphasecontrol"
                             android:layout_width="match_parent"
-                            android:layout_height="200dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginBottom="20dp"
                             android:visibility="@{!FeatureSettings.sunPhaseEnabled || weatherView.sunPhase == null ? View.GONE : View.VISIBLE}" />
 

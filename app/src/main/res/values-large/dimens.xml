@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- WeatherNow -->
-    <dimen name="weather_icon_size">84sp</dimen>
-    <dimen name="weather_condition_size">24sp</dimen>
-    <dimen name="detail_grid_column_width">187.5dp</dimen>
+    <dimen name="detail_grid_column_width">200dp</dimen>
     <!-- Forecast -->
     <dimen name="forecast_condition_size">12sp</dimen>
     <!-- Notification -->

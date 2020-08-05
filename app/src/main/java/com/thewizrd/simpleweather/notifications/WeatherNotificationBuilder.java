@@ -57,6 +57,7 @@ public class WeatherNotificationBuilder {
         // Details
         updateViews.setTextViewText(R.id.condition_hi, !StringUtils.isNullOrWhitespace(hiTemp) ? hiTemp + "°" : "--");
         updateViews.setTextViewText(R.id.condition_lo, !StringUtils.isNullOrWhitespace(loTemp) ? loTemp + "°" : "--");
+        updateViews.setViewVisibility(R.id.condition_hilo_layout, viewModel.isShowHiLo() ? View.VISIBLE : View.GONE);
 
         // Extras
         int textSize = (int) ActivityUtils.dpToPx(context, 24f);

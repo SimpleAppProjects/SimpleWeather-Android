@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.PorterDuff;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -134,10 +133,6 @@ public class SetupLocationFragment extends CustomFragment {
         wm = WeatherManager.getInstance();
 
         binding.progressBar.setVisibility(View.GONE);
-
-        // NOTE: Bug: Explicitly set tintmode on Lollipop devices
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP)
-            binding.progressBar.setIndeterminateTintMode(PorterDuff.Mode.SRC_IN);
 
         /* Event Listeners */
         binding.searchBar.searchViewContainer.setOnClickListener(new View.OnClickListener() {
@@ -361,7 +356,7 @@ public class SetupLocationFragment extends CustomFragment {
         if (mLocation == null) {
             AsyncTask.create(new Callable<Void>() {
                 @Override
-                public Void call() {
+                public Void call() throws CustomException {
                     updateLocation();
                     return null;
                 }
@@ -514,7 +509,7 @@ public class SetupLocationFragment extends CustomFragment {
         }
     }
 
-    private void updateLocation() {
+    private void updateLocation() throws CustomException {
         if (getAppCompatActivity() != null && ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -537,7 +532,7 @@ public class SetupLocationFragment extends CustomFragment {
             // Disable GPS feature if location is not enabled
             enableControls(true);
             Settings.setFollowGPS(false);
-            return;
+            throw new CustomException(R.string.error_enable_location_services);
         }
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {

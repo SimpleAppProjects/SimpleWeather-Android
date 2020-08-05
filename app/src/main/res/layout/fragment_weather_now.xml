@@ -123,6 +123,7 @@
                             android:id="@+id/condition_panel"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
                             android:orientation="vertical"
                             app:hideIfNullOrWhitespace="@{weatherView.location}"
                             tools:layout_height="wrap_content">
@@ -208,7 +209,9 @@
                                     android:layout_toEndOf="@id/weather_temp"
                                     android:layout_toRightOf="@id/weather_temp"
                                     android:layout_alignTop="@id/weather_temp"
-                                    android:layout_alignBottom="@id/weather_temp">
+                                    android:layout_alignBottom="@id/weather_temp"
+                                    app:showIfTrue="@{weatherView.showHiLo}"
+                                    tools:visibility="visible">
 
                                     <androidx.appcompat.widget.AppCompatTextView
                                         android:id="@+id/weather_hi"
@@ -461,7 +464,7 @@
                             android:inflatedId="@id/sunphase_control"
                             android:layout="@layout/weathernow_sunphasecontrol"
                             android:layout_width="match_parent"
-                            android:layout_height="200dp"
+                            android:layout_height="@dimen/sun_phase_view_height"
                             android:layout_marginBottom="20dp"
                             android:visibility="@{!FeatureSettings.sunPhaseEnabled || weatherView.sunPhase == null ? View.GONE : View.VISIBLE}" />
 

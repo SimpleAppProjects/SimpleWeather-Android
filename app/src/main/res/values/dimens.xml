@@ -29,8 +29,10 @@
     <dimen name="detail_card_height">100dp</dimen>
     <dimen name="detail_grid_column_width">125dp</dimen>
     <dimen name="moonphase_text_size">36sp</dimen>
+    <dimen name="sun_phase_view_height">200dp</dimen>
     <!-- Locations -->
     <dimen name="location_panel_height">130dp</dimen>
+    <dimen name="location_panel_minwidth">480dp</dimen>
     <dimen name="delete_icon_margin">12dp</dimen>
 
     <!--
@@ -47,5 +49,6 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <!-- Notification -->
     <dimen name="not_horiz_padding">4dp</dimen>
     <dimen name="not_vert_padding">4dp</dimen>
+    <dimen name="not_layout_height">-1</dimen>
 
 </resources>

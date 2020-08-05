@@ -965,6 +965,14 @@ public class WeatherWidgetService extends JobIntentService {
                             dateTextSize *= 0.875f; // 14sp
 
                         views.setTextViewTextSize(R.id.date_panel, TypedValue.COMPLEX_UNIT_PX, dateTextSize);
+                    } else if (widgetType == WidgetType.Widget4x1Google) {
+                        float dateTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 24f, mContext.getResources().getDisplayMetrics());
+
+                        if ((isSmallHeight && cellHeight <= 2)) {
+                            dateTextSize *= (5 / 6f); // 20sp
+                        }
+
+                        views.setTextViewTextSize(R.id.date_panel, TypedValue.COMPLEX_UNIT_PX, dateTextSize);
                     }
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -1080,15 +1088,12 @@ public class WeatherWidgetService extends JobIntentService {
                 } else if (style == WidgetUtils.WidgetBackgroundStyle.PENDINGCOLOR) {
                     updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background);
                     updateViews.setInt(R.id.panda_background, "setColorFilter", weather.getPendingBackground());
-                    updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background);
                 } else if (style == WidgetUtils.WidgetBackgroundStyle.LIGHT) {
                     updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background);
                     updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.WHITE);
-                    updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background);
                 } else if (style == WidgetUtils.WidgetBackgroundStyle.DARK) {
                     updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background);
                     updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.BLACK);
-                    updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background);
                 } else {
                     updateViews.removeAllViews(R.id.panda_container);
                 }
@@ -1145,6 +1150,7 @@ public class WeatherWidgetService extends JobIntentService {
 
             updateViews.setTextViewText(R.id.condition_hi, !StringUtils.isNullOrWhitespace(hiTemp) ? hiTemp + "°" : "--");
             updateViews.setTextViewText(R.id.condition_lo, !StringUtils.isNullOrWhitespace(loTemp) ? loTemp + "°" : "--");
+            updateViews.setViewVisibility(R.id.condition_hilo_layout, weather.isShowHiLo() ? View.VISIBLE : View.GONE);
 
             DetailItemViewModel chanceModel = Iterables.find(weather.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
                 @Override
@@ -1188,6 +1194,7 @@ public class WeatherWidgetService extends JobIntentService {
                     String.format(Locale.ROOT, "%s° | %s°",
                             !StringUtils.isNullOrWhitespace(hiTemp) ? hiTemp : "--",
                             !StringUtils.isNullOrWhitespace(loTemp) ? loTemp : "--"));
+            updateViews.setViewVisibility(R.id.condition_hilo, weather.isShowHiLo() ? View.VISIBLE : View.GONE);
         }
 
         if (provider.getWidgetType() != WidgetType.Widget2x2 && provider.getWidgetType() != WidgetType.Widget4x1Notification) {
@@ -1261,7 +1268,7 @@ public class WeatherWidgetService extends JobIntentService {
             if (cellWidth <= 3) {
                 textSize *= (2f / 3); // 16sp
             } else if (isSmallHeight && cellHeight == 1) {
-                //textSize *= (7f / 12); // 14sp
+                textSize *= (5 / 6f); // 20sp
                 forceSmall = true;
             } else if (cellWidth == 4) {
                 textSize *= 0.75f; // 18sp
@@ -1312,6 +1319,14 @@ public class WeatherWidgetService extends JobIntentService {
             } else {
                 int padding = (int) ActivityUtils.dpToPx(mContext, 2);
                 updateViews.setViewPadding(R.id.now_date, padding, padding, padding, padding);
+            }
+
+            if (isSmallHeight && cellHeight == 1) {
+                int padding = (int) ActivityUtils.dpToPx(mContext, 0);
+                updateViews.setViewPadding(R.id.layout_container, padding, padding, padding, padding);
+            } else {
+                int padding = (int) ActivityUtils.dpToPx(mContext, 8);
+                updateViews.setViewPadding(R.id.layout_container, padding, padding, padding, padding);
             }
 
             updateViews.setTextViewTextSize(R.id.now_date, TypedValue.COMPLEX_UNIT_SP, textSize);

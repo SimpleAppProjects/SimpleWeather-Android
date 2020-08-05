@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
@@ -37,17 +38,17 @@ public class LocationPanel extends MaterialCardView {
 
     public LocationPanel(@NonNull Context context) {
         super(context);
-        initialize(context);
+        initialize(getContext());
     }
 
     public LocationPanel(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        initialize(context);
+        initialize(getContext());
     }
 
     public LocationPanel(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initialize(context);
+        initialize(getContext());
     }
 
     public Drawable getColorDrawable() {
@@ -75,13 +76,13 @@ public class LocationPanel extends MaterialCardView {
         setCardElevation(0f);
         setMaxCardElevation(0f);
         setStrokeWidth((int) ActivityUtils.dpToPx(context, 1f));
-        setStrokeColor(ContextCompat.getColorStateList(context, FeatureSettings.isLocationPanelImageEnabled() ? R.color.location_panel_card_stroke_imageon : R.color.location_panel_card_stroke_imageoff));
+        setStrokeColor(AppCompatResources.getColorStateList(context, FeatureSettings.isLocationPanelImageEnabled() ? R.color.location_panel_card_stroke_imageon : R.color.location_panel_card_stroke_imageoff));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setStateListAnimator(null);
         }
         setCheckedIconTint(FeatureSettings.isLocationPanelImageEnabled() ? ColorStateList.valueOf(Colors.WHITE) : ActivityUtils.getColorStateList(context, R.attr.colorPrimary));
         setRippleColorResource(FeatureSettings.isLocationPanelImageEnabled() ? R.color.location_panel_ripple_imageon : R.color.location_panel_ripple_imageoff);
-        setCardForegroundColor(ContextCompat.getColorStateList(context, FeatureSettings.isLocationPanelImageEnabled() ? R.color.location_panel_foreground_imageon : R.color.location_panel_foreground_imageoff));
+        setCardForegroundColor(AppCompatResources.getColorStateList(context, FeatureSettings.isLocationPanelImageEnabled() ? R.color.location_panel_foreground_imageon : R.color.location_panel_foreground_imageoff));
 
         mGlide = Glide.with(this);
         showLoading(true);

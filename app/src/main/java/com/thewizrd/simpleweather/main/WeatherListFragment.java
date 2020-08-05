@@ -144,7 +144,7 @@ public class WeatherListFragment extends ToolbarFragment {
 
         // Setup Actionbar
         final Context context = binding.getRoot().getContext();
-        Drawable navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, ActivityUtils.getResourceId(getAppCompatActivity(), R.attr.homeAsUpIndicator)));
+        Drawable navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, R.drawable.ic_arrow_back_white_24dp));
         DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText));
         getToolbar().setNavigationIcon(navIcon);
 

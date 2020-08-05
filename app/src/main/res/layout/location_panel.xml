@@ -16,12 +16,15 @@
     <merge
         tools:context=".controls.LocationPanel"
         tools:layout_height="@dimen/location_panel_height"
+        tools:minWidth="@dimen/location_panel_minwidth"
         tools:parentTag="com.google.android.material.card.MaterialCardView">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/image_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
             app:srcCompat="@color/colorSurface" />
 
         <View
@@ -131,7 +134,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:fontFamily="@font/weathericons"
-                app:hideIfNull="@{viewModel.hiTemp}"
+                app:showIfTrue="@{viewModel.showHiLo}"
                 app:layout_constraintBottom_toTopOf="@id/weather_lo"
                 app:layout_constraintEnd_toStartOf="@id/weather_popicon"
                 app:layout_constraintHorizontal_bias="1.0"
@@ -160,7 +163,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:fontFamily="@font/weathericons"
-                app:hideIfNull="@{viewModel.loTemp}"
+                app:showIfTrue="@{viewModel.showHiLo}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/weather_windicon"
                 app:layout_constraintHorizontal_bias="1.0"
@@ -300,6 +303,7 @@
             android:layout_gravity="center"
             android:indeterminate="true"
             android:indeterminateTint="@color/colorOnSurface"
+            android:indeterminateTintMode="src_in"
             android:visibility="visible" />
 
     </merge>

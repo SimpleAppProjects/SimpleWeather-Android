@@ -8,6 +8,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -92,9 +93,13 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
             swipeFlags = 0;
         } else {
             dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
+            if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
+                dragFlags |= ItemTouchHelper.START | ItemTouchHelper.END;
+            }
 
-            if (swipeEnabled)
+            if (swipeEnabled) {
                 swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+            }
         }
 
         return makeMovementFlags(dragFlags, swipeFlags);
@@ -137,12 +142,12 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
                 int iconBottom = iconTop + deleteIcon.getIntrinsicHeight();
 
                 if (dX > 0) {
-                    deleteBackground.setBounds(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + (int) dX + cornerRadius * 2, itemView.getBottom());
+                    deleteBackground.setBounds(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + itemView.getWidth(), itemView.getBottom());
 
                     iconLeft = itemView.getLeft() + iconMargin;
                     iconRight = itemView.getLeft() + iconMargin + deleteIcon.getIntrinsicWidth();
                 } else if (dX < 0) {
-                    deleteBackground.setBounds(itemView.getRight() + (int) dX - cornerRadius * 2, itemView.getTop(), itemView.getRight(), itemView.getBottom());
+                    deleteBackground.setBounds(itemView.getRight() - itemView.getWidth(), itemView.getTop(), itemView.getRight(), itemView.getBottom());
 
                     iconLeft = itemView.getRight() - iconMargin - deleteIcon.getIntrinsicHeight();
                     iconRight = itemView.getRight() - iconMargin;

@@ -5,6 +5,7 @@
     <dimen name="not_weather_icon_size">48dp</dimen>
     <dimen name="not_weather_icon_marginStart">4dp</dimen>
     <dimen name="not_primary_textSize">14sp</dimen>
+    <dimen name="not_layout_height">72dp</dimen>
 
     <!-- Preferences -->
     <dimen name="preference_no_icon_padding_start" tools:override="true">72dp</dimen>

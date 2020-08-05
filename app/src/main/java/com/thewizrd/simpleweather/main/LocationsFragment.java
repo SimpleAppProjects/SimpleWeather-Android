@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -22,6 +23,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -37,6 +39,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -58,6 +61,7 @@ import com.google.android.material.transition.MaterialFadeThrough;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ListChangedAction;
 import com.thewizrd.shared_resources.helpers.ListChangedArgs;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
@@ -86,6 +90,7 @@ import com.thewizrd.simpleweather.databinding.FragmentLocationsBinding;
 import com.thewizrd.simpleweather.fragments.ToolbarFragment;
 import com.thewizrd.simpleweather.helpers.ItemTouchCallbackListener;
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperCallback;
+import com.thewizrd.simpleweather.helpers.LocationPanelOffsetDecoration;
 import com.thewizrd.simpleweather.helpers.OffsetMargin;
 import com.thewizrd.simpleweather.helpers.SwipeToDeleteOffSetItemDecoration;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
@@ -507,14 +512,44 @@ public class LocationsFragment extends ToolbarFragment
         // in content do not change the layout size of the RecyclerView
         binding.recyclerView.setHasFixedSize(true);
 
-        // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(getAppCompatActivity()) {
-            @Override
-            public RecyclerView.LayoutParams generateDefaultLayoutParams() {
-                return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT);
-            }
-        };
+        if (ActivityUtils.isLargeTablet(getAppCompatActivity())) {
+            // use a linear layout manager
+            final GridLayoutManager gridLayoutManager = new GridLayoutManager(getAppCompatActivity(), 2, GridLayoutManager.VERTICAL, false) {
+                @Override
+                public RecyclerView.LayoutParams generateDefaultLayoutParams() {
+                    return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
+                }
+            };
+            gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                @Override
+                public int getSpanSize(int position) {
+                    switch (mAdapter.getItemViewType(position)) {
+                        case LocationPanelAdapter.ItemType.HEADER_FAV:
+                        case LocationPanelAdapter.ItemType.HEADER_GPS:
+                            return gridLayoutManager.getSpanCount();
+                        default:
+                            return 1;
+                    }
+                }
+            });
+            mLayoutManager = gridLayoutManager;
+            binding.recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+                @Override
+                public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                    super.getItemOffsets(outRect, view, parent, state);
+                }
+            });
+        } else {
+            // use a linear layout manager
+            mLayoutManager = new LinearLayoutManager(getAppCompatActivity()) {
+                @Override
+                public RecyclerView.LayoutParams generateDefaultLayoutParams() {
+                    return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
+                }
+            };
+        }
         binding.recyclerView.setLayoutManager(mLayoutManager);
 
         // Setup RecyclerView
@@ -532,10 +567,6 @@ public class LocationsFragment extends ToolbarFragment
         mITHCallback = new ItemTouchHelperCallback(mAdapter);
         mItemTouchHelper = new ItemTouchHelper(mITHCallback);
         mItemTouchHelper.attachToRecyclerView(binding.recyclerView);
-        SwipeToDeleteOffSetItemDecoration swipeDecor =
-                new SwipeToDeleteOffSetItemDecoration(binding.recyclerView.getContext(), 2f,
-                        OffsetMargin.TOP | OffsetMargin.BOTTOM);
-        mITHCallback.addItemTouchHelperCallbackListener(swipeDecor);
         mITHCallback.addItemTouchHelperCallbackListener(new ItemTouchCallbackListener() {
             private Handler mMainHandler = new Handler(Looper.getMainLooper());
 
@@ -584,7 +615,15 @@ public class LocationsFragment extends ToolbarFragment
                 }
             };
         });
-        binding.recyclerView.addItemDecoration(swipeDecor);
+        if (!ActivityUtils.isLargeTablet(getAppCompatActivity())) {
+            SwipeToDeleteOffSetItemDecoration swipeDecor =
+                    new SwipeToDeleteOffSetItemDecoration(binding.recyclerView.getContext(), 2f,
+                            OffsetMargin.TOP | OffsetMargin.BOTTOM);
+            mITHCallback.addItemTouchHelperCallbackListener(swipeDecor);
+            binding.recyclerView.addItemDecoration(swipeDecor);
+        } else {
+            binding.recyclerView.addItemDecoration(new LocationPanelOffsetDecoration(binding.recyclerView.getContext(), 2f));
+        }
         SimpleItemAnimator animator = new DefaultItemAnimator();
         animator.setSupportsChangeAnimations(false);
         binding.recyclerView.setItemAnimator(animator);
@@ -606,6 +645,33 @@ public class LocationsFragment extends ToolbarFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        adjustPanelContainer();
+    }
+
+    private void adjustPanelContainer() {
+        if (ActivityUtils.isLargeTablet(getAppCompatActivity())) {
+            binding.recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    binding.recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
+
+                    boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
+                    int viewWidth = binding.recyclerView.getMeasuredWidth();
+                    int minColumns = isLandscape ? 2 : 1;
+
+                    // Minimum width for ea. card
+                    int minWidth = getAppCompatActivity().getResources().getDimensionPixelSize(R.dimen.location_panel_minwidth);
+                    // Available columns based on min card width
+                    int availColumns = ((int) (viewWidth / minWidth)) <= 1 ? minColumns : (int) (viewWidth / minWidth);
+
+                    if (binding.recyclerView.getLayoutManager() instanceof GridLayoutManager) {
+                        ((GridLayoutManager) binding.recyclerView.getLayoutManager()).setSpanCount(availColumns);
+                    }
+
+                    return true;
+                }
+            });
+        }
     }
 
     @Override
@@ -618,7 +684,7 @@ public class LocationsFragment extends ToolbarFragment
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-
+        adjustPanelContainer();
         mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount(), LocationPanelAdapter.Payload.IMAGE_UPDATE);
     }
 

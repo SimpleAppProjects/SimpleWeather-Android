@@ -277,7 +277,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         getAppCompatActivity().getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Context context = root.getContext();
-        Drawable navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, ActivityUtils.getResourceId(getAppCompatActivity(), R.attr.homeAsUpIndicator)));
+        Drawable navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, R.drawable.ic_arrow_back_white_24dp));
         DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText));
         getAppCompatActivity().getSupportActionBar().setHomeAsUpIndicator(navIcon);
 
@@ -679,16 +679,16 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         int widgetLayoutRes = 0;
         float viewWidth = 0;
         float viewHeight = 0;
-        float widgetBlockSize = ActivityUtils.dpToPx(getAppCompatActivity(), 90);
+        float widgetBlockSize = ActivityUtils.dpToPx(getAppCompatActivity(), 96);
 
         switch (mWidgetType) {
             case Widget1x1:
                 widgetLayoutRes = R.layout.app_widget_1x1;
-                viewHeight = viewWidth = widgetBlockSize * 1.5f;
+                viewHeight = viewWidth = widgetBlockSize * 1f;
                 break;
             case Widget2x2:
                 widgetLayoutRes = R.layout.app_widget_2x2;
-                viewHeight = viewWidth = widgetBlockSize * 2.25f;
+                viewHeight = viewWidth = widgetBlockSize * 2.5f;
                 break;
             case Widget4x1:
                 widgetLayoutRes = R.layout.app_widget_4x1;
@@ -708,7 +708,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             case Widget4x1Notification:
                 widgetLayoutRes = R.layout.app_widget_4x1_notification;
                 viewWidth = widgetBlockSize * 4;
-                viewHeight = widgetBlockSize * 1.5f;
+                viewHeight = widgetBlockSize * 1.25f;
                 break;
             case Widget4x2Clock:
                 widgetLayoutRes = R.layout.app_widget_4x2_clock;
@@ -718,7 +718,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             case Widget4x2Huawei:
                 widgetLayoutRes = R.layout.app_widget_4x2_huawei;
                 viewWidth = widgetBlockSize * 4;
-                viewHeight = widgetBlockSize * 2.25f;
+                viewHeight = widgetBlockSize * 2f;
                 break;
         }
 
@@ -852,15 +852,11 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         if (WidgetUtils.isClockWidget(mWidgetType)) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 SpannableString timeStr;
-                String timeformat = now.format(DateTimeFormatter.ofPattern("h:mma"));
-                int end = timeformat.length() - 2;
 
                 if (DateFormat.is24HourFormat(App.getInstance().getAppContext())) {
-                    timeformat = now.format(DateTimeFormatter.ofPattern("HH:mm"));
-                    timeStr = new SpannableString(timeformat);
+                    timeStr = new SpannableString(now.format(DateTimeFormatter.ofPattern("HH:mm")));
                 } else {
-                    timeStr = new SpannableString(timeformat);
-                    timeStr.setSpan(new RelativeSizeSpan(0.875f), end, timeformat.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    timeStr = new SpannableString(now.format(DateTimeFormatter.ofPattern("h:mm")));
                 }
 
                 TextView clockView = binding.widgetContainer.findViewById(R.id.clock_panel);
@@ -1047,30 +1043,26 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         final View widgetFrameContainer = binding.scrollView.findViewById(R.id.widget_frame_container);
         final View widgetView = binding.widgetContainer.findViewById(R.id.widget);
 
-        int height = binding.scrollView.getMeasuredHeight();
         int width = binding.scrollView.getMeasuredWidth();
 
         int preferredHeight = (int) ActivityUtils.dpToPx(getAppCompatActivity(), 225);
-        int minHeight = (int) (ActivityUtils.dpToPx(getAppCompatActivity(), 90));
+        int minHeight = (int) (ActivityUtils.dpToPx(getAppCompatActivity(), 96));
 
         if (mWidgetType == WidgetType.Widget2x2 || mWidgetType == WidgetType.Widget4x2) {
-            minHeight *= 2.5f;
+            minHeight *= 2f;
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             TransitionManager.beginDelayedTransition(binding.scrollView, new AutoTransition());
         }
 
-        ViewGroup.LayoutParams layoutParams = widgetFrameContainer.getLayoutParams();
-
         if (getAppCompatActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            layoutParams.height = preferredHeight;
+            widgetFrameContainer.setMinimumHeight(preferredHeight);
         } else {
             if (mWidgetType == WidgetType.Widget1x1 || mWidgetType == WidgetType.Widget4x1Google) {
                 minHeight *= 1.5f;
             }
-
-            layoutParams.height = minHeight;
+            widgetFrameContainer.setMinimumHeight(minHeight);
         }
 
         if (widgetView != null) {
@@ -1081,8 +1073,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             widgetParams.gravity = Gravity.CENTER;
             widgetView.setLayoutParams(widgetParams);
         }
-
-        widgetFrameContainer.setLayoutParams(layoutParams);
     }
 
     @Override

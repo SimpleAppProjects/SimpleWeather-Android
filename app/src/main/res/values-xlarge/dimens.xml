@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- WeatherNow -->
-    <dimen name="weather_icon_size">88sp</dimen>
-    <dimen name="weather_condition_size">28sp</dimen>
     <!-- Forecast -->
     <dimen name="forecast_condition_size">16sp</dimen>
 </resources>

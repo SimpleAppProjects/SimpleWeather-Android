@@ -43,6 +43,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private CharSequence hiTemp;
     private CharSequence loTemp;
     private CharSequence hiLoTemp;
+    private boolean showHiLo;
 
     // Weather Details
     private SunPhaseViewModel sunPhase;
@@ -104,6 +105,11 @@ public class WeatherNowViewModel extends ObservableViewModel {
     @Bindable
     public CharSequence getHiLoTemp() {
         return hiLoTemp;
+    }
+
+    @Bindable
+    public boolean isShowHiLo() {
+        return showHiLo;
     }
 
     @Bindable
@@ -304,6 +310,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         }
 
         {
+            boolean shouldHideHi = false, shouldHideLo = false;
             SpannableStringBuilder hiTempBuilder = new SpannableStringBuilder();
             if (weather.getCondition().getHighF() != null &&
                     !ObjectsCompat.equals(weather.getCondition().getHighF(), weather.getCondition().getHighC())) {
@@ -311,6 +318,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                         .append("°");
             } else {
                 hiTempBuilder.append("--°");
+                shouldHideHi = true;
             }
 
             int idx = hiTempBuilder.length();
@@ -327,6 +335,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                         .append("°");
             } else {
                 loTempBuilder.append("--°");
+                shouldHideLo = true;
             }
 
             idx = loTempBuilder.length();
@@ -335,6 +344,9 @@ public class WeatherNowViewModel extends ObservableViewModel {
             loTempBuilder.setSpan(new WeatherIconTextSpan(context), idx, idx + 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             loTemp = loTempBuilder;
             notifyPropertyChanged(BR.loTemp);
+
+            showHiLo = !shouldHideHi && !shouldHideLo;
+            notifyPropertyChanged(BR.showHiLo);
         }
 
         hiLoTemp = new SpannableStringBuilder().append(hiTemp).append("  |  ").append(loTemp);

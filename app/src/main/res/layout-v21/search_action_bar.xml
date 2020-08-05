@@ -55,6 +55,7 @@
             android:layout_height="0dp"
             android:indeterminate="true"
             android:indeterminateTint="@color/invButtonColorText"
+            android:indeterminateTintMode="src_in"
             android:paddingStart="0dp"
             android:paddingEnd="16dp"
             android:visibility="gone"

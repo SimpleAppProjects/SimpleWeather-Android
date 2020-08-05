@@ -879,6 +879,7 @@ public class WeatherNowFragment extends WindowColorFragment
         }
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void onDestroyView() {
         if (binding != null) {
@@ -908,13 +909,12 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.refreshLayout.setColorSchemeColors(ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
 
         // Resize necessary views
-        binding.getRoot().getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        binding.conditionPanel.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
-            public void onGlobalLayout() {
-                if (!isAlive()) return;
-                binding.getRoot().getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
+            public boolean onPreDraw() {
+                binding.conditionPanel.getViewTreeObserver().removeOnPreDrawListener(this);
                 adjustConditionPanelLayout();
+                return true;
             }
         });
 
@@ -1194,10 +1194,10 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     private void adjustConditionPanelLayout() {
-        binding.conditionPanel.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+        binding.conditionPanel.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
-            public boolean onPreDraw() {
-                binding.conditionPanel.getViewTreeObserver().removeOnPreDrawListener(this);
+            public void onGlobalLayout() {
+                binding.conditionPanel.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                 int height = binding.refreshLayout.getMeasuredHeight();
                 ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) binding.conditionPanel.getLayoutParams();
@@ -1206,38 +1206,48 @@ public class WeatherNowFragment extends WindowColorFragment
                 } else {
                     lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                 }
-                binding.conditionPanel.setLayoutParams(lp);
 
-                return true;
+                if (ActivityUtils.isLargeTablet(getAppCompatActivity())) {
+                    int viewWidth = binding.conditionPanel.getMeasuredWidth();
+                    int maxWidth = (int) ActivityUtils.dpToPx(getAppCompatActivity(), 640f);
+
+                    boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
+
+                    if (isLandscape && viewWidth > maxWidth)
+                        lp.width = maxWidth;
+                    else
+                        lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+                }
+
+                binding.conditionPanel.setLayoutParams(lp);
             }
         });
 
         binding.weatherIcon.setLayoutParams(binding.weatherIcon.getLayoutParams());
 
-        binding.scrollView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+        binding.scrollView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
-            public boolean onPreDraw() {
-                binding.scrollView.getViewTreeObserver().removeOnPreDrawListener(this);
+            public void onGlobalLayout() {
+                binding.scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                 if (ActivityUtils.isLargeTablet(getAppCompatActivity())) {
-                    if (binding.scrollView.getChildCount() < 1) {
-                        int viewWidth = binding.scrollView.getWidth();
+                    if (binding.scrollView.getChildCount() == 1) {
+                        int viewWidth = binding.scrollView.getMeasuredWidth();
+                        int maxWidth = (int) ActivityUtils.dpToPx(getAppCompatActivity(), 1080f);
 
                         ViewGroup.LayoutParams lp = binding.scrollView.getChildAt(0).getLayoutParams();
                         boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
 
-                        if (isLandscape)
-                            lp.width = (int) (viewWidth * (0.75));
+                        if (isLandscape && viewWidth > maxWidth)
+                            lp.width = maxWidth;
                         else
                             lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
                     }
                 }
 
-                return true;
+                adjustDetailsLayout();
             }
         });
-
-        adjustDetailsLayout();
     }
 
     private void adjustDetailsLayout() {
@@ -1246,19 +1256,19 @@ public class WeatherNowFragment extends WindowColorFragment
 
         final WeathernowDetailscontainerBinding detailsBinding = (WeathernowDetailscontainerBinding) binding.detailsControl.getBinding();
 
-        detailsBinding.detailsContainer.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+        detailsBinding.detailsContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
-            public boolean onPreDraw() {
-                detailsBinding.detailsContainer.getViewTreeObserver().removeOnPreDrawListener(this);
+            public void onGlobalLayout() {
+                detailsBinding.detailsContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-                float pxWidth = binding.scrollView.getChildAt(0).getWidth();
+                int pxWidth = binding.scrollView.getChildAt(0).getMeasuredWidth();
 
                 int minColumns = ActivityUtils.isLargeTablet(getAppCompatActivity()) ? 3 : 2;
 
                 // Minimum width for ea. card
                 int minWidth = getAppCompatActivity().getResources().getDimensionPixelSize(R.dimen.detail_grid_column_width);
                 // Available columns based on min card width
-                int availColumns = ((int) (pxWidth / minWidth)) <= 1 ? minColumns : (int) (pxWidth / minWidth);
+                int availColumns = ((pxWidth / minWidth)) <= 1 ? minColumns : (pxWidth / minWidth);
 
                 detailsBinding.detailsContainer.setNumColumns(availColumns);
 
@@ -1269,8 +1279,6 @@ public class WeatherNowFragment extends WindowColorFragment
                 int itemSpacing = availColumns < 3 ? horizMargin * (availColumns - 1) : horizMargin * marginMultiplier;
                 detailsBinding.detailsContainer.setHorizontalSpacing(itemSpacing);
                 detailsBinding.detailsContainer.setVerticalSpacing(itemSpacing);
-
-                return true;
             }
         });
     }

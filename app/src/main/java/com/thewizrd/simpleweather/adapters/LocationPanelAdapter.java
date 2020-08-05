@@ -601,7 +601,8 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         private List<Pair<Integer, LocationPanelViewModel>> panelPairs;
 
         PanelDeleteHandler(LocationPanelViewModel panel) {
-            panelPairs = Collections.singletonList(new Pair<>(mDataset.indexOf(panel), panel));
+            panelPairs = new ArrayList<>(1);
+            panelPairs.add(new Pair<>(mDataset.indexOf(panel), panel));
         }
 
         PanelDeleteHandler(List<LocationPanelViewModel> panels) {

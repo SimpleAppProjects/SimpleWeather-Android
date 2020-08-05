@@ -27,6 +27,7 @@ public class LocationPanelViewModel {
     private String weatherIcon;
     private String hiTemp;
     private String loTemp;
+    private boolean showHiLo;
     private String pop;
     private String popIcon;
     private int windDir;
@@ -61,6 +62,10 @@ public class LocationPanelViewModel {
 
     public String getLoTemp() {
         return loTemp;
+    }
+
+    public boolean isShowHiLo() {
+        return showHiLo;
     }
 
     public String getPop() {
@@ -158,6 +163,8 @@ public class LocationPanelViewModel {
             } else {
                 loTemp = "--";
             }
+
+            showHiLo = !ObjectsCompat.equals(hiTemp, loTemp);
 
             if (weather.getCondition().getWindMph() != null && weather.getCondition().getWindMph() >= 0 &&
                     weather.getCondition().getWindDegrees() != null && weather.getCondition().getWindDegrees() >= 0) {
