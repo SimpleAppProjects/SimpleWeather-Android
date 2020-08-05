@@ -466,10 +466,9 @@ public class WeatherNowFragment extends WindowColorFragment
 
                 // Default adj = 1.25
                 float adj = 1.25f;
-                int backAlpha = 0xFF - (int) (0xFF * adj * scrollY / (binding.refreshLayout.getHeight()));
-                float gradAlpha = 1.0f - (1.0f * adj * scrollY / (binding.refreshLayout.getHeight()));
-                binding.imageView.setImageAlpha(Math.max(backAlpha, 0x25));
-                binding.gradientView.setAlpha(Math.max(gradAlpha, 0));
+                float alpha = 1.0f - (1.0f * adj * scrollY / (binding.refreshLayout.getHeight()));
+                binding.imageView.setAlpha(Math.max(alpha, 37 / 255f));
+                binding.gradientView.setAlpha(Math.max(alpha, 0));
 
                 int offset = v.computeVerticalScrollOffset();
                 if (offset > 0) {
@@ -845,11 +844,14 @@ public class WeatherNowFragment extends WindowColorFragment
             @Override
             public boolean onPreDraw() {
                 binding.scrollView.getViewTreeObserver().removeOnPreDrawListener(this);
+                binding.imageView.setAlpha(wNowViewModel.getImageAlpha());
+                binding.gradientView.setAlpha(wNowViewModel.getGradientAlpha());
                 binding.scrollView.postOnAnimationDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if (isAlive())
+                        if (isAlive()) {
                             binding.scrollView.smoothScrollTo(0, wNowViewModel.getScrollViewPosition());
+                        }
                     }
                 }, 100);
                 return true;
@@ -876,6 +878,8 @@ public class WeatherNowFragment extends WindowColorFragment
                 webView.destroy();
             }
             wNowViewModel.setScrollViewPosition(binding.scrollView.computeVerticalScrollOffset());
+            wNowViewModel.setImageAlpha(binding.imageView.getAlpha());
+            wNowViewModel.setGradientAlpha(binding.gradientView.getAlpha());
         }
         binding = null;
         super.onDestroyView();
@@ -1098,6 +1102,10 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     private void restore() {
+        // Reset position
+        wNowViewModel.setScrollViewPosition(0);
+        binding.scrollView.smoothScrollTo(0, 0);
+
         AsyncTask.create(new Callable<Boolean>() {
             @Override
             public Boolean call() {
@@ -1511,7 +1519,9 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     public static class WeatherNowFragmentStateModel extends ViewModel {
-        private int scrollViewPosition;
+        private int scrollViewPosition = 0;
+        private float imageAlpha = 1.0f;
+        private float gradientAlpha = 0f;
 
         public int getScrollViewPosition() {
             return scrollViewPosition;
@@ -1519,6 +1529,22 @@ public class WeatherNowFragment extends WindowColorFragment
 
         public void setScrollViewPosition(int scrollViewPosition) {
             this.scrollViewPosition = scrollViewPosition;
+        }
+
+        public float getImageAlpha() {
+            return imageAlpha;
+        }
+
+        public void setImageAlpha(float imageAlpha) {
+            this.imageAlpha = imageAlpha;
+        }
+
+        public float getGradientAlpha() {
+            return gradientAlpha;
+        }
+
+        public void setGradientAlpha(float gradientAlpha) {
+            this.gradientAlpha = gradientAlpha;
         }
     }
 
