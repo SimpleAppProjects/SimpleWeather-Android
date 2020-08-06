@@ -84,3 +84,7 @@
 -keepattributes InnerClasses
 # Keep custom model classes
 -keep class com.thewizrd.shared_resources.weatherdata.images.model.** { *; }
+# Navigation
+-keep public enum com.thewizrd.simpleweather.main.WeatherListType {
+  public *;
+}
