@@ -40,6 +40,7 @@
         android:tint="@android:color/white" />
 
     <LinearLayout
+        android:id="@+id/layout_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"

@@ -820,7 +820,11 @@ public class WeatherWidgetService extends JobIntentService {
                     boolean isSmallHeight = ((float) maxCellHeight / cellHeight) <= 1.5f;
                     boolean isSmallWidth = ((float) maxCellWidth / cellWidth) <= 1.5f;
 
-                    if (widgetType != WidgetType.Widget4x2Clock && widgetType != WidgetType.Widget4x2Huawei) {
+                    if (widgetType == WidgetType.Widget4x2Huawei) {
+                        views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_SP, cellWidth <= 3 ? 48 : 60);
+                    } else if (widgetType == WidgetType.Widget4x2Clock) {
+                        views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_SP, isSmallHeight && cellHeight <= 2 ? 54 : 60);
+                    } else {
                         float clockTextSize = mContext.getResources().getDimensionPixelSize(R.dimen.clock_text_size); // 36sp
 
                         if ((isSmallHeight && cellHeight <= 2) || cellWidth < 4) {
@@ -831,8 +835,6 @@ public class WeatherWidgetService extends JobIntentService {
                         }
 
                         views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_PX, clockTextSize);
-                    } else if (widgetType == WidgetType.Widget4x2Huawei) {
-                        views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_SP, cellWidth <= 3 ? 48 : 60);
                     }
 
                     // Update clock widgets
@@ -1298,6 +1300,7 @@ public class WeatherWidgetService extends JobIntentService {
                 textSize = ActivityUtils.dpToPx(mContext, 28f);
 
             updateViews.setTextViewTextSize(R.id.condition_temp, TypedValue.COMPLEX_UNIT_PX, textSize);
+            updateViews.setViewVisibility(R.id.condition_weather, isSmallHeight && cellHeight <= 2 ? View.GONE : View.VISIBLE);
         } else if (provider.getWidgetType() == WidgetType.Widget4x1) {
             int textSize = 14, locTextSize = 12;
             if (cellHeight > 1 && (!isSmallWidth || cellWidth > 4)) {
