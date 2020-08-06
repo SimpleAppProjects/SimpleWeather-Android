@@ -211,15 +211,28 @@ public class WeatherNowFragment extends WindowColorFragment
         public void onChanged(final Weather weather) {
             if (weather != null && weather.isValid()) {
                 weatherView.updateView(weather);
-                weatherView.updateBackground();
 
-                String backgroundUri = weatherView.getImageData() != null ? weatherView.getImageData().getImageURI() : null;
-                if (FeatureSettings.isBackgroundImageEnabled() && (!ObjectsCompat.equals(binding.imageView.getTag(), backgroundUri) || binding.imageView.getTag(R.id.glide_custom_view_target_tag) == null)) {
-                    loadBackgroundImage(backgroundUri, false);
-                } else {
-                    binding.refreshLayout.setRefreshing(false);
-                    binding.scrollView.setVisibility(View.VISIBLE);
-                }
+                AsyncTask.create(new Callable<Void>() {
+                    @Override
+                    public Void call() {
+                        weatherView.updateBackground();
+                        return null;
+                    }
+                }).addOnCompleteListener(getAppCompatActivity(), new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (binding == null) return;
+
+                        String backgroundUri = weatherView.getImageData() != null ? weatherView.getImageData().getImageURI() : null;
+                        if (FeatureSettings.isBackgroundImageEnabled() && (!ObjectsCompat.equals(binding.imageView.getTag(), backgroundUri) || binding.imageView.getTag(R.id.glide_custom_view_target_tag) == null)) {
+                            loadBackgroundImage(backgroundUri, false);
+                        } else {
+                            binding.refreshLayout.setRefreshing(false);
+                            binding.scrollView.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+
                 forecastsView.updateForecasts(locationData);
                 alertsView.updateAlerts(locationData);
 

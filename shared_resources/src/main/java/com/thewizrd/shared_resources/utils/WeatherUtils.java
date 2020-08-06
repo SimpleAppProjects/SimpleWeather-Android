@@ -7,6 +7,7 @@ import android.util.SparseArray;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.WorkerThread;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
@@ -518,9 +519,10 @@ public class WeatherUtils {
         return weatherIcon;
     }
 
+    @WorkerThread
     public static ImageDataViewModel getImageData(@NonNull Weather weather) {
         String icon = weather.getCondition().getIcon();
-        String backgroundCode = null;
+        String backgroundCode;
         WeatherManager wm = WeatherManager.getInstance();
 
         // Apply background based on weather condition

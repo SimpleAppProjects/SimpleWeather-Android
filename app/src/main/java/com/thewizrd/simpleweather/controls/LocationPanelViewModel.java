@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.controls;
 
+import androidx.annotation.WorkerThread;
 import androidx.core.util.ObjectsCompat;
 
 import com.thewizrd.shared_resources.AsyncTask;
@@ -202,6 +203,7 @@ public class LocationPanelViewModel {
         }
     }
 
+    @WorkerThread
     public void updateBackground() {
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override

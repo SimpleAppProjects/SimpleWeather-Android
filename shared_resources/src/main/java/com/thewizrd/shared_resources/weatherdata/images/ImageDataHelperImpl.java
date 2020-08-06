@@ -2,12 +2,16 @@ package com.thewizrd.shared_resources.weatherdata.images;
 
 import android.net.Uri;
 
+import androidx.annotation.WorkerThread;
+
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.images.model.ImageData;
 
 public abstract class ImageDataHelperImpl {
+    @WorkerThread
     public abstract ImageData getCachedImageData(String backgroundCode);
 
+    @WorkerThread
     public ImageData getRemoteImageData(String backgroundCode) {
         ImageData imageData = ImageDatabase.getRandomImageForCondition(backgroundCode);
 
@@ -19,6 +23,7 @@ public abstract class ImageDataHelperImpl {
         return null;
     }
 
+    @WorkerThread
     public ImageData cacheImage(ImageData imageData) {
         Uri imageUri = Uri.parse(imageData.getImageURL());
         if ("gs".equals(imageUri.getScheme()) || "https".equals(imageUri.getScheme()) || "http".equals(imageUri.getScheme())) {
@@ -32,11 +37,15 @@ public abstract class ImageDataHelperImpl {
         return null;
     }
 
+    @WorkerThread
     protected abstract ImageData storeImage(Uri imageUri, ImageData imageData);
 
+    @WorkerThread
     public abstract void clearCachedImageData();
 
+    @WorkerThread
     public abstract ImageData getDefaultImageData(String backgroundCode, Weather weather);
 
+    @WorkerThread
     public abstract boolean isEmpty();
 }

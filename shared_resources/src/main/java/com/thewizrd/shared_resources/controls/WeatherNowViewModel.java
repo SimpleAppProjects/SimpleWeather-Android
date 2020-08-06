@@ -7,6 +7,7 @@ import android.text.format.DateFormat;
 import android.text.style.TypefaceSpan;
 import android.util.Log;
 
+import androidx.annotation.WorkerThread;
 import androidx.core.util.ObjectsCompat;
 import androidx.databinding.Bindable;
 
@@ -570,6 +571,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         notifyChange();
     }
 
+    @WorkerThread
     public void updateBackground() {
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override

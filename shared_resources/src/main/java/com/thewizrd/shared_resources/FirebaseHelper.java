@@ -11,8 +11,12 @@ import com.thewizrd.shared_resources.utils.Logger;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class FirebaseHelper {
+    private static boolean sHasSignInFailed;
+
     public static FirebaseFirestore getFirestoreDB() {
         checkSignIn();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -52,14 +56,17 @@ public class FirebaseHelper {
 
     private static void checkSignIn() {
         final FirebaseAuth auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() == null) {
+        if (auth.getCurrentUser() == null && !sHasSignInFailed) {
             new AsyncTask<Void>().await(new Callable<Void>() {
                 @Override
                 public Void call() {
                     try {
-                        Tasks.await(auth.signInAnonymously());
-                    } catch (ExecutionException | InterruptedException e) {
+                        Tasks.await(auth.signInAnonymously(), 15, TimeUnit.SECONDS);
+                    } catch (ExecutionException | InterruptedException | TimeoutException e) {
                         Logger.writeLine(Log.ERROR, e, "Firebase: failed to sign in");
+                        if (e instanceof TimeoutException) {
+                            sHasSignInFailed = true;
+                        }
                     }
                     return null;
                 }

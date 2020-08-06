@@ -291,6 +291,10 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
             // - replace the contents of the view with that element
             final LocationPanelViewModel panelView = getPanelViewModel(position);
 
+            if (!imageUpdateOnly) {
+                vHolder.bind(panelView);
+            }
+
             // Background
             vHolder.mLocView.post(new Runnable() {
                 @Override
@@ -300,10 +304,6 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
                     }
                 }
             });
-
-            if (!imageUpdateOnly) {
-                vHolder.bind(panelView);
-            }
         }
     }
 

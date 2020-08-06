@@ -58,6 +58,8 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.transition.MaterialFadeThrough;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -95,6 +97,8 @@ import com.thewizrd.simpleweather.helpers.OffsetMargin;
 import com.thewizrd.simpleweather.helpers.SwipeToDeleteOffSetItemDecoration;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
+
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -168,40 +172,51 @@ public class LocationsFragment extends ToolbarFragment
             LocationPanelViewModel panel = null;
 
             if (location.getLocationType() == LocationType.GPS) {
-                for (LocationPanelViewModel panelVM : dataSet) {
-                    if (panelVM.getLocationData().getLocationType().equals(LocationType.GPS)) {
-                        panel = panelVM;
-                        break;
+                panel = Iterables.find(dataSet, new Predicate<LocationPanelViewModel>() {
+                    @Override
+                    public boolean apply(@NullableDecl LocationPanelViewModel input) {
+                        return input != null && input.getLocationData().getLocationType().equals(LocationType.GPS);
                     }
-                }
+                }, null);
             } else {
-                for (LocationPanelViewModel panelVM : dataSet) {
-                    if (!panelVM.getLocationData().getLocationType().equals(LocationType.GPS)
-                            && panelVM.getLocationData().getQuery().equals(location.getQuery())) {
-                        panel = panelVM;
-                        break;
+                panel = Iterables.find(dataSet, new Predicate<LocationPanelViewModel>() {
+                    @Override
+                    public boolean apply(@NullableDecl LocationPanelViewModel input) {
+                        return input != null && !input.getLocationData().getLocationType().equals(LocationType.GPS) && input.getLocationData().getQuery().equals(location.getQuery());
                     }
-                }
+                }, null);
             }
 
             // Just in case
             if (panel == null) {
                 AnalyticsLogger.logEvent("LocationsFragment: panel == null");
-                for (LocationPanelViewModel panelVM : dataSet) {
-                    if (panelVM.getLocationData().getName().equals(location.getName()) &&
-                            panelVM.getLocationData().getLatitude() == location.getLatitude() &&
-                            panelVM.getLocationData().getLongitude() == location.getLongitude() &&
-                            panelVM.getLocationData().getTzLong().equals(location.getTzLong())) {
-                        panel = panelVM;
-                        break;
+                panel = Iterables.find(dataSet, new Predicate<LocationPanelViewModel>() {
+                    @Override
+                    public boolean apply(@NullableDecl LocationPanelViewModel input) {
+                        return input != null && input.getLocationData().getName().equals(location.getName()) &&
+                                input.getLocationData().getLatitude() == location.getLatitude() &&
+                                input.getLocationData().getLongitude() == location.getLongitude() &&
+                                input.getLocationData().getTzLong().equals(location.getTzLong());
                     }
-                }
+                }, null);
             }
 
             if (panel != null) {
                 panel.setWeather(weather);
-                panel.updateBackground();
                 mAdapter.notifyItemChanged(mAdapter.getViewPosition(panel));
+                final LocationPanelViewModel finalPanel = panel;
+                AsyncTask.create(new Callable<Void>() {
+                    @Override
+                    public Void call() {
+                        finalPanel.updateBackground();
+                        return null;
+                    }
+                }).addOnCompleteListener(getAppCompatActivity(), new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        mAdapter.notifyItemChanged(mAdapter.getViewPosition(finalPanel), LocationPanelAdapter.Payload.IMAGE_UPDATE);
+                    }
+                });
             } else {
                 Logger.writeLine(Log.WARN, "LocationsFragment: Location panel not found");
                 Logger.writeLine(Log.WARN, "LocationsFragment: LocationData: %s", location.toString());

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.WorkerThread;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.tasks.Tasks;
@@ -30,6 +31,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 public class ImageDatabase {
+    @WorkerThread
     public static List<ImageData> getAllImageDataForCondition(final String backgroundCode) {
         return new AsyncTask<List<ImageData>>().await(new Callable<List<ImageData>>() {
             @Override
@@ -78,6 +80,7 @@ public class ImageDatabase {
         });
     }
 
+    @WorkerThread
     public static ImageData getRandomImageForCondition(final String backgroundCode) {
         return new AsyncTask<ImageData>().await(new Callable<ImageData>() {
             @Override
@@ -135,6 +138,7 @@ public class ImageDatabase {
         });
     }
 
+    @WorkerThread
     private static void saveSnapshot(@NonNull final FirebaseFirestore db) {
         new AsyncTask<Void>().await(new Callable<Void>() {
             @Override
@@ -158,6 +162,7 @@ public class ImageDatabase {
         });
     }
 
+    @WorkerThread
     public static long getLastUpdateTime() {
         return new AsyncTask<Long>().await(new Callable<Long>() {
             @Override

@@ -3,7 +3,6 @@ package com.thewizrd.simpleweather.controls;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -23,12 +22,17 @@ import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.card.MaterialCardView;
+import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.LocationPanelBinding;
 import com.thewizrd.simpleweather.preferences.FeatureSettings;
+
+import java.util.concurrent.Callable;
 
 public class LocationPanel extends MaterialCardView {
     private LocationPanelBinding binding;
@@ -65,10 +69,6 @@ public class LocationPanel extends MaterialCardView {
         colorDrawable = new ColorDrawable(ContextCompat.getColor(context, R.color.colorSurface));
         overlayDrawable = ContextCompat.getDrawable(context, R.drawable.background_overlay);
 
-        // NOTE: Bug: Explicitly set tintmode on Lollipop devices
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP)
-            binding.progressBar.setIndeterminateTintMode(PorterDuff.Mode.SRC_IN);
-
         // Remove extra (compat) padding on pre-Lollipop devices
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             setPreventCornerOverlap(false);
@@ -92,52 +92,65 @@ public class LocationPanel extends MaterialCardView {
         setWeatherBackground(panelView, false);
     }
 
-    public void setWeatherBackground(LocationPanelViewModel panelView, boolean skipCache) {
-        if (panelView.getImageData() == null)
-            panelView.updateBackground();
+    public void setWeatherBackground(final LocationPanelViewModel panelView, final boolean skipCache) {
+        AsyncTask.create(new Callable<Void>() {
+            @Override
+            public Void call() {
+                if (panelView.getImageData() == null) {
+                    panelView.updateBackground();
+                }
+                return null;
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                String backgroundUri = panelView.getImageData() != null ?
+                        panelView.getImageData().getImageURI() : null;
 
-        String backgroundUri = panelView.getImageData() != null ?
-                panelView.getImageData().getImageURI() : null;
+                // Background
+                if (FeatureSettings.isLocationPanelImageEnabled() && backgroundUri != null) {
+                    mGlide.asBitmap()
+                            .load(backgroundUri)
+                            .apply(RequestOptions
+                                    .centerCropTransform()
+                                    .format(DecodeFormat.PREFER_RGB_565)
+                                    .error(colorDrawable)
+                                    .placeholder(colorDrawable)
+                                    .skipMemoryCache(skipCache))
+                            .transition(BitmapTransitionOptions.withCrossFade())
+                            .into(new BitmapImageViewTarget(binding.imageView) {
+                                @Override
+                                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                    super.onResourceReady(resource, transition);
+                                    binding.imageOverlay.setBackground(overlayDrawable);
+                                    showLoading(false);
+                                }
 
-        // Background
-        if (FeatureSettings.isLocationPanelImageEnabled() && backgroundUri != null) {
-            mGlide.asBitmap()
-                    .load(backgroundUri)
-                    .apply(RequestOptions
-                            .centerCropTransform()
-                            .format(DecodeFormat.PREFER_RGB_565)
-                            .error(colorDrawable)
-                            .placeholder(colorDrawable)
-                            .skipMemoryCache(skipCache))
-                    .transition(BitmapTransitionOptions.withCrossFade())
-                    .into(new BitmapImageViewTarget(binding.imageView) {
-                        @Override
-                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                            super.onResourceReady(resource, transition);
-                            binding.imageOverlay.setBackground(overlayDrawable);
-                        }
+                                @Override
+                                public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                                    super.onLoadFailed(errorDrawable);
+                                    binding.imageOverlay.setBackground(null);
+                                }
 
-                        @Override
-                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                            super.onLoadFailed(errorDrawable);
-                            binding.imageOverlay.setBackground(null);
-                        }
+                                @Override
+                                public void onLoadCleared(@Nullable Drawable placeholder) {
+                                    super.onLoadCleared(placeholder);
+                                    binding.imageOverlay.setBackground(null);
+                                }
 
-                        @Override
-                        public void onLoadCleared(@Nullable Drawable placeholder) {
-                            super.onLoadCleared(placeholder);
-                            binding.imageOverlay.setBackground(null);
-                        }
-
-                        @Override
-                        public void onLoadStarted(@Nullable Drawable placeholder) {
-                            super.onLoadStarted(placeholder);
-                            binding.imageOverlay.setBackground(null);
-                        }
-                    });
-        } else {
-            clearBackground();
-        }
+                                @Override
+                                public void onLoadStarted(@Nullable Drawable placeholder) {
+                                    super.onLoadStarted(placeholder);
+                                    showLoading(true);
+                                    binding.imageOverlay.setBackground(null);
+                                }
+                            });
+                } else {
+                    clearBackground();
+                    showLoading(false);
+                }
+            }
+        });
     }
 
     public void clearBackground() {
@@ -157,7 +170,8 @@ public class LocationPanel extends MaterialCardView {
 
         this.setTag(model.getLocationData());
 
-        if (model.getLocationName() != null && getTag() != null)
+        if (FeatureSettings.isLocationPanelImageEnabled() && model.getImageData() != null ||
+                !FeatureSettings.isLocationPanelImageEnabled() && model.getLocationName() != null && getTag() != null)
             showLoading(false);
     }
 
