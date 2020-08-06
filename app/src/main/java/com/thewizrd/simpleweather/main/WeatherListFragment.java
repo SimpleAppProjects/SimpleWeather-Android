@@ -217,6 +217,8 @@ public class WeatherListFragment extends ToolbarFragment {
                 return true;
             }
         });
+
+        binding.progressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -348,6 +350,7 @@ public class WeatherListFragment extends ToolbarFragment {
                                     layoutManager.scrollToPositionWithOffset(args.getPosition(), 0);
                                 }
                             });
+                            binding.progressBar.setVisibility(View.GONE);
                         }
                     }
 
@@ -393,9 +396,43 @@ public class WeatherListFragment extends ToolbarFragment {
                         alertAdapter.updateItems(alerts);
                     }
                 });
+                alertAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                    @Override
+                    public void onChanged() {
+                        alertAdapter.unregisterAdapterDataObserver(this);
+                        binding.progressBar.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onItemRangeChanged(int positionStart, int itemCount) {
+                        onChanged();
+                    }
+
+                    @Override
+                    public void onItemRangeChanged(int positionStart, int itemCount, @Nullable Object payload) {
+                        onChanged();
+                    }
+
+                    @Override
+                    public void onItemRangeInserted(int positionStart, int itemCount) {
+                        onChanged();
+                    }
+
+                    @Override
+                    public void onItemRangeRemoved(int positionStart, int itemCount) {
+                        onChanged();
+                    }
+
+                    @Override
+                    public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+                        onChanged();
+                    }
+                });
                 break;
             default:
                 binding.recyclerView.setAdapter(null);
+                binding.progressBar.setVisibility(View.GONE);
+                break;
         }
     }
 
