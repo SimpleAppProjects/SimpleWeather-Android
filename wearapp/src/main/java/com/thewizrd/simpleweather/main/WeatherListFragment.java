@@ -25,6 +25,7 @@ import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -93,8 +94,8 @@ public class WeatherListFragment extends SwipeDismissFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         // Use this to return your custom view for this Fragment
-        View outerView = super.onCreateView(inflater, container, savedInstanceState);
-        binding = FragmentWeatherListBinding.inflate(inflater, (ViewGroup) outerView, true);
+        ViewGroup outerView = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
+        binding = FragmentWeatherListBinding.inflate(inflater, outerView);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -116,6 +117,8 @@ public class WeatherListFragment extends SwipeDismissFragment {
         weatherView = vmProvider.get(WeatherNowViewModel.class);
         alertsView = vmProvider.get(WeatherAlertsViewModel.class);
         forecastsView = vmProvider.get(ForecastsViewModel.class);
+
+        binding.progressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -157,6 +160,15 @@ public class WeatherListFragment extends SwipeDismissFragment {
                         detailsAdapter = (ForecastItemAdapter) adapter;
                     }
 
+                    detailsAdapter.registerAdapterDataObserver(new SimpleRecyclerViewAdapterObserver() {
+                        @Override
+                        public void onChanged() {
+                            super.onChanged();
+                            detailsAdapter.unregisterAdapterDataObserver(this);
+                            binding.progressBar.setVisibility(View.GONE);
+                        }
+                    });
+
                     if (weatherType == WeatherListType.FORECAST) {
                         forecastsView.getForecasts().removeObservers(WeatherListFragment.this);
                         forecastsView.getForecasts().observe(WeatherListFragment.this, new Observer<PagedList<ForecastItemViewModel>>() {
@@ -186,6 +198,15 @@ public class WeatherListFragment extends SwipeDismissFragment {
                     } else {
                         alertAdapter = (WeatherAlertPanelAdapter) adapter;
                     }
+
+                    alertAdapter.registerAdapterDataObserver(new SimpleRecyclerViewAdapterObserver() {
+                        @Override
+                        public void onChanged() {
+                            super.onChanged();
+                            alertAdapter.unregisterAdapterDataObserver(this);
+                            binding.progressBar.setVisibility(View.GONE);
+                        }
+                    });
 
                     alertsView.getAlerts().removeObservers(WeatherListFragment.this);
                     alertsView.getAlerts().observe(WeatherListFragment.this, new Observer<List<WeatherAlertViewModel>>() {

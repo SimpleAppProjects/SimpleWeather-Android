@@ -54,7 +54,7 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         // Use this to return your custom view for this Fragment
         View outerView = super.onCreateView(inflater, container, savedInstanceState);
-        binding = FragmentWeatherListBinding.inflate(inflater, (ViewGroup) outerView, true);
+        binding = FragmentWeatherListBinding.inflate(inflater, (ViewGroup) outerView);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView

@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
+import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.AppItemLayoutBinding;
 import com.thewizrd.simpleweather.databinding.DialogAppchooserBinding;
@@ -114,37 +115,12 @@ public class AppChoiceDialogBuilder {
             }
         });
 
-        mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+        mAdapter.registerAdapterDataObserver(new SimpleRecyclerViewAdapterObserver() {
             @Override
             public void onChanged() {
                 super.onChanged();
                 binding.progressBar.setVisibility(View.GONE);
                 mAdapter.unregisterAdapterDataObserver(this);
-            }
-
-            @Override
-            public void onItemRangeChanged(int positionStart, int itemCount) {
-                onChanged();
-            }
-
-            @Override
-            public void onItemRangeChanged(int positionStart, int itemCount, @Nullable Object payload) {
-                onChanged();
-            }
-
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                onChanged();
-            }
-
-            @Override
-            public void onItemRangeRemoved(int positionStart, int itemCount) {
-                onChanged();
-            }
-
-            @Override
-            public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
-                onChanged();
             }
         });
 

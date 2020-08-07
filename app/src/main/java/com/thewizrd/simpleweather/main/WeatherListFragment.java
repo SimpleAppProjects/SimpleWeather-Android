@@ -37,6 +37,7 @@ import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -318,6 +319,25 @@ public class WeatherListFragment extends ToolbarFragment {
                     detailsAdapter = (WeatherDetailsAdapter) adapter;
                 }
 
+                detailsAdapter.registerAdapterDataObserver(new SimpleRecyclerViewAdapterObserver() {
+                    @Override
+                    public void onChanged() {
+                        if (detailsAdapter.getCurrentList() != null) {
+                            detailsAdapter.unregisterAdapterDataObserver(this);
+
+                            detailsAdapter.getCurrentList().loadAround(args.getPosition());
+                            binding.recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                                @Override
+                                public void onGlobalLayout() {
+                                    binding.recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                                    layoutManager.scrollToPositionWithOffset(args.getPosition(), 0);
+                                }
+                            });
+                            binding.progressBar.setVisibility(View.GONE);
+                        }
+                    }
+                });
+
                 if (weatherType == WeatherListType.FORECAST) {
                     forecastsView.getForecasts().removeObservers(WeatherListFragment.this);
                     forecastsView.getForecasts().observe(WeatherListFragment.this, new Observer<PagedList<ForecastItemViewModel>>() {
@@ -335,50 +355,6 @@ public class WeatherListFragment extends ToolbarFragment {
                         }
                     });
                 }
-
-                detailsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-                    @Override
-                    public void onChanged() {
-                        if (detailsAdapter.getCurrentList() != null) {
-                            detailsAdapter.unregisterAdapterDataObserver(this);
-
-                            detailsAdapter.getCurrentList().loadAround(args.getPosition());
-                            binding.recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                                @Override
-                                public void onGlobalLayout() {
-                                    binding.recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                                    layoutManager.scrollToPositionWithOffset(args.getPosition(), 0);
-                                }
-                            });
-                            binding.progressBar.setVisibility(View.GONE);
-                        }
-                    }
-
-                    @Override
-                    public void onItemRangeChanged(int positionStart, int itemCount) {
-                        onChanged();
-                    }
-
-                    @Override
-                    public void onItemRangeChanged(int positionStart, int itemCount, @Nullable Object payload) {
-                        onChanged();
-                    }
-
-                    @Override
-                    public void onItemRangeInserted(int positionStart, int itemCount) {
-                        onChanged();
-                    }
-
-                    @Override
-                    public void onItemRangeRemoved(int positionStart, int itemCount) {
-                        onChanged();
-                    }
-
-                    @Override
-                    public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
-                        onChanged();
-                    }
-                });
                 break;
             case ALERTS:
                 final WeatherAlertPanelAdapter alertAdapter;
@@ -389,43 +365,19 @@ public class WeatherListFragment extends ToolbarFragment {
                     alertAdapter = (WeatherAlertPanelAdapter) adapter;
                 }
 
-                alertsView.getAlerts().removeObservers(WeatherListFragment.this);
-                alertsView.getAlerts().observe(WeatherListFragment.this, new Observer<List<WeatherAlertViewModel>>() {
-                    @Override
-                    public void onChanged(List<WeatherAlertViewModel> alerts) {
-                        alertAdapter.updateItems(alerts);
-                    }
-                });
-                alertAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                alertAdapter.registerAdapterDataObserver(new SimpleRecyclerViewAdapterObserver() {
                     @Override
                     public void onChanged() {
                         alertAdapter.unregisterAdapterDataObserver(this);
                         binding.progressBar.setVisibility(View.GONE);
                     }
+                });
 
+                alertsView.getAlerts().removeObservers(WeatherListFragment.this);
+                alertsView.getAlerts().observe(WeatherListFragment.this, new Observer<List<WeatherAlertViewModel>>() {
                     @Override
-                    public void onItemRangeChanged(int positionStart, int itemCount) {
-                        onChanged();
-                    }
-
-                    @Override
-                    public void onItemRangeChanged(int positionStart, int itemCount, @Nullable Object payload) {
-                        onChanged();
-                    }
-
-                    @Override
-                    public void onItemRangeInserted(int positionStart, int itemCount) {
-                        onChanged();
-                    }
-
-                    @Override
-                    public void onItemRangeRemoved(int positionStart, int itemCount) {
-                        onChanged();
-                    }
-
-                    @Override
-                    public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
-                        onChanged();
+                    public void onChanged(List<WeatherAlertViewModel> alerts) {
+                        alertAdapter.updateItems(alerts);
                     }
                 });
                 break;
