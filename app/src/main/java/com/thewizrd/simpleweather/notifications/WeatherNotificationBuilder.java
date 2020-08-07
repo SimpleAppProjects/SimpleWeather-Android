@@ -16,8 +16,10 @@ import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.ImageUtils;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -100,11 +102,12 @@ public class WeatherNotificationBuilder {
 
         updateViews.setViewVisibility(R.id.extra_layout, chanceModel != null || windModel != null ? View.VISIBLE : View.GONE);
 
-        int level = 0;
+        int level;
         try {
             level = Integer.parseInt(temp.replace("°", ""));
         } catch (NumberFormatException e) {
             // Do nothing
+            level = Integer.MAX_VALUE;
         }
 
         int resId = level < 0 ? R.drawable.notification_temp_neg : R.drawable.notification_temp_pos;
@@ -115,10 +118,15 @@ public class WeatherNotificationBuilder {
                         .setPriority(NotificationCompat.PRIORITY_LOW)
                         .setOngoing(true);
 
-        if (Settings.getNotificationIcon().equals(Settings.TEMPERATURE_ICON))
-            mBuilder.setSmallIcon(resId, Math.abs(level));
-        else if (Settings.getNotificationIcon().equals(Settings.CONDITION_ICON))
+        if (Settings.getNotificationIcon().equals(Settings.TEMPERATURE_ICON)) {
+            if (level == Integer.MAX_VALUE) {
+                mBuilder.setSmallIcon(R.drawable.notification_temp_unknown);
+            } else {
+                mBuilder.setSmallIcon(resId, Math.abs(level));
+            }
+        } else if (Settings.getNotificationIcon().equals(Settings.CONDITION_ICON)) {
             mBuilder.setSmallIcon(WeatherUtils.getWeatherIconResource(viewModel.getWeatherIcon()));
+        }
 
         Intent onClickIntent = new Intent(context, MainActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -126,9 +134,14 @@ public class WeatherNotificationBuilder {
         mBuilder.setContentIntent(clickPendingIntent);
 
         // Builds the notification and issues it.
-        float temp_f = viewModel.getCurTemp().toString().endsWith(WeatherIcons.FAHRENHEIT) ?
-                Float.parseFloat(temp) : ConversionMethods.CtoF(Float.parseFloat(temp));
-        mBuilder.setColor(WeatherUtils.getColorFromTempF(temp_f));
+        Float temp_float = NumberUtils.tryParseFloat(temp);
+        if (temp_float != null) {
+            float temp_f = viewModel.getCurTemp().toString().endsWith(WeatherIcons.FAHRENHEIT) ?
+                    temp_float : ConversionMethods.CtoF(temp_float);
+            mBuilder.setColor(WeatherUtils.getColorFromTempF(temp_f));
+        } else {
+            mBuilder.setColor(Colors.SIMPLEBLUE);
+        }
         return mBuilder.build();
     }
 }

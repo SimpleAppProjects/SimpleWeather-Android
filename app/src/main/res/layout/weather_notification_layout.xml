@@ -53,6 +53,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
+            android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Compat.Notification"
             android:textSize="@dimen/not_primary_textSize"
             tools:text="68° - Sunny" />
