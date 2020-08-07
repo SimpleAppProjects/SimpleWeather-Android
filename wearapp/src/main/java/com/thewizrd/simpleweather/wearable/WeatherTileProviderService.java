@@ -210,14 +210,16 @@ public class WeatherTileProviderService extends TileProviderService {
             hrForecastPanel = new RemoteViews(mContext.getPackageName(), R.layout.tile_forecast_layout_container);
         }
 
-        for (int i = 0; i < FORECAST_LENGTH; i++) {
+        for (int i = 0; i < Math.min(FORECAST_LENGTH, forecasts.size()); i++) {
             ForecastItemViewModel forecast = forecasts.get(i);
             addForecastItem(forecastPanel, forecast);
 
-            if (hrForecastPanel != null) {
+            if (hrForecastPanel != null && i < hrforecasts.size()) {
                 addForecastItem(hrForecastPanel, hrforecasts.get(i));
             }
         }
+
+        updateViews.setViewVisibility(R.id.forecast_layout, Math.min(forecasts.size(), hrforecasts.size()) <= 0 ? View.GONE : View.VISIBLE);
 
         updateViews.addView(R.id.forecast_layout, forecastPanel);
         if (hrForecastPanel != null) {

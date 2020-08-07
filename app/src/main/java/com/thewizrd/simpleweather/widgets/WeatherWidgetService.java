@@ -1702,7 +1702,7 @@ public class WeatherWidgetService extends JobIntentService {
                     addForecastItem(forecastPanel, provider, appWidgetId, forecasts.get(i), newOptions, textColor, tempTextSize);
                 }
 
-                if (hrForecastPanel != null) {
+                if (hrForecastPanel != null && i < hourlyForecasts.size()) {
                     addForecastItem(hrForecastPanel, provider, appWidgetId, hourlyForecasts.get(i), newOptions, textColor, tempTextSize);
                 }
             }

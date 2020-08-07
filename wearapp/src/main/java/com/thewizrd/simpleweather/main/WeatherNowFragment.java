@@ -162,7 +162,7 @@ public class WeatherNowFragment extends CustomFragment
                     public void run() {
                         Context context = App.getInstance().getAppContext();
 
-                        Duration span = Duration.between(ZonedDateTime.now(ZoneOffset.UTC), Settings.getUpdateTime());
+                        Duration span = Duration.between(ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime(), Settings.getUpdateTime());
                         if (Settings.getDataSync() != WearableDataSync.OFF && span.toMinutes() > Settings.getRefreshInterval()) {
                             WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
                         } else {
