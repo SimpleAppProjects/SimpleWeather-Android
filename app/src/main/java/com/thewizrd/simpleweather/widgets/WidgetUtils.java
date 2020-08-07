@@ -544,23 +544,15 @@ public class WidgetUtils {
         if (widgetType != WidgetType.Widget4x1 && widgetType != WidgetType.Widget4x2)
             return 0;
 
-        int forecastLength = (widgetType == WidgetType.Widget4x2) ? WIDE_FORECAST_LENGTH : FORECAST_LENGTH;
+        boolean is4x2 = widgetType == WidgetType.Widget4x2;
+        int forecastLength;
 
-        if (cellWidth < 2) {
-            if (widgetType == WidgetType.Widget4x1)
-                forecastLength = 0;
-            else // 4x2
-                forecastLength = 1;
-        } else if (cellWidth == 2) {
-            if (widgetType == WidgetType.Widget4x1)
-                forecastLength = 1;
-            else // 4x2
-                forecastLength = FORECAST_LENGTH;
-        } else if (cellWidth == 3) {
-            if (widgetType == WidgetType.Widget4x1)
-                forecastLength = 2;
-            else // 4x2
-                forecastLength = MEDIUM_FORECAST_LENGTH;
+        if (cellWidth >= 5) {
+            forecastLength = WIDE_FORECAST_LENGTH;
+        } else if (cellWidth < 2) {
+            forecastLength = 1;
+        } else {
+            forecastLength = is4x2 ? cellWidth + 1 : cellWidth;
         }
 
         return forecastLength;

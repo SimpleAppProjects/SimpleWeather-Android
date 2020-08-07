@@ -52,6 +52,7 @@
     <string name="clock_24_hours_format" translatable="false">kk:mm</string>
     <string name="widget_long_date_format">cccc, MMMM dd</string>
     <string name="widget4x1_date_format">cccc, MMM dd</string>
+    <string name="widget_4x2_date_format">ccc, MMMM dd</string>
     <string name="widget_short_date_format">ccc, MMM dd</string>
     <string name="pref_category_timeanddate">Time and Date</string>
     <string name="pref_title_timezone">Time zone</string>

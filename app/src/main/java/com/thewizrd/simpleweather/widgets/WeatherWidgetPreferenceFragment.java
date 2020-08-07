@@ -753,21 +753,19 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             conditionlo.setText("65°");
         } else if (mWidgetType == WidgetType.Widget4x2 || mWidgetType == WidgetType.Widget4x2Clock) {
             conditionText.setText("Sunny");
-        } else if (mWidgetType == WidgetType.Widget4x1) {
-            widgetView.findViewById(R.id.now_date).setVisibility(View.VISIBLE);
         } else if (mWidgetType == WidgetType.Widget4x2Huawei) {
             TextView conditionHiLo = widgetView.findViewById(R.id.condition_hilo);
             conditionHiLo.setText("79° | 65°");
         }
 
-        if (mWidgetType != WidgetType.Widget2x2 && mWidgetType != WidgetType.Widget4x1Notification) {
+        if (mWidgetType != WidgetType.Widget2x2 && mWidgetType != WidgetType.Widget4x1Notification && mWidgetType != WidgetType.Widget4x1) {
             TextView tempView = widgetView.findViewById(R.id.condition_temp);
 
             SpannableStringBuilder str = new SpannableStringBuilder()
                     .append("70");
             int idx = str.length();
             str.append("°F");
-            if (mWidgetType != WidgetType.Widget4x1Google && mWidgetType != WidgetType.Widget4x1) {
+            if (mWidgetType != WidgetType.Widget4x1Google) {
                 str.setSpan(new RelativeSizeSpan(0.60f), idx, str.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 str.setSpan(new SuperscriptSpan(), idx, str.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
@@ -775,8 +773,10 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             tempView.setText(str);
         }
 
-        ImageView iconView = widgetView.findViewById(R.id.weather_icon);
-        iconView.setImageResource(R.drawable.day_sunny);
+        if (mWidgetType != WidgetType.Widget4x1) {
+            ImageView iconView = widgetView.findViewById(R.id.weather_icon);
+            iconView.setImageResource(R.drawable.day_sunny);
+        }
 
         if (isForecastWidget(mWidgetType)) {
             ViewGroup forecastLayout = binding.widgetContainer.findViewById(R.id.forecast_layout);
@@ -790,7 +790,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             ViewGroup container = (ViewGroup) View.inflate(getAppCompatActivity(), R.layout.app_widget_forecast_layout_container, null);
 
             for (int i = 0; i < forecastLength; i++) {
-                View forecastPanel = null;
+                View forecastPanel;
 
                 if (mWidgetType == WidgetType.Widget4x1)
                     forecastPanel = View.inflate(getAppCompatActivity(), R.layout.app_widget_forecast_panel_4x1, null);
@@ -939,20 +939,18 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         if (mWidgetType != WidgetType.Widget2x2 &&
                 mWidgetType != WidgetType.Widget4x1Google &&
                 mWidgetType != WidgetType.Widget4x1Notification &&
-                mWidgetType != WidgetType.Widget4x2Clock) {
+                mWidgetType != WidgetType.Widget4x2Clock &&
+                mWidgetType != WidgetType.Widget4x1) {
             TextView tempView = binding.widgetContainer.findViewById(R.id.condition_temp);
             tempView.setTextColor(textColor);
         }
 
-        if (mWidgetType == WidgetType.Widget4x1) {
-            TextView nowDate = binding.widgetContainer.findViewById(R.id.now_date);
-            nowDate.setTextColor(textColor);
-        }
-
         boolean is4x2 = mWidgetType == WidgetType.Widget4x2;
 
-        ImageView iconView = binding.widgetContainer.findViewById(R.id.weather_icon);
-        iconView.setColorFilter(is4x2 ? textColor : panelTextColor);
+        if (mWidgetType != WidgetType.Widget4x1) {
+            ImageView iconView = binding.widgetContainer.findViewById(R.id.weather_icon);
+            iconView.setColorFilter(is4x2 ? textColor : panelTextColor);
+        }
 
         TextView locationView = binding.widgetContainer.findViewById(R.id.location_name);
         locationView.setTextColor(is4x2 ? textColor : panelTextColor);

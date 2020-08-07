@@ -979,11 +979,14 @@ public class WeatherWidgetService extends JobIntentService {
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                         CharSequence dtfm;
-                        if ((widgetType == WidgetType.Widget2x2 && cellWidth >= 3) || (widgetType == WidgetType.Widget4x2 && cellWidth > 4) ||
-                                (widgetType == WidgetType.Widget4x2Clock && cellWidth >= 4) || (widgetType == WidgetType.Widget4x2Huawei && cellWidth >= 4)) {
+                        if ((widgetType == WidgetType.Widget2x2 && cellWidth >= 3) ||
+                                (widgetType == WidgetType.Widget4x2Clock && cellWidth >= 4) ||
+                                (widgetType == WidgetType.Widget4x2Huawei && cellWidth >= 4)) {
                             dtfm = mContext.getText(R.string.widget_long_date_format);
                         } else if (widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock) {
                             dtfm = mContext.getText(R.string.widget4x1_date_format);
+                        } else if (widgetType == WidgetType.Widget4x2) {
+                            dtfm = mContext.getText(cellWidth > 4 ? R.string.widget_4x2_date_format : R.string.widget_short_date_format);
                         } else {
                             dtfm = mContext.getText(R.string.widget_short_date_format);
                         }
@@ -1003,6 +1006,8 @@ public class WeatherWidgetService extends JobIntentService {
                             dtfm = DateTimeFormatter.ofPattern("eeee, MMMM dd");
                         } else if (widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock) {
                             dtfm = DateTimeFormatter.ofPattern("eeee, MMM dd");
+                        } else if (widgetType == WidgetType.Widget4x2) {
+                            dtfm = DateTimeFormatter.ofPattern(cellWidth > 4 ? "eee, MMMM dd" : "eee, MMM dd");
                         } else {
                             dtfm = DateTimeFormatter.ofPattern("eee, MMM dd");
                         }
@@ -1185,8 +1190,6 @@ public class WeatherWidgetService extends JobIntentService {
         } else if (provider.getWidgetType() == WidgetType.Widget4x2 || provider.getWidgetType() == WidgetType.Widget4x2Clock) {
             // Condition text
             updateViews.setTextViewText(R.id.condition_weather, weather.getCurCondition());
-        } else if (provider.getWidgetType() == WidgetType.Widget4x1) {
-            updateViews.setViewVisibility(R.id.forecast_lo, View.GONE);
         } else if (provider.getWidgetType() == WidgetType.Widget4x2Huawei) {
             String hiTemp = StringUtils.removeNonDigitChars(weather.getHiTemp());
             String loTemp = StringUtils.removeNonDigitChars(weather.getLoTemp());
@@ -1300,29 +1303,14 @@ public class WeatherWidgetService extends JobIntentService {
                 textSize = ActivityUtils.dpToPx(mContext, 28f);
 
             updateViews.setTextViewTextSize(R.id.condition_temp, TypedValue.COMPLEX_UNIT_PX, textSize);
-            updateViews.setViewVisibility(R.id.condition_weather, isSmallHeight && cellHeight <= 2 ? View.GONE : View.VISIBLE);
+            updateViews.setViewVisibility(R.id.condition_weather, forceSmallHeight && cellHeight <= 2 ? View.GONE : View.VISIBLE);
         } else if (provider.getWidgetType() == WidgetType.Widget4x1) {
-            int textSize = 14, locTextSize = 12;
+            int locTextSize = 12;
             if (cellHeight > 1 && (!isSmallWidth || cellWidth > 4)) {
-                textSize = 16;
                 locTextSize = 14;
             }
 
             updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, locTextSize);
-
-            int iconSize = (int) ActivityUtils.dpToPx(mContext, 40);
-            if (!(!isSmallWidth || cellWidth > 4)) {
-                iconSize *= 0.875f; // 35dp
-            }
-            updateViews.setInt(R.id.weather_icon, "setMaxWidth", iconSize);
-            updateViews.setInt(R.id.weather_icon, "setMaxHeight", iconSize);
-
-            if (forceSmallHeight) {
-                updateViews.setViewPadding(R.id.now_date, 0, 0, 0, 0);
-            } else {
-                int padding = (int) ActivityUtils.dpToPx(mContext, 2);
-                updateViews.setViewPadding(R.id.now_date, padding, padding, padding, padding);
-            }
 
             if (isSmallHeight && cellHeight == 1) {
                 int padding = (int) ActivityUtils.dpToPx(mContext, 0);
@@ -1331,9 +1319,6 @@ public class WeatherWidgetService extends JobIntentService {
                 int padding = (int) ActivityUtils.dpToPx(mContext, 8);
                 updateViews.setViewPadding(R.id.layout_container, padding, padding, padding, padding);
             }
-
-            updateViews.setTextViewTextSize(R.id.now_date, TypedValue.COMPLEX_UNIT_SP, textSize);
-            updateViews.setTextViewTextSize(R.id.condition_temp, TypedValue.COMPLEX_UNIT_SP, textSize);
         } else if (provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x1Notification) {
             boolean largeText = cellHeight > 2 || provider.getWidgetType() == WidgetType.Widget4x1Notification;
             updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, largeText ? 16 : 14);
@@ -1363,27 +1348,25 @@ public class WeatherWidgetService extends JobIntentService {
 
         float shadowRadius = 1.75f;
         if ((provider.getWidgetType() == WidgetType.Widget2x2 && style != WidgetUtils.WidgetBackgroundStyle.FULLBACKGROUND) ||
-                (provider.getWidgetType() == WidgetType.Widget4x2 && background != WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) ||
-                (provider.getWidgetType() == WidgetType.Widget4x1 && (background == WidgetUtils.WidgetBackground.WHITE || background == WidgetUtils.WidgetBackground.BLACK)))
+                (provider.getWidgetType() == WidgetType.Widget4x2 && background != WidgetUtils.WidgetBackground.CURRENT_CONDITIONS))
             shadowRadius = 0f;
 
         if (provider.getWidgetType() != WidgetType.Widget2x2 &&
                 provider.getWidgetType() != WidgetType.Widget4x1Google &&
                 provider.getWidgetType() != WidgetType.Widget4x1Notification &&
                 provider.getWidgetType() != WidgetType.Widget4x2Clock &&
-                provider.getWidgetType() != WidgetType.Widget4x2Huawei) {
+                provider.getWidgetType() != WidgetType.Widget4x2Huawei &&
+                provider.getWidgetType() != WidgetType.Widget4x1) {
             updateViews.setTextColor(R.id.condition_temp, textColor);
-        }
-
-        if (provider.getWidgetType() == WidgetType.Widget4x1) {
-            updateViews.setTextColor(R.id.now_date, textColor);
         }
 
         boolean is4x2 = provider.getWidgetType() == WidgetType.Widget4x2;
 
-        // WeatherIcon
-        updateViews.setImageViewBitmap(R.id.weather_icon,
-                ImageUtils.weatherIconToBitmap(mContext, weather.getWeatherIcon(), tempTextSize, is4x2 ? textColor : panelTextColor, shadowRadius));
+        if (provider.getWidgetType() != WidgetType.Widget4x1) {
+            // WeatherIcon
+            updateViews.setImageViewBitmap(R.id.weather_icon,
+                    ImageUtils.weatherIconToBitmap(mContext, weather.getWeatherIcon(), tempTextSize, is4x2 ? textColor : panelTextColor, shadowRadius));
+        }
 
         if (provider.getWidgetType() == WidgetType.Widget2x2) {
             if (style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
@@ -1840,9 +1823,9 @@ public class WeatherWidgetService extends JobIntentService {
         if (provider.getWidgetType() == WidgetType.Widget4x1) {
             forecastItem = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_panel_4x1);
 
-            int size = (int) ActivityUtils.dpToPx(mContext, 40);
-            if (!(!isSmallWidth || cellWidth > 4)) {
-                size *= 0.875f; // 35dp
+            int size = (int) ActivityUtils.dpToPx(mContext, 32);
+            if ((!isSmallWidth || cellWidth > 4) && (maxHeight / maxCellHeight) >= 72) {
+                size *= (8 / 7f); // 40dp
             }
             forecastItem.setInt(R.id.forecast_icon, "setMaxWidth", size);
             forecastItem.setInt(R.id.forecast_icon, "setMaxHeight", size);
@@ -1854,7 +1837,7 @@ public class WeatherWidgetService extends JobIntentService {
             }
 
             int size = (int) ActivityUtils.dpToPx(mContext, 30);
-            if (cellHeight > 2 && (!isSmallWidth || cellWidth > 4)) {
+            if (((maxHeight / maxCellHeight) >= 72) && (!isSmallWidth || cellWidth > 4)) {
                 size *= (4f / 3); // 40dp
             }
             forecastItem.setInt(R.id.forecast_icon, "setMaxWidth", size);

@@ -97,11 +97,51 @@
             android:orientation="horizontal"
             android:baselineAligned="false">
 
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="1">
+                android:gravity="center_vertical"
+                android:layout_marginStart="4dp"
+                android:layout_marginLeft="4dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/clock_panel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="true"
+                    android:fontFamily="sans-serif-light"
+                    android:layout_gravity="start"
+                    android:gravity="start"
+                    android:maxLines="1"
+                    android:shadowColor="#DD000000"
+                    android:shadowDy="2.0"
+                    android:shadowRadius="2.75"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/clock_text_size"
+                    tools:text="4:00 PM" />
+
+                <TextView
+                    android:id="@+id/date_panel"
+                    style="@style/ShadowText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:gravity="bottom"
+                    android:shadowColor="#DD000000"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/date_text_size"
+                    tools:text="Sun, Oct 08" />
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical">
 
                 <ImageView
                     android:id="@+id/weather_icon"
@@ -146,43 +186,6 @@
                     tools:text="70°F" />
 
             </RelativeLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/date_panel"
-                    style="@style/ShadowText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:gravity="bottom"
-                    android:shadowColor="#DD000000"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                    android:textColor="@android:color/white"
-                    android:textSize="@dimen/date_text_size"
-                    tools:text="Sun, Oct 08" />
-
-                <TextView
-                    android:id="@+id/clock_panel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:baselineAligned="true"
-                    android:fontFamily="sans-serif-light"
-                    android:layout_gravity="end"
-                    android:gravity="end"
-                    android:maxLines="1"
-                    android:shadowColor="#DD000000"
-                    android:shadowDy="2.0"
-                    android:shadowRadius="2.75"
-                    android:textColor="@android:color/white"
-                    android:textSize="@dimen/clock_text_size"
-                    tools:text="4:00 PM" />
-
-            </LinearLayout>
 
         </LinearLayout>
 
