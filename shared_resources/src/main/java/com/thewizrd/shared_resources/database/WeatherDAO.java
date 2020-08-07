@@ -18,6 +18,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAlerts;
 
 import org.threeten.bp.ZonedDateTime;
 
+import java.util.Collection;
 import java.util.List;
 
 @Dao
@@ -104,6 +105,10 @@ public interface WeatherDAO {
     public int getForecastDataCountGroupedByQuery();
 
     //
+
+    @Transaction
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public void insertAllHourlyForecasts(Collection<HourlyForecasts> forecasts);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void insertHourlyForecast(HourlyForecasts forecast);

@@ -13,9 +13,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.room.Room;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.AsyncTask;
@@ -497,9 +494,7 @@ public class Settings {
                 weatherDB.weatherDAO().deleteHourlyForecastByKey(key);
 
                 if (forecasts != null) {
-                    for (HourlyForecasts fcast : forecasts) {
-                        weatherDB.weatherDAO().insertHourlyForecast(fcast);
-                    }
+                    weatherDB.weatherDAO().insertAllHourlyForecasts(forecasts);
                 }
                 return null;
             }
@@ -591,50 +586,6 @@ public class Settings {
                 weatherDB.weatherDAO().deleteWeatherAlertDataByKeyNotIn(locQueries);
             }
         });
-    }
-
-    public static void saveLocationData(final List<LocationData> locationData) {
-        if (locationData != null) {
-            new AsyncTask<Void>().await(new Callable<Void>() {
-                @Override
-                public Void call() {
-                    List<Favorites> favs = new ArrayList<>(locationData.size());
-                    for (LocationData loc : locationData) {
-                        if (loc != null && loc.isValid()) {
-                            locationDB.locationsDAO().insertLocationData(loc);
-                            Favorites fav = new Favorites();
-                            fav.setQuery(loc.getQuery());
-                            fav.setPosition(locationData.indexOf(loc));
-                            locationDB.locationsDAO().insertFavorite(fav);
-                        }
-                    }
-
-                    List<LocationData> locs = locationDB.locationsDAO().loadAllLocationData();
-                    Collection<LocationData> locToDelete = Collections2.filter(locs, new Predicate<LocationData>() {
-                        @Override
-                        public boolean apply(@NullableDecl final LocationData l) {
-                            return Iterables.all(locationData, new Predicate<LocationData>() {
-                                @Override
-                                public boolean apply(@NullableDecl LocationData l2) {
-                                    return !l2.equals(l);
-                                }
-                            });
-                        }
-                    });
-
-                    int count = locToDelete.size();
-
-                    if (count > 0) {
-                        for (LocationData loc : locToDelete) {
-                            locationDB.locationsDAO().deleteLocationDataByKey(loc.getQuery());
-                            locationDB.locationsDAO().deleteFavoritesByKey(loc.getQuery());
-                        }
-                    }
-
-                    return null;
-                }
-            });
-        }
     }
 
     public static void addLocation(final LocationData location) {
