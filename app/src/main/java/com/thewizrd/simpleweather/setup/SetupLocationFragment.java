@@ -138,6 +138,8 @@ public class SetupLocationFragment extends CustomFragment {
         binding.searchBar.searchViewContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                v.setEnabled(false);
+
                 // Setup search UI
                 View bottomNavBar = getAppCompatActivity().findViewById(R.id.bottom_nav_bar);
                 bottomNavBar.setVisibility(View.GONE);
@@ -467,6 +469,8 @@ public class SetupLocationFragment extends CustomFragment {
             }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<LocationData>() {
                 @Override
                 public void onSuccess(LocationData data) {
+                    if (!isAlive()) return;
+
                     if (data != null && data.isValid()) {
                         // Setup complete
                         viewModel.setLocationData(data);
