@@ -302,7 +302,7 @@ public class MainActivity extends AppCompatActivity
             color = Colors.BLACK;
         }
 
-        ActivityUtils.setTransparentWindow(getWindow(), color, Colors.TRANSPARENT, Colors.TRANSPARENT, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+        ActivityUtils.setTransparentWindow(getWindow(), color, Colors.TRANSPARENT, color, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
         binding.getRoot().setBackgroundColor(color);
         binding.bottomNavBar.setBackgroundColor(color);
     }
