@@ -4,7 +4,7 @@
     <color name="preference_fallback_accent_color" tools:override="true">@color/colorPrimaryLight
     </color>
 
-    <color name="design_snackbar_background_color" tools:override="true">#484848</color>
+    <color name="design_snackbar_background_color" tools:override="true">#242424</color>
 
     <color name="sun_color">#FFFFFF00</color>
     <color name="beaufort_color">#FF1E90FF</color>

@@ -86,6 +86,7 @@
         <!-- SnackBar Style -->
         <item name="snackbarStyle">@style/SnackBarStyle</item>
         <item name="snackbarButtonStyle">@style/SnackBarButtonStyle</item>
+        <item name="snackbarTextViewStyle">@style/SnackBarTextViewStyle</item>
     </style>
 
     <style name="AppTheme.Base" parent="Base.AppTheme">
@@ -364,17 +365,7 @@
     </style>
 
     <style name="SnackBarStyle" parent="@style/Widget.MaterialComponents.Snackbar">
-        <item name="animationMode">slide</item>
-        <item name="android:background" tools:ignore="PrivateResource">
-            @drawable/design_snackbar_background
-        </item>
-        <item name="android:paddingLeft" tools:ignore="PrivateResource">
-            @dimen/design_snackbar_padding_horizontal
-        </item>
-        <item name="android:paddingRight" tools:ignore="PrivateResource">
-            @dimen/design_snackbar_padding_horizontal
-        </item>
-        <item name="android:textColor">@android:color/white</item>
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Snackbar</item>
         <item name="backgroundOverlayColorAlpha">1.0</item>
         <item name="actionTextColorAlpha">1.0</item>
     </style>
@@ -383,8 +374,20 @@
         <item name="android:textColor">@color/colorPrimaryLight</item>
     </style>
 
+    <style name="SnackBarTextViewStyle" parent="@style/Widget.MaterialComponents.Snackbar.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.Design.Snackbar.Message</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
     <style name="TextAppearance.Design.Snackbar.Message" parent="TextAppearance.OpenSans.Body2" tools:override="true">
         <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="ThemeOverlay.App.Snackbar" parent="">
+        <item name="colorPrimary">@color/colorPrimaryLight</item>
+        <item name="colorOnSurface" tools:ignore="PrivateResource">
+            @color/design_snackbar_background_color
+        </item>
     </style>
 
 </resources>
