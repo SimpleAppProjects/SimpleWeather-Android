@@ -7,7 +7,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -18,18 +21,25 @@ import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
+import androidx.work.ListenableWorker;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.SettableFuture;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -57,9 +67,10 @@ import org.threeten.bp.ZoneOffset;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class WeatherUpdaterWorker extends Worker {
+public class WeatherUpdaterWorker extends ListenableWorker {
     private static String TAG = "WeatherUpdaterWorker";
 
     public static final String ACTION_UPDATEWEATHER = "SimpleWeather.Droid.action.UPDATE_WEATHER";
@@ -201,40 +212,53 @@ public class WeatherUpdaterWorker extends Worker {
 
     @NonNull
     @Override
-    public Result doWork() {
-        Logger.writeLine(Log.INFO, "%s: Work started", TAG);
+    public ListenableFuture<Result> startWork() {
+        return MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor()).submit(new Callable<Result>() {
+            @Override
+            public Result call() {
+                Logger.writeLine(Log.INFO, "%s: Work started", TAG);
 
-        if (Settings.isWeatherLoaded()) {
-            // Update for home
-            final Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
-                @Override
-                public Weather call() {
-                    return getWeather();
+                if (Settings.isWeatherLoaded()) {
+                    if (Settings.useFollowGPS()) {
+                        try {
+                            updateLocation().get();
+                        } catch (ExecutionException | InterruptedException e) {
+                            Logger.writeLine(Log.ERROR, e);
+                        }
+                    }
+
+                    // Update for home
+                    final Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
+                        @Override
+                        public Weather call() {
+                            return getWeather();
+                        }
+                    });
+
+                    if (WeatherWidgetService.widgetsExist(mContext)) {
+                        mContext.sendBroadcast(new Intent(mContext, WeatherWidgetBroadcastReceiver.class)
+                                .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET));
+                    }
+
+                    if (weather != null) {
+                        if (Settings.showOngoingNotification()) {
+                            mContext.sendBroadcast(new Intent(mContext, WeatherNotificationBroadcastReceiver.class)
+                                    .setAction(WeatherNotificationService.ACTION_REFRESHNOTIFICATION));
+                        }
+
+                        if (Settings.useAlerts() && wm.supportsAlerts()) {
+                            WeatherAlertHandler.postAlerts(Settings.getHomeData(), weather.getWeatherAlerts());
+                        }
+
+                        // Update weather data for Wearables
+                        LocalBroadcastManager.getInstance(mContext)
+                                .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE));
+                    }
                 }
-            });
 
-            if (WeatherWidgetService.widgetsExist(mContext)) {
-                mContext.sendBroadcast(new Intent(mContext, WeatherWidgetBroadcastReceiver.class)
-                        .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET));
+                return Result.success();
             }
-
-            if (weather != null) {
-                if (Settings.showOngoingNotification()) {
-                    mContext.sendBroadcast(new Intent(mContext, WeatherNotificationBroadcastReceiver.class)
-                            .setAction(WeatherNotificationService.ACTION_REFRESHNOTIFICATION));
-                }
-
-                if (Settings.useAlerts() && wm.supportsAlerts()) {
-                    WeatherAlertHandler.postAlerts(Settings.getHomeData(), weather.getWeatherAlerts());
-                }
-
-                // Update weather data for Wearables
-                LocalBroadcastManager.getInstance(mContext)
-                        .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE));
-            }
-        }
-
-        return Result.success();
+        });
     }
 
     private Weather getWeather() {
@@ -244,11 +268,6 @@ public class WeatherUpdaterWorker extends Worker {
                 Weather weather;
 
                 try {
-                    if (Settings.useFollowGPS())
-                        updateLocation();
-
-                    if (isCtsCancelRequested()) throw new InterruptedException();
-
                     WeatherDataLoader wloader = new WeatherDataLoader(Settings.getHomeData());
                     weather = Tasks.await(wloader.loadWeatherData(new WeatherRequest.Builder()
                             .forceRefresh(false)
@@ -274,25 +293,26 @@ public class WeatherUpdaterWorker extends Worker {
         });
     }
 
-    private boolean updateLocation() {
-        return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
-            @Override
-            public Boolean call() {
-                boolean locationChanged = false;
-                Context context = App.getInstance().getAppContext();
+    private ListenableFuture<Boolean> updateLocation() {
+        final SettableFuture<Boolean> result = SettableFuture.create();
 
+        Executors.newSingleThreadExecutor().submit(new Runnable() {
+            @Override
+            public void run() {
                 if (Settings.useFollowGPS()) {
-                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        return false;
+                    if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                            ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        result.set(false);
+                        return;
                     }
 
                     Location location = null;
 
-                    LocationManager locMan = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+                    final LocationManager locMan = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 
                     if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                        return false;
+                        result.set(false);
+                        return;
                     }
 
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
@@ -302,37 +322,102 @@ public class WeatherUpdaterWorker extends Worker {
                             public Location call() {
                                 Location result = null;
                                 try {
-                                    result = Tasks.await(mFusedLocationClient.getLastLocation(), 20, TimeUnit.SECONDS);
+                                    result = Tasks.await(mFusedLocationClient.getLastLocation(), 10, TimeUnit.SECONDS);
                                 } catch (Exception e) {
                                     Logger.writeLine(Log.ERROR, e);
                                 }
                                 return result;
                             }
                         });
+
+                        if (location == null) {
+                            final LocationRequest mLocationRequest = new LocationRequest();
+                            mLocationRequest.setNumUpdates(1);
+                            mLocationRequest.setInterval(10000);
+                            mLocationRequest.setFastestInterval(1000);
+                            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+                            Looper.prepare();
+
+                            Log.i(TAG, "Fused: Requesting location updates...");
+                            mFusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback() {
+                                @Override
+                                public void onLocationResult(LocationResult locationResult) {
+                                    super.onLocationResult(locationResult);
+                                    mFusedLocationClient.removeLocationUpdates(this);
+
+                                    Log.i(TAG, "Fused: Location update received...");
+                                    result.setFuture(updateLocation());
+                                }
+
+                                @Override
+                                public void onLocationAvailability(LocationAvailability locationAvailability) {
+                                    super.onLocationAvailability(locationAvailability);
+                                }
+                            }, Looper.myLooper());
+
+                            return;
+                        }
                     } else {
                         boolean isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
                         boolean isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
-                        if (isGPSEnabled || isNetEnabled && !isCtsCancelRequested()) {
+                        if ((isGPSEnabled || isNetEnabled) && !isCtsCancelRequested()) {
                             Criteria locCriteria = new Criteria();
                             locCriteria.setAccuracy(Criteria.ACCURACY_COARSE);
                             locCriteria.setCostAllowed(false);
                             locCriteria.setPowerRequirement(Criteria.POWER_LOW);
                             String provider = locMan.getBestProvider(locCriteria, true);
                             location = locMan.getLastKnownLocation(provider);
+
+                            if (location == null) {
+                                Looper.prepare();
+
+                                Log.i(TAG, "LocMan: Requesting location update...");
+                                locMan.requestSingleUpdate(provider, new LocationListener() {
+                                    @Override
+                                    public void onLocationChanged(Location location) {
+                                        locMan.removeUpdates(this);
+
+                                        Log.i(TAG, "LocMan: Location update received...");
+                                        result.setFuture(updateLocation());
+                                    }
+
+                                    @Override
+                                    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+                                    }
+
+                                    @Override
+                                    public void onProviderEnabled(String s) {
+
+                                    }
+
+                                    @Override
+                                    public void onProviderDisabled(String s) {
+
+                                    }
+                                }, Looper.myLooper());
+
+                                return;
+                            }
                         }
                     }
 
                     if (location != null && !isCtsCancelRequested()) {
                         LocationData lastGPSLocData = Settings.getLastGPSLocData();
 
-                        if (isCtsCancelRequested()) return false;
+                        if (isCtsCancelRequested()) {
+                            result.set(false);
+                            return;
+                        }
 
                         // Check previous location difference
                         if (lastGPSLocData.getQuery() != null &&
                                 Math.abs(ConversionMethods.calculateHaversine(lastGPSLocData.getLatitude(), lastGPSLocData.getLongitude(),
                                         location.getLatitude(), location.getLongitude())) < 1600) {
-                            return false;
+                            result.set(false);
+                            return;
                         }
 
                         LocationQueryViewModel query_vm;
@@ -343,9 +428,11 @@ public class WeatherUpdaterWorker extends Worker {
                             query_vm = Tasks.await(tcs.getTask());
                         } catch (ExecutionException | WeatherException e) {
                             Logger.writeLine(Log.ERROR, e);
-                            return false;
+                            result.set(false);
+                            return;
                         } catch (InterruptedException e) {
-                            return false;
+                            result.set(false);
+                            return;
                         }
 
                         if (StringUtils.isNullOrEmpty(query_vm.getLocationQuery()))
@@ -353,25 +440,32 @@ public class WeatherUpdaterWorker extends Worker {
 
                         if (StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
                             // Stop since there is no valid query
-                            return false;
+                            result.set(false);
+                            return;
                         }
 
-                        if (isCtsCancelRequested()) return false;
+                        if (isCtsCancelRequested()) {
+                            result.set(false);
+                            return;
+                        }
 
                         // Save location as last known
                         lastGPSLocData.setData(query_vm, location);
                         Settings.saveLastGPSLocData(lastGPSLocData);
 
-                        LocalBroadcastManager.getInstance(context)
+                        LocalBroadcastManager.getInstance(mContext)
                                 .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
                                         .putExtra(CommonActions.EXTRA_FORCEUPDATE, false));
 
-                        locationChanged = true;
+                        result.set(true);
+                        return;
                     }
                 }
 
-                return locationChanged;
+                result.set(false);
             }
         });
+
+        return result;
     }
 }
