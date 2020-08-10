@@ -830,6 +830,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.refreshLayout.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
+                if (binding == null) return true;
                 binding.refreshLayout.getViewTreeObserver().removeOnPreDrawListener(this);
                 binding.refreshLayout.setRefreshing(true);
 
@@ -869,6 +870,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.scrollView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
+                if (binding == null) return true;
                 binding.scrollView.getViewTreeObserver().removeOnPreDrawListener(this);
                 binding.imageView.setAlpha(wNowViewModel.getImageAlpha());
                 binding.gradientView.setAlpha(wNowViewModel.getGradientAlpha());
@@ -925,6 +927,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.conditionPanel.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
+                if (binding == null) return true;
                 binding.conditionPanel.getViewTreeObserver().removeOnPreDrawListener(this);
                 adjustConditionPanelLayout();
                 return true;
@@ -1210,6 +1213,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.conditionPanel.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
+                if (binding == null) return;
                 binding.conditionPanel.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                 int height = binding.refreshLayout.getMeasuredHeight();
@@ -1241,6 +1245,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.scrollView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
+                if (binding == null) return;
                 binding.scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                 if (ActivityUtils.isLargeTablet(getAppCompatActivity())) {
@@ -1272,6 +1277,7 @@ public class WeatherNowFragment extends WindowColorFragment
         detailsBinding.detailsContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
+                if (binding == null || detailsBinding == null) return;
                 detailsBinding.detailsContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                 int pxWidth = binding.scrollView.getChildAt(0).getMeasuredWidth();

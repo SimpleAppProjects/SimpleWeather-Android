@@ -270,6 +270,7 @@ public class LocationSearchFragment extends WindowColorFragment {
             }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<LocationData>() {
                 @Override
                 public void onSuccess(LocationData result) {
+                    if (binding == null) return;
                     // Go back to where we started
                     NavController navController = Navigation.findNavController(binding.getRoot());
                     if (result != null) {
@@ -282,20 +283,16 @@ public class LocationSearchFragment extends WindowColorFragment {
             }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    if (e instanceof WeatherException || e instanceof CustomException) {
-                        if (isAlive()) {
+                    if (isAlive()) {
+                        if (e instanceof WeatherException || e instanceof CustomException) {
                             showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
                                     new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                            showLoading(false);
-                            enableRecyclerView(true);
-                        }
-                    } else {
-                        if (isAlive()) {
+                        } else {
                             showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
                                     new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                            showLoading(false);
-                            enableRecyclerView(true);
                         }
+                        showLoading(false);
+                        enableRecyclerView(true);
                     }
                 }
             });
@@ -572,11 +569,13 @@ public class LocationSearchFragment extends WindowColorFragment {
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    if (e instanceof WeatherException) {
-                        showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
-                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                    if (isAlive()) {
+                        if (e instanceof WeatherException) {
+                            showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
+                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                        }
+                        mAdapter.setLocations(Collections.singletonList(new LocationQueryViewModel()));
                     }
-                    mAdapter.setLocations(Collections.singletonList(new LocationQueryViewModel()));
                 }
             });
         } else if (StringUtils.isNullOrWhitespace(queryString)) {

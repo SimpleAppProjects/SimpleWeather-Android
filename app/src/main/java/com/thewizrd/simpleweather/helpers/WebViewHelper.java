@@ -76,7 +76,10 @@ public class WebViewHelper {
         webView.post(new Runnable() {
             @Override
             public void run() {
-                webView.loadData("<html><body style=\"background-color: black;\"></body></html>", "text/html", "UTF-8");
+                try {
+                    webView.loadData("<html><body style=\"background-color: black;\"></body></html>", "text/html", "UTF-8");
+                } catch (Exception ignored) {
+                }
             }
         });
     }

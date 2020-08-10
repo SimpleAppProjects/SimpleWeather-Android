@@ -538,7 +538,10 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
         }).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                ShortcutCreatorWorker.requestUpdateShortcuts(App.getInstance().getAppContext());
+                Context context = App.getInstance().getAppContext();
+                if (context != null) {
+                    ShortcutCreatorWorker.requestUpdateShortcuts(context);
+                }
             }
         });
     }

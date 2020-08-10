@@ -26,7 +26,6 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
-import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.main.MainActivity;
@@ -40,12 +39,10 @@ public class ShortcutCreatorWorker extends Worker {
     private static String TAG = "ShortcutCreatorWorker";
 
     private Context mContext;
-    private WeatherManager wm;
 
     public ShortcutCreatorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         mContext = context.getApplicationContext();
-        wm = WeatherManager.getInstance();
     }
 
     public static void requestUpdateShortcuts(@NonNull Context context) {

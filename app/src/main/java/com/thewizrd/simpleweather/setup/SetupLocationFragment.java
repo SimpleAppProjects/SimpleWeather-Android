@@ -139,6 +139,7 @@ public class SetupLocationFragment extends CustomFragment {
             @Override
             public void onClick(View v) {
                 v.setEnabled(false);
+                binding.gpsFollow.setEnabled(false);
 
                 // Setup search UI
                 View bottomNavBar = getAppCompatActivity().findViewById(R.id.bottom_nav_bar);
@@ -370,12 +371,14 @@ public class SetupLocationFragment extends CustomFragment {
                     Settings.setFollowGPS(false);
                     Settings.setWeatherLoaded(false);
 
-                    if (e instanceof WeatherException || e instanceof CustomException) {
-                        showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
-                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                    } else {
-                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
-                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                    if (isAlive()) {
+                        if (e instanceof WeatherException || e instanceof CustomException) {
+                            showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
+                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                        } else {
+                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
+                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                        }
                     }
                 }
             });
@@ -501,12 +504,14 @@ public class SetupLocationFragment extends CustomFragment {
                     Settings.setFollowGPS(false);
                     Settings.setWeatherLoaded(false);
 
-                    if (e instanceof WeatherException || e instanceof CustomException) {
-                        showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
-                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                    } else {
-                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
-                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                    if (isAlive()) {
+                        if (e instanceof WeatherException || e instanceof CustomException) {
+                            showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
+                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                        } else {
+                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
+                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                        }
                     }
                 }
             });
@@ -607,8 +612,10 @@ public class SetupLocationFragment extends CustomFragment {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     enableControls(true);
-                    showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT),
-                            new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                    if (isAlive()) {
+                        showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT),
+                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                    }
                 }
             }
         }

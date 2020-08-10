@@ -26,7 +26,6 @@ import static com.thewizrd.shared_resources.utils.Settings.loadIfNeeded;
 
 public class App extends Application implements ApplicationLib, Application.ActivityLifecycleCallbacks {
     private static ApplicationLib sInstance = null;
-    public static Settings Settings = null;
 
     private Context context;
     private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;

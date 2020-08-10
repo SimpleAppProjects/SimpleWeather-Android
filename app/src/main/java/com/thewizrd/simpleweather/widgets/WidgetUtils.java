@@ -162,7 +162,11 @@ public class WidgetUtils {
                     // First time, so load all current widgets under Home location
                     if (Settings.isWeatherLoaded()) {
                         LocationData homeLocation = Settings.getHomeData();
-                        saveIds(homeLocation.getQuery(), getAllWidgetIds());
+                        if (homeLocation != null) {
+                            saveIds(homeLocation.getQuery(), getAllWidgetIds());
+                        } else {
+                            break;
+                        }
                     }
 
                     Map<String, ?> widgetMap = widgetPrefs.getAll();
