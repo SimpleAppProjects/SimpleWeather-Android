@@ -552,12 +552,10 @@ public class WeatherUtils {
             case WeatherIcons.SPRINKLE:
                 backgroundCode = WeatherBackground.RAIN_NIGHT;
                 break;
+
             // Tornado / Hurricane / Thunderstorm / Tropical Storm
             case WeatherIcons.DAY_LIGHTNING:
             case WeatherIcons.DAY_THUNDERSTORM:
-                backgroundCode = WeatherBackground.TSTORMS_DAY;
-                break;
-
             case WeatherIcons.NIGHT_ALT_LIGHTNING:
             case WeatherIcons.NIGHT_ALT_THUNDERSTORM:
             case WeatherIcons.LIGHTNING:
@@ -575,11 +573,13 @@ public class WeatherUtils {
             case WeatherIcons.TORNADO:
                 backgroundCode = WeatherBackground.STORMS;
                 break;
+
             // Dust
             case WeatherIcons.DUST:
             case WeatherIcons.SANDSTORM:
                 backgroundCode = WeatherBackground.DUST;
                 break;
+
             // Foggy / Haze
             case WeatherIcons.DAY_FOG:
             case WeatherIcons.DAY_HAZE:
@@ -589,20 +589,19 @@ public class WeatherUtils {
             case WeatherIcons.SMOKE:
                 backgroundCode = WeatherBackground.FOG;
                 break;
+
             // Snow / Snow Showers/Storm
             case WeatherIcons.DAY_SNOW:
             case WeatherIcons.DAY_SNOW_THUNDERSTORM:
             case WeatherIcons.NIGHT_ALT_SNOW:
             case WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM:
             case WeatherIcons.SNOW:
-                backgroundCode = WeatherBackground.SNOW;
-                break;
-
             case WeatherIcons.SNOW_WIND:
             case WeatherIcons.DAY_SNOW_WIND:
             case WeatherIcons.NIGHT_ALT_SNOW_WIND:
-                backgroundCode = WeatherBackground.SNOW_WINDY;
+                backgroundCode = WeatherBackground.SNOW;
                 break;
+
             /* Ambigious weather conditions */
             // (Mostly) Cloudy
             case WeatherIcons.CLOUD:
