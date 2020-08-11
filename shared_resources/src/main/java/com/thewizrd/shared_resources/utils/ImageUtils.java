@@ -171,9 +171,13 @@ public class ImageUtils {
     }
 
     public static Bitmap rotateBitmap(Bitmap source, @FloatRange(from = 0, to = 360) float angle) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+        if (angle != 0 || angle != 360) {
+            Matrix matrix = new Matrix();
+            matrix.postRotate(angle);
+            return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+        } else {
+            return source;
+        }
     }
 
     public class CenterCropper {

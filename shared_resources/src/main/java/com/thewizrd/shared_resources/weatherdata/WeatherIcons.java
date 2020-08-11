@@ -97,6 +97,7 @@ public class WeatherIcons {
     public static final String UMBRELLA = "\uf084";
     public static final String WIND_DIRECTION = "\uf0b1";
     public static final String DIRECTION_UP = "\uf058";
+    public static final String DIRECTION_DOWN = "\uf044";
 
     // Beaufort
     public static final String WIND_BEAUFORT_0 = "\uf0b7";

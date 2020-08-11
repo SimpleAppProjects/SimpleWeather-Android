@@ -95,8 +95,7 @@
                 android:layout_toRightOf="@id/condition_hi"
                 android:layout_alignTop="@id/condition_hi"
                 android:layout_alignBottom="@id/condition_hi"
-                android:src="@drawable/direction_up"
-                android:tint="@android:color/white" />
+                android:src="@drawable/direction_up" />
 
             <TextView
                 android:id="@+id/divider"
@@ -138,8 +137,7 @@
                 android:layout_alignTop="@id/condition_hi"
                 android:layout_alignBottom="@id/condition_hi"
                 android:layout_marginTop="2dp"
-                android:src="@drawable/direction_down"
-                android:tint="@android:color/white" />
+                android:src="@drawable/direction_down" />
 
         </RelativeLayout>
 
@@ -173,8 +171,7 @@
                 android:layout_height="24dp"
                 android:layout_gravity="end"
                 android:padding="2dp"
-                android:src="@drawable/cloudy"
-                android:tint="@android:color/white" />
+                android:src="@drawable/cloudy" />
 
             <TextView
                 android:id="@+id/weather_pop"
@@ -207,8 +204,7 @@
                 android:layout_height="24dp"
                 android:layout_gravity="end"
                 android:padding="2dp"
-                android:src="@drawable/direction_up"
-                android:tint="@android:color/white" />
+                android:src="@drawable/direction_up" />
 
             <TextView
                 android:id="@+id/weather_windspeed"

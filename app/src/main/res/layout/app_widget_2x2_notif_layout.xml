@@ -94,8 +94,7 @@
                 android:layout_toRightOf="@id/condition_hi"
                 android:layout_alignTop="@id/condition_hi"
                 android:layout_alignBottom="@id/condition_hi"
-                android:src="@drawable/direction_up"
-                android:tint="@android:color/white" />
+                android:src="@drawable/direction_up" />
 
             <TextView
                 android:id="@+id/divider"
@@ -137,8 +136,7 @@
                 android:layout_alignTop="@id/condition_hi"
                 android:layout_alignBottom="@id/condition_hi"
                 android:layout_marginTop="2dp"
-                android:src="@drawable/direction_down"
-                android:tint="@android:color/white" />
+                android:src="@drawable/direction_down" />
 
         </RelativeLayout>
 

@@ -64,6 +64,7 @@ import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
+import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.GlideApp;
@@ -1347,9 +1348,11 @@ public class WeatherWidgetService extends JobIntentService {
             tempTextSize = 24;
 
         float shadowRadius = 1.75f;
-        if ((provider.getWidgetType() == WidgetType.Widget2x2 && style != WidgetUtils.WidgetBackgroundStyle.FULLBACKGROUND) ||
-                (provider.getWidgetType() == WidgetType.Widget4x2 && background != WidgetUtils.WidgetBackground.CURRENT_CONDITIONS))
+        if (background != WidgetUtils.WidgetBackground.TRANSPARENT && style != WidgetUtils.WidgetBackgroundStyle.FULLBACKGROUND &&
+                (provider.getWidgetType() == WidgetType.Widget2x2 ||
+                        provider.getWidgetType() == WidgetType.Widget4x2 && background != WidgetUtils.WidgetBackground.CURRENT_CONDITIONS)) {
             shadowRadius = 0f;
+        }
 
         if (provider.getWidgetType() != WidgetType.Widget2x2 &&
                 provider.getWidgetType() != WidgetType.Widget4x1Google &&
@@ -1387,17 +1390,29 @@ public class WeatherWidgetService extends JobIntentService {
         }
 
         if (provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x1Notification) {
+            int textSize = (int) ActivityUtils.dpToPx(mContext, 24f);
+
+            updateViews.setImageViewBitmap(R.id.hi_icon,
+                    ImageUtils.weatherIconToBitmap(mContext, WeatherIcons.DIRECTION_UP, textSize, Colors.WHITE, shadowRadius * 4f)
+            );
+            updateViews.setImageViewBitmap(R.id.lo_icon,
+                    ImageUtils.weatherIconToBitmap(mContext, WeatherIcons.DIRECTION_DOWN, textSize, Colors.WHITE, shadowRadius * 4f)
+            );
+
             if (style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
                 updateViews.setTextColor(R.id.condition_hi, panelTextColor);
                 updateViews.setTextColor(R.id.divider, panelTextColor);
                 updateViews.setTextColor(R.id.condition_lo, panelTextColor);
                 updateViews.setTextColor(R.id.weather_pop, panelTextColor);
                 updateViews.setTextColor(R.id.weather_windspeed, panelTextColor);
-                updateViews.setInt(R.id.hi_icon, "setColorFilter", panelTextColor);
-                updateViews.setInt(R.id.lo_icon, "setColorFilter", panelTextColor);
+                if (background != WidgetUtils.WidgetBackground.TRANSPARENT) {
+                    updateViews.setInt(R.id.hi_icon, "setColorFilter", panelTextColor);
+                    updateViews.setInt(R.id.lo_icon, "setColorFilter", panelTextColor);
+                    updateViews.setInt(R.id.weather_popicon, "setColorFilter", panelTextColor);
+                    updateViews.setInt(R.id.weather_windicon, "setColorFilter", panelTextColor);
+                }
             }
 
-            int textSize = (int) ActivityUtils.dpToPx(mContext, 24f);
             DetailItemViewModel chanceModel = Iterables.find(weather.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
                 @Override
                 public boolean apply(@NullableDecl DetailItemViewModel input) {
@@ -1406,7 +1421,7 @@ public class WeatherWidgetService extends JobIntentService {
             }, null);
             if (chanceModel != null) {
                 updateViews.setImageViewBitmap(R.id.weather_popicon,
-                        ImageUtils.weatherIconToBitmap(mContext, chanceModel.getIcon(), textSize, panelTextColor, shadowRadius)
+                        ImageUtils.weatherIconToBitmap(mContext, chanceModel.getIcon(), textSize, panelTextColor, shadowRadius * 4f)
                 );
             }
             DetailItemViewModel windModel = Iterables.find(weather.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
@@ -1416,16 +1431,12 @@ public class WeatherWidgetService extends JobIntentService {
                 }
             }, null);
             if (windModel != null) {
-                if (windModel.getIconRotation() != 0) {
-                    updateViews.setImageViewBitmap(R.id.weather_windicon,
-                            ImageUtils.rotateBitmap(ImageUtils.bitmapFromDrawable(mContext, R.drawable.direction_up), windModel.getIconRotation())
-                    );
-                } else {
-                    updateViews.setImageViewResource(R.id.weather_windicon, R.drawable.direction_up);
-                }
-                if (style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
-                    updateViews.setInt(R.id.weather_windicon, "setColorFilter", panelTextColor);
-                }
+                updateViews.setImageViewBitmap(R.id.weather_windicon,
+                        ImageUtils.rotateBitmap(
+                                ImageUtils.weatherIconToBitmap(mContext, WeatherIcons.DIRECTION_UP, textSize, panelTextColor, shadowRadius * 4f),
+                                windModel.getIconRotation()
+                        )
+                );
             }
         }
 
