@@ -84,7 +84,6 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
     private static final int PERMISSION_BGLOCATION_REQUEST_CODE = 1;
-    private boolean requestedBGAccess;
 
     // Preference Keys
     private static final String KEY_FEATURES = "key_features";
@@ -324,7 +323,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                             Settings.setFollowGPS(false);
                             return false;
                         } else {
-                            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !requestedBGAccess &&
+                            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !Settings.requestedBGAccess() &&
                                     ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                                 Snackbar snackbar = Snackbar.make(R.string.bg_location_permission_rationale, Snackbar.Duration.LONG);
                                 snackbar.setAction(android.R.string.ok, new View.OnClickListener() {
@@ -335,7 +334,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                                     }
                                 });
                                 showSnackbar(snackbar, null);
-                                requestedBGAccess = true;
+                                Settings.setRequestBGAccess(true);
                             }
                         }
                     }
@@ -570,7 +569,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                     if (notCategory.findPreference(KEY_NOTIFICATIONICON) == null)
                         notCategory.addPreference(notificationIcon);
 
-                    if (Settings.useFollowGPS() && Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !requestedBGAccess &&
+                    if (Settings.useFollowGPS() && Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !Settings.requestedBGAccess() &&
                             ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         Snackbar snackbar = Snackbar.make(R.string.bg_location_permission_rationale, Snackbar.Duration.LONG);
                         snackbar.setAction(android.R.string.ok, new View.OnClickListener() {
@@ -581,7 +580,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                             }
                         });
                         showSnackbar(snackbar, null);
-                        requestedBGAccess = true;
+                        Settings.setRequestBGAccess(true);
                     }
                 } else {
                     WeatherNotificationService.enqueueWork(context, new Intent(context, WeatherNotificationService.class)

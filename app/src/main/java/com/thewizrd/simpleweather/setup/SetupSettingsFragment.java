@@ -29,7 +29,6 @@ import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 public class SetupSettingsFragment extends CustomPreferenceFragmentCompat {
 
     private FragmentSetupSettingsBinding binding;
-    private boolean requestedBGAccess;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -89,7 +88,7 @@ public class SetupSettingsFragment extends CustomPreferenceFragmentCompat {
                 boolean value = (boolean) newValue;
                 notIconPref.setVisible(value);
 
-                if (value && Settings.useFollowGPS() && Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !requestedBGAccess &&
+                if (value && Settings.useFollowGPS() && Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !Settings.requestedBGAccess() &&
                         ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     requireView().post(new Runnable() {
                         @Override
@@ -103,7 +102,7 @@ public class SetupSettingsFragment extends CustomPreferenceFragmentCompat {
                                 }
                             });
                             showSnackbar(snackbar, null);
-                            requestedBGAccess = true;
+                            Settings.setRequestBGAccess(true);
                         }
                     });
                 }

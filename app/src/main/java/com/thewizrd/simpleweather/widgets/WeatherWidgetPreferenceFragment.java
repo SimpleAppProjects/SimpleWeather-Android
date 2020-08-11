@@ -133,7 +133,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private LocationCallback mLocCallback;
     private LocationListener mLocListnr;
     private CancellationTokenSource cts;
-    private boolean requestedBGAccess;
 
     /**
      * Tracks the status of the location updates request.
@@ -1167,7 +1166,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                             return false;
                         }
 
-                        if (Settings.useFollowGPS() && Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !requestedBGAccess &&
+                        if (Settings.useFollowGPS() && Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !Settings.requestedBGAccess() &&
                                 ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             Snackbar snackbar = Snackbar.make(R.string.bg_location_permission_rationale, Snackbar.Duration.LONG);
                             snackbar.setAction(android.R.string.ok, new View.OnClickListener() {
@@ -1186,7 +1185,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                                     }
                                 }
                             });
-                            requestedBGAccess = true;
+                            Settings.setRequestBGAccess(true);
                             ctsCancel();
                             return false;
                         }

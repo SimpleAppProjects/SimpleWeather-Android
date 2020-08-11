@@ -1,5 +1,6 @@
 package com.thewizrd.shared_resources.utils;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -93,6 +94,7 @@ public class Settings {
     public static final String KEY_USEALERTS = "key_usealerts";
     public static final String KEY_USEPERSONALKEY = "key_usepersonalkey";
     private static final String KEY_CURRENTVERSION = "key_currentversion";
+    private static final String KEY_REQUESTED_BGLOCATION_ACCESS = "key_requested_bglocation_access";
     // !ANDROID_WEAR
     public static final String KEY_ONGOINGNOTIFICATION = "key_ongoingnotification";
     public static final String KEY_NOTIFICATIONICON = "key_notificationicon";
@@ -916,6 +918,17 @@ public class Settings {
 
     public static void setUserThemeMode(UserThemeMode value) {
         editor.putString(KEY_USERTHEME, Integer.toString(value.getValue()));
+        editor.commit();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    public static boolean requestedBGAccess() {
+        return preferences.getBoolean(Manifest.permission.ACCESS_BACKGROUND_LOCATION, false);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    public static void setRequestBGAccess(boolean value) {
+        editor.putBoolean(Manifest.permission.ACCESS_BACKGROUND_LOCATION, value);
         editor.commit();
     }
     // END - !ANDROID_WEAR
