@@ -88,20 +88,17 @@ public class LocationSearchFragment extends SwipeDismissFragment {
         setUserVisibleHint(true);
     }
 
-    public CancellationTokenSource getCancellationTokenSource() {
-        return cts;
-    }
-
     public void ctsCancel() {
         if (cts != null) cts.cancel();
         cts = new CancellationTokenSource();
     }
 
     public boolean ctsCancelRequested() {
-        if (cts == null)
-            return false;
-        else
+        if (cts != null) {
             return cts.getToken().isCancellationRequested();
+        } else {
+            return true;
+        }
     }
 
     @Override
@@ -116,20 +113,26 @@ public class LocationSearchFragment extends SwipeDismissFragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        cts = new CancellationTokenSource();
+    }
+
+    @Override
     public void onPause() {
-        ctsCancel();
+        if (cts != null) cts.cancel();
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        ctsCancel();
+        if (cts != null) cts.cancel();
         super.onDestroy();
     }
 
     @Override
     public void onDetach() {
-        ctsCancel();
+        if (cts != null) cts.cancel();
         super.onDetach();
     }
 

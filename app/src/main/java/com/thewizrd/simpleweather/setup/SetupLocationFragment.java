@@ -68,7 +68,6 @@ import com.thewizrd.simpleweather.databinding.FragmentSetupLocationBinding;
 import com.thewizrd.simpleweather.fragments.CustomFragment;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
-import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback;
 import com.thewizrd.simpleweather.wearable.WearableWorker;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
@@ -373,11 +372,9 @@ public class SetupLocationFragment extends CustomFragment {
 
                     if (isAlive()) {
                         if (e instanceof WeatherException || e instanceof CustomException) {
-                            showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
-                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                            showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT), null);
                         } else {
-                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
-                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
                         }
                     }
                 }
@@ -488,11 +485,9 @@ public class SetupLocationFragment extends CustomFragment {
                             locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
 
                         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                            showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG),
-                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                            showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
                         } else {
-                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
-                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
                         }
                     }
                 }
@@ -506,11 +501,9 @@ public class SetupLocationFragment extends CustomFragment {
 
                     if (isAlive()) {
                         if (e instanceof WeatherException || e instanceof CustomException) {
-                            showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
-                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                            showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT), null);
                         } else {
-                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
-                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
                         }
                     }
                 }
@@ -613,8 +606,7 @@ public class SetupLocationFragment extends CustomFragment {
                     // functionality that depends on this permission.
                     enableControls(true);
                     if (isAlive()) {
-                        showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT),
-                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                        showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null);
                     }
                 }
             }

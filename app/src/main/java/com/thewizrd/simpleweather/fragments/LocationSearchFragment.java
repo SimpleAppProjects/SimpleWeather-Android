@@ -114,13 +114,6 @@ public class LocationSearchFragment extends WindowColorFragment {
         cts = new CancellationTokenSource();
     }
 
-    public boolean ctsCancelRequested() {
-        if (cts == null)
-            return false;
-        else
-            return cts.getToken().isCancellationRequested();
-    }
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -177,6 +170,10 @@ public class LocationSearchFragment extends WindowColorFragment {
             showLoading(true);
             enableRecyclerView(false);
 
+            // Cancel other tasks
+            ctsCancel();
+            final CancellationToken token = cts.getToken();
+
             AsyncTask.create(new Callable<LocationData>() {
                 @Override
                 public LocationData call() throws CustomException, InterruptedException, WeatherException {
@@ -190,10 +187,7 @@ public class LocationSearchFragment extends WindowColorFragment {
                         throw new CustomException(R.string.error_retrieve_location);
                     }
 
-                    // Cancel other tasks
-                    ctsCancel();
-
-                    if (ctsCancelRequested()) throw new InterruptedException();
+                    if (token.isCancellationRequested()) throw new InterruptedException();
 
                     String country_code = queryResult.getLocationCountry();
                     if (!StringUtils.isNullOrWhitespace(country_code))
@@ -232,7 +226,7 @@ public class LocationSearchFragment extends WindowColorFragment {
                         return null;
                     }
 
-                    if (ctsCancelRequested()) throw new InterruptedException();
+                    if (token.isCancellationRequested()) throw new InterruptedException();
 
                     LocationData location = new LocationData(queryResult);
                     if (!location.isValid()) {

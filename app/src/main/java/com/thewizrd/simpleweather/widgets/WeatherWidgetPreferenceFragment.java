@@ -63,6 +63,7 @@ import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -70,6 +71,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.AsyncTask;
@@ -131,6 +133,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private LocationCallback mLocCallback;
     private LocationListener mLocListnr;
     private CancellationTokenSource cts;
+    private boolean requestedBGAccess;
 
     /**
      * Tracks the status of the location updates request.
@@ -164,6 +167,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
     private static final int MAX_LOCATIONS = Settings.getMaxLocations();
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
+    private static final int PERMISSION_BGLOCATION_REQUEST_CODE = 1;
     private static final int SETUP_REQUEST_CODE = 10;
 
     // Preference Keys
@@ -211,13 +215,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     public void onDestroy() {
         ctsCancel();
         super.onDestroy();
-    }
-
-    private boolean isCtsCancelRequested() {
-        if (cts != null)
-            return cts.getToken().isCancellationRequested();
-        else
-            return true;
     }
 
     private void ctsCancel() {
@@ -1150,20 +1147,47 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             final String locationItemValue = locationPref.getValue();
 
             if (Constants.KEY_GPS.equals(locationItemValue)) {
+                ctsCancel();
+                final CancellationToken token = cts.getToken();
+
                 // Check location
                 AsyncTask.create(new Callable<Boolean>() {
                     @Override
-                    public Boolean call() throws CustomException {
+                    public Boolean call() throws CustomException, InterruptedException {
                         // Changing location to GPS
                         if (ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                                 ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
                                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION},
                                         PERMISSION_LOCATION_REQUEST_CODE);
                             } else {
                                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                                         PERMISSION_LOCATION_REQUEST_CODE);
                             }
+                            return false;
+                        }
+
+                        if (Settings.useFollowGPS() && Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !requestedBGAccess &&
+                                ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            Snackbar snackbar = Snackbar.make(R.string.bg_location_permission_rationale, Snackbar.Duration.LONG);
+                            snackbar.setAction(android.R.string.ok, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                                            PERMISSION_BGLOCATION_REQUEST_CODE);
+                                }
+                            });
+                            showSnackbar(snackbar, new com.google.android.material.snackbar.Snackbar.Callback() {
+                                @Override
+                                public void onDismissed(com.google.android.material.snackbar.Snackbar transientBottomBar, int event) {
+                                    super.onDismissed(transientBottomBar, event);
+                                    if (event != BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION) {
+                                        prepareWidget();
+                                    }
+                                }
+                            });
+                            requestedBGAccess = true;
+                            ctsCancel();
                             return false;
                         }
 
@@ -1187,7 +1211,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                 }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Boolean>() {
                     @Override
                     public void onSuccess(Boolean success) {
-                        if (success) {
+                        if (success && !token.isCancellationRequested()) {
                             Settings.setFollowGPS(true);
 
                             // Reset data for widget
@@ -1362,10 +1386,13 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                     }
                 }
 
-                if (location != null && !isCtsCancelRequested()) {
+                ctsCancel();
+                CancellationToken token = cts.getToken();
+
+                if (location != null && !token.isCancellationRequested()) {
                     LocationQueryViewModel query_vm;
 
-                    TaskCompletionSource<LocationQueryViewModel> tcs = new TaskCompletionSource<>(cts.getToken());
+                    TaskCompletionSource<LocationQueryViewModel> tcs = new TaskCompletionSource<>(token);
                     try {
                         tcs.setResult(wm.getLocation(location));
                         query_vm = Tasks.await(tcs.getTask());
@@ -1384,7 +1411,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                         return false;
                     }
 
-                    if (isCtsCancelRequested()) return false;
+                    if (token.isCancellationRequested()) return false;
 
                     // Save location as last known
                     Settings.saveLastGPSLocData(new LocationData(query_vm, location));
@@ -1400,7 +1427,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case PERMISSION_LOCATION_REQUEST_CODE: {
+            case PERMISSION_LOCATION_REQUEST_CODE:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -1412,8 +1439,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                     // functionality that depends on this permission.
                     showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null);
                 }
-                return;
-            }
+                break;
             default:
                 break;
         }

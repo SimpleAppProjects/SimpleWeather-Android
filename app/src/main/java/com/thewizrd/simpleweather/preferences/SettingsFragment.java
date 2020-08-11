@@ -43,7 +43,6 @@ import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.SwitchPreferenceCompat;
 
-import com.google.android.material.snackbar.Snackbar;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -61,6 +60,7 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
+import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.wearable.WearableWorker;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
@@ -83,6 +83,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener, UserThemeMode.OnThemeChangeListener {
 
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
+    private static final int PERMISSION_BGLOCATION_REQUEST_CODE = 1;
+    private boolean requestedBGAccess;
 
     // Preference Keys
     private static final String KEY_FEATURES = "key_features";
@@ -246,7 +248,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) &&
                 WeatherManager.isKeyRequired(providerPref.getValue())) {
             // Set keyentrypref color to red
-            Snackbar.make(getRootView(), R.string.message_enter_apikey, Snackbar.LENGTH_LONG).show();
+            showSnackbar(Snackbar.make(R.string.message_enter_apikey, Snackbar.Duration.LONG), null);
             return true;
         }
 
@@ -317,10 +319,24 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                     } else {
                         LocationManager locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
                         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                            Snackbar.make(getRootView(), R.string.error_enable_location_services, Snackbar.LENGTH_SHORT).show();
+                            showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.SHORT), null);
 
                             Settings.setFollowGPS(false);
                             return false;
+                        } else {
+                            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !requestedBGAccess &&
+                                    ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                Snackbar snackbar = Snackbar.make(R.string.bg_location_permission_rationale, Snackbar.Duration.LONG);
+                                snackbar.setAction(android.R.string.ok, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                                                PERMISSION_BGLOCATION_REQUEST_CODE);
+                                    }
+                                });
+                                showSnackbar(snackbar, null);
+                                requestedBGAccess = true;
+                            }
                         }
                     }
                 }
@@ -553,6 +569,20 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
                     if (notCategory.findPreference(KEY_NOTIFICATIONICON) == null)
                         notCategory.addPreference(notificationIcon);
+
+                    if (Settings.useFollowGPS() && Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !requestedBGAccess &&
+                            ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        Snackbar snackbar = Snackbar.make(R.string.bg_location_permission_rationale, Snackbar.Duration.LONG);
+                        snackbar.setAction(android.R.string.ok, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                                        PERMISSION_BGLOCATION_REQUEST_CODE);
+                            }
+                        });
+                        showSnackbar(snackbar, null);
+                        requestedBGAccess = true;
+                    }
                 } else {
                     WeatherNotificationService.enqueueWork(context, new Intent(context, WeatherNotificationService.class)
                             .setAction(WeatherNotificationService.ACTION_REMOVENOTIFICATION));
@@ -729,9 +759,11 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                     // functionality that depends on this permission.
                     followGps.setChecked(false);
                     Settings.setFollowGPS(false);
-                    Snackbar.make(getRootView(), R.string.error_location_denied, Snackbar.LENGTH_SHORT).show();
+                    showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null);
                 }
                 return;
+            case PERMISSION_BGLOCATION_REQUEST_CODE:
+                break;
             default:
                 break;
         }
