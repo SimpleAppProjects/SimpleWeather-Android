@@ -41,17 +41,17 @@ public class FCMWorker extends Worker {
         Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG);
 
         Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-                .setRequiresCharging(false)
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresCharging(true)
                 .build();
 
         OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(FCMWorker.class)
                 .setConstraints(constraints)
-                .setInitialDelay(1, TimeUnit.MINUTES)
+                .setInitialDelay(1, TimeUnit.HOURS)
                 .build();
 
         WorkManager.getInstance(context)
-                .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.KEEP, updateRequest);
+                .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.REPLACE, updateRequest);
 
         Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG);
     }
