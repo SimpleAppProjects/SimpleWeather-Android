@@ -30,6 +30,8 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.main.MainActivity;
 
+import org.threeten.bp.ZonedDateTime;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -62,6 +64,9 @@ public class WeatherAlertNotificationBuilder {
 
         // Build update
         for (WeatherAlert alert : alerts) {
+            if (alert.getDate().isAfter(ZonedDateTime.now()))
+                continue;
+
             final WeatherAlertViewModel alertVM = new WeatherAlertViewModel(alert);
 
             String title = String.format("%s - %s", alertVM.getTitle(), location.getName());

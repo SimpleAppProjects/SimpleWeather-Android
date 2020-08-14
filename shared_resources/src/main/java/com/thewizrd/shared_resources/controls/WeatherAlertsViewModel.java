@@ -50,12 +50,13 @@ public class WeatherAlertsViewModel extends ObservableViewModel {
                         public List<WeatherAlertViewModel> apply(WeatherAlerts weatherAlerts) {
                             List<WeatherAlertViewModel> alerts;
 
-                            if (weatherAlerts != null && weatherAlerts.getAlerts() != null && weatherAlerts.getAlerts().size() > 0) {
+                            if (weatherAlerts != null && weatherAlerts.getAlerts() != null && !weatherAlerts.getAlerts().isEmpty()) {
                                 alerts = new ArrayList<>(weatherAlerts.getAlerts().size());
+                                final ZonedDateTime now = ZonedDateTime.now();
 
                                 for (WeatherAlert alert : weatherAlerts.getAlerts()) {
                                     // Skip if alert has expired
-                                    if (alert.getExpiresDate().isBefore(ZonedDateTime.now()))
+                                    if (!alert.getExpiresDate().isAfter(now) || alert.getDate().isAfter(now))
                                         continue;
 
                                     WeatherAlertViewModel alertView = new WeatherAlertViewModel(alert);
