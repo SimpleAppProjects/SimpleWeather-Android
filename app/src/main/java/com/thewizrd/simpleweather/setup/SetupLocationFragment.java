@@ -267,6 +267,7 @@ public class SetupLocationFragment extends CustomFragment {
             @Override
             public void onChanged(String result) {
                 // Do something with the result.
+                enableControls(false);
                 if (result != null) {
                     // Save data
                     LocationData data = JSONParser.deserializer(result, LocationData.class);
@@ -275,8 +276,10 @@ public class SetupLocationFragment extends CustomFragment {
                         viewModel.setLocationData(data);
                         Navigation.findNavController(binding.getRoot())
                                 .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment());
+                        return;
                     }
                 }
+                enableControls(true);
             }
         });
     }
