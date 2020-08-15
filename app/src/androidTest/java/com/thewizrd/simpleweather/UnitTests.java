@@ -31,6 +31,7 @@ import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
+import com.thewizrd.shared_resources.weatherdata.images.ImageDatabase;
 import com.thewizrd.shared_resources.weatherdata.nws.SolCalcAstroProvider;
 
 import org.junit.Assert;
@@ -46,7 +47,7 @@ import java.util.Locale;
 import java.util.concurrent.Callable;
 
 @RunWith(AndroidJUnit4.class)
-public class WeatherUnitTest {
+public class UnitTests {
     @Before
     public void init() {
         // Context of the app under test.
@@ -136,14 +137,14 @@ public class WeatherUnitTest {
                 return HEREOAuthUtils.getBearerToken(true);
             }
         });
-        Assert.assertTrue(!StringUtils.isNullOrWhitespace(token));
+        Assert.assertFalse(StringUtils.isNullOrWhitespace(token));
     }
 
     @Test
     public void getTimeZone() {
         String tz = new TimeZoneProvider().getTimeZone(0, 0);
         Log.d("TZTest", "tz = " + tz);
-        Assert.assertTrue(!StringUtils.isNullOrWhitespace(tz));
+        Assert.assertFalse(StringUtils.isNullOrWhitespace(tz));
     }
 
     @Test
@@ -184,5 +185,11 @@ public class WeatherUnitTest {
         Log.d("SolCalc", String.format(Locale.ROOT,
                 "Sunrise: %s; Sunset: %s", astro.getSunrise().format(fmt), astro.getSunset().format(fmt)));
         Assert.assertTrue(astro.getSunrise() != LocalDateTime.MIN && astro.getSunset() != LocalDateTime.MIN);
+    }
+
+    @Test
+    public void firestoreDBTest() {
+        long updateTime = ImageDatabase.getLastUpdateTime();
+        Assert.assertNotEquals(updateTime, 0);
     }
 }
