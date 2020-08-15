@@ -6,69 +6,69 @@ import com.vimeo.stag.UseStag;
 @UseStag(UseStag.FieldOption.ALL)
 public class ForecastsItem {
 
-    @SerializedName("date")
-    private String date;
+	@SerializedName("date")
+	private long date;
 
-    @SerializedName("high")
-    private String high;
+	@SerializedName("high")
+	private int high;
 
-    @SerializedName("code")
-    private String code;
+	@SerializedName("code")
+	private int code;
 
-    @SerializedName("low")
-    private String low;
+	@SerializedName("low")
+	private int low;
 
-    @SerializedName("text")
-    private String text;
+	@SerializedName("text")
+	private String text;
 
-    @SerializedName("day")
-    private String day;
+	@SerializedName("day")
+	private String day;
 
-    public void setDate(String date) {
-        this.date = date;
-    }
+	public void setDate(long date) {
+		this.date = date;
+	}
 
-    public String getDate() {
-        return date;
-    }
+	public long getDate() {
+		return date;
+	}
 
-    public void setHigh(String high) {
-        this.high = high;
-    }
+	public void setHigh(int high) {
+		this.high = high;
+	}
 
-    public String getHigh() {
-        return high;
-    }
+	public int getHigh() {
+		return high;
+	}
 
-    public void setCode(String code) {
-        this.code = code;
-    }
+	public void setCode(int code) {
+		this.code = code;
+	}
 
-    public String getCode() {
-        return code;
-    }
+	public int getCode() {
+		return code;
+	}
 
-    public void setLow(String low) {
-        this.low = low;
-    }
+	public void setLow(int low) {
+		this.low = low;
+	}
 
-    public String getLow() {
-        return low;
-    }
+	public int getLow() {
+		return low;
+	}
 
-    public void setText(String text) {
-        this.text = text;
-    }
+	public void setText(String text) {
+		this.text = text;
+	}
 
-    public String getText() {
-        return text;
-    }
+	public String getText() {
+		return text;
+	}
 
-    public void setDay(String day) {
-        this.day = day;
-    }
+	public void setDay(String day) {
+		this.day = day;
+	}
 
-    public String getDay() {
-        return day;
-    }
+	public String getDay() {
+		return day;
+	}
 }

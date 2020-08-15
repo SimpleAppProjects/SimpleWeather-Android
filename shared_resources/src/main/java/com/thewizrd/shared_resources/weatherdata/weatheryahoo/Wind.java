@@ -6,36 +6,36 @@ import com.vimeo.stag.UseStag;
 @UseStag(UseStag.FieldOption.ALL)
 public class Wind {
 
-    @SerializedName("chill")
-    private String chill;
+	@SerializedName("chill")
+	private int chill;
 
-    @SerializedName("speed")
-    private String speed;
+	@SerializedName("speed")
+	private float speed;
 
-    @SerializedName("direction")
-    private String direction;
+	@SerializedName("direction")
+	private int direction;
 
-    public void setChill(String chill) {
-        this.chill = chill;
-    }
+	public void setChill(int chill) {
+		this.chill = chill;
+	}
 
-    public String getChill() {
-        return chill;
-    }
+	public int getChill() {
+		return chill;
+	}
 
-    public void setSpeed(String speed) {
-        this.speed = speed;
-    }
+	public void setSpeed(float speed) {
+		this.speed = speed;
+	}
 
-    public String getSpeed() {
-        return speed;
-    }
+	public float getSpeed() {
+		return speed;
+	}
 
-    public void setDirection(String direction) {
-        this.direction = direction;
-    }
+	public void setDirection(int direction) {
+		this.direction = direction;
+	}
 
-    public String getDirection() {
-        return direction;
-    }
+	public int getDirection() {
+		return direction;
+	}
 }

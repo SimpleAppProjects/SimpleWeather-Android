@@ -6,48 +6,47 @@ import com.vimeo.stag.UseStag;
 @UseStag(UseStag.FieldOption.ALL)
 public class Atmosphere {
 
-    @SerializedName("rising")
-    private String rising;
+	@SerializedName("rising")
+	private int rising;
 
-    @SerializedName("visibility")
-    private String visibility;
+	@SerializedName("visibility")
+	private float visibility;
 
-    @SerializedName("humidity")
-    private String humidity;
+	@SerializedName("humidity")
+	private int humidity;
 
-    @SerializedName("pressure")
-    private String pressure;
+	@SerializedName("pressure")
+	private float pressure;
 
-    public void setRising(String rising) {
-        this.rising = rising;
-    }
+	public void setRising(int rising) {
+		this.rising = rising;
+	}
 
-    public String getRising() {
-        return rising;
-    }
+	public int getRising() {
+		return rising;
+	}
 
-    public void setVisibility(String visibility) {
-        this.visibility = visibility;
-    }
+	public void setVisibility(float visibility) {
+		this.visibility = visibility;
+	}
 
-    public String getVisibility() {
-        return visibility;
-    }
+	public float getVisibility() {
+		return visibility;
+	}
 
-    public void setHumidity(String humidity) {
-        this.humidity = humidity;
-    }
+	public void setHumidity(int humidity) {
+		this.humidity = humidity;
+	}
 
-    public String getHumidity() {
-        return humidity;
-    }
+	public int getHumidity() {
+		return humidity;
+	}
 
-    public void setPressure(String pressure) {
-        this.pressure = pressure;
-    }
+	public void setPressure(float pressure) {
+		this.pressure = pressure;
+	}
 
-    public String getPressure() {
-        return pressure;
-    }
-
+	public float getPressure() {
+		return pressure;
+	}
 }

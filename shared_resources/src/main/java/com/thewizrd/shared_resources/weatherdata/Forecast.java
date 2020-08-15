@@ -58,14 +58,14 @@ public class Forecast extends CustomJsonObject {
     }
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.weatheryahoo.ForecastsItem forecast) {
-        date = LocalDateTime.ofEpochSecond(Long.parseLong(forecast.getDate()), 0, ZoneOffset.UTC);
-        highF = Float.parseFloat(forecast.getHigh());
+        date = LocalDateTime.ofEpochSecond(forecast.getDate(), 0, ZoneOffset.UTC);
+        highF = (float) forecast.getHigh();
         highC = ConversionMethods.FtoC(highF);
-        lowF = Float.parseFloat(forecast.getLow());
+        lowF = (float) forecast.getLow();
         lowC = ConversionMethods.FtoC(lowF);
         condition = forecast.getText();
         icon = WeatherManager.getProvider(WeatherAPI.YAHOO)
-                .getWeatherIcon(forecast.getCode());
+                .getWeatherIcon(Integer.toString(forecast.getCode()));
     }
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.openweather.DailyItem forecast) {

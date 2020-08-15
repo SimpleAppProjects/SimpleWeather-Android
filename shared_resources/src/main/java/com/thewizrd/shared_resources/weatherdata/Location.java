@@ -47,8 +47,8 @@ public class Location extends CustomJsonObject {
     public Location(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Location location) {
         // Use location name from location provider
         name = null;
-        latitude = location.getLat().floatValue();
-        longitude = location.get_long().floatValue();
+        latitude = (float) location.getLat();
+        longitude = (float) location.getJsonMemberLong();
 
         ZoneId zId = ZoneId.of(location.getTimezoneId());
 

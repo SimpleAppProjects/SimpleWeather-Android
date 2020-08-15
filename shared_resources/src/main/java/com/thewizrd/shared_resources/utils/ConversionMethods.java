@@ -83,9 +83,8 @@ public class ConversionMethods {
         return (input * (9f / 5)) - 459.67f;
     }
 
-    public static ZonedDateTime toEpochDateTime(String epoch_time) {
-        long epoch = Long.parseLong(epoch_time);
-        return ZonedDateTime.ofInstant(Instant.ofEpochSecond(epoch), ZoneOffset.UTC);
+    public static ZonedDateTime toEpochDateTime(long epochSeconds) {
+        return ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneOffset.UTC);
     }
 
     public static double toRadians(double angle) {

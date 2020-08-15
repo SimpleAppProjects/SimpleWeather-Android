@@ -48,11 +48,11 @@ public class Atmosphere extends CustomJsonObject {
     }
 
     public Atmosphere(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Atmosphere atmosphere) {
-        humidity = NumberUtils.tryParseInt(atmosphere.getHumidity());
-        pressureIn = NumberUtils.tryParseFloat(atmosphere.getPressure());
+        humidity = atmosphere.getHumidity();
+        pressureIn = atmosphere.getPressure();
         pressureMb = ConversionMethods.inHgToMB(pressureIn);
-        pressureTrend = atmosphere.getRising();
-        visibilityMi = NumberUtils.tryParseFloat(atmosphere.getVisibility());
+        pressureTrend = Integer.toString(atmosphere.getRising());
+        visibilityMi = atmosphere.getVisibility();
         visibilityKm = ConversionMethods.miToKm(visibilityMi);
     }
 

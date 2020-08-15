@@ -84,15 +84,15 @@ public class Condition extends CustomJsonObject {
 
     public Condition(com.thewizrd.shared_resources.weatherdata.weatheryahoo.CurrentObservation observation) {
         weather = observation.getCondition().getText();
-        tempF = NumberUtils.tryParseFloat(observation.getCondition().getTemperature());
+        tempF = (float) observation.getCondition().getTemperature();
         tempC = ConversionMethods.FtoC(tempF);
-        windDegrees = NumberUtils.tryParseInt(observation.getWind().getDirection());
-        windMph = NumberUtils.tryParseFloat(observation.getWind().getSpeed());
+        windDegrees = observation.getWind().getDirection();
+        windMph = observation.getWind().getSpeed();
         windKph = ConversionMethods.mphTokph(windMph);
-        feelslikeF = NumberUtils.tryParseFloat(observation.getWind().getChill());
+        feelslikeF = (float) observation.getWind().getChill();
         feelslikeC = ConversionMethods.FtoC(feelslikeF);
         icon = WeatherManager.getProvider(WeatherAPI.YAHOO)
-                .getWeatherIcon(observation.getCondition().getCode());
+                .getWeatherIcon(Integer.toString(observation.getCondition().getCode()));
 
         beaufort = new Beaufort(WeatherUtils.getBeaufortScale((int) Math.round(windMph)).getValue());
     }

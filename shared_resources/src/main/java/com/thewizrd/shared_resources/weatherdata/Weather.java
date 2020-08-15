@@ -75,7 +75,7 @@ public class Weather extends CustomJsonObject {
 
     public Weather(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Rootobject root) {
         location = new Location(root.getLocation());
-        updateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(Long.parseLong(root.getCurrentObservation().getPubDate())), ZoneOffset.UTC);
+        updateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(root.getCurrentObservation().getPubDate()), ZoneOffset.UTC);
         forecast = new ArrayList<>(root.getForecasts().size());
         for (int i = 0; i < root.getForecasts().size(); i++) {
             forecast.add(new Forecast(root.getForecasts().get(i)));
