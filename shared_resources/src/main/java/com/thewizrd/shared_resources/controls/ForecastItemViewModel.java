@@ -67,15 +67,19 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
             if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
                 if (forecast.getExtras().getQpfRainIn() != null && forecast.getExtras().getQpfRainIn() >= 0) {
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN,
-                            Settings.isFahrenheit() ?
-                                    String.format(Locale.getDefault(), "%.2f in", forecast.getExtras().getQpfRainIn()) :
-                                    String.format(Locale.getDefault(), "%.2f mm", forecast.getExtras().getQpfRainMm())));
+                                    Settings.isFahrenheit() ?
+                                            String.format(Locale.getDefault(), "%.2f in", forecast.getExtras().getQpfRainIn()) :
+                                            String.format(Locale.getDefault(), "%.2f mm", forecast.getExtras().getQpfRainMm())
+                            )
+                    );
                 }
                 if (forecast.getExtras().getQpfSnowIn() != null && forecast.getExtras().getQpfSnowIn() >= 0) {
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW,
-                            Settings.isFahrenheit() ?
-                                    String.format(Locale.getDefault(), "%.2f in", forecast.getExtras().getQpfSnowIn()) :
-                                    String.format(Locale.getDefault(), "%.2f cm", forecast.getExtras().getQpfSnowCm())));
+                                    Settings.isFahrenheit() ?
+                                            String.format(Locale.getDefault(), "%.2f in", forecast.getExtras().getQpfSnowIn()) :
+                                            String.format(Locale.getDefault(), "%.2f cm", forecast.getExtras().getQpfSnowCm())
+                            )
+                    );
                 }
                 if (forecast.getExtras().getPop() != null && forecast.getExtras().getPop() >= 0)
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, chance));
@@ -84,15 +88,19 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, chance));
                 if (forecast.getExtras().getQpfRainIn() != null && forecast.getExtras().getQpfRainIn() >= 0) {
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN,
-                            Settings.isFahrenheit() ?
-                                    String.format(Locale.getDefault(), "%.2f in", forecast.getExtras().getQpfRainIn()) :
-                                    String.format(Locale.getDefault(), "%.2f mm", forecast.getExtras().getQpfRainMm())));
+                                    Settings.isFahrenheit() ?
+                                            String.format(Locale.getDefault(), "%.2f in", forecast.getExtras().getQpfRainIn()) :
+                                            String.format(Locale.getDefault(), "%.2f mm", forecast.getExtras().getQpfRainMm())
+                            )
+                    );
                 }
                 if (forecast.getExtras().getQpfSnowIn() != null && forecast.getExtras().getQpfSnowIn() >= 0) {
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW,
-                            Settings.isFahrenheit() ?
-                                    String.format(Locale.getDefault(), "%.2f in", forecast.getExtras().getQpfSnowIn()) :
-                                    String.format(Locale.getDefault(), "%.2f cm", forecast.getExtras().getQpfSnowCm())));
+                                    Settings.isFahrenheit() ?
+                                            String.format(Locale.getDefault(), "%.2f in", forecast.getExtras().getQpfSnowIn()) :
+                                            String.format(Locale.getDefault(), "%.2f cm", forecast.getExtras().getQpfSnowCm())
+                            )
+                    );
                 }
             }
 
@@ -106,7 +114,9 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
                         String.format(Locale.getDefault(), "%d°",
                                 Settings.isFahrenheit() ?
                                         Math.round(forecast.getExtras().getDewpointF()) :
-                                        Math.round(forecast.getExtras().getDewpointC()))));
+                                        Math.round(forecast.getExtras().getDewpointC())
+                        ))
+                );
             }
 
             if (forecast.getExtras().getUvIndex() != null && forecast.getExtras().getUvIndex() >= 0) {
@@ -116,7 +126,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
                         String.format(Locale.ROOT, "%.1f, %s", uv.getIndex(), uv.getDescription())));
             }
 
-            if (forecast.getExtras().getPressureIn() != null) {
+            if (forecast.getExtras().getPressureIn() != null && forecast.getExtras().getPressureMb() != null) {
                 float pressureVal = Settings.isFahrenheit() ? forecast.getExtras().getPressureIn() : forecast.getExtras().getPressureMb();
                 String pressureUnit = Settings.isFahrenheit() ? "in" : "mb";
 
@@ -124,7 +134,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
                         String.format(Locale.getDefault(), "%.2f %s", pressureVal, pressureUnit)));
             }
 
-            if (forecast.getExtras().getWindMph() != null && forecast.getExtras().getWindMph() >= 0 &&
+            if (forecast.getExtras().getWindMph() != null && forecast.getExtras().getWindKph() != null && forecast.getExtras().getWindMph() >= 0 &&
                     forecast.getExtras().getWindDegrees() != null && forecast.getExtras().getWindDegrees() >= 0) {
                 int speedVal = Settings.isFahrenheit() ? Math.round(forecast.getExtras().getWindMph()) : Math.round(forecast.getExtras().getWindKph());
                 String speedUnit = Settings.isFahrenheit() ? "mph" : "kph";

@@ -63,7 +63,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
 
         pop = hrForecast.getPop() != null ? hrForecast.getPop() + "%" : null;
 
-        if (hrForecast.getWindMph() != null && hrForecast.getWindMph() >= 0 &&
+        if (hrForecast.getWindMph() != null && hrForecast.getWindKph() != null && hrForecast.getWindMph() >= 0 &&
                 hrForecast.getWindDegrees() != null && hrForecast.getWindDegrees() >= 0) {
             windDirection = NumberUtils.getValueOrDefault(hrForecast.getWindDegrees(), 0);
 
@@ -86,15 +86,19 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
             if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
                 if (hrForecast.getExtras().getQpfRainIn() != null && hrForecast.getExtras().getQpfRainIn() >= 0) {
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN,
-                            Settings.isFahrenheit() ?
-                                    String.format(Locale.getDefault(), "%.2f in", hrForecast.getExtras().getQpfRainIn()) :
-                                    String.format(Locale.getDefault(), "%.2f mm", hrForecast.getExtras().getQpfRainMm())));
+                                    Settings.isFahrenheit() ?
+                                            String.format(Locale.getDefault(), "%.2f in", hrForecast.getExtras().getQpfRainIn()) :
+                                            String.format(Locale.getDefault(), "%.2f mm", hrForecast.getExtras().getQpfRainMm())
+                            )
+                    );
                 }
                 if (hrForecast.getExtras().getQpfSnowIn() != null && hrForecast.getExtras().getQpfSnowIn() >= 0) {
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW,
-                            Settings.isFahrenheit() ?
-                                    String.format(Locale.getDefault(), "%.2f in", hrForecast.getExtras().getQpfSnowIn()) :
-                                    String.format(Locale.getDefault(), "%.2f cm", hrForecast.getExtras().getQpfSnowCm())));
+                                    Settings.isFahrenheit() ?
+                                            String.format(Locale.getDefault(), "%.2f in", hrForecast.getExtras().getQpfSnowIn()) :
+                                            String.format(Locale.getDefault(), "%.2f cm", hrForecast.getExtras().getQpfSnowCm())
+                            )
+                    );
                 }
                 if (hrForecast.getExtras().getPop() != null && hrForecast.getExtras().getPop() >= 0)
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, pop));
@@ -103,9 +107,11 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, pop));
                 if (hrForecast.getExtras().getQpfRainIn() != null && hrForecast.getExtras().getQpfRainIn() >= 0) {
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN,
-                            Settings.isFahrenheit() ?
-                                    String.format(Locale.getDefault(), "%.2f in", forecast.getExtras().getQpfRainIn()) :
-                                    String.format(Locale.getDefault(), "%.2f mm", forecast.getExtras().getQpfRainMm())));
+                                    Settings.isFahrenheit() ?
+                                            String.format(Locale.getDefault(), "%.2f in", forecast.getExtras().getQpfRainIn()) :
+                                            String.format(Locale.getDefault(), "%.2f mm", forecast.getExtras().getQpfRainMm())
+                            )
+                    );
                 }
                 if (hrForecast.getExtras().getQpfSnowIn() != null && hrForecast.getExtras().getQpfSnowIn() >= 0) {
                     detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW,
@@ -137,7 +143,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                         String.format(Locale.getDefault(), "%.2f, %s", uv.getIndex(), uv.getDescription())));
             }
 
-            if (hrForecast.getExtras().getPressureIn() != null) {
+            if (hrForecast.getExtras().getPressureIn() != null && hrForecast.getExtras().getPressureMb() != null) {
                 float pressureVal = Settings.isFahrenheit() ? hrForecast.getExtras().getPressureIn() : hrForecast.getExtras().getPressureMb();
                 String pressureUnit = Settings.isFahrenheit() ? "in" : "mb";
 
