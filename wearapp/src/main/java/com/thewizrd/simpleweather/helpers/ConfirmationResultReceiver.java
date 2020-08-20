@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.helpers;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.ResultReceiver;
 import android.support.wearable.view.ConfirmationOverlay;
 
@@ -12,7 +13,7 @@ public class ConfirmationResultReceiver extends ResultReceiver {
     private Activity activity;
 
     public ConfirmationResultReceiver(Activity activity) {
-        super(new Handler());
+        super(new Handler(Looper.getMainLooper()));
         this.activity = activity;
     }
 
