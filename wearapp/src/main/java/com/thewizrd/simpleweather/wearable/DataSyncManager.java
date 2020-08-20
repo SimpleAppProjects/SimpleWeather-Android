@@ -150,14 +150,10 @@ public class DataSyncManager {
                             Log.d("DataSyncManager", "Updated weather data");
 
                             // Update complications
-                            WeatherComplicationIntentService.enqueueWork(context,
-                                    new Intent(context, WeatherComplicationIntentService.class)
-                                            .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS));
+                            WeatherComplicationWorker.enqueueAction(context, new Intent(WeatherComplicationWorker.ACTION_UPDATECOMPLICATIONS));
 
                             // Update tile
-                            WeatherTileIntentService.enqueueWork(context,
-                                    new Intent(context, WeatherTileIntentService.class)
-                                            .setAction(WeatherTileIntentService.ACTION_UPDATETILES));
+                            WeatherTileWorker.enqueueAction(context, new Intent(WeatherTileWorker.ACTION_UPDATETILES));
                         }
                     } catch (ExecutionException | InterruptedException | IOException e) {
                         Logger.writeLine(Log.ERROR, e);

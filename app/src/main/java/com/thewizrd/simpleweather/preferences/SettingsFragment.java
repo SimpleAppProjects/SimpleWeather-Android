@@ -58,7 +58,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
+import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.wearable.WearableWorker;
@@ -563,8 +563,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
                 // On-going notification
                 if ((boolean) newValue) {
-                    WeatherNotificationService.enqueueWork(context, new Intent(context, WeatherNotificationService.class)
-                            .setAction(WeatherNotificationService.ACTION_REFRESHNOTIFICATION));
+                    WeatherNotificationWorker.enqueueAction(context, new Intent(context, WeatherNotificationWorker.class)
+                            .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION));
 
                     if (notCategory.findPreference(KEY_NOTIFICATIONICON) == null)
                         notCategory.addPreference(notificationIcon);
@@ -583,8 +583,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                         Settings.setRequestBGAccess(true);
                     }
                 } else {
-                    WeatherNotificationService.enqueueWork(context, new Intent(context, WeatherNotificationService.class)
-                            .setAction(WeatherNotificationService.ACTION_REMOVENOTIFICATION));
+                    WeatherNotificationWorker.enqueueAction(context, new Intent(context, WeatherNotificationWorker.class)
+                            .setAction(WeatherNotificationWorker.ACTION_REMOVENOTIFICATION));
 
                     notCategory.removePreference(notificationIcon);
                 }
@@ -598,8 +598,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 Context context = App.getInstance().getAppContext();
-                WeatherNotificationService.enqueueWork(context, new Intent(context, WeatherNotificationService.class)
-                        .setAction(WeatherNotificationService.ACTION_REFRESHNOTIFICATION));
+                WeatherNotificationWorker.enqueueAction(context, new Intent(context, WeatherNotificationWorker.class)
+                        .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION));
                 return true;
             }
         });

@@ -143,7 +143,7 @@ import com.thewizrd.simpleweather.databinding.WeathernowUvcontrolBinding;
 import com.thewizrd.simpleweather.fragments.WindowColorFragment;
 import com.thewizrd.simpleweather.helpers.RadarWebClient;
 import com.thewizrd.simpleweather.helpers.WebViewHelper;
-import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
+import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker;
 import com.thewizrd.simpleweather.preferences.FeatureSettings;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
@@ -258,8 +258,8 @@ public class WeatherNowFragment extends WindowColorFragment
                             } else {
                                 // Update ongoing notification
                                 if (Settings.showOngoingNotification()) {
-                                    WeatherNotificationService.enqueueWork(context, new Intent(context, WeatherNotificationService.class)
-                                            .setAction(WeatherNotificationService.ACTION_REFRESHNOTIFICATION));
+                                    WeatherNotificationWorker.enqueueAction(context, new Intent(context, WeatherNotificationWorker.class)
+                                            .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION));
                                 }
 
                                 // Update widgets anyway

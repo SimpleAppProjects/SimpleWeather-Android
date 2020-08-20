@@ -224,10 +224,6 @@
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
         <service
-            android:name=".notifications.WeatherNotificationService"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
-        <service
             android:name=".services.FCMService"
             android:exported="false">
             <intent-filter>

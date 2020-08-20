@@ -82,8 +82,8 @@ import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding;
 import com.thewizrd.simpleweather.fragments.CustomFragment;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 import com.thewizrd.simpleweather.wearable.WearableWorker;
-import com.thewizrd.simpleweather.wearable.WeatherComplicationIntentService;
-import com.thewizrd.simpleweather.wearable.WeatherTileIntentService;
+import com.thewizrd.simpleweather.wearable.WeatherComplicationWorker;
+import com.thewizrd.simpleweather.wearable.WeatherTileWorker;
 
 import org.threeten.bp.Duration;
 import org.threeten.bp.ZoneOffset;
@@ -167,14 +167,10 @@ public class WeatherNowFragment extends CustomFragment
                             WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
                         } else {
                             // Update complications if they haven't been already
-                            WeatherComplicationIntentService.enqueueWork(context,
-                                    new Intent(context, WeatherComplicationIntentService.class)
-                                            .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS));
+                            WeatherComplicationWorker.enqueueAction(context, new Intent(WeatherComplicationWorker.ACTION_UPDATECOMPLICATIONS));
 
                             // Update tile if it hasn't been already
-                            WeatherTileIntentService.enqueueWork(context,
-                                    new Intent(context, WeatherTileIntentService.class)
-                                            .setAction(WeatherTileIntentService.ACTION_UPDATETILES));
+                            WeatherTileWorker.enqueueAction(context, new Intent(WeatherTileWorker.ACTION_UPDATETILES));
                         }
                     }
                 });

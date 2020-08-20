@@ -56,7 +56,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationBroadcastReceiver;
-import com.thewizrd.simpleweather.notifications.WeatherNotificationService;
+import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker;
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetBroadcastReceiver;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
@@ -79,7 +79,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
     public static final String ACTION_CANCELALARM = "SimpleWeather.Droid.action.CANCEL_ALARM";
     public static final String ACTION_UPDATEALARM = "SimpleWeather.Droid.action.UPDATE_ALARM";
 
-    private Context mContext;
+    private final Context mContext;
 
     private WeatherManager wm;
 
@@ -243,7 +243,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                     if (weather != null) {
                         if (Settings.showOngoingNotification()) {
                             mContext.sendBroadcast(new Intent(mContext, WeatherNotificationBroadcastReceiver.class)
-                                    .setAction(WeatherNotificationService.ACTION_REFRESHNOTIFICATION));
+                                    .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION));
                         }
 
                         if (Settings.useAlerts() && wm.supportsAlerts()) {

@@ -78,11 +78,6 @@
         </receiver>
 
         <service
-            android:enabled="true"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:name=".wearable.WeatherComplicationIntentService" />
-        <service
             android:icon="@drawable/day_cloudy"
             android:label="Weather"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
@@ -99,11 +94,6 @@
             </intent-filter>
         </service>
 
-        <service
-            android:enabled="true"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:name=".wearable.WeatherTileIntentService" />
         <service
             android:icon="@mipmap/ic_launcher_round"
             android:label="Weather"

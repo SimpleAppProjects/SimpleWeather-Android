@@ -9,7 +9,14 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.JobIntentService;
+import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.AsyncTask;
@@ -22,13 +29,15 @@ import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.R;
 
+import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
-public class WeatherNotificationService extends JobIntentService {
-    private static final String TAG = "WeatherNotificationService";
+public class WeatherNotificationWorker extends Worker {
+    private static final String TAG = "WeatherNotificationWorker";
 
     // Actions
+    private static final String KEY_ACTION = "action";
     public static final String ACTION_REFRESHNOTIFICATION = "SimpleWeather.Droid.action.REFRESH_NOTIFICATION";
     public static final String ACTION_REMOVENOTIFICATION = "SimpleWeather.Droid.action.REMOVE_NOTIFICATION";
 
@@ -41,16 +50,66 @@ public class WeatherNotificationService extends JobIntentService {
     private static final int JOB_ID = 1003;
     private static final int PERSISTENT_NOT_ID = JOB_ID;
 
-    public static void enqueueWork(Context context, Intent work) {
-        enqueueWork(context, WeatherNotificationService.class,
-                JOB_ID, work);
+    private final Context mContext;
+
+    public WeatherNotificationWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+        mContext = context.getApplicationContext();
     }
 
-    @Override
-    protected void onHandleWork(@NonNull Intent intent) {
-        if (ACTION_REFRESHNOTIFICATION.equals(intent.getAction())) {
-            final boolean forceRefresh = intent.getBooleanExtra(WeatherNotificationService.EXTRA_FORCEREFRESH, false);
+    public static void enqueueAction(@NonNull Context context, @NonNull Intent intent) {
+        context = context.getApplicationContext();
 
+        if (intent.getAction() != null) {
+            switch (intent.getAction()) {
+                case ACTION_REFRESHNOTIFICATION:
+                case ACTION_REMOVENOTIFICATION:
+                    startWork(context, intent);
+                    break;
+            }
+        }
+    }
+
+    private static void startWork(@NonNull Context context, @NonNull Intent intent) {
+        context = context.getApplicationContext();
+
+        Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG);
+
+        Constraints.Builder constraints = new Constraints.Builder();
+        if (ACTION_REFRESHNOTIFICATION.equals(intent.getAction())) {
+            constraints
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresCharging(false);
+        }
+
+        OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(WeatherNotificationWorker.class)
+                .setConstraints(constraints.build())
+                .setInputData(
+                        new Data.Builder()
+                                .putString(KEY_ACTION, intent.getAction())
+                                .putBoolean(EXTRA_FORCEREFRESH, intent.getBooleanExtra(EXTRA_FORCEREFRESH, false))
+                                .build()
+                )
+                .build();
+
+        WorkManager.getInstance(context)
+                .enqueueUniqueWork(String.format(Locale.ROOT, "%s:%s_oneTime", TAG, intent.getAction()),
+                        ExistingWorkPolicy.REPLACE, updateRequest);
+
+        Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG);
+    }
+
+    @NonNull
+    @Override
+    public Result doWork() {
+        Logger.writeLine(Log.INFO, "%s: Work started", TAG);
+
+        final String intentAction = getInputData().getString(KEY_ACTION);
+        final boolean forceRefresh = getInputData().getBoolean(EXTRA_FORCEREFRESH, false);
+
+        Logger.writeLine(Log.INFO, "%s: Action: %s", TAG, intentAction);
+
+        if (ACTION_REFRESHNOTIFICATION.equals(intentAction)) {
             if (Settings.isWeatherLoaded()) {
                 Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
                     @Override
@@ -72,7 +131,7 @@ public class WeatherNotificationService extends JobIntentService {
 
                 if (Settings.showOngoingNotification() && weather != null) {
                     // Gets an instance of the NotificationManager service
-                    NotificationManager mNotifyMgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    NotificationManager mNotifyMgr = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
                     initChannel(mNotifyMgr);
 
                     // Update notification
@@ -82,11 +141,11 @@ public class WeatherNotificationService extends JobIntentService {
                     removeNotification();
                 }
             }
-        } else if (ACTION_REMOVENOTIFICATION.equals(intent.getAction())) {
+        } else if (ACTION_REMOVENOTIFICATION.equals(intentAction)) {
             removeNotification();
-        } else {
-            Logger.writeLine(Log.INFO, "%s: Unhandled action: %s", TAG, intent.getAction());
         }
+
+        return Result.success();
     }
 
     private void initChannel(NotificationManager mNotifyMgr) {
@@ -94,8 +153,8 @@ public class WeatherNotificationService extends JobIntentService {
             NotificationChannel mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID);
 
             if (mChannel == null) {
-                String notchannel_name = getResources().getString(R.string.not_channel_name_weather);
-                String notchannel_desc = getResources().getString(R.string.not_channel_desc_weather);
+                String notchannel_name = mContext.getResources().getString(R.string.not_channel_name_weather);
+                String notchannel_desc = mContext.getResources().getString(R.string.not_channel_desc_weather);
 
                 mChannel = new NotificationChannel(NOT_CHANNEL_ID, notchannel_name, NotificationManager.IMPORTANCE_LOW);
                 mChannel.setDescription(notchannel_desc);
@@ -109,7 +168,7 @@ public class WeatherNotificationService extends JobIntentService {
     }
 
     private void removeNotification() {
-        NotificationManager mNotifyMgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager mNotifyMgr = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotifyMgr.cancel(PERSISTENT_NOT_ID);
     }
 }

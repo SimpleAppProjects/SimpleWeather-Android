@@ -54,8 +54,8 @@ import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.wearable.WearableWorker;
-import com.thewizrd.simpleweather.wearable.WeatherComplicationIntentService;
-import com.thewizrd.simpleweather.wearable.WeatherTileIntentService;
+import com.thewizrd.simpleweather.wearable.WeatherComplicationWorker;
+import com.thewizrd.simpleweather.wearable.WeatherTileWorker;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -72,7 +72,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
     public static final String ACTION_CANCELALARM = "SimpleWeather.Droid.Wear.action.CANCEL_ALARM";
     public static final String ACTION_UPDATEALARM = "SimpleWeather.Droid.Wear.action.UPDATE_ALARM";
 
-    private Context mContext;
+    private final Context mContext;
 
     private WeatherManager wm;
 
@@ -225,14 +225,10 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                     });
 
                     // Update complications
-                    WeatherComplicationIntentService.enqueueWork(mContext,
-                            new Intent(mContext, WeatherComplicationIntentService.class)
-                                    .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATIONS));
+                    WeatherComplicationWorker.enqueueAction(mContext, new Intent(WeatherComplicationWorker.ACTION_UPDATECOMPLICATIONS));
 
                     // Update tiles
-                    WeatherTileIntentService.enqueueWork(mContext,
-                            new Intent(mContext, WeatherTileIntentService.class)
-                                    .setAction(WeatherTileIntentService.ACTION_UPDATETILES));
+                    WeatherTileWorker.enqueueAction(mContext, new Intent(WeatherTileWorker.ACTION_UPDATETILES));
                 }
 
                 if (Settings.getDataSync() != WearableDataSync.OFF) {

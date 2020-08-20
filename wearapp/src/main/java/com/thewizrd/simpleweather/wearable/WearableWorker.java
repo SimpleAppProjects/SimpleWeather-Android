@@ -41,7 +41,7 @@ public class WearableWorker extends Worker {
     public static final String ACTION_REQUESTLOCATIONUPDATE = "SimpleWeather.Droid.Wear.action.REQUEST_LOCATION_UPDATE";
     public static final String ACTION_REQUESTWEATHERUPDATE = "SimpleWeather.Droid.Wear.action.REQUEST_WEATHER_UPDATE";
 
-    private Context mContext;
+    private final Context mContext;
     private Node mPhoneNodeWithApp;
 
     public WearableWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {

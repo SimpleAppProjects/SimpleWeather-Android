@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 public class ShortcutCreatorWorker extends Worker {
     private static String TAG = "ShortcutCreatorWorker";
 
-    private Context mContext;
+    private final Context mContext;
 
     public ShortcutCreatorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);

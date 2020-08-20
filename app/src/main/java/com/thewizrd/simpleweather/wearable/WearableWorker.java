@@ -54,7 +54,7 @@ public class WearableWorker extends Worker {
     public static final String ACTION_SENDLOCATIONUPDATE = "SimpleWeather.Droid.action.SEND_LOCATION_UPDATE";
     public static final String ACTION_SENDWEATHERUPDATE = "SimpleWeather.Droid.action.SEND_WEATHER_UPDATE";
 
-    private Context mContext;
+    private final Context mContext;
 
     public WearableWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);

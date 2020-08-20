@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.JobIntentService;
+import androidx.core.app.SafeJobIntentService;
 
 import com.google.gson.reflect.TypeToken;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -21,7 +21,7 @@ import java.util.Set;
 
 // Simple service to keep track of posted alert notifications
 @SuppressLint("UseSparseArrays")
-public class WeatherAlertNotificationService extends JobIntentService {
+public class WeatherAlertNotificationService extends SafeJobIntentService {
     private static final String TAG = "WeatherAlertNotificationService";
 
     // Actions

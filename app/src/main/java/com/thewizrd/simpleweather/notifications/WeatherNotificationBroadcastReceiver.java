@@ -14,8 +14,8 @@ public class WeatherNotificationBroadcastReceiver extends BroadcastReceiver {
             intent.setClass(context, WeatherAlertNotificationService.class);
             WeatherAlertNotificationService.enqueueWork(context, intent);
         } else {
-            intent.setClass(context, WeatherNotificationService.class);
-            WeatherNotificationService.enqueueWork(context, intent);
+            intent.setClass(context, WeatherNotificationWorker.class);
+            WeatherNotificationWorker.enqueueAction(context, intent);
         }
     }
 }

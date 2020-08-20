@@ -41,10 +41,9 @@ public class WeatherComplicationService extends ComplicationProviderService {
         super.onComplicationActivated(complicationId, type, manager);
 
         // Request complication update
-        WeatherComplicationIntentService.enqueueWork(mContext,
-                new Intent(mContext, WeatherComplicationIntentService.class)
-                        .setAction(WeatherComplicationIntentService.ACTION_UPDATECOMPLICATION)
-                        .putExtra(WeatherComplicationIntentService.EXTRA_COMPLICATIONID, complicationId));
+        WeatherComplicationWorker.enqueueAction(mContext,
+                new Intent(WeatherComplicationWorker.ACTION_UPDATECOMPLICATION)
+                        .putExtra(WeatherComplicationWorker.EXTRA_COMPLICATIONID, complicationId));
     }
 
     @Override

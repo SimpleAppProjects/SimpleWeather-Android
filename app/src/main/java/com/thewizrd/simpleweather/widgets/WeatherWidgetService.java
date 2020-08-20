@@ -28,7 +28,7 @@ import android.widget.RemoteViews;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.JobIntentService;
+import androidx.core.app.SafeJobIntentService;
 import androidx.core.util.ObjectsCompat;
 
 import com.bumptech.glide.load.DecodeFormat;
@@ -96,8 +96,9 @@ import static com.thewizrd.simpleweather.widgets.WidgetUtils.isClockWidget;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.isDateWidget;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.isForecastWidget;
 
-public class WeatherWidgetService extends JobIntentService {
-    private static String TAG = "WeatherWidgetService";
+// TODO: Migrate service to Worker
+public class WeatherWidgetService extends SafeJobIntentService {
+    private static final String TAG = "WeatherWidgetService";
 
     public static final String ACTION_REFRESHWIDGET = "SimpleWeather.Droid.action.REFRESH_WIDGET";
     public static final String ACTION_RESIZEWIDGET = "SimpleWeather.Droid.action.RESIZE_WIDGET";
