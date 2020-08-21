@@ -59,7 +59,6 @@ public final class LocationIQProvider extends LocationProviderImpl {
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
-        // TODO: NOTE: Decide if we will allow users to provide their own keys for loc providers
         String key = getAPIKey();
 
         try {
@@ -128,7 +127,6 @@ public final class LocationIQProvider extends LocationProviderImpl {
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
-        // TODO: NOTE: Decide if we will allow users to provide their own keys for loc providers
         String key = getAPIKey();
 
         try {

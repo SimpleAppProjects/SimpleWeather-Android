@@ -16,11 +16,12 @@ public class WeatherAlerts {
     @ColumnInfo(name = "weather_alerts")
     private Collection<WeatherAlert> alerts;
 
+    @NonNull
     public String getQuery() {
         return query;
     }
 
-    public void setQuery(String query) {
+    public void setQuery(@NonNull String query) {
         this.query = query;
     }
 
@@ -36,7 +37,7 @@ public class WeatherAlerts {
     }
 
     @Ignore
-    public WeatherAlerts(String query, Collection<WeatherAlert> alerts) {
+    public WeatherAlerts(@NonNull String query, Collection<WeatherAlert> alerts) {
         this.query = query;
         this.alerts = alerts;
     }

@@ -1,5 +1,7 @@
 package com.thewizrd.shared_resources.controls;
 
+import androidx.annotation.NonNull;
+
 public class ComboBoxItem {
     private String display;
     private String value;
@@ -25,6 +27,7 @@ public class ComboBoxItem {
         this.value = value;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return display;

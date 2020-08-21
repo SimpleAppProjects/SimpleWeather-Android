@@ -895,6 +895,7 @@ public class WeatherUtils {
             return _long;
         }
 
+        @NonNull
         @Override
         public String toString() {
             return String.format(Locale.ROOT, "%s,%s", Double.toString(lat), Double.toString(_long));

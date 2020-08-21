@@ -1,5 +1,7 @@
 package com.thewizrd.simpleweather.controls.lineview;
 
+import androidx.annotation.NonNull;
+
 public class YEntryData implements Comparable<YEntryData> {
     private float y;
     private CharSequence yLabel;
@@ -26,7 +28,7 @@ public class YEntryData implements Comparable<YEntryData> {
     }
 
     @Override
-    public int compareTo(YEntryData o) {
+    public int compareTo(@NonNull YEntryData o) {
         if (o == null) {
             return 1;
         } else {

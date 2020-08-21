@@ -933,27 +933,29 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
         @SuppressLint("RestrictedApi")
         @Override
-        public void setupDialog(Dialog dialog, int style) {
+        public void setupDialog(@NonNull Dialog dialog, int style) {
             super.setupDialog(dialog, style);
             final AlertDialog alertDialog = (AlertDialog) getDialog();
-            alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                @Override
-                public void onShow(final DialogInterface dialog) {
-                    View posButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-                    View negButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-                    posButton.setOnClickListener(posButtonClickListener);
-                    if (negButtonClickListener == null) {
-                        negButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                dialog.dismiss();
-                            }
-                        });
-                    } else {
-                        negButton.setOnClickListener(negButtonClickListener);
+            if (alertDialog != null) {
+                alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(final DialogInterface dialog) {
+                        View posButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+                        View negButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+                        posButton.setOnClickListener(posButtonClickListener);
+                        if (negButtonClickListener == null) {
+                            negButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    dialog.dismiss();
+                                }
+                            });
+                        } else {
+                            negButton.setOnClickListener(negButtonClickListener);
+                        }
                     }
-                }
-            });
+                });
+            }
 
             key = Settings.getAPIKEY();
 

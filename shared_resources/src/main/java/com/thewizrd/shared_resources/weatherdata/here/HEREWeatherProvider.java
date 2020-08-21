@@ -251,9 +251,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
             InputStream stream = client.getInputStream();
 
             // Load data
-            Rootobject root = null;
-            // TODO: async task it
-            root = JSONParser.deserializer(stream, Rootobject.class);
+            Rootobject root = JSONParser.deserializer(stream, Rootobject.class);
 
             alerts = new ArrayList<>(root.getAlerts().getAlerts().size());
 

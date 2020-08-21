@@ -51,9 +51,7 @@ public final class NWSAlertProvider implements WeatherAlertProviderInterface {
             }
 
             // Load data
-            AlertRootobject root = null;
-            // TODO: put in async task?
-            root = JSONParser.deserializer(stream, AlertRootobject.class);
+            AlertRootobject root = JSONParser.deserializer(stream, AlertRootobject.class);
 
             alerts = new ArrayList<>(root.getGraph().size());
 

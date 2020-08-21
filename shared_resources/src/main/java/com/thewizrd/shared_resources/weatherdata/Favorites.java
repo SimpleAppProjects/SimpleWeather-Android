@@ -11,11 +11,12 @@ public class Favorites {
     private String query;
     private int position;
 
+    @NonNull
     public String getQuery() {
         return query;
     }
 
-    public void setQuery(String query) {
+    public void setQuery(@NonNull String query) {
         this.query = query;
     }
 

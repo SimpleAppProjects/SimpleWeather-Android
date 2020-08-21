@@ -3,6 +3,8 @@ package com.thewizrd.shared_resources.utils;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.thewizrd.shared_resources.AsyncTask;
 
 import org.threeten.bp.LocalDate;
@@ -32,7 +34,7 @@ public class FileLoggingTree extends Timber.Tree {
     }
 
     @Override
-    protected void log(int priority, String tag, String message, Throwable t) {
+    protected void log(int priority, String tag, @NonNull String message, Throwable t) {
 
         try {
 

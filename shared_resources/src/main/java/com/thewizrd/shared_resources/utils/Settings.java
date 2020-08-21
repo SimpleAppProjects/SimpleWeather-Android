@@ -8,6 +8,7 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -284,6 +285,7 @@ public class Settings {
         return locationDB.locationsDAO();
     }
 
+    @Nullable
     public static Collection<LocationData> getFavorites() {
         return new AsyncTask<List<LocationData>>().await(new Callable<List<LocationData>>() {
             @Override
@@ -294,6 +296,7 @@ public class Settings {
         });
     }
 
+    @Nullable
     public static List<LocationData> getLocationData() {
         return new AsyncTask<List<LocationData>>().await(new Callable<List<LocationData>>() {
             @Override
@@ -304,6 +307,7 @@ public class Settings {
         });
     }
 
+    @Nullable
     public static LocationData getLocation(final String key) {
         return new AsyncTask<LocationData>().await(new Callable<LocationData>() {
             @Override
@@ -314,6 +318,7 @@ public class Settings {
         });
     }
 
+    @Nullable
     public static Weather getWeatherData(final String key) {
         return new AsyncTask<Weather>().await(new Callable<Weather>() {
             @Override
@@ -324,6 +329,7 @@ public class Settings {
         });
     }
 
+    @Nullable
     public static Weather getWeatherDataByCoordinate(final LocationData location) {
         return new AsyncTask<Weather>().await(new Callable<Weather>() {
             @Override
@@ -336,6 +342,7 @@ public class Settings {
         });
     }
 
+    @NonNull
     public static Collection<WeatherAlert> getWeatherAlertData(final String key) {
         return new AsyncTask<Collection<WeatherAlert>>().await(new Callable<Collection<WeatherAlert>>() {
             @Override
@@ -361,6 +368,7 @@ public class Settings {
         });
     }
 
+    @Nullable
     public static Forecasts getWeatherForecastData(final String key) {
         return new AsyncTask<Forecasts>().await(new Callable<Forecasts>() {
             @Override
@@ -372,6 +380,7 @@ public class Settings {
         });
     }
 
+    @Nullable
     public static List<HourlyForecast> getHourlyWeatherForecastDataByLimit(final String key, final int loadSize) {
         return new AsyncTask<List<HourlyForecast>>().await(new Callable<List<HourlyForecast>>() {
             @Override
@@ -383,6 +392,7 @@ public class Settings {
         });
     }
 
+    @Nullable
     public static List<HourlyForecast> getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(final String key, final int loadSize, final ZonedDateTime date) {
         return new AsyncTask<List<HourlyForecast>>().await(new Callable<List<HourlyForecast>>() {
             @Override
@@ -394,6 +404,7 @@ public class Settings {
         });
     }
 
+    @Nullable
     public static List<HourlyForecast> getHourlyWeatherForecastData(final String key) {
         return new AsyncTask<List<HourlyForecast>>().await(new Callable<List<HourlyForecast>>() {
             @Override
@@ -405,6 +416,7 @@ public class Settings {
         });
     }
 
+    @Nullable
     public static HourlyForecast getFirstHourlyForecastDataByDate(final String key, final ZonedDateTime date) {
         return new AsyncTask<HourlyForecast>().await(new Callable<HourlyForecast>() {
             @Override
@@ -416,6 +428,7 @@ public class Settings {
         });
     }
 
+    @Nullable
     public static LocationData getLastGPSLocData() {
         return new AsyncTask<LocationData>().await(new Callable<LocationData>() {
             @Override

@@ -56,11 +56,12 @@ public class AirQualityViewModel {
         }
     }
 
+    @NonNull
     public DetailItemViewModel getAirQuality() {
         return airQuality;
     }
 
-    public void setAirQuality(DetailItemViewModel airQuality) {
+    public void setAirQuality(@NonNull DetailItemViewModel airQuality) {
         this.airQuality = airQuality;
     }
 
