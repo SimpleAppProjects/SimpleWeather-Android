@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather.setup;
 
-import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.os.Build;
@@ -232,8 +231,8 @@ public class SetupActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        super.onPause();
         AnalyticsLogger.logEvent("SetupActivity: onPause");
+        super.onPause();
     }
 
     @Override
@@ -264,6 +263,9 @@ public class SetupActivity extends AppCompatActivity {
                     SetupGraphDirections.actionGlobalMainActivity()
                             .setData(JSONParser.serializer(viewModel.getLocationData(), LocationData.class)),
                     opts.build());
+
+            // We have an invalid widget id but just in case
+            setResult(RESULT_CANCELED);
             finishAffinity();
         } else {
             // Create return intent
@@ -271,7 +273,7 @@ public class SetupActivity extends AppCompatActivity {
             resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
             if (viewModel.getLocationData() != null)
                 resultValue.putExtra(Constants.KEY_DATA, JSONParser.serializer(viewModel.getLocationData(), LocationData.class));
-            setResult(Activity.RESULT_OK, resultValue);
+            setResult(RESULT_OK, resultValue);
             finish();
         }
     }
