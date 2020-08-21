@@ -262,8 +262,8 @@ public class WeatherDataLoader {
         if (weather != null) {
             // Check for outdated observation
             final ZonedDateTime now = ZonedDateTime.now().withZoneSameInstant(location.getTzOffset());
-            long duraMins = weather.getCondition().getObservationTime() == null ? 61 : Duration.between(weather.getCondition().getObservationTime(), now).toMinutes();
-            if (duraMins > 60) {
+            long duraMins = weather.getCondition().getObservationTime() == null ? 121 : Duration.between(weather.getCondition().getObservationTime(), now).toMinutes();
+            if (duraMins > 120) {
                 HourlyForecast hrf = Settings.getFirstHourlyForecastDataByDate(location.getQuery(), now.truncatedTo(ChronoUnit.HOURS));
                 if (hrf != null) {
                     weather.getCondition().setWeather(hrf.getCondition());
