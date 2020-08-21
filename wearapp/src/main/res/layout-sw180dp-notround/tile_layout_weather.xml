@@ -134,7 +134,7 @@
         android:paddingEnd="4dp"
         android:layout_marginBottom="@dimen/horizontal_padding">
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <LinearLayout
             android:id="@+id/forecast_container"
             android:orientation="horizontal"
             android:layout_width="match_parent"

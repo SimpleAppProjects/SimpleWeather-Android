@@ -17,10 +17,8 @@
     <string name="pref_title_feature_locpanelimg">Location Panel Image</string>
 
     <!-- Widget -->
-    <string name="widget_updateprefix">updated</string>
     <string name="widget_configure_prompt">Configure Widget</string>
     <string name="title_activity_widget_config">Widget Preferences</string>
-    <string name="label_datenow">Now</string>
     <string name="pref_title_bgcolor">Background</string>
     <string name="label_color_currentconditions">Current Condition</string>
     <string name="label_color_white">White</string>
@@ -32,9 +30,6 @@
     <string name="label_style_pendingcolor">Split Mode (Weather Color)</string>
     <string name="label_style_light">Split Mode (Light)</string>
     <string name="label_style_dark">Split Mode (Dark)</string>
-    <string name="hrflipbtn_pref_summary_on">Tap forecast panel to switch between hourly and weekly forecast</string>
-    <string name="hrflipbtn_pref_summary_off">Use arrow buttons to switch between hourly and weekly forecast</string>
-    <string name="hrflipbtn_pref_title">Tap to switch Forecast</string>
     <string name="locname_pref_title">Location Name</string>
     <string name="locname_pref_summary">Hide location name from widget</string>
     <string name="settingsbtn_pref_title">Settings Button</string>
