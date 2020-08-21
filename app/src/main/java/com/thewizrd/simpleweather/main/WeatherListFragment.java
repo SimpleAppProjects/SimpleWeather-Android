@@ -322,7 +322,7 @@ public class WeatherListFragment extends ToolbarFragment {
                 detailsAdapter.registerAdapterDataObserver(new SimpleRecyclerViewAdapterObserver() {
                     @Override
                     public void onChanged() {
-                        if (detailsAdapter.getCurrentList() != null) {
+                        if (detailsAdapter.getCurrentList() != null && detailsAdapter.getItemCount() > args.getPosition()) {
                             detailsAdapter.unregisterAdapterDataObserver(this);
 
                             detailsAdapter.getCurrentList().loadAround(args.getPosition());
