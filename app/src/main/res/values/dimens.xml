@@ -49,6 +49,6 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <!-- Notification -->
     <dimen name="not_horiz_padding">4dp</dimen>
     <dimen name="not_vert_padding">4dp</dimen>
-    <dimen name="not_layout_height">-1</dimen>
+    <dimen name="not_layout_height">64dp</dimen>
 
 </resources>
