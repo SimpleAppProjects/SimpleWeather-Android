@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.res.ResourcesCompat;
@@ -389,7 +390,7 @@ public class LineView extends HorizontalScrollView {
 
         private OnListChangedListener<XLabelData> onXLabelDataChangedListener = new OnListChangedListener<XLabelData>() {
             @Override
-            public void onChanged(ArrayList<XLabelData> sender, ListChangedArgs<XLabelData> args) {
+            public void onChanged(@NonNull ArrayList<XLabelData> sender, @NonNull ListChangedArgs<XLabelData> args) {
                 switch (args.action) {
                     case ADD:
                         if (!drawIconsLabels && dataLabels != null && dataLabels.size() > 0 && !TextUtils.isEmpty(dataLabels.get(0).getIcon()))
@@ -447,7 +448,7 @@ public class LineView extends HorizontalScrollView {
 
         private OnListChangedListener<LineDataSeries> onLineDataSeriesChangedListener = new OnListChangedListener<LineDataSeries>() {
             @Override
-            public void onChanged(ArrayList<LineDataSeries> sender, final ListChangedArgs<LineDataSeries> args) {
+            public void onChanged(@NonNull ArrayList<LineDataSeries> sender, @NonNull final ListChangedArgs<LineDataSeries> args) {
                 switch (args.action) {
                     case ADD:
                         for (LineDataSeries series : args.newItems) {

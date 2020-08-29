@@ -1,5 +1,7 @@
 package com.thewizrd.shared_resources.helpers;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +20,7 @@ public class CallbackList<T> {
         mCallbacks.remove(callback);
     }
 
-    public void notifyChange(ArrayList<T> sender, ListChangedArgs args) {
+    public void notifyChange(@NonNull ArrayList<T> sender, @NonNull ListChangedArgs args) {
         for (int i = 0; i < mCallbacks.size(); i++) {
             mCallbacks.get(i).onChanged(sender, args);
         }
