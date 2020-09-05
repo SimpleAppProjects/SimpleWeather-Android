@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.utils.Logger;
 
@@ -21,10 +22,10 @@ public class AsyncTask<T> {
 
     protected static ExecutorService sThreadPool = Executors.newCachedThreadPool();
 
-    public T await(final Callable<T> callable) {
+    public T await(@NonNull final Callable<T> callable) {
         try {
             return sThreadPool.submit(callable).get();
-        } catch (InterruptedException | NullPointerException e) {
+        } catch (InterruptedException e) {
             Logger.writeLine(Log.ERROR, e);
             return null;
         } catch (ExecutionException ex) {
@@ -32,45 +33,51 @@ public class AsyncTask<T> {
         }
     }
 
-    public static void run(final Runnable runnable) {
-        try {
-            sThreadPool.submit(runnable);
-        } catch (NullPointerException e) {
-            Logger.writeLine(Log.ERROR, e);
-        }
+    public static void run(@NonNull final Runnable runnable) {
+        sThreadPool.submit(runnable);
     }
 
-    public static void run(final Runnable runnable, final long millisDelay) {
+    public static void run(@NonNull final Runnable runnable, final long millisDelay) {
         run(runnable, millisDelay, null);
     }
 
-    public static void run(final Runnable runnable, final long millisDelay, @Nullable final CancellationToken token) {
-        try {
-            sThreadPool.submit(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(millisDelay);
-                    } catch (InterruptedException e) {
-                        Logger.writeLine(Log.ERROR, e);
-                    }
-
-                    if (token != null && token.isCancellationRequested())
-                        return;
-
-                    runnable.run();
+    public static void run(@NonNull final Runnable runnable, final long millisDelay, @Nullable final CancellationToken token) {
+        sThreadPool.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(millisDelay);
+                } catch (InterruptedException e) {
+                    Logger.writeLine(Log.ERROR, e);
                 }
-            });
-        } catch (NullPointerException e) {
-            Logger.writeLine(Log.ERROR, e);
-        }
+
+                if (token != null && token.isCancellationRequested())
+                    return;
+
+                runnable.run();
+            }
+        });
     }
 
-    public static <T> Task<T> create(final Callable<T> callable) {
-        return Tasks.call(sThreadPool, callable);
+    public static <T> Task<T> create(@NonNull final Callable<T> callable) {
+        final TaskCompletionSource<T> tcs = new TaskCompletionSource<>();
+
+        sThreadPool.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    T result = callable.call();
+                    tcs.setResult(result);
+                } catch (Exception e) {
+                    tcs.setException(e);
+                }
+            }
+        });
+
+        return tcs.getTask();
     }
 
-    public static <T> T await(Task<T> task) throws ExecutionException, InterruptedException {
+    public static <T> T await(@NonNull Task<T> task) throws ExecutionException, InterruptedException {
         return Tasks.await(task);
     }
 

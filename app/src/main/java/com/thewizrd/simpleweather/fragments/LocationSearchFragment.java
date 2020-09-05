@@ -45,6 +45,7 @@ import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
+import com.thewizrd.shared_resources.lifecycle.LifecycleRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
@@ -91,25 +92,13 @@ public class LocationSearchFragment extends WindowColorFragment {
 
     private static final String KEY_SEARCHTEXT = "search_text";
 
-    public RecyclerOnClickListenerInterface getRecyclerOnClickListener() {
-        return recyclerClickListener;
-    }
-
-    public void setRecyclerOnClickListener(RecyclerOnClickListenerInterface listener) {
-        recyclerClickListener = listener;
-    }
-
     public LocationSearchFragment() {
         // Required empty public constructor
         wm = WeatherManager.getInstance();
         cts = new CancellationTokenSource();
     }
 
-    public CancellationTokenSource getCancellationTokenSource() {
-        return cts;
-    }
-
-    public void ctsCancel() {
+    private void ctsCancel() {
         if (cts != null) cts.cancel();
         cts = new CancellationTokenSource();
     }
@@ -130,8 +119,8 @@ public class LocationSearchFragment extends WindowColorFragment {
     @Override
     public void onPause() {
         searchBarBinding.searchView.clearFocus();
-        super.onPause();
         ctsCancel();
+        super.onPause();
     }
 
     @Override
@@ -164,163 +153,159 @@ public class LocationSearchFragment extends WindowColorFragment {
         @Override
         public void onClick(final View view, final int position) {
             AnalyticsLogger.logEvent("LocationsFragment: searchFragment click");
-
-            if (!isAlive()) return;
-
-            showLoading(true);
-            enableRecyclerView(false);
-
-            // Cancel other tasks
-            ctsCancel();
-            final CancellationToken token = cts.getToken();
-
-            AsyncTask.create(new Callable<LocationData>() {
+            runWithView(new LifecycleRunnable(getViewLifecycleOwner().getLifecycle()) {
                 @Override
-                public LocationData call() throws CustomException, InterruptedException, WeatherException {
-                    LocationQueryViewModel queryResult = new LocationQueryViewModel();
+                public void run() {
+                    if (!isActive()) return;
 
-                    if (!StringUtils.isNullOrEmpty(mAdapter.getDataset().get(position).getLocationQuery()))
-                        queryResult = mAdapter.getDataset().get(position);
+                    showLoading(true);
+                    enableRecyclerView(false);
 
-                    if (StringUtils.isNullOrWhitespace(queryResult.getLocationQuery())) {
-                        // Stop since there is no valid query
-                        throw new CustomException(R.string.error_retrieve_location);
-                    }
+                    // Cancel other tasks
+                    ctsCancel();
+                    final CancellationToken token = cts.getToken();
 
-                    if (token.isCancellationRequested()) throw new InterruptedException();
-
-                    String country_code = queryResult.getLocationCountry();
-                    if (!StringUtils.isNullOrWhitespace(country_code))
-                        country_code = country_code.toLowerCase();
-
-                    if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
-                        throw new CustomException(R.string.error_message_weather_us_only);
-                    }
-
-                    // Need to get FULL location data for HERE API
-                    // Data provided is incomplete
-                    if (WeatherAPI.HERE.equals(queryResult.getLocationSource())
-                            && queryResult.getLocationLat() == -1 && queryResult.getLocationLong() == -1
-                            && queryResult.getLocationTZLong() == null) {
-                        final LocationQueryViewModel loc = queryResult;
-                        queryResult = new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
-                            @Override
-                            public LocationQueryViewModel call() throws WeatherException {
-                                return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
-                            }
-                        });
-                    }
-
-                    // Check if location already exists
-                    List<LocationData> locData = Settings.getLocationData();
-                    final LocationQueryViewModel finalQueryResult = queryResult;
-                    LocationData loc = Iterables.find(locData, new Predicate<LocationData>() {
+                    AsyncTask.create(new Callable<LocationData>() {
                         @Override
-                        public boolean apply(@NullableDecl LocationData input) {
-                            return input != null && input.getQuery().equals(finalQueryResult.getLocationQuery());
-                        }
-                    }, null);
+                        public LocationData call() throws CustomException, InterruptedException, WeatherException {
+                            LocationQueryViewModel queryResult = new LocationQueryViewModel();
 
-                    if (loc != null) {
-                        // Location exists; return
-                        return null;
-                    }
+                            if (!StringUtils.isNullOrEmpty(mAdapter.getDataset().get(position).getLocationQuery()))
+                                queryResult = mAdapter.getDataset().get(position);
 
-                    if (token.isCancellationRequested()) throw new InterruptedException();
+                            if (StringUtils.isNullOrWhitespace(queryResult.getLocationQuery())) {
+                                // Stop since there is no valid query
+                                throw new CustomException(R.string.error_retrieve_location);
+                            }
 
-                    LocationData location = new LocationData(queryResult);
-                    if (!location.isValid()) {
-                        throw new CustomException(R.string.werror_noweather);
-                    }
-                    Weather weather = Settings.getWeatherData(location.getQuery());
-                    if (weather == null) {
-                        weather = wm.getWeather(location);
-                    }
+                            if (token.isCancellationRequested()) throw new InterruptedException();
 
-                    if (weather == null) {
-                        throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
-                    }
+                            String country_code = queryResult.getLocationCountry();
+                            if (!StringUtils.isNullOrWhitespace(country_code))
+                                country_code = country_code.toLowerCase();
 
-                    // Save data
-                    Settings.addLocation(location);
-                    if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
-                        Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
-                    Settings.saveWeatherData(weather);
-                    Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
-                    final Weather finalWeather = weather;
-                    Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
-                            Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
-                                @NonNull
+                            if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
+                                throw new CustomException(R.string.error_message_weather_us_only);
+                            }
+
+                            // Need to get FULL location data for HERE API
+                            // Data provided is incomplete
+                            if (WeatherAPI.HERE.equals(queryResult.getLocationSource())
+                                    && queryResult.getLocationLat() == -1 && queryResult.getLocationLong() == -1
+                                    && queryResult.getLocationTZLong() == null) {
+                                final LocationQueryViewModel loc = queryResult;
+                                queryResult = new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
+                                    @Override
+                                    public LocationQueryViewModel call() throws WeatherException {
+                                        return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
+                                    }
+                                });
+                            }
+
+                            // Check if location already exists
+                            List<LocationData> locData = Settings.getLocationData();
+                            final LocationQueryViewModel finalQueryResult = queryResult;
+                            LocationData loc = Iterables.find(locData, new Predicate<LocationData>() {
                                 @Override
-                                public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
-                                    return new HourlyForecasts(finalWeather.getQuery(), input);
+                                public boolean apply(@NullableDecl LocationData input) {
+                                    return input != null && input.getQuery().equals(finalQueryResult.getLocationQuery());
                                 }
-                            }));
+                            }, null);
 
-                    Settings.setWeatherLoaded(true);
+                            if (loc != null) {
+                                // Location exists; return
+                                return null;
+                            }
 
-                    return location;
-                }
-            }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<LocationData>() {
-                @Override
-                public void onSuccess(LocationData result) {
-                    if (binding == null) return;
-                    // Go back to where we started
-                    NavController navController = Navigation.findNavController(binding.getRoot());
-                    if (result != null) {
-                        navController.getPreviousBackStackEntry()
-                                .getSavedStateHandle()
-                                .set(Constants.KEY_DATA, JSONParser.serializer(result, LocationData.class));
-                    }
-                    navController.navigateUp();
-                }
-            }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    if (isAlive()) {
-                        if (e instanceof WeatherException || e instanceof CustomException) {
-                            showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
-                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
-                        } else {
-                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
-                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                            if (token.isCancellationRequested()) throw new InterruptedException();
+
+                            LocationData location = new LocationData(queryResult);
+                            if (!location.isValid()) {
+                                throw new CustomException(R.string.werror_noweather);
+                            }
+                            Weather weather = Settings.getWeatherData(location.getQuery());
+                            if (weather == null) {
+                                weather = wm.getWeather(location);
+                            }
+
+                            if (weather == null) {
+                                throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
+                            }
+
+                            // Save data
+                            Settings.addLocation(location);
+                            if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
+                                Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
+                            Settings.saveWeatherData(weather);
+                            Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
+                            final Weather finalWeather = weather;
+                            Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
+                                    Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
+                                        @NonNull
+                                        @Override
+                                        public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
+                                            return new HourlyForecasts(finalWeather.getQuery(), input);
+                                        }
+                                    }));
+
+                            Settings.setWeatherLoaded(true);
+
+                            return location;
                         }
-                        showLoading(false);
-                        enableRecyclerView(true);
-                    }
+                    }).addOnSuccessListener(new OnSuccessListener<LocationData>() {
+                        @Override
+                        public void onSuccess(final LocationData result) {
+                            runWithView(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // Go back to where we started
+                                    NavController navController = Navigation.findNavController(binding.getRoot());
+                                    if (result != null) {
+                                        navController.getPreviousBackStackEntry()
+                                                .getSavedStateHandle()
+                                                .set(Constants.KEY_DATA, JSONParser.serializer(result, LocationData.class));
+                                    }
+                                    navController.navigateUp();
+                                }
+                            });
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull final Exception e) {
+                            runWithView(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (e instanceof WeatherException || e instanceof CustomException) {
+                                        showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
+                                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                                    } else {
+                                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
+                                                new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                                    }
+                                    showLoading(false);
+                                    enableRecyclerView(true);
+                                }
+                            });
+                        }
+                    });
                 }
             });
         }
     };
 
-    public void showLoading(final boolean show) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (searchBarBinding != null) {
-                    searchBarBinding.searchProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+    private void showLoading(final boolean show) {
+        if (searchBarBinding != null) {
+            searchBarBinding.searchProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
 
-                    if (show || StringUtils.isNullOrEmpty(searchBarBinding.searchView.getText().toString()))
-                        searchBarBinding.searchCloseButton.setVisibility(View.GONE);
-                    else
-                        searchBarBinding.searchCloseButton.setVisibility(View.VISIBLE);
-                }
-            }
-        });
+            if (show || StringUtils.isNullOrEmpty(searchBarBinding.searchView.getText().toString()))
+                searchBarBinding.searchCloseButton.setVisibility(View.GONE);
+            else
+                searchBarBinding.searchCloseButton.setVisibility(View.VISIBLE);
+        }
     }
 
     public void enableRecyclerView(final boolean enable) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                binding.recyclerView.setEnabled(enable);
-            }
-        });
-    }
-
-    @Override
-    public boolean isAlive() {
-        return binding != null && super.isAlive();
+        binding.recyclerView.setEnabled(enable);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -329,7 +314,9 @@ public class LocationSearchFragment extends WindowColorFragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentLocationSearchBinding.inflate(inflater, container, false);
+        binding.setLifecycleOwner(getViewLifecycleOwner());
         searchBarBinding = binding.searchBar;
+        searchBarBinding.setLifecycleOwner(getViewLifecycleOwner());
         View view = binding.getRoot();
 
         ViewCompat.setTransitionName(view, Constants.SHARED_ELEMENT);
@@ -525,21 +512,19 @@ public class LocationSearchFragment extends WindowColorFragment {
 
     @Override
     public void updateWindowColors() {
-        if (isAlive()) {
-            int bg_color = Settings.getUserThemeMode() != UserThemeMode.AMOLED_DARK ?
-                    ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground) : Colors.BLACK;
+        int bg_color = Settings.getUserThemeMode() != UserThemeMode.AMOLED_DARK ?
+                ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground) : Colors.BLACK;
 
-            binding.rootView.setBackgroundColor(bg_color);
-            binding.rootView.setStatusBarBackgroundColor(bg_color);
-            searchBarBinding.getRoot().setBackgroundColor(bg_color);
-        }
+        binding.rootView.setBackgroundColor(bg_color);
+        binding.rootView.setStatusBarBackgroundColor(bg_color);
+        searchBarBinding.getRoot().setBackgroundColor(bg_color);
     }
 
     @Override
     public void onDestroyView() {
+        super.onDestroyView();
         searchBarBinding = null;
         binding = null;
-        super.onDestroyView();
     }
 
     public void fetchLocations(final String queryString) {
@@ -557,19 +542,27 @@ public class LocationSearchFragment extends WindowColorFragment {
                 }
             }).addOnSuccessListener(new OnSuccessListener<Collection<LocationQueryViewModel>>() {
                 @Override
-                public void onSuccess(Collection<LocationQueryViewModel> results) {
-                    mAdapter.setLocations(new ArrayList<>(results));
+                public void onSuccess(final Collection<LocationQueryViewModel> results) {
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            mAdapter.setLocations(new ArrayList<>(results));
+                        }
+                    });
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
-                public void onFailure(@NonNull Exception e) {
-                    if (isAlive()) {
-                        if (e instanceof WeatherException) {
-                            showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
-                                    new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                public void onFailure(@NonNull final Exception e) {
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (e instanceof WeatherException) {
+                                showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT),
+                                        new SnackbarWindowAdjustCallback(getAppCompatActivity()));
+                            }
+                            mAdapter.setLocations(Collections.singletonList(new LocationQueryViewModel()));
                         }
-                        mAdapter.setLocations(Collections.singletonList(new LocationQueryViewModel()));
-                    }
+                    });
                 }
             });
         } else if (StringUtils.isNullOrWhitespace(queryString)) {
@@ -582,8 +575,9 @@ public class LocationSearchFragment extends WindowColorFragment {
     }
 
     public void requestSearchbarFocus() {
-        if (searchBarBinding != null)
+        if (searchBarBinding != null) {
             searchBarBinding.searchView.requestFocus();
+        }
     }
 
     private void showInputMethod(View view) {

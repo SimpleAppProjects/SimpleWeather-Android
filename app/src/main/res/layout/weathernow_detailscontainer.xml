@@ -5,15 +5,33 @@
 
     <data>
 
+        <import type="android.view.View" />
+
+        <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
+
         <variable
             name="weatherView"
             type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
 
     </data>
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/details_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="@string/label_details"
+            android:textAppearance="?android:textAppearanceMediumInverse"
+            android:textColor="@color/colorTextPrimary"
+            android:textStyle="bold"
+            style="@style/ShadowText"
+            app:showIfNotEmpty="@{weatherView.weatherDetails}"
+            app:showIfTrue="@{FeatureSettings.detailsEnabled}" />
 
         <com.thewizrd.simpleweather.controls.ExpandingGridView
             android:id="@+id/details_container"
@@ -31,12 +49,21 @@
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:paddingBottom="8dp"
             android:stretchMode="columnWidth"
+            android:visibility="@{!FeatureSettings.detailsEnabled || weatherView.weatherDetails == null || weatherView.weatherDetails.empty ? View.GONE : View.VISIBLE}"
             app:details_data="@{weatherView.weatherDetails}"
-            app:hideIfEmpty="@{weatherView.weatherDetails}"
             tools:layout_height="300dp"
             tools:listitem="@layout/card_weather_detail"
             tools:visibility="visible" />
 
-    </FrameLayout>
+        <View
+            android:id="@+id/details_border"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:alpha="0.2"
+            android:background="@color/colorOnSurface"
+            app:showIfNotEmpty="@{weatherView.weatherDetails}"
+            app:showIfTrue="@{FeatureSettings.detailsEnabled}" />
+
+    </LinearLayout>
 
 </layout>

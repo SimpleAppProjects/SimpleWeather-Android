@@ -4,6 +4,10 @@
 
     <data>
 
+        <import type="android.view.View" />
+
+        <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
+
         <variable
             name="weatherView"
             type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
@@ -12,7 +16,23 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="@{!FeatureSettings.sunPhaseEnabled || weatherView.sunPhase == null ? View.GONE : View.VISIBLE}">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/sunriseset_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="@string/label_sunriseset"
+            android:textAppearance="?android:textAppearanceMediumInverse"
+            android:textColor="@color/colorTextPrimary"
+            android:textStyle="bold"
+            style="@style/ShadowText"
+            app:showIfTrue="@{FeatureSettings.sunPhaseEnabled &amp;&amp; weatherView.sunPhase != null}"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <com.thewizrd.simpleweather.controls.SunPhaseView
             android:id="@+id/sun_phase_view"
@@ -25,7 +45,19 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sunriseset_label"
+            app:layout_constraintBottom_toTopOf="@id/sunriseset_border" />
+
+        <View
+            android:id="@+id/sunriseset_border"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:alpha="0.2"
+            android:background="@color/colorOnSurface"
+            app:showIfTrue="@{FeatureSettings.sunPhaseEnabled &amp;&amp; weatherView.sunPhase != null}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sun_phase_view"
             app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

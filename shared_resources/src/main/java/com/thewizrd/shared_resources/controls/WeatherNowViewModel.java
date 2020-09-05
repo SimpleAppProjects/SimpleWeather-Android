@@ -11,7 +11,6 @@ import androidx.annotation.WorkerThread;
 import androidx.core.util.ObjectsCompat;
 import androidx.databinding.Bindable;
 
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.BR;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
@@ -31,7 +30,6 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Callable;
 
 public class WeatherNowViewModel extends ObservableViewModel {
     private String location;
@@ -204,68 +202,56 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 final boolean isPhone = SimpleLibrary.getInstance().getApp().isPhone();
                 this.weather = weather;
 
-                new AsyncTask<Void>().await(new Callable<Void>() {
-                    @Override
-                    public Void call() {
-                        // Update backgrounds
-                        if (imageData != null) {
-                            imageData = null;
-                            notifyPropertyChanged(BR.imageData);
-                        }
-                        if (!isPhone) {
-                            int pendingBGColor = WeatherUtils.getWeatherBackgroundColor(weather);
-                            if (pendingBGColor != pendingBackground) {
-                                pendingBackground = pendingBGColor;
-                                notifyPropertyChanged(BR.pendingBackground);
-                            }
-                        } else {
-                            if (pendingBackground != DEFAULT_COLOR) {
-                                pendingBackground = DEFAULT_COLOR;
-                                notifyPropertyChanged(BR.pendingBackground);
-                            }
-                        }
-
-                        // Location
-                        if (!ObjectsCompat.equals(location, weather.getLocation().getName())) {
-                            location = weather.getLocation().getName();
-                            notifyPropertyChanged(BR.location);
-                        }
-
-                        // Additional Details
-                        if (weather.getLocation().getLatitude() != null && weather.getLocation().getLongitude() != null) {
-                            String newUrl = String.format(Locale.ROOT, radarUrlFormat, weather.getLocation().getLongitude(), weather.getLocation().getLatitude());
-                            if (!ObjectsCompat.equals(radarURL, newUrl)) {
-                                radarURL = newUrl;
-                                notifyPropertyChanged(BR.radarURL);
-                            }
-                        } else {
-                            radarURL = null;
-                            notifyPropertyChanged(BR.radarURL);
-                        }
-
-                        // Additional Details
-                        if (!ObjectsCompat.equals(weatherSource, weather.getSource())) {
-                            weatherSource = weather.getSource();
-                            notifyPropertyChanged(BR.weatherSource);
-                        }
-
-                        // Language
-                        weatherLocale = weather.getLocale();
-                        notifyPropertyChanged(BR.weatherLocale);
-
-                        // Refresh locale/unit dependent values
-                        refreshView();
-                        return null;
+                // Update backgrounds
+                if (imageData != null) {
+                    imageData = null;
+                    notifyPropertyChanged(BR.imageData);
+                }
+                if (!isPhone) {
+                    int pendingBGColor = WeatherUtils.getWeatherBackgroundColor(weather);
+                    if (pendingBGColor != pendingBackground) {
+                        pendingBackground = pendingBGColor;
+                        notifyPropertyChanged(BR.pendingBackground);
                     }
-                });
+                } else {
+                    if (pendingBackground != DEFAULT_COLOR) {
+                        pendingBackground = DEFAULT_COLOR;
+                        notifyPropertyChanged(BR.pendingBackground);
+                    }
+                }
+
+                // Location
+                if (!ObjectsCompat.equals(location, weather.getLocation().getName())) {
+                    location = weather.getLocation().getName();
+                    notifyPropertyChanged(BR.location);
+                }
+
+                // Additional Details
+                if (weather.getLocation().getLatitude() != null && weather.getLocation().getLongitude() != null) {
+                    String newUrl = String.format(Locale.ROOT, radarUrlFormat, weather.getLocation().getLongitude(), weather.getLocation().getLatitude());
+                    if (!ObjectsCompat.equals(radarURL, newUrl)) {
+                        radarURL = newUrl;
+                        notifyPropertyChanged(BR.radarURL);
+                    }
+                } else {
+                    radarURL = null;
+                    notifyPropertyChanged(BR.radarURL);
+                }
+
+                // Additional Details
+                if (!ObjectsCompat.equals(weatherSource, weather.getSource())) {
+                    weatherSource = weather.getSource();
+                    notifyPropertyChanged(BR.weatherSource);
+                }
+
+                // Language
+                weatherLocale = weather.getLocale();
+                notifyPropertyChanged(BR.weatherLocale);
+
+                // Refresh locale/unit dependent values
+                refreshView();
             } else if (!ObjectsCompat.equals(tempUnit, Settings.getTempUnit())) {
-                new AsyncTask<Void>().await(new Callable<Void>() {
-                    @Override
-                    public Void call() {
-                        refreshView();
-                        return null;
-                    }
-                });
+                refreshView();
             }
         }
     }
@@ -571,29 +557,28 @@ public class WeatherNowViewModel extends ObservableViewModel {
         notifyChange();
     }
 
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        reset();
+    }
+
     @WorkerThread
     public void updateBackground() {
-        new AsyncTask<Void>().await(new Callable<Void>() {
-            @Override
-            public Void call() {
-                if (weather != null) {
-                    ImageDataViewModel imageVM = WeatherUtils.getImageData(weather);
+        if (weather != null) {
+            ImageDataViewModel imageVM = WeatherUtils.getImageData(weather);
 
-                    if (imageVM != null) {
-                        imageData = imageVM;
-                        pendingBackground = imageVM.getColor();
-                    } else {
-                        imageData = null;
-                        pendingBackground = DEFAULT_COLOR;
-                    }
-
-                    notifyPropertyChanged(BR.imageData);
-                    notifyPropertyChanged(BR.pendingBackground);
-                }
-
-                return null;
+            if (imageVM != null) {
+                imageData = imageVM;
+                pendingBackground = imageVM.getColor();
+            } else {
+                imageData = null;
+                pendingBackground = DEFAULT_COLOR;
             }
-        });
+
+            notifyPropertyChanged(BR.imageData);
+            notifyPropertyChanged(BR.pendingBackground);
+        }
     }
 
     public boolean isValid() {

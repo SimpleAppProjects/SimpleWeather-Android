@@ -121,23 +121,22 @@ public class WeatherRadarFragment extends ToolbarFragment {
     @Override
     public void onResume() {
         super.onResume();
+        AnalyticsLogger.logEvent("WeatherRadarFragment: onResume");
 
-        if (!isHidden()) {
-            AnalyticsLogger.logEvent("WeatherRadarFragment: onResume");
-            if (binding != null) {
-                WebView webView = getRadarWebView();
-                if (webView != null) {
-                    webView.onResume();
-                }
+        if (binding != null) {
+            WebView webView = getRadarWebView();
+            if (webView != null) {
+                webView.onResume();
             }
-
-            initialize();
         }
+
+        initialize();
     }
 
     @Override
     public void onPause() {
         AnalyticsLogger.logEvent("WeatherRadarFragment: onPause");
+
         if (binding != null) {
             WebView webView = getRadarWebView();
             if (webView != null) {
@@ -160,25 +159,27 @@ public class WeatherRadarFragment extends ToolbarFragment {
     }
 
     private void navigateToRadarURL() {
-        if (weatherView == null || binding == null)
-            return;
+        runWithView(new Runnable() {
+            @Override
+            public void run() {
+                WebView webView = getRadarWebView();
 
-        WebView webView = getRadarWebView();
+                if (webView == null) {
+                    binding.radarWebviewContainer.addView(webView = createWebView());
+                }
 
-        if (webView == null) {
-            binding.radarWebviewContainer.addView(webView = createWebView());
-        }
+                String url = null;
+                if (weatherView.isValid()) {
+                    url = weatherView.getRadarURL();
+                }
 
-        String url = null;
-        if (weatherView.isValid()) {
-            url = weatherView.getRadarURL();
-        }
-
-        if (!StringUtils.isNullOrWhitespace(url)) {
-            WebViewHelper.loadUrl(webView, url);
-        } else {
-            WebViewHelper.loadUrl(webView, DEFAULT_URL);
-        }
+                if (!StringUtils.isNullOrWhitespace(url)) {
+                    WebViewHelper.loadUrl(webView, url);
+                } else {
+                    WebViewHelper.loadUrl(webView, DEFAULT_URL);
+                }
+            }
+        });
     }
 
     @NonNull

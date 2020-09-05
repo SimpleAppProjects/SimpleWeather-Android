@@ -6,31 +6,18 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Lifecycle;
-import androidx.preference.PreferenceFragmentCompat;
 
+import com.thewizrd.shared_resources.lifecycle.LifecycleAwarePreferenceFragmentCompat;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface;
 
-public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentCompat implements SnackbarManagerInterface {
+public abstract class CustomPreferenceFragmentCompat extends LifecycleAwarePreferenceFragmentCompat implements SnackbarManagerInterface {
 
     private AppCompatActivity mActivity;
     private SnackbarManager mSnackMgr;
 
     public final AppCompatActivity getAppCompatActivity() {
         return mActivity;
-    }
-
-    protected final void runOnUiThread(@NonNull final Runnable action) {
-        if (mActivity != null && isAlive())
-            mActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (isAlive()) {
-                        action.run();
-                    }
-                }
-            });
     }
 
     @Nullable
@@ -70,11 +57,6 @@ public abstract class CustomPreferenceFragmentCompat extends PreferenceFragmentC
     public void unloadSnackManager() {
         dismissAllSnackbars();
         mSnackMgr = null;
-    }
-
-    @CallSuper
-    public boolean isAlive() {
-        return mActivity != null && getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED);
     }
 
     @Override

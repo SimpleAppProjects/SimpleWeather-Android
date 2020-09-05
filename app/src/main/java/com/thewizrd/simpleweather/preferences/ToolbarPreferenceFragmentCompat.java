@@ -54,11 +54,6 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
         return mSnackMgr;
     }
 
-    @Override
-    public boolean isAlive() {
-        return binding != null && super.isAlive();
-    }
-
     protected abstract @StringRes
     int getTitle();
 
@@ -119,8 +114,8 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
 
     @Override
     public void onDestroyView() {
-        binding = null;
         super.onDestroyView();
+        binding = null;
     }
 
     @Override
@@ -130,8 +125,6 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
     }
 
     protected final void updateWindowColors(UserThemeMode mode) {
-        if (!isAlive()) return;
-
         int color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
         if (mode == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK;

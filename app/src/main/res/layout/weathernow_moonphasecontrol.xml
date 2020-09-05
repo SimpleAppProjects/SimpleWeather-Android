@@ -11,6 +11,8 @@
 
         <import type="com.thewizrd.shared_resources.utils.StringUtils" />
 
+        <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
+
         <variable
             name="weatherView"
             type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
@@ -21,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:hideIfNull="@{weatherView.moonPhase}">
+        android:visibility="@{!FeatureSettings.moonPhaseEnabled || weatherView.moonPhase == null ? View.GONE : View.VISIBLE}">
 
         <TextView
             android:id="@+id/moonphase_label"

@@ -36,6 +36,7 @@ import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
+import com.thewizrd.shared_resources.lifecycle.LifecycleRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
@@ -77,10 +78,6 @@ public class LocationSearchFragment extends SwipeDismissFragment {
 
     private static final int REQUEST_CODE_VOICE_INPUT = 0;
 
-    public void setRecyclerOnClickListener(RecyclerOnClickListenerInterface listener) {
-        recyclerClickListener = listener;
-    }
-
     public LocationSearchFragment() {
         // Required empty public constructor
         cts = new CancellationTokenSource();
@@ -88,22 +85,9 @@ public class LocationSearchFragment extends SwipeDismissFragment {
         setUserVisibleHint(true);
     }
 
-    public void ctsCancel() {
+    private void ctsCancel() {
         if (cts != null) cts.cancel();
         cts = new CancellationTokenSource();
-    }
-
-    public boolean ctsCancelRequested() {
-        if (cts != null) {
-            return cts.getToken().isCancellationRequested();
-        } else {
-            return true;
-        }
-    }
-
-    @Override
-    public boolean isAlive() {
-        return binding != null && super.isAlive();
     }
 
     @Override
@@ -136,144 +120,153 @@ public class LocationSearchFragment extends SwipeDismissFragment {
         super.onDetach();
     }
 
-    public LocationQueryAdapter getAdapter() {
-        return mAdapter;
-    }
-
     private RecyclerOnClickListenerInterface recyclerClickListener = new RecyclerOnClickListenerInterface() {
         @Override
         public void onClick(final View view, final int position) {
-            if (!isAlive()) return;
-
-            showLoading(true);
-            binding.recyclerView.setEnabled(false);
-
-            AsyncTask.create(new Callable<LocationData>() {
+            runWithView(new LifecycleRunnable(getViewLifecycleOwner().getLifecycle()) {
                 @Override
-                public LocationData call() throws CustomException, WeatherException, InterruptedException {
-                    if (isAlive()) {
-                        // Get selected query view
-                        LocationQueryViewModel queryResult = new LocationQueryViewModel();
+                public void run() {
+                    showLoading(true);
+                    binding.recyclerView.setEnabled(false);
 
-                        if (!StringUtils.isNullOrEmpty(mAdapter.getDataset().get(position).getLocationQuery()))
-                            queryResult = mAdapter.getDataset().get(position);
+                    // Cancel pending search
+                    ctsCancel();
+                    final CancellationToken token = cts.getToken();
 
-                        if (StringUtils.isNullOrWhitespace(queryResult.getLocationQuery())) {
-                            // Stop since there is no valid query
-                            throw new CustomException(R.string.error_retrieve_location);
+                    AsyncTask.create(new Callable<LocationData>() {
+                        @Override
+                        public LocationData call() throws CustomException, WeatherException, InterruptedException {
+                            // Get selected query view
+                            LocationQueryViewModel queryResult = new LocationQueryViewModel();
+
+                            if (!StringUtils.isNullOrEmpty(mAdapter.getDataset().get(position).getLocationQuery()))
+                                queryResult = mAdapter.getDataset().get(position);
+
+                            if (StringUtils.isNullOrWhitespace(queryResult.getLocationQuery())) {
+                                // Stop since there is no valid query
+                                throw new CustomException(R.string.error_retrieve_location);
+                            }
+
+                            if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired()) {
+                                throw new WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY);
+                            }
+
+                            if (token.isCancellationRequested()) throw new InterruptedException();
+
+                            String country_code = queryResult.getLocationCountry();
+                            if (!StringUtils.isNullOrWhitespace(country_code))
+                                country_code = country_code.toLowerCase();
+
+                            if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
+                                throw new CustomException(R.string.error_message_weather_us_only);
+                            }
+
+                            // Need to get FULL location data for HERE API
+                            // Data provided is incomplete
+                            if (WeatherAPI.HERE.equals(queryResult.getLocationSource())
+                                    && queryResult.getLocationLat() == -1 && queryResult.getLocationLong() == -1
+                                    && queryResult.getLocationTZLong() == null) {
+                                final LocationQueryViewModel loc = queryResult;
+                                queryResult = new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
+                                    @Override
+                                    public LocationQueryViewModel call() throws WeatherException {
+                                        return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
+                                    }
+                                });
+                            }
+
+                            if (token.isCancellationRequested()) throw new InterruptedException();
+
+                            // Get weather data
+                            LocationData location = new LocationData(queryResult);
+                            if (!location.isValid()) {
+                                throw new CustomException(R.string.werror_noweather);
+                            }
+                            Weather weather = Settings.getWeatherData(location.getQuery());
+                            if (weather == null) {
+                                weather = wm.getWeather(location);
+                            }
+
+                            if (weather == null) {
+                                throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
+                            }
+
+                            if (token.isCancellationRequested()) throw new InterruptedException();
+
+                            // Save weather data
+                            Settings.saveHomeData(location);
+                            if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
+                                Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
+                            Settings.saveWeatherData(weather);
+                            Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
+                            final Weather finalWeather = weather;
+                            Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
+                                    Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
+                                        @NonNull
+                                        @Override
+                                        public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
+                                            return new HourlyForecasts(finalWeather.getQuery(), input);
+                                        }
+                                    }));
+
+                            // If we're changing locations, trigger an update
+                            if (Settings.isWeatherLoaded()) {
+                                LocalBroadcastManager.getInstance(getFragmentActivity())
+                                        .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
+                            }
+
+                            // If we're using search
+                            // make sure gps feature is off
+                            Settings.setFollowGPS(false);
+                            Settings.setWeatherLoaded(true);
+                            Settings.setDataSync(WearableDataSync.OFF);
+
+                            return location;
                         }
-
-                        if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired()) {
-                            throw new WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY);
-                        }
-
-                        // Cancel pending search
-                        ctsCancel();
-                        CancellationToken ctsToken = cts.getToken();
-
-                        if (ctsToken.isCancellationRequested()) throw new InterruptedException();
-
-                        String country_code = queryResult.getLocationCountry();
-                        if (!StringUtils.isNullOrWhitespace(country_code))
-                            country_code = country_code.toLowerCase();
-
-                        if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
-                            throw new CustomException(R.string.error_message_weather_us_only);
-                        }
-
-                        // Need to get FULL location data for HERE API
-                        // Data provided is incomplete
-                        if (WeatherAPI.HERE.equals(queryResult.getLocationSource())
-                                && queryResult.getLocationLat() == -1 && queryResult.getLocationLong() == -1
-                                && queryResult.getLocationTZLong() == null) {
-                            final LocationQueryViewModel loc = queryResult;
-                            queryResult = new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
+                    }).addOnSuccessListener(new OnSuccessListener<LocationData>() {
+                        @Override
+                        public void onSuccess(final LocationData locationData) {
+                            runWithView(new Runnable() {
                                 @Override
-                                public LocationQueryViewModel call() throws WeatherException {
-                                    return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
+                                public void run() {
+                                    if (locationData != null) {
+                                        // Start WeatherNow Activity with weather data
+                                        SetupGraphDirections.ActionGlobalMainActivity args =
+                                                LocationSearchFragmentDirections.actionGlobalMainActivity()
+                                                        .setData(new AsyncTask<String>().await(new Callable<String>() {
+                                                            @Override
+                                                            public String call() {
+                                                                return JSONParser.serializer(locationData, LocationData.class);
+                                                            }
+                                                        }));
+
+                                        Navigation.findNavController(view).navigate(args);
+                                        getFragmentActivity().finishAffinity();
+                                    } else {
+                                        showLoading(false);
+                                        binding.recyclerView.setEnabled(true);
+                                    }
                                 }
                             });
                         }
-
-                        // Get weather data
-                        LocationData location = new LocationData(queryResult);
-                        if (!location.isValid()) {
-                            throw new CustomException(R.string.werror_noweather);
-                        }
-                        Weather weather = Settings.getWeatherData(location.getQuery());
-                        if (weather == null) {
-                            weather = wm.getWeather(location);
-                        }
-
-                        if (weather == null) {
-                            throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
-                        }
-
-                        // Save weather data
-                        Settings.saveHomeData(location);
-                        if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
-                            Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
-                        Settings.saveWeatherData(weather);
-                        Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
-                        final Weather finalWeather = weather;
-                        Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
-                                Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
-                                    @NonNull
-                                    @Override
-                                    public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
-                                        return new HourlyForecasts(finalWeather.getQuery(), input);
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull final Exception e) {
+                            runWithView(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (e instanceof WeatherException || e instanceof CustomException) {
+                                        Toast.makeText(getFragmentActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(getFragmentActivity(), R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
                                     }
-                                }));
 
-                        // If we're changing locations, trigger an update
-                        if (Settings.isWeatherLoaded()) {
-                            LocalBroadcastManager.getInstance(getFragmentActivity())
-                                    .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
+                                    showLoading(false);
+                                    binding.recyclerView.setEnabled(true);
+                                }
+                            });
                         }
-
-                        // If we're using search
-                        // make sure gps feature is off
-                        Settings.setFollowGPS(false);
-                        Settings.setWeatherLoaded(true);
-                        Settings.setDataSync(WearableDataSync.OFF);
-
-                        return location;
-                    }
-
-                    return null;
-                }
-            }).addOnSuccessListener(getFragmentActivity(), new OnSuccessListener<LocationData>() {
-                @Override
-                public void onSuccess(final LocationData locationData) {
-                    if (locationData != null) {
-                        // Start WeatherNow Activity with weather data
-                        SetupGraphDirections.ActionGlobalMainActivity args =
-                                LocationSearchFragmentDirections.actionGlobalMainActivity()
-                                        .setData(new AsyncTask<String>().await(new Callable<String>() {
-                                            @Override
-                                            public String call() {
-                                                return JSONParser.serializer(locationData, LocationData.class);
-                                            }
-                                        }));
-
-                        Navigation.findNavController(view).navigate(args);
-                        getFragmentActivity().finishAffinity();
-                    } else {
-                        showLoading(false);
-                        binding.recyclerView.setEnabled(true);
-                    }
-                }
-            }).addOnFailureListener(getFragmentActivity(), new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    if (e instanceof WeatherException || e instanceof CustomException) {
-                        Toast.makeText(getFragmentActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getFragmentActivity(), R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
-                    }
-
-                    showLoading(false);
-                    binding.recyclerView.setEnabled(true);
+                    });
                 }
             });
         }
@@ -298,7 +291,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
             public void onClick(View v) {
                 binding.searchView.setVisibility(View.VISIBLE);
                 binding.searchView.requestFocus();
-                showInputMethod(binding.searchView);
+                showInputMethod();
             }
         });
         binding.voiceButton.setOnClickListener(new View.OnClickListener() {
@@ -338,7 +331,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    showInputMethod(v.findFocus());
+                    showInputMethod();
                 } else {
                     hideInputMethod(v);
                 }
@@ -387,8 +380,8 @@ public class LocationSearchFragment extends SwipeDismissFragment {
     public void onDestroyView() {
         hideInputMethod(binding.searchView);
         binding.recyclerViewLayout.removeCallback(swipeCallback);
-        binding = null;
         super.onDestroyView();
+        binding = null;
     }
 
     private void doSearchAction() {
@@ -405,36 +398,47 @@ public class LocationSearchFragment extends SwipeDismissFragment {
         ctsCancel();
 
         if (!StringUtils.isNullOrWhitespace(queryString)) {
-            final CancellationToken ctsToken = cts.getToken();
+            final CancellationToken token = cts.getToken();
 
             AsyncTask.create(new Callable<Collection<LocationQueryViewModel>>() {
                 @Override
                 public Collection<LocationQueryViewModel> call() throws WeatherException {
-                    if (ctsToken.isCancellationRequested()) return null;
+                    if (token.isCancellationRequested()) return null;
                     return wm.getLocations(queryString);
                 }
             }).addOnSuccessListener(new OnSuccessListener<Collection<LocationQueryViewModel>>() {
                 @Override
-                public void onSuccess(Collection<LocationQueryViewModel> results) {
-                    mAdapter.setLocations(new ArrayList<>(results));
-                    if (binding != null)
-                        binding.progressBar.setVisibility(View.GONE);
+                public void onSuccess(final Collection<LocationQueryViewModel> results) {
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            mAdapter.setLocations(new ArrayList<>(results));
+                            binding.progressBar.setVisibility(View.GONE);
+                        }
+                    });
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
-                public void onFailure(@NonNull Exception e) {
-                    if (e instanceof WeatherException) {
-                        Toast.makeText(getFragmentActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                    mAdapter.setLocations(Collections.singletonList(new LocationQueryViewModel()));
+                public void onFailure(@NonNull final Exception e) {
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (e instanceof WeatherException) {
+                                Toast.makeText(getFragmentActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                            mAdapter.setLocations(Collections.singletonList(new LocationQueryViewModel()));
+                        }
+                    });
                 }
             });
         } else if (StringUtils.isNullOrWhitespace(queryString)) {
             // Cancel pending searches
             ctsCancel();
+
             binding.progressBar.setVisibility(View.GONE);
             binding.recyclerViewLayout.setVisibility(View.GONE);
             binding.recyclerViewLayout.clearFocus();
+
             // Hide flyout if query is empty or null
             mAdapter.getDataset().clear();
             mAdapter.notifyDataSetChanged();
@@ -442,12 +446,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
     }
 
     private void showLoading(final boolean show) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                binding.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-            }
-        });
+        binding.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -461,7 +460,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
             case REQUEST_CODE_VOICE_INPUT:
                 List<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                 if (results != null && results.size() > 0) {
-                    String text = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS).get(0);
+                    String text = results.get(0);
 
                     if (!StringUtils.isNullOrWhitespace(text)) {
                         binding.searchView.setText(text);
@@ -474,7 +473,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
         }
     }
 
-    private void showInputMethod(View view) {
+    private void showInputMethod() {
         if (getFragmentActivity() != null) {
             InputMethodManager imm = (InputMethodManager) getFragmentActivity().getSystemService(
                     Context.INPUT_METHOD_SERVICE);

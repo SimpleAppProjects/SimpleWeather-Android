@@ -31,23 +31,14 @@ public class SwipeDismissPreferenceFragment extends PreferenceFragment {
 
     @Override
     public void onDetach() {
-        mActivity = null;
         super.onDetach();
+        mActivity = null;
     }
 
     @Override
     public void onDestroy() {
-        mActivity = null;
         super.onDestroy();
-    }
-
-    protected void runOnUiThread(Runnable action) {
-        if (mActivity != null && isAlive())
-            mActivity.runOnUiThread(action);
-    }
-
-    public boolean isAlive() {
-        return binding != null && mActivity != null;
+        mActivity = null;
     }
 
     @SuppressLint("RestrictedApi")
@@ -74,7 +65,7 @@ public class SwipeDismissPreferenceFragment extends PreferenceFragment {
     @Override
     public void onDestroyView() {
         binding.swipeLayout.removeCallback(swipeCallback);
-        binding = null;
         super.onDestroyView();
+        binding = null;
     }
 }

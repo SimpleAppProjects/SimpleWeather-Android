@@ -46,16 +46,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.transition.MaterialFadeThrough;
 import com.google.common.base.Predicate;
@@ -68,6 +64,7 @@ import com.thewizrd.shared_resources.helpers.ListChangedAction;
 import com.thewizrd.shared_resources.helpers.ListChangedArgs;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
+import com.thewizrd.shared_resources.lifecycle.LifecycleRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
@@ -85,6 +82,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.App;
+import com.thewizrd.simpleweather.BuildConfig;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.LocationPanelAdapter;
 import com.thewizrd.simpleweather.controls.LocationPanelViewModel;
@@ -104,12 +102,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class LocationsFragment extends ToolbarFragment
         implements WeatherRequest.WeatherErrorListener {
-    private boolean mLoaded = false;
     private boolean mEditMode = false;
     private boolean mDataChanged = false;
     private boolean mHomeChanged = false;
@@ -121,14 +117,12 @@ public class LocationsFragment extends ToolbarFragment
     private RecyclerView.LayoutManager mLayoutManager;
     private ItemTouchHelper mItemTouchHelper;
     private ItemTouchHelperCallback mITHCallback;
-    private BottomNavigationView mBottomNavView;
     private ActionMode actionMode;
 
     // GPS Location
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocCallback;
     private LocationListener mLocListnr;
-    private CancellationTokenSource cts;
 
     /**
      * Tracks the status of the location updates request.
@@ -155,118 +149,123 @@ public class LocationsFragment extends ToolbarFragment
         return R.string.label_nav_locations;
     }
 
-    private boolean isCtsCancelRequested() {
-        if (cts != null)
-            return cts.getToken().isCancellationRequested();
-        else
-            return true;
-    }
-
     private void onWeatherLoaded(final LocationData location, final Weather weather) {
-        if (isCtsCancelRequested()) return;
+        runWithView(new Runnable() {
+            @Override
+            public void run() {
+                final List<LocationPanelViewModel> dataSet = mAdapter.getDataset();
 
-        final List<LocationPanelViewModel> dataSet = mAdapter.getDataset();
+                if (weather != null && weather.isValid()) {
+                    // Update panel weather
+                    LocationPanelViewModel panel;
 
-        if (weather != null && weather.isValid()) {
-            // Update panel weather
-            LocationPanelViewModel panel = null;
+                    if (location.getLocationType() == LocationType.GPS) {
+                        panel = Iterables.find(dataSet, new Predicate<LocationPanelViewModel>() {
+                            @Override
+                            public boolean apply(@NullableDecl LocationPanelViewModel input) {
+                                return input != null && input.getLocationData().getLocationType().equals(LocationType.GPS);
+                            }
+                        }, null);
+                    } else {
+                        panel = Iterables.find(dataSet, new Predicate<LocationPanelViewModel>() {
+                            @Override
+                            public boolean apply(@NullableDecl LocationPanelViewModel input) {
+                                return input != null && !input.getLocationData().getLocationType().equals(LocationType.GPS) && input.getLocationData().getQuery().equals(location.getQuery());
+                            }
+                        }, null);
+                    }
 
-            if (location.getLocationType() == LocationType.GPS) {
-                panel = Iterables.find(dataSet, new Predicate<LocationPanelViewModel>() {
-                    @Override
-                    public boolean apply(@NullableDecl LocationPanelViewModel input) {
-                        return input != null && input.getLocationData().getLocationType().equals(LocationType.GPS);
+                    // Just in case
+                    if (panel == null) {
+                        AnalyticsLogger.logEvent("LocationsFragment: panel == null");
+                        panel = Iterables.find(dataSet, new Predicate<LocationPanelViewModel>() {
+                            @Override
+                            public boolean apply(@NullableDecl LocationPanelViewModel input) {
+                                return input != null && input.getLocationData().getName().equals(location.getName()) &&
+                                        input.getLocationData().getLatitude() == location.getLatitude() &&
+                                        input.getLocationData().getLongitude() == location.getLongitude() &&
+                                        input.getLocationData().getTzLong().equals(location.getTzLong());
+                            }
+                        }, null);
                     }
-                }, null);
-            } else {
-                panel = Iterables.find(dataSet, new Predicate<LocationPanelViewModel>() {
-                    @Override
-                    public boolean apply(@NullableDecl LocationPanelViewModel input) {
-                        return input != null && !input.getLocationData().getLocationType().equals(LocationType.GPS) && input.getLocationData().getQuery().equals(location.getQuery());
-                    }
-                }, null);
-            }
 
-            // Just in case
-            if (panel == null) {
-                AnalyticsLogger.logEvent("LocationsFragment: panel == null");
-                panel = Iterables.find(dataSet, new Predicate<LocationPanelViewModel>() {
-                    @Override
-                    public boolean apply(@NullableDecl LocationPanelViewModel input) {
-                        return input != null && input.getLocationData().getName().equals(location.getName()) &&
-                                input.getLocationData().getLatitude() == location.getLatitude() &&
-                                input.getLocationData().getLongitude() == location.getLongitude() &&
-                                input.getLocationData().getTzLong().equals(location.getTzLong());
-                    }
-                }, null);
-            }
+                    if (panel != null) {
+                        panel.setWeather(weather);
+                        mAdapter.notifyItemChanged(mAdapter.getViewPosition(panel));
 
-            if (panel != null) {
-                panel.setWeather(weather);
-                mAdapter.notifyItemChanged(mAdapter.getViewPosition(panel));
-                final LocationPanelViewModel finalPanel = panel;
-                AsyncTask.create(new Callable<Void>() {
-                    @Override
-                    public Void call() {
-                        finalPanel.updateBackground();
-                        return null;
+                        final LocationPanelViewModel finalPanel = panel;
+                        AsyncTask.create(new Callable<Void>() {
+                            @Override
+                            public Void call() {
+                                finalPanel.updateBackground();
+                                return null;
+                            }
+                        }).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                runWithView(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mAdapter.notifyItemChanged(mAdapter.getViewPosition(finalPanel), LocationPanelAdapter.Payload.IMAGE_UPDATE);
+                                    }
+                                });
+                            }
+                        });
+                    } else if (BuildConfig.DEBUG) {
+                        Logger.writeLine(Log.WARN, "LocationsFragment: Location panel not found");
+                        Logger.writeLine(Log.WARN, "LocationsFragment: LocationData: %s", location.toString());
+                        Logger.writeLine(Log.WARN, "LocationsFragment: Dumping adapter data...");
+
+                        for (int i = 0; i < dataSet.size(); i++) {
+                            LocationPanelViewModel vm = dataSet.get(i);
+                            Logger.writeLine(Log.WARN, "LocationsFragment: Panel: %d; data: %s", i, vm.getLocationData().toString());
+                        }
                     }
-                }).addOnCompleteListener(getAppCompatActivity(), new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        mAdapter.notifyItemChanged(mAdapter.getViewPosition(finalPanel), LocationPanelAdapter.Payload.IMAGE_UPDATE);
-                    }
-                });
-            } else {
-                Logger.writeLine(Log.WARN, "LocationsFragment: Location panel not found");
-                Logger.writeLine(Log.WARN, "LocationsFragment: LocationData: %s", location.toString());
-                Logger.writeLine(Log.WARN, "LocationsFragment: Dumping adapter data...");
-                for (int i = 0; i < dataSet.size(); i++) {
-                    LocationPanelViewModel vm = dataSet.get(i);
-                    Logger.writeLine(Log.WARN, "LocationsFragment: Panel: %d; data: %s", i, vm.getLocationData().toString());
                 }
             }
-        }
+        });
     }
 
     public void onWeatherError(final WeatherException wEx) {
-        if (isCtsCancelRequested())
-            return;
-
-        switch (wEx.getErrorStatus()) {
-            case NETWORKERROR:
-            case NOWEATHER:
-                // Show error message and prompt to refresh
-                // Only warn once
-                if (!mErrorCounter[wEx.getErrorStatus().getValue()]) {
-                    Snackbar snackbar = Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG);
-                    snackbar.setAction(R.string.action_retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            // Reset counter to allow retry
-                            mErrorCounter[wEx.getErrorStatus().getValue()] = false;
-                            refreshLocations();
+        runWithView(new Runnable() {
+            @Override
+            public void run() {
+                switch (wEx.getErrorStatus()) {
+                    case NETWORKERROR:
+                    case NOWEATHER:
+                        // Show error message and prompt to refresh
+                        // Only warn once
+                        if (!mErrorCounter[wEx.getErrorStatus().getValue()]) {
+                            Snackbar snackbar = Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG);
+                            snackbar.setAction(R.string.action_retry, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    // Reset counter to allow retry
+                                    mErrorCounter[wEx.getErrorStatus().getValue()] = false;
+                                    refreshLocations();
+                                }
+                            });
+                            showSnackbar(snackbar, null);
+                            mErrorCounter[wEx.getErrorStatus().getValue()] = true;
                         }
-                    });
-                    showSnackbar(snackbar, null);
-                    mErrorCounter[wEx.getErrorStatus().getValue()] = true;
+                        break;
+                    case QUERYNOTFOUND:
+                        if (!mErrorCounter[wEx.getErrorStatus().getValue()] && WeatherAPI.NWS.equals(Settings.getAPI())) {
+                            showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.LONG), null);
+                            mErrorCounter[wEx.getErrorStatus().getValue()] = true;
+                            break;
+                        }
+                    default:
+                        // Show error message
+                        // Only warn once
+                        if (!mErrorCounter[wEx.getErrorStatus().getValue()]) {
+                            showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG), null);
+                            mErrorCounter[wEx.getErrorStatus().getValue()] = true;
+                        }
+                        break;
                 }
-                break;
-            case QUERYNOTFOUND:
-                if (!mErrorCounter[wEx.getErrorStatus().getValue()] && WeatherAPI.NWS.equals(Settings.getAPI())) {
-                    showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.LONG), null);
-                    mErrorCounter[wEx.getErrorStatus().getValue()] = true;
-                    break;
-                }
-            default:
-                // Show error message
-                // Only warn once
-                if (!mErrorCounter[wEx.getErrorStatus().getValue()]) {
-                    showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG), null);
-                    mErrorCounter[wEx.getErrorStatus().getValue()] = true;
-                }
-                break;
-        }
+            }
+        });
     }
 
     @NonNull
@@ -354,7 +353,6 @@ public class LocationsFragment extends ToolbarFragment
         setEnterTransition(new MaterialFadeThrough());
 
         // Create your fragment here
-        mLoaded = true;
         AnalyticsLogger.logEvent("LocationsFragment: onCreate");
 
         mErrorCounter = new boolean[WeatherUtils.ErrorStatus.values().length];
@@ -363,45 +361,19 @@ public class LocationsFragment extends ToolbarFragment
             mFusedLocationClient = new FusedLocationProviderClient(getAppCompatActivity());
             mLocCallback = new LocationCallback() {
                 @Override
-                public void onLocationResult(LocationResult locationResult) {
-                    if (locationResult != null && locationResult.getLastLocation() != null) {
-                        addGPSPanel();
-                    } else {
-                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
-                    }
-
-                    new AsyncTask<Void>().await(new Callable<Void>() {
+                public void onLocationResult(final LocationResult locationResult) {
+                    runWithView(new Runnable() {
                         @Override
-                        public Void call() {
-                            try {
-                                return Tasks.await(mFusedLocationClient.removeLocationUpdates(mLocCallback));
-                            } catch (ExecutionException | InterruptedException e) {
-                                Logger.writeLine(Log.ERROR, e);
+                        public void run() {
+                            if (locationResult != null && locationResult.getLastLocation() != null) {
+                                addGPSPanel();
+                            } else {
+                                showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
                             }
 
-                            return null;
+                            stopLocationUpdates();
                         }
                     });
-                }
-
-                @Override
-                public void onLocationAvailability(LocationAvailability locationAvailability) {
-                    new AsyncTask<Void>().await(new Callable<Void>() {
-                        @Override
-                        public Void call() {
-                            try {
-                                return Tasks.await(mFusedLocationClient.flushLocations());
-                            } catch (ExecutionException | InterruptedException e) {
-                                Logger.writeLine(Log.ERROR, e);
-                            }
-
-                            return null;
-                        }
-                    });
-
-                    if (!locationAvailability.isLocationAvailable()) {
-                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
-                    }
                 }
             };
         } else {
@@ -463,21 +435,15 @@ public class LocationsFragment extends ToolbarFragment
     }
 
     @Override
-    public boolean isAlive() {
-        return binding != null && super.isAlive();
-    }
-
-    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
         // Inflate the layout for this fragment
         binding = FragmentLocationsBinding.inflate(inflater, root, true);
+        binding.setLifecycleOwner(getViewLifecycleOwner());
         // Request focus away from RecyclerView
         root.setFocusableInTouchMode(true);
         root.requestFocus();
-
-        mBottomNavView = getAppCompatActivity().findViewById(R.id.bottom_nav_bar);
 
         /*
            Capture touch events on RecyclerView
@@ -646,8 +612,6 @@ public class LocationsFragment extends ToolbarFragment
         // Enable touch actions
         mITHCallback.setItemViewSwipeEnabled(false);
 
-        mLoaded = true;
-
         // Create options menu
         createOptionsMenu();
 
@@ -668,19 +632,21 @@ public class LocationsFragment extends ToolbarFragment
             binding.recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                 @Override
                 public boolean onPreDraw() {
-                    binding.recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
+                    if (isViewAlive()) {
+                        binding.recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
 
-                    boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
-                    int viewWidth = binding.recyclerView.getMeasuredWidth();
-                    int minColumns = isLandscape ? 2 : 1;
+                        boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
+                        int viewWidth = binding.recyclerView.getMeasuredWidth();
+                        int minColumns = isLandscape ? 2 : 1;
 
-                    // Minimum width for ea. card
-                    int minWidth = getAppCompatActivity().getResources().getDimensionPixelSize(R.dimen.location_panel_minwidth);
-                    // Available columns based on min card width
-                    int availColumns = ((int) (viewWidth / minWidth)) <= 1 ? minColumns : (int) (viewWidth / minWidth);
+                        // Minimum width for ea. card
+                        int minWidth = getAppCompatActivity().getResources().getDimensionPixelSize(R.dimen.location_panel_minwidth);
+                        // Available columns based on min card width
+                        int availColumns = ((int) (viewWidth / minWidth)) <= 1 ? minColumns : (int) (viewWidth / minWidth);
 
-                    if (binding.recyclerView.getLayoutManager() instanceof GridLayoutManager) {
-                        ((GridLayoutManager) binding.recyclerView.getLayoutManager()).setSpanCount(availColumns);
+                        if (binding.recyclerView.getLayoutManager() instanceof GridLayoutManager) {
+                            ((GridLayoutManager) binding.recyclerView.getLayoutManager()).setSpanCount(availColumns);
+                        }
                     }
 
                     return true;
@@ -692,8 +658,8 @@ public class LocationsFragment extends ToolbarFragment
     @Override
     public void onDestroyView() {
         this.getLifecycle().removeObserver(mAdapter);
-        binding = null;
         super.onDestroyView();
+        binding = null;
     }
 
     @Override
@@ -737,36 +703,28 @@ public class LocationsFragment extends ToolbarFragment
     };
 
     private void resume() {
-        cts = new CancellationTokenSource();
-
         // Update view on resume
         // ex. If temperature unit changed
         if (mAdapter.getDataCount() == 0) {
             // New instance; Get locations and load up weather data
             loadLocations();
-        } else if (!mLoaded) {
+        } else {
             // Refresh view
             refreshLocations();
-            mLoaded = true;
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        AnalyticsLogger.logEvent("LocationsFragment: onResume");
 
-        // Don't resume if fragment is hidden
-        if (!this.isHidden()) {
-            AnalyticsLogger.logEvent("LocationsFragment: onResume");
-            resume();
-        }
+        resume();
     }
 
     @Override
     public void onPause() {
         AnalyticsLogger.logEvent("LocationsFragment: onPause");
-        // Cancel pending actions
-        if (cts != null) cts.cancel();
 
         // End actionmode
         if (actionMode != null) {
@@ -775,7 +733,7 @@ public class LocationsFragment extends ToolbarFragment
 
         // Remove location updates to save battery.
         stopLocationUpdates();
-        mLoaded = false;
+
         // Reset error counter
         Arrays.fill(mErrorCounter, 0, mErrorCounter.length, false);
 
@@ -783,53 +741,54 @@ public class LocationsFragment extends ToolbarFragment
     }
 
     private void loadLocations() {
-        if (getAppCompatActivity() != null) {
-            // Load up saved locations
-            List<LocationData> locations = new ArrayList<>(Settings.getFavorites());
-            mAdapter.removeAll();
+        runWithView(new LifecycleRunnable(getViewLifecycleOwner().getLifecycle()) {
+            @Override
+            public void run() {
+                // Load up saved locations
+                List<LocationData> locations = new ArrayList<>(Settings.getFavorites());
+                mAdapter.removeAll();
 
-            if (isCtsCancelRequested())
-                return;
+                if (!isActive()) return;
 
-            // Setup saved favorite locations
-            LocationData gpsData = null;
-            if (Settings.useFollowGPS()) {
-                gpsData = getGPSPanel();
+                // Setup saved favorite locations
+                LocationData gpsData = null;
+                if (Settings.useFollowGPS()) {
+                    gpsData = getGPSPanel();
 
-                if (gpsData != null) {
-                    final LocationPanelViewModel gpsPanelViewModel = new LocationPanelViewModel();
-                    gpsPanelViewModel.setLocationData(gpsData);
+                    if (gpsData != null) {
+                        final LocationPanelViewModel gpsPanelViewModel = new LocationPanelViewModel();
+                        gpsPanelViewModel.setLocationData(gpsData);
 
-                    mAdapter.add(0, gpsPanelViewModel);
+                        mAdapter.add(0, gpsPanelViewModel);
+                    }
+                }
+
+                for (LocationData location : locations) {
+                    final LocationPanelViewModel panel = new LocationPanelViewModel();
+                    panel.setLocationData(location);
+                    mAdapter.add(panel);
+                }
+
+                if (!isActive()) return;
+
+                if (gpsData != null)
+                    locations.add(0, gpsData);
+
+                for (final LocationData location : locations) {
+                    WeatherDataLoader wLoader = new WeatherDataLoader(location);
+                    wLoader.loadWeatherData(new WeatherRequest.Builder()
+                            .forceRefresh(false)
+                            .setErrorListener(LocationsFragment.this)
+                            .build())
+                            .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
+                                @Override
+                                public void onSuccess(final Weather weather) {
+                                    onWeatherLoaded(location, weather);
+                                }
+                            });
                 }
             }
-
-            for (LocationData location : locations) {
-                final LocationPanelViewModel panel = new LocationPanelViewModel();
-                panel.setLocationData(location);
-                mAdapter.add(panel);
-            }
-
-            if (isCtsCancelRequested())
-                return;
-
-            if (gpsData != null)
-                locations.add(0, gpsData);
-
-            for (final LocationData location : locations) {
-                WeatherDataLoader wLoader = new WeatherDataLoader(location);
-                wLoader.loadWeatherData(new WeatherRequest.Builder()
-                        .forceRefresh(false)
-                        .setErrorListener(LocationsFragment.this)
-                        .build())
-                        .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
-                            @Override
-                            public void onSuccess(final Weather weather) {
-                                onWeatherLoaded(location, weather);
-                            }
-                        });
-            }
-        }
+        });
     }
 
     private LocationData getGPSPanel() {
@@ -840,15 +799,9 @@ public class LocationsFragment extends ToolbarFragment
                 if (getAppCompatActivity() != null && Settings.useFollowGPS()) {
                     LocationData locData = Settings.getLastGPSLocData();
 
-                    if (isCtsCancelRequested())
-                        return null;
-
                     if (locData == null || locData.getQuery() == null) {
                         locData = updateLocation();
                     }
-
-                    if (isCtsCancelRequested())
-                        return null;
 
                     if (locData != null && locData.getQuery() != null) {
                         return locData;
@@ -860,83 +813,91 @@ public class LocationsFragment extends ToolbarFragment
     }
 
     private void refreshLocations() {
-        // Reload all panels if needed
-        List<LocationData> locations = new ArrayList<>(Settings.getLocationData());
-        if (Settings.useFollowGPS()) {
-            LocationData homeData = Settings.getLastGPSLocData();
-            locations.add(0, homeData);
-        }
-        LocationPanelViewModel gpsPanelViewModel = mAdapter.getGPSPanel();
+        runWithView(new LifecycleRunnable(getViewLifecycleOwner().getLifecycle()) {
+            @Override
+            public void run() {
+                // Reload all panels if needed
+                List<LocationData> locations = new ArrayList<>(Settings.getLocationData());
+                if (Settings.useFollowGPS()) {
+                    LocationData homeData = Settings.getLastGPSLocData();
+                    locations.add(0, homeData);
+                }
+                LocationPanelViewModel gpsPanelViewModel = mAdapter.getGPSPanel();
 
-        boolean reload = (locations.size() != mAdapter.getDataCount() ||
-                Settings.useFollowGPS() && gpsPanelViewModel == null || !Settings.useFollowGPS() && gpsPanelViewModel != null);
+                boolean reload = (locations.size() != mAdapter.getDataCount() ||
+                        Settings.useFollowGPS() && gpsPanelViewModel == null || !Settings.useFollowGPS() && gpsPanelViewModel != null);
 
-        // Reload if weather source differs
-        if ((gpsPanelViewModel != null && !Settings.getAPI().equals(gpsPanelViewModel.getWeatherSource())) ||
-                (mAdapter.getFavoritesCount() > 0 && mAdapter.getFirstFavPanel() != null && !Settings.getAPI().equals(mAdapter.getFirstFavPanel().getWeatherSource())))
-            reload = true;
+                // Reload if weather source differs
+                if ((gpsPanelViewModel != null && !Settings.getAPI().equals(gpsPanelViewModel.getWeatherSource())) ||
+                        (mAdapter.getFavoritesCount() > 0 && mAdapter.getFirstFavPanel() != null && !Settings.getAPI().equals(mAdapter.getFirstFavPanel().getWeatherSource())))
+                    reload = true;
 
-        if (Settings.useFollowGPS()) {
-            if (!reload && (gpsPanelViewModel != null && !locations.get(0).getQuery().equals(gpsPanelViewModel.getLocationData().getQuery())))
-                reload = true;
-        }
+                if (Settings.useFollowGPS()) {
+                    if (!reload && (gpsPanelViewModel != null && !locations.get(0).getQuery().equals(gpsPanelViewModel.getLocationData().getQuery())))
+                        reload = true;
+                }
 
-        if (isCtsCancelRequested())
-            return;
+                if (!isActive()) return;
 
-        if (reload) {
-            mAdapter.removeAll();
-            loadLocations();
-        } else {
-            List<LocationPanelViewModel> dataset = mAdapter.getDataset();
+                if (reload) {
+                    mAdapter.removeAll();
+                    loadLocations();
+                } else {
+                    List<LocationPanelViewModel> dataset = mAdapter.getDataset();
 
-            for (final LocationPanelViewModel view : dataset) {
-                WeatherDataLoader wLoader = new WeatherDataLoader(view.getLocationData());
-                wLoader.loadWeatherData(new WeatherRequest.Builder()
-                        .forceRefresh(false)
-                        .setErrorListener(LocationsFragment.this)
-                        .build())
-                        .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
-                            @Override
-                            public void onSuccess(final Weather weather) {
-                                onWeatherLoaded(view.getLocationData(), weather);
-                            }
-                        });
+                    for (final LocationPanelViewModel view : dataset) {
+                        WeatherDataLoader wLoader = new WeatherDataLoader(view.getLocationData());
+                        wLoader.loadWeatherData(new WeatherRequest.Builder()
+                                .forceRefresh(false)
+                                .setErrorListener(LocationsFragment.this)
+                                .build())
+                                .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
+                                    @Override
+                                    public void onSuccess(final Weather weather) {
+                                        onWeatherLoaded(view.getLocationData(), weather);
+                                    }
+                                });
+                    }
+                }
             }
-        }
+        });
     }
 
     private void addGPSPanel() {
-        // Setup saved favorite locations
-        final LocationData gpsData;
-        if (Settings.useFollowGPS()) {
-            gpsData = getGPSPanel();
+        runWithView(new LifecycleRunnable(getViewLifecycleOwner().getLifecycle()) {
+            @Override
+            public void run() {
+                // Setup saved favorite locations
+                final LocationData gpsData;
+                if (Settings.useFollowGPS()) {
+                    gpsData = getGPSPanel();
 
-            if (gpsData != null) {
-                final LocationPanelViewModel gpsPanelViewModel = new LocationPanelViewModel();
-                gpsPanelViewModel.setLocationData(gpsData);
-                mAdapter.add(0, gpsPanelViewModel);
+                    if (gpsData != null) {
+                        final LocationPanelViewModel gpsPanelViewModel = new LocationPanelViewModel();
+                        gpsPanelViewModel.setLocationData(gpsData);
+                        mAdapter.add(0, gpsPanelViewModel);
+                    }
+                } else {
+                    gpsData = null;
+                }
+
+                if (!isActive()) return;
+
+                if (gpsData != null) {
+                    WeatherDataLoader wLoader = new WeatherDataLoader(gpsData);
+                    wLoader.loadWeatherData(new WeatherRequest.Builder()
+                            .forceRefresh(false)
+                            .setErrorListener(LocationsFragment.this)
+                            .build())
+                            .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
+                                @Override
+                                public void onSuccess(final Weather weather) {
+                                    onWeatherLoaded(gpsData, weather);
+                                }
+                            });
+                }
             }
-        } else {
-            gpsData = null;
-        }
-
-        if (isCtsCancelRequested())
-            return;
-
-        if (gpsData != null) {
-            WeatherDataLoader wLoader = new WeatherDataLoader(gpsData);
-            wLoader.loadWeatherData(new WeatherRequest.Builder()
-                    .forceRefresh(false)
-                    .setErrorListener(LocationsFragment.this)
-                    .build())
-                    .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
-                        @Override
-                        public void onSuccess(final Weather weather) {
-                            onWeatherLoaded(gpsData, weather);
-                        }
-                    });
-        }
+        });
     }
 
     private void removeGPSPanel() {
@@ -965,9 +926,6 @@ public class LocationsFragment extends ToolbarFragment
                     }
 
                     Location location = null;
-
-                    if (isCtsCancelRequested())
-                        return null;
 
                     LocationManager locMan = null;
                     if (getAppCompatActivity() != null)
@@ -1021,7 +979,7 @@ public class LocationsFragment extends ToolbarFragment
                             if (location == null)
                                 locMan.requestSingleUpdate(provider, mLocListnr, Looper.getMainLooper());
                         } else {
-                            runOnUiThread(new Runnable() {
+                            runWithView(new Runnable() {
                                 @Override
                                 public void run() {
                                     showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
@@ -1032,17 +990,14 @@ public class LocationsFragment extends ToolbarFragment
                     }
 
                     if (location != null && !mRequestingLocationUpdates) {
-                        LocationQueryViewModel view = null;
-
-                        if (isCtsCancelRequested())
-                            return null;
+                        LocationQueryViewModel view;
 
                         try {
                             view = wm.getLocation(location);
                         } catch (WeatherException e) {
                             Logger.writeLine(Log.ERROR, e);
                             // Stop since there is no valid query
-                            runOnUiThread(new Runnable() {
+                            runWithView(new Runnable() {
                                 @Override
                                 public void run() {
                                     removeGPSPanel();
@@ -1051,15 +1006,12 @@ public class LocationsFragment extends ToolbarFragment
                             return null;
                         }
 
-                        if (isCtsCancelRequested())
-                            return null;
-
                         if (StringUtils.isNullOrEmpty(view.getLocationQuery()))
                             view = new LocationQueryViewModel();
 
                         if (StringUtils.isNullOrWhitespace(view.getLocationQuery())) {
                             // Stop since there is no valid query
-                            runOnUiThread(new Runnable() {
+                            runWithView(new Runnable() {
                                 @Override
                                 public void run() {
                                     removeGPSPanel();
@@ -1116,10 +1068,9 @@ public class LocationsFragment extends ToolbarFragment
     private OnListChangedListener<LocationPanelViewModel> onListChangedListener = new OnListChangedListener<LocationPanelViewModel>() {
         @Override
         public void onChanged(final ArrayList<LocationPanelViewModel> sender, final ListChangedArgs<LocationPanelViewModel> e) {
-            runOnUiThread(new Runnable() {
+            runWithView(new Runnable() {
                 @Override
                 public void run() {
-                    if (binding == null) return;
                     boolean dataMoved = (e.action == ListChangedAction.REMOVE || e.action == ListChangedAction.MOVE);
                     boolean onlyHomeIsLeft = (mAdapter.getFavoritesCount() == 1);
 
@@ -1155,7 +1106,7 @@ public class LocationsFragment extends ToolbarFragment
     private OnListChangedListener<LocationPanelViewModel> onSelectionChangedListener = new OnListChangedListener<LocationPanelViewModel>() {
         @Override
         public void onChanged(final ArrayList<LocationPanelViewModel> sender, ListChangedArgs<LocationPanelViewModel> args) {
-            runOnUiThread(new Runnable() {
+            runWithView(new Runnable() {
                 @Override
                 public void run() {
                     if (actionMode != null) {
@@ -1215,7 +1166,7 @@ public class LocationsFragment extends ToolbarFragment
             binding.recyclerView.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (isAlive()) {
+                    if (isViewAlive()) {
                         mAdapter.notifyItemChanged(mAdapter.getViewPosition(view));
                     }
                 }

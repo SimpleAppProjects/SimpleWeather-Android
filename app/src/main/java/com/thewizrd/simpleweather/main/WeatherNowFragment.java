@@ -31,7 +31,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.view.ViewTreeObserver;
 import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebSettings;
@@ -44,6 +43,8 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.WorkerThread;
+import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.WrappedDrawable;
@@ -102,6 +103,8 @@ import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
+import com.thewizrd.shared_resources.lifecycle.CheckAliveRunnable;
+import com.thewizrd.shared_resources.lifecycle.LifecycleRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -133,6 +136,7 @@ import com.thewizrd.simpleweather.controls.SunPhaseView;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowAqicontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowBeaufortcontrolBinding;
+import com.thewizrd.simpleweather.databinding.WeathernowConditionPanelBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowDetailscontainerBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowForecastgraphpanelBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowHrforecastgraphpanelBinding;
@@ -171,6 +175,16 @@ public class WeatherNowFragment extends WindowColorFragment
 
     // Views
     private FragmentWeatherNowBinding binding;
+    private WeathernowConditionPanelBinding conditionPanelBinding;
+    private WeathernowForecastgraphpanelBinding forecastPanelBinding;
+    private WeathernowHrforecastgraphpanelBinding hrForecastPanelBinding;
+    private WeathernowDetailscontainerBinding detailsContainerBinding;
+    private WeathernowUvcontrolBinding uvControlBinding;
+    private WeathernowBeaufortcontrolBinding beaufortControlBinding;
+    private WeathernowAqicontrolBinding aqiControlBinding;
+    private WeathernowMoonphasecontrolBinding moonphaseControlBinding;
+    private WeathernowSunphasecontrolBinding sunphaseControlBinding;
+    private WeathernowRadarcontrolBinding radarControlBinding;
     private DataBindingComponent dataBindingComponent =
             new WeatherFragmentDataBindingComponent(this);
 
@@ -201,11 +215,6 @@ public class WeatherNowFragment extends WindowColorFragment
         setArguments(new Bundle());
     }
 
-    @Override
-    public boolean isAlive() {
-        return binding != null && super.isAlive();
-    }
-
     private Observer<Weather> weatherObserver = new Observer<Weather>() {
         @Override
         public void onChanged(final Weather weather) {
@@ -218,97 +227,101 @@ public class WeatherNowFragment extends WindowColorFragment
                         weatherView.updateBackground();
                         return null;
                     }
-                }).addOnCompleteListener(getAppCompatActivity(), new OnCompleteListener<Void>() {
+                }).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        if (binding == null) return;
-
-                        String backgroundUri = weatherView.getImageData() != null ? weatherView.getImageData().getImageURI() : null;
-                        if (FeatureSettings.isBackgroundImageEnabled() && (!ObjectsCompat.equals(binding.imageView.getTag(), backgroundUri) || binding.imageView.getTag(R.id.glide_custom_view_target_tag) == null)) {
-                            loadBackgroundImage(backgroundUri, false);
-                        } else {
-                            binding.refreshLayout.setRefreshing(false);
-                            binding.scrollView.setVisibility(View.VISIBLE);
-                        }
+                        runWithView(new Runnable() {
+                            @Override
+                            public void run() {
+                                String backgroundUri = weatherView.getImageData() != null ? weatherView.getImageData().getImageURI() : null;
+                                if (FeatureSettings.isBackgroundImageEnabled() && (!ObjectsCompat.equals(binding.imageView.getTag(), backgroundUri) || binding.imageView.getTag(R.id.glide_custom_view_target_tag) == null)) {
+                                    loadBackgroundImage(backgroundUri, false);
+                                } else {
+                                    binding.refreshLayout.setRefreshing(false);
+                                    binding.progressBar.hide();
+                                    binding.scrollView.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        });
                     }
                 });
 
                 forecastsView.updateForecasts(locationData);
                 alertsView.updateAlerts(locationData);
 
-                AsyncTask.run(new Runnable() {
-                    @Override
-                    public void run() {
-                        Context context = App.getInstance().getAppContext();
+                Context context = App.getInstance().getAppContext();
 
-                        if (wm.supportsAlerts()) {
-                            if (weather.getWeatherAlerts() != null && !weather.getWeatherAlerts().isEmpty()) {
-                                // Alerts are posted to the user here. Set them as notified.
+                if (wm.supportsAlerts()) {
+                    if (weather.getWeatherAlerts() != null && !weather.getWeatherAlerts().isEmpty()) {
+                        // Alerts are posted to the user here. Set them as notified.
+                        AsyncTask.run(new Runnable() {
+                            @Override
+                            public void run() {
                                 if (BuildConfig.DEBUG) {
                                     WeatherAlertHandler.postAlerts(locationData, weather.getWeatherAlerts());
                                 }
                                 WeatherAlertHandler.setAsNotified(locationData, weather.getWeatherAlerts());
                             }
-                        }
-
-                        if (Settings.getHomeData().equals(locationData)) {
-                            // Update widgets if they haven't been already
-                            if (Duration.between(LocalDateTime.now(ZoneOffset.UTC), Settings.getUpdateTime()).toMinutes() > Settings.getRefreshInterval()) {
-                                WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
-                            } else {
-                                // Update ongoing notification
-                                if (Settings.showOngoingNotification()) {
-                                    WeatherNotificationWorker.enqueueAction(context, new Intent(context, WeatherNotificationWorker.class)
-                                            .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION));
-                                }
-
-                                // Update widgets anyway
-                                WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                                        .setAction(WeatherWidgetService.ACTION_REFRESHGPSWIDGETS));
-                            }
-                        } else {
-                            // Update widgets anyway
-                            WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                                    .setAction(WeatherWidgetService.ACTION_REFRESHWIDGETS)
-                                    .putExtra(WeatherWidgetService.EXTRA_LOCATIONQUERY, locationData.getQuery()));
-                        }
+                        });
                     }
-                });
+                }
+
+                if (Settings.getHomeData().equals(locationData)) {
+                    // Update widgets if they haven't been already
+                    if (Duration.between(LocalDateTime.now(ZoneOffset.UTC), Settings.getUpdateTime()).toMinutes() > Settings.getRefreshInterval()) {
+                        WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
+                    } else {
+                        // Update ongoing notification
+                        if (Settings.showOngoingNotification()) {
+                            WeatherNotificationWorker.enqueueAction(context, new Intent(context, WeatherNotificationWorker.class)
+                                    .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION));
+                        }
+
+                        // Update widgets anyway
+                        WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
+                                .setAction(WeatherWidgetService.ACTION_REFRESHGPSWIDGETS));
+                    }
+                } else {
+                    // Update widgets anyway
+                    WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
+                            .setAction(WeatherWidgetService.ACTION_REFRESHWIDGETS)
+                            .putExtra(WeatherWidgetService.EXTRA_LOCATIONQUERY, locationData.getQuery()));
+                }
             }
         }
     };
 
     public void onWeatherError(final WeatherException wEx) {
-        switch (wEx.getErrorStatus()) {
-            case NETWORKERROR:
-            case NOWEATHER:
-                // Show error message and prompt to refresh
-                Snackbar snackBar = Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG);
-                snackBar.setAction(R.string.action_retry, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        refreshWeather(false);
-                    }
-                });
-                showSnackbar(snackBar, null);
-                break;
-            case QUERYNOTFOUND:
-                if (WeatherAPI.NWS.equals(Settings.getAPI())) {
-                    showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.LONG), null);
-                    break;
-                }
-            default:
-                // Show error message
-                showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG), null);
-                break;
-        }
-
-        runOnUiThread(new Runnable() {
+        runWithView(new Runnable() {
             @Override
             public void run() {
-                if (isAlive()) {
-                    binding.refreshLayout.setRefreshing(false);
+                switch (wEx.getErrorStatus()) {
+                    case NETWORKERROR:
+                    case NOWEATHER:
+                        // Show error message and prompt to refresh
+                        Snackbar snackBar = Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG);
+                        snackBar.setAction(R.string.action_retry, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                binding.refreshLayout.setRefreshing(true);
+                                refreshWeather(false);
+                            }
+                        });
+                        showSnackbar(snackBar, null);
+                        break;
+                    case QUERYNOTFOUND:
+                        if (WeatherAPI.NWS.equals(Settings.getAPI())) {
+                            showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.LONG), null);
+                            break;
+                        }
+                    default:
+                        // Show error message
+                        showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG), null);
+                        break;
                 }
+
+                binding.refreshLayout.setRefreshing(false);
+                binding.progressBar.hide();
             }
         });
     }
@@ -363,26 +376,36 @@ public class WeatherNowFragment extends WindowColorFragment
             mLocCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(final LocationResult locationResult) {
-                    if (Settings.useFollowGPS() && updateLocation()) {
-                        // Setup loader from updated location
-                        wLoader = new WeatherDataLoader(locationData);
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (Settings.useFollowGPS() && updateLocation()) {
+                                // Setup loader from updated location
+                                wLoader = new WeatherDataLoader(locationData);
 
-                        refreshWeather(false);
-                    }
+                                refreshWeather(false);
+                            }
 
-                    stopLocationUpdates();
+                            stopLocationUpdates();
+                        }
+                    });
                 }
             };
         } else {
             mLocListnr = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    if (Settings.useFollowGPS() && updateLocation()) {
-                        // Setup loader from updated location
-                        wLoader = new WeatherDataLoader(locationData);
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (Settings.useFollowGPS() && updateLocation()) {
+                                // Setup loader from updated location
+                                wLoader = new WeatherDataLoader(locationData);
 
-                        refreshWeather(false);
-                    }
+                                refreshWeather(false);
+                            }
+                        }
+                    });
                 }
 
                 @Override
@@ -420,7 +443,12 @@ public class WeatherNowFragment extends WindowColorFragment
 
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             private void onStart() {
-                resume();
+                AsyncTask.run(new Runnable() {
+                    @Override
+                    public void run() {
+                        resume();
+                    }
+                });
                 wasStarted = true;
             }
 
@@ -445,9 +473,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 dataBindingComponent);
 
         binding.setWeatherView(weatherView);
-        binding.setForecastsView(forecastsView);
-        binding.setAlertsView(alertsView);
-        binding.setLifecycleOwner(this);
+        binding.setLifecycleOwner(getViewLifecycleOwner());
 
         final View view = binding.getRoot();
         // Request focus away from RecyclerView
@@ -488,8 +514,6 @@ public class WeatherNowFragment extends WindowColorFragment
             @SuppressLint("RestrictedApi")
             @Override
             public void onScrollChange(final NestedScrollView v, int scrollX, final int scrollY, int oldScrollX, final int oldScrollY) {
-                if (binding == null) return;
-
                 // Default adj = 1.25
                 float adj = 1.25f;
                 float alpha = 1.0f - (1.0f * adj * scrollY / (binding.refreshLayout.getHeight()));
@@ -543,7 +567,7 @@ public class WeatherNowFragment extends WindowColorFragment
             @SuppressLint("RestrictedApi")
             @Override
             public void onFlingStopped(int scrollY) {
-                if (binding == null || !FeatureSettings.isBackgroundImageEnabled()) return;
+                if (!FeatureSettings.isBackgroundImageEnabled()) return;
 
                 int condPnlHeight = binding.refreshLayout.getHeight();
                 int THRESHOLD = condPnlHeight / 2;
@@ -586,7 +610,7 @@ public class WeatherNowFragment extends WindowColorFragment
             @SuppressLint("RestrictedApi")
             @Override
             public void onTouchScrollChange(int scrollY, int oldScrollY) {
-                if (binding == null || !FeatureSettings.isBackgroundImageEnabled()) return;
+                if (!FeatureSettings.isBackgroundImageEnabled()) return;
 
                 int condPnlHeight = binding.refreshLayout.getHeight();
                 int THRESHOLD = condPnlHeight / 2;
@@ -608,37 +632,8 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
 
-        // Condition
-        binding.bgAttribution.setMovementMethod(LinkMovementMethod.getInstance());
-
-        // Alerts
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            binding.alertButton.setBackgroundTintList(ColorStateList.valueOf(Colors.ORANGERED));
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Drawable drawable = binding.alertButton.getBackground().mutate();
-            drawable.setColorFilter(Colors.ORANGERED, PorterDuff.Mode.SRC_IN);
-            binding.alertButton.setBackground(drawable);
-        } else {
-            Drawable origDrawable = ContextCompat.getDrawable(getAppCompatActivity(), R.drawable.light_round_corner_bg);
-            Drawable compatDrawable = DrawableCompat.wrap(origDrawable);
-            DrawableCompat.setTint(compatDrawable, Colors.ORANGERED);
-            binding.alertButton.setBackground(compatDrawable);
-        }
-
-        binding.alertButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AnalyticsLogger.logEvent("WeatherNowFragment: alerts click");
-                // Show Alert Fragment
-                WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
-                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                                .setData(JSONParser.serializer(locationData, LocationData.class))
-                                .setWeatherListType(WeatherListType.ALERTS);
-                Navigation.findNavController(v).navigate(args);
-            }
-        });
-
         // SwipeRefresh
+        binding.progressBar.show();
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(getAppCompatActivity(), R.color.invButtonColor));
         binding.refreshLayout.setColorSchemeColors(ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
         binding.refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -654,139 +649,263 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
 
-        // Forecast
-        binding.forecastGraphPanel.setOnInflateListener(new ViewStub.OnInflateListener() {
+        // Async inflater
+        AsyncLayoutInflater asyncLayoutInflater = new AsyncLayoutInflater(requireContext());
+
+        // Condition
+        asyncLayoutInflater.inflate(R.layout.weathernow_condition_panel, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
             @Override
-            public void onInflate(ViewStub stub, View inflated) {
-                final WeathernowForecastgraphpanelBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
-                binding.setForecastsView(forecastsView);
-                binding.setLifecycleOwner(WeatherNowFragment.this);
-
-                binding.forecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
+            public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
+                runWithView(new Runnable() {
                     @Override
-                    public void onClick(View view, int position) {
-                        AnalyticsLogger.logEvent("WeatherNowFragment: fcast graph click");
+                    public void run() {
+                        conditionPanelBinding = DataBindingUtil.bind(view, dataBindingComponent);
+                        conditionPanelBinding.setAlertsView(alertsView);
+                        conditionPanelBinding.setWeatherView(weatherView);
+                        conditionPanelBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-                        WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
-                                WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                                        .setData(JSONParser.serializer(locationData, LocationData.class))
-                                        .setWeatherListType(WeatherListType.FORECAST)
-                                        .setPosition(position);
-                        Navigation.findNavController(view).navigate(args);
-                    }
-                });
-            }
-        });
+                        conditionPanelBinding.bgAttribution.setMovementMethod(LinkMovementMethod.getInstance());
 
-        // Hourly Forecast
-        binding.hourlyForecastGraphPanel.setOnInflateListener(new ViewStub.OnInflateListener() {
-            @Override
-            public void onInflate(ViewStub stub, View inflated) {
-                final WeathernowHrforecastgraphpanelBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
-                binding.setForecastsView(forecastsView);
-                binding.setLifecycleOwner(WeatherNowFragment.this);
-
-                binding.hourlyForecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
-                    @Override
-                    public void onClick(View view, int position) {
-                        AnalyticsLogger.logEvent("WeatherNowFragment: hrf graph click");
-                        if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
-                            WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
-                                    WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                                            .setData(JSONParser.serializer(locationData, LocationData.class))
-                                            .setWeatherListType(WeatherListType.HOURLYFORECAST)
-                                            .setPosition(position);
-                            Navigation.findNavController(view).navigate(args);
+                        // Alerts
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            conditionPanelBinding.alertButton.setBackgroundTintList(ColorStateList.valueOf(Colors.ORANGERED));
+                        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            Drawable drawable = conditionPanelBinding.alertButton.getBackground().mutate();
+                            drawable.setColorFilter(Colors.ORANGERED, PorterDuff.Mode.SRC_IN);
+                            conditionPanelBinding.alertButton.setBackground(drawable);
+                        } else {
+                            Drawable origDrawable = ContextCompat.getDrawable(getAppCompatActivity(), R.drawable.light_round_corner_bg);
+                            Drawable compatDrawable = DrawableCompat.wrap(origDrawable);
+                            DrawableCompat.setTint(compatDrawable, Colors.ORANGERED);
+                            conditionPanelBinding.alertButton.setBackground(compatDrawable);
                         }
+
+                        conditionPanelBinding.alertButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                AnalyticsLogger.logEvent("WeatherNowFragment: alerts click");
+                                // Show Alert Fragment
+                                WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
+                                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                                                .setData(JSONParser.serializer(locationData, LocationData.class))
+                                                .setWeatherListType(WeatherListType.ALERTS);
+                                Navigation.findNavController(v).navigate(args);
+                            }
+                        });
+
+                        adjustConditionPanelLayout();
+
+                        parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 0));
                     }
                 });
             }
         });
 
-        binding.detailsControl.setOnInflateListener(new ViewStub.OnInflateListener() {
-            @Override
-            public void onInflate(ViewStub stub, View inflated) {
-                WeathernowDetailscontainerBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
+        // Forecast
+        if (FeatureSettings.isForecastEnabled()) {
+            asyncLayoutInflater.inflate(R.layout.weathernow_forecastgraphpanel, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
+                @Override
+                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            forecastPanelBinding = DataBindingUtil.bind(view, dataBindingComponent);
+                            forecastPanelBinding.setForecastsView(forecastsView);
+                            forecastPanelBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-                // Details
-                binding.detailsContainer.setAdapter(new DetailsItemGridAdapter());
+                            forecastPanelBinding.forecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
+                                @Override
+                                public void onClick(View view, int position) {
+                                    AnalyticsLogger.logEvent("WeatherNowFragment: fcast graph click");
 
-                binding.setWeatherView(weatherView);
-                binding.setLifecycleOwner(WeatherNowFragment.this);
+                                    WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
+                                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                                                    .setData(JSONParser.serializer(locationData, LocationData.class))
+                                                    .setWeatherListType(WeatherListType.FORECAST)
+                                                    .setPosition(position);
+                                    Navigation.findNavController(view).navigate(args);
+                                }
+                            });
 
-                // Disable touch events on container
-                // View does not scroll
-                binding.detailsContainer.setFocusable(false);
-                binding.detailsContainer.setFocusableInTouchMode(false);
-                binding.detailsContainer.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        return true;
-                    }
-                });
+                            parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 1));
+                        }
+                    });
+                }
+            });
+        }
 
-                adjustDetailsLayout();
-            }
-        });
+        if (FeatureSettings.isHourlyForecastEnabled()) {
+            // Hourly Forecast
+            asyncLayoutInflater.inflate(R.layout.weathernow_hrforecastgraphpanel, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
+                @Override
+                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            hrForecastPanelBinding = DataBindingUtil.bind(view, dataBindingComponent);
+                            hrForecastPanelBinding.setForecastsView(forecastsView);
+                            hrForecastPanelBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-        // UV
-        binding.uvControl.setOnInflateListener(new ViewStub.OnInflateListener() {
-            @Override
-            public void onInflate(ViewStub stub, View inflated) {
-                WeathernowUvcontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
-                binding.setWeatherView(weatherView);
-                binding.setLifecycleOwner(WeatherNowFragment.this);
-            }
-        });
+                            hrForecastPanelBinding.hourlyForecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
+                                @Override
+                                public void onClick(View view, int position) {
+                                    AnalyticsLogger.logEvent("WeatherNowFragment: hrf graph click");
+                                    if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
+                                        WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
+                                                WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                                                        .setData(JSONParser.serializer(locationData, LocationData.class))
+                                                        .setWeatherListType(WeatherListType.HOURLYFORECAST)
+                                                        .setPosition(position);
+                                        Navigation.findNavController(view).navigate(args);
+                                    }
+                                }
+                            });
 
-        // Beaufort
-        binding.beaufortControl.setOnInflateListener(new ViewStub.OnInflateListener() {
-            @Override
-            public void onInflate(ViewStub stub, View inflated) {
-                WeathernowBeaufortcontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
-                binding.setWeatherView(weatherView);
-                binding.setLifecycleOwner(WeatherNowFragment.this);
-            }
-        });
+                            parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 2));
+                        }
+                    });
+                }
+            });
+        }
 
-        // Air Quality
-        binding.aqiControl.setOnInflateListener(new ViewStub.OnInflateListener() {
-            @Override
-            public void onInflate(ViewStub stub, View inflated) {
-                WeathernowAqicontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
-                binding.setWeatherView(weatherView);
-                binding.setLifecycleOwner(WeatherNowFragment.this);
-            }
-        });
+        if (FeatureSettings.isDetailsEnabled()) {
+            asyncLayoutInflater.inflate(R.layout.weathernow_detailscontainer, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
+                @Override
+                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            detailsContainerBinding = DataBindingUtil.bind(view, dataBindingComponent);
 
-        // Moon Phase
-        binding.moonphaseControl.setOnInflateListener(new ViewStub.OnInflateListener() {
-            @Override
-            public void onInflate(ViewStub stub, View inflated) {
-                WeathernowMoonphasecontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
-                binding.setWeatherView(weatherView);
-                binding.setLifecycleOwner(WeatherNowFragment.this);
-            }
-        });
+                            // Details
+                            detailsContainerBinding.detailsContainer.setAdapter(new DetailsItemGridAdapter());
 
-        // Sun Phase
-        binding.sunphaseControl.setOnInflateListener(new ViewStub.OnInflateListener() {
-            @Override
-            public void onInflate(ViewStub stub, View inflated) {
-                WeathernowSunphasecontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
-                binding.setWeatherView(weatherView);
-                binding.setLifecycleOwner(WeatherNowFragment.this);
-            }
-        });
+                            detailsContainerBinding.setWeatherView(weatherView);
+                            detailsContainerBinding.setLifecycleOwner(getViewLifecycleOwner());
+
+                            // Disable touch events on container
+                            // View does not scroll
+                            detailsContainerBinding.detailsContainer.setFocusable(false);
+                            detailsContainerBinding.detailsContainer.setFocusableInTouchMode(false);
+                            detailsContainerBinding.detailsContainer.setOnTouchListener(new View.OnTouchListener() {
+                                @Override
+                                public boolean onTouch(View v, MotionEvent event) {
+                                    return true;
+                                }
+                            });
+
+                            adjustDetailsLayout();
+
+                            parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 3));
+                        }
+                    });
+                }
+            });
+        }
+
+        if (FeatureSettings.isUVEnabled()) {
+            // UV
+            asyncLayoutInflater.inflate(R.layout.weathernow_uvcontrol, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
+                @Override
+                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            uvControlBinding = DataBindingUtil.bind(view, dataBindingComponent);
+                            uvControlBinding.setWeatherView(weatherView);
+                            uvControlBinding.setLifecycleOwner(getViewLifecycleOwner());
+
+                            parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 4));
+                        }
+                    });
+                }
+            });
+        }
+
+        if (FeatureSettings.isBeaufortEnabled()) {
+            // Beaufort
+            asyncLayoutInflater.inflate(R.layout.weathernow_beaufortcontrol, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
+                @Override
+                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            beaufortControlBinding = DataBindingUtil.bind(view, dataBindingComponent);
+                            beaufortControlBinding.setWeatherView(weatherView);
+                            beaufortControlBinding.setLifecycleOwner(getViewLifecycleOwner());
+
+                            parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 5));
+                        }
+                    });
+                }
+            });
+        }
+
+        if (FeatureSettings.isAQIndexEnabled()) {
+            // Air Quality
+            asyncLayoutInflater.inflate(R.layout.weathernow_aqicontrol, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
+                @Override
+                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            aqiControlBinding = DataBindingUtil.bind(view, dataBindingComponent);
+                            aqiControlBinding.setWeatherView(weatherView);
+                            aqiControlBinding.setLifecycleOwner(getViewLifecycleOwner());
+
+                            parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 6));
+                        }
+                    });
+                }
+            });
+        }
+
+        if (FeatureSettings.isMoonPhaseEnabled()) {
+            // Moon Phase
+            asyncLayoutInflater.inflate(R.layout.weathernow_moonphasecontrol, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
+                @Override
+                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            moonphaseControlBinding = DataBindingUtil.bind(view, dataBindingComponent);
+                            moonphaseControlBinding.setWeatherView(weatherView);
+                            moonphaseControlBinding.setLifecycleOwner(getViewLifecycleOwner());
+
+                            parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 7));
+                        }
+                    });
+                }
+            });
+        }
+
+        if (FeatureSettings.isSunPhaseEnabled()) {
+            // Sun Phase
+            asyncLayoutInflater.inflate(R.layout.weathernow_sunphasecontrol, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
+                @Override
+                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            sunphaseControlBinding = DataBindingUtil.bind(view, dataBindingComponent);
+                            sunphaseControlBinding.setWeatherView(weatherView);
+                            sunphaseControlBinding.setLifecycleOwner(getViewLifecycleOwner());
+
+                            parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 8));
+                        }
+                    });
+                }
+            });
+        }
 
         // Radar
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            binding.radarControl.setOnInflateListener(new ViewStub.OnInflateListener() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && FeatureSettings.isRadarEnabled()) {
+            asyncLayoutInflater.inflate(R.layout.weathernow_radarcontrol, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
                 @Override
-                public void onInflate(ViewStub stub, final View inflated) {
-                    final WeathernowRadarcontrolBinding binding = DataBindingUtil.bind(inflated, dataBindingComponent);
+                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
+                    radarControlBinding = DataBindingUtil.bind(view, dataBindingComponent);
 
-                    binding.radarWebviewCover.setOnClickListener(new View.OnClickListener() {
+                    radarControlBinding.radarWebviewCover.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             AnalyticsLogger.logEvent("WeatherNowFragment: radar view click");
@@ -795,23 +914,25 @@ public class WeatherNowFragment extends WindowColorFragment
                                     .navigate(
                                             WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherRadarFragment(),
                                             new FragmentNavigator.Extras.Builder()
-                                                    .addSharedElement(inflated, "radar")
+                                                    .addSharedElement(view, "radar")
                                                     .build()
                                     );
                         }
                     });
 
-                    ViewCompat.setTransitionName(inflated, "radar");
+                    ViewCompat.setTransitionName(view, "radar");
 
                     /*
                      * NOTE
                      * Compat issue: bring container to the front
                      * This is handled on API 21+ with the translationZ attribute
                      */
-                    binding.radarWebviewCover.bringToFront();
+                    radarControlBinding.radarWebviewCover.bringToFront();
 
-                    binding.setWeatherView(weatherView);
-                    binding.setLifecycleOwner(WeatherNowFragment.this);
+                    radarControlBinding.setWeatherView(weatherView);
+                    radarControlBinding.setLifecycleOwner(getViewLifecycleOwner());
+
+                    parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 9));
 
                     navigateToRadarURL();
                 }
@@ -827,61 +948,44 @@ public class WeatherNowFragment extends WindowColorFragment
 
         args = WeatherNowFragmentArgs.fromBundle(requireArguments());
 
-        binding.refreshLayout.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                if (binding == null) return true;
-                binding.refreshLayout.getViewTreeObserver().removeOnPreDrawListener(this);
-                binding.refreshLayout.setRefreshing(true);
-
-                return true;
-            }
-        });
-
         adjustConditionPanelLayout();
 
         // Set property change listeners
         weatherView.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
             @Override
             public void onPropertyChanged(Observable sender, final int propertyId) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!WeatherNowFragment.this.isHidden() && WeatherNowFragment.this.isVisible()) {
-                            if (propertyId == 0) {
-                                // Condition Panel & Scroll view
-                                adjustConditionPanelLayout();
-                            } else if (propertyId == BR.location) {
-                                adjustConditionPanelLayout();
-                            } else if (propertyId == BR.radarURL) {
-                                // Restrict control to Kitkat+ for Chromium WebView
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                                    if (FeatureSettings.isRadarEnabled() && weatherView.getRadarURL() != null) {
-                                        navigateToRadarURL();
-                                    }
-                                }
-                            }
+                if (propertyId == 0 || propertyId == BR.location) {
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            adjustConditionPanelLayout();
+                        }
+                    });
+                } else if (propertyId == BR.radarURL) {
+                    // Restrict control to Kitkat+ for Chromium WebView
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        if (FeatureSettings.isRadarEnabled() && weatherView.getRadarURL() != null) {
+                            navigateToRadarURL();
                         }
                     }
-                });
+                }
             }
         });
 
         binding.scrollView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
-                if (binding == null) return true;
-                binding.scrollView.getViewTreeObserver().removeOnPreDrawListener(this);
-                binding.imageView.setAlpha(wNowViewModel.getImageAlpha());
-                binding.gradientView.setAlpha(wNowViewModel.getGradientAlpha());
-                binding.scrollView.postOnAnimationDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (isAlive()) {
+                if (isViewAlive()) {
+                    binding.scrollView.getViewTreeObserver().removeOnPreDrawListener(this);
+                    binding.imageView.setAlpha(wNowViewModel.getImageAlpha());
+                    binding.gradientView.setAlpha(wNowViewModel.getGradientAlpha());
+                    binding.scrollView.postOnAnimationDelayed(new CheckAliveRunnable(getViewLifecycleOwner().getLifecycle(), new Runnable() {
+                        @Override
+                        public void run() {
                             binding.scrollView.smoothScrollTo(0, wNowViewModel.getScrollViewPosition());
                         }
-                    }
-                }, 100);
+                    }), 100);
+                }
                 return true;
             }
         });
@@ -897,21 +1001,30 @@ public class WeatherNowFragment extends WindowColorFragment
     @SuppressLint("RestrictedApi")
     @Override
     public void onDestroyView() {
-        if (binding != null) {
+        if (radarControlBinding != null) {
             WebView webView = getRadarWebView();
             if (webView != null) {
                 WebViewHelper.loadBlank(webView);
-                if (binding.radarControl.getBinding() instanceof WeathernowRadarcontrolBinding) {
-                    ((WeathernowRadarcontrolBinding) binding.radarControl.getBinding()).radarWebviewContainer.removeAllViews();
-                }
+                radarControlBinding.radarWebviewContainer.removeAllViews();
                 webView.destroy();
             }
             wNowViewModel.setScrollViewPosition(binding.scrollView.computeVerticalScrollOffset());
             wNowViewModel.setImageAlpha(binding.imageView.getAlpha());
             wNowViewModel.setGradientAlpha(binding.gradientView.getAlpha());
         }
-        binding = null;
         super.onDestroyView();
+        // Remove references to view binding
+        radarControlBinding = null;
+        sunphaseControlBinding = null;
+        moonphaseControlBinding = null;
+        aqiControlBinding = null;
+        beaufortControlBinding = null;
+        uvControlBinding = null;
+        detailsContainerBinding = null;
+        hrForecastPanelBinding = null;
+        forecastPanelBinding = null;
+        conditionPanelBinding = null;
+        binding = null;
     }
 
     @Override
@@ -924,21 +1037,24 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.refreshLayout.setColorSchemeColors(ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
 
         // Resize necessary views
-        binding.conditionPanel.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                if (binding == null) return true;
-                binding.conditionPanel.getViewTreeObserver().removeOnPreDrawListener(this);
-                adjustConditionPanelLayout();
-                return true;
-            }
-        });
+        if (conditionPanelBinding != null) {
+            conditionPanelBinding.conditionPanel.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    if (isViewAlive()) {
+                        conditionPanelBinding.conditionPanel.getViewTreeObserver().removeOnPreDrawListener(this);
+                        adjustConditionPanelLayout();
+                    }
+                    return true;
+                }
+            });
+        }
 
         String backgroundUri = weatherView.getImageData() != null ? weatherView.getImageData().getImageURI() : null;
         loadBackgroundImage(backgroundUri, true);
 
         // Reload Webview
-        if (binding.radarControl.getBinding() != null) {
+        if (radarControlBinding != null) {
             WebView radarWebview = getRadarWebView();
             if (radarWebview != null) {
                 WebViewHelper.forceReload(radarWebview, weatherView.getRadarURL());
@@ -947,62 +1063,72 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     private void loadBackgroundImage(final String imageURI, final boolean skipCache) {
-        if (isAlive()) {
-            binding.imageView.postOnAnimation(new Runnable() {
-                @Override
-                public void run() {
-                    if (!isAlive()) return;
+        runWithView(new LifecycleRunnable(getViewLifecycleOwner().getLifecycle()) {
+            @Override
+            public void run() {
+                binding.imageView.postOnAnimation(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!isActive()) return;
 
-                    // Reload background image
-                    if (FeatureSettings.isBackgroundImageEnabled()) {
-                        if (!ObjectsCompat.equals(binding.imageView.getTag(), imageURI)) {
-                            binding.imageView.setTag(imageURI);
-                            if (!StringUtils.isNullOrWhitespace(imageURI)) {
-                                Glide.with(WeatherNowFragment.this)
-                                        .load(imageURI)
-                                        .apply(RequestOptions.centerCropTransform()
-                                                .format(DecodeFormat.PREFER_RGB_565)
-                                                .skipMemoryCache(skipCache))
-                                        .transition(DrawableTransitionOptions.withCrossFade())
-                                        .addListener(new RequestListener<Drawable>() {
-                                            @Override
-                                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                                binding.scrollView.setVisibility(View.VISIBLE);
-                                                return false;
-                                            }
+                        // Reload background image
+                        if (FeatureSettings.isBackgroundImageEnabled()) {
+                            if (!ObjectsCompat.equals(binding.imageView.getTag(), imageURI)) {
+                                binding.imageView.setTag(imageURI);
+                                if (!StringUtils.isNullOrWhitespace(imageURI)) {
+                                    Glide.with(WeatherNowFragment.this)
+                                            .load(imageURI)
+                                            .apply(RequestOptions.centerCropTransform()
+                                                    .format(DecodeFormat.PREFER_RGB_565)
+                                                    .skipMemoryCache(skipCache))
+                                            .transition(DrawableTransitionOptions.withCrossFade())
+                                            .addListener(new RequestListener<Drawable>() {
+                                                @Override
+                                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                                    binding.refreshLayout.setRefreshing(false);
+                                                    binding.progressBar.hide();
+                                                    binding.scrollView.setVisibility(View.VISIBLE);
+                                                    return false;
+                                                }
 
-                                            @Override
-                                            public boolean onResourceReady(final Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                                binding.refreshLayout.postOnAnimation(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        if (!isAlive()) return;
-                                                        binding.scrollView.setVisibility(View.VISIBLE);
-                                                        binding.refreshLayout.setRefreshing(false);
-                                                    }
-                                                });
-                                                return false;
-                                            }
-                                        })
-                                        .into(binding.imageView);
-                            } else {
-                                Glide.with(WeatherNowFragment.this).clear(binding.imageView);
-                                binding.imageView.setTag(null);
-                                if (weatherView.isValid()) {
-                                    binding.scrollView.setVisibility(View.VISIBLE);
+                                                @Override
+                                                public boolean onResourceReady(final Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                                    binding.refreshLayout.postOnAnimation(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            if (!isActive()) return;
+                                                            binding.refreshLayout.setRefreshing(false);
+                                                            binding.progressBar.hide();
+                                                            binding.scrollView.setVisibility(View.VISIBLE);
+                                                        }
+                                                    });
+                                                    return false;
+                                                }
+                                            })
+                                            .into(binding.imageView);
+                                } else {
+                                    Glide.with(WeatherNowFragment.this).clear(binding.imageView);
+                                    binding.imageView.setTag(null);
+                                    if (weatherView.isValid()) {
+                                        binding.refreshLayout.setRefreshing(false);
+                                        binding.progressBar.hide();
+                                        binding.scrollView.setVisibility(View.VISIBLE);
+                                    }
                                 }
                             }
-                        }
-                    } else {
-                        Glide.with(WeatherNowFragment.this).clear(binding.imageView);
-                        binding.imageView.setTag(null);
-                        if (weatherView.isValid()) {
-                            binding.scrollView.setVisibility(View.VISIBLE);
+                        } else {
+                            Glide.with(WeatherNowFragment.this).clear(binding.imageView);
+                            binding.imageView.setTag(null);
+                            if (weatherView.isValid()) {
+                                binding.refreshLayout.setRefreshing(false);
+                                binding.progressBar.hide();
+                                binding.scrollView.setVisibility(View.VISIBLE);
+                            }
                         }
                     }
-                }
-            });
-        }
+                });
+            }
+        });
     }
 
     /**
@@ -1019,7 +1145,7 @@ public class WeatherNowFragment extends WindowColorFragment
         // recommended in applications that request frequent location updates.
         if (getAppCompatActivity() != null && mFusedLocationClient != null) {
             mFusedLocationClient.removeLocationUpdates(mLocCallback)
-                    .addOnCompleteListener(getAppCompatActivity(), new OnCompleteListener<Void>() {
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             mRequestingLocationUpdates = false;
@@ -1134,6 +1260,7 @@ public class WeatherNowFragment extends WindowColorFragment
         // Reset position
         wNowViewModel.setScrollViewPosition(0);
         binding.scrollView.smoothScrollTo(0, 0);
+        binding.progressBar.show();
 
         AsyncTask.create(new Callable<Boolean>() {
             @Override
@@ -1172,13 +1299,13 @@ public class WeatherNowFragment extends WindowColorFragment
 
                 return forceRefresh;
             }
-        }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Boolean>() {
+        }).addOnSuccessListener(new OnSuccessListener<Boolean>() {
             @Override
             public void onSuccess(Boolean forceRefresh) {
                 // Load up weather data
                 refreshWeather(forceRefresh);
             }
-        }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
+        }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
 
@@ -1187,125 +1314,129 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     private void refreshWeather(final boolean forceRefresh) {
-        if (isAlive()) {
-            if (wLoader == null && locationData != null) {
-                wLoader = new WeatherDataLoader(locationData);
-            }
+        runWithView(new Runnable() {
+            @Override
+            public void run() {
+                if (wLoader == null && locationData != null) {
+                    wLoader = new WeatherDataLoader(locationData);
+                }
 
-            if (wLoader != null) {
-                binding.refreshLayout.setRefreshing(true);
-
-                wLoader.loadWeatherData(new WeatherRequest.Builder()
-                        .forceRefresh(forceRefresh)
-                        .setErrorListener(WeatherNowFragment.this)
-                        .build())
-                        .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
-                            @Override
-                            public void onSuccess(final Weather weather) {
-                                weatherLiveData.setValue(weather);
-                            }
-                        });
+                if (wLoader != null) {
+                    wLoader.loadWeatherData(new WeatherRequest.Builder()
+                            .forceRefresh(forceRefresh)
+                            .setErrorListener(WeatherNowFragment.this)
+                            .build())
+                            .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
+                                @Override
+                                public void onSuccess(final Weather weather) {
+                                    weatherLiveData.setValue(weather);
+                                }
+                            });
+                }
             }
-        }
+        });
     }
 
     private void adjustConditionPanelLayout() {
-        binding.conditionPanel.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if (binding == null) return;
-                binding.conditionPanel.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+        if (!isViewAlive()) return;
 
-                int height = binding.refreshLayout.getMeasuredHeight();
-                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) binding.conditionPanel.getLayoutParams();
-                if (FeatureSettings.isBackgroundImageEnabled() && height > 0) {
-                    lp.height = height;
-                } else {
-                    lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        if (conditionPanelBinding != null) {
+            conditionPanelBinding.conditionPanel.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    if (isViewAlive()) {
+                        conditionPanelBinding.conditionPanel.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                        int height = binding.refreshLayout.getMeasuredHeight();
+                        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) conditionPanelBinding.conditionPanel.getLayoutParams();
+                        if (FeatureSettings.isBackgroundImageEnabled() && height > 0) {
+                            lp.height = height;
+                        } else {
+                            lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                        }
+
+                        if (ActivityUtils.isLargeTablet(getAppCompatActivity())) {
+                            int viewWidth = conditionPanelBinding.conditionPanel.getMeasuredWidth();
+                            int maxWidth = (int) ActivityUtils.dpToPx(getAppCompatActivity(), 640f);
+
+                            boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
+
+                            if (isLandscape && viewWidth > maxWidth)
+                                lp.width = maxWidth;
+                            else
+                                lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+                        }
+
+                        conditionPanelBinding.conditionPanel.setLayoutParams(lp);
+                    }
                 }
+            });
 
-                if (ActivityUtils.isLargeTablet(getAppCompatActivity())) {
-                    int viewWidth = binding.conditionPanel.getMeasuredWidth();
-                    int maxWidth = (int) ActivityUtils.dpToPx(getAppCompatActivity(), 640f);
-
-                    boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
-
-                    if (isLandscape && viewWidth > maxWidth)
-                        lp.width = maxWidth;
-                    else
-                        lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
-                }
-
-                binding.conditionPanel.setLayoutParams(lp);
-            }
-        });
-
-        binding.weatherIcon.setLayoutParams(binding.weatherIcon.getLayoutParams());
+            conditionPanelBinding.weatherIcon.setLayoutParams(conditionPanelBinding.weatherIcon.getLayoutParams());
+        }
 
         binding.scrollView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if (binding == null) return;
-                binding.scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                if (isViewAlive()) {
+                    binding.scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-                if (ActivityUtils.isLargeTablet(getAppCompatActivity())) {
-                    if (binding.scrollView.getChildCount() == 1) {
-                        int viewWidth = binding.scrollView.getMeasuredWidth();
-                        int maxWidth = (int) ActivityUtils.dpToPx(getAppCompatActivity(), 1080f);
+                    if (ActivityUtils.isLargeTablet(getAppCompatActivity())) {
+                        if (binding.scrollView.getChildCount() == 1) {
+                            int viewWidth = binding.scrollView.getMeasuredWidth();
+                            int maxWidth = (int) ActivityUtils.dpToPx(getAppCompatActivity(), 1080f);
 
-                        ViewGroup.LayoutParams lp = binding.scrollView.getChildAt(0).getLayoutParams();
-                        boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
+                            ViewGroup.LayoutParams lp = binding.scrollView.getChildAt(0).getLayoutParams();
+                            boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
 
-                        if (isLandscape && viewWidth > maxWidth)
-                            lp.width = maxWidth;
-                        else
-                            lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+                            if (isLandscape && viewWidth > maxWidth)
+                                lp.width = maxWidth;
+                            else
+                                lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+                        }
                     }
-                }
 
-                adjustDetailsLayout();
+                    adjustDetailsLayout();
+                }
             }
         });
     }
 
     private void adjustDetailsLayout() {
-        if (!isAlive() || binding.detailsControl.getBinding() == null || binding.scrollView.getChildCount() != 1)
+        if (!isViewAlive() || detailsContainerBinding == null || binding.scrollView.getChildCount() != 1)
             return;
 
-        final WeathernowDetailscontainerBinding detailsBinding = (WeathernowDetailscontainerBinding) binding.detailsControl.getBinding();
-
-        detailsBinding.detailsContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        detailsContainerBinding.detailsContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if (binding == null || detailsBinding == null) return;
-                detailsBinding.detailsContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                if (isViewAlive()) {
+                    detailsContainerBinding.detailsContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-                int pxWidth = binding.scrollView.getChildAt(0).getMeasuredWidth();
+                    int pxWidth = binding.scrollView.getChildAt(0).getMeasuredWidth();
 
-                int minColumns = ActivityUtils.isLargeTablet(getAppCompatActivity()) ? 3 : 2;
+                    int minColumns = ActivityUtils.isLargeTablet(getAppCompatActivity()) ? 3 : 2;
 
-                // Minimum width for ea. card
-                int minWidth = getAppCompatActivity().getResources().getDimensionPixelSize(R.dimen.detail_grid_column_width);
-                // Available columns based on min card width
-                int availColumns = ((pxWidth / minWidth)) <= 1 ? minColumns : (pxWidth / minWidth);
+                    // Minimum width for ea. card
+                    int minWidth = getAppCompatActivity().getResources().getDimensionPixelSize(R.dimen.detail_grid_column_width);
+                    // Available columns based on min card width
+                    int availColumns = ((pxWidth / minWidth)) <= 1 ? minColumns : (pxWidth / minWidth);
 
-                detailsBinding.detailsContainer.setNumColumns(availColumns);
+                    detailsContainerBinding.detailsContainer.setNumColumns(availColumns);
 
-                boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
+                    boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
 
-                int horizMargin = 16;
-                int marginMultiplier = isLandscape ? 2 : 3;
-                int itemSpacing = availColumns < 3 ? horizMargin * (availColumns - 1) : horizMargin * marginMultiplier;
-                detailsBinding.detailsContainer.setHorizontalSpacing(itemSpacing);
-                detailsBinding.detailsContainer.setVerticalSpacing(itemSpacing);
+                    int horizMargin = 16;
+                    int marginMultiplier = isLandscape ? 2 : 3;
+                    int itemSpacing = availColumns < 3 ? horizMargin * (availColumns - 1) : horizMargin * marginMultiplier;
+                    detailsContainerBinding.detailsContainer.setHorizontalSpacing(itemSpacing);
+                    detailsContainerBinding.detailsContainer.setVerticalSpacing(itemSpacing);
+                }
             }
         });
     }
 
     @Override
     public void updateWindowColors() {
-        if (!isAlive()) return;
-
         int color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
         if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK;
@@ -1316,6 +1447,7 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.rootView.setStatusBarBackgroundColor(color);
     }
 
+    @WorkerThread
     private boolean updateLocation() {
         return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
             @Override
@@ -1471,27 +1603,29 @@ public class WeatherNowFragment extends WindowColorFragment
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     private void navigateToRadarURL() {
-        if (weatherView == null || weatherView.getRadarURL() == null ||
-                binding == null || binding.radarControl.getBinding() == null ||
-                !FeatureSettings.isRadarEnabled())
-            return;
+        runWithView(new Runnable() {
+            @Override
+            public void run() {
+                if (weatherView.getRadarURL() == null || radarControlBinding == null || !FeatureSettings.isRadarEnabled())
+                    return;
 
-        WeathernowRadarcontrolBinding radarcontrolBinding = (WeathernowRadarcontrolBinding) binding.radarControl.getBinding();
-        WebView webView = (WebView) radarcontrolBinding.radarWebviewContainer.getChildAt(0);
+                WebView webView = (WebView) radarControlBinding.radarWebviewContainer.getChildAt(0);
 
-        if (webView == null) {
-            radarcontrolBinding.radarWebviewContainer.addView(webView = createWebView());
-        }
+                if (webView == null) {
+                    radarControlBinding.radarWebviewContainer.addView(webView = createWebView());
+                }
 
-        if (!isHidden() && !StringUtils.isNullOrWhitespace(weatherView.getRadarURL())) {
-            if (!ObjectsCompat.equals(webView.getOriginalUrl(), weatherView.getRadarURL())) {
-                WebViewHelper.loadUrl(webView, weatherView.getRadarURL());
+                if (!isHidden() && !StringUtils.isNullOrWhitespace(weatherView.getRadarURL())) {
+                    if (!ObjectsCompat.equals(webView.getOriginalUrl(), weatherView.getRadarURL())) {
+                        WebViewHelper.loadUrl(webView, weatherView.getRadarURL());
+                    }
+                } else {
+                    webView.stopLoading();
+                    WebViewHelper.loadBlank(webView);
+                    webView.freeMemory();
+                }
             }
-        } else {
-            webView.stopLoading();
-            WebViewHelper.loadBlank(webView);
-            webView.freeMemory();
-        }
+        });
     }
 
     @NonNull
@@ -1520,21 +1654,17 @@ public class WeatherNowFragment extends WindowColorFragment
                     AnalyticsLogger.logEvent("WeatherNow: radarWebView render gone");
                 }
 
-                if (binding != null) {
-                    WeathernowRadarcontrolBinding radarcontrolBinding = (WeathernowRadarcontrolBinding) binding.radarControl.getBinding();
+                if (radarControlBinding != null) {
+                    WebView wv = getRadarWebView();
 
-                    if (radarcontrolBinding != null) {
-                        WebView wv = getRadarWebView();
-
-                        if (wv == view) {
-                            radarcontrolBinding.radarWebviewContainer.removeAllViews();
-                            wv = null;
-                            view.loadUrl("about:blank");
-                            view.onPause();
-                            view.destroy();
-                            navigateToRadarURL();
-                            return true;
-                        }
+                    if (wv == view) {
+                        radarControlBinding.radarWebviewContainer.removeAllViews();
+                        wv = null;
+                        view.loadUrl("about:blank");
+                        view.onPause();
+                        view.destroy();
+                        navigateToRadarURL();
+                        return true;
                     }
                 }
 
@@ -1548,11 +1678,8 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     private WebView getRadarWebView() {
-        if (binding != null && binding.radarControl.getBinding() != null) {
-            WeathernowRadarcontrolBinding radarcontrolBinding = (WeathernowRadarcontrolBinding) binding.radarControl.getBinding();
-
-            if (radarcontrolBinding != null)
-                return (WebView) radarcontrolBinding.radarWebviewContainer.getChildAt(0);
+        if (radarControlBinding != null) {
+            return (WebView) radarControlBinding.radarWebviewContainer.getChildAt(0);
         }
 
         return null;
@@ -1561,7 +1688,7 @@ public class WeatherNowFragment extends WindowColorFragment
     public static class WeatherNowFragmentStateModel extends ViewModel {
         private int scrollViewPosition = 0;
         private float imageAlpha = 1.0f;
-        private float gradientAlpha = 0f;
+        private float gradientAlpha = 1.0f;
 
         public int getScrollViewPosition() {
             return scrollViewPosition;
@@ -1595,7 +1722,6 @@ public class WeatherNowFragment extends WindowColorFragment
             this.mAdapter = new WeatherNowFragmentBindingAdapter(fragment);
         }
 
-        @Override
         public WeatherNowFragmentBindingAdapter getWeatherNowFragmentBindingAdapter() {
             return mAdapter;
         }

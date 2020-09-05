@@ -3,7 +3,6 @@ package com.thewizrd.simpleweather.controls;
 import androidx.annotation.WorkerThread;
 import androidx.core.util.ObjectsCompat;
 
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.ImageDataViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.NumberUtils;
@@ -16,7 +15,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 import java.util.Locale;
-import java.util.concurrent.Callable;
 
 public class LocationPanelViewModel {
     private WeatherManager wm;
@@ -205,21 +203,8 @@ public class LocationPanelViewModel {
 
     @WorkerThread
     public void updateBackground() {
-        new AsyncTask<Void>().await(new Callable<Void>() {
-            @Override
-            public Void call() {
-                if (weather != null) {
-                    ImageDataViewModel imageVM = WeatherUtils.getImageData(weather);
-
-                    if (imageVM != null) {
-                        imageData = imageVM;
-                    } else {
-                        imageData = null;
-                    }
-                }
-
-                return null;
-            }
-        });
+        if (weather != null) {
+            imageData = WeatherUtils.getImageData(weather);
+        }
     }
 }

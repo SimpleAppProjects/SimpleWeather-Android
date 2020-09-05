@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 
+import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -23,6 +24,7 @@ import org.threeten.bp.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 public class ForecastGraphViewModel extends ViewModel {
     private LocationData locationData;
@@ -48,7 +50,7 @@ public class ForecastGraphViewModel extends ViewModel {
     }
 
     @MainThread
-    public void updateForecasts(@NonNull LocationData location) {
+    public void updateForecasts(@NonNull final LocationData location) {
         if (this.locationData == null || !ObjectsCompat.equals(this.locationData.getQuery(), location.getQuery())) {
             // Clone location data
             this.locationData = new LocationData(new LocationQueryViewModel(location));
@@ -58,7 +60,12 @@ public class ForecastGraphViewModel extends ViewModel {
             if (currentForecastsData != null) {
                 currentForecastsData.removeObserver(forecastObserver);
             }
-            currentForecastsData = Settings.getWeatherDAO().getLiveForecastData(location.getQuery());
+            currentForecastsData = new AsyncTask<LiveData<Forecasts>>().await(new Callable<LiveData<Forecasts>>() {
+                @Override
+                public LiveData<Forecasts> call() {
+                    return Settings.getWeatherDAO().getLiveForecastData(location.getQuery());
+                }
+            });
 
             currentForecastsData.observeForever(forecastObserver);
             if (forecasts != null)
@@ -67,7 +74,12 @@ public class ForecastGraphViewModel extends ViewModel {
             if (currentHrForecastsData != null) {
                 currentHrForecastsData.removeObserver(hrforecastObserver);
             }
-            currentHrForecastsData = Settings.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.getQuery(), 24, ZonedDateTime.now(location.getTzOffset()).truncatedTo(ChronoUnit.HOURS));
+            currentHrForecastsData = new AsyncTask<LiveData<List<HourlyForecast>>>().await(new Callable<LiveData<List<HourlyForecast>>>() {
+                @Override
+                public LiveData<List<HourlyForecast>> call() {
+                    return Settings.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.getQuery(), 24, ZonedDateTime.now(location.getTzOffset()).truncatedTo(ChronoUnit.HOURS));
+                }
+            });
             currentHrForecastsData.observeForever(hrforecastObserver);
             if (hourlyForecasts != null)
                 hourlyForecasts.postValue(hrForecastMapper.apply(currentHrForecastsData.getValue()));

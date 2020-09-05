@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
+
+        <variable
+            name="weatherView"
+            type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
+
+        <variable
+            name="alertsView"
+            type="com.thewizrd.shared_resources.controls.WeatherAlertsViewModel" />
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/condition_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:weightSum="2"
+            app:hideIfNullOrWhitespace="@{weatherView.location}"
+            android:layout_gravity="center"
+            tools:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/alert_button"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="#FFFF4500"
+                android:orientation="horizontal"
+                android:paddingStart="4dp"
+                android:paddingLeft="4dp"
+                android:paddingEnd="4dp"
+                android:paddingRight="4dp"
+                app:invisibleIfEmpty="@{alertsView.alerts}"
+                tools:visibility="visible">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/MaterialIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:padding="4dp"
+                    android:text="@string/materialicon_error"
+                    android:textColor="@android:color/white"
+                    app:fontFamily="@font/materialicons_regular"
+                    tools:fontFamily="@font/materialicons_regular" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:paddingStart="4dp"
+                    android:paddingLeft="4dp"
+                    android:text="@string/title_fragment_alerts"
+                    android:textColor="@android:color/white" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/MaterialIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:padding="4dp"
+                    android:text="@string/materialicon_chevron_right"
+                    android:textColor="@android:color/white"
+                    app:fontFamily="@font/materialicons_regular"
+                    tools:fontFamily="@font/materialicons_regular" />
+
+            </LinearLayout>
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/weather_icon"
+                style="@style/ShadowTextHeavy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:scrollbars="none"
+                android:shadowColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/black : @android:color/transparent}"
+                android:text="@{weatherView.weatherIcon}"
+                android:textAppearance="?android:textAppearanceLargeInverse"
+                android:textColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
+                android:textSize="108sp"
+                app:autoSizeMaxTextSize="108sp"
+                app:autoSizeMinTextSize="12sp"
+                app:autoSizeTextType="uniform"
+                app:fontFamily="@font/weathericons"
+                tools:text="@string/wi_wu_sunny" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/weather_condition"
+                style="@style/ShadowTextHeavy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:maxLines="1"
+                android:padding="4dp"
+                android:shadowColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/black : @android:color/transparent}"
+                android:text="@{weatherView.curCondition}"
+                android:textAlignment="center"
+                android:textColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
+                android:textSize="32sp"
+                app:fontFamily="@font/open_sans_semibold"
+                app:autoSizeMaxTextSize="32sp"
+                app:autoSizeMinTextSize="12sp"
+                app:autoSizeTextType="uniform"
+                tools:text="Sunny" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/weather_temp"
+                style="@style/ShadowTextHeavy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:padding="4dp"
+                android:scrollbars="none"
+                android:shadowColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/black : @android:color/transparent}"
+                android:text="@{weatherView.curTemp}"
+                android:textColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
+                android:textSize="48sp"
+                app:autoSizeMaxTextSize="48sp"
+                app:autoSizeMinTextSize="12sp"
+                app:autoSizeTextType="uniform"
+                app:fontFamily="@font/open_sans_semibold"
+                tools:text="70&#xF045;" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/weather_hilo"
+                style="@style/ShadowTextHeavy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:padding="4dp"
+                android:scrollbars="none"
+                android:shadowColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/black : @android:color/transparent}"
+                android:text="@{weatherView.hiLoTemp}"
+                android:textColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
+                android:textSize="32sp"
+                app:fontFamily="@font/open_sans_semibold"
+                app:autoSizeMaxTextSize="32sp"
+                app:autoSizeMinTextSize="12sp"
+                app:autoSizeTextType="uniform"
+                app:showIfTrue="@{weatherView.showHiLo}"
+                tools:fontFamily="@font/weathericons"
+                tools:text="75°F &#xf058; | 65°F &#xf044;"
+                tools:visibility="visible" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/bg_attribution"
+                style="@style/ShadowText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="bottom|end"
+                android:padding="4dp"
+                android:linksClickable="true"
+                android:shadowColor="@android:color/black"
+                android:textAppearance="?android:attr/textAppearanceSmallInverse"
+                android:textColor="@android:color/white"
+                android:textColorLink="@android:color/white"
+                android:textSize="12sp"
+                app:imageData="@{weatherView.imageData}"
+                app:showIfTrue="@{FeatureSettings.backgroundImageEnabled}"
+                tools:text="Attribution text goes here"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/condition_border"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:alpha="0.2"
+            android:background="@color/colorOnSurface" />
+
+    </LinearLayout>
+
+</layout>

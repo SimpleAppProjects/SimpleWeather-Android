@@ -6,31 +6,18 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Lifecycle;
 
+import com.thewizrd.shared_resources.lifecycle.LifecycleAwareFragment;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface;
 
-public abstract class CustomFragment extends Fragment implements SnackbarManagerInterface {
+public abstract class CustomFragment extends LifecycleAwareFragment implements SnackbarManagerInterface {
 
     private AppCompatActivity mActivity;
     private SnackbarManager mSnackMgr;
 
     public final AppCompatActivity getAppCompatActivity() {
         return mActivity;
-    }
-
-    protected final void runOnUiThread(@NonNull final Runnable action) {
-        if (mActivity != null && isAlive())
-            mActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (isAlive()) {
-                        action.run();
-                    }
-                }
-            });
     }
 
     @Nullable
@@ -45,10 +32,10 @@ public abstract class CustomFragment extends Fragment implements SnackbarManager
 
     @Override
     public void showSnackbar(@NonNull final com.thewizrd.simpleweather.snackbar.Snackbar snackbar, final com.google.android.material.snackbar.Snackbar.Callback callback) {
-        runOnUiThread(new Runnable() {
+        runWithView(new Runnable() {
             @Override
             public void run() {
-                if (mSnackMgr == null && isAlive()) {
+                if (mSnackMgr == null) {
                     mSnackMgr = createSnackManager();
                 }
                 if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
@@ -70,11 +57,6 @@ public abstract class CustomFragment extends Fragment implements SnackbarManager
     public void unloadSnackManager() {
         dismissAllSnackbars();
         mSnackMgr = null;
-    }
-
-    @CallSuper
-    public boolean isAlive() {
-        return mActivity != null && getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED);
     }
 
     @Override
@@ -107,7 +89,7 @@ public abstract class CustomFragment extends Fragment implements SnackbarManager
 
     @Override
     public void onDestroy() {
-        mActivity = null;
         super.onDestroy();
+        mActivity = null;
     }
 }

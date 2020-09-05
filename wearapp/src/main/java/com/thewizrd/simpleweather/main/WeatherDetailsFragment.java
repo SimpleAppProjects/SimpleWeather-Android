@@ -32,11 +32,6 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
     }
 
     @Override
-    public boolean isAlive() {
-        return binding != null && super.isAlive();
-    }
-
-    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AnalyticsLogger.logEvent("WeatherDetails: onCreate");
@@ -44,7 +39,7 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
         getLifecycle().addObserver(new LifecycleObserver() {
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             private void load() {
-                initialize();
+                mAdapter.updateItems(weatherView.getWeatherDetails());
             }
         });
     }
@@ -64,19 +59,23 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
 
         binding.recyclerView.requestFocus();
 
+        // specify an adapter (see also next example)
+        mAdapter = new DetailItemAdapter();
+        binding.recyclerView.setAdapter(mAdapter);
+
         return outerView;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.weatherView = new ViewModelProvider(getFragmentActivity()).get(WeatherNowViewModel.class);
+        weatherView = new ViewModelProvider(getFragmentActivity()).get(WeatherNowViewModel.class);
     }
 
     @Override
     public void onDestroyView() {
-        binding = null;
         super.onDestroyView();
+        binding = null;
     }
 
     @Override
@@ -96,27 +95,14 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
     private Observable.OnPropertyChangedCallback propertyChangedCallback = new Observable.OnPropertyChangedCallback() {
         @Override
         public void onPropertyChanged(Observable sender, final int propertyId) {
-            runOnUiThread(new Runnable() {
+            runWithView(new Runnable() {
                 @Override
                 public void run() {
                     if (propertyId == BR.weatherDetails) {
-                        initialize();
+                        mAdapter.updateItems(weatherView.getWeatherDetails());
                     }
                 }
             });
         }
     };
-
-    public void initialize() {
-        if (isAlive() && weatherView != null && getView() != null) {
-            binding.recyclerView.requestFocus();
-
-            // specify an adapter (see also next example)
-            if (mAdapter == null) {
-                mAdapter = new DetailItemAdapter();
-                binding.recyclerView.setAdapter(mAdapter);
-            }
-            mAdapter.updateItems(weatherView.getWeatherDetails());
-        }
-    }
 }

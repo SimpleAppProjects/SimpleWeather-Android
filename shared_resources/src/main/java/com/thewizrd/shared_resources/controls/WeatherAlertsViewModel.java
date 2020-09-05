@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 
+import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
@@ -19,6 +20,7 @@ import org.threeten.bp.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 public class WeatherAlertsViewModel extends ObservableViewModel {
     private String locationKey;
@@ -44,7 +46,13 @@ public class WeatherAlertsViewModel extends ObservableViewModel {
                 currentAlertsData.removeObserver(alertObserver);
             }
 
-            currentAlertsData = Transformations.map(Settings.getWeatherDAO().getLiveWeatherAlertData(locationKey),
+            LiveData<WeatherAlerts> weatherAlertsLiveData = new AsyncTask<LiveData<WeatherAlerts>>().await(new Callable<LiveData<WeatherAlerts>>() {
+                @Override
+                public LiveData<WeatherAlerts> call() {
+                    return Settings.getWeatherDAO().getLiveWeatherAlertData(locationKey);
+                }
+            });
+            currentAlertsData = Transformations.map(weatherAlertsLiveData,
                     new Function<WeatherAlerts, List<WeatherAlertViewModel>>() {
                         @Override
                         public List<WeatherAlertViewModel> apply(WeatherAlerts weatherAlerts) {

@@ -5,6 +5,7 @@ import androidx.databinding.PropertyChangeRegistry;
 import androidx.lifecycle.ViewModel;
 
 public abstract class ObservableViewModel extends ViewModel implements Observable {
+    private boolean isCleared = false;
     private PropertyChangeRegistry callbacks = new PropertyChangeRegistry();
 
     @Override
@@ -18,10 +19,20 @@ public abstract class ObservableViewModel extends ViewModel implements Observabl
     }
 
     public void notifyChange() {
-        callbacks.notifyCallbacks(this, 0, null);
+        if (!isCleared) {
+            callbacks.notifyCallbacks(this, 0, null);
+        }
     }
 
     public void notifyPropertyChanged(int fieldID) {
-        callbacks.notifyCallbacks(this, fieldID, null);
+        if (!isCleared) {
+            callbacks.notifyCallbacks(this, fieldID, null);
+        }
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        isCleared = true;
     }
 }

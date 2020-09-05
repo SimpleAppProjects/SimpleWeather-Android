@@ -140,11 +140,6 @@ public class WeatherNowFragment extends CustomFragment
         setArguments(new Bundle());
     }
 
-    @Override
-    public boolean isAlive() {
-        return binding != null && super.isAlive();
-    }
-
     private Observer<Weather> weatherObserver = new Observer<Weather>() {
         @Override
         public void onChanged(final Weather weather) {
@@ -157,40 +152,35 @@ public class WeatherNowFragment extends CustomFragment
 
                 binding.swipeRefreshLayout.setRefreshing(false);
 
-                AsyncTask.run(new Runnable() {
-                    @Override
-                    public void run() {
-                        Context context = App.getInstance().getAppContext();
+                Context context = App.getInstance().getAppContext();
 
-                        Duration span = Duration.between(ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime(), Settings.getUpdateTime());
-                        if (Settings.getDataSync() != WearableDataSync.OFF && span.toMinutes() > Settings.getRefreshInterval()) {
-                            WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
-                        } else {
-                            // Update complications if they haven't been already
-                            WeatherComplicationWorker.enqueueAction(context, new Intent(WeatherComplicationWorker.ACTION_UPDATECOMPLICATIONS));
+                Duration span = Duration.between(ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime(), Settings.getUpdateTime());
+                if (Settings.getDataSync() != WearableDataSync.OFF && span.toMinutes() > Settings.getRefreshInterval()) {
+                    WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
+                } else {
+                    // Update complications if they haven't been already
+                    WeatherComplicationWorker.enqueueAction(context, new Intent(WeatherComplicationWorker.ACTION_UPDATECOMPLICATIONS));
 
-                            // Update tile if it hasn't been already
-                            WeatherTileWorker.enqueueAction(context, new Intent(WeatherTileWorker.ACTION_UPDATETILES));
-                        }
-                    }
-                });
+                    // Update tile if it hasn't been already
+                    WeatherTileWorker.enqueueAction(context, new Intent(WeatherTileWorker.ACTION_UPDATETILES));
+                }
             }
         }
     };
 
     public void onWeatherError(final WeatherException wEx) {
-        if (wEx != null) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
+        runWithView(new Runnable() {
+            @Override
+            public void run() {
+                if (wEx != null) {
                     if (wEx.getErrorStatus() == WeatherUtils.ErrorStatus.QUERYNOTFOUND && WeatherAPI.NWS.equals(Settings.getAPI())) {
                         Toast.makeText(getFragmentActivity(), R.string.error_message_weather_us_only, Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(getFragmentActivity(), wEx.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 }
-            });
-        }
+            }
+        });
     }
 
     @Override
@@ -201,16 +191,15 @@ public class WeatherNowFragment extends CustomFragment
 
     @Override
     public void onDestroy() {
-        wLoader = null;
         super.onDestroy();
+        wLoader = null;
     }
 
     @Override
     public void onDetach() {
         App.getInstance().getPreferences().unregisterOnSharedPreferenceChangeListener(this);
-
-        wLoader = null;
         super.onDetach();
+        wLoader = null;
     }
 
     @Override
@@ -240,26 +229,36 @@ public class WeatherNowFragment extends CustomFragment
             mLocCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(final LocationResult locationResult) {
-                    if (Settings.useFollowGPS() && updateLocation()) {
-                        // Setup loader from updated location
-                        wLoader = new WeatherDataLoader(locationData);
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (Settings.useFollowGPS() && updateLocation()) {
+                                // Setup loader from updated location
+                                wLoader = new WeatherDataLoader(locationData);
 
-                        refreshWeather(false);
-                    }
+                                refreshWeather(false);
+                            }
 
-                    stopLocationUpdates();
+                            stopLocationUpdates();
+                        }
+                    });
                 }
             };
         } else {
             mLocListnr = new LocationListener() {
                 @Override
                 public void onLocationChanged(final Location location) {
-                    if (Settings.useFollowGPS() && updateLocation()) {
-                        // Setup loader from updated location
-                        wLoader = new WeatherDataLoader(WeatherNowFragment.this.locationData);
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (Settings.useFollowGPS() && updateLocation()) {
+                                // Setup loader from updated location
+                                wLoader = new WeatherDataLoader(WeatherNowFragment.this.locationData);
 
-                        refreshWeather(false);
-                    }
+                                refreshWeather(false);
+                            }
+                        }
+                    });
                 }
 
                 @Override
@@ -286,54 +285,57 @@ public class WeatherNowFragment extends CustomFragment
             private boolean weatherDataReceived = false;
 
             @Override
-            public void onReceive(Context context, Intent intent) {
-                if (!isAlive()) return;
+            public void onReceive(final Context context, final Intent intent) {
+                runWithView(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (WearableHelper.LocationPath.equals(intent.getAction()) || WearableHelper.WeatherPath.equals(intent.getAction())) {
+                            if (WearableHelper.WeatherPath.equals(intent.getAction())) {
+                                weatherDataReceived = true;
+                            }
 
-                if (WearableHelper.LocationPath.equals(intent.getAction()) || WearableHelper.WeatherPath.equals(intent.getAction())) {
-                    if (WearableHelper.WeatherPath.equals(intent.getAction())) {
-                        weatherDataReceived = true;
-                    }
+                            if (WearableHelper.LocationPath.equals(intent.getAction())) {
+                                // We got the location data
+                                locationData = Settings.getHomeData();
+                                locationDataReceived = true;
+                            }
 
-                    if (WearableHelper.LocationPath.equals(intent.getAction())) {
-                        // We got the location data
-                        locationData = Settings.getHomeData();
-                        locationDataReceived = true;
-                    }
+                            Log.d("SyncDataReceiver", "Action: " + intent.getAction());
 
-                    Log.d("SyncDataReceiver", "Action: " + intent.getAction());
+                            if (locationDataReceived && weatherDataReceived || (weatherDataReceived && locationData != null)) {
+                                if (syncTimerEnabled)
+                                    cancelTimer();
 
-                    if (locationDataReceived && weatherDataReceived || (weatherDataReceived && locationData != null)) {
-                        if (syncTimerEnabled)
-                            cancelTimer();
+                                Log.d("SyncDataReceiver", "Loading data...");
 
-                        Log.d("SyncDataReceiver", "Loading data...");
+                                // We got all our data; now load the weather
+                                if (!binding.swipeRefreshLayout.isRefreshing()) {
+                                    binding.swipeRefreshLayout.setRefreshing(true);
+                                }
+                                wLoader = new WeatherDataLoader(locationData);
+                                wLoader.loadWeatherData(new WeatherRequest.Builder()
+                                        .forceLoadSavedData()
+                                        .loadAlerts()
+                                        .setErrorListener(WeatherNowFragment.this)
+                                        .build())
+                                        .addOnSuccessListener(getFragmentActivity(), new OnSuccessListener<Weather>() {
+                                            @Override
+                                            public void onSuccess(final Weather weather) {
+                                                weatherLiveData.setValue(weather);
+                                            }
+                                        });
 
-                        // We got all our data; now load the weather
-                        if (!binding.swipeRefreshLayout.isRefreshing()) {
-                            binding.swipeRefreshLayout.setRefreshing(true);
+                                weatherDataReceived = false;
+                                locationDataReceived = false;
+                            }
+                        } else if (WearableHelper.ErrorPath.equals(intent.getAction())) {
+                            // An error occurred; cancel the sync operation
+                            weatherDataReceived = false;
+                            locationDataReceived = false;
+                            cancelDataSync();
                         }
-                        wLoader = new WeatherDataLoader(locationData);
-                        wLoader.loadWeatherData(new WeatherRequest.Builder()
-                                .forceLoadSavedData()
-                                .loadAlerts()
-                                .setErrorListener(WeatherNowFragment.this)
-                                .build())
-                                .addOnSuccessListener(getFragmentActivity(), new OnSuccessListener<Weather>() {
-                                    @Override
-                                    public void onSuccess(final Weather weather) {
-                                        weatherLiveData.setValue(weather);
-                                    }
-                                });
-
-                        weatherDataReceived = false;
-                        locationDataReceived = false;
                     }
-                } else if (WearableHelper.ErrorPath.equals(intent.getAction())) {
-                    // An error occurred; cancel the sync operation
-                    weatherDataReceived = false;
-                    locationDataReceived = false;
-                    cancelDataSync();
-                }
+                });
             }
         };
 
@@ -408,7 +410,7 @@ public class WeatherNowFragment extends CustomFragment
         binding.scrollView.setOnGenericMotionListener(new View.OnGenericMotionListener() {
             @Override
             public boolean onGenericMotion(View v, MotionEvent event) {
-                if (isAlive() && event.getAction() == MotionEvent.ACTION_SCROLL && RotaryEncoder.isFromRotaryEncoder(event)) {
+                if (event.getAction() == MotionEvent.ACTION_SCROLL && RotaryEncoder.isFromRotaryEncoder(event)) {
 
                     // Don't forget the negation here
                     float delta = -RotaryEncoder.getRotaryAxisValue(event) * RotaryEncoder.getScaledScrollFactor(getFragmentActivity());
@@ -467,32 +469,35 @@ public class WeatherNowFragment extends CustomFragment
 
             @Override
             public boolean onPreDraw() {
-                binding.swipeRefreshLayout.getViewTreeObserver().removeOnPreDrawListener(this);
-                binding.swipeRefreshLayout.setRefreshing(true);
+                if (isViewAlive()) {
+                    binding.swipeRefreshLayout.getViewTreeObserver().removeOnPreDrawListener(this);
+                    binding.swipeRefreshLayout.setRefreshing(true);
 
-                final View innerLayout = binding.scrollView.getChildAt(0);
-                final View peekContainer = mDrawerView.findViewById(R.id.ws_drawer_view_peek_container);
+                    final View innerLayout = binding.scrollView.getChildAt(0);
+                    final View peekContainer = mDrawerView.findViewById(R.id.ws_drawer_view_peek_container);
 
-                innerLayout.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!isAlive()) return;
-                        int verticalPadding = getResources().getDimensionPixelSize(R.dimen.inner_frame_layout_padding);
+                    innerLayout.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (isViewAlive()) {
+                                int verticalPadding = getResources().getDimensionPixelSize(R.dimen.inner_frame_layout_padding);
 
-                        int mScreenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
-                        int mScreenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+                                int mScreenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+                                int mScreenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
 
-                        int rightEdge = Math.min(binding.swipeRefreshLayout.getMeasuredWidth(), mScreenWidth);
-                        int bottomEdge = Math.min(binding.swipeRefreshLayout.getMeasuredHeight(), mScreenHeight);
-                        int verticalInset = (int) (FACTOR * Math.max(rightEdge, bottomEdge));
+                                int rightEdge = Math.min(binding.swipeRefreshLayout.getMeasuredWidth(), mScreenWidth);
+                                int bottomEdge = Math.min(binding.swipeRefreshLayout.getMeasuredHeight(), mScreenHeight);
+                                int verticalInset = (int) (FACTOR * Math.max(rightEdge, bottomEdge));
 
-                        innerLayout.setPaddingRelative(
-                                innerLayout.getPaddingStart(),
-                                verticalPadding,
-                                innerLayout.getPaddingEnd(),
-                                mIsRound ? verticalInset : peekContainer.getHeight());
-                    }
-                });
+                                innerLayout.setPaddingRelative(
+                                        innerLayout.getPaddingStart(),
+                                        verticalPadding,
+                                        innerLayout.getPaddingEnd(),
+                                        mIsRound ? verticalInset : peekContainer.getHeight());
+                            }
+                        }
+                    });
+                }
 
                 return true;
             }
@@ -501,8 +506,8 @@ public class WeatherNowFragment extends CustomFragment
 
     @Override
     public void onDestroyView() {
-        binding = null;
         super.onDestroyView();
+        binding = null;
     }
 
     /**
@@ -533,9 +538,7 @@ public class WeatherNowFragment extends CustomFragment
         super.onResume();
         AnalyticsLogger.logEvent("WeatherNowFragment: onResume");
 
-        if (binding != null) {
-            binding.scrollView.requestFocus();
-        }
+        binding.scrollView.requestFocus();
     }
 
     @Override
@@ -605,7 +608,7 @@ public class WeatherNowFragment extends CustomFragment
     private void restore() {
         AsyncTask.create(new Callable<Boolean>() {
             @Override
-            public Boolean call() throws InterruptedException {
+            public Boolean call() {
                 boolean forceRefresh = false;
 
                 // GPS Follow location
@@ -654,25 +657,28 @@ public class WeatherNowFragment extends CustomFragment
     }
 
     private void refreshWeather(final boolean forceRefresh) {
-        if (isAlive()) {
-            binding.swipeRefreshLayout.setRefreshing(true);
+        runWithView(new Runnable() {
+            @Override
+            public void run() {
+                binding.swipeRefreshLayout.setRefreshing(true);
 
-            if (Settings.getDataSync() == WearableDataSync.OFF && wLoader != null)
-                wLoader.loadWeatherData(new WeatherRequest.Builder()
-                        .forceRefresh(forceRefresh)
-                        .loadAlerts()
-                        .setErrorListener(WeatherNowFragment.this)
-                        .build())
-                        .addOnSuccessListener(getFragmentActivity(), new OnSuccessListener<Weather>() {
-                            @Override
-                            public void onSuccess(final Weather weather) {
-                                weatherLiveData.setValue(weather);
-                            }
-                        });
-            else if (Settings.getDataSync() != WearableDataSync.OFF) {
-                dataSyncResume(forceRefresh);
+                if (Settings.getDataSync() == WearableDataSync.OFF && wLoader != null) {
+                    wLoader.loadWeatherData(new WeatherRequest.Builder()
+                            .forceRefresh(forceRefresh)
+                            .loadAlerts()
+                            .setErrorListener(WeatherNowFragment.this)
+                            .build())
+                            .addOnSuccessListener(getFragmentActivity(), new OnSuccessListener<Weather>() {
+                                @Override
+                                public void onSuccess(final Weather weather) {
+                                    weatherLiveData.setValue(weather);
+                                }
+                            });
+                } else if (Settings.getDataSync() != WearableDataSync.OFF) {
+                    dataSyncResume(forceRefresh);
+                }
             }
-        }
+        });
     }
 
     private boolean updateLocation() {
@@ -745,7 +751,7 @@ public class WeatherNowFragment extends CustomFragment
                             if (location == null)
                                 locMan.requestSingleUpdate(provider, mLocListnr, Looper.getMainLooper());
                         } else {
-                            runOnUiThread(new Runnable() {
+                            runWithView(new Runnable() {
                                 @Override
                                 public void run() {
                                     Toast.makeText(getFragmentActivity(), R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
@@ -812,13 +818,12 @@ public class WeatherNowFragment extends CustomFragment
 
                     // permission was granted, yay!
                     // Do the task you need to do.
-                    //FetchGeoLocation();
                     updateLocation();
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     Settings.setFollowGPS(false);
-                    runOnUiThread(new Runnable() {
+                    runWithView(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(getFragmentActivity(), R.string.error_location_denied, Toast.LENGTH_SHORT).show();
@@ -854,18 +859,21 @@ public class WeatherNowFragment extends CustomFragment
         dataSyncRestore(false);
     }
 
-    private void dataSyncRestore(boolean forceRefresh) {
-        if (isAlive()) {
-            // Send request to service to get weather data
-            binding.swipeRefreshLayout.setRefreshing(true);
+    private void dataSyncRestore(final boolean forceRefresh) {
+        runWithView(new Runnable() {
+            @Override
+            public void run() {
+                // Send request to service to get weather data
+                binding.swipeRefreshLayout.setRefreshing(true);
 
-            // Check data map if data is available to load
-            locationData = null;
-            WearableWorker.enqueueAction(getFragmentActivity(), WearableWorker.ACTION_REQUESTUPDATE, forceRefresh);
+                // Check data map if data is available to load
+                locationData = null;
+                WearableWorker.enqueueAction(getFragmentActivity(), WearableWorker.ACTION_REQUESTUPDATE, forceRefresh);
 
-            // Start timeout timer
-            resetTimer();
-        }
+                // Start timeout timer
+                resetTimer();
+            }
+        });
     }
 
     private void dataSyncResume() {
@@ -873,7 +881,7 @@ public class WeatherNowFragment extends CustomFragment
     }
 
     private void dataSyncResume(boolean forceRefresh) {
-        if (!isAlive()) {
+        if (!isViewAlive()) {
             cancelDataSync();
             return;
         }
@@ -904,7 +912,7 @@ public class WeatherNowFragment extends CustomFragment
                     .loadAlerts()
                     .setErrorListener(WeatherNowFragment.this)
                     .build())
-                    .addOnSuccessListener(getFragmentActivity(), new OnSuccessListener<Weather>() {
+                    .addOnSuccessListener(new OnSuccessListener<Weather>() {
                         @Override
                         public void onSuccess(final Weather weather) {
                             if (weather != null) {
@@ -922,7 +930,7 @@ public class WeatherNowFragment extends CustomFragment
         if (syncTimerEnabled)
             cancelTimer();
 
-        if (isAlive() && Settings.getDataSync() != WearableDataSync.OFF) {
+        if (isViewAlive() && Settings.getDataSync() != WearableDataSync.OFF) {
             if (locationData == null) {
                 // Load whatever we have available
                 locationData = Settings.getHomeData();
@@ -930,13 +938,14 @@ public class WeatherNowFragment extends CustomFragment
 
             if (locationData != null) {
                 binding.swipeRefreshLayout.setRefreshing(true);
+
                 wLoader = new WeatherDataLoader(locationData);
                 wLoader.loadWeatherData(new WeatherRequest.Builder()
                         .forceLoadSavedData()
                         .loadAlerts()
                         .setErrorListener(WeatherNowFragment.this)
                         .build())
-                        .addOnSuccessListener(getFragmentActivity(), new OnSuccessListener<Weather>() {
+                        .addOnSuccessListener(new OnSuccessListener<Weather>() {
                             @Override
                             public void onSuccess(final Weather weather) {
                                 weatherLiveData.setValue(weather);
@@ -961,7 +970,7 @@ public class WeatherNowFragment extends CustomFragment
                 // Stop and load saved data
                 cancelDataSync();
             }
-        }, 60000); // 30sec
+        }, 35000); // 35sec
         syncTimerEnabled = true;
     }
 

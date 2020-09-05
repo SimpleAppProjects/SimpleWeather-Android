@@ -49,11 +49,6 @@ public class SetupSettingsFragment extends CustomPreferenceFragmentCompat {
         return mSnackMgr;
     }
 
-    @Override
-    public boolean isAlive() {
-        return binding != null && super.isAlive();
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -71,8 +66,8 @@ public class SetupSettingsFragment extends CustomPreferenceFragmentCompat {
 
     @Override
     public void onDestroyView() {
-        binding = null;
         super.onDestroyView();
+        binding = null;
     }
 
     @Override

@@ -7,6 +7,8 @@
 
         <import type="android.view.View" />
 
+        <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
+
         <variable
             name="weatherView"
             type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
@@ -16,7 +18,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:hideIfNull="@{weatherView.beaufort}">
+        android:visibility="@{!FeatureSettings.beaufortEnabled || weatherView.beaufort == null ? View.GONE : View.VISIBLE}">
 
         <TextView
             android:id="@+id/beaufort_label"

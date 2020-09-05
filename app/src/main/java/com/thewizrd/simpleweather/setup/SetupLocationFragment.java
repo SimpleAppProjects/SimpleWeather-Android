@@ -27,7 +27,6 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
@@ -47,6 +46,7 @@ import com.google.common.collect.Collections2;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.lifecycle.LifecycleRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CustomException;
@@ -109,11 +109,6 @@ public class SetupLocationFragment extends CustomFragment {
     }
 
     @Override
-    public boolean isAlive() {
-        return binding != null && super.isAlive();
-    }
-
-    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AnalyticsLogger.logEvent("SetupLocation: onCreate");
@@ -172,36 +167,19 @@ public class SetupLocationFragment extends CustomFragment {
                     else
                         mLocation = locationResult.getLastLocation();
 
-                    if (mLocation == null) {
-                        enableControls(true);
-                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
-                    } else {
-                        fetchGeoLocation();
-                    }
-
-                    stopLocationUpdates();
-                }
-
-                @Override
-                public void onLocationAvailability(LocationAvailability locationAvailability) {
-                    new AsyncTask<Void>().await(new Callable<Void>() {
+                    runWithView(new Runnable() {
                         @Override
-                        public Void call() {
-                            try {
-                                return Tasks.await(mFusedLocationClient.flushLocations());
-                            } catch (ExecutionException | InterruptedException e) {
-                                Logger.writeLine(Log.ERROR, e);
+                        public void run() {
+                            if (mLocation == null) {
+                                enableControls(true);
+                                showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
+                            } else {
+                                fetchGeoLocation();
                             }
-
-                            return null;
                         }
                     });
 
-                    if (!locationAvailability.isLocationAvailable()) {
-                        stopLocationUpdates();
-                        enableControls(true);
-                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
-                    }
+                    stopLocationUpdates();
                 }
             };
         } else {
@@ -286,8 +264,9 @@ public class SetupLocationFragment extends CustomFragment {
 
     @Override
     public void onDestroyView() {
-        binding = null;
+        ctsCancel();
         super.onDestroyView();
+        binding = null;
     }
 
     /**
@@ -339,179 +318,177 @@ public class SetupLocationFragment extends CustomFragment {
     }
 
     private void enableControls(final boolean enable) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (!isAlive()) return;
-                binding.searchBar.searchViewContainer.setEnabled(enable);
-                binding.gpsFollow.setEnabled(enable);
-                binding.progressBar.setVisibility(enable ? View.GONE : View.VISIBLE);
-            }
-        });
+        binding.searchBar.searchViewContainer.setEnabled(enable);
+        binding.gpsFollow.setEnabled(enable);
+        binding.progressBar.setVisibility(enable ? View.GONE : View.VISIBLE);
     }
 
     private void fetchGeoLocation() {
-        if (!isAlive()) return;
+        runWithView(new LifecycleRunnable(getViewLifecycleOwner().getLifecycle()) {
+            @Override
+            public void run() {
+                // Show loading bar
+                binding.gpsFollow.setEnabled(false);
+                binding.progressBar.setVisibility(View.VISIBLE);
 
-        binding.gpsFollow.setEnabled(false);
-
-        // Show loading bar
-        binding.progressBar.setVisibility(View.VISIBLE);
-
-        if (mLocation == null) {
-            AsyncTask.create(new Callable<Void>() {
-                @Override
-                public Void call() throws CustomException {
-                    updateLocation();
-                    return null;
-                }
-            }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    // Restore controls
-                    enableControls(true);
-                    Settings.setFollowGPS(false);
-                    Settings.setWeatherLoaded(false);
-
-                    if (isAlive()) {
-                        if (e instanceof WeatherException || e instanceof CustomException) {
-                            showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT), null);
-                        } else {
-                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
+                if (mLocation == null) {
+                    AsyncTask.create(new Callable<Void>() {
+                        @Override
+                        public Void call() throws CustomException {
+                            updateLocation();
+                            return null;
                         }
-                    }
-                }
-            });
-        } else {
-            AsyncTask.create(new Callable<LocationData>() {
-                @Override
-                public LocationData call() throws InterruptedException, WeatherException, ExecutionException, CustomException {
-                    LocationQueryViewModel view;
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // Restore controls
+                            enableControls(true);
+                            Settings.setFollowGPS(false);
+                            Settings.setWeatherLoaded(false);
 
+                            if (e instanceof WeatherException || e instanceof CustomException) {
+                                showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT), null);
+                            } else {
+                                showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
+                            }
+                        }
+                    });
+                } else {
                     // Cancel other tasks
                     ctsCancel();
-                    CancellationToken ctsToken = cts.getToken();
+                    final CancellationToken ctsToken = cts.getToken();
 
-                    if (ctsToken.isCancellationRequested()) throw new InterruptedException();
+                    AsyncTask.create(new Callable<LocationData>() {
+                        @Override
+                        public LocationData call() throws InterruptedException, WeatherException, ExecutionException, CustomException {
+                            LocationQueryViewModel view;
 
-                    view = wm.getLocation(mLocation);
+                            if (ctsToken.isCancellationRequested())
+                                throw new InterruptedException();
 
-                    if (StringUtils.isNullOrWhitespace(view.getLocationQuery()))
-                        view = new LocationQueryViewModel();
+                            view = wm.getLocation(mLocation);
 
-                    if (StringUtils.isNullOrWhitespace(view.getLocationQuery())) {
-                        throw new CustomException(R.string.error_retrieve_location);
-                    }
+                            if (StringUtils.isNullOrWhitespace(view.getLocationQuery()))
+                                view = new LocationQueryViewModel();
 
-                    if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired()) {
-                        throw new CustomException(R.string.werror_invalidkey);
-                    }
+                            if (StringUtils.isNullOrWhitespace(view.getLocationQuery())) {
+                                throw new CustomException(R.string.error_retrieve_location);
+                            }
 
-                    if (ctsToken.isCancellationRequested()) throw new InterruptedException();
+                            if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired()) {
+                                throw new CustomException(R.string.werror_invalidkey);
+                            }
 
-                    String country_code = view.getLocationCountry();
-                    if (!StringUtils.isNullOrWhitespace(country_code))
-                        country_code = country_code.toLowerCase();
+                            if (ctsToken.isCancellationRequested())
+                                throw new InterruptedException();
 
-                    if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
-                        throw new CustomException(R.string.error_message_weather_us_only);
-                    }
+                            String country_code = view.getLocationCountry();
+                            if (!StringUtils.isNullOrWhitespace(country_code))
+                                country_code = country_code.toLowerCase();
 
-                    // Get Weather Data
-                    LocationData location = new LocationData(view, mLocation);
-                    if (!location.isValid()) {
-                        throw new CustomException(R.string.werror_noweather);
-                    }
+                            if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
+                                throw new CustomException(R.string.error_message_weather_us_only);
+                            }
 
-                    if (ctsToken.isCancellationRequested()) throw new InterruptedException();
+                            // Get Weather Data
+                            LocationData location = new LocationData(view, mLocation);
+                            if (!location.isValid()) {
+                                throw new CustomException(R.string.werror_noweather);
+                            }
 
-                    Weather weather = Settings.getWeatherData(location.getQuery());
-                    if (weather == null) {
-                        if (ctsToken.isCancellationRequested())
-                            throw new InterruptedException();
+                            if (ctsToken.isCancellationRequested())
+                                throw new InterruptedException();
 
-                        TaskCompletionSource<Weather> tcs = new TaskCompletionSource<>(ctsToken);
-                        tcs.setResult(wm.getWeather(location));
-                        weather = Tasks.await(tcs.getTask());
-                    }
+                            Weather weather = Settings.getWeatherData(location.getQuery());
+                            if (weather == null) {
+                                if (ctsToken.isCancellationRequested())
+                                    throw new InterruptedException();
 
-                    if (weather == null) {
-                        throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
-                    }
+                                TaskCompletionSource<Weather> tcs = new TaskCompletionSource<>(ctsToken);
+                                tcs.setResult(wm.getWeather(location));
+                                weather = Tasks.await(tcs.getTask());
+                            }
 
-                    if (ctsToken.isCancellationRequested()) throw new InterruptedException();
+                            if (weather == null) {
+                                throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
+                            }
 
-                    // Save weather data
-                    Settings.saveLastGPSLocData(location);
-                    Settings.deleteLocations();
-                    Settings.addLocation(new LocationData(view));
-                    if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
-                        Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
-                    Settings.saveWeatherData(weather);
-                    Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
-                    final Weather finalWeather = weather;
-                    Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
-                            Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
-                                @NonNull
-                                @Override
-                                public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
-                                    return new HourlyForecasts(finalWeather.getQuery(), input);
+                            if (ctsToken.isCancellationRequested())
+                                throw new InterruptedException();
+
+                            // Save weather data
+                            Settings.saveLastGPSLocData(location);
+                            Settings.deleteLocations();
+                            Settings.addLocation(new LocationData(view));
+                            if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
+                                Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
+                            Settings.saveWeatherData(weather);
+                            Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
+                            final Weather finalWeather = weather;
+                            Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
+                                    Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
+                                        @NonNull
+                                        @Override
+                                        public HourlyForecasts apply(@NullableDecl HourlyForecast input) {
+                                            return new HourlyForecasts(finalWeather.getQuery(), input);
+                                        }
+                                    }));
+
+                            Settings.setFollowGPS(true);
+                            Settings.setWeatherLoaded(true);
+
+                            // Send data for wearables
+                            if (getAppCompatActivity() != null) {
+                                WearableWorker.enqueueAction(getAppCompatActivity(), WearableWorker.ACTION_SENDUPDATE);
+                            }
+
+                            return location;
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<LocationData>() {
+                        @Override
+                        public void onSuccess(LocationData data) {
+                            if (isActive()) {
+                                if (data != null && data.isValid()) {
+                                    // Setup complete
+                                    viewModel.setLocationData(data);
+                                    Navigation.findNavController(binding.getRoot())
+                                            .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment());
+                                } else {
+                                    enableControls(true);
+                                    Settings.setFollowGPS(false);
+
+                                    LocationManager locMan = null;
+                                    if (getAppCompatActivity() != null)
+                                        locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
+
+                                    if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                                        showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
+                                    } else {
+                                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
+                                    }
                                 }
-                            }));
-
-                    Settings.setFollowGPS(true);
-                    Settings.setWeatherLoaded(true);
-
-                    // Send data for wearables
-                    if (getAppCompatActivity() != null) {
-                        WearableWorker.enqueueAction(getAppCompatActivity(), WearableWorker.ACTION_SENDUPDATE);
-                    }
-
-                    return location;
-                }
-            }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<LocationData>() {
-                @Override
-                public void onSuccess(LocationData data) {
-                    if (!isAlive()) return;
-
-                    if (data != null && data.isValid()) {
-                        // Setup complete
-                        viewModel.setLocationData(data);
-                        Navigation.findNavController(binding.getRoot())
-                                .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment());
-                    } else {
-                        enableControls(true);
-                        Settings.setFollowGPS(false);
-
-                        LocationManager locMan = null;
-                        if (getAppCompatActivity() != null)
-                            locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
-
-                        if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                            showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
-                        } else {
-                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
+                            }
                         }
-                    }
-                }
-            }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    // Restore controls
-                    enableControls(true);
-                    Settings.setFollowGPS(false);
-                    Settings.setWeatherLoaded(false);
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            if (isActive()) {
+                                // Restore controls
+                                enableControls(true);
+                                Settings.setFollowGPS(false);
+                                Settings.setWeatherLoaded(false);
 
-                    if (isAlive()) {
-                        if (e instanceof WeatherException || e instanceof CustomException) {
-                            showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT), null);
-                        } else {
-                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
+                                if (e instanceof WeatherException || e instanceof CustomException) {
+                                    showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT), null);
+                                } else {
+                                    showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
+                                }
+                            }
                         }
-                    }
+                    });
                 }
-            });
-        }
+            }
+        });
     }
 
     private void updateLocation() throws CustomException {
@@ -534,9 +511,6 @@ public class SetupLocationFragment extends CustomFragment {
             locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
 
         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-            // Disable GPS feature if location is not enabled
-            enableControls(true);
-            Settings.setFollowGPS(false);
             throw new CustomException(R.string.error_enable_location_services);
         }
 
@@ -555,7 +529,7 @@ public class SetupLocationFragment extends CustomFragment {
                 }
             });
 
-            /**
+            /*
              * Request start of location updates. Does nothing if
              * updates have already been requested.
              */
@@ -607,8 +581,8 @@ public class SetupLocationFragment extends CustomFragment {
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    enableControls(true);
-                    if (isAlive()) {
+                    if (isViewAlive()) {
+                        enableControls(true);
                         showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null);
                     }
                 }

@@ -53,11 +53,6 @@ public class WeatherListFragment extends SwipeDismissFragment {
     }
 
     @Override
-    public boolean isAlive() {
-        return binding != null && super.isAlive();
-    }
-
-    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AnalyticsLogger.logEvent("WeatherList: onCreate");
@@ -113,6 +108,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         final ViewModelProvider vmProvider = new ViewModelProvider(getFragmentActivity());
         weatherView = vmProvider.get(WeatherNowViewModel.class);
         alertsView = vmProvider.get(WeatherAlertsViewModel.class);
@@ -123,8 +119,8 @@ public class WeatherListFragment extends SwipeDismissFragment {
 
     @Override
     public void onDestroyView() {
-        binding = null;
         super.onDestroyView();
+        binding = null;
     }
 
     @Override
@@ -139,87 +135,85 @@ public class WeatherListFragment extends SwipeDismissFragment {
         super.onPause();
     }
 
-    public void initialize() {
-        if (isAlive() && getView() != null) {
-            binding.recyclerView.requestFocus();
+    private void initialize() {
+        binding.recyclerView.requestFocus();
 
-            // specify an adapter (see also next example)
-            final RecyclerView.Adapter adapter = binding.recyclerView.getAdapter();
-            switch (weatherType) {
-                case FORECAST:
-                case HOURLYFORECAST:
-                    if (!(mLayoutManager.getLayoutCallback() instanceof CurvingLayoutCallback)) {
-                        mLayoutManager.setLayoutCallback(new CurvingLayoutCallback(getFragmentActivity()));
+        // specify an adapter (see also next example)
+        final RecyclerView.Adapter adapter = binding.recyclerView.getAdapter();
+        switch (weatherType) {
+            case FORECAST:
+            case HOURLYFORECAST:
+                if (!(mLayoutManager.getLayoutCallback() instanceof CurvingLayoutCallback)) {
+                    mLayoutManager.setLayoutCallback(new CurvingLayoutCallback(getFragmentActivity()));
+                }
+
+                final ForecastItemAdapter detailsAdapter;
+                if (!(adapter instanceof ForecastItemAdapter)) {
+                    detailsAdapter = new ForecastItemAdapter();
+                    binding.recyclerView.setAdapter(detailsAdapter);
+                } else {
+                    detailsAdapter = (ForecastItemAdapter) adapter;
+                }
+
+                detailsAdapter.registerAdapterDataObserver(new SimpleRecyclerViewAdapterObserver() {
+                    @Override
+                    public void onChanged() {
+                        super.onChanged();
+                        detailsAdapter.unregisterAdapterDataObserver(this);
+                        binding.progressBar.setVisibility(View.GONE);
                     }
+                });
 
-                    final ForecastItemAdapter detailsAdapter;
-                    if (!(adapter instanceof ForecastItemAdapter)) {
-                        detailsAdapter = new ForecastItemAdapter();
-                        binding.recyclerView.setAdapter(detailsAdapter);
-                    } else {
-                        detailsAdapter = (ForecastItemAdapter) adapter;
-                    }
-
-                    detailsAdapter.registerAdapterDataObserver(new SimpleRecyclerViewAdapterObserver() {
+                if (weatherType == WeatherListType.FORECAST) {
+                    forecastsView.getForecasts().removeObservers(WeatherListFragment.this);
+                    forecastsView.getForecasts().observe(getViewLifecycleOwner(), new Observer<PagedList<ForecastItemViewModel>>() {
                         @Override
-                        public void onChanged() {
-                            super.onChanged();
-                            detailsAdapter.unregisterAdapterDataObserver(this);
-                            binding.progressBar.setVisibility(View.GONE);
+                        public void onChanged(PagedList<ForecastItemViewModel> forecasts) {
+                            detailsAdapter.submitList(forecasts);
                         }
                     });
-
-                    if (weatherType == WeatherListType.FORECAST) {
-                        forecastsView.getForecasts().removeObservers(WeatherListFragment.this);
-                        forecastsView.getForecasts().observe(WeatherListFragment.this, new Observer<PagedList<ForecastItemViewModel>>() {
-                            @Override
-                            public void onChanged(PagedList<ForecastItemViewModel> forecasts) {
-                                detailsAdapter.submitList(forecasts);
-                            }
-                        });
-                    } else {
-                        forecastsView.getHourlyForecasts().removeObservers(WeatherListFragment.this);
-                        forecastsView.getHourlyForecasts().observe(WeatherListFragment.this, new Observer<PagedList<HourlyForecastItemViewModel>>() {
-                            @Override
-                            public void onChanged(PagedList<HourlyForecastItemViewModel> hrforecasts) {
-                                detailsAdapter.submitList(hrforecasts);
-                            }
-                        });
-                    }
-                    forecastsView.updateForecasts(locationData);
-                    break;
-                case ALERTS:
-                    mLayoutManager.setLayoutCallback(null);
-
-                    final WeatherAlertPanelAdapter alertAdapter;
-                    if (!(adapter instanceof WeatherAlertPanelAdapter)) {
-                        alertAdapter = new WeatherAlertPanelAdapter();
-                        binding.recyclerView.setAdapter(alertAdapter);
-                    } else {
-                        alertAdapter = (WeatherAlertPanelAdapter) adapter;
-                    }
-
-                    alertAdapter.registerAdapterDataObserver(new SimpleRecyclerViewAdapterObserver() {
+                } else {
+                    forecastsView.getHourlyForecasts().removeObservers(getViewLifecycleOwner());
+                    forecastsView.getHourlyForecasts().observe(getViewLifecycleOwner(), new Observer<PagedList<HourlyForecastItemViewModel>>() {
                         @Override
-                        public void onChanged() {
-                            super.onChanged();
-                            alertAdapter.unregisterAdapterDataObserver(this);
-                            binding.progressBar.setVisibility(View.GONE);
+                        public void onChanged(PagedList<HourlyForecastItemViewModel> hrforecasts) {
+                            detailsAdapter.submitList(hrforecasts);
                         }
                     });
+                }
+                forecastsView.updateForecasts(locationData);
+                break;
+            case ALERTS:
+                mLayoutManager.setLayoutCallback(null);
 
-                    alertsView.getAlerts().removeObservers(WeatherListFragment.this);
-                    alertsView.getAlerts().observe(WeatherListFragment.this, new Observer<List<WeatherAlertViewModel>>() {
-                        @Override
-                        public void onChanged(List<WeatherAlertViewModel> alerts) {
-                            alertAdapter.updateItems(alerts);
-                        }
-                    });
-                    alertsView.updateAlerts(locationData);
-                    break;
-                default:
-                    binding.recyclerView.setAdapter(null);
-            }
+                final WeatherAlertPanelAdapter alertAdapter;
+                if (!(adapter instanceof WeatherAlertPanelAdapter)) {
+                    alertAdapter = new WeatherAlertPanelAdapter();
+                    binding.recyclerView.setAdapter(alertAdapter);
+                } else {
+                    alertAdapter = (WeatherAlertPanelAdapter) adapter;
+                }
+
+                alertAdapter.registerAdapterDataObserver(new SimpleRecyclerViewAdapterObserver() {
+                    @Override
+                    public void onChanged() {
+                        super.onChanged();
+                        alertAdapter.unregisterAdapterDataObserver(this);
+                        binding.progressBar.setVisibility(View.GONE);
+                    }
+                });
+
+                alertsView.getAlerts().removeObservers(getViewLifecycleOwner());
+                alertsView.getAlerts().observe(getViewLifecycleOwner(), new Observer<List<WeatherAlertViewModel>>() {
+                    @Override
+                    public void onChanged(List<WeatherAlertViewModel> alerts) {
+                        alertAdapter.updateItems(alerts);
+                    }
+                });
+                alertsView.updateAlerts(locationData);
+                break;
+            default:
+                binding.recyclerView.setAdapter(null);
         }
     }
 

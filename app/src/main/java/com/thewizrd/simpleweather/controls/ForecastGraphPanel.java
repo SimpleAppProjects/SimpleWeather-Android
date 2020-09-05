@@ -196,7 +196,6 @@ public class ForecastGraphPanel extends LinearLayout {
             TabLayout.Tab precipTab = tabLayout.newTab();
             precipTab.setCustomView(R.layout.forecast_graph_panel_tablayout);
             precipTab.setText(R.string.label_precipitation);
-            precipTab.setIcon(R.drawable.showers);
             TextView precipIconView = precipTab.view.findViewById(R.id.icon);
             precipIconView.setText(R.string.wi_raindrop);
             precipTab.setTag(GraphType.PRECIPITATION);

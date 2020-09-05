@@ -133,15 +133,11 @@ public class WeatherListFragment extends ToolbarFragment {
     }
 
     @Override
-    public boolean isAlive() {
-        return binding != null && super.isAlive();
-    }
-
-    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
         // Use this to return your custom view for this Fragment
         binding = FragmentWeatherListBinding.inflate(inflater, root, true);
+        binding.setLifecycleOwner(getViewLifecycleOwner());
 
         // Setup Actionbar
         final Context context = binding.getRoot().getContext();
@@ -210,7 +206,7 @@ public class WeatherListFragment extends ToolbarFragment {
         binding.locationHeader.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
-                if (isAlive()) {
+                if (isViewAlive()) {
                     ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.recyclerView.getLayoutParams();
                     layoutParams.topMargin = binding.locationHeader.getHeight();
                     binding.recyclerView.setLayoutParams(layoutParams);
@@ -224,8 +220,8 @@ public class WeatherListFragment extends ToolbarFragment {
 
     @Override
     public void onDestroyView() {
-        binding = null;
         super.onDestroyView();
+        binding = null;
     }
 
     @Override
@@ -329,8 +325,10 @@ public class WeatherListFragment extends ToolbarFragment {
                             binding.recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                                 @Override
                                 public void onGlobalLayout() {
-                                    binding.recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                                    layoutManager.scrollToPositionWithOffset(args.getPosition(), 0);
+                                    if (isViewAlive()) {
+                                        binding.recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                                        layoutManager.scrollToPositionWithOffset(args.getPosition(), 0);
+                                    }
                                 }
                             });
                             binding.progressBar.setVisibility(View.GONE);

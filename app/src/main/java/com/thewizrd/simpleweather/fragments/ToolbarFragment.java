@@ -96,14 +96,12 @@ public abstract class ToolbarFragment extends WindowColorFragment
 
     @Override
     public void onDestroyView() {
-        binding = null;
         super.onDestroyView();
+        binding = null;
     }
 
     @CallSuper
     public void updateWindowColors() {
-        if (!isAlive()) return;
-
         int color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
         if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK;
