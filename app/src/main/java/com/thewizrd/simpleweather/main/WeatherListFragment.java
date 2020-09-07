@@ -38,6 +38,7 @@ import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver;
+import com.thewizrd.shared_resources.lifecycle.CheckAliveRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -179,18 +180,26 @@ public class WeatherListFragment extends ToolbarFragment {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    if (recyclerView.computeVerticalScrollOffset() > 0) {
-                        binding.locationHeader.setElevation(ActivityUtils.dpToPx(context, 4f));
-                    } else {
-                        binding.locationHeader.setElevation(0);
-                    }
-                }
+                updateHeaderElevation();
             }
         });
 
         return root;
+    }
+
+    private void updateHeaderElevation() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            binding.recyclerView.post(new CheckAliveRunnable(getViewLifecycleOwner().getLifecycle(), new Runnable() {
+                @Override
+                public void run() {
+                    if (binding.recyclerView.computeVerticalScrollOffset() > 0) {
+                        binding.locationHeader.setElevation(ActivityUtils.dpToPx(requireContext(), 4f));
+                    } else {
+                        binding.locationHeader.setElevation(0);
+                    }
+                }
+            }));
+        }
     }
 
     @Override
@@ -328,6 +337,7 @@ public class WeatherListFragment extends ToolbarFragment {
                                     if (isViewAlive()) {
                                         binding.recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                                         layoutManager.scrollToPositionWithOffset(args.getPosition(), 0);
+                                        updateHeaderElevation();
                                     }
                                 }
                             });
