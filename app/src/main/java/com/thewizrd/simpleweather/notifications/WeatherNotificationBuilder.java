@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -99,8 +100,62 @@ public class WeatherNotificationBuilder {
         } else {
             updateViews.setViewVisibility(R.id.weather_wind_layout, View.GONE);
         }
-
         updateViews.setViewVisibility(R.id.extra_layout, chanceModel != null || windModel != null ? View.VISIBLE : View.GONE);
+
+        // Extras 2
+        RemoteViews bigUpdateViews;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            bigUpdateViews = new RemoteViews(updateViews);
+        } else {
+            bigUpdateViews = updateViews.clone();
+        }
+        DetailItemViewModel feelsLikeModel = Iterables.find(viewModel.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
+            @Override
+            public boolean apply(@NullableDecl DetailItemViewModel input) {
+                return input != null && (input.getDetailsType() == WeatherDetailsType.FEELSLIKE);
+            }
+        }, null);
+        if (feelsLikeModel != null) {
+            bigUpdateViews.setTextViewText(R.id.feelslike_temp, feelsLikeModel.getValue() + viewModel.getTempUnit());
+            bigUpdateViews.setViewVisibility(R.id.feelslike_layout, View.VISIBLE);
+        }
+        DetailItemViewModel humidityModel = Iterables.find(viewModel.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
+            @Override
+            public boolean apply(@NullableDecl DetailItemViewModel input) {
+                return input != null && (input.getDetailsType() == WeatherDetailsType.HUMIDITY);
+            }
+        }, null);
+        if (humidityModel != null) {
+            bigUpdateViews.setImageViewBitmap(R.id.humidity_icon,
+                    ImageUtils.weatherIconToBitmap(context, humidityModel.getIcon(), textSize, false)
+            );
+            bigUpdateViews.setTextViewText(R.id.humidity, humidityModel.getValue());
+            bigUpdateViews.setViewVisibility(R.id.humidity_layout, View.VISIBLE);
+        }
+        DetailItemViewModel popRainModel = Iterables.find(viewModel.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
+            @Override
+            public boolean apply(@NullableDecl DetailItemViewModel input) {
+                return input != null && (input.getDetailsType() == WeatherDetailsType.POPRAIN);
+            }
+        }, null);
+        if (popRainModel != null) {
+            bigUpdateViews.setImageViewBitmap(R.id.precip_rain_icon,
+                    ImageUtils.weatherIconToBitmap(context, popRainModel.getIcon(), textSize, false)
+            );
+            bigUpdateViews.setTextViewText(R.id.precip_rain, popRainModel.getValue());
+            bigUpdateViews.setViewVisibility(R.id.precip_rain_layout, View.VISIBLE);
+        }
+        DetailItemViewModel popSnowModel = Iterables.find(viewModel.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
+            @Override
+            public boolean apply(@NullableDecl DetailItemViewModel input) {
+                return input != null && (input.getDetailsType() == WeatherDetailsType.POPSNOW);
+            }
+        }, null);
+        if (popSnowModel != null) {
+            bigUpdateViews.setTextViewText(R.id.precip_snow, popSnowModel.getValue());
+            bigUpdateViews.setViewVisibility(R.id.precip_snow_layout, View.VISIBLE);
+        }
+        bigUpdateViews.setViewVisibility(R.id.extra2_layout, feelsLikeModel != null || humidityModel != null || popRainModel != null || popSnowModel != null ? View.VISIBLE : View.GONE);
 
         int level;
         try {
@@ -114,7 +169,8 @@ public class WeatherNotificationBuilder {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context, notificationID)
-                        .setContent(updateViews)
+                        .setCustomContentView(updateViews)
+                        .setCustomBigContentView(bigUpdateViews)
                         .setPriority(NotificationCompat.PRIORITY_LOW)
                         .setOngoing(true);
 

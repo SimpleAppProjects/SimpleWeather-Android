@@ -2,5 +2,5 @@
 <resources>
     <!-- Notification -->
     <dimen name="not_horiz_padding">8dp</dimen>
-    <dimen name="not_vert_padding">0dp</dimen>
+    <dimen name="not_vert_padding">8dp</dimen>
 </resources>
