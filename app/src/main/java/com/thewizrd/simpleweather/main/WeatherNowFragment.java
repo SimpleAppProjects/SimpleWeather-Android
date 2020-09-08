@@ -44,7 +44,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
-import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.WrappedDrawable;
@@ -649,294 +648,198 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
 
-        // Async inflater
-        AsyncLayoutInflater asyncLayoutInflater = new AsyncLayoutInflater(requireContext());
+        {
+            // Condition
+            conditionPanelBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_condition_panel, binding.listLayout, false, dataBindingComponent);
+            conditionPanelBinding.setAlertsView(alertsView);
+            conditionPanelBinding.setWeatherView(weatherView);
+            conditionPanelBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-        // Condition
-        asyncLayoutInflater.inflate(R.layout.weathernow_condition_panel, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
-            @Override
-            public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
-                runWithView(new Runnable() {
-                    @Override
-                    public void run() {
-                        conditionPanelBinding = DataBindingUtil.bind(view, dataBindingComponent);
-                        conditionPanelBinding.setAlertsView(alertsView);
-                        conditionPanelBinding.setWeatherView(weatherView);
-                        conditionPanelBinding.setLifecycleOwner(getViewLifecycleOwner());
+            conditionPanelBinding.bgAttribution.setMovementMethod(LinkMovementMethod.getInstance());
 
-                        conditionPanelBinding.bgAttribution.setMovementMethod(LinkMovementMethod.getInstance());
-
-                        // Alerts
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            conditionPanelBinding.alertButton.setBackgroundTintList(ColorStateList.valueOf(Colors.ORANGERED));
-                        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            Drawable drawable = conditionPanelBinding.alertButton.getBackground().mutate();
-                            drawable.setColorFilter(Colors.ORANGERED, PorterDuff.Mode.SRC_IN);
-                            conditionPanelBinding.alertButton.setBackground(drawable);
-                        } else {
-                            Drawable origDrawable = ContextCompat.getDrawable(getAppCompatActivity(), R.drawable.light_round_corner_bg);
-                            Drawable compatDrawable = DrawableCompat.wrap(origDrawable);
-                            DrawableCompat.setTint(compatDrawable, Colors.ORANGERED);
-                            conditionPanelBinding.alertButton.setBackground(compatDrawable);
-                        }
-
-                        conditionPanelBinding.alertButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                AnalyticsLogger.logEvent("WeatherNowFragment: alerts click");
-                                // Show Alert Fragment
-                                WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
-                                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                                                .setData(JSONParser.serializer(locationData, LocationData.class))
-                                                .setWeatherListType(WeatherListType.ALERTS);
-                                Navigation.findNavController(v).navigate(args);
-                            }
-                        });
-
-                        adjustConditionPanelLayout();
-
-                        parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 0));
-                    }
-                });
+            // Alerts
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                conditionPanelBinding.alertButton.setBackgroundTintList(ColorStateList.valueOf(Colors.ORANGERED));
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Drawable drawable = conditionPanelBinding.alertButton.getBackground().mutate();
+                drawable.setColorFilter(Colors.ORANGERED, PorterDuff.Mode.SRC_IN);
+                conditionPanelBinding.alertButton.setBackground(drawable);
+            } else {
+                Drawable origDrawable = ContextCompat.getDrawable(getAppCompatActivity(), R.drawable.light_round_corner_bg);
+                Drawable compatDrawable = DrawableCompat.wrap(origDrawable);
+                DrawableCompat.setTint(compatDrawable, Colors.ORANGERED);
+                conditionPanelBinding.alertButton.setBackground(compatDrawable);
             }
-        });
 
-        // Forecast
-        if (FeatureSettings.isForecastEnabled()) {
-            asyncLayoutInflater.inflate(R.layout.weathernow_forecastgraphpanel, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
+            conditionPanelBinding.alertButton.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
-                    runWithView(new Runnable() {
-                        @Override
-                        public void run() {
-                            forecastPanelBinding = DataBindingUtil.bind(view, dataBindingComponent);
-                            forecastPanelBinding.setForecastsView(forecastsView);
-                            forecastPanelBinding.setLifecycleOwner(getViewLifecycleOwner());
-
-                            forecastPanelBinding.forecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
-                                @Override
-                                public void onClick(View view, int position) {
-                                    AnalyticsLogger.logEvent("WeatherNowFragment: fcast graph click");
-
-                                    WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
-                                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                                                    .setData(JSONParser.serializer(locationData, LocationData.class))
-                                                    .setWeatherListType(WeatherListType.FORECAST)
-                                                    .setPosition(position);
-                                    Navigation.findNavController(view).navigate(args);
-                                }
-                            });
-
-                            parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 1));
-                        }
-                    });
+                public void onClick(View v) {
+                    AnalyticsLogger.logEvent("WeatherNowFragment: alerts click");
+                    // Show Alert Fragment
+                    WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
+                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                                    .setData(JSONParser.serializer(locationData, LocationData.class))
+                                    .setWeatherListType(WeatherListType.ALERTS);
+                    Navigation.findNavController(v).navigate(args);
                 }
             });
+
+            binding.listLayout.addView(conditionPanelBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 0));
+
+            adjustConditionPanelLayout();
+        }
+
+        if (FeatureSettings.isForecastEnabled()) {
+            // Forecast
+            forecastPanelBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_forecastgraphpanel, binding.listLayout, false, dataBindingComponent);
+            forecastPanelBinding.setForecastsView(forecastsView);
+            forecastPanelBinding.setLifecycleOwner(getViewLifecycleOwner());
+
+            forecastPanelBinding.forecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
+                @Override
+                public void onClick(View view, int position) {
+                    AnalyticsLogger.logEvent("WeatherNowFragment: fcast graph click");
+
+                    WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
+                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                                    .setData(JSONParser.serializer(locationData, LocationData.class))
+                                    .setWeatherListType(WeatherListType.FORECAST)
+                                    .setPosition(position);
+                    Navigation.findNavController(view).navigate(args);
+                }
+            });
+
+            binding.listLayout.addView(forecastPanelBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 1));
         }
 
         if (FeatureSettings.isHourlyForecastEnabled()) {
             // Hourly Forecast
-            asyncLayoutInflater.inflate(R.layout.weathernow_hrforecastgraphpanel, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
+            hrForecastPanelBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_hrforecastgraphpanel, binding.listLayout, false, dataBindingComponent);
+            hrForecastPanelBinding.setForecastsView(forecastsView);
+            hrForecastPanelBinding.setLifecycleOwner(getViewLifecycleOwner());
+
+            hrForecastPanelBinding.hourlyForecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
                 @Override
-                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
-                    runWithView(new Runnable() {
-                        @Override
-                        public void run() {
-                            hrForecastPanelBinding = DataBindingUtil.bind(view, dataBindingComponent);
-                            hrForecastPanelBinding.setForecastsView(forecastsView);
-                            hrForecastPanelBinding.setLifecycleOwner(getViewLifecycleOwner());
-
-                            hrForecastPanelBinding.hourlyForecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
-                                @Override
-                                public void onClick(View view, int position) {
-                                    AnalyticsLogger.logEvent("WeatherNowFragment: hrf graph click");
-                                    if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
-                                        WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
-                                                WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                                                        .setData(JSONParser.serializer(locationData, LocationData.class))
-                                                        .setWeatherListType(WeatherListType.HOURLYFORECAST)
-                                                        .setPosition(position);
-                                        Navigation.findNavController(view).navigate(args);
-                                    }
-                                }
-                            });
-
-                            parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 2));
-                        }
-                    });
+                public void onClick(View view, int position) {
+                    AnalyticsLogger.logEvent("WeatherNowFragment: hrf graph click");
+                    if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
+                        WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
+                                WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                                        .setData(JSONParser.serializer(locationData, LocationData.class))
+                                        .setWeatherListType(WeatherListType.HOURLYFORECAST)
+                                        .setPosition(position);
+                        Navigation.findNavController(view).navigate(args);
+                    }
                 }
             });
+
+            binding.listLayout.addView(hrForecastPanelBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 2));
         }
 
         if (FeatureSettings.isDetailsEnabled()) {
-            asyncLayoutInflater.inflate(R.layout.weathernow_detailscontainer, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
+            detailsContainerBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_detailscontainer, binding.listLayout, false, dataBindingComponent);
+
+            // Details
+            detailsContainerBinding.detailsContainer.setAdapter(new DetailsItemGridAdapter());
+
+            detailsContainerBinding.setWeatherView(weatherView);
+            detailsContainerBinding.setLifecycleOwner(getViewLifecycleOwner());
+
+            // Disable touch events on container
+            // View does not scroll
+            detailsContainerBinding.detailsContainer.setFocusable(false);
+            detailsContainerBinding.detailsContainer.setFocusableInTouchMode(false);
+            detailsContainerBinding.detailsContainer.setOnTouchListener(new View.OnTouchListener() {
                 @Override
-                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
-                    runWithView(new Runnable() {
-                        @Override
-                        public void run() {
-                            detailsContainerBinding = DataBindingUtil.bind(view, dataBindingComponent);
-
-                            // Details
-                            detailsContainerBinding.detailsContainer.setAdapter(new DetailsItemGridAdapter());
-
-                            detailsContainerBinding.setWeatherView(weatherView);
-                            detailsContainerBinding.setLifecycleOwner(getViewLifecycleOwner());
-
-                            // Disable touch events on container
-                            // View does not scroll
-                            detailsContainerBinding.detailsContainer.setFocusable(false);
-                            detailsContainerBinding.detailsContainer.setFocusableInTouchMode(false);
-                            detailsContainerBinding.detailsContainer.setOnTouchListener(new View.OnTouchListener() {
-                                @Override
-                                public boolean onTouch(View v, MotionEvent event) {
-                                    return true;
-                                }
-                            });
-
-                            adjustDetailsLayout();
-
-                            parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 3));
-                        }
-                    });
+                public boolean onTouch(View v, MotionEvent event) {
+                    return true;
                 }
             });
+
+            binding.listLayout.addView(detailsContainerBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 3));
+
+            adjustDetailsLayout();
         }
 
         if (FeatureSettings.isUVEnabled()) {
             // UV
-            asyncLayoutInflater.inflate(R.layout.weathernow_uvcontrol, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
-                @Override
-                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
-                    runWithView(new Runnable() {
-                        @Override
-                        public void run() {
-                            uvControlBinding = DataBindingUtil.bind(view, dataBindingComponent);
-                            uvControlBinding.setWeatherView(weatherView);
-                            uvControlBinding.setLifecycleOwner(getViewLifecycleOwner());
+            uvControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_uvcontrol, binding.listLayout, false, dataBindingComponent);
+            uvControlBinding.setWeatherView(weatherView);
+            uvControlBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-                            parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 4));
-                        }
-                    });
-                }
-            });
+            binding.listLayout.addView(uvControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 4));
         }
 
         if (FeatureSettings.isBeaufortEnabled()) {
             // Beaufort
-            asyncLayoutInflater.inflate(R.layout.weathernow_beaufortcontrol, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
-                @Override
-                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
-                    runWithView(new Runnable() {
-                        @Override
-                        public void run() {
-                            beaufortControlBinding = DataBindingUtil.bind(view, dataBindingComponent);
-                            beaufortControlBinding.setWeatherView(weatherView);
-                            beaufortControlBinding.setLifecycleOwner(getViewLifecycleOwner());
+            beaufortControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_beaufortcontrol, binding.listLayout, false, dataBindingComponent);
+            beaufortControlBinding.setWeatherView(weatherView);
+            beaufortControlBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-                            parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 5));
-                        }
-                    });
-                }
-            });
+            binding.listLayout.addView(beaufortControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 5));
         }
 
         if (FeatureSettings.isAQIndexEnabled()) {
             // Air Quality
-            asyncLayoutInflater.inflate(R.layout.weathernow_aqicontrol, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
-                @Override
-                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
-                    runWithView(new Runnable() {
-                        @Override
-                        public void run() {
-                            aqiControlBinding = DataBindingUtil.bind(view, dataBindingComponent);
-                            aqiControlBinding.setWeatherView(weatherView);
-                            aqiControlBinding.setLifecycleOwner(getViewLifecycleOwner());
+            aqiControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_aqicontrol, binding.listLayout, false, dataBindingComponent);
+            aqiControlBinding.setWeatherView(weatherView);
+            aqiControlBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-                            parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 6));
-                        }
-                    });
-                }
-            });
+            binding.listLayout.addView(aqiControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 6));
         }
 
         if (FeatureSettings.isMoonPhaseEnabled()) {
             // Moon Phase
-            asyncLayoutInflater.inflate(R.layout.weathernow_moonphasecontrol, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
-                @Override
-                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
-                    runWithView(new Runnable() {
-                        @Override
-                        public void run() {
-                            moonphaseControlBinding = DataBindingUtil.bind(view, dataBindingComponent);
-                            moonphaseControlBinding.setWeatherView(weatherView);
-                            moonphaseControlBinding.setLifecycleOwner(getViewLifecycleOwner());
+            moonphaseControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_moonphasecontrol, binding.listLayout, false, dataBindingComponent);
+            moonphaseControlBinding.setWeatherView(weatherView);
+            moonphaseControlBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-                            parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 7));
-                        }
-                    });
-                }
-            });
+            binding.listLayout.addView(moonphaseControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 7));
         }
 
         if (FeatureSettings.isSunPhaseEnabled()) {
             // Sun Phase
-            asyncLayoutInflater.inflate(R.layout.weathernow_sunphasecontrol, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
-                @Override
-                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
-                    runWithView(new Runnable() {
-                        @Override
-                        public void run() {
-                            sunphaseControlBinding = DataBindingUtil.bind(view, dataBindingComponent);
-                            sunphaseControlBinding.setWeatherView(weatherView);
-                            sunphaseControlBinding.setLifecycleOwner(getViewLifecycleOwner());
+            sunphaseControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_sunphasecontrol, binding.listLayout, false, dataBindingComponent);
+            sunphaseControlBinding.setWeatherView(weatherView);
+            sunphaseControlBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-                            parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 8));
-                        }
-                    });
-                }
-            });
+            binding.listLayout.addView(sunphaseControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 8));
         }
 
         // Radar
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && FeatureSettings.isRadarEnabled()) {
-            asyncLayoutInflater.inflate(R.layout.weathernow_radarcontrol, binding.listLayout, new AsyncLayoutInflater.OnInflateFinishedListener() {
+            radarControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_radarcontrol, binding.listLayout, false, dataBindingComponent);
+
+            radarControlBinding.radarWebviewCover.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onInflateFinished(@NonNull final View view, int resid, @Nullable final ViewGroup parent) {
-                    radarControlBinding = DataBindingUtil.bind(view, dataBindingComponent);
+                public void onClick(View v) {
+                    AnalyticsLogger.logEvent("WeatherNowFragment: radar view click");
 
-                    radarControlBinding.radarWebviewCover.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            AnalyticsLogger.logEvent("WeatherNowFragment: radar view click");
-
-                            Navigation.findNavController(v)
-                                    .navigate(
-                                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherRadarFragment(),
-                                            new FragmentNavigator.Extras.Builder()
-                                                    .addSharedElement(view, "radar")
-                                                    .build()
-                                    );
-                        }
-                    });
-
-                    ViewCompat.setTransitionName(view, "radar");
-
-                    /*
-                     * NOTE
-                     * Compat issue: bring container to the front
-                     * This is handled on API 21+ with the translationZ attribute
-                     */
-                    radarControlBinding.radarWebviewCover.bringToFront();
-
-                    radarControlBinding.setWeatherView(weatherView);
-                    radarControlBinding.setLifecycleOwner(getViewLifecycleOwner());
-
-                    parent.addView(view, Math.min(parent.getChildCount() <= 0 ? 0 : parent.getChildCount() - 1, 9));
-
-                    navigateToRadarURL();
+                    Navigation.findNavController(v)
+                            .navigate(
+                                    WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherRadarFragment(),
+                                    new FragmentNavigator.Extras.Builder()
+                                            .addSharedElement(v, "radar")
+                                            .build()
+                            );
                 }
             });
+
+            ViewCompat.setTransitionName(radarControlBinding.radarWebviewCover, "radar");
+
+            /*
+             * NOTE
+             * Compat issue: bring container to the front
+             * This is handled on API 21+ with the translationZ attribute
+             */
+            radarControlBinding.radarWebviewCover.bringToFront();
+
+            radarControlBinding.setWeatherView(weatherView);
+            radarControlBinding.setLifecycleOwner(getViewLifecycleOwner());
+
+            binding.listLayout.addView(radarControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 9));
+
+            navigateToRadarURL();
         }
 
         return view;
