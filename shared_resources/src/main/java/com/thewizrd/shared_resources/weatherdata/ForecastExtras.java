@@ -69,6 +69,12 @@ public class ForecastExtras extends CustomJsonObject {
     @SerializedName("visibility_km")
     private Float visibilityKm;
 
+    @SerializedName("windgust_mph")
+    private Float windGustMph;
+
+    @SerializedName("windgust_kph")
+    private Float windGustKph;
+
     public Float getFeelslikeF() {
         return feelslikeF;
     }
@@ -213,6 +219,22 @@ public class ForecastExtras extends CustomJsonObject {
         this.visibilityKm = visibilityKm;
     }
 
+    public Float getWindGustMph() {
+        return windGustMph;
+    }
+
+    public void setWindGustMph(Float windGustMph) {
+        this.windGustMph = windGustMph;
+    }
+
+    public Float getWindGustKph() {
+        return windGustKph;
+    }
+
+    public void setWindGustKph(Float windGustKph) {
+        this.windGustKph = windGustKph;
+    }
+
     @Override
     public void fromJson(JsonReader extReader) {
         try {
@@ -297,6 +319,12 @@ public class ForecastExtras extends CustomJsonObject {
                         break;
                     case "visibility_km":
                         this.visibilityKm = NumberUtils.tryParseFloat(reader.nextString());
+                        break;
+                    case "windgust_mph":
+                        this.windGustMph = NumberUtils.tryParseFloat(reader.nextString());
+                        break;
+                    case "windgust_kph":
+                        this.windGustKph = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     default:
                         break;
@@ -386,6 +414,14 @@ public class ForecastExtras extends CustomJsonObject {
             // "visibility_km" : ""
             writer.name("visibility_km");
             writer.value(visibilityKm);
+
+            // "windgust_mph" : ""
+            writer.name("windgust_mph");
+            writer.value(windGustMph);
+
+            // "windgust_kph" : ""
+            writer.name("windgust_kph");
+            writer.value(windGustKph);
 
             // }
             writer.endObject();

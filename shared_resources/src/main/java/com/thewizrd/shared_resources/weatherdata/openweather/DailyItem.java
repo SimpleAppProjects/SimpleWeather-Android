@@ -47,6 +47,9 @@ public class DailyItem {
     @SerializedName("wind_speed")
     private float windSpeed;
 
+    @SerializedName("wind_gust")
+    private Float windGust;
+
     @SerializedName("rain")
     private Float rain;
 
@@ -158,6 +161,14 @@ public class DailyItem {
 
     public void setWindSpeed(float windSpeed) {
         this.windSpeed = windSpeed;
+    }
+
+    public Float getWindGust() {
+        return windGust;
+    }
+
+    public void setWindGust(Float windGust) {
+        this.windGust = windGust;
     }
 
     public Float getRain() {

@@ -29,6 +29,9 @@ public class HourlyItem {
     @SerializedName("wind_speed")
     private float windSpeed;
 
+    @SerializedName("wind_gust")
+    private Float windGust;
+
     @SerializedName("pressure")
     private float pressure;
 
@@ -101,6 +104,14 @@ public class HourlyItem {
 
     public void setWindSpeed(float windSpeed) {
         this.windSpeed = windSpeed;
+    }
+
+    public Float getWindGust() {
+        return windGust;
+    }
+
+    public void setWindGust(Float windGust) {
+        this.windGust = windGust;
     }
 
     public float getPressure() {

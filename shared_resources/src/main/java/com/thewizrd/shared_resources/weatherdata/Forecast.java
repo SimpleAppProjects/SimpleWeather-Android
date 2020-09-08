@@ -95,6 +95,10 @@ public class Forecast extends CustomJsonObject {
             extras.setVisibilityKm(forecast.getVisibility().floatValue());
             extras.setVisibilityMi(ConversionMethods.kmToMi(extras.getVisibilityKm()));
         }
+        if (forecast.getWindGust() != null) {
+            extras.setWindGustMph((float) Math.round(ConversionMethods.msecToMph(forecast.getWindGust())));
+            extras.setWindGustKph((float) Math.round(ConversionMethods.msecToKph(forecast.getWindGust())));
+        }
         if (forecast.getRain() != null) {
             extras.setQpfRainMm(forecast.getRain());
             extras.setQpfRainIn(ConversionMethods.mmToIn(forecast.getRain()));

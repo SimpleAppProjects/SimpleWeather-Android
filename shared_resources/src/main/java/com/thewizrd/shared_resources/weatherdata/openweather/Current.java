@@ -50,6 +50,9 @@ public class Current {
     @SerializedName("wind_speed")
     private float windSpeed;
 
+    @SerializedName("wind_gust")
+    private Float windGust;
+
     @SerializedName("rain")
     private Rain rain;
 
@@ -166,6 +169,14 @@ public class Current {
 
     public void setWindSpeed(float windSpeed) {
         this.windSpeed = windSpeed;
+    }
+
+    public Float getWindGust() {
+        return windGust;
+    }
+
+    public void setWindGust(Float windGust) {
+        this.windGust = windGust;
     }
 
     public Rain getRain() {

@@ -470,6 +470,17 @@ public class WeatherNowViewModel extends ObservableViewModel {
                     weather.getCondition().getWindDegrees() + 180));
         }
 
+        if (weather.getCondition().getWindGustMph() != null &&
+                !ObjectsCompat.equals(weather.getCondition().getWindGustMph(), weather.getCondition().getWindGustKph())) {
+            int speedVal = Settings.isFahrenheit() ? Math.round(weather.getCondition().getWindGustMph()) : Math.round(weather.getCondition().getWindGustKph());
+            String speedUnit = Settings.isFahrenheit() ? "mph" : "kph";
+
+            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.WINDGUST,
+                            String.format(Locale.getDefault(), "%d %s", speedVal, speedUnit)
+                    )
+            );
+        }
+
         if (weather.getCondition().getBeaufort() != null) {
             if (isPhone) {
                 beaufort = new BeaufortViewModel(weather.getCondition().getBeaufort());

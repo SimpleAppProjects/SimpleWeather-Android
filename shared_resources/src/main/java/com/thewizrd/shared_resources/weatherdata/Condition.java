@@ -44,6 +44,12 @@ public class Condition extends CustomJsonObject {
     @SerializedName("wind_kph")
     private Float windKph;
 
+    @SerializedName("windgust_mph")
+    private Float windGustMph;
+
+    @SerializedName("windgust_kph")
+    private Float windGustKph;
+
     @SerializedName("feelslike_f")
     private Float feelslikeF;
 
@@ -106,6 +112,10 @@ public class Condition extends CustomJsonObject {
         windKph = ConversionMethods.msecToKph(current.getWindSpeed());
         feelslikeF = ConversionMethods.KtoF(current.getFeelsLike());
         feelslikeC = ConversionMethods.KtoC(current.getFeelsLike());
+        if (current.getWindGust() != null) {
+            windGustMph = ConversionMethods.msecToMph(current.getWindGust());
+            windGustKph = ConversionMethods.msecToKph(current.getWindGust());
+        }
 
         String ico = current.getWeather().get(0).getIcon();
         String dn = Character.toString(ico.charAt(ico.length() == 0 ? 0 : ico.length() - 1));
@@ -135,6 +145,10 @@ public class Condition extends CustomJsonObject {
         windKph = (float) Math.round(ConversionMethods.msecToKph(time.getData().getInstant().getDetails().getWindSpeed()));
         feelslikeF = WeatherUtils.getFeelsLikeTemp(tempF, windMph, Math.round(time.getData().getInstant().getDetails().getRelativeHumidity()));
         feelslikeC = ConversionMethods.FtoC(feelslikeF);
+        if (time.getData().getInstant().getDetails().getWindSpeedOfGust() != null) {
+            windGustMph = (float) Math.round(ConversionMethods.msecToMph(time.getData().getInstant().getDetails().getWindSpeedOfGust()));
+            windGustKph = (float) Math.round(ConversionMethods.msecToKph(time.getData().getInstant().getDetails().getWindSpeedOfGust()));
+        }
 
         if (time.getData().getNext12Hours() != null) {
             icon = time.getData().getNext12Hours().getSummary().getSymbolCode();
@@ -232,6 +246,11 @@ public class Condition extends CustomJsonObject {
             windMph = ConversionMethods.kphTomph(windKph);
         }
 
+        if (obsCurrentResponse.getWindGust().getValue() != null) {
+            windGustKph = obsCurrentResponse.getWindGust().getValue();
+            windGustMph = ConversionMethods.kphTomph(windGustKph);
+        }
+
         if (obsCurrentResponse.getHeatIndex().getValue() != null) {
             feelslikeC = obsCurrentResponse.getHeatIndex().getValue();
             feelslikeF = ConversionMethods.CtoF(feelslikeC);
@@ -300,6 +319,22 @@ public class Condition extends CustomJsonObject {
 
     public void setWindKph(Float windKph) {
         this.windKph = windKph;
+    }
+
+    public Float getWindGustMph() {
+        return windGustMph;
+    }
+
+    public void setWindGustMph(Float windGustMph) {
+        this.windGustMph = windGustMph;
+    }
+
+    public Float getWindGustKph() {
+        return windGustKph;
+    }
+
+    public void setWindGustKph(Float windGustKph) {
+        this.windGustKph = windGustKph;
     }
 
     public Float getFeelslikeF() {
@@ -439,6 +474,12 @@ public class Condition extends CustomJsonObject {
                     case "wind_kph":
                         this.windKph = NumberUtils.tryParseFloat(reader.nextString());
                         break;
+                    case "windgust_mph":
+                        this.windGustMph = NumberUtils.tryParseFloat(reader.nextString());
+                        break;
+                    case "windgust_kph":
+                        this.windGustKph = NumberUtils.tryParseFloat(reader.nextString());
+                        break;
                     case "feelslike_f":
                         this.feelslikeF = NumberUtils.tryParseFloat(reader.nextString());
                         break;
@@ -516,6 +557,14 @@ public class Condition extends CustomJsonObject {
             // "wind_kph" : ""
             writer.name("wind_kph");
             writer.value(windKph);
+
+            // "windgust_mph" : ""
+            writer.name("windgust_mph");
+            writer.value(windGustMph);
+
+            // "windgust_kph" : ""
+            writer.name("windgust_kph");
+            writer.value(windGustKph);
 
             // "feelslike_f" : ""
             writer.name("feelslike_f");

@@ -20,11 +20,11 @@ public class DetailItemViewModel {
     private CharSequence value;
     private int iconRotation;
 
-    public DetailItemViewModel(WeatherDetailsType detailsType, CharSequence value) {
+    public DetailItemViewModel(@NonNull WeatherDetailsType detailsType, CharSequence value) {
         this(detailsType, value, 0);
     }
 
-    public DetailItemViewModel(WeatherDetailsType detailsType, CharSequence value, int iconRotation) {
+    public DetailItemViewModel(@NonNull WeatherDetailsType detailsType, CharSequence value, int iconRotation) {
         Context context = SimpleLibrary.getInstance().getAppContext();
         this.detailsType = detailsType;
 
@@ -44,6 +44,10 @@ public class DetailItemViewModel {
             case WINDSPEED:
                 this.label = context.getString(R.string.label_wind);
                 this.icon = context.getString(R.string.wi_wind_direction);
+                break;
+            case WINDGUST:
+                this.label = context.getString(R.string.label_wind);
+                this.icon = context.getString(R.string.wi_cloudy_gusts);
                 break;
             case HUMIDITY:
                 this.label = context.getString(R.string.label_humidity);
@@ -107,7 +111,7 @@ public class DetailItemViewModel {
         this.iconRotation = iconRotation;
     }
 
-    public DetailItemViewModel(MoonPhase.MoonPhaseType moonPhaseType, CharSequence description) {
+    public DetailItemViewModel(@NonNull MoonPhase.MoonPhaseType moonPhaseType, CharSequence description) {
         Context context = SimpleLibrary.getInstance().getAppContext();
         this.detailsType = WeatherDetailsType.MOONPHASE;
 
@@ -143,7 +147,7 @@ public class DetailItemViewModel {
         }
     }
 
-    public DetailItemViewModel(Beaufort.BeaufortScale beaufortScale, CharSequence description) {
+    public DetailItemViewModel(@NonNull Beaufort.BeaufortScale beaufortScale, CharSequence description) {
         Context context = SimpleLibrary.getInstance().getAppContext();
         this.detailsType = WeatherDetailsType.BEAUFORT;
 
@@ -194,7 +198,7 @@ public class DetailItemViewModel {
         }
     }
 
-    public DetailItemViewModel(AirQuality aqi) {
+    public DetailItemViewModel(@NonNull AirQuality aqi) {
         Context context = SimpleLibrary.getInstance().getAppContext();
         this.detailsType = WeatherDetailsType.AIRQUALITY;
         this.label = context.getString(R.string.label_airquality_short);

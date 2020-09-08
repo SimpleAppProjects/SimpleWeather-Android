@@ -33,6 +33,7 @@
     <string name="label_visibility">Visibility</string>
     <string name="label_feelslike">Feels Like</string>
     <string name="label_wind">Wind</string>
+    <string name="label_windgust">Wind Gust</string>
     <string name="label_forecast">Forecast</string>
     <string name="label_condition">Condition</string>
     <string name="label_sunriseset">Sunrise / Sunset</string>

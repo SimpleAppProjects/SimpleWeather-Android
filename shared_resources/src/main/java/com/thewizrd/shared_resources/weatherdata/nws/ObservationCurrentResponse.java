@@ -9,8 +9,8 @@ public class ObservationCurrentResponse {
     @SerializedName("dewpoint")
     private Dewpoint dewpoint;
 
-    //@SerializedName("windGust")
-    //private WindGust windGust;
+    @SerializedName("windGust")
+    private WindGust windGust;
 
     //@SerializedName("@type")
     //private String type;
@@ -80,7 +80,6 @@ public class ObservationCurrentResponse {
         return dewpoint;
     }
 
-    /*
     public void setWindGust(WindGust windGust) {
         this.windGust = windGust;
     }
@@ -89,6 +88,7 @@ public class ObservationCurrentResponse {
         return windGust;
     }
 
+    /*
     public void setType(String type) {
         this.type = type;
     }

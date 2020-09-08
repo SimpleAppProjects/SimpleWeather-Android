@@ -111,6 +111,10 @@ public class HourlyForecast extends CustomJsonObject {
         extras.setWindDegrees(windDegrees);
         extras.setWindMph(windMph);
         extras.setWindKph(windKph);
+        if (hr_forecast.getWindGust() != null) {
+            extras.setWindGustMph((float) Math.round(ConversionMethods.msecToMph(hr_forecast.getWindGust())));
+            extras.setWindGustKph((float) Math.round(ConversionMethods.msecToKph(hr_forecast.getWindGust())));
+        }
         if (hr_forecast.getVisibility() != null) {
             extras.setVisibilityKm(hr_forecast.getVisibility().floatValue());
             extras.setVisibilityMi(ConversionMethods.kmToMi(extras.getVisibilityKm()));
@@ -158,6 +162,10 @@ public class HourlyForecast extends CustomJsonObject {
         extras.setWindDegrees(windDegrees);
         extras.setWindMph(windMph);
         extras.setWindKph(windKph);
+        if (hr_forecast.getData().getInstant().getDetails().getWindSpeedOfGust() != null) {
+            extras.setWindGustMph((float) Math.round(ConversionMethods.msecToMph(hr_forecast.getData().getInstant().getDetails().getWindSpeedOfGust())));
+            extras.setWindGustKph((float) Math.round(ConversionMethods.msecToKph(hr_forecast.getData().getInstant().getDetails().getWindSpeedOfGust())));
+        }
         if (hr_forecast.getData().getInstant().getDetails().getFogAreaFraction() != null) {
             float visMi = 10.0f;
             extras.setVisibilityMi((visMi - (visMi * hr_forecast.getData().getInstant().getDetails().getFogAreaFraction() / 100)));

@@ -148,6 +148,14 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
                         String.format(Locale.getDefault(), "%s, %s", windSpeed, windDir), windDirection));
             }
 
+            if (forecast.getExtras().getWindGustMph() != null && forecast.getExtras().getWindGustKph() != null && forecast.getExtras().getWindGustMph() >= 0) {
+                int speedVal = Settings.isFahrenheit() ? Math.round(forecast.getExtras().getWindGustMph()) : Math.round(forecast.getExtras().getWindGustKph());
+                String speedUnit = Settings.isFahrenheit() ? "mph" : "kph";
+
+                String windGustSpeed = String.format(Locale.getDefault(), "%d %s", speedVal, speedUnit);
+                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.WINDGUST, windGustSpeed));
+            }
+
             if (forecast.getExtras().getVisibilityMi() != null && forecast.getExtras().getVisibilityMi() >= 0) {
                 float visibilityVal = Settings.isFahrenheit() ? forecast.getExtras().getVisibilityMi() : forecast.getExtras().getVisibilityKm();
                 String visibilityUnit = Settings.isFahrenheit() ? "mi" : "km";
