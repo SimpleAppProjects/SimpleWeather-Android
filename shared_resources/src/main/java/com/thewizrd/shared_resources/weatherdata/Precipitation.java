@@ -21,6 +21,9 @@ public class Precipitation extends CustomJsonObject {
     @SerializedName("pop")
     private Integer pop;
 
+    @SerializedName("cloudiness")
+    private Integer cloudiness;
+
     @SerializedName("qpf_rain_in")
     private Float qpfRainIn;
 
@@ -40,7 +43,7 @@ public class Precipitation extends CustomJsonObject {
 
     public Precipitation(com.thewizrd.shared_resources.weatherdata.openweather.Current current) {
         // Use cloudiness value here
-        pop = current.getClouds();
+        cloudiness = current.getClouds();
         if (current.getRain() != null) {
             qpfRainIn = ConversionMethods.mmToIn(current.getRain().get_1h());
             qpfRainMm = current.getRain().get_1h();
@@ -53,7 +56,17 @@ public class Precipitation extends CustomJsonObject {
 
     public Precipitation(com.thewizrd.shared_resources.weatherdata.metno.TimeseriesItem time) {
         // Use cloudiness value here
-        pop = Math.round(time.getData().getInstant().getDetails().getCloudAreaFraction());
+        cloudiness = Math.round(time.getData().getInstant().getDetails().getCloudAreaFraction());
+        // Precipitation
+        if (time.getData().getInstant().getDetails() != null && time.getData().getInstant().getDetails().getProbabilityOfPrecipitation() != null) {
+            pop = Math.round(time.getData().getInstant().getDetails().getProbabilityOfPrecipitation());
+        } else if (time.getData().getNext1Hours() != null && time.getData().getNext1Hours().getDetails() != null && time.getData().getNext1Hours().getDetails().getProbabilityOfPrecipitation() != null) {
+            pop = Math.round(time.getData().getNext1Hours().getDetails().getProbabilityOfPrecipitation());
+        } else if (time.getData().getNext6Hours() != null && time.getData().getNext6Hours().getDetails() != null && time.getData().getNext6Hours().getDetails().getProbabilityOfPrecipitation() != null) {
+            pop = Math.round(time.getData().getNext6Hours().getDetails().getProbabilityOfPrecipitation());
+        } else if (time.getData().getNext12Hours() != null && time.getData().getNext12Hours().getDetails() != null && time.getData().getNext12Hours().getDetails().getProbabilityOfPrecipitation() != null) {
+            pop = Math.round(time.getData().getNext12Hours().getDetails().getProbabilityOfPrecipitation());
+        }
         // The rest DNE
     }
 
@@ -94,6 +107,14 @@ public class Precipitation extends CustomJsonObject {
 
     public void setPop(Integer pop) {
         this.pop = pop;
+    }
+
+    public Integer getCloudiness() {
+        return cloudiness;
+    }
+
+    public void setCloudiness(Integer cloudiness) {
+        this.cloudiness = cloudiness;
     }
 
     public Float getQpfRainIn() {
@@ -162,6 +183,9 @@ public class Precipitation extends CustomJsonObject {
                     case "pop":
                         this.pop = NumberUtils.tryParseInt(reader.nextString());
                         break;
+                    case "cloudiness":
+                        this.cloudiness = NumberUtils.tryParseInt(reader.nextString());
+                        break;
                     case "qpf_rain_in":
                         this.qpfRainIn = NumberUtils.tryParseFloat(reader.nextString());
                         break;
@@ -195,6 +219,10 @@ public class Precipitation extends CustomJsonObject {
             // "pop" : ""
             writer.name("pop");
             writer.value(pop);
+
+            // "cloudiness" : ""
+            writer.name("cloudiness");
+            writer.value(cloudiness);
 
             // "qpf_rain_in" : ""
             writer.name("qpf_rain_in");

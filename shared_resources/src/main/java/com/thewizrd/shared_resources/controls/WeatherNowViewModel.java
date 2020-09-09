@@ -343,40 +343,23 @@ public class WeatherNowViewModel extends ObservableViewModel {
         weatherDetails.clear();
         // Precipitation
         if (weather.getPrecipitation() != null) {
-            String chance = weather.getPrecipitation().getPop() != null ? weather.getPrecipitation().getPop() + "%" : null;
-
-            if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
-                if (weather.getPrecipitation().getQpfRainIn() != null && weather.getPrecipitation().getQpfRainIn() >= 0) {
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN,
-                            Settings.isFahrenheit() ?
-                                    String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfRainIn()) :
-                                    String.format(Locale.getDefault(), "%.2f mm", weather.getPrecipitation().getQpfRainMm())));
-                }
-                if (weather.getPrecipitation().getQpfSnowIn() != null && weather.getPrecipitation().getQpfSnowIn() >= 0) {
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW,
-                            Settings.isFahrenheit() ?
-                                    String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfSnowIn()) :
-                                    String.format(Locale.getDefault(), "%.2f cm", weather.getPrecipitation().getQpfSnowCm())));
-                }
-                if (weather.getPrecipitation().getPop() != null && weather.getPrecipitation().getPop() >= 0) {
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, chance));
-                }
-            } else {
-                if (weather.getPrecipitation().getPop() != null && weather.getPrecipitation().getPop() >= 0) {
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, chance));
-                }
-                if (weather.getPrecipitation().getQpfRainIn() != null && weather.getPrecipitation().getQpfRainIn() >= 0) {
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN,
-                            Settings.isFahrenheit() ?
-                                    String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfRainIn()) :
-                                    String.format(Locale.getDefault(), "%.2f mm", weather.getPrecipitation().getQpfRainMm())));
-                }
-                if (weather.getPrecipitation().getQpfSnowIn() != null && weather.getPrecipitation().getQpfSnowIn() >= 0) {
-                    weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW,
-                            Settings.isFahrenheit() ?
-                                    String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfSnowIn()) :
-                                    String.format(Locale.getDefault(), "%.2f cm", weather.getPrecipitation().getQpfSnowCm())));
-                }
+            if (weather.getPrecipitation().getPop() != null && weather.getPrecipitation().getPop() >= 0) {
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, weather.getPrecipitation().getPop() + "%"));
+            }
+            if (weather.getPrecipitation().getQpfRainIn() != null && weather.getPrecipitation().getQpfRainIn() >= 0) {
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN,
+                        Settings.isFahrenheit() ?
+                                String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfRainIn()) :
+                                String.format(Locale.getDefault(), "%.2f mm", weather.getPrecipitation().getQpfRainMm())));
+            }
+            if (weather.getPrecipitation().getQpfSnowIn() != null && weather.getPrecipitation().getQpfSnowIn() >= 0) {
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW,
+                        Settings.isFahrenheit() ?
+                                String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfSnowIn()) :
+                                String.format(Locale.getDefault(), "%.2f cm", weather.getPrecipitation().getQpfSnowCm())));
+            }
+            if (weather.getPrecipitation().getCloudiness() != null && weather.getPrecipitation().getCloudiness() >= 0) {
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, weather.getPrecipitation().getCloudiness() + "%"));
             }
         }
 

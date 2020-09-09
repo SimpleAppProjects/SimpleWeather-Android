@@ -36,6 +36,9 @@ public class ForecastExtras extends CustomJsonObject {
     @SerializedName("pop")
     private Integer pop;
 
+    @SerializedName("cloudiness")
+    private Integer cloudiness;
+
     @SerializedName("qpf_rain_in")
     private Float qpfRainIn;
 
@@ -129,6 +132,14 @@ public class ForecastExtras extends CustomJsonObject {
 
     public void setPop(Integer pop) {
         this.pop = pop;
+    }
+
+    public Integer getCloudiness() {
+        return cloudiness;
+    }
+
+    public void setCloudiness(Integer cloudiness) {
+        this.cloudiness = cloudiness;
     }
 
     public Float getQpfRainIn() {
@@ -287,6 +298,9 @@ public class ForecastExtras extends CustomJsonObject {
                     case "pop":
                         this.pop = NumberUtils.tryParseInt(reader.nextString());
                         break;
+                    case "cloudiness":
+                        this.cloudiness = NumberUtils.tryParseInt(reader.nextString());
+                        break;
                     case "qpf_rain_in":
                         this.qpfRainIn = NumberUtils.tryParseFloat(reader.nextString());
                         break;
@@ -370,6 +384,10 @@ public class ForecastExtras extends CustomJsonObject {
             // "pop" : ""
             writer.name("pop");
             writer.value(pop);
+
+            // "cloudiness" : ""
+            writer.name("cloudiness");
+            writer.value(cloudiness);
 
             // "qpf_rain_in" : ""
             writer.name("qpf_rain_in");

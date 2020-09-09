@@ -23,6 +23,9 @@ public class DailyItem {
     @SerializedName("clouds")
     private int clouds;
 
+    @SerializedName("pop")
+    private Float pop;
+
     @SerializedName("feels_like")
     private FeelsLike feelsLike;
 
@@ -97,6 +100,14 @@ public class DailyItem {
 
     public void setClouds(int clouds) {
         this.clouds = clouds;
+    }
+
+    public Float getPop() {
+        return pop;
+    }
+
+    public void setPop(Float pop) {
+        this.pop = pop;
     }
 
     public FeelsLike getFeelsLike() {

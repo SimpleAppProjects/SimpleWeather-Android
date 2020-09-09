@@ -172,6 +172,31 @@ class DBMigrations {
         }
     };
 
+    static final Migration W_MIGRATION_6_7 = new Migration(6, 7) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // Update data
+            Cursor weatherCursor = database.query("SELECT * from weatherdata WHERE `source` = 'openweather' OR `source` = 'Metno'");
+            try {
+                while (weatherCursor.moveToNext()) {
+                    String query = weatherCursor.getString(weatherCursor.getColumnIndex("query"));
+
+                    // Update forecasts
+                    database.execSQL("UPDATE forecasts SET `forecastblob` = `REPLACE`(`forecastblob`, ?, ?) WHERE `query` = ?",
+                            new Object[]{"\"pop\"", "\"cloudiness\"", query});
+                    database.execSQL("UPDATE hr_forecasts SET `hrforecastblob` = `REPLACE`(`hrforecastblob`, ?, ?) WHERE `query` = ?",
+                            new Object[]{"\"pop\"", "\"cloudiness\"", query});
+
+                    // Update weather data
+                    database.execSQL("UPDATE weatherdata SET `precipitationblob` = `REPLACE`(`precipitationblob`, ?, ?) WHERE `query` = ?",
+                            new Object[]{"\"pop\"", "\"cloudiness\"", query});
+                }
+            } finally {
+                weatherCursor.close();
+            }
+        }
+    };
+
     static final Migration LOC_MIGRATION_4_5 = new Migration(4, 5) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
@@ -184,6 +209,21 @@ class DBMigrations {
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             // Since we didn't alter the table, there's nothing else to do here.
         }
+    };
+
+    static final Migration LOC_MIGRATION_6_7 = new Migration(6, 7) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // Since we didn't alter the table, there's nothing else to do here.
+        }
+    };
+
+    static final Migration[] LOC_MIGRATION_SET = new Migration[]{
+            MIGRATION_0_3, LOC_MIGRATION_3_4, LOC_MIGRATION_4_5, LOC_MIGRATION_5_6, LOC_MIGRATION_6_7
+    };
+
+    static final Migration[] W_MIGRATION_SET = new Migration[]{
+            MIGRATION_0_3, W_MIGRATION_3_4, W_MIGRATION_4_5, W_MIGRATION_5_6, W_MIGRATION_6_7
     };
 
     static void performMigrations(final WeatherDatabase weatherDB, final LocationsDatabase locationDB) {

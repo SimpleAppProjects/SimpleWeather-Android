@@ -322,6 +322,7 @@ public class WeatherDataLoader {
 
                     if (weather.getPrecipitation() != null) {
                         weather.getPrecipitation().setPop(hrf.getExtras() != null && hrf.getExtras().getPop() != null ? hrf.getExtras().getPop() : null);
+                        weather.getPrecipitation().setCloudiness(hrf.getExtras() != null && hrf.getExtras().getCloudiness() != null ? hrf.getExtras().getCloudiness() : null);
                         weather.getPrecipitation().setQpfRainIn(hrf.getExtras() != null && hrf.getExtras().getQpfRainIn() != null && hrf.getExtras().getQpfRainIn() >= 0 ? hrf.getExtras().getQpfRainIn() : 0.0f);
                         weather.getPrecipitation().setQpfRainMm(hrf.getExtras() != null && hrf.getExtras().getQpfRainMm() != null && hrf.getExtras().getQpfRainMm() >= 0 ? hrf.getExtras().getQpfRainMm() : 0.0f);
                         weather.getPrecipitation().setQpfSnowIn(hrf.getExtras() != null && hrf.getExtras().getQpfSnowIn() != null && hrf.getExtras().getQpfSnowIn() >= 0 ? hrf.getExtras().getQpfSnowIn() : 0.0f);

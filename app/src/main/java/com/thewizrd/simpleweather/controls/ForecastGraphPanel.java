@@ -19,23 +19,26 @@ import androidx.core.graphics.ColorUtils;
 import androidx.core.view.ViewGroupCompat;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
+import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
-import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
+import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.lineview.LineDataSeries;
 import com.thewizrd.simpleweather.controls.lineview.LineView;
 import com.thewizrd.simpleweather.controls.lineview.XLabelData;
 import com.thewizrd.simpleweather.controls.lineview.YEntryData;
+
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -161,19 +164,16 @@ public class ForecastGraphPanel extends LinearLayout {
         int count = 1;
         BaseForecastItemViewModel first = forecasts != null && forecasts.size() > 0 ? forecasts.get(0) : null;
 
-        if (first instanceof ForecastItemViewModel) {
-            if (!StringUtils.isNullOrWhitespace(first.getWindSpeed()))
+        if (first != null) {
+            if (first.getWindSpeed() != null && !StringUtils.isNullOrWhitespace(first.getWindSpeed()))
                 count++;
-            if (first.getPop() != null && !StringUtils.isNullOrWhitespace(first.getPop().replace("%", "")))
+            if (first.getExtras() != null && Iterables.find(first.getExtras(), new Predicate<DetailItemViewModel>() {
+                @Override
+                public boolean apply(@NullableDecl DetailItemViewModel input) {
+                    return input != null && input.getDetailsType() == WeatherDetailsType.POPCHANCE;
+                }
+            }, null) != null)
                 count++;
-        } else if (first instanceof HourlyForecastItemViewModel) {
-            if (Settings.getAPI().equals(WeatherAPI.OPENWEATHERMAP) ||
-                    Settings.getAPI().equals(WeatherAPI.METNO) ||
-                    Settings.getAPI().equals(WeatherAPI.NWS)) {
-                count = 2;
-            } else {
-                count = 3;
-            }
         }
 
         if (tabLayout.getTabCount() == 0) {
@@ -426,14 +426,25 @@ public class ForecastGraphPanel extends LinearLayout {
 
             for (int i = 0; i < forecasts.size(); i++) {
                 BaseForecastItemViewModel forecastItemViewModel = forecasts.get(i);
+                DetailItemViewModel popModel = null;
+                if (forecastItemViewModel.getExtras() != null) {
+                    popModel = Iterables.find(forecastItemViewModel.getExtras(), new Predicate<DetailItemViewModel>() {
+                        @Override
+                        public boolean apply(@NullableDecl DetailItemViewModel input) {
+                            return input != null && input.getDetailsType() == WeatherDetailsType.POPCHANCE;
+                        }
+                    }, null);
+                }
 
                 try {
-                    float pop = Float.parseFloat(StringUtils.removeNonDigitChars(forecastItemViewModel.getPop()));
-                    YEntryData popData = new YEntryData(pop, forecastItemViewModel.getPop().trim());
+                    if (popModel != null) {
+                        float pop = Float.parseFloat(StringUtils.removeNonDigitChars(popModel.getValue()));
+                        YEntryData popData = new YEntryData(pop, popModel.getValue());
 
-                    popDataSet.add(popData);
-                    XLabelData xLabelData = new XLabelData(forecastItemViewModel.getDate(), context.getString(R.string.wi_raindrop), 0);
-                    labelData.add(xLabelData);
+                        popDataSet.add(popData);
+                        XLabelData xLabelData = new XLabelData(forecastItemViewModel.getDate(), context.getString(R.string.wi_raindrop), 0);
+                        labelData.add(xLabelData);
+                    }
                 } catch (NumberFormatException ex) {
                     Logger.writeLine(Log.DEBUG, ex);
                 }

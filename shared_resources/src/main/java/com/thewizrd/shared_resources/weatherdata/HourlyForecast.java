@@ -40,9 +40,6 @@ public class HourlyForecast extends CustomJsonObject {
     @SerializedName("icon")
     private String icon;
 
-    @SerializedName("pop")
-    private Integer pop;
-
     @SerializedName("wind_degrees")
     private Integer windDegrees;
 
@@ -91,8 +88,6 @@ public class HourlyForecast extends CustomJsonObject {
         icon = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
                 .getWeatherIcon(hr_forecast.getWeather().get(0).getId() + dn);
 
-        // Use cloudiness value here
-        pop = hr_forecast.getClouds();
         windDegrees = hr_forecast.getWindDeg();
         windMph = (float) Math.round(ConversionMethods.msecToMph(hr_forecast.getWindSpeed()));
         windKph = (float) Math.round(ConversionMethods.msecToKph(hr_forecast.getWindSpeed()));
@@ -100,11 +95,14 @@ public class HourlyForecast extends CustomJsonObject {
         // Extras
         extras = new ForecastExtras();
         extras.setFeelslikeF(ConversionMethods.KtoF(hr_forecast.getFeelsLike()));
-        extras.setFeelslikeC(ConversionMethods.FtoC(hr_forecast.getFeelsLike()));
+        extras.setFeelslikeC(ConversionMethods.KtoC(hr_forecast.getFeelsLike()));
         extras.setDewpointF(ConversionMethods.KtoF(hr_forecast.getDewPoint()));
-        extras.setDewpointC(ConversionMethods.FtoC(hr_forecast.getDewPoint()));
+        extras.setDewpointC(ConversionMethods.KtoC(hr_forecast.getDewPoint()));
         extras.setHumidity(hr_forecast.getHumidity());
-        extras.setPop(pop);
+        extras.setCloudiness(hr_forecast.getClouds());
+        if (hr_forecast.getPop() != null) {
+            extras.setPop(Math.round(hr_forecast.getPop() * 100));
+        }
         // 1hPA = 1mbar
         extras.setPressureMb(hr_forecast.getPressure());
         extras.setPressureIn(ConversionMethods.mbToInHg(hr_forecast.getPressure()));
@@ -116,7 +114,7 @@ public class HourlyForecast extends CustomJsonObject {
             extras.setWindGustKph((float) Math.round(ConversionMethods.msecToKph(hr_forecast.getWindGust())));
         }
         if (hr_forecast.getVisibility() != null) {
-            extras.setVisibilityKm(hr_forecast.getVisibility().floatValue());
+            extras.setVisibilityKm(hr_forecast.getVisibility().floatValue() / 1000);
             extras.setVisibilityMi(ConversionMethods.kmToMi(extras.getVisibilityKm()));
         }
         if (hr_forecast.getRain() != null) {
@@ -134,8 +132,6 @@ public class HourlyForecast extends CustomJsonObject {
         setDate(ZonedDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(hr_forecast.getTime())), ZoneOffset.UTC));
         highF = ConversionMethods.CtoF(hr_forecast.getData().getInstant().getDetails().getAirTemperature());
         highC = hr_forecast.getData().getInstant().getDetails().getAirTemperature();
-        // Use cloudiness value here
-        pop = Math.round(hr_forecast.getData().getInstant().getDetails().getCloudAreaFraction());
         windDegrees = Math.round(hr_forecast.getData().getInstant().getDetails().getWindFromDirection());
         windMph = (float) Math.round(ConversionMethods.msecToMph(hr_forecast.getData().getInstant().getDetails().getWindSpeed()));
         windKph = (float) Math.round(ConversionMethods.msecToKph(hr_forecast.getData().getInstant().getDetails().getWindSpeed()));
@@ -156,7 +152,19 @@ public class HourlyForecast extends CustomJsonObject {
         extras.setHumidity(Math.round(humidity));
         extras.setDewpointF(ConversionMethods.CtoF(hr_forecast.getData().getInstant().getDetails().getDewPointTemperature()));
         extras.setDewpointC(hr_forecast.getData().getInstant().getDetails().getDewPointTemperature());
-        extras.setPop(pop);
+        if (hr_forecast.getData().getInstant().getDetails().getCloudAreaFraction() != null) {
+            extras.setCloudiness(Math.round(hr_forecast.getData().getInstant().getDetails().getCloudAreaFraction()));
+        }
+        // Precipitation
+        if (hr_forecast.getData().getInstant().getDetails().getProbabilityOfPrecipitation() != null) {
+            extras.setPop(Math.round(hr_forecast.getData().getInstant().getDetails().getProbabilityOfPrecipitation()));
+        } else if (hr_forecast.getData().getNext1Hours() != null && hr_forecast.getData().getNext1Hours().getDetails() != null && hr_forecast.getData().getNext1Hours().getDetails().getProbabilityOfPrecipitation() != null) {
+            extras.setPop(Math.round(hr_forecast.getData().getNext1Hours().getDetails().getProbabilityOfPrecipitation()));
+        } else if (hr_forecast.getData().getNext6Hours() != null && hr_forecast.getData().getNext6Hours().getDetails() != null && hr_forecast.getData().getNext6Hours().getDetails().getProbabilityOfPrecipitation() != null) {
+            extras.setPop(Math.round(hr_forecast.getData().getNext6Hours().getDetails().getProbabilityOfPrecipitation()));
+        } else if (hr_forecast.getData().getNext12Hours() != null && hr_forecast.getData().getNext12Hours().getDetails() != null && hr_forecast.getData().getNext12Hours().getDetails().getProbabilityOfPrecipitation() != null) {
+            extras.setPop(Math.round(hr_forecast.getData().getNext12Hours().getDetails().getProbabilityOfPrecipitation()));
+        }
         extras.setPressureIn(ConversionMethods.mbToInHg(hr_forecast.getData().getInstant().getDetails().getAirPressureAtSeaLevel()));
         extras.setPressureMb(hr_forecast.getData().getInstant().getDetails().getAirPressureAtSeaLevel());
         extras.setWindDegrees(windDegrees);
@@ -188,10 +196,6 @@ public class HourlyForecast extends CustomJsonObject {
         icon = WeatherManager.getProvider(WeatherAPI.HERE)
                 .getWeatherIcon(String.format("%s_%s", hr_forecast.getDaylight(), hr_forecast.getIconName()));
 
-        Integer POP = NumberUtils.tryParseInt(hr_forecast.getPrecipitationProbability());
-        if (POP != null) {
-            pop = POP;
-        }
         Integer windDeg = NumberUtils.tryParseInt(hr_forecast.getWindDirection());
         if (windDeg != null) {
             windDegrees = windDeg;
@@ -223,7 +227,7 @@ public class HourlyForecast extends CustomJsonObject {
             extras.setVisibilityMi(visibilityMI);
             extras.setVisibilityKm(ConversionMethods.miToKm(visibilityMI));
         }
-        extras.setPop(pop);
+        extras.setPop(NumberUtils.tryParseInt(hr_forecast.getPrecipitationProbability()));
         Float rain_in = NumberUtils.tryParseFloat(hr_forecast.getRainFall());
         if (rain_in != null) {
             extras.setQpfRainIn(rain_in);
@@ -251,7 +255,6 @@ public class HourlyForecast extends CustomJsonObject {
         condition = forecastItem.getShortForecast();
         icon = WeatherManager.getProvider(WeatherAPI.NWS)
                 .getWeatherIcon(forecastItem.getIcon());
-        pop = null;
 
         if (forecastItem.getWindSpeed() != null && forecastItem.getWindDirection() != null) {
             windDegrees = WeatherUtils.getWindDirection(forecastItem.getWindDirection());
@@ -325,14 +328,6 @@ public class HourlyForecast extends CustomJsonObject {
 
     public void setIcon(String icon) {
         this.icon = icon;
-    }
-
-    public Integer getPop() {
-        return pop;
-    }
-
-    public void setPop(Integer pop) {
-        this.pop = pop;
     }
 
     public Integer getWindDegrees() {
@@ -413,9 +408,6 @@ public class HourlyForecast extends CustomJsonObject {
                     case "icon":
                         this.icon = reader.nextString();
                         break;
-                    case "pop":
-                        this.pop = NumberUtils.tryParseInt(reader.nextString());
-                        break;
                     case "wind_degrees":
                         this.windDegrees = NumberUtils.tryParseInt(reader.nextString());
                         break;
@@ -466,10 +458,6 @@ public class HourlyForecast extends CustomJsonObject {
             // "icon" : ""
             writer.name("icon");
             writer.value(icon);
-
-            // "pop" : ""
-            writer.name("pop");
-            writer.value(pop);
 
             // "wind_degrees" : ""
             writer.name("wind_degrees");

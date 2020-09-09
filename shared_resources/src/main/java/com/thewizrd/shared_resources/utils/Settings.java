@@ -56,8 +56,8 @@ public class Settings {
     // Database
     private static LocationsDatabase locationDB;
     private static WeatherDatabase weatherDB;
-    // NOTE: Remember to add migrations for all databases when updating version
-    public static final int CURRENT_DBVERSION = 6;
+    // NOTE: Remember to add migrations for ALL databases when updating version
+    public static final int CURRENT_DBVERSION = 7;
 
     // Data
     private static final int CACHE_LIMIT = 25;
@@ -218,7 +218,7 @@ public class Settings {
         if (IS_PHONE && locationDB == null) {
             locationDB = Room.databaseBuilder(context,
                     LocationsDatabase.class, "locations.db")
-                    .addMigrations(DBMigrations.MIGRATION_0_3, DBMigrations.LOC_MIGRATION_3_4, DBMigrations.LOC_MIGRATION_4_5, DBMigrations.LOC_MIGRATION_5_6)
+                    .addMigrations(DBMigrations.LOC_MIGRATION_SET)
                     .fallbackToDestructiveMigration()
                     .build();
         }
@@ -226,7 +226,7 @@ public class Settings {
         if (weatherDB == null) {
             weatherDB = Room.databaseBuilder(context,
                     WeatherDatabase.class, "weatherdata.db")
-                    .addMigrations(DBMigrations.MIGRATION_0_3, DBMigrations.W_MIGRATION_3_4, DBMigrations.W_MIGRATION_4_5, DBMigrations.W_MIGRATION_5_6)
+                    .addMigrations(DBMigrations.W_MIGRATION_SET)
                     .fallbackToDestructiveMigration()
                     .build();
         }

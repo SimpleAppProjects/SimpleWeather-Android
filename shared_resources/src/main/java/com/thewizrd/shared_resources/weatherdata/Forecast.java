@@ -83,7 +83,10 @@ public class Forecast extends CustomJsonObject {
         extras.setDewpointF(ConversionMethods.KtoF(forecast.getDewPoint()));
         extras.setDewpointC(ConversionMethods.KtoC(forecast.getDewPoint()));
         extras.setHumidity(forecast.getHumidity());
-        extras.setPop(forecast.getClouds());
+        if (forecast.getPop() != null) {
+            extras.setPop(Math.round(forecast.getPop() * 100));
+        }
+        extras.setCloudiness(forecast.getClouds());
         // 1hPA = 1mbar
         extras.setPressureMb(forecast.getPressure());
         extras.setPressureIn(ConversionMethods.mbToInHg(forecast.getPressure()));
@@ -92,7 +95,7 @@ public class Forecast extends CustomJsonObject {
         extras.setWindKph((float) Math.round(ConversionMethods.msecToKph(forecast.getWindSpeed())));
         extras.setUvIndex(forecast.getUvi());
         if (forecast.getVisibility() != null) {
-            extras.setVisibilityKm(forecast.getVisibility().floatValue());
+            extras.setVisibilityKm(forecast.getVisibility().floatValue() / 1000);
             extras.setVisibilityMi(ConversionMethods.kmToMi(extras.getVisibilityKm()));
         }
         if (forecast.getWindGust() != null) {

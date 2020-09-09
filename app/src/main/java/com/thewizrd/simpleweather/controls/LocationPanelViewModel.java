@@ -10,7 +10,6 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
@@ -178,12 +177,12 @@ public class LocationPanelViewModel {
             }
 
             if (weather.getPrecipitation() != null) {
-                pop = weather.getPrecipitation().getPop() != null ? weather.getPrecipitation().getPop() + "%" : null;
-
-                if (WeatherAPI.OPENWEATHERMAP.equals(Settings.getAPI()) || WeatherAPI.METNO.equals(Settings.getAPI())) {
-                    popIcon = WeatherIcons.CLOUDY;
-                } else {
+                if (weather.getPrecipitation().getPop() != null) {
+                    pop = weather.getPrecipitation().getPop() + "%";
                     popIcon = WeatherIcons.UMBRELLA;
+                } else if (weather.getPrecipitation().getCloudiness() != null) {
+                    pop = weather.getPrecipitation().getCloudiness() + "%";
+                    popIcon = WeatherIcons.CLOUDY;
                 }
             }
 

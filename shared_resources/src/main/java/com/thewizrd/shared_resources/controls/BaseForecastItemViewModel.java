@@ -13,7 +13,6 @@ public abstract class BaseForecastItemViewModel {
     protected String shortDate;
     protected String condition;
     protected String hiTemp;
-    protected String pop;
     protected int windDirection;
     protected String windSpeed;
     protected String windDir;
@@ -66,14 +65,6 @@ public abstract class BaseForecastItemViewModel {
         this.hiTemp = hiTemp;
     }
 
-    public String getPop() {
-        return pop;
-    }
-
-    public void setPop(String pop) {
-        this.pop = pop;
-    }
-
     public int getWindDirection() {
         return windDirection;
     }
@@ -122,8 +113,6 @@ public abstract class BaseForecastItemViewModel {
             return false;
         if (getHiTemp() != null ? !getHiTemp().equals(that.getHiTemp()) : that.getHiTemp() != null)
             return false;
-        if (getPop() != null ? !getPop().equals(that.getPop()) : that.getPop() != null)
-            return false;
         if (getWindSpeed() != null ? !getWindSpeed().equals(that.getWindSpeed()) : that.getWindSpeed() != null)
             return false;
         if (windDir != null ? !windDir.equals(that.windDir) : that.windDir != null) return false;
@@ -135,7 +124,6 @@ public abstract class BaseForecastItemViewModel {
         int result = getDate() != null ? getDate().hashCode() : 0;
         result = 31 * result + (getCondition() != null ? getCondition().hashCode() : 0);
         result = 31 * result + (getHiTemp() != null ? getHiTemp().hashCode() : 0);
-        result = 31 * result + (getPop() != null ? getPop().hashCode() : 0);
         result = 31 * result + getWindDirection();
         result = 31 * result + (getWindSpeed() != null ? getWindSpeed().hashCode() : 0);
         result = 31 * result + (windDir != null ? windDir.hashCode() : 0);
