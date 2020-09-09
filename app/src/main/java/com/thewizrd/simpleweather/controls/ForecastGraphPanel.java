@@ -305,12 +305,12 @@ public class ForecastGraphPanel extends LinearLayout {
             view.setDrawGraphBackground(true);
             view.setDrawDotPoints(false);
 
-            List<XLabelData> labelDataset = new ArrayList<>();
-            List<YEntryData> hiTempDataset = new ArrayList<>();
+            List<XLabelData> labelDataset = new ArrayList<>(forecasts.size());
+            List<YEntryData> hiTempDataset = new ArrayList<>(forecasts.size());
             List<YEntryData> loTempDataset = null;
 
             if (forecasts.get(0) instanceof ForecastItemViewModel) {
-                loTempDataset = new ArrayList<>();
+                loTempDataset = new ArrayList<>(forecasts.size());
                 view.setDrawSeriesLabels(true);
             } else {
                 view.setDrawSeriesLabels(false);
@@ -385,8 +385,8 @@ public class ForecastGraphPanel extends LinearLayout {
             view.setDrawDotPoints(false);
             view.setDrawSeriesLabels(false);
 
-            List<XLabelData> labelData = new ArrayList<>();
-            List<YEntryData> windDataSet = new ArrayList<>();
+            List<XLabelData> labelData = new ArrayList<>(forecasts.size());
+            List<YEntryData> windDataSet = new ArrayList<>(forecasts.size());
 
             for (int i = 0; i < forecasts.size(); i++) {
                 BaseForecastItemViewModel forecastItemViewModel = forecasts.get(i);
@@ -421,8 +421,8 @@ public class ForecastGraphPanel extends LinearLayout {
             view.setDrawDotPoints(false);
             view.setDrawSeriesLabels(false);
 
-            List<XLabelData> labelData = new ArrayList<>();
-            List<YEntryData> popDataSet = new ArrayList<>();
+            List<XLabelData> labelData = new ArrayList<>(forecasts.size());
+            List<YEntryData> popDataSet = new ArrayList<>(forecasts.size());
 
             for (int i = 0; i < forecasts.size(); i++) {
                 BaseForecastItemViewModel forecastItemViewModel = forecasts.get(i);

@@ -43,14 +43,6 @@ public class WeatherWidgetProvider4x1 extends WeatherWidgetProvider {
     }
 
     @Override
-    public boolean hasInstances(Context context) {
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
-                new ComponentName(context, getClassName()));
-        return (appWidgetIds.length > 0);
-    }
-
-    @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent == null ? null : intent.getAction();
 

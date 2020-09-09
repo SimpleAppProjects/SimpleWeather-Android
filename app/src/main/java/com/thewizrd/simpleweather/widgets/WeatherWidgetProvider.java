@@ -40,7 +40,19 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
     public abstract ComponentName getComponentName();
 
     // Methods
-    public abstract boolean hasInstances(Context context);
+    public final boolean hasInstances(Context context) {
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
+                new ComponentName(context, getClassName()));
+        return (appWidgetIds.length > 0);
+    }
+
+    public final int instancesCount(Context context) {
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
+                new ComponentName(context, getClassName()));
+        return appWidgetIds.length;
+    }
 
     @Override
     public void onReceive(Context context, Intent intent) {

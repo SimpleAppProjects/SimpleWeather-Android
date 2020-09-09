@@ -18,6 +18,7 @@ import com.thewizrd.simpleweather.wearable.WearableWorker;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 import com.thewizrd.simpleweather.widgets.WidgetUtils;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
 public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
@@ -67,7 +68,7 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
                         Weather weather = JSONParser.deserializer(weatherJson, Weather.class);
 
                         if (WidgetUtils.exists(locationQuery)) {
-                            int[] ids = WidgetUtils.getWidgetIds(locationQuery);
+                            List<Integer> ids = WidgetUtils.getWidgetIds(locationQuery);
                             for (int id : ids) {
                                 WidgetUtils.saveWeatherData(id, weather);
                             }

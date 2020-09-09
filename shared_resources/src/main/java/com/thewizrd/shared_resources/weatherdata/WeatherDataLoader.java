@@ -30,8 +30,8 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.ChronoUnit;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
@@ -438,8 +438,9 @@ public class WeatherDataLoader {
             public Void call() throws Exception {
                 Forecasts forecasts = new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast());
                 Settings.saveWeatherForecasts(forecasts);
-                Collection<HourlyForecasts> hrForecasts = new LinkedList<>();
+                ArrayList<HourlyForecasts> hrForecasts = new ArrayList<>();
                 if (weather.getHrForecast() != null) {
+                    hrForecasts.ensureCapacity(weather.getHrForecast().size());
                     for (HourlyForecast f : weather.getHrForecast()) {
                         hrForecasts.add(new HourlyForecasts(weather.getQuery(), f));
                     }

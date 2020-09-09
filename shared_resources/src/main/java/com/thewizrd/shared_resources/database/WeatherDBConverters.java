@@ -1,5 +1,6 @@
 package com.thewizrd.shared_resources.database;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 import androidx.room.TypeConverter;
@@ -73,7 +74,7 @@ public class WeatherDBConverters {
         else {
             StringReader sr = new StringReader(value);
             JsonReader reader = new JsonReader(sr);
-            List<Forecast> result = new ArrayList<>();
+            List<Forecast> result = new ArrayList<>(10);
 
             try {
                 reader.beginArray();
@@ -142,7 +143,7 @@ public class WeatherDBConverters {
         else {
             StringReader sr = new StringReader(value);
             JsonReader reader = new JsonReader(sr);
-            List<HourlyForecast> result = new ArrayList<>();
+            List<HourlyForecast> result = new ArrayList<>(90);
 
             try {
                 reader.beginArray();
@@ -195,7 +196,7 @@ public class WeatherDBConverters {
         else {
             StringReader sr = new StringReader(value);
             JsonReader reader = new JsonReader(sr);
-            ArrayList<TextForecast> result = new ArrayList<>();
+            ArrayList<TextForecast> result = new ArrayList<>(20);
 
             try {
                 reader.beginArray();
@@ -318,7 +319,7 @@ public class WeatherDBConverters {
                 reader.beginArray();
 
                 while (reader.hasNext()) {
-                    WeatherAlert obj = new WeatherAlert();
+                    @SuppressLint("RestrictedApi") WeatherAlert obj = new WeatherAlert();
                     obj.fromJson(reader);
                     result.add(obj);
                 }

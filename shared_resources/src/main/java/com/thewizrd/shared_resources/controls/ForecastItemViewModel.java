@@ -24,7 +24,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
 
     public ForecastItemViewModel(Forecast forecast, TextForecast... txtForecasts) {
         wm = WeatherManager.getInstance();
-        detailExtras = new ArrayList<>();
+        detailExtras = new ArrayList<>(WeatherDetailsType.values().length);
 
         weatherIcon = forecast.getIcon();
         date = forecast.getDate().format(DateTimeFormatter.ofPattern("EEE dd", Locale.getDefault()));

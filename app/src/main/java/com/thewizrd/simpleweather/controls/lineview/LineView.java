@@ -40,8 +40,8 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.R;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 
 public class LineView extends HorizontalScrollView {
@@ -251,12 +251,12 @@ public class LineView extends HorizontalScrollView {
         private ObservableArrayList<XLabelData> dataLabels; // X
         private ObservableArrayList<LineDataSeries> dataLists; // Y data
 
-        private List<Float> xCoordinateList;
-        private List<Float> yCoordinateList;
+        private ArrayList<Float> xCoordinateList;
+        private ArrayList<Float> yCoordinateList;
         private float horizontalGridNum;
         private float verticalGridNum;
 
-        private List<List<Dot>> drawDotLists;
+        private List<ArrayList<Dot>> drawDotLists;
 
         private Paint bottomTextPaint;
         private int bottomTextDescent;
@@ -540,6 +540,7 @@ public class LineView extends HorizontalScrollView {
 
         private void refreshXCoordinateList() {
             xCoordinateList.clear();
+            xCoordinateList.ensureCapacity((int) Math.ceil(horizontalGridNum));
             for (int i = 0; i < (horizontalGridNum + 1); i++) {
                 xCoordinateList.add(sideLineLength + backgroundGridWidth * i);
             }
@@ -547,6 +548,7 @@ public class LineView extends HorizontalScrollView {
 
         private void refreshYCoordinateList() {
             yCoordinateList.clear();
+            yCoordinateList.ensureCapacity((int) Math.ceil(horizontalGridNum));
             for (int i = 0; i < (verticalGridNum + 1); i++) {
                 yCoordinateList.add(topLineLength + ((getGraphHeight()) * i / (verticalGridNum)));
             }
@@ -563,8 +565,14 @@ public class LineView extends HorizontalScrollView {
                 float maxValue = 0;
                 float minValue = 0;
                 for (int k = 0; k < dataLists.size(); k++) {
-                    float kMax = Collections.max(dataLists.get(k).getSeriesData()).getY();
-                    float kMin = Collections.min(dataLists.get(k).getSeriesData()).getY();
+                    float kMax = 0;
+                    float kMin = 0;
+                    for (YEntryData seriesData : dataLists.get(k).getSeriesData()) {
+                        if (kMax < seriesData.getY())
+                            kMax = seriesData.getY();
+                        if (kMin > seriesData.getY())
+                            kMin = seriesData.getY();
+                    }
 
                     if (maxValue < kMax)
                         maxValue = kMax;
@@ -573,6 +581,10 @@ public class LineView extends HorizontalScrollView {
                 }
                 for (int k = 0; k < dataLists.size(); k++) {
                     int drawDotSize = drawDotLists.get(k).isEmpty() ? 0 : drawDotLists.get(k).size();
+
+                    if (drawDotSize > 0) {
+                        drawDotLists.get(k).ensureCapacity(dataLists.get(k).getSeriesData().size());
+                    }
 
                     for (int i = 0; i < dataLists.get(k).getSeriesData().size(); i++) {
                         float x = xCoordinateList.get(i);
@@ -866,7 +878,7 @@ public class LineView extends HorizontalScrollView {
                     int seriesColor = colorArray[i % 3];
                     String title = dataLists.get(i).getSeriesLabel();
                     if (StringUtils.isNullOrWhitespace(title)) {
-                        title = "Series " + i;
+                        title = String.format(Locale.getDefault(), "%s %d", getContext().getString(R.string.label_series), i);
                     }
 
                     Rect textBounds = new Rect();

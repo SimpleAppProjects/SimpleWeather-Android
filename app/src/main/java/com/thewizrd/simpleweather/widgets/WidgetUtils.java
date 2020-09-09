@@ -14,7 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.common.util.ArrayUtils;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.google.gson.reflect.TypeToken;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -27,6 +29,7 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.utils.ArrayUtils;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -163,7 +166,7 @@ public class WidgetUtils {
                     if (Settings.isWeatherLoaded()) {
                         LocationData homeLocation = Settings.getHomeData();
                         if (homeLocation != null) {
-                            saveIds(homeLocation.getQuery(), getAllWidgetIds());
+                            saveIds(homeLocation.getQuery(), ArrayUtils.toArrayList(getAllWidgetIds()));
                         } else {
                             break;
                         }
@@ -227,7 +230,7 @@ public class WidgetUtils {
         editor.commit();
     }
 
-    private static List<Integer> getAllWidgetIds() {
+    private static int[] getAllWidgetIds() {
         AppWidgetManager mAppWidgetManager = AppWidgetManager.getInstance(App.getInstance().getAppContext());
         WeatherWidgetProvider1x1 mAppWidget1x1 = WeatherWidgetProvider1x1.getInstance();
         WeatherWidgetProvider2x2 mAppWidget2x2 = WeatherWidgetProvider2x2.getInstance();
@@ -238,25 +241,16 @@ public class WidgetUtils {
         WeatherWidgetProvider4x2Clock mAppWidget4x2C = WeatherWidgetProvider4x2Clock.getInstance();
         WeatherWidgetProvider4x2Huawei mAppWidget4x2BC = WeatherWidgetProvider4x2Huawei.getInstance();
 
-        List<Integer> currentIds = new ArrayList<>();
-        currentIds.addAll(ArrayUtils.toArrayList(
-                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.getComponentName()))));
-        currentIds.addAll(ArrayUtils.toArrayList(
-                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName()))));
-        currentIds.addAll(ArrayUtils.toArrayList(
-                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x1.getComponentName()))));
-        currentIds.addAll(ArrayUtils.toArrayList(
-                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName()))));
-        currentIds.addAll(ArrayUtils.toArrayList(
-                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x1G.getComponentName()))));
-        currentIds.addAll(ArrayUtils.toArrayList(
-                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x1N.getComponentName()))));
-        currentIds.addAll(ArrayUtils.toArrayList(
-                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x2C.getComponentName()))));
-        currentIds.addAll(ArrayUtils.toArrayList(
-                ArrayUtils.toWrapperArray(mAppWidgetManager.getAppWidgetIds(mAppWidget4x2BC.getComponentName()))));
-
-        return currentIds;
+        return ArrayUtils.concat(
+                mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.getComponentName()),
+                mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName()),
+                mAppWidgetManager.getAppWidgetIds(mAppWidget4x1.getComponentName()),
+                mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName()),
+                mAppWidgetManager.getAppWidgetIds(mAppWidget4x1G.getComponentName()),
+                mAppWidgetManager.getAppWidgetIds(mAppWidget4x1N.getComponentName()),
+                mAppWidgetManager.getAppWidgetIds(mAppWidget4x2C.getComponentName()),
+                mAppWidgetManager.getAppWidgetIds(mAppWidget4x2BC.getComponentName())
+        );
     }
 
     public static void addWidgetId(String location_query, int widgetId) {
@@ -328,18 +322,18 @@ public class WidgetUtils {
         cleanupWidgetIds();
     }
 
-    public static int[] getWidgetIds(String location_query) {
+    public static List<Integer> getWidgetIds(String location_query) {
         String listJson = widgetPrefs.getString(location_query, "");
         if (!StringUtils.isNullOrWhitespace(listJson)) {
             Type intArrListType = new TypeToken<ArrayList<Integer>>() {
             }.getType();
             ArrayList<Integer> idList = JSONParser.deserializer(listJson, intArrListType);
             if (idList != null) {
-                return ArrayUtils.toPrimitiveArray(idList);
+                return idList;
             }
         }
 
-        return new int[0];
+        return Collections.emptyList();
     }
 
     public static boolean exists(String location_query) {
@@ -446,7 +440,7 @@ public class WidgetUtils {
         List<LocationData> locs = new ArrayList<>(Settings.getLocationData());
         LocationData homeData = Settings.getLastGPSLocData();
         if (homeData != null) locs.add(homeData);
-        List<String> currLocQueries = new ArrayList<>();
+        List<String> currLocQueries = new ArrayList<>(locs.size());
         for (LocationData loc : locs) {
             currLocQueries.add(loc.getQuery());
         }
@@ -459,7 +453,7 @@ public class WidgetUtils {
     }
 
     public static void cleanupWidgetData() {
-        List<Integer> currentIds = getAllWidgetIds();
+        List<Integer> currentIds = ArrayUtils.toArrayList(getAllWidgetIds());
 
         Context context = App.getInstance().getAppContext();
         String parentPath = context.getFilesDir().getParent();

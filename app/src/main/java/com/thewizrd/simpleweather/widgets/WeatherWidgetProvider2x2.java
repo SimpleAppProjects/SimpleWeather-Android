@@ -43,14 +43,6 @@ public class WeatherWidgetProvider2x2 extends WeatherWidgetProvider {
     }
 
     @Override
-    public boolean hasInstances(Context context) {
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
-                new ComponentName(context, getClassName()));
-        return (appWidgetIds.length > 0);
-    }
-
-    @Override
     public void onEnabled(Context context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
             // Register tick receiver

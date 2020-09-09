@@ -79,14 +79,14 @@ public class ShortcutCreatorWorker extends Worker {
         if (Settings.useFollowGPS())
             locations.add(0, Settings.getHomeData());
 
-        ShortcutManager shortcutMan = mContext.getSystemService(ShortcutManager.class);
-        List<ShortcutInfo> shortcuts = new ArrayList<>();
-
-        shortcutMan.removeAllDynamicShortcuts();
-
         int MAX_SHORTCUTS = 4;
         if (locations.size() < MAX_SHORTCUTS)
             MAX_SHORTCUTS = locations.size();
+
+        ShortcutManager shortcutMan = mContext.getSystemService(ShortcutManager.class);
+        List<ShortcutInfo> shortcuts = new ArrayList<>(MAX_SHORTCUTS);
+
+        shortcutMan.removeAllDynamicShortcuts();
 
         for (int i = 0; i < MAX_SHORTCUTS; i++) {
             LocationData location = locations.get(i);

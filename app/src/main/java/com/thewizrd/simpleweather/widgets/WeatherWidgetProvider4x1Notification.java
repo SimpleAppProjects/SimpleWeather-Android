@@ -39,12 +39,4 @@ public class WeatherWidgetProvider4x1Notification extends WeatherWidgetProvider 
     public ComponentName getComponentName() {
         return new ComponentName(App.getInstance().getAppContext(), getClassName());
     }
-
-    @Override
-    public boolean hasInstances(Context context) {
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
-                new ComponentName(context, getClassName()));
-        return (appWidgetIds.length > 0);
-    }
 }

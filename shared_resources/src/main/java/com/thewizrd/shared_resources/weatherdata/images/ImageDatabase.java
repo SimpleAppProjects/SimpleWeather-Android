@@ -62,9 +62,10 @@ public class ImageDatabase {
                     }
                 }
 
-                List<ImageData> list = new ArrayList<>();
+                ArrayList<ImageData> list = new ArrayList<>();
                 try {
                     if (querySnapshot != null) {
+                        list.ensureCapacity(querySnapshot.getDocuments().size());
                         for (DocumentSnapshot docSnapshot : querySnapshot.getDocuments()) {
                             if (docSnapshot.exists()) {
                                 list.add(docSnapshot.toObject(ImageData.class));

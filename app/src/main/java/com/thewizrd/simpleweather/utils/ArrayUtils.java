@@ -1,6 +1,9 @@
 package com.thewizrd.simpleweather.utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class ArrayUtils {
     public static boolean contains(int[] array, int item) {
@@ -36,5 +39,15 @@ public class ArrayUtils {
 
             return resultArray;
         }
+    }
+
+    public static List<Integer> toArrayList(int[] arr) {
+        List<Integer> integers = new ArrayList<>(arr.length);
+
+        for (int num : arr) {
+            integers.add(num);
+        }
+
+        return integers;
     }
 }

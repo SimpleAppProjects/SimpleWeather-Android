@@ -136,7 +136,7 @@ public class AppChoiceDialogBuilder {
                 // Sort result
                 Collections.sort(infos, new ApplicationInfo.DisplayNameComparator(context.getPackageManager()));
 
-                List<AppsViewModel> appsList = new ArrayList<>();
+                List<AppsViewModel> appsList = new ArrayList<>(infos.size());
 
                 AppsViewModel defaultApp = new AppsViewModel();
                 defaultApp.setAppLabel(context.getString(R.string.summary_default));

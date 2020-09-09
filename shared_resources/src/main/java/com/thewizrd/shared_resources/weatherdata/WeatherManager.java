@@ -40,7 +40,6 @@ public class WeatherManager implements WeatherProviderImplInterface {
 
     public void updateAPI() {
         String API = Settings.getAPI();
-
         weatherProvider = getProvider(API);
     }
 
@@ -75,14 +74,8 @@ public class WeatherManager implements WeatherProviderImplInterface {
     }
 
     public static boolean isKeyRequired(String API) {
-        WeatherProviderImpl provider = null;
-        boolean needsKey = false;
-
-        provider = getProvider(API);
-
-        needsKey = provider.isKeyRequired();
-        provider = null;
-        return needsKey;
+        WeatherProviderImpl provider = getProvider(API);
+        return provider.isKeyRequired();
     }
 
     public static boolean isKeyValid(final String key, final String API) throws WeatherException {

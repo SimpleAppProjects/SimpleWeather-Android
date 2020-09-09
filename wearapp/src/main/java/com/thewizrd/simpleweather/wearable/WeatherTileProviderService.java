@@ -236,9 +236,10 @@ public class WeatherTileProviderService extends TileProviderService {
             Forecasts forecasts = Settings.getWeatherForecastData(locationData.getQuery());
 
             if (forecasts != null && forecasts.getForecast() != null && !forecasts.getForecast().isEmpty()) {
-                List<ForecastItemViewModel> fcasts = new ArrayList<>();
+                final int size = Math.min(FORECAST_LENGTH, forecasts.getForecast().size());
+                List<ForecastItemViewModel> fcasts = new ArrayList<>(size);
 
-                for (int i = 0; i < Math.min(FORECAST_LENGTH, forecasts.getForecast().size()); i++) {
+                for (int i = 0; i < size; i++) {
                     fcasts.add(new ForecastItemViewModel(forecasts.getForecast().get(i)));
                 }
 

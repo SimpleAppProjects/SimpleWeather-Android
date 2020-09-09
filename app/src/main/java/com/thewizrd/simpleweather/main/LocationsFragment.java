@@ -763,18 +763,11 @@ public class LocationsFragment extends ToolbarFragment
                     }
                 }
 
-                for (LocationData location : locations) {
+                for (final LocationData location : locations) {
                     final LocationPanelViewModel panel = new LocationPanelViewModel();
                     panel.setLocationData(location);
                     mAdapter.add(panel);
-                }
 
-                if (!isActive()) return;
-
-                if (gpsData != null)
-                    locations.add(0, gpsData);
-
-                for (final LocationData location : locations) {
                     WeatherDataLoader wLoader = new WeatherDataLoader(location);
                     wLoader.loadWeatherData(new WeatherRequest.Builder()
                             .forceRefresh(false)
@@ -784,6 +777,25 @@ public class LocationsFragment extends ToolbarFragment
                                 @Override
                                 public void onSuccess(final Weather weather) {
                                     onWeatherLoaded(location, weather);
+                                }
+                            });
+                }
+
+                if (!isActive()) return;
+
+                if (gpsData != null) {
+                    locations.add(0, gpsData);
+
+                    final LocationData finalGpsData = gpsData;
+                    WeatherDataLoader wLoader = new WeatherDataLoader(finalGpsData);
+                    wLoader.loadWeatherData(new WeatherRequest.Builder()
+                            .forceRefresh(false)
+                            .setErrorListener(LocationsFragment.this)
+                            .build())
+                            .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
+                                @Override
+                                public void onSuccess(final Weather weather) {
+                                    onWeatherLoaded(finalGpsData, weather);
                                 }
                             });
                 }

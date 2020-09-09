@@ -211,7 +211,8 @@ public class ForecastsViewModel extends ViewModel {
                 return Collections.emptyList();
             }
 
-            final List<ForecastItemViewModel> models = new ArrayList<>();
+            final int size = Math.min(totalCount, loadSize);
+            final List<ForecastItemViewModel> models = new ArrayList<>(size);
             int textForecastSize = forecasts.getTxtForecast() != null ? forecasts.getTxtForecast().size() : 0;
 
             boolean isDayAndNt = textForecastSize == forecasts.getForecast().size() * 2;

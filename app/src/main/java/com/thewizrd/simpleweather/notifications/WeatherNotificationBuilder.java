@@ -11,8 +11,6 @@ import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
@@ -28,8 +26,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.main.MainActivity;
-
-import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 public class WeatherNotificationBuilder {
     private static final String TAG = "WeatherNotificationBuilder";
@@ -62,14 +58,26 @@ public class WeatherNotificationBuilder {
         updateViews.setTextViewText(R.id.condition_lo, !StringUtils.isNullOrWhitespace(loTemp) ? loTemp + "°" : "--");
         updateViews.setViewVisibility(R.id.condition_hilo_layout, viewModel.isShowHiLo() ? View.VISIBLE : View.GONE);
 
+        // Get extras
+        DetailItemViewModel chanceModel = null, windModel = null, feelsLikeModel = null, humidityModel = null, popRainModel = null, popSnowModel = null;
+        for (DetailItemViewModel input : viewModel.getWeatherDetails()) {
+            if (input.getDetailsType() == WeatherDetailsType.POPCHANCE || input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS) {
+                chanceModel = input;
+            } else if (input.getDetailsType() == WeatherDetailsType.WINDSPEED) {
+                windModel = input;
+            } else if (input.getDetailsType() == WeatherDetailsType.FEELSLIKE) {
+                feelsLikeModel = input;
+            } else if (input.getDetailsType() == WeatherDetailsType.HUMIDITY) {
+                humidityModel = input;
+            } else if (input.getDetailsType() == WeatherDetailsType.POPRAIN) {
+                popRainModel = input;
+            } else if (input.getDetailsType() == WeatherDetailsType.POPSNOW) {
+                popSnowModel = input;
+            }
+        }
+
         // Extras
         int textSize = (int) ActivityUtils.dpToPx(context, 24f);
-        DetailItemViewModel chanceModel = Iterables.find(viewModel.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
-            @Override
-            public boolean apply(@NullableDecl DetailItemViewModel input) {
-                return input != null && (input.getDetailsType() == WeatherDetailsType.POPCHANCE || input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS);
-            }
-        }, null);
         if (chanceModel != null) {
             updateViews.setImageViewBitmap(R.id.weather_popicon,
                     ImageUtils.weatherIconToBitmap(context, chanceModel.getIcon(), textSize, false)
@@ -79,12 +87,6 @@ public class WeatherNotificationBuilder {
         } else {
             updateViews.setViewVisibility(R.id.weather_pop_layout, View.GONE);
         }
-        DetailItemViewModel windModel = Iterables.find(viewModel.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
-            @Override
-            public boolean apply(@NullableDecl DetailItemViewModel input) {
-                return input != null && input.getDetailsType() == WeatherDetailsType.WINDSPEED;
-            }
-        }, null);
         if (windModel != null) {
             if (windModel.getIconRotation() != 0) {
                 updateViews.setImageViewBitmap(R.id.weather_windicon,
@@ -109,22 +111,10 @@ public class WeatherNotificationBuilder {
         } else {
             bigUpdateViews = updateViews.clone();
         }
-        DetailItemViewModel feelsLikeModel = Iterables.find(viewModel.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
-            @Override
-            public boolean apply(@NullableDecl DetailItemViewModel input) {
-                return input != null && (input.getDetailsType() == WeatherDetailsType.FEELSLIKE);
-            }
-        }, null);
         if (feelsLikeModel != null) {
             bigUpdateViews.setTextViewText(R.id.feelslike_temp, feelsLikeModel.getValue() + viewModel.getTempUnit());
             bigUpdateViews.setViewVisibility(R.id.feelslike_layout, View.VISIBLE);
         }
-        DetailItemViewModel humidityModel = Iterables.find(viewModel.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
-            @Override
-            public boolean apply(@NullableDecl DetailItemViewModel input) {
-                return input != null && (input.getDetailsType() == WeatherDetailsType.HUMIDITY);
-            }
-        }, null);
         if (humidityModel != null) {
             bigUpdateViews.setImageViewBitmap(R.id.humidity_icon,
                     ImageUtils.weatherIconToBitmap(context, humidityModel.getIcon(), textSize, false)
@@ -132,12 +122,6 @@ public class WeatherNotificationBuilder {
             bigUpdateViews.setTextViewText(R.id.humidity, humidityModel.getValue());
             bigUpdateViews.setViewVisibility(R.id.humidity_layout, View.VISIBLE);
         }
-        DetailItemViewModel popRainModel = Iterables.find(viewModel.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
-            @Override
-            public boolean apply(@NullableDecl DetailItemViewModel input) {
-                return input != null && (input.getDetailsType() == WeatherDetailsType.POPRAIN);
-            }
-        }, null);
         if (popRainModel != null) {
             bigUpdateViews.setImageViewBitmap(R.id.precip_rain_icon,
                     ImageUtils.weatherIconToBitmap(context, popRainModel.getIcon(), textSize, false)
@@ -145,12 +129,6 @@ public class WeatherNotificationBuilder {
             bigUpdateViews.setTextViewText(R.id.precip_rain, popRainModel.getValue());
             bigUpdateViews.setViewVisibility(R.id.precip_rain_layout, View.VISIBLE);
         }
-        DetailItemViewModel popSnowModel = Iterables.find(viewModel.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
-            @Override
-            public boolean apply(@NullableDecl DetailItemViewModel input) {
-                return input != null && (input.getDetailsType() == WeatherDetailsType.POPSNOW);
-            }
-        }, null);
         if (popSnowModel != null) {
             bigUpdateViews.setTextViewText(R.id.precip_snow, popSnowModel.getValue());
             bigUpdateViews.setViewVisibility(R.id.precip_snow_layout, View.VISIBLE);

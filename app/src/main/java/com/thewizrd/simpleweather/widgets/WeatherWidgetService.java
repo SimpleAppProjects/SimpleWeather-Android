@@ -412,7 +412,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
         if (Settings.isWeatherLoaded()) {
             // Build the widget update for available providers
             // Add widget providers here
-            List<Task<Void>> tasks = new ArrayList<>();
+            List<Task<Void>> tasks = new ArrayList<>(8);
 
             if (mAppWidget1x1.hasInstances(mContext)) {
                 Task<Void> task = AsyncTask.create(new Callable<Void>() {
@@ -577,7 +577,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
 
         if (WidgetUtils.isGPS(appWidgetId)) {
             if (!Settings.useFollowGPS()) {
-                resetGPSWidgets(new int[]{appWidgetId});
+                resetGPSWidgets(Collections.singletonList(appWidgetId));
                 return;
             } else {
                 locData = Settings.getLastGPSLocData();
@@ -629,12 +629,12 @@ public class WeatherWidgetService extends SafeJobIntentService {
     }
 
     private void resetGPSWidgets() {
-        final int[] appWidgetIds = WidgetUtils.getWidgetIds(Constants.KEY_GPS);
+        final List<Integer> appWidgetIds = WidgetUtils.getWidgetIds(Constants.KEY_GPS);
         resetGPSWidgets(appWidgetIds);
     }
 
-    private void resetGPSWidgets(final int[] appWidgetIds) {
-        List<Task<Void>> tasks = new ArrayList<>();
+    private void resetGPSWidgets(final List<Integer> appWidgetIds) {
+        List<Task<Void>> tasks = new ArrayList<>(appWidgetIds.size());
 
         for (final int appWidgetId : appWidgetIds) {
             Task<Void> task = AsyncTask.create(new Callable<Void>() {
@@ -666,7 +666,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
     }
 
     private void refreshWidgets(String location_query) {
-        final int[] appWidgetIds = WidgetUtils.getWidgetIds(location_query);
+        final List<Integer> appWidgetIds = WidgetUtils.getWidgetIds(location_query);
 
         final int[] ids1x1 = mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.getComponentName());
         final int[] ids2x2 = mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName());
@@ -701,7 +701,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             }
         });
 
-        List<Task<Void>> tasks = new ArrayList<>();
+        List<Task<Void>> tasks = new ArrayList<>(appWidgetIds.size());
 
         for (final int appWidgetId : appWidgetIds) {
             Task<Void> task = AsyncTask.create(new Callable<Void>() {
@@ -782,7 +782,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             appWidgetIds = ArrayUtils.concat(appWidget2x2Ids, appWidget4x2Ids, appWidget4x2CIds, appWidget4x2HIds);
         }
 
-        List<Task<Void>> tasks = new ArrayList<>();
+        List<Task<Void>> tasks = new ArrayList<>(appWidgetIds.length);
 
         for (final int appWidgetId : appWidgetIds) {
             Task<Void> task = AsyncTask.create(new Callable<Void>() {
@@ -919,7 +919,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             appWidgetIds = ArrayUtils.concat(appWidget2x2Ids, appWidget4x2Ids, appWidget4x1GIds, appWidget4x2CIds, appWidget4x2HIds);
         }
 
-        List<Task<Void>> tasks = new ArrayList<>();
+        List<Task<Void>> tasks = new ArrayList<>(appWidgetIds.length);
 
         for (final int appWidgetId : appWidgetIds) {
             Task<Void> task = AsyncTask.create(new Callable<Void>() {
@@ -1756,7 +1756,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             }
 
             if (forecasts != null && !forecasts.isEmpty()) {
-                List<ForecastItemViewModel> fcasts = new ArrayList<>();
+                List<ForecastItemViewModel> fcasts = new ArrayList<>(forecastLength);
 
                 for (int i = 0; i < Math.min(forecastLength, forecasts.size()); i++) {
                     fcasts.add(new ForecastItemViewModel(forecasts.get(i)));
@@ -1788,7 +1788,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             }
 
             if (forecasts != null && !forecasts.isEmpty()) {
-                List<HourlyForecastItemViewModel> fcasts = new ArrayList<>();
+                List<HourlyForecastItemViewModel> fcasts = new ArrayList<>(forecastLength);
 
                 int count = 0;
                 for (HourlyForecast fcast : forecasts) {

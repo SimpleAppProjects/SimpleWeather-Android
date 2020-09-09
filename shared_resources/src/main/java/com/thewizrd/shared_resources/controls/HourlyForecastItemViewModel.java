@@ -35,7 +35,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
         this.forecast = hrForecast;
 
         wm = WeatherManager.getInstance();
-        detailExtras = new ArrayList<>();
+        detailExtras = new ArrayList<>(WeatherDetailsType.values().length);
 
         weatherIcon = hrForecast.getIcon();
 
