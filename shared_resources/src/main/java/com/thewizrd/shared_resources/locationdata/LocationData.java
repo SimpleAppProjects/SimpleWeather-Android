@@ -233,6 +233,9 @@ public class LocationData extends CustomJsonObject {
                     case "locsource":
                         this.locationSource = reader.nextString();
                         break;
+                    default:
+                        reader.skipValue();
+                        break;
                 }
             }
 

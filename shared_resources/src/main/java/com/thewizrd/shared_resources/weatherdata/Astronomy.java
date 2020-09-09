@@ -329,6 +329,7 @@ public class Astronomy extends CustomJsonObject {
                         this.moonPhase.fromJson(reader);
                         break;
                     default:
+                        reader.skipValue();
                         break;
                 }
             }

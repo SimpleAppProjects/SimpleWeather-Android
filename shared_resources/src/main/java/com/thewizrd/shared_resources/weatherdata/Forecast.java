@@ -369,6 +369,7 @@ public class Forecast extends CustomJsonObject {
                         this.extras.fromJson(reader);
                         break;
                     default:
+                        reader.skipValue();
                         break;
                 }
             }

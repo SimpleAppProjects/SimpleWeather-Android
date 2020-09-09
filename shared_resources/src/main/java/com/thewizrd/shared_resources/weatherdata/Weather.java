@@ -576,6 +576,7 @@ public class Weather extends CustomJsonObject {
                         this.locale = reader.nextString();
                         break;
                     default:
+                        reader.skipValue();
                         break;
                 }
             }

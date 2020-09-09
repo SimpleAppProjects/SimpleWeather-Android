@@ -49,14 +49,6 @@ public class HourlyForecast extends CustomJsonObject {
     @SerializedName("wind_kph")
     private Float windKph;
 
-    public String get_date() {
-        return _date;
-    }
-
-    public void set_date(String _date) {
-        this._date = _date;
-    }
-
     @SerializedName("date")
     private String _date;
 
@@ -279,6 +271,14 @@ public class HourlyForecast extends CustomJsonObject {
         }
     }
 
+    public String get_date() {
+        return _date;
+    }
+
+    public void set_date(String _date) {
+        this._date = _date;
+    }
+
     public ZonedDateTime getDate() {
         ZonedDateTime dateTime = null;
 
@@ -422,6 +422,7 @@ public class HourlyForecast extends CustomJsonObject {
                         this.extras.fromJson(reader);
                         break;
                     default:
+                        reader.skipValue();
                         break;
                 }
             }

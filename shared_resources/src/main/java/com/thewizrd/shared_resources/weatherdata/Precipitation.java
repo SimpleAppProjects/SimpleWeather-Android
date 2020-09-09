@@ -199,6 +199,7 @@ public class Precipitation extends CustomJsonObject {
                         this.qpfSnowCm = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     default:
+                        reader.skipValue();
                         break;
                 }
             }

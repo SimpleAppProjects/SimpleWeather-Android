@@ -517,6 +517,7 @@ public class Condition extends CustomJsonObject {
                         observationTime = ZonedDateTime.parse(reader.nextString(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
                         break;
                     default:
+                        reader.skipValue();
                         break;
                 }
             }

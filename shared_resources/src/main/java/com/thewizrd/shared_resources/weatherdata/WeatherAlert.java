@@ -496,6 +496,7 @@ public class WeatherAlert extends CustomJsonObject {
                         this.notified = reader.nextBoolean();
                         break;
                     default:
+                        reader.skipValue();
                         break;
                 }
             }

@@ -190,6 +190,7 @@ public class Beaufort extends CustomJsonObject {
                         this.desc = reader.nextString();
                         break;
                     default:
+                        reader.skipValue();
                         break;
                 }
             }

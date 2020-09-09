@@ -73,6 +73,7 @@ public class AirQuality extends CustomJsonObject {
                         this.index = NumberUtils.tryParseInt(reader.nextString());
                         break;
                     default:
+                        reader.skipValue();
                         break;
                 }
             }

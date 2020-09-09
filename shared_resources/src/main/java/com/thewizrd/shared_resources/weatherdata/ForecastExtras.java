@@ -341,6 +341,7 @@ public class ForecastExtras extends CustomJsonObject {
                         this.windGustKph = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     default:
+                        reader.skipValue();
                         break;
                 }
             }

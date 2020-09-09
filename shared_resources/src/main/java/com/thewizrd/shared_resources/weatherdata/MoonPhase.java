@@ -136,6 +136,7 @@ public class MoonPhase extends CustomJsonObject {
                         this.desc = reader.nextString();
                         break;
                     default:
+                        reader.skipValue();
                         break;
                 }
             }

@@ -111,6 +111,7 @@ public class UV extends CustomJsonObject {
                         this.desc = reader.nextString();
                         break;
                     default:
+                        reader.skipValue();
                         break;
                 }
             }

@@ -254,6 +254,7 @@ public class Atmosphere extends CustomJsonObject {
                         this.dewpointC = NumberUtils.tryParseFloat(reader.nextString());
                         break;
                     default:
+                        reader.skipValue();
                         break;
                 }
             }

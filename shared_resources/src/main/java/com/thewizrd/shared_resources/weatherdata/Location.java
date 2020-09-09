@@ -200,6 +200,7 @@ public class Location extends CustomJsonObject {
                         this.tzLong = reader.nextString();
                         break;
                     default:
+                        reader.skipValue();
                         break;
                 }
             }
