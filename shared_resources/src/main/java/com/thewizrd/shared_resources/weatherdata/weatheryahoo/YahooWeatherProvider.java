@@ -2,14 +2,12 @@ package com.thewizrd.shared_resources.weatherdata.weatheryahoo;
 
 import android.util.Log;
 
-import com.thewizrd.shared_resources.AsyncTaskEx;
-import com.thewizrd.shared_resources.CallableEx;
+import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -29,12 +27,15 @@ import org.threeten.bp.ZonedDateTime;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Locale;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDataProviderInterface {
+    private static final String QUERY_URL = "https://weather-ydn-yql.media.yahoo.com/forecastrss?%s&format=json&u=f";
 
     public YahooWeatherProvider() {
         super();
@@ -89,34 +90,27 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
     }
 
     private Rootobject getRootobject(String location_query) throws WeatherException {
-        Rootobject root = null;
+        Rootobject root;
         WeatherException wEx = null;
 
-        String queryAPI = "https://weather-ydn-yql.media.yahoo.com/forecastrss";
-        URL weatherURL = null;
-        HttpURLConnection client = null;
-
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
         OAuthRequest authRequest = new OAuthRequest(getCliID(), getCliSecr());
+        Response response = null;
 
         try {
-            String query = "?" + location_query + "&format=json&u=f";
-            weatherURL = new URL(queryAPI + query);
+            final String url = String.format(QUERY_URL, location_query);
+            final String authorization = authRequest.getAuthorizationHeader(url);
 
-            String authorization = authRequest.getAuthorizationHeader(weatherURL.toString());
+            Request request = new Request.Builder()
+                    .url(url)
+                    .addHeader("Authorization", authorization)
+                    .addHeader("X-Yahoo-App-Id", getAppID())
+                    .addHeader("Content-Type", "application/json")
+                    .build();
 
-            client = (HttpURLConnection) weatherURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
-
-            // Add headers to request
-            client.addRequestProperty("Authorization", authorization);
-            client.addRequestProperty("X-Yahoo-App-Id", getAppID());
-            client.addRequestProperty("Content-Type", "application/json");
-
-            InputStream stream = client.getInputStream();
-
-            // Reset exception
-            wEx = null;
+            // Connect to webstream
+            response = client.newCall(request).execute();
+            final InputStream stream = response.body().byteStream();
 
             // Load weather
             root = JSONParser.deserializer(stream, Rootobject.class);
@@ -130,8 +124,8 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
             }
             Logger.writeLine(Log.ERROR, ex, "YahooWeatherProvider: error getting weather data");
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
 
         if (wEx != null)
@@ -142,24 +136,19 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
 
     @Override
     public Weather getWeather(final String location_query) throws WeatherException {
-        Weather weather = null;
+        Weather weather;
         WeatherException wEx = null;
 
         try {
             // Load weather
-            Rootobject root = new AsyncTaskEx<Rootobject, WeatherException>().await(new CallableEx<Rootobject, WeatherException>() {
-                @Override
-                public Rootobject call() throws WeatherException {
-                    return getRootobject(location_query);
-                }
-            });
+            Rootobject root = getRootobject(location_query);
 
             weather = new Weather(root);
+        } catch (WeatherException ex) {
+            weather = null;
+            wEx = ex;
         } catch (Exception ex) {
             weather = null;
-            if (ex instanceof IOException) {
-                wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
-            }
             Logger.writeLine(Log.ERROR, ex, "YahooWeatherProvider: error getting weather data");
         }
 

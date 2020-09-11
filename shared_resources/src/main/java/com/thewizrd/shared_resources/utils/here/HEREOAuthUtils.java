@@ -9,7 +9,6 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.oauth.OAuthRequest;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
@@ -18,12 +17,14 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
-import java.io.DataOutputStream;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Locale;
 import java.util.concurrent.Callable;
+
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class HEREOAuthUtils {
     public static final String HERE_OAUTH_URL = "https://account.api.here.com/oauth2/token";
@@ -47,38 +48,26 @@ public class HEREOAuthUtils {
             OAuthRequest oAuthRequest = new OAuthRequest(Keys.getHERECliID(), Keys.getHERECliSecr(),
                     OAuthRequest.SignatureMethod.HMAC_SHA256, OAuthRequest.HTTPRequestType.POST);
 
-            HttpURLConnection client = null;
+            OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+            Response response = null;
 
             try {
                 String authorization = oAuthRequest.getAuthorizationHeader(HERE_OAUTH_URL, true);
 
-                client = (HttpURLConnection) new URL(HERE_OAUTH_URL).openConnection();
-                client.setRequestMethod("POST");
-                client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-                client.setReadTimeout(Settings.READ_TIMEOUT);
+                Request request = new Request.Builder()
+                        .url(HERE_OAUTH_URL)
+                        .addHeader("Authorization", authorization)
+                        .addHeader("Cache-Control", "no-cache")
+                        .post(new FormBody.Builder().addEncoded("grant_type", "client_credentials").build())
+                        .build();
 
-                // Add headers to request
-                client.addRequestProperty("Authorization", authorization);
-                client.addRequestProperty("Cache-Control", "no-cache");
+                response = client.newCall(request).execute();
 
-                // Connect to webstream
-                String formParams = "grant_type=client_credentials";
-                client.setDoOutput(true);
-
-                DataOutputStream dos = new DataOutputStream(client.getOutputStream());
-                dos.writeBytes(formParams);
-                dos.close();
-
-                final InputStream stream = client.getInputStream();
-                String dateField = client.getHeaderField("Date");
+                final InputStream stream = response.body().byteStream();
+                String dateField = response.header("Date", null);
                 ZonedDateTime date = ZonedDateTime.parse(dateField, DateTimeFormatter.RFC_1123_DATE_TIME);
 
-                TokenRootobject tokenRoot = new AsyncTask<TokenRootobject>().await(new Callable<TokenRootobject>() {
-                    @Override
-                    public TokenRootobject call() {
-                        return JSONParser.deserializer(stream, TokenRootobject.class);
-                    }
-                });
+                TokenRootobject tokenRoot = JSONParser.deserializer(stream, TokenRootobject.class);
 
                 if (tokenRoot != null) {
                     String tokenStr = String.format(Locale.ROOT, "Bearer %s", tokenRoot.getAccessToken());
@@ -95,8 +84,8 @@ public class HEREOAuthUtils {
             } catch (Exception e) {
                 Logger.writeLine(Log.ERROR, e, "HEREOAuthUtils: Error retrieving token");
             } finally {
-                if (client != null)
-                    client.disconnect();
+                if (response != null)
+                    response.close();
             }
         }
 

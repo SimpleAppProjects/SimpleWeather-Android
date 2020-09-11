@@ -5,10 +5,18 @@ import android.util.Log;
 
 import com.google.android.gms.security.ProviderInstaller;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.Settings;
+
+import java.io.File;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Cache;
+import okhttp3.OkHttpClient;
 
 public final class SimpleLibrary {
     private ApplicationLib mApp;
     private Context mContext;
+    private OkHttpClient client;
 
     private static SimpleLibrary sSimpleLib;
 
@@ -48,5 +56,19 @@ public final class SimpleLibrary {
 
     public Context getAppContext() {
         return mContext;
+    }
+
+    public OkHttpClient getHttpClient() {
+        if (client == null) {
+            client = new OkHttpClient.Builder()
+                    .readTimeout(Settings.READ_TIMEOUT, TimeUnit.MILLISECONDS)
+                    .connectTimeout(Settings.CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)
+                    .followRedirects(true)
+                    .retryOnConnectionFailure(true)
+                    .cache(new Cache(new File(mContext.getCacheDir(), "okhttp3"), 10 * 1024 * 1024))
+                    .build();
+        }
+
+        return client;
     }
 }

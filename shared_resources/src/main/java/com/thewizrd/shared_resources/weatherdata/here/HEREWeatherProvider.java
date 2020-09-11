@@ -3,12 +3,11 @@ package com.thewizrd.shared_resources.weatherdata.here;
 import android.util.Log;
 
 import com.ibm.icu.util.ULocale;
-import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -25,15 +24,21 @@ import org.threeten.bp.ZoneOffset;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Callable;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public final class HEREWeatherProvider extends WeatherProviderImpl {
+    private static final String WEATHER_QUERY_URL = "https://weather.ls.hereapi.com/weather/1.0/report.json?" +
+            "product=alerts&product=forecast_7days_simple&product=forecast_hourly&product=forecast_astronomy&product=observation&oneobservation=true" +
+            "&%s&language=%s&metric=false";
+    private static final String ALERT_QUERY_URL = "https://weather.ls.hereapi.com/weather/1.0/report.json?product=alerts&%s" +
+            "&language=%s&metric=false";
 
     public HEREWeatherProvider() {
         super();
@@ -77,52 +82,33 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
 
     @Override
     public Weather getWeather(String location_query) throws WeatherException {
-        Weather weather = null;
-
-        String queryAPI = null;
-        URL weatherURL = null;
-        HttpURLConnection client = null;
+        Weather weather;
 
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
-        queryAPI = "https://weather.ls.hereapi.com/weather/1.0/report.json";
-
-        queryAPI += "?product=alerts&product=forecast_7days_simple" +
-                "&product=forecast_hourly&product=forecast_astronomy&product=observation&oneobservation=true&%s" +
-                "&language=%s&metric=false";
-
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response response = null;
         WeatherException wEx = null;
 
         try {
-            weatherURL = new URL(String.format(queryAPI, location_query, locale));
+            final String authorization = HEREOAuthUtils.getBearerToken(false);
 
-            client = (HttpURLConnection) weatherURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
-
-            // Add headers to request
-            String authorization = new AsyncTask<String>().await(new Callable<String>() {
-                @Override
-                public String call() {
-                    return HEREOAuthUtils.getBearerToken(false);
-                }
-            });
-            if (!StringUtils.isNullOrWhitespace(authorization)) {
-                client.addRequestProperty("Authorization", authorization);
-            } else {
+            if (StringUtils.isNullOrWhitespace(authorization)) {
                 throw new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
             }
 
-            // Connect to webstream
-            InputStream stream = client.getInputStream();
+            Request request = new Request.Builder()
+                    .url(String.format(WEATHER_QUERY_URL, location_query, locale))
+                    .addHeader("Authorization", authorization)
+                    .build();
 
-            // Reset exception
-            wEx = null;
+            // Connect to webstream
+            response = client.newCall(request).execute();
+            final InputStream stream = response.body().byteStream();
 
             // Load weather
-            Rootobject root = null;
-            root = JSONParser.deserializer(stream, Rootobject.class);
+            Rootobject root = JSONParser.deserializer(stream, Rootobject.class);
 
             // Check for errors
             if (root.getType() != null) {
@@ -159,8 +145,8 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
             }
             Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting weather data");
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
 
         if (wEx == null && (weather == null || !weather.isValid())) {
@@ -215,40 +201,29 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
 
     @Override
     public List<WeatherAlert> getAlerts(LocationData location) {
-        List<WeatherAlert> alerts = null;
-
-        String queryAPI = null;
-        URL weatherURL = null;
-        HttpURLConnection client = null;
+        List<WeatherAlert> alerts;
 
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
-        queryAPI = "https://weather.ls.hereapi.com/weather/1.0/report.json?product=alerts&%s" +
-                "&language=%s&metric=false";
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response response = null;
 
         try {
-            weatherURL = new URL(String.format(queryAPI, location.getQuery(), locale));
+            final String authorization = HEREOAuthUtils.getBearerToken(false);
 
-            client = (HttpURLConnection) weatherURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
-
-            // Add headers to request
-            String authorization = new AsyncTask<String>().await(new Callable<String>() {
-                @Override
-                public String call() {
-                    return HEREOAuthUtils.getBearerToken(false);
-                }
-            });
-            if (!StringUtils.isNullOrWhitespace(authorization)) {
-                client.addRequestProperty("Authorization", authorization);
-            } else {
+            if (StringUtils.isNullOrWhitespace(authorization)) {
                 throw new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
             }
 
+            Request request = new Request.Builder()
+                    .url(String.format(ALERT_QUERY_URL, location.getQuery(), locale))
+                    .addHeader("Authorization", authorization)
+                    .build();
+
             // Connect to webstream
-            InputStream stream = client.getInputStream();
+            response = client.newCall(request).execute();
+            final InputStream stream = response.body().byteStream();
 
             // Load data
             Rootobject root = JSONParser.deserializer(stream, Rootobject.class);
@@ -265,12 +240,9 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
             alerts = new ArrayList<>();
             Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting weather alert data");
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
-
-        if (alerts == null)
-            alerts = new ArrayList<>();
 
         return alerts;
     }

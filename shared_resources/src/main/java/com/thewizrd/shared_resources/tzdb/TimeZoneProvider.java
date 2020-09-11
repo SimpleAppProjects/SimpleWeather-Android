@@ -4,17 +4,18 @@ import android.util.Log;
 
 import com.google.gson.annotations.SerializedName;
 import com.thewizrd.shared_resources.FirebaseHelper;
+import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Locale;
 
-import javax.net.ssl.HttpsURLConnection;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class TimeZoneProvider implements TimeZoneProviderInterface {
     private class TimeZoneData {
@@ -32,10 +33,6 @@ public class TimeZoneProvider implements TimeZoneProviderInterface {
 
     @Override
     public String getTimeZone(double latitude, final double longitude) {
-        String tzLong = null;
-        URL weatherURL = null;
-        HttpsURLConnection client = null;
-
         // Get Firebase token
         final String userToken = FirebaseHelper.getAccessToken();
 
@@ -43,17 +40,19 @@ public class TimeZoneProvider implements TimeZoneProviderInterface {
         if (StringUtils.isNullOrWhitespace(tzAPI) || StringUtils.isNullOrWhitespace(userToken))
             return null;
 
+        String tzLong = null;
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response response = null;
+
         try {
-            weatherURL = new URL(String.format(Locale.ROOT, "%s?lat=%s&lon=%s", tzAPI, latitude, longitude));
+            Request request = new Request.Builder()
+                    .url(String.format(Locale.ROOT, "%s?lat=%s&lon=%s", tzAPI, latitude, longitude))
+                    .addHeader("Authorization", String.format(Locale.ROOT, "Bearer %s", userToken))
+                    .build();
 
-            InputStream stream = null;
-
-            // Build request
-            client = (HttpsURLConnection) weatherURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
-            client.addRequestProperty("Authorization", String.format(Locale.ROOT, "Bearer %s", userToken));
-            stream = client.getInputStream();
+            // Connect to webstream
+            response = client.newCall(request).execute();
+            final InputStream stream = response.body().byteStream();
 
             // Load data
             TimeZoneData root = JSONParser.deserializer(stream, TimeZoneData.class);
@@ -66,8 +65,8 @@ public class TimeZoneProvider implements TimeZoneProviderInterface {
             tzLong = null;
             Logger.writeLine(Log.ERROR, ex, "TimeZoneProvider: error time zone");
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
 
         return tzLong;

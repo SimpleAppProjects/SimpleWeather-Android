@@ -10,9 +10,9 @@ import com.google.gson.JsonParser;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.locationiq.LocationIQProvider;
+import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -33,13 +33,15 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Locale;
-import java.util.zip.GZIPInputStream;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 public final class MetnoWeatherProvider extends WeatherProviderImpl {
+    private static final String FORECAST_QUERY_URL = "https://api.met.no/weatherapi/locationforecast/2.0/complete.json?%s";
+    private static final String SUNRISE_QUERY_URL = "https://api.met.no/weatherapi/sunrise/2.0/.json?%s&date=%s&offset=+00:00";
 
     public MetnoWeatherProvider() {
         super();
@@ -85,55 +87,34 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
     public Weather getWeather(String location_query) throws WeatherException {
         Weather weather = null;
 
-        String forecastAPI = null;
-        URL forecastURL = null;
-        String sunrisesetAPI = null;
-        URL sunrisesetURL = null;
-        String query = null;
-        HttpURLConnection client = null;
-
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        okhttp3.Response forecastResponse = null;
+        okhttp3.Response sunriseResponse = null;
         WeatherException wEx = null;
 
         try {
-            forecastAPI = "https://api.met.no/weatherapi/locationforecast/2.0/complete.json?%s";
-            forecastURL = new URL(String.format(forecastAPI, location_query));
-            sunrisesetAPI = "https://api.met.no/weatherapi/sunrise/2.0/.json?%s&date=%s&offset=+00:00";
-            String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT));
-            sunrisesetURL = new URL(String.format(sunrisesetAPI, location_query, date));
-
-            InputStream forecastStream = null;
-            InputStream sunrisesetStream = null;
-
             Context context = SimpleLibrary.getInstance().getApp().getAppContext();
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             String version = String.format("v%s", packageInfo.versionName);
 
-            client = (HttpURLConnection) forecastURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
-            client.setInstanceFollowRedirects(true);
-            client.addRequestProperty("Accept-Encoding", "gzip");
-            client.addRequestProperty("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version));
-            if ("gzip".equals(client.getContentEncoding())) {
-                forecastStream = new GZIPInputStream(client.getInputStream());
-            } else {
-                forecastStream = client.getInputStream();
-            }
+            Request forecastRequest = new Request.Builder()
+                    .url(String.format(FORECAST_QUERY_URL, location_query))
+                    .addHeader("Accept-Encoding", "gzip")
+                    .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
+                    .build();
 
-            client = (HttpURLConnection) sunrisesetURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
-            client.setInstanceFollowRedirects(true);
-            client.addRequestProperty("Accept-Encoding", "gzip");
-            client.addRequestProperty("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version));
-            if ("gzip".equals(client.getContentEncoding())) {
-                sunrisesetStream = new GZIPInputStream(client.getInputStream());
-            } else {
-                sunrisesetStream = client.getInputStream();
-            }
+            final String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT));
+            Request sunriseRequest = new Request.Builder()
+                    .url(String.format(SUNRISE_QUERY_URL, location_query, date))
+                    .addHeader("Accept-Encoding", "gzip")
+                    .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
+                    .build();
 
-            // Reset exception
-            wEx = null;
+            // Connect to webstream
+            forecastResponse = client.newCall(forecastRequest).execute();
+            final InputStream forecastStream = OkHttp3Utils.getStream(forecastResponse);
+            sunriseResponse = client.newCall(sunriseRequest).execute();
+            final InputStream sunrisesetStream = OkHttp3Utils.getStream(sunriseResponse);
 
             // Load weather
             Response foreRoot = JSONParser.deserializer(forecastStream, Response.class);
@@ -152,8 +133,10 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
             }
             Logger.writeLine(Log.ERROR, ex, "MetnoWeatherProvider: error getting weather data");
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (forecastResponse != null)
+                forecastResponse.close();
+            if (sunriseResponse != null)
+                sunriseResponse.close();
         }
 
         if (wEx == null && (weather == null || !weather.isValid())) {

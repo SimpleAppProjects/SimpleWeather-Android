@@ -3,12 +3,11 @@ package com.thewizrd.shared_resources.locationdata.here;
 import android.util.Log;
 
 import com.ibm.icu.util.ULocale;
-import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -17,16 +16,24 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.concurrent.Callable;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public final class HERELocationProvider extends LocationProviderImpl {
+    private static final String AUTOCOMPLETE_QUERY_URL = "https://autocomplete.geocoder.ls.hereapi.com/6.2/suggest.json?query=%s&language=%s&maxresults=10";
+    private static final String GEOLOCATION_QUERY_URL = "https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json" +
+            "?prox=%s,150&mode=retrieveAddresses&maxresults=1&additionaldata=Country2,true&gen=9&jsonattributes=1" +
+            "&locationattributes=adminInfo,timeZone,-mapView,-mapReference&language=%s";
+    private static final String GEOCODER_QUERY_URL = "https://geocoder.ls.hereapi.com/6.2/geocode.json" +
+            "?locationid=%s&mode=retrieveAddresses&maxresults=1&additionaldata=Country2,true&gen=9&jsonattributes=1" +
+            "&locationattributes=adminInfo,timeZone,-mapView,-mapReference&language=%s";
 
     @Override
     public String getLocationAPI() {
@@ -47,38 +54,31 @@ public final class HERELocationProvider extends LocationProviderImpl {
     public Collection<LocationQueryViewModel> getLocations(String ac_query, String weatherAPI) throws WeatherException {
         Collection<LocationQueryViewModel> locations = null;
 
-        String queryAPI = "https://autocomplete.geocoder.ls.hereapi.com/6.2/suggest.json";
-        String query = "?query=%s&language=%s&maxresults=10";
-
-        HttpURLConnection client = null;
-        WeatherException wEx = null;
         // Limit amount of results shown
         int maxResults = 10;
 
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
-        try {
-            URL queryURL = new URL(String.format(queryAPI + query, URLEncoder.encode(ac_query, "UTF-8"), locale));
-            client = (HttpURLConnection) queryURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response response = null;
+        WeatherException wEx = null;
 
-            // Add headers to request
-            String authorization = new AsyncTask<String>().await(new Callable<String>() {
-                @Override
-                public String call() {
-                    return HEREOAuthUtils.getBearerToken(false);
-                }
-            });
-            if (!StringUtils.isNullOrWhitespace(authorization)) {
-                client.addRequestProperty("Authorization", authorization);
-            } else {
+        try {
+            final String authorization = HEREOAuthUtils.getBearerToken(false);
+
+            if (StringUtils.isNullOrWhitespace(authorization)) {
                 throw new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
             }
 
+            Request request = new Request.Builder()
+                    .url(String.format(AUTOCOMPLETE_QUERY_URL, URLEncoder.encode(ac_query, "UTF-8"), locale))
+                    .addHeader("Authorization", authorization)
+                    .build();
+
             // Connect to webstream
-            InputStream stream = client.getInputStream();
+            response = client.newCall(request).execute();
+            final InputStream stream = response.body().byteStream();
 
             // Load data
             locations = new HashSet<>(); // Use HashSet to avoid duplicate location (names)
@@ -110,8 +110,8 @@ public final class HERELocationProvider extends LocationProviderImpl {
             }
             Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting locations");
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
 
         if (wEx != null)
@@ -128,39 +128,31 @@ public final class HERELocationProvider extends LocationProviderImpl {
     public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coord, String weatherAPI) throws WeatherException {
         LocationQueryViewModel location = null;
 
-        String queryAPI = "https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json";
-
-        String location_query = String.format(Locale.ROOT, "%s,%s", Double.toString(coord.getLatitude()), Double.toString(coord.getLongitude()));
-        String query = "?prox=%s,150&mode=retrieveAddresses&maxresults=1&additionaldata=Country2,true&gen=9&jsonattributes=1" +
-                "&locationattributes=adminInfo,timeZone,-mapView,-mapReference&language=%s";
-        HttpURLConnection client = null;
-        ResultItem result = null;
-        WeatherException wEx = null;
+        String location_query = String.format(Locale.ROOT, "%s,%s", coord.getLatitude(), coord.getLongitude());
 
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
-        try {
-            URL queryURL = new URL(String.format(queryAPI + query, location_query, locale));
-            client = (HttpURLConnection) queryURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response response = null;
+        ResultItem result = null;
+        WeatherException wEx = null;
 
-            // Add headers to request
-            String authorization = new AsyncTask<String>().await(new Callable<String>() {
-                @Override
-                public String call() {
-                    return HEREOAuthUtils.getBearerToken(false);
-                }
-            });
-            if (!StringUtils.isNullOrWhitespace(authorization)) {
-                client.addRequestProperty("Authorization", authorization);
-            } else {
+        try {
+            final String authorization = HEREOAuthUtils.getBearerToken(false);
+
+            if (StringUtils.isNullOrWhitespace(authorization)) {
                 throw new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
             }
 
+            Request request = new Request.Builder()
+                    .url(String.format(GEOLOCATION_QUERY_URL, location_query, locale))
+                    .addHeader("Authorization", authorization)
+                    .build();
+
             // Connect to webstream
-            InputStream stream = client.getInputStream();
+            response = client.newCall(request).execute();
+            final InputStream stream = response.body().byteStream();
 
             // Load data
             Geo_Rootobject root = JSONParser.deserializer(stream, Geo_Rootobject.class);
@@ -177,8 +169,8 @@ public final class HERELocationProvider extends LocationProviderImpl {
             }
             Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting location");
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
 
         if (wEx != null)
@@ -195,38 +187,29 @@ public final class HERELocationProvider extends LocationProviderImpl {
     public LocationQueryViewModel getLocationfromLocID(String locationID, String weatherAPI) throws WeatherException {
         LocationQueryViewModel location = null;
 
-        String queryAPI = "https://geocoder.ls.hereapi.com/6.2/geocode.json";
-
-        String query = "?locationid=%s&mode=retrieveAddresses&maxresults=1&additionaldata=Country2,true&gen=9&jsonattributes=1" +
-                "&locationattributes=adminInfo,timeZone,-mapView,-mapReference&language=%s";
-        HttpURLConnection client = null;
-        ResultItem result = null;
-        WeatherException wEx = null;
-
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
-        try {
-            URL queryURL = new URL(String.format(queryAPI + query, locationID, locale));
-            client = (HttpURLConnection) queryURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response response = null;
+        ResultItem result = null;
+        WeatherException wEx = null;
 
-            // Add headers to request
-            String authorization = new AsyncTask<String>().await(new Callable<String>() {
-                @Override
-                public String call() {
-                    return HEREOAuthUtils.getBearerToken(false);
-                }
-            });
-            if (!StringUtils.isNullOrWhitespace(authorization)) {
-                client.addRequestProperty("Authorization", authorization);
-            } else {
+        try {
+            final String authorization = HEREOAuthUtils.getBearerToken(false);
+
+            if (StringUtils.isNullOrWhitespace(authorization)) {
                 throw new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
             }
 
+            Request request = new Request.Builder()
+                    .url(String.format(GEOCODER_QUERY_URL, locationID, locale))
+                    .addHeader("Authorization", authorization)
+                    .build();
+
             // Connect to webstream
-            InputStream stream = client.getInputStream();
+            response = client.newCall(request).execute();
+            final InputStream stream = response.body().byteStream();
 
             // Load data
             Geo_Rootobject root = JSONParser.deserializer(stream, Geo_Rootobject.class);
@@ -243,8 +226,8 @@ public final class HERELocationProvider extends LocationProviderImpl {
             }
             Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting location");
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
 
         if (wEx != null)

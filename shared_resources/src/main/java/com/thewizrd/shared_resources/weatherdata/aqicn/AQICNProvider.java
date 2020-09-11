@@ -9,44 +9,44 @@ import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.AirQuality;
 import com.thewizrd.shared_resources.weatherdata.AirQualityProviderInterface;
 
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class AQICNProvider implements AirQualityProviderInterface {
+    private static final String QUERY_URL = "https://api.waqi.info/feed/geo:%s;%s/?token=%s";
+
     @Override
     public AirQuality getAirQualityData(LocationData location) throws WeatherException {
         AirQuality aqiData = null;
-
-        String queryAPI = null;
-        URL weatherURL = null;
-        HttpURLConnection client = null;
 
         String key = Keys.getAQICNKey();
         if (StringUtils.isNullOrWhitespace(key))
             return null;
 
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response response = null;
+
         try {
-            queryAPI = "https://api.waqi.info/feed/geo:%s;%s/?token=%s";
-            weatherURL = new URL(String.format(queryAPI, location.getLatitude(), location.getLongitude(), key));
-
-            InputStream stream = null;
-
             Context context = SimpleLibrary.getInstance().getApp().getAppContext();
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             String version = String.format("v%s", packageInfo.versionName);
 
-            client = (HttpURLConnection) weatherURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
-            client.addRequestProperty("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version));
-            stream = client.getInputStream();
+            Request request = new Request.Builder()
+                    .url(String.format(QUERY_URL, location.getLatitude(), location.getLongitude(), key))
+                    .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
+                    .build();
+
+            // Connect to webstream
+            response = client.newCall(request).execute();
+            final InputStream stream = response.body().byteStream();
 
             // Load data
             Rootobject root = JSONParser.deserializer(stream, Rootobject.class);
@@ -59,8 +59,8 @@ public class AQICNProvider implements AirQualityProviderInterface {
             aqiData = null;
             Logger.writeLine(Log.ERROR, ex, "AQICNProvider: error getting air quality data");
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
 
         return aqiData;

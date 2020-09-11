@@ -4,12 +4,13 @@ import android.util.Log;
 
 import com.google.gson.reflect.TypeToken;
 import com.ibm.icu.util.ULocale;
+import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
+import com.thewizrd.shared_resources.utils.ExceptionUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -19,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,7 +28,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
+import okhttp3.CacheControl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public final class LocationIQProvider extends LocationProviderImpl {
+    private static final String AUTOCOMPLETE_QUERY_URL = "https://api.locationiq.com/v1/autocomplete.php?key=%s&q=%s&limit=10&normalizecity=1&addressdetails=1&accept-language=%s";
+    private static final String GEOLOCATION_QUERY_URL = "https://api.locationiq.com/v1/reverse.php?key=%s&lat=%s&lon=%s&format=json&zoom=14&namedetails=0&addressdetails=1&accept-language=%s&normalizecity=1";
+    private static final String KEY_QUERY_URL = "https://us1.unwiredlabs.com/v2/timezone.php?token=%s";
 
     @Override
     public String getLocationAPI() {
@@ -49,10 +57,6 @@ public final class LocationIQProvider extends LocationProviderImpl {
     public Collection<LocationQueryViewModel> getLocations(String ac_query, String weatherAPI) throws WeatherException {
         Collection<LocationQueryViewModel> locations = null;
 
-        String queryAPI = "https://api.locationiq.com/v1/autocomplete.php";
-        String query = "?key=%s&q=%s&limit=10&normalizecity=1&addressdetails=1&accept-language=%s";
-        HttpURLConnection client = null;
-        WeatherException wEx = null;
         // Limit amount of results shown
         int maxResults = 10;
 
@@ -61,14 +65,19 @@ public final class LocationIQProvider extends LocationProviderImpl {
 
         String key = getAPIKey();
 
-        try {
-            // Connect to webstream
-            URL queryURL = new URL(String.format(queryAPI + query, key, URLEncoder.encode(ac_query, "UTF-8"), locale));
-            client = (HttpURLConnection) queryURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response response = null;
+        WeatherException wEx = null;
 
-            InputStream stream = client.getInputStream();
+        try {
+            Request request = new Request.Builder()
+                    .get()
+                    .url(String.format(AUTOCOMPLETE_QUERY_URL, key, URLEncoder.encode(ac_query, "UTF-8"), locale))
+                    .build();
+
+            // Connect to webstream
+            response = client.newCall(request).execute();
+            final InputStream stream = response.body().byteStream();
 
             // Load data
             locations = new HashSet<>(); // Use HashSet to avoid duplicate location (names)
@@ -100,8 +109,8 @@ public final class LocationIQProvider extends LocationProviderImpl {
             }
             Logger.writeLine(Log.ERROR, ex, "LocationIQProvider: error getting locations");
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
 
         if (wEx != null)
@@ -118,25 +127,25 @@ public final class LocationIQProvider extends LocationProviderImpl {
     public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coord, String weatherAPI) throws WeatherException {
         LocationQueryViewModel location = null;
 
-        String queryAPI = "https://api.locationiq.com/v1/reverse.php";
-        String query = "?key=%s&lat=%s&lon=%s&format=json&zoom=14&namedetails=0&addressdetails=1&accept-language=%s&normalizecity=1";
-        HttpURLConnection client = null;
-        GeoLocation result = null;
-        WeatherException wEx = null;
-
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
         String key = getAPIKey();
 
-        try {
-            // Connect to webstream
-            URL queryURL = new URL(String.format(queryAPI + query, key, Double.toString(coord.getLatitude()), Double.toString(coord.getLongitude()), locale));
-            client = (HttpURLConnection) queryURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response response = null;
+        GeoLocation result = null;
+        WeatherException wEx = null;
 
-            InputStream stream = client.getInputStream();
+        try {
+            Request request = new Request.Builder()
+                    .get()
+                    .url(String.format(GEOLOCATION_QUERY_URL, key, coord.getLatitude(), coord.getLongitude(), locale))
+                    .build();
+
+            // Connect to webstream
+            response = client.newCall(request).execute();
+            final InputStream stream = response.body().byteStream();
 
             // Load data
             result = JSONParser.deserializer(stream, GeoLocation.class);
@@ -150,8 +159,8 @@ public final class LocationIQProvider extends LocationProviderImpl {
             }
             Logger.writeLine(Log.ERROR, ex, "LocationIQProvider: error getting location");
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
 
         if (wEx != null)
@@ -167,26 +176,27 @@ public final class LocationIQProvider extends LocationProviderImpl {
 
     @Override
     public boolean isKeyValid(String key) throws WeatherException {
-        String queryAPI = "https://us1.unwiredlabs.com/v2/timezone.php";
+        if (StringUtils.isNullOrWhitespace(key)) {
+            throw new WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY);
+        }
 
-        HttpURLConnection client = null;
         boolean isValid = false;
         WeatherException wEx = null;
 
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response response = null;
+
         try {
-            if (StringUtils.isNullOrWhitespace(key)) {
-                wEx = new WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY);
-                throw wEx;
-            }
+            Request request = new Request.Builder()
+                    .url(String.format(KEY_QUERY_URL, key))
+                    .cacheControl(CacheControl.FORCE_NETWORK)
+                    .build();
 
             // Connect to webstream
-            URL queryURL = new URL(String.format("%s?token=%s", queryAPI, key));
-            client = (HttpURLConnection) queryURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
+            response = client.newCall(request).execute();
 
             // Check for errors
-            switch (client.getResponseCode()) {
+            switch (response.code()) {
                 // 400 (OK since this isn't a valid request)
                 case HttpURLConnection.HTTP_BAD_REQUEST:
                     isValid = true;
@@ -199,13 +209,13 @@ public final class LocationIQProvider extends LocationProviderImpl {
             }
         } catch (Exception ex) {
             if (ex instanceof IOException) {
-                wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
+                wEx = ExceptionUtils.copyStackTrace(new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR), ex);
             }
 
             isValid = false;
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
 
         if (wEx != null) {

@@ -6,49 +6,49 @@ import android.util.Log;
 
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertProviderInterface;
 
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public final class NWSAlertProvider implements WeatherAlertProviderInterface {
+    private static final String ALERT_QUERY_URL = "https://api.weather.gov/alerts/active?status=actual&message_type=alert&point=%s,%s";
+
     @Override
     public List<WeatherAlert> getAlerts(LocationData location) {
-        List<WeatherAlert> alerts = null;
+        List<WeatherAlert> alerts;
 
-        String queryAPI = null;
-        URL weatherURL = null;
-        HttpURLConnection client = null;
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response response = null;
 
         try {
-            queryAPI = "https://api.weather.gov/alerts/active?point=%s,%s";
-            weatherURL = new URL(String.format(queryAPI, location.getLatitude(), location.getLongitude()));
-
-            InputStream stream = null;
-
             Context context = SimpleLibrary.getInstance().getApp().getAppContext();
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             String version = String.format("v%s", packageInfo.versionName);
 
-            client = (HttpURLConnection) weatherURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
-            client.setInstanceFollowRedirects(true);
-            client.addRequestProperty("Accept", "application/ld+json");
-            client.addRequestProperty("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version));
-            if ("gzip".equals(client.getContentEncoding())) {
-                stream = new GZIPInputStream(client.getInputStream());
-            } else {
-                stream = client.getInputStream();
-            }
+            Request request = new Request.Builder()
+                    .url(String.format(ALERT_QUERY_URL, location.getLatitude(), location.getLongitude()))
+                    .addHeader("Accept", "application/ld+json")
+                    .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
+                    .build();
+
+            // Connect to webstream
+            response = client.newBuilder()
+                    // Extend timeout to 15s
+                    .readTimeout(15, TimeUnit.SECONDS)
+                    .build()
+                    .newCall(request).execute();
+            final InputStream stream = OkHttp3Utils.getStream(response);
 
             // Load data
             AlertRootobject root = JSONParser.deserializer(stream, AlertRootobject.class);
@@ -65,12 +65,9 @@ public final class NWSAlertProvider implements WeatherAlertProviderInterface {
             alerts = new ArrayList<>();
             Logger.writeLine(Log.ERROR, ex, "NWSAlertProvider: error getting weather alert data");
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
-
-        if (alerts == null)
-            alerts = new ArrayList<>();
 
         return alerts;
     }

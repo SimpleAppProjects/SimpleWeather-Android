@@ -4,14 +4,11 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.util.Log;
 
-import com.thewizrd.shared_resources.AsyncTaskEx;
-import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -29,12 +26,15 @@ import org.threeten.bp.ZonedDateTime;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Locale;
-import java.util.zip.GZIPInputStream;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class NWSWeatherProvider extends WeatherProviderImpl {
+    private static final String POINTS_QUERY_URL = "https://api.weather.gov/points/%s";
 
     public NWSWeatherProvider() {
         super();
@@ -78,83 +78,49 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
 
     @Override
     public Weather getWeather(String location_query) throws WeatherException {
-        Weather weather = null;
+        Weather weather;
 
-        URL weatherURL = null;
-        HttpURLConnection client = null;
-
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response pointsResponse = null;
         WeatherException wEx = null;
 
         try {
-            String queryAPI = "https://api.weather.gov/points/%s";
-            weatherURL = new URL(String.format(queryAPI, location_query));
-
-            InputStream stream = null;
-
             Context context = SimpleLibrary.getInstance().getApp().getAppContext();
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             String version = String.format("v%s", packageInfo.versionName);
 
-            client = (HttpURLConnection) weatherURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
+            Request request = new Request.Builder()
+                    .url(String.format(POINTS_QUERY_URL, location_query))
+                    .addHeader("Accept", "application/ld+json")
+                    .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
+                    .build();
 
-            // Add headers to request
-            client.setInstanceFollowRedirects(true);
-            client.addRequestProperty("Accept", "application/ld+json");
-            client.addRequestProperty("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version));
+            // Connect to webstream
+            pointsResponse = client.newCall(request).execute();
 
             // Check for errors
-            checkForErrors(client.getResponseCode());
+            checkForErrors(pointsResponse.code());
 
-            if ("gzip".equals(client.getContentEncoding())) {
-                stream = new GZIPInputStream(client.getInputStream());
-            } else {
-                stream = client.getInputStream();
-            }
-
-            // Reset exception
-            wEx = null;
+            final InputStream stream = pointsResponse.body().byteStream();
 
             // Load point json data
-            PointsResponse pointsResponse = null;
-            pointsResponse = JSONParser.deserializer(stream, PointsResponse.class);
+            PointsResponse pointsResponseData = JSONParser.deserializer(stream, PointsResponse.class);
 
             // End Stream
             stream.close();
 
-            final String forecastUrl = pointsResponse.getForecast();
-            final String forecastHourlyUrl = pointsResponse.getForecastHourly();
-            final String observationStationsUrl = pointsResponse.getObservationStations();
+            final String forecastUrl = pointsResponseData.getForecast();
+            final String forecastHourlyUrl = pointsResponseData.getForecastHourly();
+            final String observationStationsUrl = pointsResponseData.getObservationStations();
 
-            ForecastResponse forecastResponse = new AsyncTaskEx<ForecastResponse, Exception>().await(new CallableEx<ForecastResponse, Exception>() {
-                @Override
-                public ForecastResponse call() throws Exception {
-                    return getForecastResponse(forecastUrl);
-                }
-            });
-            HourlyForecastResponse hourlyForecastResponse = new AsyncTaskEx<HourlyForecastResponse, Exception>().await(new CallableEx<HourlyForecastResponse, Exception>() {
-                @Override
-                public HourlyForecastResponse call() throws Exception {
-                    return getHourlyForecastResponse(forecastHourlyUrl);
-                }
-            });
-            ObservationStationsResponse stationsResponse = new AsyncTaskEx<ObservationStationsResponse, Exception>().await(new CallableEx<ObservationStationsResponse, Exception>() {
-                @Override
-                public ObservationStationsResponse call() throws Exception {
-                    return getObservationStationsResponse(observationStationsUrl);
-                }
-            });
+            ForecastResponse forecastResponse = getForecastResponse(forecastUrl);
+            HourlyForecastResponse hourlyForecastResponse = getHourlyForecastResponse(forecastHourlyUrl);
+            ObservationStationsResponse stationsResponse = getObservationStationsResponse(observationStationsUrl);
 
             final String stationUrl = stationsResponse.getObservationStations().get(0);
-            ObservationCurrentResponse obsCurrentResponse = new AsyncTaskEx<ObservationCurrentResponse, Exception>().await(new CallableEx<ObservationCurrentResponse, Exception>() {
-                @Override
-                public ObservationCurrentResponse call() throws Exception {
-                    return getObservationCurrentResponse(stationUrl);
-                }
-            });
+            ObservationCurrentResponse obsCurrentResponse = getObservationCurrentResponse(stationUrl);
 
-            weather = new Weather(pointsResponse, forecastResponse, hourlyForecastResponse, obsCurrentResponse);
+            weather = new Weather(pointsResponseData, forecastResponse, hourlyForecastResponse, obsCurrentResponse);
         } catch (Exception ex) {
             weather = null;
             if (ex instanceof IOException) {
@@ -162,8 +128,8 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
             }
             Logger.writeLine(Log.ERROR, ex, "NWSWeatherProvider: error getting weather data");
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (pointsResponse != null)
+                pointsResponse.close();
         }
 
         if (wEx == null && (weather == null || !weather.isValid())) {
@@ -179,206 +145,158 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
     }
 
     private ForecastResponse getForecastResponse(String url) throws Exception {
-        ForecastResponse response = null;
+        ForecastResponse responseData;
 
-        URL weatherURL = null;
-        HttpURLConnection client = null;
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response response = null;
 
         try {
-            weatherURL = new URL(url + "?units=us");
-
-            InputStream stream = null;
-
             Context context = SimpleLibrary.getInstance().getApp().getAppContext();
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             String version = String.format("v%s", packageInfo.versionName);
 
-            client = (HttpURLConnection) weatherURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
+            Request request = new Request.Builder()
+                    .url(url + "?units=us")
+                    .addHeader("Accept", "application/ld+json")
+                    .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
+                    .build();
 
-            // Add headers to request
-            client.setInstanceFollowRedirects(true);
-            client.addRequestProperty("Accept", "application/ld+json");
-            client.addRequestProperty("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version));
+            // Connect to webstream
+            response = client.newCall(request).execute();
 
             // Check for errors
-            checkForErrors(client.getResponseCode());
+            checkForErrors(response.code());
 
-            if ("gzip".equals(client.getContentEncoding())) {
-                stream = new GZIPInputStream(client.getInputStream());
-            } else {
-                stream = client.getInputStream();
-            }
+            final InputStream stream = response.body().byteStream();
 
             // Load point json data
-            response = JSONParser.deserializer(stream, ForecastResponse.class);
+            responseData = JSONParser.deserializer(stream, ForecastResponse.class);
 
             // End Stream
             stream.close();
-
-        } catch (Exception ex) {
-            response = null;
-            throw ex;
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
 
-        return response;
+        return responseData;
     }
 
     private HourlyForecastResponse getHourlyForecastResponse(String url) throws Exception {
-        HourlyForecastResponse response = null;
+        HourlyForecastResponse responseData;
 
-        URL weatherURL = null;
-        HttpURLConnection client = null;
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response response = null;
 
         try {
-            weatherURL = new URL(url + "?units=us");
-
-            InputStream stream = null;
-
             Context context = SimpleLibrary.getInstance().getApp().getAppContext();
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             String version = String.format("v%s", packageInfo.versionName);
 
-            client = (HttpURLConnection) weatherURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
+            Request request = new Request.Builder()
+                    .url(url + "?units=us")
+                    .addHeader("Accept", "application/ld+json")
+                    .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
+                    .build();
 
-            // Add headers to request
-            client.setInstanceFollowRedirects(true);
-            client.addRequestProperty("Accept", "application/ld+json");
-            client.addRequestProperty("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version));
+            // Connect to webstream
+            response = client.newCall(request).execute();
 
             // Check for errors
-            checkForErrors(client.getResponseCode());
+            checkForErrors(response.code());
 
-            if ("gzip".equals(client.getContentEncoding())) {
-                stream = new GZIPInputStream(client.getInputStream());
-            } else {
-                stream = client.getInputStream();
-            }
+            final InputStream stream = response.body().byteStream();
 
             // Load point json data
-            response = JSONParser.deserializer(stream, HourlyForecastResponse.class);
+            responseData = JSONParser.deserializer(stream, HourlyForecastResponse.class);
 
             // End Stream
             stream.close();
-
         } catch (WeatherException wEx) {
             // Allow continuing w/o the data
-            response = null;
-        } catch (Exception ex) {
-            response = null;
-            throw ex;
+            responseData = null;
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
 
-        return response;
+        return responseData;
     }
 
     private ObservationStationsResponse getObservationStationsResponse(String url) throws Exception {
-        ObservationStationsResponse response = null;
+        ObservationStationsResponse responseData;
 
-        URL weatherURL = null;
-        HttpURLConnection client = null;
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response response = null;
 
         try {
-            weatherURL = new URL(url);
-
-            InputStream stream = null;
-
             Context context = SimpleLibrary.getInstance().getApp().getAppContext();
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             String version = String.format("v%s", packageInfo.versionName);
 
-            client = (HttpURLConnection) weatherURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .addHeader("Accept", "application/ld+json")
+                    .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
+                    .build();
 
-            // Add headers to request
-            client.setInstanceFollowRedirects(true);
-            client.addRequestProperty("Accept", "application/ld+json");
-            client.addRequestProperty("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version));
+            // Connect to webstream
+            response = client.newCall(request).execute();
 
             // Check for errors
-            checkForErrors(client.getResponseCode());
+            checkForErrors(response.code());
 
-            if ("gzip".equals(client.getContentEncoding())) {
-                stream = new GZIPInputStream(client.getInputStream());
-            } else {
-                stream = client.getInputStream();
-            }
+            final InputStream stream = response.body().byteStream();
 
             // Load point json data
-            response = JSONParser.deserializer(stream, ObservationStationsResponse.class);
+            responseData = JSONParser.deserializer(stream, ObservationStationsResponse.class);
 
             // End Stream
             stream.close();
-
-        } catch (Exception ex) {
-            response = null;
-            throw ex;
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
 
-        return response;
+        return responseData;
     }
 
     private ObservationCurrentResponse getObservationCurrentResponse(String url) throws Exception {
-        ObservationCurrentResponse response = null;
+        ObservationCurrentResponse responseData;
 
-        URL weatherURL = null;
-        HttpURLConnection client = null;
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response response = null;
 
         try {
-            weatherURL = new URL(url + "/observations/latest?require_qc=true");
-
-            InputStream stream = null;
-
             Context context = SimpleLibrary.getInstance().getApp().getAppContext();
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             String version = String.format("v%s", packageInfo.versionName);
 
-            client = (HttpURLConnection) weatherURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
+            Request request = new Request.Builder()
+                    .url(url + "/observations/latest?require_qc=true")
+                    .addHeader("Accept", "application/ld+json")
+                    .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
+                    .build();
 
-            // Add headers to request
-            client.setInstanceFollowRedirects(true);
-            client.addRequestProperty("Accept", "application/ld+json");
-            client.addRequestProperty("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version));
+            // Connect to webstream
+            response = client.newCall(request).execute();
 
             // Check for errors
-            checkForErrors(client.getResponseCode());
+            checkForErrors(response.code());
 
-            if ("gzip".equals(client.getContentEncoding())) {
-                stream = new GZIPInputStream(client.getInputStream());
-            } else {
-                stream = client.getInputStream();
-            }
+            final InputStream stream = response.body().byteStream();
 
             // Load point json data
-            response = JSONParser.deserializer(stream, ObservationCurrentResponse.class);
+            responseData = JSONParser.deserializer(stream, ObservationCurrentResponse.class);
 
             // End Stream
             stream.close();
-
-        } catch (Exception ex) {
-            response = null;
-            throw ex;
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
 
-        return response;
+        return responseData;
     }
 
     private void checkForErrors(int responseCode) throws WeatherException {

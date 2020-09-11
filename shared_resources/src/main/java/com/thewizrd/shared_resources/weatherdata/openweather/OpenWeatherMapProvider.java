@@ -3,9 +3,11 @@ package com.thewizrd.shared_resources.weatherdata.openweather;
 import android.util.Log;
 
 import com.ibm.icu.util.ULocale;
+import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.locationiq.LocationIQProvider;
+import com.thewizrd.shared_resources.utils.ExceptionUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -24,11 +26,18 @@ import org.threeten.bp.ZoneOffset;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Locale;
 
+import okhttp3.CacheControl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public final class OpenWeatherMapProvider extends WeatherProviderImpl {
+    private static final String BASE_URL = "https://api.openweathermap.org/data/2.5/";
+    private static final String KEY_QUERY_URL = BASE_URL + "forecast?appid=%s";
+    private static final String WEATHER_QUERY_URL = BASE_URL + "onecall?%s&exclude=minutely&appid=%s&lang=%s";
 
     public OpenWeatherMapProvider() {
         super();
@@ -62,26 +71,27 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
 
     @Override
     public boolean isKeyValid(String key) throws WeatherException {
-        String queryAPI = "https://api.openweathermap.org/data/2.5/";
-        String query = "forecast?appid=";
-        HttpURLConnection client = null;
+        if (StringUtils.isNullOrWhitespace(key)) {
+            throw new WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY);
+        }
+
         boolean isValid = false;
         WeatherException wEx = null;
 
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response response = null;
+
         try {
-            if (StringUtils.isNullOrWhitespace(key)) {
-                wEx = new WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY);
-                throw wEx;
-            }
+            Request request = new Request.Builder()
+                    .url(String.format(KEY_QUERY_URL, key))
+                    .cacheControl(CacheControl.FORCE_NETWORK)
+                    .build();
 
             // Connect to webstream
-            URL queryURL = new URL(queryAPI + query + key);
-            client = (HttpURLConnection) queryURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
+            response = client.newCall(request).execute();
 
             // Check for errors
-            switch (client.getResponseCode()) {
+            switch (response.code()) {
                 // 400 (OK since this isn't a valid request)
                 case HttpURLConnection.HTTP_BAD_REQUEST:
                     isValid = true;
@@ -93,10 +103,14 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
                     break;
             }
         } catch (Exception ex) {
+            if (ex instanceof IOException) {
+                wEx = ExceptionUtils.copyStackTrace(new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR), ex);
+            }
+
             isValid = false;
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
 
         if (wEx != null) {
@@ -113,16 +127,12 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
 
     @Override
     public Weather getWeather(String location_query) throws WeatherException {
-        Weather weather = null;
-
-        String weatherAPI = null;
-        URL weatherURL = null;
-        String query = null;
-        HttpURLConnection client = null;
+        Weather weather;
 
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
+        String query;
         try {
             query = String.format(Locale.ROOT, "id=%d", Integer.parseInt(location_query));
         } catch (NumberFormatException ex) {
@@ -131,30 +141,26 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
 
         String key = Settings.usePersonalKey() ? Settings.getAPIKEY() : getAPIKey();
 
+        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
+        Response response = null;
         WeatherException wEx = null;
 
         try {
-            weatherAPI = "https://api.openweathermap.org/data/2.5/onecall?%s&exclude=minutely&appid=%s&lang=" + locale;
-            weatherURL = new URL(String.format(weatherAPI, query, key));
+            Request request = new Request.Builder()
+                    .url(String.format(WEATHER_QUERY_URL, query, key, locale))
+                    .build();
 
-            InputStream contentStream = null;
-
-            client = (HttpURLConnection) weatherURL.openConnection();
-            client.setConnectTimeout(Settings.CONNECTION_TIMEOUT);
-            client.setReadTimeout(Settings.READ_TIMEOUT);
-            contentStream = client.getInputStream();
-
-            // Reset exception
-            wEx = null;
+            // Connect to webstream
+            response = client.newCall(request).execute();
+            final InputStream stream = response.body().byteStream();
 
             // Load weather
-            Rootobject root = JSONParser.deserializer(contentStream, Rootobject.class);
+            Rootobject root = JSONParser.deserializer(stream, Rootobject.class);
 
             // End Stream
-            contentStream.close();
+            stream.close();
 
             weather = new Weather(root);
-
         } catch (Exception ex) {
             weather = null;
             if (ex instanceof IOException) {
@@ -162,8 +168,8 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
             }
             Logger.writeLine(Log.ERROR, ex, "OpenWeatherMapProvider: error getting weather data");
         } finally {
-            if (client != null)
-                client.disconnect();
+            if (response != null)
+                response.close();
         }
 
         if (wEx == null && (weather == null || !weather.isValid())) {

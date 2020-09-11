@@ -29,10 +29,12 @@ import com.thewizrd.shared_resources.utils.here.HEREOAuthUtils;
 import com.thewizrd.shared_resources.weatherdata.Astronomy;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
+import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import com.thewizrd.shared_resources.weatherdata.images.ImageDatabase;
 import com.thewizrd.shared_resources.weatherdata.nws.SolCalcAstroProvider;
+import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,6 +45,7 @@ import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 
@@ -113,6 +116,15 @@ public class UnitTests {
         WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.METNO);
         Weather weather = getWeather(provider);
         Assert.assertTrue(weather != null && weather.isValid());
+    }
+
+    @Test
+    public void getNWSAlerts() throws WeatherException {
+        LocationQueryViewModel location = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
+                .getLocation(new WeatherUtils.Coordinate(47.6721646, -122.1706614));
+        LocationData locData = new LocationData(location);
+        List<WeatherAlert> alerts = new NWSAlertProvider().getAlerts(locData);
+        Assert.assertNotNull(alerts);
     }
 
     @Test
