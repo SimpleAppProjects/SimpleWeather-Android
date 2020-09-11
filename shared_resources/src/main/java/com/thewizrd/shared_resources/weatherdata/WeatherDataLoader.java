@@ -10,12 +10,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.ibm.icu.util.ULocale;
-import com.thewizrd.shared_resources.AsyncTask;
-import com.thewizrd.shared_resources.AsyncTaskEx;
-import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.tasks.CallableEx;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -57,7 +56,7 @@ public class WeatherDataLoader {
     }
 
     private void getWeatherData(final WeatherRequest request) throws WeatherException {
-        new AsyncTaskEx<Void, WeatherException>().await(new CallableEx<Void, WeatherException>() {
+        AsyncTask.await(new CallableEx<Void, WeatherException>() {
             @Override
             public Void call() throws WeatherException {
                 WeatherException wEx = null;
@@ -405,7 +404,7 @@ public class WeatherDataLoader {
 
     private void saveWeatherAlerts() {
         if (weather.getWeatherAlerts() != null) {
-            new AsyncTask<Void>().await(new Callable<Void>() {
+            AsyncTask.await(new Callable<Void>() {
                 @Override
                 public Void call() {
                     // Check for previously saved alerts
@@ -433,7 +432,7 @@ public class WeatherDataLoader {
     }
 
     private void saveWeatherForecasts() {
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.await(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 Forecasts forecasts = new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast());

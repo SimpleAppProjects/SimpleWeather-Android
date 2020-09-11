@@ -51,7 +51,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.ibm.icu.util.ULocale;
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.ForecastsViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -59,6 +58,7 @@ import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -564,7 +564,7 @@ public class WeatherNowFragment extends CustomFragment
         boolean locationChanged = false;
 
         if (args.getData() != null) {
-            LocationData location = new AsyncTask<LocationData>().await(new Callable<LocationData>() {
+            LocationData location = AsyncTask.await(new Callable<LocationData>() {
                 @Override
                 public LocationData call() {
                     return JSONParser.deserializer(args.getData(), LocationData.class);
@@ -682,7 +682,7 @@ public class WeatherNowFragment extends CustomFragment
     }
 
     private boolean updateLocation() {
-        return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
+        return AsyncTask.await(new Callable<Boolean>() {
             @Override
             public Boolean call() {
                 boolean locationChanged = false;
@@ -708,7 +708,7 @@ public class WeatherNowFragment extends CustomFragment
                     }
 
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
-                        location = new AsyncTask<Location>().await(new Callable<Location>() {
+                        location = AsyncTask.await(new Callable<Location>() {
                             @SuppressLint("MissingPermission")
                             @Override
                             public Location call() {

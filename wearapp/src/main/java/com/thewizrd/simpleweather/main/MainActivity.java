@@ -31,7 +31,6 @@ import androidx.wear.widget.drawer.WearableNavigationDrawerView;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastsViewModel;
@@ -41,6 +40,7 @@ import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.simpleweather.NavGraphDirections;
 import com.thewizrd.simpleweather.R;
@@ -359,7 +359,7 @@ public class MainActivity extends WearableListenerActivity implements MenuItem.O
         }
 
         public void updateNavDrawerItems() {
-            navItems = new AsyncTask<List<NavDrawerItem>>().await(new Callable<List<NavDrawerItem>>() {
+            navItems = AsyncTask.await(new Callable<List<NavDrawerItem>>() {
                 @Override
                 public List<NavDrawerItem> call() {
                     List<NavDrawerItem> items = new ArrayList<>(navDrawerItems);

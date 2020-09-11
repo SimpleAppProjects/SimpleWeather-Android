@@ -5,9 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -47,7 +47,7 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
                 final String oldKey = intent.getStringExtra(Constants.WIDGETKEY_OLDKEY);
                 final String locationJson = intent.getStringExtra(Constants.WIDGETKEY_LOCATION);
 
-                new AsyncTask<Void>().await(new Callable<Void>() {
+                AsyncTask.await(new Callable<Void>() {
                     @Override
                     public Void call() {
                         LocationData location = JSONParser.deserializer(locationJson, LocationData.class);
@@ -62,7 +62,7 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
                 final String locationQuery = intent.getStringExtra(Constants.WIDGETKEY_LOCATIONQUERY);
                 final String weatherJson = intent.getStringExtra(Constants.WIDGETKEY_WEATHER);
 
-                new AsyncTask<Void>().await(new Callable<Void>() {
+                AsyncTask.await(new Callable<Void>() {
                     @Override
                     public Void call() {
                         Weather weather = JSONParser.deserializer(weatherJson, Weather.class);

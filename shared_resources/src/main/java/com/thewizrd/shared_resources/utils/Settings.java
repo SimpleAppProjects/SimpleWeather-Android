@@ -17,13 +17,13 @@ import androidx.room.Room;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.gson.stream.JsonReader;
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.database.LocationsDAO;
 import com.thewizrd.shared_resources.database.LocationsDatabase;
 import com.thewizrd.shared_resources.database.WeatherDAO;
 import com.thewizrd.shared_resources.database.WeatherDatabase;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.weatherdata.Favorites;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
@@ -235,7 +235,7 @@ public class Settings {
     }
 
     public static void loadIfNeeded() {
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.await(new Callable<Void>() {
             @Override
             public Void call() {
                 if (!loaded) {
@@ -248,7 +248,7 @@ public class Settings {
     }
 
     private static void load() {
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.await(new Callable<Void>() {
             @Override
             public Void call() {
                 /* DB Migration */
@@ -287,7 +287,7 @@ public class Settings {
 
     @Nullable
     public static Collection<LocationData> getFavorites() {
-        return new AsyncTask<List<LocationData>>().await(new Callable<List<LocationData>>() {
+        return AsyncTask.await(new Callable<List<LocationData>>() {
             @Override
             public List<LocationData> call() {
                 loadIfNeeded();
@@ -298,7 +298,7 @@ public class Settings {
 
     @Nullable
     public static List<LocationData> getLocationData() {
-        return new AsyncTask<List<LocationData>>().await(new Callable<List<LocationData>>() {
+        return AsyncTask.await(new Callable<List<LocationData>>() {
             @Override
             public List<LocationData> call() {
                 loadIfNeeded();
@@ -309,7 +309,7 @@ public class Settings {
 
     @Nullable
     public static LocationData getLocation(final String key) {
-        return new AsyncTask<LocationData>().await(new Callable<LocationData>() {
+        return AsyncTask.await(new Callable<LocationData>() {
             @Override
             public LocationData call() {
                 loadIfNeeded();
@@ -320,7 +320,7 @@ public class Settings {
 
     @Nullable
     public static Weather getWeatherData(final String key) {
-        return new AsyncTask<Weather>().await(new Callable<Weather>() {
+        return AsyncTask.await(new Callable<Weather>() {
             @Override
             public Weather call() {
                 loadIfNeeded();
@@ -331,7 +331,7 @@ public class Settings {
 
     @Nullable
     public static Weather getWeatherDataByCoordinate(final LocationData location) {
-        return new AsyncTask<Weather>().await(new Callable<Weather>() {
+        return AsyncTask.await(new Callable<Weather>() {
             @Override
             public Weather call() {
                 loadIfNeeded();
@@ -344,7 +344,7 @@ public class Settings {
 
     @NonNull
     public static Collection<WeatherAlert> getWeatherAlertData(final String key) {
-        return new AsyncTask<Collection<WeatherAlert>>().await(new Callable<Collection<WeatherAlert>>() {
+        return AsyncTask.await(new Callable<Collection<WeatherAlert>>() {
             @Override
             public Collection<WeatherAlert> call() {
                 loadIfNeeded();
@@ -370,7 +370,7 @@ public class Settings {
 
     @Nullable
     public static Forecasts getWeatherForecastData(final String key) {
-        return new AsyncTask<Forecasts>().await(new Callable<Forecasts>() {
+        return AsyncTask.await(new Callable<Forecasts>() {
             @Override
             public Forecasts call() {
                 loadIfNeeded();
@@ -382,7 +382,7 @@ public class Settings {
 
     @Nullable
     public static List<HourlyForecast> getHourlyWeatherForecastDataByLimit(final String key, final int loadSize) {
-        return new AsyncTask<List<HourlyForecast>>().await(new Callable<List<HourlyForecast>>() {
+        return AsyncTask.await(new Callable<List<HourlyForecast>>() {
             @Override
             public List<HourlyForecast> call() {
                 loadIfNeeded();
@@ -394,7 +394,7 @@ public class Settings {
 
     @Nullable
     public static List<HourlyForecast> getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(final String key, final int loadSize, final ZonedDateTime date) {
-        return new AsyncTask<List<HourlyForecast>>().await(new Callable<List<HourlyForecast>>() {
+        return AsyncTask.await(new Callable<List<HourlyForecast>>() {
             @Override
             public List<HourlyForecast> call() {
                 loadIfNeeded();
@@ -406,7 +406,7 @@ public class Settings {
 
     @Nullable
     public static List<HourlyForecast> getHourlyWeatherForecastData(final String key) {
-        return new AsyncTask<List<HourlyForecast>>().await(new Callable<List<HourlyForecast>>() {
+        return AsyncTask.await(new Callable<List<HourlyForecast>>() {
             @Override
             public List<HourlyForecast> call() {
                 loadIfNeeded();
@@ -418,7 +418,7 @@ public class Settings {
 
     @Nullable
     public static HourlyForecast getFirstHourlyForecastDataByDate(final String key, final ZonedDateTime date) {
-        return new AsyncTask<HourlyForecast>().await(new Callable<HourlyForecast>() {
+        return AsyncTask.await(new Callable<HourlyForecast>() {
             @Override
             public HourlyForecast call() {
                 loadIfNeeded();
@@ -430,7 +430,7 @@ public class Settings {
 
     @Nullable
     public static LocationData getLastGPSLocData() {
-        return new AsyncTask<LocationData>().await(new Callable<LocationData>() {
+        return AsyncTask.await(new Callable<LocationData>() {
             @Override
             public LocationData call() {
                 loadIfNeeded();
@@ -445,7 +445,7 @@ public class Settings {
 
     public static void saveWeatherData(final Weather weather) {
         if (weather != null && weather.isValid()) {
-            new AsyncTask<Void>().await(new Callable<Void>() {
+            AsyncTask.await(new Callable<Void>() {
                 @Override
                 public Void call() {
                     weatherDB.weatherDAO().insertWeatherData(weather);
@@ -464,7 +464,7 @@ public class Settings {
 
     public static void saveWeatherAlerts(final LocationData location, final Collection<WeatherAlert> alerts) {
         if (location != null && location.isValid()) {
-            new AsyncTask<Void>().await(new Callable<Void>() {
+            AsyncTask.await(new Callable<Void>() {
                 @Override
                 public Void call() {
                     WeatherAlerts alertData = new WeatherAlerts(location.getQuery(), alerts);
@@ -485,7 +485,7 @@ public class Settings {
 
     public static void saveWeatherForecasts(final Forecasts forecasts) {
         if (forecasts != null) {
-            new AsyncTask<Void>().await(new Callable<Void>() {
+            AsyncTask.await(new Callable<Void>() {
                 @Override
                 public Void call() {
                     weatherDB.weatherDAO().insertForecast(forecasts);
@@ -503,7 +503,7 @@ public class Settings {
     }
 
     public static void saveWeatherForecasts(@NonNull final String key, final Collection<HourlyForecasts> forecasts) {
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.await(new Callable<Void>() {
             @Override
             public Void call() {
                 weatherDB.weatherDAO().deleteHourlyForecastByKey(key);
@@ -605,7 +605,7 @@ public class Settings {
 
     public static void addLocation(final LocationData location) {
         if (location != null && location.isValid()) {
-            new AsyncTask<Void>().await(new Callable<Void>() {
+            AsyncTask.await(new Callable<Void>() {
                 @Override
                 public Void call() {
                     locationDB.locationsDAO().insertLocationData(location);
@@ -625,7 +625,7 @@ public class Settings {
         if (location != null && location.getLocationType() == LocationType.GPS && location.isValid()) {
             Settings.saveLastGPSLocData(location);
         } else if (location != null && location.getLocationType() == LocationType.SEARCH && location.isValid()) {
-            new AsyncTask<Void>().await(new Callable<Void>() {
+            AsyncTask.await(new Callable<Void>() {
                 @Override
                 public Void call() {
                     locationDB.locationsDAO().updateLocationData(location);
@@ -637,7 +637,7 @@ public class Settings {
 
     public static void updateLocationWithKey(final LocationData location, final String oldKey) {
         if (location != null && location.isValid() && !StringUtils.isNullOrWhitespace(oldKey)) {
-            new AsyncTask<Void>().await(new Callable<Void>() {
+            AsyncTask.await(new Callable<Void>() {
                 @Override
                 public Void call() {
                     // Get position from favorites table
@@ -667,7 +667,7 @@ public class Settings {
     }
 
     public static void deleteLocations() {
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.await(new Callable<Void>() {
             @Override
             public Void call() {
                 locationDB.locationsDAO().deleteAllLocationData();
@@ -680,7 +680,7 @@ public class Settings {
 
     public static void deleteLocation(final String key) {
         if (!StringUtils.isNullOrWhitespace(key)) {
-            new AsyncTask<Void>().await(new Callable<Void>() {
+            AsyncTask.await(new Callable<Void>() {
                 @Override
                 public Void call() {
                     locationDB.locationsDAO().deleteLocationDataByKey(key);
@@ -695,7 +695,7 @@ public class Settings {
 
     public static void moveLocation(final String key, final int toPos) {
         if (!StringUtils.isNullOrWhitespace(key)) {
-            new AsyncTask<Void>().await(new Callable<Void>() {
+            AsyncTask.await(new Callable<Void>() {
                 @Override
                 public Void call() {
                     locationDB.locationsDAO().updateFavPosition(key, toPos);
@@ -707,7 +707,7 @@ public class Settings {
     }
 
     private static void resetPostition() {
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.await(new Callable<Void>() {
             @Override
             public Void call() {
                 List<Favorites> favs = locationDB.locationsDAO().loadAllFavoritesByPosition();
@@ -733,7 +733,7 @@ public class Settings {
             if (useFollowGPS())
                 homeData = getLastGPSLocData();
             else
-                homeData = new AsyncTask<LocationData>().await(new Callable<LocationData>() {
+                homeData = AsyncTask.await(new Callable<LocationData>() {
                     @Override
                     public LocationData call() {
                         loadIfNeeded();

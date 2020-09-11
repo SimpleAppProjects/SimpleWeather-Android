@@ -38,9 +38,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.thewizrd.shared_resources.AsyncTask;
-import com.thewizrd.shared_resources.AsyncTaskEx;
-import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
@@ -51,6 +48,9 @@ import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.tasks.CallableEx;
+import com.thewizrd.shared_resources.tasks.TaskUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -142,18 +142,11 @@ public class WeatherWidgetService extends SafeJobIntentService {
     private boolean isNightMode = false;
     private float maxBitmapSize;
 
-    private CancellationTokenSource cts;
+    private CancellationTokenSource cts = new CancellationTokenSource();
 
     public static void enqueueWork(Context context, Intent work) {
         enqueueWork(context, WeatherWidgetService.class,
                 JOB_ID, work);
-    }
-
-    private boolean isCtsCancelRequested() {
-        if (cts != null)
-            return cts.getToken().isCancellationRequested();
-        else
-            return true;
     }
 
     @Override
@@ -162,8 +155,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
 
         mContext = getApplicationContext();
         mAppWidgetManager = AppWidgetManager.getInstance(mContext);
-
-        cts = new CancellationTokenSource();
 
         /*
          * The total Bitmap memory used by the RemoteViews object cannot exceed
@@ -179,7 +170,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
         Logger.writeLine(Log.INFO, "%s: destroying service and cancelling tasks...", TAG);
 
         try {
-            if (cts != null) cts.cancel();
+            cts.cancel();
         } catch (Exception ex) {
             Logger.writeLine(Log.ERROR, ex, "%s: Error cancelling task...", TAG);
         }
@@ -586,17 +577,18 @@ public class WeatherWidgetService extends SafeJobIntentService {
             locData = WidgetUtils.getLocationData(appWidgetId);
         }
 
-        if (isCtsCancelRequested()) throw new InterruptedException();
+        TaskUtils.throwIfCancellationRequested(cts.getToken());
 
         Weather weather;
 
         if (locData != null) {
-            if (isCtsCancelRequested()) throw new InterruptedException();
+            TaskUtils.throwIfCancellationRequested(cts.getToken());
 
             WeatherDataLoader wloader = new WeatherDataLoader(locData);
             try {
                 WeatherRequest.Builder request =
-                        new WeatherRequest.Builder().forceRefresh(false);
+                        new WeatherRequest.Builder()
+                                .forceRefresh(false);
 
                 if (WidgetUtils.isForecastWidget(provider.getWidgetType())) {
                     request.loadForecasts();
@@ -687,7 +679,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             return;
 
         final WeatherDataLoader wLoader = new WeatherDataLoader(locationData);
-        final Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
+        final Weather weather = AsyncTask.await(new Callable<Weather>() {
             @Override
             public Weather call() {
                 try {
@@ -1568,10 +1560,10 @@ public class WeatherWidgetService extends SafeJobIntentService {
     }
 
     private void rebuildWidget(final WeatherWidgetProvider provider, final int appWidgetId, final Bundle newOptions) throws InterruptedException {
-        new AsyncTaskEx<Void, InterruptedException>().await(new CallableEx<Void, InterruptedException>() {
+        AsyncTask.await(new CallableEx<Void, InterruptedException>() {
             @Override
             public Void call() throws InterruptedException {
-                if (isCtsCancelRequested()) throw new InterruptedException();
+                TaskUtils.throwIfCancellationRequested(cts.getToken());
 
                 if (!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId))
                     return null;
@@ -1579,7 +1571,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
                 // Get weather data from cache
                 Weather weather = WidgetUtils.getWeatherData(appWidgetId);
 
-                if (isCtsCancelRequested()) throw new InterruptedException();
+                TaskUtils.throwIfCancellationRequested(cts.getToken());
 
                 if (weather == null) {
                     LocationData locData = null;
@@ -1588,10 +1580,10 @@ public class WeatherWidgetService extends SafeJobIntentService {
                     else
                         locData = WidgetUtils.getLocationData(appWidgetId);
 
-                    if (isCtsCancelRequested()) throw new InterruptedException();
+                    TaskUtils.throwIfCancellationRequested(cts.getToken());
 
                     if (locData != null) {
-                        if (isCtsCancelRequested()) throw new InterruptedException();
+                        TaskUtils.throwIfCancellationRequested(cts.getToken());
 
                         WeatherDataLoader wloader = new WeatherDataLoader(locData);
                         try {

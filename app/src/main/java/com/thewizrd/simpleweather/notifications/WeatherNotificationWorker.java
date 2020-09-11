@@ -19,9 +19,9 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.google.android.gms.tasks.Tasks;
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Weather;
@@ -111,7 +111,7 @@ public class WeatherNotificationWorker extends Worker {
 
         if (ACTION_REFRESHNOTIFICATION.equals(intentAction)) {
             if (Settings.isWeatherLoaded()) {
-                Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
+                Weather weather = AsyncTask.await(new Callable<Weather>() {
                     @Override
                     public Weather call() {
                         LocationData locData = Settings.getHomeData();

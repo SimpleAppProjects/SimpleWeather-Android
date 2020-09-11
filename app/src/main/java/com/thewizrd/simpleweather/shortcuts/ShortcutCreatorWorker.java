@@ -17,9 +17,9 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -114,7 +114,7 @@ public class ShortcutCreatorWorker extends Worker {
                     .putExtra(Constants.KEY_DATA, JSONParser.serializer(location, LocationData.class))
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
 
-            Bitmap bmp = new AsyncTask<Bitmap>().await(new Callable<Bitmap>() {
+            Bitmap bmp = AsyncTask.await(new Callable<Bitmap>() {
                 @Override
                 public Bitmap call() {
                     return ImageUtils.tintedBitmapFromDrawable(mContext, WeatherUtils.getWeatherIconResource(weather.getCondition().getIcon()),

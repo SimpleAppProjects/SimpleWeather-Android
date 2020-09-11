@@ -13,7 +13,6 @@ import com.google.android.clockwork.tiles.TileProviderService;
 import com.google.android.gms.tasks.Tasks;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
@@ -21,6 +20,7 @@ import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -104,10 +104,10 @@ public class WeatherTileProviderService extends TileProviderService {
 
     private void sendRemoteViews() {
         Log.d(TAG, "sendRemoteViews");
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.await(new Callable<Void>() {
             @Override
             public Void call() {
-                Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
+                Weather weather = AsyncTask.await(new Callable<Weather>() {
                     @Override
                     public Weather call() {
                         WeatherDataLoader wloader = new WeatherDataLoader(Settings.getHomeData());

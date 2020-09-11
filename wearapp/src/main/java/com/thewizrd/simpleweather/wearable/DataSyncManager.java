@@ -15,8 +15,8 @@ import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.Wearable;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -125,7 +125,7 @@ public class DataSyncManager {
                 final Asset weatherAsset = dataMap.getAsset(WearableSettings.KEY_WEATHERDATA);
                 if (weatherAsset != null) {
                     try (InputStream inputStream = Tasks.await(Wearable.getDataClient(context).getFdForAsset(weatherAsset)).getInputStream()) {
-                        final Weather weatherData = new AsyncTask<Weather>().await(new Callable<Weather>() {
+                        final Weather weatherData = AsyncTask.await(new Callable<Weather>() {
                             @Override
                             public Weather call() {
                                 return JSONParser.deserializer(inputStream, Weather.class);

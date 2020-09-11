@@ -37,9 +37,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
-import com.thewizrd.shared_resources.AsyncTask;
-import com.thewizrd.shared_resources.AsyncTaskEx;
-import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -48,6 +45,9 @@ import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.lifecycle.LifecycleRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.tasks.CallableEx;
+import com.thewizrd.shared_resources.tasks.TaskUtils;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CustomException;
@@ -86,19 +86,12 @@ public class LocationSearchFragment extends WindowColorFragment {
     private LocationQueryAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    private CancellationTokenSource cts;
-
-    private WeatherManager wm;
+    private CancellationTokenSource cts = new CancellationTokenSource();
+    private WeatherManager wm = WeatherManager.getInstance();
 
     private static final String KEY_SEARCHTEXT = "search_text";
 
-    public LocationSearchFragment() {
-        // Required empty public constructor
-        wm = WeatherManager.getInstance();
-        cts = new CancellationTokenSource();
-    }
-
-    private void ctsCancel() {
+    private void resetTokenSource() {
         if (cts != null) cts.cancel();
         cts = new CancellationTokenSource();
     }
@@ -119,19 +112,19 @@ public class LocationSearchFragment extends WindowColorFragment {
     @Override
     public void onPause() {
         searchBarBinding.searchView.clearFocus();
-        ctsCancel();
+        cts.cancel();
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        ctsCancel();
+        cts.cancel();
         super.onDestroy();
     }
 
     @Override
     public void onDetach() {
-        ctsCancel();
+        cts.cancel();
         unloadSnackManager();
         super.onDetach();
     }
@@ -162,7 +155,7 @@ public class LocationSearchFragment extends WindowColorFragment {
                     enableRecyclerView(false);
 
                     // Cancel other tasks
-                    ctsCancel();
+                    resetTokenSource();
                     final CancellationToken token = cts.getToken();
 
                     AsyncTask.create(new Callable<LocationData>() {
@@ -178,7 +171,7 @@ public class LocationSearchFragment extends WindowColorFragment {
                                 throw new CustomException(R.string.error_retrieve_location);
                             }
 
-                            if (token.isCancellationRequested()) throw new InterruptedException();
+                            TaskUtils.throwIfCancellationRequested(token);
 
                             String country_code = queryResult.getLocationCountry();
                             if (!StringUtils.isNullOrWhitespace(country_code))
@@ -194,12 +187,16 @@ public class LocationSearchFragment extends WindowColorFragment {
                                     && queryResult.getLocationLat() == -1 && queryResult.getLocationLong() == -1
                                     && queryResult.getLocationTZLong() == null) {
                                 final LocationQueryViewModel loc = queryResult;
-                                queryResult = new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
+                                queryResult = AsyncTask.await(new CallableEx<LocationQueryViewModel, WeatherException>() {
                                     @Override
                                     public LocationQueryViewModel call() throws WeatherException {
                                         return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
                                     }
-                                });
+                                }, token);
+                            }
+
+                            if (queryResult == null) {
+                                throw new InterruptedException();
                             }
 
                             // Check if location already exists
@@ -217,7 +214,7 @@ public class LocationSearchFragment extends WindowColorFragment {
                                 return null;
                             }
 
-                            if (token.isCancellationRequested()) throw new InterruptedException();
+                            TaskUtils.throwIfCancellationRequested(token);
 
                             LocationData location = new LocationData(queryResult);
                             if (!location.isValid()) {
@@ -522,6 +519,7 @@ public class LocationSearchFragment extends WindowColorFragment {
 
     @Override
     public void onDestroyView() {
+        cts.cancel();
         super.onDestroyView();
         searchBarBinding = null;
         binding = null;
@@ -529,18 +527,17 @@ public class LocationSearchFragment extends WindowColorFragment {
 
     public void fetchLocations(final String queryString) {
         // Cancel pending searches
-        ctsCancel();
+        resetTokenSource();
 
         if (!StringUtils.isNullOrWhitespace(queryString)) {
-            final CancellationToken ctsToken = cts.getToken();
+            final CancellationToken token = cts.getToken();
 
             AsyncTask.create(new Callable<Collection<LocationQueryViewModel>>() {
                 @Override
                 public Collection<LocationQueryViewModel> call() throws Exception {
-                    if (ctsToken.isCancellationRequested()) return null;
                     return wm.getLocations(queryString);
                 }
-            }).addOnSuccessListener(new OnSuccessListener<Collection<LocationQueryViewModel>>() {
+            }, token).addOnSuccessListener(new OnSuccessListener<Collection<LocationQueryViewModel>>() {
                 @Override
                 public void onSuccess(final Collection<LocationQueryViewModel> results) {
                     runWithView(new Runnable() {
@@ -567,7 +564,7 @@ public class LocationSearchFragment extends WindowColorFragment {
             });
         } else if (StringUtils.isNullOrWhitespace(queryString)) {
             // Cancel pending searches
-            ctsCancel();
+            resetTokenSource();
             // Hide flyout if query is empty or null
             mAdapter.getDataset().clear();
             mAdapter.notifyDataSetChanged();

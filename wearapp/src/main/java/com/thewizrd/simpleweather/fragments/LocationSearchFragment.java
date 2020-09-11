@@ -30,15 +30,16 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import com.thewizrd.shared_resources.AsyncTask;
-import com.thewizrd.shared_resources.AsyncTaskEx;
-import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.lifecycle.LifecycleRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.tasks.Callable;
+import com.thewizrd.shared_resources.tasks.CallableEx;
+import com.thewizrd.shared_resources.tasks.TaskUtils;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.CustomException;
@@ -64,7 +65,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 public class LocationSearchFragment extends SwipeDismissFragment {
     private FragmentLocationSearchBinding binding;
@@ -72,20 +72,16 @@ public class LocationSearchFragment extends SwipeDismissFragment {
     private RecyclerView.LayoutManager mLayoutManager;
     private SwipeDismissFrameLayout.Callback swipeCallback;
 
-    private CancellationTokenSource cts;
-
-    private WeatherManager wm;
+    private CancellationTokenSource cts = new CancellationTokenSource();
+    private WeatherManager wm = WeatherManager.getInstance();
 
     private static final int REQUEST_CODE_VOICE_INPUT = 0;
 
     public LocationSearchFragment() {
-        // Required empty public constructor
-        cts = new CancellationTokenSource();
-        wm = WeatherManager.getInstance();
         setUserVisibleHint(true);
     }
 
-    private void ctsCancel() {
+    private void resetTokenSource() {
         if (cts != null) cts.cancel();
         cts = new CancellationTokenSource();
     }
@@ -99,24 +95,23 @@ public class LocationSearchFragment extends SwipeDismissFragment {
     @Override
     public void onResume() {
         super.onResume();
-        cts = new CancellationTokenSource();
     }
 
     @Override
     public void onPause() {
-        if (cts != null) cts.cancel();
+        cts.cancel();
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        if (cts != null) cts.cancel();
+        cts.cancel();
         super.onDestroy();
     }
 
     @Override
     public void onDetach() {
-        if (cts != null) cts.cancel();
+        cts.cancel();
         super.onDetach();
     }
 
@@ -130,7 +125,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                     binding.recyclerView.setEnabled(false);
 
                     // Cancel pending search
-                    ctsCancel();
+                    resetTokenSource();
                     final CancellationToken token = cts.getToken();
 
                     AsyncTask.create(new Callable<LocationData>() {
@@ -151,7 +146,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                                 throw new WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY);
                             }
 
-                            if (token.isCancellationRequested()) throw new InterruptedException();
+                            TaskUtils.throwIfCancellationRequested(token);
 
                             String country_code = queryResult.getLocationCountry();
                             if (!StringUtils.isNullOrWhitespace(country_code))
@@ -167,15 +162,19 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                                     && queryResult.getLocationLat() == -1 && queryResult.getLocationLong() == -1
                                     && queryResult.getLocationTZLong() == null) {
                                 final LocationQueryViewModel loc = queryResult;
-                                queryResult = new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
+                                queryResult = AsyncTask.await(new CallableEx<LocationQueryViewModel, WeatherException>() {
                                     @Override
                                     public LocationQueryViewModel call() throws WeatherException {
                                         return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
                                     }
-                                });
+                                }, token);
                             }
 
-                            if (token.isCancellationRequested()) throw new InterruptedException();
+                            if (queryResult == null) {
+                                throw new InterruptedException();
+                            }
+
+                            TaskUtils.throwIfCancellationRequested(token);
 
                             // Get weather data
                             LocationData location = new LocationData(queryResult);
@@ -191,7 +190,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                                 throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
                             }
 
-                            if (token.isCancellationRequested()) throw new InterruptedException();
+                            TaskUtils.throwIfCancellationRequested(token);
 
                             // Save weather data
                             Settings.saveHomeData(location);
@@ -233,7 +232,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                                         // Start WeatherNow Activity with weather data
                                         SetupGraphDirections.ActionGlobalMainActivity args =
                                                 LocationSearchFragmentDirections.actionGlobalMainActivity()
-                                                        .setData(new AsyncTask<String>().await(new Callable<String>() {
+                                                        .setData(AsyncTask.await(new Callable<String>() {
                                                             @Override
                                                             public String call() {
                                                                 return JSONParser.serializer(locationData, LocationData.class);
@@ -378,6 +377,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
 
     @Override
     public void onDestroyView() {
+        cts.cancel();
         hideInputMethod(binding.searchView);
         binding.recyclerViewLayout.removeCallback(swipeCallback);
         super.onDestroyView();
@@ -395,7 +395,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
 
     public void fetchLocations(final String queryString) {
         // Cancel pending searches
-        ctsCancel();
+        resetTokenSource();
 
         if (!StringUtils.isNullOrWhitespace(queryString)) {
             final CancellationToken token = cts.getToken();
@@ -403,10 +403,9 @@ public class LocationSearchFragment extends SwipeDismissFragment {
             AsyncTask.create(new Callable<Collection<LocationQueryViewModel>>() {
                 @Override
                 public Collection<LocationQueryViewModel> call() throws WeatherException {
-                    if (token.isCancellationRequested()) return null;
                     return wm.getLocations(queryString);
                 }
-            }).addOnSuccessListener(new OnSuccessListener<Collection<LocationQueryViewModel>>() {
+            }, token).addOnSuccessListener(new OnSuccessListener<Collection<LocationQueryViewModel>>() {
                 @Override
                 public void onSuccess(final Collection<LocationQueryViewModel> results) {
                     runWithView(new Runnable() {
@@ -433,7 +432,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
             });
         } else if (StringUtils.isNullOrWhitespace(queryString)) {
             // Cancel pending searches
-            ctsCancel();
+            resetTokenSource();
 
             binding.progressBar.setVisibility(View.GONE);
             binding.recyclerViewLayout.setVisibility(View.GONE);

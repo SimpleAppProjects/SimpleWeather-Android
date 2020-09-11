@@ -69,19 +69,17 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.thewizrd.shared_resources.AsyncTask;
-import com.thewizrd.shared_resources.AsyncTaskEx;
-import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.ComboBoxItem;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.tasks.CallableEx;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CustomException;
@@ -132,7 +130,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocCallback;
     private LocationListener mLocListnr;
-    private CancellationTokenSource cts;
+    private CancellationTokenSource cts = new CancellationTokenSource();
 
     /**
      * Tracks the status of the location updates request.
@@ -140,7 +138,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private boolean mRequestingLocationUpdates;
 
     // Weather
-    private WeatherManager wm;
+    private WeatherManager wm = WeatherManager.getInstance();
 
     // Views
     private FragmentWidgetSetupBinding binding;
@@ -206,17 +204,17 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     @Override
     public void onPause() {
         AnalyticsLogger.logEvent("WidgetConfig: onPause");
-        ctsCancel();
+        cts.cancel();
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        ctsCancel();
+        cts.cancel();
         super.onDestroy();
     }
 
-    private void ctsCancel() {
+    private void resetTokenSource() {
         if (cts != null) cts.cancel();
         cts = new CancellationTokenSource();
     }
@@ -239,8 +237,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         mWidgetType = getWidgetTypeFromID(mAppWidgetId);
         // Set the result value for WidgetConfigActivity
         resultValue = new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-
-        wm = WeatherManager.getInstance();
 
         super.onCreate(savedInstanceState);
     }
@@ -277,8 +273,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText));
         getAppCompatActivity().getSupportActionBar().setHomeAsUpIndicator(navIcon);
 
-        cts = new CancellationTokenSource();
-
         // Location Listener
         if (WearableHelper.isGooglePlayServicesInstalled()) {
             mFusedLocationClient = new FusedLocationProviderClient(getAppCompatActivity());
@@ -303,7 +297,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
                 @Override
                 public void onLocationAvailability(LocationAvailability locationAvailability) {
-                    new AsyncTask<Void>().await(new Callable<Void>() {
+                    AsyncTask.await(new Callable<Void>() {
                         @Override
                         public Void call() {
                             try {
@@ -400,7 +394,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         locationPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                ctsCancel();
+                resetTokenSource();
 
                 CharSequence selectedValue = (CharSequence) newValue;
                 if (Constants.KEY_SEARCH.contentEquals(selectedValue)) {
@@ -1150,7 +1144,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             final String locationItemValue = locationPref.getValue();
 
             if (Constants.KEY_GPS.equals(locationItemValue)) {
-                ctsCancel();
+                resetTokenSource();
                 final CancellationToken token = cts.getToken();
 
                 // Check location
@@ -1190,7 +1184,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                                 }
                             });
                             Settings.setRequestBGAccess(true);
-                            ctsCancel();
+                            resetTokenSource();
                             return false;
                         }
 
@@ -1321,7 +1315,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     }
 
     private boolean updateLocation() throws CustomException {
-        return new AsyncTaskEx<Boolean, CustomException>().await(new CallableEx<Boolean, CustomException>() {
+        return AsyncTask.await(new CallableEx<Boolean, CustomException>() {
             @Override
             public Boolean call() throws CustomException {
                 boolean locationChanged = false;
@@ -1342,7 +1336,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                 }
 
                 if (WearableHelper.isGooglePlayServicesInstalled()) {
-                    location = new AsyncTask<Location>().await(new Callable<Location>() {
+                    location = AsyncTask.await(new Callable<Location>() {
                         @SuppressLint("MissingPermission")
                         @Override
                         public Location call() {
@@ -1356,7 +1350,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                         }
                     });
 
-                    /**
+                    /*
                      * Request start of location updates. Does nothing if
                      * updates have already been requested.
                      */
@@ -1389,27 +1383,26 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                     }
                 }
 
-                ctsCancel();
+                resetTokenSource();
                 CancellationToken token = cts.getToken();
 
                 if (location != null && !token.isCancellationRequested()) {
                     LocationQueryViewModel query_vm;
 
-                    TaskCompletionSource<LocationQueryViewModel> tcs = new TaskCompletionSource<>(token);
                     try {
-                        tcs.setResult(wm.getLocation(location));
-                        query_vm = Tasks.await(tcs.getTask());
-                    } catch (ExecutionException | WeatherException e) {
+                        final Location finalLocation = location;
+                        query_vm = AsyncTask.await(new CallableEx<LocationQueryViewModel, WeatherException>() {
+                            @Override
+                            public LocationQueryViewModel call() throws WeatherException {
+                                return wm.getLocation(finalLocation);
+                            }
+                        }, token);
+                    } catch (WeatherException e) {
                         Logger.writeLine(Log.ERROR, e);
-                        return false;
-                    } catch (InterruptedException e) {
                         return false;
                     }
 
-                    if (StringUtils.isNullOrEmpty(query_vm.getLocationQuery()))
-                        query_vm = new LocationQueryViewModel();
-
-                    if (StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
+                    if (query_vm == null || StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
                         // Stop since there is no valid query
                         return false;
                     }

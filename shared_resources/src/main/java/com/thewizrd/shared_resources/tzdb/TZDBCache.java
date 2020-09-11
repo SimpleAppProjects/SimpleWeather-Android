@@ -7,9 +7,9 @@ import androidx.room.Room;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.database.TZDatabase;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 
@@ -57,7 +57,7 @@ public class TZDBCache {
             }
 
             // Search db if result already exists
-            final String dbResult = new AsyncTask<String>().await(new Callable<String>() {
+            final String dbResult = AsyncTask.await(new Callable<String>() {
                 @Override
                 public String call() {
                     return tzDB.tzdbDAO().getTimeZoneData(latitude, longitude);
@@ -68,7 +68,7 @@ public class TZDBCache {
                 return dbResult;
 
             // Search tz lookup
-            final String result = new AsyncTask<String>().await(new Callable<String>() {
+            final String result = AsyncTask.await(new Callable<String>() {
                 @Override
                 public String call() {
                     return new TimeZoneProvider().getTimeZone(latitude, longitude);

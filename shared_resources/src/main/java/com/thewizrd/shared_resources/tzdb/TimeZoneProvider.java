@@ -3,8 +3,8 @@ package com.thewizrd.shared_resources.tzdb;
 import android.util.Log;
 
 import com.google.gson.annotations.SerializedName;
-import com.thewizrd.shared_resources.FirebaseHelper;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.firebase.FirebaseHelper;
 import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;

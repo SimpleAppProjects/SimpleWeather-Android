@@ -15,9 +15,9 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Source;
 import com.thewizrd.shared_resources.ApplicationLib;
-import com.thewizrd.shared_resources.AsyncTask;
-import com.thewizrd.shared_resources.FirebaseHelper;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.firebase.FirebaseHelper;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.weatherdata.images.model.ImageData;
@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutionException;
 public class ImageDatabase {
     @WorkerThread
     public static List<ImageData> getAllImageDataForCondition(final String backgroundCode) {
-        return new AsyncTask<List<ImageData>>().await(new Callable<List<ImageData>>() {
+        return AsyncTask.await(new Callable<List<ImageData>>() {
             @Override
             public List<ImageData> call() {
                 FirebaseFirestore db = FirebaseHelper.getFirestoreDB();
@@ -83,7 +83,7 @@ public class ImageDatabase {
 
     @WorkerThread
     public static ImageData getRandomImageForCondition(final String backgroundCode) {
-        return new AsyncTask<ImageData>().await(new Callable<ImageData>() {
+        return AsyncTask.await(new Callable<ImageData>() {
             @Override
             public ImageData call() {
                 FirebaseFirestore db = FirebaseHelper.getFirestoreDB();
@@ -141,7 +141,7 @@ public class ImageDatabase {
 
     @WorkerThread
     private static void saveSnapshot(@NonNull final FirebaseFirestore db) {
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.await(new Callable<Void>() {
             @Override
             public Void call() {
                 // Get all data from server to cache locally
@@ -165,7 +165,7 @@ public class ImageDatabase {
 
     @WorkerThread
     public static long getLastUpdateTime() {
-        return new AsyncTask<Long>().await(new Callable<Long>() {
+        return AsyncTask.await(new Callable<Long>() {
             @Override
             public Long call() {
                 FirebaseFirestore db = FirebaseHelper.getFirestoreDB();

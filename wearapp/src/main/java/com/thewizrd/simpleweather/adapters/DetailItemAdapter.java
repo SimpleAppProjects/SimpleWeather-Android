@@ -12,9 +12,9 @@ import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
@@ -116,7 +116,7 @@ public class DetailItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public void updateItems(final List<DetailItemViewModel> dataset) {
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.await(new Callable<Void>() {
             @Override
             public Void call() {
                 mDiffer.submitList(new ArrayList<>(dataset));

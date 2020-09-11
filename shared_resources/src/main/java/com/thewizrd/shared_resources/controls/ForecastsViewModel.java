@@ -14,9 +14,9 @@ import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
 import androidx.paging.PositionalDataSource;
 
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.database.WeatherDAO;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
@@ -174,7 +174,7 @@ public class ForecastsViewModel extends ViewModel {
 
         @Override
         public void loadInitial(@NonNull LoadInitialParams params, @NonNull LoadInitialCallback<ForecastItemViewModel> callback) {
-            Forecasts forecasts = new AsyncTask<Forecasts>().await(new Callable<Forecasts>() {
+            Forecasts forecasts = AsyncTask.await(new Callable<Forecasts>() {
                 @Override
                 public Forecasts call() {
                     return dao.getForecastData(location.getQuery());
@@ -195,7 +195,7 @@ public class ForecastsViewModel extends ViewModel {
 
         @Override
         public void loadRange(@NonNull LoadRangeParams params, @NonNull LoadRangeCallback<ForecastItemViewModel> callback) {
-            Forecasts forecasts = new AsyncTask<Forecasts>().await(new Callable<Forecasts>() {
+            Forecasts forecasts = AsyncTask.await(new Callable<Forecasts>() {
                 @Override
                 public Forecasts call() {
                     return dao.getForecastData(location.getQuery());

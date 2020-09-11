@@ -2,10 +2,10 @@ package com.thewizrd.shared_resources.utils;
 
 import android.util.Log;
 
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.database.LocationsDatabase;
 import com.thewizrd.shared_resources.database.WeatherDatabase;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.concurrent.Callable;
 
 class DBUtils {
     static boolean weatherDataExists(final WeatherDatabase weatherDB) {
-        return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
+        return AsyncTask.await(new Callable<Boolean>() {
             @Override
             public Boolean call() {
                 try {
@@ -28,7 +28,7 @@ class DBUtils {
     }
 
     static boolean locationDataExists(final LocationsDatabase locationDB) {
-        return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
+        return AsyncTask.await(new Callable<Boolean>() {
             @Override
             public Boolean call() {
                 try {

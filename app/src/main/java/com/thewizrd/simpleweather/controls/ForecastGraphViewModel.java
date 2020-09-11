@@ -9,11 +9,11 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
@@ -60,7 +60,7 @@ public class ForecastGraphViewModel extends ViewModel {
             if (currentForecastsData != null) {
                 currentForecastsData.removeObserver(forecastObserver);
             }
-            currentForecastsData = new AsyncTask<LiveData<Forecasts>>().await(new Callable<LiveData<Forecasts>>() {
+            currentForecastsData = AsyncTask.await(new Callable<LiveData<Forecasts>>() {
                 @Override
                 public LiveData<Forecasts> call() {
                     return Settings.getWeatherDAO().getLiveForecastData(location.getQuery());
@@ -74,7 +74,7 @@ public class ForecastGraphViewModel extends ViewModel {
             if (currentHrForecastsData != null) {
                 currentHrForecastsData.removeObserver(hrforecastObserver);
             }
-            currentHrForecastsData = new AsyncTask<LiveData<List<HourlyForecast>>>().await(new Callable<LiveData<List<HourlyForecast>>>() {
+            currentHrForecastsData = AsyncTask.await(new Callable<LiveData<List<HourlyForecast>>>() {
                 @Override
                 public LiveData<List<HourlyForecast>> call() {
                     return Settings.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.getQuery(), 24, ZonedDateTime.now(location.getTzOffset()).truncatedTo(ChronoUnit.HOURS));

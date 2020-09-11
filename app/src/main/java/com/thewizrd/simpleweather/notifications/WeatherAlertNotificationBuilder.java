@@ -16,10 +16,10 @@ import android.widget.RemoteViews;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -167,7 +167,7 @@ public class WeatherAlertNotificationBuilder {
                 inboxStyle.setSummaryText(context.getString(R.string.title_fragment_alerts));
             }
 
-            Bitmap iconBmp = new AsyncTask<Bitmap>().await(new Callable<Bitmap>() {
+            Bitmap iconBmp = AsyncTask.await(new Callable<Bitmap>() {
                 @Override
                 public Bitmap call() {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

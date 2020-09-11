@@ -2,12 +2,13 @@ package com.thewizrd.shared_resources.weatherdata;
 
 import android.location.Location;
 
-import com.thewizrd.shared_resources.AsyncTask;
-import com.thewizrd.shared_resources.AsyncTaskEx;
-import com.thewizrd.shared_resources.CallableEx;
+import androidx.annotation.WorkerThread;
+
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.tasks.CallableEx;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -19,10 +20,9 @@ import com.thewizrd.shared_resources.weatherdata.weatheryahoo.YahooWeatherProvid
 
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 // Wrapper class for supported Weather Providers
-public class WeatherManager implements WeatherProviderImplInterface {
+public final class WeatherManager {
     private static WeatherManager instance;
     private static WeatherProviderImpl weatherProvider;
 
@@ -80,7 +80,7 @@ public class WeatherManager implements WeatherProviderImplInterface {
 
     public static boolean isKeyValid(final String key, final String API) throws WeatherException {
         final WeatherProviderImpl provider = getProvider(API);
-        return new AsyncTaskEx<Boolean, WeatherException>().await(new CallableEx<Boolean, WeatherException>() {
+        return AsyncTask.await(new CallableEx<Boolean, WeatherException>() {
             @Override
             public Boolean call() throws WeatherException {
                 return provider.isKeyValid(key);
@@ -89,157 +89,72 @@ public class WeatherManager implements WeatherProviderImplInterface {
     }
 
     // Provider dependent methods
-    @Override
     public String getWeatherAPI() {
         return weatherProvider.getWeatherAPI();
     }
 
-    @Override
     public boolean isKeyRequired() {
         return weatherProvider.isKeyRequired();
     }
 
-    @Override
     public boolean supportsWeatherLocale() {
         return weatherProvider.supportsWeatherLocale();
     }
 
-    @Override
     public boolean supportsAlerts() {
         return weatherProvider.supportsAlerts();
     }
 
-    @Override
-    public boolean needsExternalAlertData() {
-        return weatherProvider.needsExternalAlertData();
-    }
-
-    @Override
-    public void updateLocationData(final LocationData location) {
-        new AsyncTask<Void>().await(new Callable<Void>() {
-            @Override
-            public Void call() {
-                weatherProvider.updateLocationData(location);
-                return null;
-            }
-        });
-    }
-
-    @Override
     public String updateLocationQuery(final Weather weather) {
-        return new AsyncTask<String>().await(new Callable<String>() {
-            @Override
-            public String call() {
-                return weatherProvider.updateLocationQuery(weather);
-            }
-        });
+        return weatherProvider.updateLocationQuery(weather);
     }
 
-    @Override
     public String updateLocationQuery(final LocationData location) {
-        return new AsyncTask<String>().await(new Callable<String>() {
-            @Override
-            public String call() {
-                return weatherProvider.updateLocationQuery(location);
-            }
-        });
+        return weatherProvider.updateLocationQuery(location);
     }
 
-    @Override
+    @WorkerThread
     public Collection<LocationQueryViewModel> getLocations(final String ac_query) throws WeatherException {
-        return new AsyncTaskEx<Collection<LocationQueryViewModel>, WeatherException>().await(new CallableEx<Collection<LocationQueryViewModel>, WeatherException>() {
-            @Override
-            public Collection<LocationQueryViewModel> call() throws WeatherException {
-                return weatherProvider.getLocations(ac_query);
-            }
-        });
+        return weatherProvider.getLocations(ac_query);
     }
 
+    @WorkerThread
     public LocationQueryViewModel getLocation(final Location location) throws WeatherException {
-        return new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
-            @Override
-            public LocationQueryViewModel call() throws WeatherException {
-                return weatherProvider.getLocation(new WeatherUtils.Coordinate(location));
-            }
-        });
+        return weatherProvider.getLocation(new WeatherUtils.Coordinate(location));
     }
 
-    @Override
+    @WorkerThread
     public LocationQueryViewModel getLocation(final WeatherUtils.Coordinate coordinate) throws WeatherException {
-        return new AsyncTaskEx<LocationQueryViewModel, WeatherException>().await(new CallableEx<LocationQueryViewModel, WeatherException>() {
-            @Override
-            public LocationQueryViewModel call() throws WeatherException {
-                return weatherProvider.getLocation(coordinate);
-            }
-        });
+        return weatherProvider.getLocation(coordinate);
     }
 
-    @Override
+    @WorkerThread
     public Weather getWeather(final String location_query) throws WeatherException {
-        return new AsyncTaskEx<Weather, WeatherException>().await(new CallableEx<Weather, WeatherException>() {
-            @Override
-            public Weather call() throws WeatherException {
-                return weatherProvider.getWeather(location_query);
-            }
-        });
+        return weatherProvider.getWeather(location_query);
     }
 
-    @Override
+    @WorkerThread
     public Weather getWeather(final LocationData location) throws WeatherException {
-        return new AsyncTaskEx<Weather, WeatherException>().await(new CallableEx<Weather, WeatherException>() {
-            @Override
-            public Weather call() throws WeatherException {
-                return weatherProvider.getWeather(location);
-            }
-        });
+        return weatherProvider.getWeather(location);
     }
 
-    @Override
+    @WorkerThread
     public List<WeatherAlert> getAlerts(final LocationData location) {
-        return new AsyncTask<List<WeatherAlert>>().await(new Callable<List<WeatherAlert>>() {
-            @Override
-            public List<WeatherAlert> call() {
-                return weatherProvider.getAlerts(location);
-            }
-        });
+        return weatherProvider.getAlerts(location);
     }
 
-    @Override
     public String localeToLangCode(String iso, String name) {
         return weatherProvider.localeToLangCode(iso, name);
     }
 
-    @Override
-    public String getWeatherIcon(String icon) {
-        return weatherProvider.getWeatherIcon(icon);
-    }
-
-    @Override
-    public String getWeatherIcon(boolean isNight, String icon) {
-        return weatherProvider.getWeatherIcon(isNight, icon);
-    }
-
-    @Override
-    public boolean isKeyValid(final String key) throws WeatherException {
-        return new AsyncTaskEx<Boolean, WeatherException>().await(new CallableEx<Boolean, WeatherException>() {
-            @Override
-            public Boolean call() throws WeatherException {
-                return weatherProvider.isKeyValid(key);
-            }
-        });
-    }
-
-    @Override
     public String getAPIKey() {
         return weatherProvider.getAPIKey();
     }
 
-    @Override
     public boolean isNight(Weather weather) {
         return weatherProvider.isNight(weather);
     }
 
-    @Override
     public LocationProviderImpl getLocationProvider() {
         return weatherProvider.getLocationProvider();
     }

@@ -9,8 +9,8 @@ import androidx.core.text.HtmlCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
@@ -50,7 +50,7 @@ public class OSSCreditsPreference extends Preference {
 
         TextView webView = holder.itemView.findViewById(R.id.textview);
 
-        String creditsText = new AsyncTask<String>().await(new Callable<String>() {
+        String creditsText = AsyncTask.await(new Callable<String>() {
             @Override
             public String call() {
                 StringBuilder sBuilder = new StringBuilder();

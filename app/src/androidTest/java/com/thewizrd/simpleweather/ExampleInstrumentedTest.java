@@ -10,11 +10,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.ApplicationLib;
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.FileUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -123,7 +123,7 @@ public class ExampleInstrumentedTest {
                 && loc.getLocationLat() == -1 && loc.getLocationLong() == -1
                 && loc.getLocationTZLong() == null) {
             final LocationQueryViewModel query_vm = loc;
-            loc = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
+            loc = AsyncTask.await(new Callable<LocationQueryViewModel>() {
                 @Override
                 public LocationQueryViewModel call() throws WeatherException {
                     return new HERELocationProvider().getLocationfromLocID(query_vm.getLocationQuery(), WeatherAPI.HERE);
@@ -152,7 +152,7 @@ public class ExampleInstrumentedTest {
                 && loc.getLocationLat() == -1 && loc.getLocationLong() == -1
                 && loc.getLocationTZLong() == null) {
             final LocationQueryViewModel query_vm = loc;
-            loc = new AsyncTask<LocationQueryViewModel>().await(new Callable<LocationQueryViewModel>() {
+            loc = AsyncTask.await(new Callable<LocationQueryViewModel>() {
                 @Override
                 public LocationQueryViewModel call() throws WeatherException {
                     return new HERELocationProvider().getLocationfromLocID(query_vm.getLocationQuery(), WeatherAPI.HERE);

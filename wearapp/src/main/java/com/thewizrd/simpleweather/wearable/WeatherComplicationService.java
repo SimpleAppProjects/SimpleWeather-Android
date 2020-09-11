@@ -11,7 +11,7 @@ import android.support.wearable.complications.ComplicationText;
 import android.util.Log;
 
 import com.google.android.gms.tasks.Tasks;
-import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -56,7 +56,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
         ComplicationData complicationData = null;
 
         if (Settings.isWeatherLoaded()) {
-            Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
+            Weather weather = AsyncTask.await(new Callable<Weather>() {
                 @Override
                 public Weather call() {
                     WeatherDataLoader wloader = new WeatherDataLoader(Settings.getHomeData());

@@ -56,7 +56,6 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.transition.MaterialFadeThrough;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -66,6 +65,7 @@ import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.lifecycle.LifecycleRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -804,7 +804,7 @@ public class LocationsFragment extends ToolbarFragment
     }
 
     private LocationData getGPSPanel() {
-        return new AsyncTask<LocationData>().await(new Callable<LocationData>() {
+        return AsyncTask.await(new Callable<LocationData>() {
             @Override
             public LocationData call() {
                 // Setup gps panel
@@ -919,7 +919,7 @@ public class LocationsFragment extends ToolbarFragment
     }
 
     private LocationData updateLocation() {
-        return new AsyncTask<LocationData>().await(new Callable<LocationData>() {
+        return AsyncTask.await(new Callable<LocationData>() {
             @Override
             public LocationData call() {
                 LocationData locationData = null;
@@ -948,7 +948,7 @@ public class LocationsFragment extends ToolbarFragment
                     }
 
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
-                        location = new AsyncTask<Location>().await(new Callable<Location>() {
+                        location = AsyncTask.await(new Callable<Location>() {
                             @SuppressLint("MissingPermission")
                             @Override
                             public Location call() {

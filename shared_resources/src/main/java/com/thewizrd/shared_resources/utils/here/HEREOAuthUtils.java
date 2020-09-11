@@ -4,9 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.keys.Keys;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -32,7 +32,7 @@ public class HEREOAuthUtils {
 
     public static String getBearerToken(boolean forceRefresh) {
         if (!forceRefresh) {
-            String token = new AsyncTask<String>().await(new Callable<String>() {
+            String token = AsyncTask.await(new Callable<String>() {
                 @Override
                 public String call() {
                     return getTokenFromStorage();
@@ -99,7 +99,7 @@ public class HEREOAuthUtils {
         if (prefs.contains(KEY_TOKEN)) {
             final String tokenJSON = prefs.getString(KEY_TOKEN, null);
             if (tokenJSON != null) {
-                Token token = new AsyncTask<Token>().await(new Callable<Token>() {
+                Token token = AsyncTask.await(new Callable<Token>() {
                     @Override
                     public Token call() {
                         return JSONParser.deserializer(tokenJSON, Token.class);

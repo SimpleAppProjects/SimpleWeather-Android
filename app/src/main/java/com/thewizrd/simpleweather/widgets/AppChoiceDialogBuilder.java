@@ -24,9 +24,9 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.AppItemLayoutBinding;
 import com.thewizrd.simpleweather.databinding.DialogAppchooserBinding;

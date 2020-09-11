@@ -91,7 +91,6 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.transition.MaterialFadeThrough;
 import com.ibm.icu.util.ULocale;
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
@@ -105,6 +104,7 @@ import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.lifecycle.CheckAliveRunnable;
 import com.thewizrd.shared_resources.lifecycle.LifecycleRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
@@ -1116,7 +1116,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 locationChanged = true;
             }
         } else if (args.getData() != null) {
-            LocationData location = new AsyncTask<LocationData>().await(new Callable<LocationData>() {
+            LocationData location = AsyncTask.await(new Callable<LocationData>() {
                 @Override
                 public LocationData call() {
                     return JSONParser.deserializer(args.getData(), LocationData.class);
@@ -1352,7 +1352,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
     @WorkerThread
     private boolean updateLocation() {
-        return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
+        return AsyncTask.await(new Callable<Boolean>() {
             @Override
             public Boolean call() {
                 boolean locationChanged = false;
@@ -1382,7 +1382,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     }
 
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
-                        location = new AsyncTask<Location>().await(new Callable<Location>() {
+                        location = AsyncTask.await(new Callable<Location>() {
                             @SuppressLint("MissingPermission")
                             @Override
                             public Location call() {

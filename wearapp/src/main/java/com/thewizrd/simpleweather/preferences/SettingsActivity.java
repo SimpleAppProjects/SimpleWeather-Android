@@ -33,8 +33,8 @@ import androidx.wear.widget.SwipeDismissFrameLayout;
 
 import com.google.android.wearable.intent.RemoteIntent;
 import com.thewizrd.shared_resources.ApplicationLib;
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;

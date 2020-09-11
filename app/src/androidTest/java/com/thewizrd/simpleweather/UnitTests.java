@@ -12,12 +12,11 @@ import com.google.common.base.Stopwatch;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.ApplicationLib;
-import com.thewizrd.shared_resources.AsyncTask;
-import com.thewizrd.shared_resources.AsyncTaskEx;
-import com.thewizrd.shared_resources.CallableEx;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.tasks.CallableEx;
 import com.thewizrd.shared_resources.tzdb.TimeZoneProvider;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -143,7 +142,7 @@ public class UnitTests {
 
     @Test
     public void getHEREOAuthToken() {
-        String token = new AsyncTask<String>().await(new Callable<String>() {
+        String token = AsyncTask.await(new Callable<String>() {
             @Override
             public String call() {
                 return HEREOAuthUtils.getBearerToken(true);
@@ -186,7 +185,7 @@ public class UnitTests {
         locationData.setLatitude(47.6721646);
         locationData.setLongitude(-122.1706614);
         locationData.setTzLong(tz_long);
-        Astronomy astro = new AsyncTaskEx<Astronomy, WeatherException>().await(new CallableEx<Astronomy, WeatherException>() {
+        Astronomy astro = AsyncTask.await(new CallableEx<Astronomy, WeatherException>() {
             @Override
             public Astronomy call() throws WeatherException {
                 return new SolCalcAstroProvider().getAstronomyData(locationData, date);

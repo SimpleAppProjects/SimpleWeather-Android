@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources;
+package com.thewizrd.shared_resources.firebase;
 
 import android.util.Log;
 
@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.storage.FirebaseStorage;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Logger;
 
 import java.util.concurrent.Callable;
@@ -36,7 +37,7 @@ public class FirebaseHelper {
     public static String getAccessToken() {
         checkSignIn();
         final FirebaseAuth auth = FirebaseAuth.getInstance();
-        return new AsyncTask<String>().await(new Callable<String>() {
+        return AsyncTask.await(new Callable<String>() {
             @Override
             public String call() {
                 if (auth.getCurrentUser() != null) {
@@ -57,7 +58,7 @@ public class FirebaseHelper {
     private static void checkSignIn() {
         final FirebaseAuth auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() == null && !sHasSignInFailed) {
-            new AsyncTask<Void>().await(new Callable<Void>() {
+            AsyncTask.await(new Callable<Void>() {
                 @Override
                 public Void call() {
                     try {

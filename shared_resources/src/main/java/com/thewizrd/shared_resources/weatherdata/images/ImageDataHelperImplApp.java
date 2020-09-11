@@ -8,9 +8,9 @@ import android.util.Log;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.thewizrd.shared_resources.AsyncTask;
-import com.thewizrd.shared_resources.FirebaseHelper;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.firebase.FirebaseHelper;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.weatherdata.Weather;
@@ -54,7 +54,7 @@ public class ImageDataHelperImplApp extends ImageDataHelperImpl {
 
     @Override
     protected ImageData storeImage(final Uri imageUri, final ImageData imageData) {
-        return new AsyncTask<ImageData>().await(new Callable<ImageData>() {
+        return AsyncTask.await(new Callable<ImageData>() {
             @Override
             public ImageData call() {
                 if (!imageDataFolder.exists())

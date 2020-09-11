@@ -9,8 +9,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlerts;
@@ -46,7 +46,7 @@ public class WeatherAlertsViewModel extends ObservableViewModel {
                 currentAlertsData.removeObserver(alertObserver);
             }
 
-            LiveData<WeatherAlerts> weatherAlertsLiveData = new AsyncTask<LiveData<WeatherAlerts>>().await(new Callable<LiveData<WeatherAlerts>>() {
+            LiveData<WeatherAlerts> weatherAlertsLiveData = AsyncTask.await(new Callable<LiveData<WeatherAlerts>>() {
                 @Override
                 public LiveData<WeatherAlerts> call() {
                     return Settings.getWeatherDAO().getLiveWeatherAlertData(locationKey);

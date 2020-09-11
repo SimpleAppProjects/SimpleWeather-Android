@@ -6,7 +6,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
 
-import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.simpleweather.R;
 
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class OSSCreditsPreference extends Preference {
         TextView textView = view.findViewById(R.id.textview);
 
         // Load html to string
-        String creditsText = new AsyncTask<String>().await(new Callable<String>() {
+        String creditsText = AsyncTask.await(new Callable<String>() {
             @Override
             public String call() {
                 StringBuilder sBuilder = new StringBuilder();

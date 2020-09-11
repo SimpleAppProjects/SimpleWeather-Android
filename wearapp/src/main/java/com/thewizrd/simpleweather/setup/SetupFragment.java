@@ -35,15 +35,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.lifecycle.LifecycleRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.tasks.CallableEx;
+import com.thewizrd.shared_resources.tasks.TaskUtils;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.CustomException;
@@ -92,15 +93,13 @@ public class SetupFragment extends CustomFragment {
      */
     private boolean mRequestingLocationUpdates;
 
-    private CancellationTokenSource cts;
+    private CancellationTokenSource cts = new CancellationTokenSource();
 
-    private WeatherManager wm;
+    private WeatherManager wm = WeatherManager.getInstance();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        wm = WeatherManager.getInstance();
 
         // Set default API to HERE
         if (!Settings.isWeatherLoaded()) {
@@ -194,7 +193,7 @@ public class SetupFragment extends CustomFragment {
                 });
     }
 
-    private void ctsCancel() {
+    private void resetTokenSource() {
         if (cts != null) cts.cancel();
         cts = new CancellationTokenSource();
     }
@@ -267,7 +266,7 @@ public class SetupFragment extends CustomFragment {
     @Override
     public void onPause() {
         AnalyticsLogger.logEvent("SetupFragment: onPause");
-        ctsCancel();
+        cts.cancel();
         // Remove location updates to save battery.
         stopLocationUpdates();
         super.onPause();
@@ -275,13 +274,13 @@ public class SetupFragment extends CustomFragment {
 
     @Override
     public void onDestroyView() {
-        ctsCancel();
+        cts.cancel();
         super.onDestroyView();
     }
 
     @Override
     public void onDestroy() {
-        ctsCancel();
+        cts.cancel();
         super.onDestroy();
     }
 
@@ -329,7 +328,7 @@ public class SetupFragment extends CustomFragment {
                     });
                 } else {
                     // Cancel other tasks
-                    ctsCancel();
+                    resetTokenSource();
                     final CancellationToken token = cts.getToken();
 
                     AsyncTask.create(new Callable<LocationData>() {
@@ -337,7 +336,7 @@ public class SetupFragment extends CustomFragment {
                         public LocationData call() throws InterruptedException, WeatherException, CustomException, ExecutionException {
                             LocationQueryViewModel view;
 
-                            if (token.isCancellationRequested()) throw new InterruptedException();
+                            TaskUtils.throwIfCancellationRequested(token);
 
                             view = wm.getLocation(mLocation);
 
@@ -352,7 +351,7 @@ public class SetupFragment extends CustomFragment {
                                 throw new CustomException(R.string.werror_invalidkey);
                             }
 
-                            if (token.isCancellationRequested()) throw new InterruptedException();
+                            TaskUtils.throwIfCancellationRequested(token);
 
                             String country_code = view.getLocationCountry();
                             if (!StringUtils.isNullOrWhitespace(country_code))
@@ -363,28 +362,30 @@ public class SetupFragment extends CustomFragment {
                             }
 
                             // Get Weather Data
-                            LocationData location = new LocationData(view, mLocation);
+                            final LocationData location = new LocationData(view, mLocation);
                             if (!location.isValid()) {
                                 throw new CustomException(R.string.werror_noweather);
                             }
 
-                            if (token.isCancellationRequested()) throw new InterruptedException();
+                            TaskUtils.throwIfCancellationRequested(token);
 
                             Weather weather = Settings.getWeatherData(location.getQuery());
                             if (weather == null) {
-                                if (token.isCancellationRequested())
-                                    throw new InterruptedException();
+                                TaskUtils.throwIfCancellationRequested(token);
 
-                                TaskCompletionSource<Weather> tcs = new TaskCompletionSource<>(token);
-                                tcs.setResult(wm.getWeather(location));
-                                weather = Tasks.await(tcs.getTask());
+                                weather = AsyncTask.await(new CallableEx<Weather, WeatherException>() {
+                                    @Override
+                                    public Weather call() throws WeatherException {
+                                        return wm.getWeather(location);
+                                    }
+                                }, token);
                             }
 
                             if (weather == null) {
                                 throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
                             }
 
-                            if (token.isCancellationRequested()) throw new InterruptedException();
+                            TaskUtils.throwIfCancellationRequested(token);
 
                             // Save weather data
                             Settings.saveHomeData(location);
@@ -469,7 +470,7 @@ public class SetupFragment extends CustomFragment {
         }
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {
-            location = new AsyncTask<Location>().await(new Callable<Location>() {
+            location = AsyncTask.await(new Callable<Location>() {
                 @SuppressLint("MissingPermission")
                 @Override
                 public Location call() {

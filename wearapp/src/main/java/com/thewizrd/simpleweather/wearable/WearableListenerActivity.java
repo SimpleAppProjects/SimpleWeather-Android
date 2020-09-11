@@ -27,7 +27,7 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableStatusCodes;
 import com.google.android.wearable.intent.RemoteIntent;
-import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.wearable.WearConnectionStatus;
@@ -126,7 +126,7 @@ public abstract class WearableListenerActivity extends FragmentActivity implemen
 
     @WorkerThread
     protected boolean openAppOnPhone(final boolean showAnimation) {
-        return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
+        return AsyncTask.await(new Callable<Boolean>() {
             @Override
             public Boolean call() {
                 connect();
@@ -258,7 +258,7 @@ public abstract class WearableListenerActivity extends FragmentActivity implemen
         if (Looper.getMainLooper() == Looper.myLooper())
             throw new IllegalStateException("This task should not be called on the main thread");
 
-        new AsyncTask<Void>().await(new Callable<Void>() {
+        AsyncTask.await(new Callable<Void>() {
             @Override
             public Void call() {
                 checkConnectionStatus();
@@ -325,7 +325,7 @@ public abstract class WearableListenerActivity extends FragmentActivity implemen
     }
 
     protected boolean connect() {
-        return new AsyncTask<Boolean>().await(new Callable<Boolean>() {
+        return AsyncTask.await(new Callable<Boolean>() {
             @Override
             public Boolean call() {
                 if (mPhoneNodeWithApp == null)

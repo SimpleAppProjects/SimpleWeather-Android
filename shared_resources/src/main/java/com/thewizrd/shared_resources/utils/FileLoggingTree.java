@@ -5,7 +5,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.thewizrd.shared_resources.AsyncTask;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;

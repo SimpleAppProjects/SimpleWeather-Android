@@ -29,12 +29,12 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
 
 import com.google.common.collect.Iterables;
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.ListChangedArgs;
 import com.thewizrd.shared_resources.helpers.ObservableArrayList;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.R;
@@ -470,7 +470,7 @@ public class LineView extends HorizontalScrollView {
                             }
                         }
 
-                        new AsyncTask<Void>().await(new Callable<Void>() {
+                        AsyncTask.await(new Callable<Void>() {
                             @Override
                             public Void call() throws Exception {
                                 updateAfterDataChanged(args.newItems);

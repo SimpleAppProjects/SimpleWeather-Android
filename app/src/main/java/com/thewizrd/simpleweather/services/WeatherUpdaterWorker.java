@@ -35,20 +35,18 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.CancellationTokenSource;
-import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
-import com.thewizrd.shared_resources.AsyncTask;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
-import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
@@ -81,29 +79,22 @@ public class WeatherUpdaterWorker extends ListenableWorker {
 
     private final Context mContext;
 
-    private WeatherManager wm;
+    private WeatherManager wm = WeatherManager.getInstance();
 
     private FusedLocationProviderClient mFusedLocationClient;
-    private CancellationTokenSource cts;
+    private CancellationTokenSource cts = new CancellationTokenSource();
 
     public WeatherUpdaterWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         mContext = context.getApplicationContext();
 
-        wm = WeatherManager.getInstance();
-
         if (WearableHelper.isGooglePlayServicesInstalled()) {
             mFusedLocationClient = new FusedLocationProviderClient(mContext);
         }
-
-        cts = new CancellationTokenSource();
     }
 
     private boolean isCtsCancelRequested() {
-        if (cts != null)
-            return cts.getToken().isCancellationRequested();
-        else
-            return true;
+        return cts.getToken().isCancellationRequested();
     }
 
     public static void enqueueAction(@NonNull Context context, @NonNull String intentAction) {
@@ -207,7 +198,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
 
     @Override
     public void onStopped() {
-        if (cts != null) cts.cancel();
+        cts.cancel();
         super.onStopped();
     }
 
@@ -229,7 +220,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                     }
 
                     // Update for home
-                    final Weather weather = new AsyncTask<Weather>().await(new Callable<Weather>() {
+                    final Weather weather = AsyncTask.await(new Callable<Weather>() {
                         @Override
                         public Weather call() {
                             return getWeather();
@@ -263,7 +254,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
     }
 
     private Weather getWeather() {
-        return new AsyncTask<Weather>().await(new Callable<Weather>() {
+        return AsyncTask.await(new Callable<Weather>() {
             @Override
             public Weather call() {
                 Weather weather;
@@ -317,7 +308,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                     }
 
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
-                        location = new AsyncTask<Location>().await(new Callable<Location>() {
+                        location = AsyncTask.await(new Callable<Location>() {
                             @SuppressLint("MissingPermission")
                             @Override
                             public Location call() {
@@ -423,23 +414,15 @@ public class WeatherUpdaterWorker extends ListenableWorker {
 
                         LocationQueryViewModel query_vm;
 
-                        TaskCompletionSource<LocationQueryViewModel> tcs = new TaskCompletionSource<>(cts.getToken());
-                        try {
-                            tcs.setResult(wm.getLocation(location));
-                            query_vm = Tasks.await(tcs.getTask());
-                        } catch (ExecutionException | WeatherException e) {
-                            Logger.writeLine(Log.ERROR, e);
-                            result.set(false);
-                            return;
-                        } catch (InterruptedException e) {
-                            result.set(false);
-                            return;
-                        }
+                        final Location finalLocation = location;
+                        query_vm = AsyncTask.await(new Callable<LocationQueryViewModel>() {
+                            @Override
+                            public LocationQueryViewModel call() throws Exception {
+                                return wm.getLocation(finalLocation);
+                            }
+                        }, cts.getToken());
 
-                        if (StringUtils.isNullOrEmpty(query_vm.getLocationQuery()))
-                            query_vm = new LocationQueryViewModel();
-
-                        if (StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
+                        if (query_vm == null || StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
                             // Stop since there is no valid query
                             result.set(false);
                             return;
