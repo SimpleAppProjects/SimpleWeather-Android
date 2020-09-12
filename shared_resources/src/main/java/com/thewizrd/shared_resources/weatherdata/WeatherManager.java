@@ -148,8 +148,8 @@ public final class WeatherManager implements WeatherProviderImplInterface {
 
     @WorkerThread
     @Override
-    public Weather getWeather(final String location_query) throws WeatherException {
-        return weatherProvider.getWeather(location_query);
+    public Weather getWeather(final String location_query, final String country_code) throws WeatherException {
+        return weatherProvider.getWeather(location_query, country_code);
     }
 
     @WorkerThread

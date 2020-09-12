@@ -126,7 +126,7 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
     }
 
     @Override
-    public Weather getWeather(String location_query) throws WeatherException {
+    public Weather getWeather(final String location_query, final String country_code) throws WeatherException {
         Weather weather;
 
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());

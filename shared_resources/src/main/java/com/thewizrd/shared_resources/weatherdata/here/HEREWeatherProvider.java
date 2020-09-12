@@ -33,8 +33,11 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public final class HEREWeatherProvider extends WeatherProviderImpl {
-    private static final String WEATHER_QUERY_URL = "https://weather.ls.hereapi.com/weather/1.0/report.json?" +
+    private static final String WEATHER_GLOBAL_QUERY_URL = "https://weather.ls.hereapi.com/weather/1.0/report.json?" +
             "product=alerts&product=forecast_7days_simple&product=forecast_hourly&product=forecast_astronomy&product=observation&oneobservation=true" +
+            "&%s&language=%s&metric=false";
+    private static final String WEATHER_US_CA_QUERY_URL = "https://weather.ls.hereapi.com/weather/1.0/report.json?" +
+            "product=nws_alerts&product=forecast_7days_simple&product=forecast_hourly&product=forecast_astronomy&product=observation&oneobservation=true" +
             "&%s&language=%s&metric=false";
     private static final String ALERT_QUERY_URL = "https://weather.ls.hereapi.com/weather/1.0/report.json?product=alerts&%s" +
             "&language=%s&metric=false";
@@ -80,7 +83,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
     }
 
     @Override
-    public Weather getWeather(String location_query) throws WeatherException {
+    public Weather getWeather(String location_query, String country_code) throws WeatherException {
         Weather weather;
 
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
@@ -97,8 +100,15 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
                 throw new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
             }
 
+            final String url;
+            if ("US".equalsIgnoreCase(country_code) || "CA".equalsIgnoreCase(country_code)) {
+                url = String.format(WEATHER_US_CA_QUERY_URL, location_query, locale);
+            } else {
+                url = String.format(WEATHER_GLOBAL_QUERY_URL, location_query, locale);
+            }
+
             Request request = new Request.Builder()
-                    .url(String.format(WEATHER_QUERY_URL, location_query, locale))
+                    .url(url)
                     .addHeader("Authorization", authorization)
                     .build();
 
@@ -130,11 +140,22 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
 
             // Add weather alerts if available
             if (root.getAlerts() != null && root.getAlerts().getAlerts().size() > 0) {
-                if (weather.getWeatherAlerts() == null)
-                    weather.setWeatherAlerts(new ArrayList<WeatherAlert>(root.getAlerts().getAlerts().size()));
+                weather.setWeatherAlerts(new ArrayList<WeatherAlert>(root.getAlerts().getAlerts().size()));
 
                 for (AlertsItem result : root.getAlerts().getAlerts()) {
                     weather.getWeatherAlerts().add(new WeatherAlert(result));
+                }
+            } else if (root.getNwsAlerts() != null && (root.getNwsAlerts().getWatch() != null || root.getNwsAlerts().getWarning() != null)) {
+                final int numOfAlerts = (root.getNwsAlerts().getWatch() != null ? root.getNwsAlerts().getWatch().size() : 0) +
+                        (root.getNwsAlerts().getWarning() != null ? root.getNwsAlerts().getWarning().size() : 0);
+
+                weather.setWeatherAlerts(new ArrayList<WeatherAlert>(numOfAlerts));
+
+                for (WatchItem watchItem : root.getNwsAlerts().getWatch()) {
+                    weather.getWeatherAlerts().add(new WeatherAlert(watchItem));
+                }
+                for (WarningItem warningItem : root.getNwsAlerts().getWarning()) {
+                    weather.getWeatherAlerts().add(new WeatherAlert(warningItem));
                 }
             }
         } catch (Exception ex) {

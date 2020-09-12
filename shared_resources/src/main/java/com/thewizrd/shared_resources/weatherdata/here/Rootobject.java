@@ -11,6 +11,9 @@ public class Rootobject {
     @SerializedName("alerts")
     private Alerts alerts;
 
+    @SerializedName("nwsAlerts")
+    private NwsAlerts nwsAlerts;
+
     @SerializedName("hourlyForecasts")
     private HourlyForecasts hourlyForecasts;
 
@@ -41,6 +44,14 @@ public class Rootobject {
 
     public Alerts getAlerts() {
         return alerts;
+    }
+
+    public void setNwsAlerts(NwsAlerts nwsAlerts) {
+        this.nwsAlerts = nwsAlerts;
+    }
+
+    public NwsAlerts getNwsAlerts() {
+        return nwsAlerts;
     }
 
     public void setHourlyForecasts(HourlyForecasts hourlyForecasts) {

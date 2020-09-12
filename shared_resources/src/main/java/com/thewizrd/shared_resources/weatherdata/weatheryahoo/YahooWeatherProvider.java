@@ -135,7 +135,7 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
     }
 
     @Override
-    public Weather getWeather(final String location_query) throws WeatherException {
+    public Weather getWeather(final String location_query, final String country_code) throws WeatherException {
         Weather weather;
         WeatherException wEx = null;
 

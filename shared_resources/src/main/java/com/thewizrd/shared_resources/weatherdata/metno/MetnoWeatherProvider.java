@@ -84,7 +84,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
     }
 
     @Override
-    public Weather getWeather(String location_query) throws WeatherException {
+    public Weather getWeather(final String location_query, final String country_code) throws WeatherException {
         Weather weather = null;
 
         OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();

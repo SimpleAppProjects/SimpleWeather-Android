@@ -57,14 +57,15 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
      *
      * @param location_query Location query to retrieve weather data;
      *                       Query string is defined in {@link LocationQueryViewModel#updateLocationQuery()}
+     * @param country_code   Country code for the location defined by location_query parameter
      * @return Weather data object
      * @throws WeatherException Weather Exception
      */
-    public abstract Weather getWeather(String location_query) throws WeatherException;
+    public abstract Weather getWeather(String location_query, String country_code) throws WeatherException;
 
     /**
      * This method is used to update the weather data retrieved with the query
-     * (see {@link WeatherProviderImpl#getWeather(String)})
+     * (see {@link WeatherProviderImpl#getWeather(String, String)})
      * <p>
      * Mostly used to update Weather data with time zone info from {@link LocationData} or
      * to update {@link LocationData} if itself is missing TZ data
@@ -78,7 +79,7 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
         if (location == null || location.getQuery() == null)
             throw new WeatherException(WeatherUtils.ErrorStatus.UNKNOWN);
 
-        Weather weather = getWeather(location.getQuery());
+        Weather weather = getWeather(location.getQuery(), location.getCountryCode());
 
         if (StringUtils.isNullOrWhitespace(location.getTzLong())) {
             if (!StringUtils.isNullOrWhitespace(weather.getLocation().getTzLong())) {

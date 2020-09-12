@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources.weatherdata;
 
 import android.util.Log;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.RestrictTo;
 
 import com.google.gson.annotations.SerializedName;
@@ -11,8 +12,11 @@ import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.weatherdata.here.AlertsItem;
 import com.thewizrd.shared_resources.weatherdata.here.TimeSegmentItem;
+import com.thewizrd.shared_resources.weatherdata.here.WarningItem;
+import com.thewizrd.shared_resources.weatherdata.here.WatchItem;
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.GraphItem;
 
 import org.threeten.bp.DayOfWeek;
@@ -24,6 +28,7 @@ import org.threeten.bp.ZonedDateTime;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
+import java.util.Locale;
 
 public class WeatherAlert extends CustomJsonObject {
     @SerializedName("Type")
@@ -48,10 +53,13 @@ public class WeatherAlert extends CustomJsonObject {
 
     }
 
+    // NWS Alerts
     public WeatherAlert(GraphItem alert) {
         // Alert Type
         switch (alert.getEvent()) {
             case "Hurricane Local Statement":
+                type = WeatherAlertType.HURRICANELOCALSTATEMENT;
+                break;
             case "Hurricane Force Wind Watch":
             case "Hurricane Watch":
             case "Hurricane Force Wind Warning":
@@ -165,6 +173,7 @@ public class WeatherAlert extends CustomJsonObject {
         attribution = "Information provided by the U.S. National Weather Service";
     }
 
+    // HERE GlobalAlerts
     public WeatherAlert(AlertsItem alert) {
         // Alert Type
         switch (alert.getType()) {
@@ -272,6 +281,140 @@ public class WeatherAlert extends CustomJsonObject {
         setDateTimeFromSegment(alert.getTimeSegment());
 
         attribution = "Information provided by HERE Weather";
+    }
+
+    // HERE NWS Alerts
+    public WeatherAlert(WatchItem alert) {
+        type = getAlertType(NumberUtils.tryParseInt(alert.getType(), -1), alert.getDescription());
+        severity = getAlertSeverity(alert.getSeverity());
+
+        title = alert.getDescription();
+        message = alert.getMessage();
+
+        date = ZonedDateTime.parse(alert.getValidFromTimeLocal());
+        expiresDate = ZonedDateTime.parse(alert.getValidUntilTimeLocal());
+
+        attribution = "Information provided by the U.S. National Weather Service";
+    }
+
+    public WeatherAlert(WarningItem alert) {
+        type = getAlertType(NumberUtils.tryParseInt(alert.getType(), -1), alert.getDescription());
+        severity = getAlertSeverity(alert.getSeverity());
+
+        title = alert.getDescription();
+        message = alert.getMessage();
+
+        date = ZonedDateTime.parse(alert.getValidFromTimeLocal());
+        expiresDate = ZonedDateTime.parse(alert.getValidUntilTimeLocal());
+
+        attribution = "Information provided by the U.S. National Weather Service";
+    }
+
+    private WeatherAlertType getAlertType(@IntRange(from = 0, to = 38) int type, String alertDescription) {
+        switch (type) {
+            case 0: // Aviation Weather Warning
+            case 1: // Civil Emergency Message
+            case 10: // Lakeshore Warning or Statement
+            case 11: // Marine Weather Statement
+            case 12: // Non Precipitation Warning, Watch, or Statement
+            case 13: // Public Severe Weather Alert
+            case 14: // Red Flag Warning
+            case 16: // River Recreation Statement
+            case 17: // River Statement
+            case 19: // Preliminary Notice of Watch Cancellation - Aviation Message
+            case 20: // Special Dispersion Statement
+            case 22: // SPC Watch Point Information Message
+            case 25: // Special Marine Warning
+            case 27: // Special Weather Statement
+            case 38: // Air Stagnation Advisory
+            default: {
+                // Try to get a more detailed alert type
+                if (alertDescription.contains("Hurricane".toLowerCase(Locale.ROOT))) {
+                    return WeatherAlertType.HURRICANEWINDWARNING;
+                } else if (alertDescription.contains("Tornado".toLowerCase(Locale.ROOT))) {
+                    return WeatherAlertType.TORNADOWARNING;
+                } else if (alertDescription.contains("Heat".toLowerCase(Locale.ROOT))) {
+                    return WeatherAlertType.HEAT;
+                } else if (alertDescription.contains("Dense Fog".toLowerCase(Locale.ROOT))) {
+                    return WeatherAlertType.DENSEFOG;
+                } else if (alertDescription.contains("Dense Smoke".toLowerCase(Locale.ROOT))) {
+                    return WeatherAlertType.DENSESMOKE;
+                } else if (alertDescription.contains("Fire".toLowerCase(Locale.ROOT))) {
+                    return WeatherAlertType.FIRE;
+                } else if (alertDescription.contains("Wind".toLowerCase(Locale.ROOT))) {
+                    return WeatherAlertType.HIGHWIND;
+                } else if (alertDescription.contains("Snow".toLowerCase(Locale.ROOT)) || alertDescription.contains("Blizzard".toLowerCase(Locale.ROOT)) ||
+                        alertDescription.contains("Winter".toLowerCase(Locale.ROOT)) || alertDescription.contains("Ice".toLowerCase(Locale.ROOT)) ||
+                        alertDescription.contains("Ice".toLowerCase(Locale.ROOT)) || alertDescription.contains("Ice".toLowerCase(Locale.ROOT)) ||
+                        alertDescription.contains("Avalanche".toLowerCase(Locale.ROOT)) || alertDescription.contains("Cold".toLowerCase(Locale.ROOT)) ||
+                        alertDescription.contains("Freez".toLowerCase(Locale.ROOT)) || alertDescription.contains("Frost".toLowerCase(Locale.ROOT)) ||
+                        alertDescription.contains("Chill".toLowerCase(Locale.ROOT))) {
+                    return WeatherAlertType.WINTERWEATHER;
+                } else if (alertDescription.contains("Earthquake".toLowerCase(Locale.ROOT))) {
+                    return WeatherAlertType.EARTHQUAKEWARNING;
+                } else if (alertDescription.contains("Gale".toLowerCase(Locale.ROOT))) {
+                    return WeatherAlertType.GALEWARNING;
+                } else if (alertDescription.contains("Dust".toLowerCase(Locale.ROOT))) {
+                    return WeatherAlertType.DUSTADVISORY;
+                } else if (alertDescription.contains("Small Craft".toLowerCase(Locale.ROOT))) {
+                    return WeatherAlertType.SMALLCRAFT;
+                } else if (alertDescription.contains("Storm".toLowerCase(Locale.ROOT))) {
+                    return WeatherAlertType.STORMWARNING;
+                } else if (alertDescription.contains("Tsunami".toLowerCase(Locale.ROOT))) {
+                    return WeatherAlertType.TSUNAMIWARNING;
+                }
+
+                return WeatherAlertType.SPECIALWEATHERALERT;
+            }
+            case 2: // Coastal Flood Warning, Watch, or Statement
+            case 5: // Flash Flood Warning
+            case 7: // Flood Warning
+            case 8: // Urban and Small Stream Flood Advisory
+                return WeatherAlertType.FLOODWARNING;
+            case 3: // Flash Flood Watch
+            case 4: // Flash Flood Statement
+            case 6: // Flood Statement
+                return WeatherAlertType.FLOODWATCH;
+            case 9: // Hurricane Local Statement
+                return WeatherAlertType.HURRICANELOCALSTATEMENT;
+            case 15: // River Ice Statement
+            case 18: // Snow Avalanche Bulletin
+            case 37: // Winter Weather Warning, Watch, or Advisory
+                return WeatherAlertType.WINTERWEATHER;
+            case 21: // Severe Local Storm Watch or Watch Cancellation
+            case 23: // Severe Local Storm Watch and Areal Outline
+            case 26: // Storm Strike Probability Bulletin from the TPC
+                return WeatherAlertType.SEVERETHUNDERSTORMWATCH;
+            case 24: // Marine Subtropical Storm Advisory
+                return WeatherAlertType.STORMWARNING;
+            case 28: // Severe Thunderstorm Warning
+                return WeatherAlertType.SEVERETHUNDERSTORMWARNING;
+            case 29: // Severe Weather Statement
+                return WeatherAlertType.SEVEREWEATHER;
+            case 30: // Tropical Cyclone Advisory
+            case 31: // Tropical Cyclone Advisory for Marine and Aviation Interests
+            case 32: // Public Tropical Cyclone Advisory
+            case 33: // Tropical Cyclone Update
+                return WeatherAlertType.HURRICANEWINDWARNING;
+            case 34: // Tornado Warning
+                return WeatherAlertType.TORNADOWARNING;
+            case 35: // Tsunami Watch or Warning
+                return WeatherAlertType.TSUNAMIWARNING;
+            case 36: // Volcanic Activity Advisory
+                return WeatherAlertType.VOLCANO;
+        }
+    }
+
+    private WeatherAlertSeverity getAlertSeverity(@IntRange(from = 0, to = 100) int severity) {
+        if (severity >= 75) {
+            return WeatherAlertSeverity.EXTREME;
+        } else if (severity >= 50) {
+            return WeatherAlertSeverity.SEVERE;
+        } else if (severity >= 25) {
+            return WeatherAlertSeverity.MODERATE;
+        } else {
+            return WeatherAlertSeverity.MINOR;
+        }
     }
 
     private DayOfWeek getDayOfWeekFromSegment(String dayofweek) {

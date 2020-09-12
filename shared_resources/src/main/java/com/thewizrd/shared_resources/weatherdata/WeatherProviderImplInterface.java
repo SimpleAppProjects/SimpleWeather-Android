@@ -24,7 +24,7 @@ public interface WeatherProviderImplInterface {
 
     LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate) throws WeatherException;
 
-    Weather getWeather(String location_query) throws WeatherException;
+    Weather getWeather(String location_query, String country_code) throws WeatherException;
 
     Weather getWeather(LocationData location) throws WeatherException;
 
