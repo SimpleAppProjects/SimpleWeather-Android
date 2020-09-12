@@ -245,7 +245,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
 
                     WeatherRequest.Builder request = new WeatherRequest.Builder();
                     if (Settings.getDataSync() == WearableDataSync.OFF) {
-                        request.forceRefresh(false);
+                        request.forceRefresh(false).loadAlerts();
                     } else {
                         request.forceLoadSavedData();
                     }

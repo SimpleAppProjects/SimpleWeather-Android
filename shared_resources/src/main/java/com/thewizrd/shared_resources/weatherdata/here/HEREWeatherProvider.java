@@ -18,7 +18,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
-import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider;
 
 import org.threeten.bp.ZoneOffset;
 
@@ -180,13 +179,6 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
                     alert.setExpiresDate(alert.getExpiresDate().withZoneSameLocal(offset));
                 }
             }
-        } else if ("US".equals(location.getCountryCode())) {
-            List<WeatherAlert> alerts = new ArrayList<>(new NWSAlertProvider().getAlerts(location));
-
-            if (weather.getWeatherAlerts() != null)
-                alerts.addAll(weather.getWeatherAlerts());
-
-            weather.setWeatherAlerts(alerts);
         }
 
         // Update tz for weather properties

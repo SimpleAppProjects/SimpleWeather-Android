@@ -109,9 +109,6 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
         weather.getLocation().setTzOffset(location.getTzOffset());
 
         // Additional external data
-        if (supportsAlerts() && needsExternalAlertData())
-            weather.setWeatherAlerts(getAlerts(location));
-
         weather.getCondition().setAirQuality(new AQICNProvider().getAirQualityData(location));
 
         return weather;

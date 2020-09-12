@@ -383,6 +383,8 @@ public class SetupFragment extends CustomFragment {
 
                             if (weather == null) {
                                 throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
+                            } else if (wm.supportsAlerts() && wm.needsExternalAlertData()) {
+                                weather.setWeatherAlerts(wm.getAlerts(location));
                             }
 
                             TaskUtils.throwIfCancellationRequested(token);

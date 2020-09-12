@@ -45,6 +45,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -72,9 +73,11 @@ import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
+import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
+import com.thewizrd.shared_resources.weatherdata.WeatherResult;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.ForecastPanelsViewModel;
@@ -89,6 +92,7 @@ import org.threeten.bp.Duration;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import java.util.Collection;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -146,7 +150,6 @@ public class WeatherNowFragment extends CustomFragment
             if (weather != null && weather.isValid()) {
                 weatherView.updateView(weather);
                 forecastPanelsView.updateForecasts(locationData);
-                alertsView.updateAlerts(locationData);
 
                 forecastsView.updateForecasts(locationData);
 
@@ -663,15 +666,35 @@ public class WeatherNowFragment extends CustomFragment
                 binding.swipeRefreshLayout.setRefreshing(true);
 
                 if (Settings.getDataSync() == WearableDataSync.OFF && wLoader != null) {
-                    wLoader.loadWeatherData(new WeatherRequest.Builder()
+                    wLoader.loadWeatherResult(new WeatherRequest.Builder()
                             .forceRefresh(forceRefresh)
-                            .loadAlerts()
                             .setErrorListener(WeatherNowFragment.this)
                             .build())
-                            .addOnSuccessListener(getFragmentActivity(), new OnSuccessListener<Weather>() {
+                            .addOnSuccessListener(new OnSuccessListener<WeatherResult>() {
                                 @Override
-                                public void onSuccess(final Weather weather) {
-                                    weatherLiveData.setValue(weather);
+                                public void onSuccess(final WeatherResult weather) {
+                                    weatherLiveData.setValue(weather.getWeather());
+                                }
+                            })
+                            .continueWithTask(new Continuation<WeatherResult, Task<Collection<WeatherAlert>>>() {
+                                @Override
+                                public Task<Collection<WeatherAlert>> then(@NonNull Task<WeatherResult> task) {
+                                    if (task.isSuccessful()) {
+                                        return wLoader.loadWeatherAlerts(task.getResult().isSavedData());
+                                    } else {
+                                        return Tasks.forCanceled();
+                                    }
+                                }
+                            })
+                            .addOnSuccessListener(new OnSuccessListener<Collection<WeatherAlert>>() {
+                                @Override
+                                public void onSuccess(final Collection<WeatherAlert> weatherAlerts) {
+                                    runWithView(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            alertsView.updateAlerts(locationData);
+                                        }
+                                    });
                                 }
                             });
                 } else if (Settings.getDataSync() != WearableDataSync.OFF) {

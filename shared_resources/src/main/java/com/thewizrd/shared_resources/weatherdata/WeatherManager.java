@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 
 // Wrapper class for supported Weather Providers
-public final class WeatherManager {
+public final class WeatherManager implements WeatherProviderImplInterface {
     private static WeatherManager instance;
     private static WeatherProviderImpl weatherProvider;
 
@@ -89,31 +89,48 @@ public final class WeatherManager {
     }
 
     // Provider dependent methods
+    @Override
     public String getWeatherAPI() {
         return weatherProvider.getWeatherAPI();
     }
 
+    @Override
     public boolean isKeyRequired() {
         return weatherProvider.isKeyRequired();
     }
 
+    @Override
     public boolean supportsWeatherLocale() {
         return weatherProvider.supportsWeatherLocale();
     }
 
+    @Override
     public boolean supportsAlerts() {
         return weatherProvider.supportsAlerts();
     }
 
+    @Override
+    public boolean needsExternalAlertData() {
+        return weatherProvider.needsExternalAlertData();
+    }
+
+    @Override
+    public void updateLocationData(LocationData location) {
+        weatherProvider.updateLocationData(location);
+    }
+
+    @Override
     public String updateLocationQuery(final Weather weather) {
         return weatherProvider.updateLocationQuery(weather);
     }
 
+    @Override
     public String updateLocationQuery(final LocationData location) {
         return weatherProvider.updateLocationQuery(location);
     }
 
     @WorkerThread
+    @Override
     public Collection<LocationQueryViewModel> getLocations(final String ac_query) throws WeatherException {
         return weatherProvider.getLocations(ac_query);
     }
@@ -124,37 +141,60 @@ public final class WeatherManager {
     }
 
     @WorkerThread
+    @Override
     public LocationQueryViewModel getLocation(final WeatherUtils.Coordinate coordinate) throws WeatherException {
         return weatherProvider.getLocation(coordinate);
     }
 
     @WorkerThread
+    @Override
     public Weather getWeather(final String location_query) throws WeatherException {
         return weatherProvider.getWeather(location_query);
     }
 
     @WorkerThread
+    @Override
     public Weather getWeather(final LocationData location) throws WeatherException {
         return weatherProvider.getWeather(location);
     }
 
     @WorkerThread
+    @Override
     public List<WeatherAlert> getAlerts(final LocationData location) {
         return weatherProvider.getAlerts(location);
     }
 
+    @Override
     public String localeToLangCode(String iso, String name) {
         return weatherProvider.localeToLangCode(iso, name);
     }
 
+    @Override
+    public String getWeatherIcon(String icon) {
+        return weatherProvider.getWeatherIcon(icon);
+    }
+
+    @Override
+    public String getWeatherIcon(boolean isNight, String icon) {
+        return weatherProvider.getWeatherIcon(isNight, icon);
+    }
+
+    @Override
+    public boolean isKeyValid(String key) throws WeatherException {
+        return weatherProvider.isKeyValid(key);
+    }
+
+    @Override
     public String getAPIKey() {
         return weatherProvider.getAPIKey();
     }
 
+    @Override
     public boolean isNight(Weather weather) {
         return weatherProvider.isNight(weather);
     }
 
+    @Override
     public LocationProviderImpl getLocationProvider() {
         return weatherProvider.getLocationProvider();
     }

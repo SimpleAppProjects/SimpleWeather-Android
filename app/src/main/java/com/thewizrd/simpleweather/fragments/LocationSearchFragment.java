@@ -227,6 +227,8 @@ public class LocationSearchFragment extends WindowColorFragment {
 
                             if (weather == null) {
                                 throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
+                            } else if (wm.supportsAlerts() && wm.needsExternalAlertData()) {
+                                weather.setWeatherAlerts(wm.getAlerts(location));
                             }
 
                             // Save data

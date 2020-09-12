@@ -83,6 +83,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -120,10 +121,12 @@ import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
+import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
+import com.thewizrd.shared_resources.weatherdata.WeatherResult;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.BuildConfig;
 import com.thewizrd.simpleweather.R;
@@ -160,6 +163,7 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
@@ -246,24 +250,8 @@ public class WeatherNowFragment extends WindowColorFragment
                 });
 
                 forecastsView.updateForecasts(locationData);
-                alertsView.updateAlerts(locationData);
 
                 Context context = App.getInstance().getAppContext();
-
-                if (wm.supportsAlerts()) {
-                    if (weather.getWeatherAlerts() != null && !weather.getWeatherAlerts().isEmpty()) {
-                        // Alerts are posted to the user here. Set them as notified.
-                        AsyncTask.run(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (BuildConfig.DEBUG) {
-                                    WeatherAlertHandler.postAlerts(locationData, weather.getWeatherAlerts());
-                                }
-                                WeatherAlertHandler.setAsNotified(locationData, weather.getWeatherAlerts());
-                            }
-                        });
-                    }
-                }
 
                 if (Settings.getHomeData().equals(locationData)) {
                     // Update widgets if they haven't been already
@@ -1225,14 +1213,50 @@ public class WeatherNowFragment extends WindowColorFragment
                 }
 
                 if (wLoader != null) {
-                    wLoader.loadWeatherData(new WeatherRequest.Builder()
+                    wLoader.loadWeatherResult(new WeatherRequest.Builder()
                             .forceRefresh(forceRefresh)
                             .setErrorListener(WeatherNowFragment.this)
                             .build())
-                            .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Weather>() {
+                            .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<WeatherResult>() {
                                 @Override
-                                public void onSuccess(final Weather weather) {
-                                    weatherLiveData.setValue(weather);
+                                public void onSuccess(final WeatherResult weather) {
+                                    weatherLiveData.setValue(weather.getWeather());
+                                }
+                            })
+                            .continueWithTask(new Continuation<WeatherResult, Task<Collection<WeatherAlert>>>() {
+                                @Override
+                                public Task<Collection<WeatherAlert>> then(@NonNull Task<WeatherResult> task) {
+                                    if (task.isSuccessful()) {
+                                        return wLoader.loadWeatherAlerts(task.getResult().isSavedData());
+                                    } else {
+                                        return Tasks.forCanceled();
+                                    }
+                                }
+                            })
+                            .addOnSuccessListener(new OnSuccessListener<Collection<WeatherAlert>>() {
+                                @Override
+                                public void onSuccess(final Collection<WeatherAlert> weatherAlerts) {
+                                    runWithView(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            alertsView.updateAlerts(locationData);
+
+                                            if (wm.supportsAlerts()) {
+                                                if (weatherAlerts != null && !weatherAlerts.isEmpty()) {
+                                                    // Alerts are posted to the user here. Set them as notified.
+                                                    AsyncTask.run(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            if (BuildConfig.DEBUG) {
+                                                                WeatherAlertHandler.postAlerts(locationData, weatherAlerts);
+                                                            }
+                                                            WeatherAlertHandler.setAsNotified(locationData, weatherAlerts);
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    });
                                 }
                             });
                 }

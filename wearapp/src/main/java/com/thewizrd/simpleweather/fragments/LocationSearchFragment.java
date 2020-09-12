@@ -37,7 +37,6 @@ import com.thewizrd.shared_resources.lifecycle.LifecycleRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
-import com.thewizrd.shared_resources.tasks.Callable;
 import com.thewizrd.shared_resources.tasks.CallableEx;
 import com.thewizrd.shared_resources.tasks.TaskUtils;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
@@ -65,6 +64,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 public class LocationSearchFragment extends SwipeDismissFragment {
     private FragmentLocationSearchBinding binding;
@@ -188,6 +188,8 @@ public class LocationSearchFragment extends SwipeDismissFragment {
 
                             if (weather == null) {
                                 throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
+                            } else if (wm.supportsAlerts() && wm.needsExternalAlertData()) {
+                                weather.setWeatherAlerts(wm.getAlerts(location));
                             }
 
                             TaskUtils.throwIfCancellationRequested(token);

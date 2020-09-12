@@ -3,18 +3,21 @@ package com.thewizrd.shared_resources.weatherdata;
 import android.content.Intent;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.core.util.ObjectsCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
-import com.thewizrd.shared_resources.tasks.CallableEx;
+import com.thewizrd.shared_resources.tasks.TaskUtils;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -35,136 +38,209 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 
-public class WeatherDataLoader {
-    private LocationData location = null;
+public final class WeatherDataLoader {
+    private LocationData location;
     private Weather weather = null;
-    private WeatherManager wm;
+    private Collection<WeatherAlert> weatherAlerts = null;
+    private WeatherManager wm = WeatherManager.getInstance();
 
     private LocalBroadcastManager mLocalBroadcastManager;
 
     private static final String TAG = "WeatherDataLoader";
 
-    public WeatherDataLoader(LocationData location) {
-        mLocalBroadcastManager = LocalBroadcastManager.
-                getInstance(SimpleLibrary.getInstance().getApp().getAppContext());
-        wm = WeatherManager.getInstance();
-
+    public WeatherDataLoader(@NonNull LocationData location) {
         this.location = location;
 
-        if (this.location == null)
-            throw new IllegalArgumentException("Location cannot be null!!");
+        mLocalBroadcastManager = LocalBroadcastManager.
+                getInstance(SimpleLibrary.getInstance().getApp().getAppContext());
     }
 
-    private void getWeatherData(final WeatherRequest request) throws WeatherException {
-        AsyncTask.await(new CallableEx<Void, WeatherException>() {
+    public Task<Weather> loadWeatherData(@NonNull final WeatherRequest request) {
+        final TaskCompletionSource<Weather> tcs;
+        if (request.getCancellationToken() != null) {
+            tcs = new TaskCompletionSource<>(request.getCancellationToken());
+        } else {
+            tcs = new TaskCompletionSource<>();
+        }
+
+        AsyncTask.run(new Runnable() {
             @Override
-            public Void call() throws WeatherException {
-                WeatherException wEx = null;
-                boolean loadedSavedData = false;
-
+            public void run() {
                 try {
-                    if (WeatherAPI.NWS.equals(Settings.getAPI()) && !"US".equals(location.getCountryCode())) {
-                        // If location data hasn't been updated, try loading weather from the previous provider
-                        if (!StringUtils.isNullOrWhitespace(location.getWeatherSource()) &&
-                                !WeatherAPI.NWS.equals(location.getWeatherSource())) {
-                            weather = WeatherManager.getProvider(location.getWeatherSource()).getWeather(location);
-                        } else {
-                            throw new WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND);
-                        }
-                    } else {
-                        // Load weather from provider
-                        weather = wm.getWeather(location);
-                    }
-                } catch (WeatherException weatherEx) {
-                    wEx = weatherEx;
-                    weather = null;
-                } catch (Exception ex) {
-                    Logger.writeLine(Log.ERROR, ex, "WeatherDataLoader: error getting weather data");
-                    weather = null;
+                    tcs.setResult(getCallable(request).call().getWeather());
+                } catch (Exception e) {
+                    tcs.setException(e);
                 }
-
-                // Load old data if available and we can't get new data
-                if (weather == null) {
-                    loadedSavedData = loadSavedWeatherData(request, true);
-                } else {
-                    // Handle upgrades
-                    if (StringUtils.isNullOrEmpty(location.getName()) || StringUtils.isNullOrEmpty(location.getTzLong())) {
-                        location.setName(weather.getLocation().getName());
-                        location.setTzLong(weather.getLocation().getTzLong());
-
-                        if (SimpleLibrary.getInstance().getApp().isPhone())
-                            Settings.updateLocation(location);
-                        else
-                            Settings.saveHomeData(location);
-                    }
-                    if (location.getLatitude() == 0 && location.getLongitude() == 0 &&
-                            weather.getLocation().getLatitude() != null && weather.getLocation().getLongitude() != null) {
-                        location.setLatitude(weather.getLocation().getLatitude());
-                        location.setLongitude(weather.getLocation().getLongitude());
-
-                        if (SimpleLibrary.getInstance().getApp().isPhone())
-                            Settings.updateLocation(location);
-                        else
-                            Settings.saveHomeData(location);
-                    }
-                    if (StringUtils.isNullOrWhitespace(location.getLocationSource())) {
-                        location.setLocationSource(wm.getLocationProvider().getLocationAPI());
-
-                        if (SimpleLibrary.getInstance().getApp().isPhone())
-                            Settings.updateLocation(location);
-                        else
-                            Settings.saveHomeData(location);
-                    }
-
-                    saveWeatherData();
-                }
-
-                // Throw exception if we're unable to get any weather data
-                if (weather == null && wEx != null) {
-                    throw wEx;
-                } else if (weather == null && wEx == null) {
-                    throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
-                } else if (weather != null && wEx != null && loadedSavedData) {
-                    throw wEx;
-                }
-                return null;
             }
         });
+
+        return tcs.getTask();
     }
 
-    public Task<Weather> loadWeatherData(final WeatherRequest request) {
-        return AsyncTask.create(new Callable<Weather>() {
+    public Task<WeatherResult> loadWeatherResult(@NonNull final WeatherRequest request) {
+        return AsyncTask.create(getCallable(request));
+    }
+
+    private Callable<WeatherResult> getCallable(@NonNull final WeatherRequest request) {
+        return new Callable<WeatherResult>() {
             @Override
-            public Weather call() throws WeatherException {
+            @NonNull
+            public WeatherResult call() throws WeatherException {
+                WeatherResult result = null;
+
                 try {
                     if (request.isForceLoadSavedData()) {
                         loadSavedWeatherData(request, true);
                     } else {
                         if (request.isForceRefresh()) {
-                            getWeatherData(request);
+                            result = getWeatherData(request);
                         } else {
                             if (!isDataValid(false)) {
-                                _loadWeatherData(request);
+                                result = _loadWeatherData(request);
                             }
                         }
                     }
-                    checkForOutdatedObservation();
+                    if (request.isShouldSaveData()) {
+                        checkForOutdatedObservation();
+                    }
                 } catch (WeatherException wEx) {
-                    if (request.getErrorListener() != null)
+                    if (request.getErrorListener() != null) {
                         request.getErrorListener().onWeatherError(wEx);
-                    else
+                    } else {
                         throw wEx;
+                    }
                 }
 
                 Logger.writeLine(Log.DEBUG, "%s: Weather data for %s is valid = %s", TAG,
                         location == null ? "null" : location.toString(), weather == null ? "false" : weather.isValid());
 
-                return weather;
+                if (result == null) {
+                    result = WeatherResult.create(weather, false);
+                }
+
+                return result;
+            }
+        };
+    }
+
+    public Task<Collection<WeatherAlert>> loadWeatherAlerts(final boolean loadSavedData) {
+        return AsyncTask.create(new Callable<Collection<WeatherAlert>>() {
+            @Override
+            public Collection<WeatherAlert> call() {
+                if (wm.supportsAlerts() && wm.needsExternalAlertData()) {
+                    if (!loadSavedData) {
+                        weatherAlerts = wm.getAlerts(location);
+                    }
+
+                    if (weatherAlerts == null) {
+                        weatherAlerts = Settings.getWeatherAlertData(location.getQuery());
+                    }
+
+                    if (!loadSavedData) {
+                        saveWeatherAlerts();
+                    }
+                }
+
+                return weatherAlerts;
             }
         });
     }
 
-    private void _loadWeatherData(WeatherRequest request) throws WeatherException {
+    @CanIgnoreReturnValue
+    private WeatherResult getWeatherData(final WeatherRequest request) throws WeatherException {
+        WeatherException wEx = null;
+        boolean loadedSavedData = false;
+
+        // Try to get weather from provider API
+        try {
+            TaskUtils.throwIfCancellationRequested(request.getCancellationToken());
+
+            if (WeatherAPI.NWS.equals(Settings.getAPI()) && !"US".equals(location.getCountryCode())) {
+                // If location data hasn't been updated, try loading weather from the previous provider
+                if (!StringUtils.isNullOrWhitespace(location.getWeatherSource()) &&
+                        !WeatherAPI.NWS.equals(location.getWeatherSource())) {
+                    weather = WeatherManager.getProvider(location.getWeatherSource()).getWeather(location);
+                } else {
+                    throw new WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND);
+                }
+            } else {
+                // Load weather from provider
+                weather = wm.getWeather(location);
+            }
+        } catch (WeatherException weatherEx) {
+            wEx = weatherEx;
+            weather = null;
+        } catch (Exception ex) {
+            Logger.writeLine(Log.ERROR, ex, "WeatherDataLoader: error getting weather data");
+            weather = null;
+        }
+
+        if (request.isLoadAlerts() && weather != null && wm.supportsAlerts() && wm.needsExternalAlertData()) {
+            weather.setWeatherAlerts(wm.getAlerts(location));
+
+            if (weather.getWeatherAlerts() == null) {
+                weather.setWeatherAlerts(Settings.getWeatherAlertData(location.getQuery()));
+            }
+        }
+
+        if (request.isShouldSaveData()) {
+            // Load old data if available and we can't get new data
+            if (weather == null) {
+                loadedSavedData = loadSavedWeatherData(request, true);
+            } else {
+                // Handle upgrades
+                if (StringUtils.isNullOrEmpty(location.getName()) || StringUtils.isNullOrEmpty(location.getTzLong())) {
+                    location.setName(weather.getLocation().getName());
+                    location.setTzLong(weather.getLocation().getTzLong());
+
+                    if (SimpleLibrary.getInstance().getApp().isPhone())
+                        Settings.updateLocation(location);
+                    else
+                        Settings.saveHomeData(location);
+                }
+                if (location.getLatitude() == 0 && location.getLongitude() == 0 &&
+                        weather.getLocation().getLatitude() != null && weather.getLocation().getLongitude() != null) {
+                    location.setLatitude(weather.getLocation().getLatitude());
+                    location.setLongitude(weather.getLocation().getLongitude());
+
+                    if (SimpleLibrary.getInstance().getApp().isPhone())
+                        Settings.updateLocation(location);
+                    else
+                        Settings.saveHomeData(location);
+                }
+                if (StringUtils.isNullOrWhitespace(location.getLocationSource())) {
+                    location.setLocationSource(wm.getLocationProvider().getLocationAPI());
+
+                    if (SimpleLibrary.getInstance().getApp().isPhone())
+                        Settings.updateLocation(location);
+                    else
+                        Settings.saveHomeData(location);
+                }
+
+                saveWeatherData();
+                saveWeatherForecasts();
+
+                if ((request.isLoadAlerts() || weather.getWeatherAlerts() != null) && wm.supportsAlerts() && !wm.needsExternalAlertData()) {
+                    weatherAlerts = weather.getWeatherAlerts();
+                    saveWeatherAlerts();
+                }
+            }
+        }
+
+        // Throw exception if we're unable to get any weather data
+        if (weather == null && wEx != null) {
+            throw wEx;
+        } else if (weather == null && wEx == null) {
+            throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
+        } else if (weather != null && wEx != null && loadedSavedData) {
+            throw wEx;
+        }
+
+        return WeatherResult.create(weather, !loadedSavedData);
+    }
+
+    @CanIgnoreReturnValue
+    private WeatherResult _loadWeatherData(final WeatherRequest request) throws WeatherException {
         /*
          * If unable to retrieve saved data, data is old, or units don't match
          * Refresh weather data
@@ -175,42 +251,46 @@ public class WeatherDataLoader {
         boolean gotData = loadSavedWeatherData(request);
 
         if (!gotData) {
-            Logger.writeLine(Log.DEBUG, "%s: Saved weather data invalid for %s", TAG, location == null ? "null" : location.toString());
-            Logger.writeLine(Log.DEBUG, "%s: Retrieving data from weather provider", TAG);
+            if (request.isShouldSaveData()) {
+                Logger.writeLine(Log.DEBUG, "%s: Saved weather data invalid for %s", TAG, location == null ? "null" : location.toString());
+                Logger.writeLine(Log.DEBUG, "%s: Retrieving data from weather provider", TAG);
 
-            if ((weather != null && !weather.getSource().equals(Settings.getAPI()))
-                    || (weather == null && location != null && !location.getWeatherSource().equals(Settings.getAPI()))) {
-                // Only update location data if weather provider is not NWS or if it is NWS and the location is supported
-                if (!WeatherAPI.NWS.equals(location.getWeatherSource()) || "US".equals(location.getCountryCode())) {
-                    // Update location query and source for new API
-                    String oldKey = location.getQuery();
+                if ((weather != null && !weather.getSource().equals(Settings.getAPI()))
+                        || (weather == null && location != null && !location.getWeatherSource().equals(Settings.getAPI()))) {
+                    // Only update location data if weather provider is not NWS or if it is NWS and the location is supported
+                    if (!WeatherAPI.NWS.equals(location.getWeatherSource()) || "US".equals(location.getCountryCode())) {
+                        // Update location query and source for new API
+                        String oldKey = location.getQuery();
 
-                    if (weather != null)
-                        location.setQuery(wm.updateLocationQuery(weather));
-                    else
-                        location.setQuery(wm.updateLocationQuery(location));
+                        if (weather != null)
+                            location.setQuery(wm.updateLocationQuery(weather));
+                        else
+                            location.setQuery(wm.updateLocationQuery(location));
 
-                    location.setWeatherSource(Settings.getAPI());
+                        location.setWeatherSource(Settings.getAPI());
 
-                    // Update database as well
-                    if (SimpleLibrary.getInstance().getApp().isPhone()) {
-                        if (location.getLocationType() == LocationType.GPS) {
-                            Settings.saveLastGPSLocData(location);
-                            mLocalBroadcastManager.sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
+                        // Update database as well
+                        if (SimpleLibrary.getInstance().getApp().isPhone()) {
+                            if (location.getLocationType() == LocationType.GPS) {
+                                Settings.saveLastGPSLocData(location);
+                                mLocalBroadcastManager.sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
+                            } else {
+                                Settings.updateLocationWithKey(location, oldKey);
+                                mLocalBroadcastManager.sendBroadcast(
+                                        new Intent(CommonActions.ACTION_WEATHER_UPDATEWIDGETLOCATION)
+                                                .putExtra(Constants.WIDGETKEY_OLDKEY, oldKey)
+                                                .putExtra(Constants.WIDGETKEY_LOCATION, JSONParser.serializer(location, LocationData.class)));
+                            }
                         } else {
-                            Settings.updateLocationWithKey(location, oldKey);
-                            mLocalBroadcastManager.sendBroadcast(
-                                    new Intent(CommonActions.ACTION_WEATHER_UPDATEWIDGETLOCATION)
-                                            .putExtra(Constants.WIDGETKEY_OLDKEY, oldKey)
-                                            .putExtra(Constants.WIDGETKEY_LOCATION, JSONParser.serializer(location, LocationData.class)));
+                            Settings.saveHomeData(location);
                         }
-                    } else {
-                        Settings.saveHomeData(location);
                     }
                 }
             }
 
-            getWeatherData(request);
+            return getWeatherData(request);
+        } else {
+            return WeatherResult.create(weather, false);
         }
     }
 
@@ -221,10 +301,14 @@ public class WeatherDataLoader {
     private boolean loadSavedWeatherData(WeatherRequest request, boolean _override) throws WeatherException {
         // Load weather data
         try {
+            TaskUtils.throwIfCancellationRequested(request.getCancellationToken());
+
             weather = Settings.getWeatherData(location.getQuery());
 
             if (request.isLoadAlerts() && weather != null && wm.supportsAlerts())
-                weather.setWeatherAlerts(Settings.getWeatherAlertData(location.getQuery()));
+                weather.setWeatherAlerts(weatherAlerts = Settings.getWeatherAlertData(location.getQuery()));
+
+            TaskUtils.throwIfCancellationRequested(request.getCancellationToken());
 
             if (request.isLoadForecasts() && weather != null) {
                 Forecasts forecasts = Settings.getWeatherForecastData(location.getQuery());
@@ -234,12 +318,18 @@ public class WeatherDataLoader {
                 weather.setTxtForecast(forecasts.getTxtForecast());
             }
 
+            TaskUtils.throwIfCancellationRequested(request.getCancellationToken());
+
             if (_override && weather == null) {
                 // If weather is still unavailable try manually searching for it
                 weather = Settings.getWeatherDataByCoordinate(location);
 
+                TaskUtils.throwIfCancellationRequested(request.getCancellationToken());
+
                 if (request.isLoadAlerts() && weather != null && wm.supportsAlerts())
-                    weather.setWeatherAlerts(Settings.getWeatherAlertData(location.getQuery()));
+                    weather.setWeatherAlerts(weatherAlerts = Settings.getWeatherAlertData(location.getQuery()));
+
+                TaskUtils.throwIfCancellationRequested(request.getCancellationToken());
 
                 if (request.isLoadForecasts() && weather != null) {
                     Forecasts forecasts = Settings.getWeatherForecastData(location.getQuery());
@@ -251,6 +341,7 @@ public class WeatherDataLoader {
             }
         } catch (Exception ex) {
             Logger.writeLine(Log.ERROR, ex, "WeatherDataLoader: error loading saved weather data");
+            weather = null;
             throw new WeatherException(WeatherUtils.ErrorStatus.NOWEATHER);
         }
 
@@ -288,7 +379,7 @@ public class WeatherDataLoader {
                         Forecasts fcasts = Settings.getWeatherForecastData(location.getQuery());
                         Forecast fcast = null;
 
-                        if (fcasts.getForecast() != null) {
+                        if (fcasts != null && fcasts.getForecast() != null) {
                             fcast = Iterables.find(fcasts.getForecast(), new Predicate<Forecast>() {
                                 @Override
                                 public boolean apply(@NullableDecl Forecast input) {
@@ -383,11 +474,6 @@ public class WeatherDataLoader {
         // Save location query
         weather.setQuery(location.getQuery());
 
-        // Save weather alerts
-        saveWeatherAlerts();
-
-        saveWeatherForecasts();
-
         Settings.saveWeatherData(weather);
 
         if (SimpleLibrary.getInstance().getApp().isPhone()) {
@@ -403,18 +489,18 @@ public class WeatherDataLoader {
     }
 
     private void saveWeatherAlerts() {
-        if (weather.getWeatherAlerts() != null) {
+        if (weatherAlerts != null) {
             AsyncTask.await(new Callable<Void>() {
                 @Override
                 public Void call() {
                     // Check for previously saved alerts
                     Collection<WeatherAlert> previousAlerts = Settings.getWeatherAlertData(location.getQuery());
 
-                    if (previousAlerts != null && previousAlerts.size() > 0) {
+                    if (previousAlerts.size() > 0) {
                         // If any previous alerts were flagged before as notified
                         // make sure to set them here as such
                         // bc notified flag gets reset when retrieving weatherdata
-                        for (WeatherAlert alert : weather.getWeatherAlerts()) {
+                        for (WeatherAlert alert : weatherAlerts) {
                             for (WeatherAlert prevAlert : previousAlerts) {
                                 if (prevAlert.equals(alert) && prevAlert.isNotified()) {
                                     alert.setNotified(prevAlert.isNotified());
@@ -424,7 +510,7 @@ public class WeatherDataLoader {
                         }
                     }
 
-                    Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
+                    Settings.saveWeatherAlerts(location, weatherAlerts);
                     return null;
                 }
             });
