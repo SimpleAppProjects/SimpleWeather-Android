@@ -74,6 +74,10 @@ public class WeatherNotificationBuilder {
             } else if (input.getDetailsType() == WeatherDetailsType.POPSNOW) {
                 popSnowModel = input;
             }
+
+            if (chanceModel != null && windModel != null && feelsLikeModel != null && humidityModel != null && popRainModel != null && popSnowModel != null) {
+                break;
+            }
         }
 
         // Extras

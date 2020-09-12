@@ -11,8 +11,6 @@ import android.widget.RemoteViews;
 import com.google.android.clockwork.tiles.TileData;
 import com.google.android.clockwork.tiles.TileProviderService;
 import com.google.android.gms.tasks.Tasks;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
@@ -34,7 +32,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.LaunchActivity;
 import com.thewizrd.simpleweather.R;
 
-import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.threeten.bp.ZonedDateTime;
 
 import java.util.ArrayList;
@@ -156,18 +153,20 @@ public class WeatherTileProviderService extends TileProviderService {
         updateViews.setTextViewText(R.id.weather_condition, viewModel.getCurCondition());
 
         // Details
-        DetailItemViewModel chanceModel = Iterables.find(viewModel.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
-            @Override
-            public boolean apply(@NullableDecl DetailItemViewModel input) {
-                return input != null && (input.getDetailsType() == WeatherDetailsType.POPCHANCE || input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS);
+        DetailItemViewModel chanceModel = null;
+        DetailItemViewModel windModel = null;
+
+        for (DetailItemViewModel input : viewModel.getWeatherDetails()) {
+            if (input != null && (input.getDetailsType() == WeatherDetailsType.POPCHANCE || input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS)) {
+                chanceModel = input;
+            } else if (input != null && input.getDetailsType() == WeatherDetailsType.WINDSPEED) {
+                windModel = input;
             }
-        }, null);
-        DetailItemViewModel windModel = Iterables.find(viewModel.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
-            @Override
-            public boolean apply(@NullableDecl DetailItemViewModel input) {
-                return input != null && input.getDetailsType() == WeatherDetailsType.WINDSPEED;
+
+            if (chanceModel != null && windModel != null) {
+                break;
             }
-        }, null);
+        }
 
         if (chanceModel != null) {
             updateViews.setImageViewBitmap(R.id.weather_popicon,

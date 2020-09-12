@@ -36,8 +36,6 @@ import com.bumptech.glide.request.FutureTarget;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
@@ -72,7 +70,6 @@ import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.main.MainActivity;
 import com.thewizrd.simpleweather.utils.ArrayUtils;
 
-import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -1153,24 +1150,28 @@ public class WeatherWidgetService extends SafeJobIntentService {
             updateViews.setTextViewText(R.id.condition_lo, !StringUtils.isNullOrWhitespace(loTemp) ? loTemp + "°" : "--");
             updateViews.setViewVisibility(R.id.condition_hilo_layout, weather.isShowHiLo() ? View.VISIBLE : View.GONE);
 
-            DetailItemViewModel chanceModel = Iterables.find(weather.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
-                @Override
-                public boolean apply(@NullableDecl DetailItemViewModel input) {
-                    return input != null && (input.getDetailsType() == WeatherDetailsType.POPCHANCE || input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS);
+            DetailItemViewModel chanceModel = null;
+            DetailItemViewModel windModel = null;
+
+            for (DetailItemViewModel input : weather.getWeatherDetails()) {
+                if (input != null && (input.getDetailsType() == WeatherDetailsType.POPCHANCE || input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS)) {
+                    chanceModel = input;
+                } else if (input != null && input.getDetailsType() == WeatherDetailsType.WINDSPEED) {
+                    windModel = input;
                 }
-            }, null);
+
+                if (chanceModel != null && windModel != null) {
+                    break;
+                }
+            }
+
             if (chanceModel != null) {
                 updateViews.setTextViewText(R.id.weather_pop, chanceModel.getValue());
                 updateViews.setViewVisibility(R.id.weather_pop_layout, View.VISIBLE);
             } else {
                 updateViews.setViewVisibility(R.id.weather_pop_layout, View.GONE);
             }
-            DetailItemViewModel windModel = Iterables.find(weather.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
-                @Override
-                public boolean apply(@NullableDecl DetailItemViewModel input) {
-                    return input != null && input.getDetailsType() == WeatherDetailsType.WINDSPEED;
-                }
-            }, null);
+
             if (windModel != null) {
                 String speed = TextUtils.isEmpty(windModel.getValue()) ? "" : windModel.getValue().toString();
                 speed = speed.split(",")[0];
@@ -1406,23 +1407,27 @@ public class WeatherWidgetService extends SafeJobIntentService {
                 }
             }
 
-            DetailItemViewModel chanceModel = Iterables.find(weather.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
-                @Override
-                public boolean apply(@NullableDecl DetailItemViewModel input) {
-                    return input != null && (input.getDetailsType() == WeatherDetailsType.POPCHANCE || input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS);
+            DetailItemViewModel chanceModel = null;
+            DetailItemViewModel windModel = null;
+
+            for (DetailItemViewModel input : weather.getWeatherDetails()) {
+                if (input != null && (input.getDetailsType() == WeatherDetailsType.POPCHANCE || input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS)) {
+                    chanceModel = input;
+                } else if (input != null && input.getDetailsType() == WeatherDetailsType.WINDSPEED) {
+                    windModel = input;
                 }
-            }, null);
+
+                if (chanceModel != null && windModel != null) {
+                    break;
+                }
+            }
+
             if (chanceModel != null) {
                 updateViews.setImageViewBitmap(R.id.weather_popicon,
                         ImageUtils.weatherIconToBitmap(mContext, chanceModel.getIcon(), textSize, panelTextColor, shadowRadius * 4f)
                 );
             }
-            DetailItemViewModel windModel = Iterables.find(weather.getWeatherDetails(), new Predicate<DetailItemViewModel>() {
-                @Override
-                public boolean apply(@NullableDecl DetailItemViewModel input) {
-                    return input != null && input.getDetailsType() == WeatherDetailsType.WINDSPEED;
-                }
-            }, null);
+
             if (windModel != null) {
                 updateViews.setImageViewBitmap(R.id.weather_windicon,
                         ImageUtils.rotateBitmap(
