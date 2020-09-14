@@ -25,6 +25,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.Locale;
 
 public class HourlyForecast extends CustomJsonObject {
 
@@ -241,12 +242,19 @@ public class HourlyForecast extends CustomJsonObject {
     }
 
     public HourlyForecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem) {
+        WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.NWS);
+        Locale locale = Locale.getDefault();
+
         setDate(ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME));
         highF = (float) forecastItem.getTemperature();
         highC = ConversionMethods.FtoC(highF);
-        condition = forecastItem.getShortForecast();
-        icon = WeatherManager.getProvider(WeatherAPI.NWS)
-                .getWeatherIcon(forecastItem.getIcon());
+
+        if (locale.toString().equals("en") || locale.toString().startsWith("en_") || locale.equals(Locale.ROOT)) {
+            condition = forecastItem.getShortForecast();
+        } else {
+            condition = provider.getWeatherCondition(forecastItem.getIcon());
+        }
+        icon = provider.getWeatherIcon(forecastItem.getIcon());
 
         if (forecastItem.getWindSpeed() != null && forecastItem.getWindDirection() != null) {
             windDegrees = WeatherUtils.getWindDirection(forecastItem.getWindDirection());

@@ -1,5 +1,7 @@
 package com.thewizrd.shared_resources.weatherdata;
 
+import androidx.annotation.Nullable;
+
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -190,6 +192,101 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
     @Override
     public String getWeatherIcon(boolean isNight, String icon) {
         return getWeatherIcon(icon);
+    }
+
+    /**
+     * Map the passed icon string to a localized weather condition string (if available)
+     *
+     * @param icon The {@link WeatherIcons} to map
+     * @return A localized weather condition string (if available); returns {@code NULL} if provider already supports localized data
+     */
+    @Nullable
+    @Override
+    public String getWeatherCondition(String icon) {
+        /* For reference
+        Context context = SimpleLibrary.getInstance().getAppContext();
+
+        switch (icon) {
+            case WeatherIcons.DAY_SUNNY:
+                return context.getString(R.string.weather_sunny);
+            case WeatherIcons.NIGHT_CLEAR:
+                return context.getString(R.string.weather_clear);
+            case WeatherIcons.DAY_SUNNY_OVERCAST:
+                return context.getString(R.string.weather_overcast);
+            case WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY:
+                return context.getString(R.string.weather_partlycloudy);
+            case WeatherIcons.DAY_CLOUDY:
+            case WeatherIcons.NIGHT_ALT_CLOUDY:
+            case WeatherIcons.CLOUDY:
+                return context.getString(R.string.weather_cloudy);
+            case WeatherIcons.DAY_SPRINKLE:
+            case WeatherIcons.NIGHT_ALT_SPRINKLE:
+            case WeatherIcons.SPRINKLE:
+            case WeatherIcons.DAY_SHOWERS:
+            case WeatherIcons.NIGHT_ALT_SHOWERS:
+            case WeatherIcons.SHOWERS:
+                return context.getString(R.string.weather_rainshowers);
+            case WeatherIcons.DAY_THUNDERSTORM:
+            case WeatherIcons.NIGHT_ALT_THUNDERSTORM:
+            case WeatherIcons.THUNDERSTORM:
+            case WeatherIcons.DAY_STORM_SHOWERS:
+            case WeatherIcons.NIGHT_ALT_STORM_SHOWERS:
+                return context.getString(R.string.weather_tstorms);
+            case WeatherIcons.DAY_SLEET:
+            case WeatherIcons.NIGHT_ALT_SLEET:
+            case WeatherIcons.SLEET:
+                return context.getString(R.string.weather_sleet);
+            case WeatherIcons.DAY_SNOW:
+            case WeatherIcons.NIGHT_ALT_SNOW:
+            case WeatherIcons.SNOW:
+                return context.getString(R.string.weather_snow);
+            case WeatherIcons.DAY_SNOW_WIND:
+            case WeatherIcons.NIGHT_ALT_SNOW_WIND:
+            case WeatherIcons.SNOW_WIND:
+                return context.getString(R.string.weather_heavysnow);
+            case WeatherIcons.DAY_SNOW_THUNDERSTORM:
+            case WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM:
+                return context.getString(R.string.weather_snow_tstorms);
+            case WeatherIcons.DAY_RAIN:
+            case WeatherIcons.NIGHT_ALT_RAIN:
+            case WeatherIcons.RAIN:
+                return context.getString(R.string.weather_rain);
+            case WeatherIcons.DAY_FOG:
+            case WeatherIcons.NIGHT_FOG:
+            case WeatherIcons.FOG:
+                return context.getString(R.string.weather_fog);
+            case WeatherIcons.DAY_SLEET_STORM:
+            case WeatherIcons.NIGHT_ALT_SLEET_STORM:
+                return context.getString(R.string.weather_sleet_tstorms);
+            case WeatherIcons.SNOWFLAKE_COLD:
+                return context.getString(R.string.weather_cold);
+            case WeatherIcons.DAY_HOT:
+                return context.getString(R.string.weather_hot);
+            case WeatherIcons.DAY_HAZE:
+                return context.getString(R.string.weather_haze);
+            case WeatherIcons.SMOKE:
+                return context.getString(R.string.weather_smoky);
+            case WeatherIcons.DUST:
+                return context.getString(R.string.weather_dust);
+            case WeatherIcons.TORNADO:
+                return context.getString(R.string.weather_tornado);
+            case WeatherIcons.DAY_RAIN_MIX:
+            case WeatherIcons.NIGHT_ALT_RAIN_MIX:
+            case WeatherIcons.RAIN_MIX:
+                return context.getString(R.string.weather_rainandsnow);
+            case WeatherIcons.DAY_WINDY:
+            case WeatherIcons.WINDY:
+            case WeatherIcons.DAY_CLOUDY_WINDY:
+            case WeatherIcons.NIGHT_ALT_CLOUDY_WINDY:
+                return context.getString(R.string.weather_windy);
+            case WeatherIcons.HURRICANE:
+                return context.getString(R.string.weather_tropicalstorm);
+            default:
+                return "";
+        }
+         */
+
+        return null;
     }
 
     @Override

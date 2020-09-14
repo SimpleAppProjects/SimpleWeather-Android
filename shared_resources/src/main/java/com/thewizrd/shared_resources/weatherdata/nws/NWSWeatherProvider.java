@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.util.Log;
 
+import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
@@ -379,12 +380,7 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
             weatherIcon = WeatherIcons.SMOKE;
         } else if (icon.contains("dust")) {
             weatherIcon = WeatherIcons.DUST;
-        } else if (icon.contains("tropical_storm") || icon.contains("tsra")) {
-            if (isNight)
-                weatherIcon = WeatherIcons.NIGHT_ALT_THUNDERSTORM;
-            else
-                weatherIcon = WeatherIcons.DAY_THUNDERSTORM;
-        } else if (icon.contains("hurricane")) {
+        } else if (icon.contains("tropical_storm") || icon.contains("tsra") || icon.contains("hurricane")) {
             weatherIcon = WeatherIcons.HURRICANE;
         } else if (icon.contains("tornado")) {
             weatherIcon = WeatherIcons.TORNADO;
@@ -446,6 +442,60 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
         }
 
         return weatherIcon;
+    }
+
+    @Override
+    public String getWeatherCondition(String icon) {
+        Context context = SimpleLibrary.getInstance().getAppContext();
+
+        if (icon == null)
+            return context.getString(R.string.weather_notavailable); // TODO: or blank
+
+        if (icon.contains("fog")) {
+            return context.getString(R.string.weather_fog);
+        } else if (icon.contains("blizzard")) {
+            return context.getString(R.string.weather_blizzard);
+        } else if (icon.contains("cold")) {
+            return context.getString(R.string.weather_cold);
+        } else if (icon.contains("hot")) {
+            return context.getString(R.string.weather_hot);
+        } else if (icon.contains("haze")) {
+            return context.getString(R.string.weather_haze);
+        } else if (icon.contains("smoke")) {
+            return context.getString(R.string.weather_smoky);
+        } else if (icon.contains("dust")) {
+            return context.getString(R.string.weather_dust);
+        } else if (icon.contains("tropical_storm") || icon.contains("tsra")) {
+            return context.getString(R.string.weather_tropicalstorm);
+        } else if (icon.contains("hurricane")) {
+            return context.getString(R.string.weather_hurricane);
+        } else if (icon.contains("tornado")) {
+            return context.getString(R.string.weather_tornado);
+        } else if (icon.contains("rain_showers")) {
+            return context.getString(R.string.weather_rainshowers);
+        } else if (icon.contains("fzra")) {
+            return context.getString(R.string.weather_freezingrain);
+        } else if (icon.contains("rain_sleet")) {
+            return context.getString(R.string.weather_rainandsleet);
+        } else if (icon.contains("rain_snow")) {
+            return context.getString(R.string.weather_rainandsnow);
+        } else if (icon.contains("sleet")) {
+            return context.getString(R.string.weather_sleet);
+        } else if (icon.contains("rain")) {
+            return context.getString(R.string.weather_rain);
+        } else if (icon.contains("snow")) {
+            return context.getString(R.string.weather_snow);
+        } else if (icon.contains("wind_bkn") || icon.contains("wind_ovc") || icon.contains("wind_sct") || icon.contains("wind")) {
+            return context.getString(R.string.weather_windy);
+        } else if (icon.contains("ovc")) {
+            return context.getString(R.string.weather_overcast);
+        } else if (icon.contains("sct") || icon.contains("few")) {
+            return context.getString(R.string.weather_partlycloudy);
+        } else if (icon.contains("bkn")) {
+            return context.getString(R.string.weather_cloudy);
+        } else {
+            return context.getString(R.string.weather_notavailable); // TODO: or blank
+        }
     }
 
     // Some conditions can be for any time of day

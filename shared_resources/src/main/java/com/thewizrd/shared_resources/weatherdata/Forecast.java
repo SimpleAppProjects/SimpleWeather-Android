@@ -25,6 +25,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.Locale;
 
 public class Forecast extends CustomJsonObject {
 
@@ -58,14 +59,21 @@ public class Forecast extends CustomJsonObject {
     }
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.weatheryahoo.ForecastsItem forecast) {
+        WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.YAHOO);
+        Locale locale = Locale.getDefault();
+
+        if (locale.toString().equals("en") || locale.toString().startsWith("en_") || locale.equals(Locale.ROOT)) {
+            condition = forecast.getText();
+        } else {
+            condition = provider.getWeatherCondition(Integer.toString(forecast.getCode()));
+        }
+        icon = provider.getWeatherIcon(Integer.toString(forecast.getCode()));
+
         date = LocalDateTime.ofEpochSecond(forecast.getDate(), 0, ZoneOffset.UTC);
         highF = (float) forecast.getHigh();
         highC = ConversionMethods.FtoC(highF);
         lowF = (float) forecast.getLow();
         lowC = ConversionMethods.FtoC(lowF);
-        condition = forecast.getText();
-        icon = WeatherManager.getProvider(WeatherAPI.YAHOO)
-                .getWeatherIcon(Integer.toString(forecast.getCode()));
     }
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.openweather.DailyItem forecast) {
@@ -192,6 +200,9 @@ public class Forecast extends CustomJsonObject {
     }
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem) {
+        WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.NWS);
+        Locale locale = Locale.getDefault();
+
         date = ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME).toLocalDateTime();
         if (forecastItem.getIsDaytime()) {
             highF = (float) forecastItem.getTemperature();
@@ -200,9 +211,13 @@ public class Forecast extends CustomJsonObject {
             lowF = (float) forecastItem.getTemperature();
             lowC = ConversionMethods.FtoC(lowF);
         }
-        condition = forecastItem.getShortForecast();
-        icon = WeatherManager.getProvider(WeatherAPI.NWS)
-                .getWeatherIcon(forecastItem.getIcon());
+
+        if (locale.toString().equals("en") || locale.toString().startsWith("en_") || locale.equals(Locale.ROOT)) {
+            condition = forecastItem.getShortForecast();
+        } else {
+            condition = provider.getWeatherCondition(forecastItem.getIcon());
+        }
+        icon = provider.getWeatherIcon(forecastItem.getIcon());
 
         if (forecastItem.getWindSpeed() != null && forecastItem.getWindDirection() != null) {
             String[] speeds = forecastItem.getWindSpeed().replace(" mph", "").split(" to ");
@@ -220,14 +235,21 @@ public class Forecast extends CustomJsonObject {
     }
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem, com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem nightForecastItem) {
+        WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.NWS);
+        Locale locale = Locale.getDefault();
+
         date = ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME).toLocalDateTime();
         highF = (float) forecastItem.getTemperature();
         highC = ConversionMethods.FtoC(highF);
         lowF = (float) nightForecastItem.getTemperature();
         lowC = ConversionMethods.FtoC(lowF);
-        condition = forecastItem.getShortForecast();
-        icon = WeatherManager.getProvider(WeatherAPI.NWS)
-                .getWeatherIcon(forecastItem.getIcon());
+
+        if (locale.toString().equals("en") || locale.toString().startsWith("en_") || locale.equals(Locale.ROOT)) {
+            condition = forecastItem.getShortForecast();
+        } else {
+            condition = provider.getWeatherCondition(forecastItem.getIcon());
+        }
+        icon = provider.getWeatherIcon(forecastItem.getIcon());
 
         if (forecastItem.getWindSpeed() != null && forecastItem.getWindDirection() != null) {
             // windSpeed is reported usually as, for ex., '7 to 10 mph'

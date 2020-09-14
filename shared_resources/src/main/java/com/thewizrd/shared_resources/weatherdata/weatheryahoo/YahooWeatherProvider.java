@@ -1,7 +1,9 @@
 package com.thewizrd.shared_resources.weatherdata.weatheryahoo;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -235,21 +237,21 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
                 case 0: // Tornado
                     weatherIcon = WeatherIcons.TORNADO;
                     break;
-                case 1: // Tropical Storm
-                case 37:
+                case 37: // isolated thunderstorms
                 case 38: // Scattered Thunderstorms/showers
-                case 39:
-                case 45:
-                case 47:
+                case 39: // scattered showers (day)
+                case 45: // scattered showers (night)
+                case 47: // scattered thundershowers
                     if (isNight)
                         weatherIcon = WeatherIcons.NIGHT_ALT_STORM_SHOWERS;
                     else
                         weatherIcon = WeatherIcons.DAY_STORM_SHOWERS;
                     break;
+                case 1: // Tropical Storm
                 case 2: // Hurricane
                     weatherIcon = WeatherIcons.HURRICANE;
                     break;
-                case 3:
+                case 3: // severe thunderstorms
                 case 4: // Scattered Thunderstorms
                     weatherIcon = WeatherIcons.THUNDERSTORM;
                     break;
@@ -267,7 +269,7 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
                     break;
                 case 9: // Drizzle
                 case 11: // Showers
-                case 12:
+                case 12: // rain
                 case 40: // Scattered Showers
                     weatherIcon = WeatherIcons.SHOWERS;
                     break;
@@ -280,7 +282,7 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
                     break;
                 case 15: // Blowing Snow
                 case 41: // Heavy Snow
-                case 43:
+                case 43: // blizzard
                     weatherIcon = WeatherIcons.SNOW_WIND;
                     break;
                 case 19: // Dust
@@ -310,8 +312,6 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
                     break;
                 case 27: // Mostly Cloudy (Night)
                 case 28: // Mostly Cloudy (Day)
-                case 29: // Partly Cloudy (Night)
-                case 30: // Partly Cloudy (Day)
                     if (isNight)
                         weatherIcon = WeatherIcons.NIGHT_ALT_CLOUDY;
                     else
@@ -324,6 +324,8 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
                     else
                         weatherIcon = WeatherIcons.DAY_SUNNY;
                     break;
+                case 29: // Partly Cloudy (Night)
+                case 30: // Partly Cloudy (Day)
                 case 33: // Fair (Night)
                 case 34: // Fair (Day)
                 case 44: // Partly Cloudy
@@ -353,6 +355,104 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
         }
 
         return weatherIcon;
+    }
+
+    @Override
+    public String getWeatherCondition(String icon) {
+        Context context = SimpleLibrary.getInstance().getAppContext();
+
+        try {
+            int code = Integer.parseInt(icon);
+
+            switch (code) {
+                case 0: // Tornado
+                    return context.getString(R.string.weather_tornado);
+                case 37: // isolated thunderstorms
+                    return context.getString(R.string.weather_isotstorms);
+                case 39: // scattered showers (day)
+                case 45: // scattered showers (night)
+                    return context.getString(R.string.weather_scatteredshowers);
+                case 38: // Scattered Thunderstorms/showers
+                case 47: // scattered thundershowers
+                case 4: // Scattered Thunderstorms
+                    return context.getString(R.string.weather_scatteredtstorms);
+                case 1: // Tropical Storm
+                    return context.getString(R.string.weather_tropicalstorm);
+                case 2: // Hurricane
+                    return context.getString(R.string.weather_hurricane);
+                case 3: // severe thunderstorms
+                    return context.getString(R.string.weather_severetstorms);
+                case 5: // Mixed Rain/Snow
+                    return context.getString(R.string.weather_rainandsnow);
+                case 6: // Mixed Rain/Sleet
+                    return context.getString(R.string.weather_rainandsleet);
+                case 7: // Mixed Snow/Sleet
+                    return context.getString(R.string.weather_snowandsleet);
+                case 18: // Sleet
+                    return context.getString(R.string.weather_sleet);
+                case 17: // Hail
+                    return context.getString(R.string.weather_hail);
+                case 35: // Mixed Rain/Hail
+                    return context.getString(R.string.weather_rainandhail);
+                case 8: // Freezing Drizzle
+                case 10: // Freezing Rain
+                    return context.getString(R.string.weather_freezingrain);
+                case 9: // Drizzle
+                case 12: // rain
+                    return context.getString(R.string.weather_rain);
+                case 11: // Showers
+                case 40: // Scattered Showers
+                    return context.getString(R.string.weather_rainshowers);
+                case 13: // Snow Flurries
+                    return context.getString(R.string.weather_snowflurries);
+                case 16: // Snow
+                case 46: // Snow Showers
+                    return context.getString(R.string.weather_snow);
+                case 14: // Light Snow Showers
+                case 42: // Scattered Snow Showers
+                    return context.getString(R.string.weather_lightsnowshowers);
+                case 15: // Blowing Snow
+                    return context.getString(R.string.weather_blowingsnow);
+                case 41: // Heavy Snow
+                    return context.getString(R.string.weather_heavysnow);
+                case 43: // blizzard
+                    return context.getString(R.string.weather_blizzard);
+                case 19: // Dust
+                    return context.getString(R.string.weather_dust);
+                case 20: // Foggy
+                    return context.getString(R.string.weather_foggy);
+                case 21: // Haze
+                    return context.getString(R.string.weather_haze);
+                case 22: // Smoky
+                    return context.getString(R.string.weather_smoky);
+                case 23: // Blustery
+                case 24: // Windy
+                    return context.getString(R.string.weather_windy);
+                case 25: // Cold
+                    return context.getString(R.string.weather_cold);
+                case 26: // Cloudy
+                    return context.getString(R.string.weather_cloudy);
+                case 27: // Mostly Cloudy (Night)
+                case 28: // Mostly Cloudy (Day)
+                    return context.getString(R.string.weather_mostlycloudy);
+                case 29: // Partly Cloudy (Night)
+                case 30: // Partly Cloudy (Day)
+                case 44: // Partly Cloudy
+                    return context.getString(R.string.weather_partlycloudy);
+                case 31: // Clear (Night)
+                    return context.getString(R.string.weather_clear);
+                case 32: // Sunny
+                    return context.getString(R.string.weather_sunny);
+                case 33: // Fair (Night)
+                case 34: // Fair (Day)
+                    return context.getString(R.string.weather_fair);
+                case 36: // HOT
+                    return context.getString(R.string.weather_hot);
+            }
+        } catch (NumberFormatException ignored) {
+        }
+
+        return context.getString(R.string.weather_notavailable); // TODO: or blank
     }
 
     // Some conditions can be for any time of day

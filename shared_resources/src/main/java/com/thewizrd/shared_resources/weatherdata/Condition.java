@@ -23,6 +23,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Locale;
 
 public class Condition extends CustomJsonObject {
 
@@ -89,7 +90,16 @@ public class Condition extends CustomJsonObject {
     }
 
     public Condition(com.thewizrd.shared_resources.weatherdata.weatheryahoo.CurrentObservation observation) {
-        weather = observation.getCondition().getText();
+        WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.YAHOO);
+        Locale locale = Locale.getDefault();
+
+        if (locale.toString().equals("en") || locale.toString().startsWith("en_") || locale.equals(Locale.ROOT)) {
+            weather = observation.getCondition().getText();
+        } else {
+            weather = provider.getWeatherCondition(Integer.toString(observation.getCondition().getCode()));
+        }
+        icon = provider.getWeatherIcon(Integer.toString(observation.getCondition().getCode()));
+
         tempF = (float) observation.getCondition().getTemperature();
         tempC = ConversionMethods.FtoC(tempF);
         windDegrees = observation.getWind().getDirection();
@@ -97,8 +107,6 @@ public class Condition extends CustomJsonObject {
         windKph = ConversionMethods.mphTokph(windMph);
         feelslikeF = (float) observation.getWind().getChill();
         feelslikeC = ConversionMethods.FtoC(feelslikeF);
-        icon = WeatherManager.getProvider(WeatherAPI.YAHOO)
-                .getWeatherIcon(Integer.toString(observation.getCondition().getCode()));
 
         beaufort = new Beaufort(WeatherUtils.getBeaufortScale((int) Math.round(windMph)).getValue());
     }
@@ -231,7 +239,15 @@ public class Condition extends CustomJsonObject {
     }
 
     public Condition(com.thewizrd.shared_resources.weatherdata.nws.ObservationCurrentResponse obsCurrentResponse) {
-        weather = obsCurrentResponse.getTextDescription();
+        WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.NWS);
+        Locale locale = Locale.getDefault();
+
+        if (locale.toString().equals("en") || locale.toString().startsWith("en_") || locale.equals(Locale.ROOT)) {
+            weather = obsCurrentResponse.getTextDescription();
+        } else {
+            weather = provider.getWeatherCondition(obsCurrentResponse.getIcon());
+        }
+
         if (obsCurrentResponse.getTemperature().getValue() != null) {
             tempC = obsCurrentResponse.getTemperature().getValue();
             tempF = ConversionMethods.CtoF(tempC);

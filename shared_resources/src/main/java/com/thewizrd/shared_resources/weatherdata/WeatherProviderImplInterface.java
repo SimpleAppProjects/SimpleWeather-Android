@@ -34,6 +34,8 @@ public interface WeatherProviderImplInterface {
 
     String getWeatherIcon(boolean isNight, String icon);
 
+    String getWeatherCondition(String icon);
+
     boolean isKeyValid(String key) throws WeatherException;
 
     String getAPIKey();

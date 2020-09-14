@@ -180,6 +180,11 @@ public final class WeatherManager implements WeatherProviderImplInterface {
     }
 
     @Override
+    public String getWeatherCondition(String icon) {
+        return weatherProvider.getWeatherCondition(icon);
+    }
+
+    @Override
     public boolean isKeyValid(String key) throws WeatherException {
         return weatherProvider.isKeyValid(key);
     }
