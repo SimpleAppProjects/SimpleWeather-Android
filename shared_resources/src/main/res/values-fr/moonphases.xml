@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moonphase_new">"Nouvelle lune"</string>
+    <string name="moonphase_waxcrescent">"Premier croissant"</string>
+    <string name="moonphase_firstqtr">"Premier quartier"</string>
+    <string name="moonphase_waxgibbous">"Gibbeuse croissante"</string>
+    <string name="moonphase_full">"Pleine lune"</string>
+    <string name="moonphase_wangibbous">"Gibbeuse décroissante"</string>
+    <string name="moonphase_lastqtr">"Dernier quartier"</string>
+    <string name="moonphase_wancrescent">"Dernier croissant"</string>
+</resources>

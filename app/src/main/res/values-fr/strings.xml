@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Feature Settings -->
+    <string name="pref_title_features">"Fonctionnalités"</string>
+    <string name="pref_summary_features">"Sélectionnez les fonctions à activer/désactiver"</string>
+    <string name="pref_title_feature_bgimage">"Image d'arrière-plan"</string>
+    <string name="pref_title_feature_forecast">"Prévisions"</string>
+    <string name="pref_title_feature_hrforecast">"Prévisions heure par heure"</string>
+    <string name="pref_title_feature_details">"Détails sur la météo"</string>
+    <string name="pref_title_feature_uv">"UV"</string>
+    <string name="pref_title_feature_beaufort">"Beaufort"</string>
+    <string name="pref_title_feature_aqindex">"Indice de la qualité de l'air"</string>
+    <string name="pref_title_feature_moonphase">"Phase de lune"</string>
+    <string name="pref_title_feature_sunphase">"Phase de soleil"</string>
+    <string name="pref_title_feature_radar">"Radar météo"</string>
+    <string name="pref_title_feature_locpanelimg">"Image du panneau d'emplacement"</string>
+
+    <!-- Widget -->
+    <string name="widget_configure_prompt">"Configurer le widget"</string>
+    <string name="title_activity_widget_config">"Paramètres des widgets"</string>
+    <string name="pref_title_bgcolor">"Arrière-plan"</string>
+    <string name="label_color_currentconditions">"Condition actuelle"</string>
+    <string name="label_color_white">"Blanc"</string>
+    <string name="label_color_black">"Noir"</string>
+    <string name="label_color_transparent">"Transparent"</string>
+    <string name="pref_title_bgstyle">"Style de l'arrière-plan"</string>
+    <string name="label_style_fullbg">"Arrière-plan complète"</string>
+    <string name="label_style_panda">"Mode fractionné (suivre le thème)\n<font size="14">Voici le thème actuel de l'application</font>"</string>
+    <string name="label_style_pendingcolor">"Mode fractionné (Couleur météo)"</string>
+    <string name="label_style_light">"Mode fractionné (Clair)"</string>
+    <string name="label_style_dark">"Mode fractionné (Foncé)"</string>
+    <string name="locname_pref_title">"Nom de l'emplacement"</string>
+    <string name="locname_pref_summary">"Cacher le nom de l'emplacement du widget"</string>
+    <string name="settingsbtn_pref_title">"Bouton des paramètres"</string>
+    <string name="settingsbtn_pref_summary">"Cacher le bouton des paramètres du widget"</string>
+    <string name="clock_pref_title">"Horloge"</string>
+    <string name="calendar_pref_title">"Calendrier"</string>
+    <string name="summary_default">"Défaut"</string>
+    <string name="pref_title_fcastoption">"Prévisions"</string>
+    <string name="label_fcast_full">"Prévisions quotidiennes et prévisions heure par heure (si disponibles)"</string>
+    <string name="label_fcast_daily">"Prévisions quotidiennes"</string>
+    <string name="label_fcast_hourly">"Prévisions heure par heure (si disponibles)"</string>
+    <string name="pref_category_timeanddate">"Date et heure"</string>
+    <string name="pref_title_timezone">"Fuseau horaire"</string>
+    <string name="pref_timezone_summaryoff">"Utiliser le fuseau horaire du système pour l'heure et la date"</string>
+    <string name="pref_timezone_summaryon">"Utiliser le fuseau horaire du lieu pour l'heure et la date"</string>
+    <string name="pref_location">"Emplacement"</string>
+    <string name="pref_item_gpslocation">"Position GPS actuelle"</string>
+    <string name="prompt_setup_app_first">"Veuillez d'abord installer l'application"</string>
+
+    <!-- LineView -->
+    <string name="label_series">"Série"</string>
+</resources>

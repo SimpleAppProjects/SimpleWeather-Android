@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_setupfromphone">"Configuration à partir d'un appareil mobile"</string>
+    <string name="action_changelocation">"Changer de localisation"</string>
+    <string name="action_openonphone">"Ouvrir sur un appareil mobile"</string>
+    <string name="message_openedonphone">"Ouvert sur les appareils mobiles…"</string>
+
+    <!-- Connection Status -->
+    <string name="status_disconnected">"Appareil non connecté"</string>
+    <string name="status_connecting">"Connecter…"</string>
+    <string name="status_notinstalled">"L'application n'est pas installée sur l'appareil"</string>
+    <string name="status_connected">"Connecté"</string>
+    <string name="status_node_unavailable">"L'appareil n'est pas connecté ou l'application n'est pas installée sur l'appareil…"</string>
+    <string name="status_node_notsupported">"L'appareil connecté n'est pas pris en charge"</string>
+
+    <!-- Setup -->
+    <string name="prompt_confirmsetup">"Vous souhaitez configurer et synchroniser des données à partir de votre appareil connecté?"</string>
+    <string name="message_gettingstatus">"Obtenir le statut de connexion…"</string>
+    <string name="error_notinstalled">"Installer l'application sur l'appareil et réessayer"</string>
+    <string name="message_continueondevice">"Poursuivre la configuration sur l'appareil connecté"</string>
+    <string name="message_retrievingdata">"Récupération de données à partir d'un appareil connecté…"</string>
+    <string name="error_syncing">"Impossible de synchroniser les données"</string>
+    <string name="message_settingsretrieved">"Données sur les paramètres reçus…"</string>
+    <string name="message_locationretrieved">"Données d'emplacement reçues…"</string>
+    <string name="message_weatherretrieved">"Réception des données météo…"</string>
+    <string name="message_synccompleted">"Synchronisation des données réussie"</string>
+
+    <!-- Preferences -->
+    <string name="pref_sync_off">"Désactivé"</string>
+    <string name="pref_sync_deviceonly">"Synchronisation à partir de l'appareil uniquement"</string>
+    <string name="pref_sync_whenavailable">"Synchronisation à partir de l'appareil (si disponible)"</string>
+</resources>

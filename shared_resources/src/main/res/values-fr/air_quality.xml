@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="aqi_level_0_50">"Bon"</string>
+    <string name="aqi_level_51_100">"Modéré"</string>
+    <string name="aqi_level_101_150">"Mauvais pour les groupes sensibles"</string>
+    <string name="aqi_level_151_200">"Mauvais"</string>
+    <string name="aqi_level_201_300">"Très mauvais"</string>
+    <string name="aqi_level_300">"Dangereux"</string>
+    <string name="aqi_desc_0_50">"La qualité de l'air est jugée satisfaisante, et la pollution de l'air pose peu ou pas de risque."</string>
+    <string name="aqi_desc_51_100">"La qualité de l'air est acceptable"</string>
+    <string name="aqi_desc_101_150">"Il peut y avoir un problème de santé modérée pour un très petit nombre de personnes qui sont particulièrement sensibles à la pollution de l'air."</string>
+    <string name="aqi_desc_151_200">"Tout le monde peut commencer à ressentir des effets sur la santé; les membres des groupes sensibles peuvent ressentir des effets de santé plus graves."</string>
+    <string name="aqi_desc_201_300">"Avertissements de santé de conditions d'urgence. Toute la population est plus susceptible d'être affecté."</string>
+    <string name="aqi_desc_300">"Alerte de santé: tout le monde peut ressentir des effets de santé plus graves."</string>
+</resources>
