@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Miles per hour -->
+    <string name="unit_mph" translatable="false">mph</string>
+    <!-- Kilometers per hour -->
+    <string name="unit_kph" translatable="false">km/h</string>
+    <!-- Inches -->
+    <string name="unit_in" translatable="false">in</string>
+    <!-- Centimeters -->
+    <string name="unit_cm" translatable="false">cm</string>
+    <!-- Millimeters -->
+    <string name="unit_mm" translatable="false">mm</string>
+    <!-- Pressure: in -->
+    <string name="unit_inHg" translatable="false">inHg</string>
+    <!-- Pressure: millibar -->
+    <string name="unit_mBar" translatable="false">mb</string>
+    <!-- Distance: miles -->
+    <string name="unit_miles" translatable="false">mi</string>
+    <!-- Pressure: kilometers -->
+    <string name="unit_kilometers" translatable="false">km</string>
+</resources>

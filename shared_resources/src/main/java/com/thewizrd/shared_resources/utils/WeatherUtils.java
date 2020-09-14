@@ -39,7 +39,7 @@ public class WeatherUtils {
         String date;
         String prefix;
         LocalDateTime update_time = weather.getUpdateTime().toLocalDateTime();
-        String timeformat = update_time.format(DateTimeFormatter.ofPattern("a", Locale.getDefault()));
+        String timeformat;
 
         if (DateFormat.is24HourFormat(context))
             timeformat = update_time.format(DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault()));
@@ -108,41 +108,44 @@ public class WeatherUtils {
     }
 
     public static String getWindDirection(float angle) {
+        Context context = SimpleLibrary.getInstance().getApp().getAppContext();
+
         if (angle >= 348.75 && angle <= 11.25) {
-            return "N";
+            return context.getString(R.string.wind_dir_n);
         } else if (angle >= 11.25 && angle <= 33.75) {
-            return "NNE";
+            return context.getString(R.string.wind_dir_nne);
         } else if (angle >= 33.75 && angle <= 56.25) {
-            return "NE";
+            return context.getString(R.string.wind_dir_ne);
         } else if (angle >= 56.25 && angle <= 78.75) {
-            return "ENE";
+            return context.getString(R.string.wind_dir_ene);
         } else if (angle >= 78.75 && angle <= 101.25) {
-            return "E";
+            return context.getString(R.string.wind_dir_e);
         } else if (angle >= 101.25 && angle <= 123.75) {
-            return "ESE";
+            return context.getString(R.string.wind_dir_ese);
         } else if (angle >= 123.75 && angle <= 146.25) {
-            return "SE";
+            return context.getString(R.string.wind_dir_se);
         } else if (angle >= 146.25 && angle <= 168.75) {
-            return "SSE";
+            return context.getString(R.string.wind_dir_sse);
         } else if (angle >= 168.75 && angle <= 191.25) {
-            return "S";
+            return context.getString(R.string.wind_dir_s);
         } else if (angle >= 191.25 && angle <= 213.75) {
-            return "SSW";
+            return context.getString(R.string.wind_dir_ssw);
         } else if (angle >= 213.75 && angle <= 236.25) {
-            return "SW";
+            return context.getString(R.string.wind_dir_sw);
         } else if (angle >= 236.25 && angle <= 258.75) {
-            return "WSW";
+            return context.getString(R.string.wind_dir_wsw);
         } else if (angle >= 258.75 && angle <= 281.25) {
-            return "W";
+            return context.getString(R.string.wind_dir_w);
         } else if (angle >= 281.25 && angle <= 303.75) {
-            return "WNW";
+            return context.getString(R.string.wind_dir_wnw);
         } else if (angle >= 303.75 && angle <= 326.25) {
-            return "NW";
+            return context.getString(R.string.wind_dir_nw);
         } else/* if (angle >= 326.25 && angle <= 348.75)*/ {
-            return "NNW";
+            return context.getString(R.string.wind_dir_nnw);
         }
     }
 
+    /* Used by NWS */
     public static int getWindDirection(String direction) {
         if ("N".equals(direction)) {
             return 0;
@@ -176,6 +179,55 @@ public class WeatherUtils {
             return 315;
         } else {
             return 337;
+        }
+    }
+
+    /* Units */
+    public static String getSpeedUnit() {
+        Context context = SimpleLibrary.getInstance().getApp().getAppContext();
+        boolean isFahrenheit = Settings.isFahrenheit();
+
+        if (isFahrenheit) {
+            return context.getString(R.string.unit_mph);
+        } else {
+            return context.getString(R.string.unit_kph);
+        }
+    }
+
+    public static String getPressureUnit() {
+        Context context = SimpleLibrary.getInstance().getApp().getAppContext();
+        boolean isFahrenheit = Settings.isFahrenheit();
+
+        if (isFahrenheit) {
+            return context.getString(R.string.unit_inHg);
+        } else {
+            return context.getString(R.string.unit_mBar);
+        }
+    }
+
+    public static String getDistanceUnit() {
+        Context context = SimpleLibrary.getInstance().getApp().getAppContext();
+        boolean isFahrenheit = Settings.isFahrenheit();
+
+        if (isFahrenheit) {
+            return context.getString(R.string.unit_miles);
+        } else {
+            return context.getString(R.string.unit_kilometers);
+        }
+    }
+
+    public static String getPrecipitationUnit(boolean snow) {
+        Context context = SimpleLibrary.getInstance().getApp().getAppContext();
+        boolean isFahrenheit = Settings.isFahrenheit();
+
+        if (isFahrenheit) {
+            return context.getString(R.string.unit_in);
+        } else {
+            if (snow) {
+                return context.getString(R.string.unit_cm);
+            } else {
+                return context.getString(R.string.unit_mm);
+            }
         }
     }
 

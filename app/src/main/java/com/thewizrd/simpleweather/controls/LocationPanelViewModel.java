@@ -167,7 +167,7 @@ public class LocationPanelViewModel {
             if (weather.getCondition().getWindMph() != null && weather.getCondition().getWindMph() >= 0 &&
                     weather.getCondition().getWindDegrees() != null && weather.getCondition().getWindDegrees() >= 0) {
                 int speedVal = Settings.isFahrenheit() ? Math.round(weather.getCondition().getWindMph()) : Math.round(weather.getCondition().getWindKph());
-                String speedUnit = Settings.isFahrenheit() ? "mph" : "kph";
+                String speedUnit = WeatherUtils.getSpeedUnit();
 
                 windSpeed = String.format(Locale.getDefault(), "%d %s", speedVal, speedUnit);
                 windDir = weather.getCondition().getWindDegrees() + 180;

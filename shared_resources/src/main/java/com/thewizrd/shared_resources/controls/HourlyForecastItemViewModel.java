@@ -67,7 +67,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
             windDir = WeatherUtils.getWindDirection(hrForecast.getWindDegrees());
 
             int speedVal = Settings.isFahrenheit() ? Math.round(hrForecast.getExtras().getWindMph()) : Math.round(hrForecast.getExtras().getWindKph());
-            String speedUnit = Settings.isFahrenheit() ? "mph" : "kph";
+            String speedUnit = WeatherUtils.getSpeedUnit();
             windSpeed = String.format(Locale.getDefault(), "%d %s", speedVal, speedUnit);
         }
 
@@ -84,17 +84,18 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, hrForecast.getExtras().getPop() + "%"));
             if (hrForecast.getExtras().getQpfRainIn() != null && hrForecast.getExtras().getQpfRainIn() >= 0) {
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN,
-                                Settings.isFahrenheit() ?
-                                        String.format(Locale.getDefault(), "%.2f in", forecast.getExtras().getQpfRainIn()) :
-                                        String.format(Locale.getDefault(), "%.2f mm", forecast.getExtras().getQpfRainMm())
+                                String.format(Locale.getDefault(), "%.2f %s",
+                                        Settings.isFahrenheit() ? forecast.getExtras().getQpfRainIn() : forecast.getExtras().getQpfRainMm(),
+                                        WeatherUtils.getPrecipitationUnit(false))
                         )
                 );
             }
             if (hrForecast.getExtras().getQpfSnowIn() != null && hrForecast.getExtras().getQpfSnowIn() >= 0) {
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW,
-                        Settings.isFahrenheit() ?
-                                String.format(Locale.getDefault(), "%.2f in", forecast.getExtras().getQpfSnowIn()) :
-                                String.format(Locale.getDefault(), "%.2f cm", forecast.getExtras().getQpfSnowCm())
+                        String.format(Locale.getDefault(), "%.2f %s",
+                                Settings.isFahrenheit() ? forecast.getExtras().getQpfSnowIn() : forecast.getExtras().getQpfSnowCm(),
+                                WeatherUtils.getPrecipitationUnit(true)
+                        )
                 ));
             }
             if (hrForecast.getExtras().getCloudiness() != null && hrForecast.getExtras().getCloudiness() >= 0)
@@ -123,7 +124,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
 
             if (hrForecast.getExtras().getPressureIn() != null && hrForecast.getExtras().getPressureMb() != null) {
                 float pressureVal = Settings.isFahrenheit() ? hrForecast.getExtras().getPressureIn() : hrForecast.getExtras().getPressureMb();
-                String pressureUnit = Settings.isFahrenheit() ? "in" : "mb";
+                String pressureUnit = WeatherUtils.getPressureUnit();
 
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.PRESSURE,
                         String.format(Locale.getDefault(), "%.2f %s", pressureVal, pressureUnit)));
@@ -136,7 +137,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
 
             if (hrForecast.getExtras().getWindGustMph() != null && hrForecast.getExtras().getWindGustKph() != null && hrForecast.getExtras().getWindGustMph() >= 0) {
                 int speedVal = Settings.isFahrenheit() ? Math.round(hrForecast.getExtras().getWindGustMph()) : Math.round(hrForecast.getExtras().getWindGustKph());
-                String speedUnit = Settings.isFahrenheit() ? "mph" : "kph";
+                String speedUnit = WeatherUtils.getSpeedUnit();
 
                 String windGustSpeed = String.format(Locale.getDefault(), "%d %s", speedVal, speedUnit);
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.WINDGUST, windGustSpeed));
@@ -144,7 +145,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
 
             if (hrForecast.getExtras().getVisibilityMi() != null && hrForecast.getExtras().getVisibilityMi() >= 0) {
                 float visibilityVal = Settings.isFahrenheit() ? hrForecast.getExtras().getVisibilityMi() : hrForecast.getExtras().getVisibilityKm();
-                String visibilityUnit = Settings.isFahrenheit() ? "mi" : "km";
+                String visibilityUnit = WeatherUtils.getDistanceUnit();
 
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.VISIBILITY,
                         String.format(Locale.getDefault(), "%.2f %s", visibilityVal, visibilityUnit)));

@@ -348,15 +348,19 @@ public class WeatherNowViewModel extends ObservableViewModel {
             }
             if (weather.getPrecipitation().getQpfRainIn() != null && weather.getPrecipitation().getQpfRainIn() >= 0) {
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN,
-                        Settings.isFahrenheit() ?
-                                String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfRainIn()) :
-                                String.format(Locale.getDefault(), "%.2f mm", weather.getPrecipitation().getQpfRainMm())));
+                                String.format(Locale.getDefault(), "%.2f %s",
+                                        Settings.isFahrenheit() ? weather.getPrecipitation().getQpfRainIn() : weather.getPrecipitation().getQpfRainMm(),
+                                        WeatherUtils.getPrecipitationUnit(false))
+                        )
+                );
             }
             if (weather.getPrecipitation().getQpfSnowIn() != null && weather.getPrecipitation().getQpfSnowIn() >= 0) {
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW,
-                        Settings.isFahrenheit() ?
-                                String.format(Locale.getDefault(), "%.2f in", weather.getPrecipitation().getQpfSnowIn()) :
-                                String.format(Locale.getDefault(), "%.2f cm", weather.getPrecipitation().getQpfSnowCm())));
+                                String.format(Locale.getDefault(), "%.2f %s",
+                                        Settings.isFahrenheit() ? weather.getPrecipitation().getQpfSnowIn() : weather.getPrecipitation().getQpfSnowCm(),
+                                        WeatherUtils.getPrecipitationUnit(true))
+                        )
+                );
             }
             if (weather.getPrecipitation().getCloudiness() != null && weather.getPrecipitation().getCloudiness() >= 0) {
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, weather.getPrecipitation().getCloudiness() + "%"));
@@ -366,7 +370,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         // Atmosphere
         if (weather.getAtmosphere().getPressureMb() != null) {
             float pressureVal = Settings.isFahrenheit() ? weather.getAtmosphere().getPressureIn() : weather.getAtmosphere().getPressureMb();
-            String pressureUnit = Settings.isFahrenheit() ? "in" : "mb";
+            String pressureUnit = WeatherUtils.getPressureUnit();
 
             try {
                 CharSequence pressureStateIcon = getPressureStateIcon(weather.getAtmosphere().getPressureTrend());
@@ -403,7 +407,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
         if (weather.getAtmosphere().getVisibilityMi() != null && weather.getAtmosphere().getVisibilityMi() >= 0) {
             float visibilityVal = Settings.isFahrenheit() ? weather.getAtmosphere().getVisibilityMi() : weather.getAtmosphere().getVisibilityKm();
-            String visibilityUnit = Settings.isFahrenheit() ? "mi" : "km";
+            String visibilityUnit = WeatherUtils.getDistanceUnit();
 
             weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.VISIBILITY,
                     String.format(Locale.getDefault(), "%.2f %s", visibilityVal, visibilityUnit)));
@@ -446,7 +450,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         if (weather.getCondition().getWindMph() != null &&
                 !ObjectsCompat.equals(weather.getCondition().getWindMph(), weather.getCondition().getWindKph())) {
             int speedVal = Settings.isFahrenheit() ? Math.round(weather.getCondition().getWindMph()) : Math.round(weather.getCondition().getWindKph());
-            String speedUnit = Settings.isFahrenheit() ? "mph" : "kph";
+            String speedUnit = WeatherUtils.getSpeedUnit();
 
             weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
                     String.format(Locale.getDefault(), "%d %s, %s", speedVal, speedUnit, WeatherUtils.getWindDirection(weather.getCondition().getWindDegrees())),
@@ -456,7 +460,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         if (weather.getCondition().getWindGustMph() != null &&
                 !ObjectsCompat.equals(weather.getCondition().getWindGustMph(), weather.getCondition().getWindGustKph())) {
             int speedVal = Settings.isFahrenheit() ? Math.round(weather.getCondition().getWindGustMph()) : Math.round(weather.getCondition().getWindGustKph());
-            String speedUnit = Settings.isFahrenheit() ? "mph" : "kph";
+            String speedUnit = WeatherUtils.getSpeedUnit();
 
             weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.WINDGUST,
                             String.format(Locale.getDefault(), "%d %s", speedVal, speedUnit)
