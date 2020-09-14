@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_setupfromphone">"Configuration à partir d'un appareil mobile"</string>
-    <string name="action_changelocation">"Changer de localisation"</string>
+    <string name="action_changelocation">"Changer d'emplacement"</string>
     <string name="action_openonphone">"Ouvrir sur un appareil mobile"</string>
     <string name="message_openedonphone">"Ouvert sur les appareils mobiles…"</string>
 

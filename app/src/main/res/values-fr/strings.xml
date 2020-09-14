@@ -26,7 +26,7 @@
     <string name="label_color_transparent">"Transparent"</string>
     <string name="pref_title_bgstyle">"Style de l'arrière-plan"</string>
     <string name="label_style_fullbg">"Arrière-plan complète"</string>
-    <string name="label_style_panda">Mode fractionné (suivre le thème) <font size="14">Utilise le thème foncé lorsque le thème foncé de l\'application ou de l\'appareil est activé</font></string>
+    <string name="label_style_panda">Mode fractionné (suivre le thème) <font size="14">Voici le thème actuel de l\'application</font></string>
     <string name="label_style_pendingcolor">"Mode fractionné (Couleur météo)"</string>
     <string name="label_style_light">"Mode fractionné (Clair)"</string>
     <string name="label_style_dark">"Mode fractionné (Foncé)"</string>

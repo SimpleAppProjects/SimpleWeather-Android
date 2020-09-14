@@ -2,10 +2,10 @@
 <resources>
 
     <!-- Setup -->
-    <string name="location_search_hint">"Rechercher une localisation"</string>
+    <string name="location_search_hint">"Entrez un emplacement"</string>
     <string name="api_label">"Fournisseur de météo"</string>
     <string name="key_hint">"Clé du fournisseur"</string>
-    <string name="label_gpsfollow">"Localisation actuelle"</string>
+    <string name="label_gpsfollow">"Emplacement actuel"</string>
     <string name="label_getstarted">"Commencer"</string>
     <string name="setup_welcome_prompt">"Bienvenue à SimpleWeather"</string>
     <string name="setup_welcome_tagline_prompt">"Juste une simple application météo"</string>
@@ -92,20 +92,20 @@
     <string name="error_message_weather_us_only">"Ce fournisseur de services météo ne prend en charge que les sites situés aux États-Unis."</string>
 
     <!-- Locations -->
-    <string name="label_btn_add_location">"Ajouter une localisation"</string>
+    <string name="label_btn_add_location">"Ajout d'un emplacement"</string>
     <string name="action_editmode">"Mode d'édition"</string>
-    <string name="label_currentlocation">"Localisation actuelle"</string>
+    <string name="label_currentlocation">"Emplacement actuel"</string>
     <string name="label_favoritelocations">"Emplacements préférés"</string>
     <string name="error_location_denied">"Accès à la localisation refusé"</string>
     <string name="error_retrieve_location">"Impossible d'obtenir la localisation"</string>
     <string name="error_enable_location_services">"Services de localisation désactivés. Veuillez l'activer dans les paramètres"</string>
     <string name="error_noresults">"Aucun résultat trouvé"</string>
-    <string name="label_fab_add_location">"Ajouter une localisation"</string>
-    <string name="message_locationremoved">"Localisation supprimée"</string>
+    <string name="label_fab_add_location">"Ajouter un emplacement"</string>
+    <string name="message_locationremoved">"Emplacement supprimé"</string>
     <string name="message_needfavorite">"Doit avoir au moins un emplacement préféré"</string>
     <string name="undo">"Annuler"</string>
     <string name="delete">"Supprimer"</string>
-    <string name="bg_location_permission_rationale">"Permettre l'accès à l'emplacement de mise à jour des notifications et des widgets"</string>
+    <string name="bg_location_permission_rationale">"Permettre l'accès à la mise à jour de votre localisation pour les notifications et les widgets"</string>
 
     <!-- Weather Exceptions -->
     <string name="werror_noweather">"Impossible de charger les données météo"</string>
