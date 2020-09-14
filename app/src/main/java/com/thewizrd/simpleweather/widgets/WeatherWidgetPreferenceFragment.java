@@ -1205,7 +1205,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
                         return true;
                     }
-                }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<Boolean>() {
+                }).addOnSuccessListener(new OnSuccessListener<Boolean>() {
                     @Override
                     public void onSuccess(Boolean success) {
                         if (success && !token.isCancellationRequested()) {
@@ -1219,7 +1219,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                             finalizeWidgetUpdate();
                         }
                     }
-                }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
+                }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         if (e instanceof WeatherException || e instanceof CustomException) {
@@ -1265,7 +1265,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
                         return locData;
                     }
-                }).addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<LocationData>() {
+                }).addOnSuccessListener(new OnSuccessListener<LocationData>() {
                     @Override
                     public void onSuccess(LocationData locationData) {
                         if (locationData != null) {
@@ -1280,7 +1280,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                             getAppCompatActivity().finish();
                         }
                     }
-                }).addOnFailureListener(getAppCompatActivity(), new OnFailureListener() {
+                }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);

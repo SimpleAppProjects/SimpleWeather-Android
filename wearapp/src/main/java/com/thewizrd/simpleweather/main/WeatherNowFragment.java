@@ -321,7 +321,7 @@ public class WeatherNowFragment extends CustomFragment
                                         .loadAlerts()
                                         .setErrorListener(WeatherNowFragment.this)
                                         .build())
-                                        .addOnSuccessListener(getFragmentActivity(), new OnSuccessListener<Weather>() {
+                                        .addOnSuccessListener(new OnSuccessListener<Weather>() {
                                             @Override
                                             public void onSuccess(final Weather weather) {
                                                 weatherLiveData.setValue(weather);
@@ -527,7 +527,7 @@ public class WeatherNowFragment extends CustomFragment
         // recommended in applications that request frequent location updates.
         if (getFragmentActivity() != null && mFusedLocationClient != null) {
             mFusedLocationClient.removeLocationUpdates(mLocCallback)
-                    .addOnCompleteListener(getFragmentActivity(), new OnCompleteListener<Void>() {
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             mRequestingLocationUpdates = false;
@@ -645,13 +645,13 @@ public class WeatherNowFragment extends CustomFragment
 
                 return forceRefresh;
             }
-        }).addOnSuccessListener(getFragmentActivity(), new OnSuccessListener<Boolean>() {
+        }).addOnSuccessListener(new OnSuccessListener<Boolean>() {
             @Override
             public void onSuccess(Boolean forceRefresh) {
                 // Load up weather data
                 refreshWeather(forceRefresh);
             }
-        }).addOnFailureListener(getFragmentActivity(), new OnFailureListener() {
+        }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
 

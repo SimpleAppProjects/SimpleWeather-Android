@@ -1217,7 +1217,7 @@ public class WeatherNowFragment extends WindowColorFragment
                             .forceRefresh(forceRefresh)
                             .setErrorListener(WeatherNowFragment.this)
                             .build())
-                            .addOnSuccessListener(getAppCompatActivity(), new OnSuccessListener<WeatherResult>() {
+                            .addOnSuccessListener(new OnSuccessListener<WeatherResult>() {
                                 @Override
                                 public void onSuccess(final WeatherResult weather) {
                                     weatherLiveData.setValue(weather.getWeather());

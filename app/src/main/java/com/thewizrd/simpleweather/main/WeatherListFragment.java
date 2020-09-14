@@ -291,7 +291,7 @@ public class WeatherListFragment extends ToolbarFragment {
                                 }
                             })
                             .build())
-                    .addOnSuccessListener(requireActivity(), new OnSuccessListener<Weather>() {
+                    .addOnSuccessListener(new OnSuccessListener<Weather>() {
                         @Override
                         public void onSuccess(Weather weather) {
                             if (isAlive()) {
