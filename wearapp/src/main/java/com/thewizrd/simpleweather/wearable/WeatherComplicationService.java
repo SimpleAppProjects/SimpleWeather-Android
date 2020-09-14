@@ -10,6 +10,8 @@ import android.support.wearable.complications.ComplicationProviderService;
 import android.support.wearable.complications.ComplicationText;
 import android.util.Log;
 
+import androidx.core.util.ObjectsCompat;
+
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -106,12 +108,16 @@ public class WeatherComplicationService extends ComplicationProviderService {
             return null;
         } else {
             // Temperature
-            int tempVal = Settings.isFahrenheit() ?
-                    Math.round(weather.getCondition().getTempF()) :
-                    Math.round(weather.getCondition().getTempC());
-            String tempUnit = Settings.getTempUnit();
+            String currTemp;
+            if (weather.getCondition().getTempF() != null && !ObjectsCompat.equals(weather.getCondition().getTempF(), weather.getCondition().getTempC())) {
+                int temp = Settings.isFahrenheit() ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC());
+                currTemp = String.format(Locale.getDefault(), "%d", temp);
+            } else {
+                currTemp = "--";
+            }
 
-            String temp = String.format(Locale.getDefault(), "%d°%s", tempVal, tempUnit);
+            String tempUnit = Settings.getTempUnit();
+            String temp = String.format(Locale.getDefault(), "%s°%s", currTemp, tempUnit);
             // Weather Icon
             int weatherIcon = WeatherUtils.getWeatherIconResource(weather.getCondition().getIcon());
             // Condition text

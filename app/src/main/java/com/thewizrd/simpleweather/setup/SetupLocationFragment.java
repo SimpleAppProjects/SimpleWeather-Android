@@ -449,43 +449,53 @@ public class SetupLocationFragment extends CustomFragment {
                         }
                     }).addOnSuccessListener(new OnSuccessListener<LocationData>() {
                         @Override
-                        public void onSuccess(LocationData data) {
+                        public void onSuccess(final LocationData data) {
                             if (isActive()) {
-                                if (data != null && data.isValid()) {
-                                    // Setup complete
-                                    viewModel.setLocationData(data);
-                                    Navigation.findNavController(binding.getRoot())
-                                            .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment());
-                                } else {
-                                    enableControls(true);
-                                    Settings.setFollowGPS(false);
+                                runWithView(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (data != null && data.isValid()) {
+                                            // Setup complete
+                                            viewModel.setLocationData(data);
+                                            Navigation.findNavController(binding.getRoot())
+                                                    .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment());
+                                        } else {
+                                            enableControls(true);
+                                            Settings.setFollowGPS(false);
 
-                                    LocationManager locMan = null;
-                                    if (getAppCompatActivity() != null)
-                                        locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
+                                            LocationManager locMan = null;
+                                            if (getAppCompatActivity() != null)
+                                                locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
 
-                                    if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                                        showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
-                                    } else {
-                                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
+                                            if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                                                showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
+                                            } else {
+                                                showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
+                                            }
+                                        }
                                     }
-                                }
+                                });
                             }
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
-                        public void onFailure(@NonNull Exception e) {
+                        public void onFailure(@NonNull final Exception e) {
                             if (isActive()) {
-                                // Restore controls
-                                enableControls(true);
-                                Settings.setFollowGPS(false);
-                                Settings.setWeatherLoaded(false);
+                                runWithView(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // Restore controls
+                                        enableControls(true);
+                                        Settings.setFollowGPS(false);
+                                        Settings.setWeatherLoaded(false);
 
-                                if (e instanceof WeatherException || e instanceof CustomException) {
-                                    showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT), null);
-                                } else {
-                                    showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
-                                }
+                                        if (e instanceof WeatherException || e instanceof CustomException) {
+                                            showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT), null);
+                                        } else {
+                                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
+                                        }
+                                    }
+                                });
                             }
                         }
                     });

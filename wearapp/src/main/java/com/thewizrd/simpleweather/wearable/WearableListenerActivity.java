@@ -175,13 +175,20 @@ public abstract class WearableListenerActivity extends FragmentActivity implemen
                         Logger.writeLine(Log.ERROR, e);
                     }
 
+                    final boolean success = result != -1;
+
                     if (showAnimation) {
-                        new ConfirmationOverlay()
-                                .setType(result != -1 ? ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION : ConfirmationOverlay.FAILURE_ANIMATION)
-                                .showOn(WearableListenerActivity.this);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                new ConfirmationOverlay()
+                                        .setType(success ? ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION : ConfirmationOverlay.FAILURE_ANIMATION)
+                                        .showOn(WearableListenerActivity.this);
+                            }
+                        });
                     }
 
-                    return result != -1;
+                    return success;
                 }
             }
         });

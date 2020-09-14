@@ -468,10 +468,14 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
             case WeatherIcons.STRONG_WIND:
                 if (!isNight) {
                     // Fallback to sunset/rise time just in case
-                    ZoneId id = ZoneId.of(weather.getLocation().getTzLong());
-                    ZoneOffset tz = id.getRules().getOffset(Instant.now());
-                    if (tz == null)
+                    ZoneOffset tz = null;
+                    if (!StringUtils.isNullOrWhitespace(weather.getLocation().getTzLong())) {
+                        ZoneId id = ZoneId.of(weather.getLocation().getTzLong());
+                        tz = id.getRules().getOffset(Instant.now());
+                    }
+                    if (tz == null) {
                         tz = weather.getLocation().getTzOffset();
+                    }
 
                     LocalTime sunrise;
                     LocalTime sunset;

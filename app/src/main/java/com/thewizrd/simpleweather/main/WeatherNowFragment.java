@@ -663,6 +663,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 @Override
                 public void onClick(View v) {
                     AnalyticsLogger.logEvent("WeatherNowFragment: alerts click");
+                    v.setEnabled(false);
                     // Show Alert Fragment
                     WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
                             WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
@@ -687,6 +688,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 @Override
                 public void onClick(View view, int position) {
                     AnalyticsLogger.logEvent("WeatherNowFragment: fcast graph click");
+                    view.setEnabled(false);
 
                     WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
                             WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
@@ -710,6 +712,8 @@ public class WeatherNowFragment extends WindowColorFragment
                 @Override
                 public void onClick(View view, int position) {
                     AnalyticsLogger.logEvent("WeatherNowFragment: hrf graph click");
+                    view.setEnabled(false);
+
                     if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
                         WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
                                 WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
@@ -802,6 +806,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 @Override
                 public void onClick(View v) {
                     AnalyticsLogger.logEvent("WeatherNowFragment: radar view click");
+                    v.setEnabled(false);
 
                     Navigation.findNavController(v)
                             .navigate(

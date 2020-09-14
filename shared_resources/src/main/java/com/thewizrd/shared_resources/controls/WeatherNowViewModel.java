@@ -452,9 +452,14 @@ public class WeatherNowViewModel extends ObservableViewModel {
             int speedVal = Settings.isFahrenheit() ? Math.round(weather.getCondition().getWindMph()) : Math.round(weather.getCondition().getWindKph());
             String speedUnit = WeatherUtils.getSpeedUnit();
 
-            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
-                    String.format(Locale.getDefault(), "%d %s, %s", speedVal, speedUnit, WeatherUtils.getWindDirection(weather.getCondition().getWindDegrees())),
-                    weather.getCondition().getWindDegrees() + 180));
+            if (weather.getCondition().getWindDegrees() != null) {
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
+                        String.format(Locale.getDefault(), "%d %s, %s", speedVal, speedUnit, WeatherUtils.getWindDirection(weather.getCondition().getWindDegrees())),
+                        weather.getCondition().getWindDegrees() + 180));
+            } else {
+                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
+                        String.format(Locale.getDefault(), "%d %s", speedVal, speedUnit), 180));
+            }
         }
 
         if (weather.getCondition().getWindGustMph() != null &&
