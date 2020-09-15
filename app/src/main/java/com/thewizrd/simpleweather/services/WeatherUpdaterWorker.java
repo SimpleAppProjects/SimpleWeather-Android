@@ -130,7 +130,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
 
         OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(WeatherUpdaterWorker.class)
                 .setConstraints(constraints)
-                .setInitialDelay(1, TimeUnit.MINUTES)
+                .setInitialDelay(30, TimeUnit.SECONDS)
                 .build();
 
         WorkManager.getInstance(context)
