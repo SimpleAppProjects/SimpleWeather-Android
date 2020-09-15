@@ -680,19 +680,32 @@ public class WeatherNowFragment extends CustomFragment
                                 @Override
                                 public Task<Collection<WeatherAlert>> then(@NonNull Task<WeatherResult> task) {
                                     if (task.isSuccessful()) {
+                                        runWithView(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                binding.alertButton.setVisibility(View.GONE);
+                                            }
+                                        });
                                         return wLoader.loadWeatherAlerts(task.getResult().isSavedData());
                                     } else {
                                         return Tasks.forCanceled();
                                     }
                                 }
                             })
-                            .addOnSuccessListener(new OnSuccessListener<Collection<WeatherAlert>>() {
+                            .addOnCompleteListener(new OnCompleteListener<Collection<WeatherAlert>>() {
                                 @Override
-                                public void onSuccess(final Collection<WeatherAlert> weatherAlerts) {
+                                public void onComplete(@NonNull final Task<Collection<WeatherAlert>> task) {
                                     runWithView(new Runnable() {
                                         @Override
                                         public void run() {
                                             alertsView.updateAlerts(locationData);
+
+                                            if (task.isSuccessful()) {
+                                                final Collection<WeatherAlert> weatherAlerts = task.getResult();
+                                                if (weatherAlerts != null && !weatherAlerts.isEmpty()) {
+                                                    binding.alertButton.setVisibility(View.VISIBLE);
+                                                }
+                                            }
                                         }
                                     });
                                 }

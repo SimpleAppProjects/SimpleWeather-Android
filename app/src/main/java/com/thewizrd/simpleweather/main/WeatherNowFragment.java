@@ -1233,32 +1233,45 @@ public class WeatherNowFragment extends WindowColorFragment
                                 @Override
                                 public Task<Collection<WeatherAlert>> then(@NonNull Task<WeatherResult> task) {
                                     if (task.isSuccessful()) {
+                                        runWithView(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                conditionPanelBinding.alertButton.setVisibility(View.GONE);
+                                            }
+                                        });
                                         return wLoader.loadWeatherAlerts(task.getResult().isSavedData());
                                     } else {
                                         return Tasks.forCanceled();
                                     }
                                 }
                             })
-                            .addOnSuccessListener(new OnSuccessListener<Collection<WeatherAlert>>() {
+                            .addOnCompleteListener(new OnCompleteListener<Collection<WeatherAlert>>() {
                                 @Override
-                                public void onSuccess(final Collection<WeatherAlert> weatherAlerts) {
+                                public void onComplete(@NonNull final Task<Collection<WeatherAlert>> task) {
                                     runWithView(new Runnable() {
                                         @Override
                                         public void run() {
                                             alertsView.updateAlerts(locationData);
 
-                                            if (wm.supportsAlerts()) {
+                                            if (task.isSuccessful()) {
+                                                final Collection<WeatherAlert> weatherAlerts = task.getResult();
                                                 if (weatherAlerts != null && !weatherAlerts.isEmpty()) {
-                                                    // Alerts are posted to the user here. Set them as notified.
-                                                    AsyncTask.run(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            if (BuildConfig.DEBUG) {
-                                                                WeatherAlertHandler.postAlerts(locationData, weatherAlerts);
+                                                    conditionPanelBinding.alertButton.setVisibility(View.VISIBLE);
+                                                }
+
+                                                if (wm.supportsAlerts()) {
+                                                    if (weatherAlerts != null && !weatherAlerts.isEmpty()) {
+                                                        // Alerts are posted to the user here. Set them as notified.
+                                                        AsyncTask.run(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                if (BuildConfig.DEBUG) {
+                                                                    WeatherAlertHandler.postAlerts(locationData, weatherAlerts);
+                                                                }
+                                                                WeatherAlertHandler.setAsNotified(locationData, weatherAlerts);
                                                             }
-                                                            WeatherAlertHandler.setAsNotified(locationData, weatherAlerts);
-                                                        }
-                                                    });
+                                                        });
+                                                    }
                                                 }
                                             }
                                         }
