@@ -151,11 +151,15 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
 
                 weather.setWeatherAlerts(new ArrayList<WeatherAlert>(numOfAlerts));
 
-                for (WatchItem watchItem : root.getNwsAlerts().getWatch()) {
-                    weather.getWeatherAlerts().add(new WeatherAlert(watchItem));
+                if (root.getNwsAlerts().getWatch() != null) {
+                    for (WatchItem watchItem : root.getNwsAlerts().getWatch()) {
+                        weather.getWeatherAlerts().add(new WeatherAlert(watchItem));
+                    }
                 }
-                for (WarningItem warningItem : root.getNwsAlerts().getWarning()) {
-                    weather.getWeatherAlerts().add(new WeatherAlert(warningItem));
+                if (root.getNwsAlerts().getWarning() != null) {
+                    for (WarningItem warningItem : root.getNwsAlerts().getWarning()) {
+                        weather.getWeatherAlerts().add(new WeatherAlert(warningItem));
+                    }
                 }
             }
         } catch (Exception ex) {
