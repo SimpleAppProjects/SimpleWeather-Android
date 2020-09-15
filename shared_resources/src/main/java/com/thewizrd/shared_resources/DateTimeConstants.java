@@ -6,8 +6,8 @@ public final class DateTimeConstants {
     public static final String CLOCK_FORMAT_12HR_AMPM = "h:mm a";
     public static final String TIMEZONE_NAME = "z";
     public static final String ABBREV_DAY_OF_THE_WEEK = "eee";
-    public static final String ABBREV_DAYOFWEEK_AND_12HR_AMPM = "eee ha";
-    public static final String ABBREV_12HR_AMPM = "ha";
+    public static final String ABBREV_DAYOFWEEK_AND_12HR_AMPM = "eee h a";
+    public static final String ABBREV_12HR_AMPM = "h a";
 
     /**
      * Constant for date skeleton with full weekday, month, and numerical day (00).
@@ -25,6 +25,12 @@ public final class DateTimeConstants {
      * Constant for date skeleton with abbreviated weekday, month, and numerical day (01).
      */
     public static final String SKELETON_SHORT_DATE_FORMAT = "eeeMMMdd";
+    /**
+     * Constant for date skeleton with abbreviated weekday, and hour and minute in 24-hour presentation.
+     */
     public static final String SKELETON_DAYOFWEEK_AND_24HR = "eeeHm";
+    /**
+     * Constant for date skeleton with hour and minute in 24-hour presentation.
+     */
     public static final String SKELETON_24HR = "Hm";
 }
