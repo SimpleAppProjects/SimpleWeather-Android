@@ -551,6 +551,50 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             }
         });
 
+        WidgetUtils.WidgetBackgroundStyle[] styles = WidgetUtils.WidgetBackgroundStyle.values();
+        CharSequence[] styleEntries = new CharSequence[styles.length];
+        CharSequence[] styleEntryValues = new CharSequence[styles.length];
+        for (int i = 0; i < styles.length; i++) {
+            WidgetUtils.WidgetBackgroundStyle style = styles[i];
+            switch (style) {
+                case FULLBACKGROUND:
+                    styleEntries[i] = requireContext().getString(R.string.label_style_fullbg);
+                    styleEntryValues[i] = Integer.toString(style.getValue());
+                    break;
+                case PANDA:
+                    SpannableStringBuilder ssB = new SpannableStringBuilder();
+                    ssB.append(requireContext().getString(R.string.label_style_panda));
+                    ssB.append(StringUtils.lineSeparator());
+                    int idx = ssB.length();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        ssB.append(requireContext().getString(R.string.label_style_panda_message_v29));
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        ssB.append(requireContext().getString(R.string.label_style_panda_message_v21));
+                    } else {
+                        ssB.append(requireContext().getString(R.string.label_style_panda_message));
+                    }
+                    ssB.setSpan(new RelativeSizeSpan(0.8f), idx, ssB.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                    styleEntries[i] = ssB;
+                    styleEntryValues[i] = Integer.toString(style.getValue());
+                    break;
+                case PENDINGCOLOR:
+                    styleEntries[i] = requireContext().getText(R.string.label_style_pendingcolor);
+                    styleEntryValues[i] = Integer.toString(style.getValue());
+                    break;
+                case DARK:
+                    styleEntries[i] = requireContext().getText(R.string.label_style_dark);
+                    styleEntryValues[i] = Integer.toString(style.getValue());
+                    break;
+                case LIGHT:
+                    styleEntries[i] = requireContext().getText(R.string.label_style_light);
+                    styleEntryValues[i] = Integer.toString(style.getValue());
+                    break;
+            }
+        }
+        bgStylePref.setEntries(styleEntries);
+        bgStylePref.setEntryValues(styleEntryValues);
+
         if (WidgetUtils.isBackgroundOptionalWidget(mWidgetType)) {
             bgColorPref.setValueIndex(WidgetUtils.getWidgetBackground(mAppWidgetId).getValue());
             bgColorPref.callChangeListener(bgColorPref.getValue());

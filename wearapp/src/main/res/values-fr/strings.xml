@@ -29,4 +29,9 @@
     <string name="pref_sync_off">"Désactivé"</string>
     <string name="pref_sync_deviceonly">"Synchronisation à partir de l'appareil uniquement"</string>
     <string name="pref_sync_whenavailable">"Synchronisation à partir de l'appareil (si disponible)"</string>
+
+    <!-- Preferences -->
+    <string name="pref_category_title_sync">"Sync"</string>
+    <string name="pref_sync_title">"Synchronisation des données"</string>
+    <string name="pref_connectionstatus_title">"État de la connexion"</string>
 </resources>
