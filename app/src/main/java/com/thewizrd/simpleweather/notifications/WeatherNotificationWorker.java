@@ -152,18 +152,19 @@ public class WeatherNotificationWorker extends Worker {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID);
 
-            if (mChannel == null) {
-                String notchannel_name = mContext.getResources().getString(R.string.not_channel_name_weather);
-                String notchannel_desc = mContext.getResources().getString(R.string.not_channel_desc_weather);
+            String notchannel_name = mContext.getResources().getString(R.string.not_channel_name_weather);
+            String notchannel_desc = mContext.getResources().getString(R.string.not_channel_desc_weather);
 
+            if (mChannel == null) {
                 mChannel = new NotificationChannel(NOT_CHANNEL_ID, notchannel_name, NotificationManager.IMPORTANCE_LOW);
-                mChannel.setDescription(notchannel_desc);
-                // Configure the notification channel.
-                mChannel.setShowBadge(true);
-                mChannel.enableLights(false);
-                mChannel.enableVibration(false);
-                mNotifyMgr.createNotificationChannel(mChannel);
             }
+            mChannel.setName(notchannel_name);
+            mChannel.setDescription(notchannel_desc);
+            // Configure the notification channel.
+            mChannel.setShowBadge(true);
+            mChannel.enableLights(false);
+            mChannel.enableVibration(false);
+            mNotifyMgr.createNotificationChannel(mChannel);
         }
     }
 
