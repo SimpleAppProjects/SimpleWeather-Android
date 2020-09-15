@@ -27,6 +27,9 @@
     <string name="message_synccompleted">Data sync successful</string>
 
     <!-- Preferences -->
+    <string name="pref_category_title_sync">Sync</string>
+    <string name="pref_sync_title">Data Synchronization</string>
+    <string name="pref_connectionstatus_title">Connection Status</string>
     <string name="pref_sync_off">Off</string>
     <string name="pref_sync_deviceonly">Sync from device only</string>
     <string name="pref_sync_whenavailable">Sync from device (when available)</string>
