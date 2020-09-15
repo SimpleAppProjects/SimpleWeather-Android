@@ -21,7 +21,11 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -342,7 +346,11 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
             case "210": // light thunderstorm
             case "230": // thunderstorm w/ light drizzle
             case "231": // thunderstorm w/ drizzle
-                weatherIcon = WeatherIcons.STORM_SHOWERS;
+            case "531": // ragged shower rain
+                if (isNight)
+                    weatherIcon = WeatherIcons.NIGHT_ALT_STORM_SHOWERS;
+                else
+                    weatherIcon = WeatherIcons.DAY_STORM_SHOWERS;
                 break;
 
             case "211": // thunderstorm
@@ -350,22 +358,15 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
             case "221": // ragged thunderstorm
             case "202": // thunderstorm w/ heavy rain
             case "232": // thunderstorm w/ heavy drizzle
-                weatherIcon = WeatherIcons.THUNDERSTORM;
+                if (isNight)
+                    weatherIcon = WeatherIcons.NIGHT_ALT_THUNDERSTORM;
+                else
+                    weatherIcon = WeatherIcons.DAY_THUNDERSTORM;
                 break;
 
             case "300": // light intensity drizzle
             case "301": // drizzle
             case "321": // shower drizzle
-                weatherIcon = WeatherIcons.SPRINKLE;
-                break;
-
-            case "302": // heavy intensity drizzle
-            case "311": // drizzle rain
-            case "312": // heavy intensity drizzle rain
-            case "314": // heavy shower rain and drizzle
-                weatherIcon = WeatherIcons.RAIN;
-                break;
-
             case "500": // light rain
                 if (isNight)
                     weatherIcon = WeatherIcons.NIGHT_ALT_SPRINKLE;
@@ -373,6 +374,10 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
                     weatherIcon = WeatherIcons.DAY_SPRINKLE;
                 break;
 
+            case "302": // heavy intensity drizzle
+            case "311": // drizzle rain
+            case "312": // heavy intensity drizzle rain
+            case "314": // heavy shower rain and drizzle
             case "501": // moderate rain
             case "502": // heavy intensity rain
             case "503": // very heavy rain
@@ -390,7 +395,10 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
             case "615": // light rain and snow
             case "616": // rain and snow
             case "620": // light shower snow
-                weatherIcon = WeatherIcons.RAIN_MIX;
+                if (isNight)
+                    weatherIcon = WeatherIcons.NIGHT_ALT_RAIN_MIX;
+                else
+                    weatherIcon = WeatherIcons.DAY_RAIN_MIX;
                 break;
 
             case "313": // shower rain and drizzle
@@ -398,23 +406,27 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
             case "521": // shower rain
             case "522": // heavy intensity shower rain
             case "701": // mist
-                weatherIcon = WeatherIcons.SHOWERS;
-                break;
-
-            case "531": // ragged shower rain
-            case "901": // tropical storm
-                weatherIcon = WeatherIcons.STORM_SHOWERS;
+                if (isNight)
+                    weatherIcon = WeatherIcons.NIGHT_ALT_SHOWERS;
+                else
+                    weatherIcon = WeatherIcons.DAY_SHOWERS;
                 break;
 
             case "600": // light snow
             case "601": // snow
             case "621": // shower snow
             case "622": // heavy shower snow
-                weatherIcon = WeatherIcons.SNOW;
+                if (isNight)
+                    weatherIcon = WeatherIcons.NIGHT_ALT_SNOW;
+                else
+                    weatherIcon = WeatherIcons.DAY_SNOW;
                 break;
 
             case "602": // heavy snow
-                weatherIcon = WeatherIcons.SNOW_WIND;
+                if (isNight)
+                    weatherIcon = WeatherIcons.NIGHT_ALT_SNOW_WIND;
+                else
+                    weatherIcon = WeatherIcons.DAY_SNOW_WIND;
                 break;
 
             // smoke
@@ -439,12 +451,18 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
 
             // fog
             case "741":
-                weatherIcon = WeatherIcons.FOG;
+                if (isNight)
+                    weatherIcon = WeatherIcons.NIGHT_FOG;
+                else
+                    weatherIcon = WeatherIcons.DAY_FOG;
                 break;
 
             // cloudy-gusts
             case "771": // squalls
-                weatherIcon = WeatherIcons.CLOUDY_GUSTS;
+                if (isNight)
+                    weatherIcon = WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS;
+                else
+                    weatherIcon = WeatherIcons.DAY_CLOUDY_GUSTS;
                 break;
 
             // tornado
@@ -461,24 +479,15 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
                     weatherIcon = WeatherIcons.DAY_SUNNY;
                 break;
 
-            // cloudy-gusts
             case "801": // few clouds
             case "802": // scattered clouds
                 if (isNight)
-                    weatherIcon = WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS;
+                    weatherIcon = WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY;
                 else
-                    weatherIcon = WeatherIcons.DAY_CLOUDY_GUSTS;
+                    weatherIcon = WeatherIcons.DAY_SUNNY_OVERCAST;
                 break;
 
-            // cloudy-gusts
             case "803": // broken clouds
-                if (isNight)
-                    weatherIcon = WeatherIcons.NIGHT_ALT_CLOUDY_WINDY;
-                else
-                    weatherIcon = WeatherIcons.DAY_CLOUDY_WINDY;
-                break;
-
-            // cloudy
             case "804": // overcast clouds
                 if (isNight)
                     weatherIcon = WeatherIcons.NIGHT_ALT_CLOUDY;
@@ -486,8 +495,8 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
                     weatherIcon = WeatherIcons.DAY_CLOUDY;
                 break;
 
-            // hurricane
-            case "902":
+            case "901": // tropical storm
+            case "902": // hurricane
                 weatherIcon = WeatherIcons.HURRICANE;
                 break;
 
@@ -511,7 +520,10 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
 
             // hail
             case "906":
-                weatherIcon = WeatherIcons.HAIL;
+                if (isNight)
+                    weatherIcon = WeatherIcons.NIGHT_ALT_HAIL;
+                else
+                    weatherIcon = WeatherIcons.DAY_HAIL;
                 break;
 
             // strong wind
@@ -529,5 +541,56 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
         }
 
         return weatherIcon;
+    }
+
+    // Some conditions can be for any time of day
+    // So use sunrise/set data as fallback
+    @Override
+    public boolean isNight(Weather weather) {
+        boolean isNight = super.isNight(weather);
+
+        switch (weather.getCondition().getIcon()) {
+            // The following cases can be present at any time of day
+            case WeatherIcons.SMOKE:
+            case WeatherIcons.WINDY:
+            case WeatherIcons.DUST:
+            case WeatherIcons.TORNADO:
+            case WeatherIcons.HURRICANE:
+            case WeatherIcons.SNOWFLAKE_COLD:
+            case WeatherIcons.HAIL:
+            case WeatherIcons.STRONG_WIND:
+                if (!isNight) {
+                    // Fallback to sunset/rise time just in case
+                    ZoneOffset tz = null;
+                    if (!StringUtils.isNullOrWhitespace(weather.getLocation().getTzLong())) {
+                        ZoneId id = ZoneId.of(weather.getLocation().getTzLong());
+                        tz = id.getRules().getOffset(Instant.now());
+                    }
+                    if (tz == null) {
+                        tz = weather.getLocation().getTzOffset();
+                    }
+
+                    LocalTime sunrise;
+                    LocalTime sunset;
+                    if (weather.getAstronomy() != null) {
+                        sunrise = weather.getAstronomy().getSunrise().toLocalTime();
+                        sunset = weather.getAstronomy().getSunset().toLocalTime();
+                    } else {
+                        sunrise = LocalTime.of(6, 0);
+                        sunset = LocalTime.of(18, 0);
+                    }
+
+                    LocalTime now = ZonedDateTime.now(tz).toLocalTime();
+
+                    // Determine whether its night using sunset/rise times
+                    if (now.toNanoOfDay() < sunrise.toNanoOfDay() || now.toNanoOfDay() > sunset.toNanoOfDay())
+                        isNight = true;
+                }
+                break;
+            default:
+                break;
+        }
+
+        return isNight;
     }
 }
