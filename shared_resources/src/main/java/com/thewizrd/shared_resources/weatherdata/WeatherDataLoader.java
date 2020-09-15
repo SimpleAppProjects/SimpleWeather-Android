@@ -127,9 +127,11 @@ public final class WeatherDataLoader {
         return AsyncTask.create(new Callable<Collection<WeatherAlert>>() {
             @Override
             public Collection<WeatherAlert> call() {
-                if (wm.supportsAlerts() && wm.needsExternalAlertData()) {
-                    if (!loadSavedData) {
-                        weatherAlerts = wm.getAlerts(location);
+                if (wm.supportsAlerts()) {
+                    if (wm.needsExternalAlertData()) {
+                        if (!loadSavedData) {
+                            weatherAlerts = wm.getAlerts(location);
+                        }
                     }
 
                     if (weatherAlerts == null) {
