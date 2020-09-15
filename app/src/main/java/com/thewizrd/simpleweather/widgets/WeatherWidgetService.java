@@ -37,6 +37,7 @@ import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.Constants;
+import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
@@ -50,6 +51,7 @@ import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.tasks.CallableEx;
 import com.thewizrd.shared_resources.tasks.TaskUtils;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -968,22 +970,22 @@ public class WeatherWidgetService extends SafeJobIntentService {
                         views.setTextViewTextSize(R.id.date_panel, TypedValue.COMPLEX_UNIT_PX, dateTextSize);
                     }
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                        CharSequence dtfm;
-                        if ((widgetType == WidgetType.Widget2x2 && cellWidth >= 3) ||
-                                (widgetType == WidgetType.Widget4x2Clock && cellWidth >= 4) ||
-                                (widgetType == WidgetType.Widget4x2Huawei && cellWidth >= 4)) {
-                            dtfm = mContext.getText(R.string.widget_long_date_format);
-                        } else if (widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock) {
-                            dtfm = mContext.getText(R.string.widget4x1_date_format);
-                        } else if (widgetType == WidgetType.Widget4x2) {
-                            dtfm = mContext.getText(cellWidth > 4 ? R.string.widget_4x2_date_format : R.string.widget_short_date_format);
-                        } else {
-                            dtfm = mContext.getText(R.string.widget_short_date_format);
-                        }
+                    String datePattern;
+                    if ((widgetType == WidgetType.Widget2x2 && cellWidth >= 3) ||
+                            (widgetType == WidgetType.Widget4x2Clock && cellWidth >= 4) ||
+                            (widgetType == WidgetType.Widget4x2Huawei && cellWidth >= 4)) {
+                        datePattern = DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_LONG_DATE_FORMAT);
+                    } else if (widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock) {
+                        datePattern = DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_WDAY_ABBR_MONTH_FORMAT);
+                    } else if (widgetType == WidgetType.Widget4x2) {
+                        datePattern = DateTimeUtils.getBestPatternForSkeleton(cellWidth > 4 ? DateTimeConstants.SKELETON_ABBR_WDAY_MONTH_FORMAT : DateTimeConstants.SKELETON_SHORT_DATE_FORMAT);
+                    } else {
+                        datePattern = DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_SHORT_DATE_FORMAT);
+                    }
 
-                        views.setCharSequence(R.id.date_panel, "setFormat12Hour", dtfm);
-                        views.setCharSequence(R.id.date_panel, "setFormat24Hour", dtfm);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                        views.setCharSequence(R.id.date_panel, "setFormat12Hour", datePattern);
+                        views.setCharSequence(R.id.date_panel, "setFormat24Hour", datePattern);
 
                         if (WidgetUtils.useTimeZone(appWidgetId) && locationData != null) {
                             views.setString(R.id.date_panel, "setTimeZone", locationData.getTzLong());
@@ -992,17 +994,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
                         }
                     } else {
                         // Update date
-                        DateTimeFormatter dtfm;
-                        if (widgetType == WidgetType.Widget2x2 && cellWidth >= 3) {
-                            dtfm = DateTimeFormatter.ofPattern("eeee, MMMM dd");
-                        } else if (widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock) {
-                            dtfm = DateTimeFormatter.ofPattern("eeee, MMM dd");
-                        } else if (widgetType == WidgetType.Widget4x2) {
-                            dtfm = DateTimeFormatter.ofPattern(cellWidth > 4 ? "eee, MMMM dd" : "eee, MMM dd");
-                        } else {
-                            dtfm = DateTimeFormatter.ofPattern("eee, MMM dd");
-                        }
-
+                        DateTimeFormatter dtfm = DateTimeFormatter.ofPattern(datePattern);
                         LocalDateTime now;
 
                         if (WidgetUtils.useTimeZone(appWidgetId) && locationData != null && locationData.getTzOffset() != null) {

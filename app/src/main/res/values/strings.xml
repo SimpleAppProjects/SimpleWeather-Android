@@ -41,14 +41,7 @@
     <string name="label_fcast_full">Daily Forecast and Hourly Forecast (if available)</string>
     <string name="label_fcast_daily">Daily Forecast</string>
     <string name="label_fcast_hourly">Hourly Forecast (if available)</string>
-    <!-- format strings for clocks -->
-    <string name="clock_12_hours_ampm_format" translatable="false">h:mm<font size="24">a</font></string>
-    <string name="clock_12_hours_format" translatable="false">h:mm</string>
-    <string name="clock_24_hours_format" translatable="false">kk:mm</string>
-    <string name="widget_long_date_format" translatable="false">cccc, MMMM dd</string>
-    <string name="widget4x1_date_format" translatable="false">cccc, MMM dd</string>
-    <string name="widget_4x2_date_format" translatable="false">ccc, MMMM dd</string>
-    <string name="widget_short_date_format" translatable="false">ccc, MMM dd</string>
+
     <string name="pref_category_timeanddate">Time and Date</string>
     <string name="pref_title_timezone">Time zone</string>
     <string name="pref_timezone_summaryoff">Use system time zone for time and date</string>

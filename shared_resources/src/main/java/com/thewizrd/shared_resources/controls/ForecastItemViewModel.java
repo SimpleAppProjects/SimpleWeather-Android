@@ -1,9 +1,12 @@
 package com.thewizrd.shared_resources.controls;
 
+import android.content.Context;
 import android.util.Log;
 
 import androidx.core.util.ObjectsCompat;
 
+import com.thewizrd.shared_resources.R;
+import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -23,11 +26,12 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
     private String conditionLongDesc;
 
     public ForecastItemViewModel(Forecast forecast, TextForecast... txtForecasts) {
+        Context context = SimpleLibrary.getInstance().getAppContext();
         wm = WeatherManager.getInstance();
         detailExtras = new ArrayList<>(WeatherDetailsType.values().length);
 
         weatherIcon = forecast.getIcon();
-        date = forecast.getDate().format(DateTimeFormatter.ofPattern("EEE dd", Locale.getDefault()));
+        date = forecast.getDate().format(DateTimeFormatter.ofPattern(context.getString(R.string.forecast_date_format)));
         shortDate = date;
         condition = forecast.getCondition();
         try {

@@ -13,6 +13,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.ibm.icu.util.TimeZone;
+import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -92,7 +93,9 @@ public class LocationData extends CustomJsonObject {
         if (!StringUtils.isNullOrWhitespace(tzLong)) {
             ZoneId zId = ZoneId.of(tzLong);
             if (zId != null)
-                return ZonedDateTime.now(zId).format(DateTimeFormatter.ofPattern("z", Locale.getDefault()));
+                return ZonedDateTime.now(zId).format(
+                        DateTimeFormatter.ofPattern(DateTimeConstants.TIMEZONE_NAME, Locale.getDefault())
+                );
         }
         return "UTC";
     }

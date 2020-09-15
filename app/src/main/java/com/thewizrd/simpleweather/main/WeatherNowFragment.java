@@ -93,6 +93,7 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.transition.MaterialFadeThrough;
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.Constants;
+import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ImageDataViewModel;
@@ -1683,9 +1684,9 @@ public class WeatherNowFragment extends WindowColorFragment
             if (sunPhase != null && !StringUtils.isNullOrWhitespace(sunPhase.getSunrise()) && !StringUtils.isNullOrWhitespace(sunPhase.getSunset()) && fragment.locationData != null) {
                 DateTimeFormatter fmt;
                 if (DateFormat.is24HourFormat(view.getContext())) {
-                    fmt = DateTimeFormatter.ofPattern("HH:mm");
+                    fmt = DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_24HR);
                 } else {
-                    fmt = DateTimeFormatter.ofPattern("h:mm a");
+                    fmt = DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM);
                 }
                 view.setSunriseSetTimes(LocalTime.parse(sunPhase.getSunrise(), fmt),
                         LocalTime.parse(sunPhase.getSunset(), fmt),

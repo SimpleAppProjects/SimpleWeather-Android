@@ -352,7 +352,7 @@ public class ForecastGraphPanel extends LinearLayout {
                         }
                     }
 
-                    XLabelData xLabelData = new XLabelData(forecastItemViewModel.getDate(), forecastItemViewModel.getWeatherIcon(), 0);
+                    XLabelData xLabelData = new XLabelData(forecastItemViewModel.getShortDate(), forecastItemViewModel.getWeatherIcon(), 0);
                     labelDataset.add(xLabelData);
                 } catch (NumberFormatException ex) {
                     Logger.writeLine(Log.DEBUG, ex);

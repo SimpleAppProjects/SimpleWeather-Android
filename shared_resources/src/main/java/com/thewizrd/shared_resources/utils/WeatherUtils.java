@@ -9,6 +9,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 
+import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.ImageDataViewModel;
@@ -42,9 +43,9 @@ public class WeatherUtils {
         String timeformat;
 
         if (DateFormat.is24HourFormat(context))
-            timeformat = update_time.format(DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault()));
+            timeformat = update_time.format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_24HR, Locale.getDefault()));
         else
-            timeformat = update_time.format(DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault()));
+            timeformat = update_time.format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM, Locale.getDefault()));
 
         timeformat = String.format("%s %s", timeformat, weather.getLocation().getTzShort());
 
@@ -53,7 +54,8 @@ public class WeatherUtils {
             date = String.format("%s %s", prefix, timeformat);
         } else {
             prefix = context.getString(R.string.update_prefix);
-            date = String.format("%s %s %s", prefix, update_time.format(DateTimeFormatter.ofPattern("EEE", Locale.getDefault())), timeformat);
+            date = String.format("%s %s %s", prefix, update_time.format(
+                    DateTimeFormatter.ofPattern(DateTimeConstants.ABBREV_DAY_OF_THE_WEEK, Locale.getDefault())), timeformat);
         }
 
         return date;

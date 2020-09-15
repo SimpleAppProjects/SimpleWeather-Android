@@ -36,6 +36,7 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -74,6 +75,7 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.Constants;
+import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.controls.ComboBoxItem;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -83,6 +85,7 @@ import com.thewizrd.shared_resources.tasks.CallableEx;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CustomException;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -792,7 +795,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                 forecastPanel.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
 
                 TextView forecastDate = forecastPanel.findViewById(R.id.forecast_date);
-                forecastDate.setText(LocalDateTime.now().plusDays(i).format(DateTimeFormatter.ofPattern("eee")));
+                forecastDate.setText(LocalDateTime.now().plusDays(i).format(DateTimeFormatter.ofPattern(DateTimeConstants.ABBREV_DAY_OF_THE_WEEK)));
 
                 TextView forecastHi = forecastPanel.findViewById(R.id.forecast_hi);
                 forecastHi.setText(75 + i + "°");
@@ -826,18 +829,23 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         LocalDateTime now = LocalDateTime.now();
 
         if (WidgetUtils.isDateWidget(mWidgetType)) {
+            String datePattern;
+            if (mWidgetType == WidgetType.Widget2x2) {
+                datePattern = DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_LONG_DATE_FORMAT);
+            } else if (mWidgetType == WidgetType.Widget4x1Google) {
+                datePattern = DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_WDAY_ABBR_MONTH_FORMAT);
+            } else {
+                datePattern = DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_SHORT_DATE_FORMAT);
+            }
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                DateTimeFormatter dtfm;
-                if (mWidgetType == WidgetType.Widget2x2) {
-                    dtfm = DateTimeFormatter.ofPattern("eeee, MMMM dd");
-                } else if (mWidgetType == WidgetType.Widget4x1Google) {
-                    dtfm = DateTimeFormatter.ofPattern("eeee, MMM dd");
-                } else {
-                    dtfm = DateTimeFormatter.ofPattern("eee, MMM dd");
-                }
+                DateTimeFormatter dtfm = DateTimeFormatter.ofPattern(datePattern);
 
                 TextView dateText = binding.widgetContainer.findViewById(R.id.date_panel);
                 dateText.setText(now.format(dtfm));
+            } else {
+                TextClock dateClock = binding.widgetContainer.findViewById(R.id.date_panel);
+                dateClock.setFormat12Hour(datePattern);
+                dateClock.setFormat24Hour(datePattern);
             }
         }
 
@@ -846,9 +854,9 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                 SpannableString timeStr;
 
                 if (DateFormat.is24HourFormat(App.getInstance().getAppContext())) {
-                    timeStr = new SpannableString(now.format(DateTimeFormatter.ofPattern("HH:mm")));
+                    timeStr = new SpannableString(now.format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_24HR)));
                 } else {
-                    timeStr = new SpannableString(now.format(DateTimeFormatter.ofPattern("h:mm")));
+                    timeStr = new SpannableString(now.format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_12HR)));
                 }
 
                 TextView clockView = binding.widgetContainer.findViewById(R.id.clock_panel);

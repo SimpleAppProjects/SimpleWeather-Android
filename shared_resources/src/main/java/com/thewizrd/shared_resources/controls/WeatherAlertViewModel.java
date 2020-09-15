@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources.controls;
 
 import android.content.Context;
 
+import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
@@ -50,7 +51,7 @@ public class WeatherAlertViewModel {
                 weatherAlert.getExpiresDate().format(
                         DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL, FormatStyle.SHORT)
                                 .withLocale(Locale.getDefault())),
-                weatherAlert.getExpiresDate().format(DateTimeFormatter.ofPattern("z")));
+                weatherAlert.getExpiresDate().format(DateTimeFormatter.ofPattern(DateTimeConstants.TIMEZONE_NAME)));
 
         attribution = weatherAlert.getAttribution();
     }

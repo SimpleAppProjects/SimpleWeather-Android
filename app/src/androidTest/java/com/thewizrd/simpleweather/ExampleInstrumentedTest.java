@@ -3,10 +3,12 @@ package com.thewizrd.simpleweather;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.ibm.icu.text.DateFormat;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.ApplicationLib;
@@ -32,14 +34,19 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.threeten.bp.DateTimeUtils;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 
 import static org.junit.Assert.assertTrue;
@@ -257,5 +264,39 @@ public class ExampleInstrumentedTest {
         }
 
         Assert.assertTrue(FileUtils.deleteDirectory(filePath));
+    }
+
+    @Test
+    public void timeIsRelative() {
+        ZonedDateTime dateTime = ZonedDateTime.of(2020, 1, 1, 18, 0, 0, 0, ZoneId.systemDefault());
+        Date date = DateTimeUtils.toDate(dateTime.toInstant());
+
+        Log.d("Time", DateFormat.getInstanceForSkeleton("eeeeMMMMdd", Locale.US).format(date));
+        Log.d("Time", DateFormat.getInstanceForSkeleton("eeeeMMMMdd", Locale.FRANCE).format(date));
+        Log.d("Time", DateFormat.getInstanceForSkeleton("eeeeMMMMdd", Locale.JAPAN).format(date));
+
+        Log.d("Time", DateFormat.getInstanceForSkeleton("eeeeMMMdd", Locale.US).format(date));
+        Log.d("Time", DateFormat.getInstanceForSkeleton("eeeeMMMdd", Locale.FRANCE).format(date));
+        Log.d("Time", DateFormat.getInstanceForSkeleton("eeeeMMMdd", Locale.JAPAN).format(date));
+
+        Log.d("Time", DateFormat.getInstanceForSkeleton("eeeMMMMdd", Locale.US).format(date));
+        Log.d("Time", DateFormat.getInstanceForSkeleton("eeeMMMMdd", Locale.FRANCE).format(date));
+        Log.d("Time", DateFormat.getInstanceForSkeleton("eeeMMMMdd", Locale.JAPAN).format(date));
+
+        Log.d("Time", DateFormat.getInstanceForSkeleton("eeeMMMdd", Locale.US).format(date));
+        Log.d("Time", DateFormat.getInstanceForSkeleton("eeeMMMdd", Locale.FRANCE).format(date));
+        Log.d("Time", DateFormat.getInstanceForSkeleton("eeeMMMdd", Locale.JAPAN).format(date));
+
+        Log.d("Time", dateTime.format(DateTimeFormatter.ofPattern("EEE dd", Locale.US)));
+        Log.d("Time", dateTime.format(DateTimeFormatter.ofPattern("EEE dd", Locale.FRANCE)));
+        Log.d("Time", dateTime.format(DateTimeFormatter.ofPattern("EEE dd", Locale.JAPAN)));
+
+        Log.d("Time", DateFormat.getInstanceForSkeleton("Hm", Locale.US).format(date));
+        Log.d("Time", DateFormat.getInstanceForSkeleton("Hm", Locale.FRANCE).format(date));
+        Log.d("Time", DateFormat.getInstanceForSkeleton("Hm", Locale.JAPAN).format(date));
+
+        Log.d("Time", DateFormat.getInstanceForSkeleton("eeeeeHm", Locale.US).format(date));
+        Log.d("Time", DateFormat.getInstanceForSkeleton("eeeeeHm", Locale.FRANCE).format(date));
+        Log.d("Time", DateFormat.getInstanceForSkeleton("eeeeeHm", Locale.JAPAN).format(date));
     }
 }

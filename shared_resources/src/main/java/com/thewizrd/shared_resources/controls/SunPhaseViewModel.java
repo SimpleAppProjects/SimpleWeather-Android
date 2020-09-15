@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources.controls;
 
 import android.text.format.DateFormat;
 
+import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.weatherdata.Astronomy;
 
@@ -13,11 +14,11 @@ public class SunPhaseViewModel {
 
     public SunPhaseViewModel(Astronomy astronomy) {
         if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
-            sunrise = astronomy.getSunrise().format(DateTimeFormatter.ofPattern("HH:mm"));
-            sunset = astronomy.getSunset().format(DateTimeFormatter.ofPattern("HH:mm"));
+            sunrise = astronomy.getSunrise().format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_24HR));
+            sunset = astronomy.getSunset().format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_24HR));
         } else {
-            sunrise = astronomy.getSunrise().format(DateTimeFormatter.ofPattern("h:mm a"));
-            sunset = astronomy.getSunset().format(DateTimeFormatter.ofPattern("h:mm a"));
+            sunrise = astronomy.getSunrise().format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM));
+            sunset = astronomy.getSunset().format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM));
         }
     }
 

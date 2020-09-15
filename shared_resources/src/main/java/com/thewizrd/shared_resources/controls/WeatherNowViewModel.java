@@ -12,6 +12,7 @@ import androidx.core.util.ObjectsCompat;
 import androidx.databinding.Bindable;
 
 import com.thewizrd.shared_resources.BR;
+import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.helpers.WeatherIconTextSpan;
@@ -499,14 +500,14 @@ public class WeatherNowViewModel extends ObservableViewModel {
                     && weather.getAstronomy().getMoonset().isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
                 if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
                     weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONRISE,
-                            weather.getAstronomy().getMoonrise().format(DateTimeFormatter.ofPattern("HH:mm"))));
+                            weather.getAstronomy().getMoonrise().format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_24HR))));
                     weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONSET,
-                            weather.getAstronomy().getMoonset().format(DateTimeFormatter.ofPattern("HH:mm"))));
+                            weather.getAstronomy().getMoonset().format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_24HR))));
                 } else {
                     weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONRISE,
-                            weather.getAstronomy().getMoonrise().format(DateTimeFormatter.ofPattern("h:mm a"))));
+                            weather.getAstronomy().getMoonrise().format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM))));
                     weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONSET,
-                            weather.getAstronomy().getMoonset().format(DateTimeFormatter.ofPattern("h:mm a"))));
+                            weather.getAstronomy().getMoonset().format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM))));
                 }
             }
 

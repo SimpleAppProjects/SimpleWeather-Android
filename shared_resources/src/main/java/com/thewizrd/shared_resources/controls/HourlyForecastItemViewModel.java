@@ -7,7 +7,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.ObjectsCompat;
 
+import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -40,11 +42,11 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
         weatherIcon = hrForecast.getIcon();
 
         if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
-            date = hrForecast.getDate().format(DateTimeFormatter.ofPattern("EEE HH:00"));
-            shortDate = hrForecast.getDate().format(DateTimeFormatter.ofPattern("HH:00"));
+            date = hrForecast.getDate().format(DateTimeFormatter.ofPattern(DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_DAYOFWEEK_AND_24HR)));
+            shortDate = hrForecast.getDate().format(DateTimeFormatter.ofPattern(DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_24HR)));
         } else {
-            date = hrForecast.getDate().format(DateTimeFormatter.ofPattern("EEE h a"));
-            shortDate = hrForecast.getDate().format(DateTimeFormatter.ofPattern("h a"));
+            date = hrForecast.getDate().format(DateTimeFormatter.ofPattern(DateTimeConstants.ABBREV_DAYOFWEEK_AND_12HR_AMPM));
+            shortDate = hrForecast.getDate().format(DateTimeFormatter.ofPattern(DateTimeConstants.ABBREV_12HR_AMPM));
         }
 
         condition = hrForecast.getCondition();

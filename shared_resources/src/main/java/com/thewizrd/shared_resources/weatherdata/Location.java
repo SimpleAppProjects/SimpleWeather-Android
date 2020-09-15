@@ -8,6 +8,7 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -54,7 +55,7 @@ public class Location extends CustomJsonObject {
 
         tzOffset = zId.getRules().getOffset(Instant.now());
         tzShort = ZonedDateTime.now(zId)
-                .format(DateTimeFormatter.ofPattern("z", Locale.getDefault()));
+                .format(DateTimeFormatter.ofPattern(DateTimeConstants.TIMEZONE_NAME, Locale.getDefault()));
         tzLong = location.getTimezoneId();
     }
 
@@ -68,7 +69,7 @@ public class Location extends CustomJsonObject {
 
         tzOffset = zId.getRules().getOffset(Instant.now());
         tzShort = ZonedDateTime.now(zId)
-                .format(DateTimeFormatter.ofPattern("z", Locale.getDefault()));
+                .format(DateTimeFormatter.ofPattern(DateTimeConstants.TIMEZONE_NAME, Locale.getDefault()));
         tzLong = root.getTimezone();
     }
 
@@ -98,7 +99,7 @@ public class Location extends CustomJsonObject {
 
         tzOffset = zId.getRules().getOffset(Instant.now());
         tzShort = ZonedDateTime.now(zId)
-                .format(DateTimeFormatter.ofPattern("z", Locale.getDefault()));
+                .format(DateTimeFormatter.ofPattern(DateTimeConstants.TIMEZONE_NAME, Locale.getDefault()));
         tzLong = pointsResponse.getTimeZone();
     }
 
