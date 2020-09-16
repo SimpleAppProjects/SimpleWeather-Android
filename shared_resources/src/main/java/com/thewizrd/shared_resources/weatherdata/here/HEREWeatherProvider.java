@@ -6,6 +6,7 @@ import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
+import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -151,14 +152,23 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
 
                 weather.setWeatherAlerts(new ArrayList<WeatherAlert>(numOfAlerts));
 
+                final double lat = weather.getLocation().getLatitude();
+                final double lon = weather.getLocation().getLongitude();
+
                 if (root.getNwsAlerts().getWatch() != null) {
                     for (WatchItem watchItem : root.getNwsAlerts().getWatch()) {
-                        weather.getWeatherAlerts().add(new WeatherAlert(watchItem));
+                        // Add watch item if location is within 20km of the center of the alert zone
+                        if (ConversionMethods.calculateHaversine(lat, lon, watchItem.getLatitude(), watchItem.getLongitude()) < 20000) {
+                            weather.getWeatherAlerts().add(new WeatherAlert(watchItem));
+                        }
                     }
                 }
                 if (root.getNwsAlerts().getWarning() != null) {
                     for (WarningItem warningItem : root.getNwsAlerts().getWarning()) {
-                        weather.getWeatherAlerts().add(new WeatherAlert(warningItem));
+                        // Add warning item if location is within 25km of the center of the alert zone
+                        if (ConversionMethods.calculateHaversine(lat, lon, warningItem.getLatitude(), warningItem.getLongitude()) < 25000) {
+                            weather.getWeatherAlerts().add(new WeatherAlert(warningItem));
+                        }
                     }
                 }
             }

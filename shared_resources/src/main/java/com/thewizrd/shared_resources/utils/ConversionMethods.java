@@ -103,6 +103,15 @@ public class ConversionMethods {
         return (float) toDegrees((double) angle);
     }
 
+    /**
+     * Calculates the distance between two coordinates in meters
+     *
+     * @param lat1 Latitude of first coordinate
+     * @param lon1 Longitude of first coordinate
+     * @param lat2 Latitude of second coordinate
+     * @param lon2 Longitude of second coordinate
+     * @return The distance between the two points in meters
+     */
     public static double calculateHaversine(double lat1, double lon1, double lat2, double lon2) {
         double R = 6372.8; // In kilometers
         double dLat = toRadians(lat2 - lat1);
@@ -117,6 +126,13 @@ public class ConversionMethods {
         return (R * c) * 1000;
     }
 
+    /**
+     * Calculates the distance between two locations in meters
+     *
+     * @param position1 The first location
+     * @param position2 The second location
+     * @return The distance between the two locations in meters
+     */
     public static double calculateGeopositionDistance(Location position1, Location position2) {
         double lat1 = position1.getLatitude();
         double lon1 = position1.getLongitude();
