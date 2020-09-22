@@ -4,6 +4,10 @@ A simple weather application
 
 Available for <a href='https://github.com/bryan2894-playgrnd/SimpleWeather-Windows'>Windows 10</a> & <a href='https://github.com/bryan2894-playgrnd/SimpleWeather-Android'>Android</a> devices
 
+## Preview
+
+![App Preview](https://lh3.googleusercontent.com/pw/ACtC-3ejZweBEAaLojPCsKHl1q_r579MWOTIhPNA4JSsnqsGvJm890NFIosjR_qOEcwGRSfZiRX66v2AbRi7aozLsYRSNtqEx-LT04v2d6KEJjeDQ3c2J9b4K_h5a0VeVyY2C5hpk2OQC4qri2Z5gb-esuy1_g?authuser=0)
+
 ## Release
 
 <a href='https://play.google.com/store/apps/details?id=com.thewizrd.simpleweather&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' width=300/></a>
