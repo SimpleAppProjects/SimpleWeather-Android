@@ -548,7 +548,7 @@ public class LineView extends HorizontalScrollView {
 
         private void refreshYCoordinateList() {
             yCoordinateList.clear();
-            yCoordinateList.ensureCapacity((int) Math.ceil(horizontalGridNum));
+            yCoordinateList.ensureCapacity((int) Math.ceil(verticalGridNum));
             for (int i = 0; i < (verticalGridNum + 1); i++) {
                 yCoordinateList.add(topLineLength + ((getGraphHeight()) * i / (verticalGridNum)));
             }

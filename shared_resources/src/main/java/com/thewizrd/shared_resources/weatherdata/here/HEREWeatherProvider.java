@@ -40,8 +40,8 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
     private static final String WEATHER_US_CA_QUERY_URL = "https://weather.ls.hereapi.com/weather/1.0/report.json?" +
             "product=nws_alerts&product=forecast_7days_simple&product=forecast_hourly&product=forecast_astronomy&product=observation&oneobservation=true" +
             "&%s&language=%s&metric=false";
-    private static final String ALERT_QUERY_URL = "https://weather.ls.hereapi.com/weather/1.0/report.json?product=alerts&%s" +
-            "&language=%s&metric=false";
+    private static final String ALERT_GLOBAL_QUERY_URL = "https://weather.ls.hereapi.com/weather/1.0/report.json?product=alerts&%s&language=%s&metric=false";
+    private static final String ALERT_US_CA_QUERY_URL = "https://weather.ls.hereapi.com/weather/1.0/report.json?product=nws_alerts&%s&language=%s&metric=false";
 
     public HEREWeatherProvider() {
         super();
@@ -243,8 +243,16 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
                 throw new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
             }
 
+            final String country_code = location.getCountryCode();
+            String url;
+            if ("US".equalsIgnoreCase(country_code) || "CA".equalsIgnoreCase(country_code)) {
+                url = String.format(ALERT_US_CA_QUERY_URL, location.getQuery(), locale);
+            } else {
+                url = String.format(ALERT_GLOBAL_QUERY_URL, location.getQuery(), locale);
+            }
+
             Request request = new Request.Builder()
-                    .url(String.format(ALERT_QUERY_URL, location.getQuery(), locale))
+                    .url(url)
                     .addHeader("Authorization", authorization)
                     .build();
 

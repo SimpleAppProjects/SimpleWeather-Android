@@ -46,7 +46,7 @@ public class DetailItemViewModel {
                 this.icon = context.getString(R.string.wi_wind_direction);
                 break;
             case WINDGUST:
-                this.label = context.getString(R.string.label_wind);
+                this.label = context.getString(R.string.label_windgust);
                 this.icon = context.getString(R.string.wi_cloudy_gusts);
                 break;
             case HUMIDITY:
