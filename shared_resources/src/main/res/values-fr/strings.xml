@@ -136,7 +136,7 @@
     <string name="not_title_device_sync">"Synchronisation avec l'appareil…"</string>
 
     <!-- Alerts -->
-    <string name="datetime_day_ago">"il y a %1$dd"</string>
+    <string name="datetime_day_ago">"il y a %1$dj"</string>
     <string name="datetime_hr_ago">"il y a %1$dh"</string>
     <string name="datetime_min_ago">"il y a %1$dm"</string>
     <string name="datetime_sec_ago">"il y a %1$ds"</string>

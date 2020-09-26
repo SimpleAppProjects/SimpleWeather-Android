@@ -562,20 +562,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                     styleEntryValues[i] = Integer.toString(style.getValue());
                     break;
                 case PANDA:
-                    SpannableStringBuilder ssB = new SpannableStringBuilder();
-                    ssB.append(requireContext().getString(R.string.label_style_panda));
-                    ssB.append(StringUtils.lineSeparator());
-                    int idx = ssB.length();
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        ssB.append(requireContext().getString(R.string.label_style_panda_message_v29));
-                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        ssB.append(requireContext().getString(R.string.label_style_panda_message_v21));
-                    } else {
-                        ssB.append(requireContext().getString(R.string.label_style_panda_message));
-                    }
-                    ssB.setSpan(new RelativeSizeSpan(0.8f), idx, ssB.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-                    styleEntries[i] = ssB;
+                    styleEntries[i] = requireContext().getString(R.string.label_style_panda);
                     styleEntryValues[i] = Integer.toString(style.getValue());
                     break;
                 case PENDINGCOLOR:

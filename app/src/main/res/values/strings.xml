@@ -26,13 +26,11 @@
     <string name="label_color_transparent">Transparent</string>
     <string name="pref_title_bgstyle">Background Style</string>
     <string name="label_style_fullbg">Full Background</string>
-    <string name="label_style_panda">Split Mode (Follow Theme)</string>
-    <string name="label_style_panda_message">Follow\'s the app\'s current theme</string>
-    <string name="label_style_panda_message_v21">Follow\'s app theme or uses dark style when battery saver mode is on</string>
-    <string name="label_style_panda_message_v29">Uses dark style when the app or device\'s dark theme is enabled</string>
-    <string name="label_style_pendingcolor">Split Mode (Weather Color)</string>
-    <string name="label_style_light">Split Mode (Light)</string>
-    <string name="label_style_dark">Split Mode (Dark)</string>
+    <string name="label_style_panda">Default</string>
+    <!-- Can be shortened to 'Color' -->
+    <string name="label_style_pendingcolor">Weather Color</string>
+    <string name="label_style_light">Light</string>
+    <string name="label_style_dark">Dark</string>
     <string name="locname_pref_title">Location Name</string>
     <string name="locname_pref_summary">Hide location name from widget</string>
     <string name="settingsbtn_pref_title">Settings Button</string>
