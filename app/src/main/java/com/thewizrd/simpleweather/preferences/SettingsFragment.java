@@ -665,7 +665,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         }
 
         if (preference instanceof EditTextPreference && KEY_APIKEY.equals(preference.getKey())) {
-            final KeyEntryPreferenceDialogFragment fragment = KeyEntryPreferenceDialogFragment.newInstance(providerPref.getValue(), preference.getKey());
+            final KeyEntryPreferenceDialogFragment fragment = KeyEntryPreferenceDialogFragment.newInstance(preference.getKey());
             fragment.setPositiveButtonOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -843,31 +843,15 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         private View.OnClickListener posButtonClickListener;
         private View.OnClickListener negButtonClickListener;
 
-        private String currentAPI;
         private String key;
-
         private EditText keyEntry;
-        private EditText keyEntry2;
 
         public String getKey() {
             return key;
         }
 
-        public KeyEntryPreferenceDialogFragment() {
-            super();
-
-            if (StringUtils.isNullOrWhitespace(currentAPI))
-                currentAPI = Settings.getAPI();
-        }
-
-        @SuppressLint("ValidFragment")
-        public KeyEntryPreferenceDialogFragment(String currentAPI) {
-            super();
-            this.currentAPI = currentAPI;
-        }
-
-        public static KeyEntryPreferenceDialogFragment newInstance(String API, String key) {
-            KeyEntryPreferenceDialogFragment fragment = new KeyEntryPreferenceDialogFragment(API);
+        public static KeyEntryPreferenceDialogFragment newInstance(String key) {
+            KeyEntryPreferenceDialogFragment fragment = new KeyEntryPreferenceDialogFragment();
             Bundle b = new Bundle(1);
             b.putString(ARG_KEY, key);
             fragment.setArguments(b);
@@ -877,11 +861,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         @Override
         protected View onCreateDialogView(Context context) {
             LayoutInflater inflater = LayoutInflater.from(context);
-            if (WeatherAPI.HERE.equals(currentAPI)) {
-                return inflater.inflate(R.layout.layout_keyentry2_dialog, null);
-            } else {
-                return inflater.inflate(R.layout.layout_keyentry_dialog, null);
-            }
+            return inflater.inflate(R.layout.layout_keyentry_dialog, null);
         }
 
         @Override
@@ -890,11 +870,6 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
             keyEntry = view.findViewById(android.R.id.edit);
             keyEntry.addTextChangedListener(editTextWatcher);
-
-            if (WeatherAPI.HERE.equals(currentAPI)) {
-                keyEntry2 = view.findViewById(R.id.keyEntry2);
-                keyEntry2.addTextChangedListener(editTextWatcher);
-            }
         }
 
         private TextWatcher editTextWatcher = new TextWatcher() {
@@ -905,16 +880,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (WeatherAPI.HERE.equals(currentAPI)) {
-                    String app_id = null;
-                    if (keyEntry != null) app_id = keyEntry.getText().toString();
-                    String app_code = null;
-                    if (keyEntry2 != null) app_code = keyEntry2.getText().toString();
-
-                    key = String.format("%s;%s", app_id, app_code);
-                } else {
-                    key = s.toString();
-                }
+                key = s.toString();
             }
 
             @Override
@@ -958,22 +924,6 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             }
 
             key = Settings.getAPIKEY();
-
-            if (WeatherAPI.HERE.equals(currentAPI)) {
-                String app_id = "";
-                String app_code = "";
-
-                if (!StringUtils.isNullOrWhitespace(key)) {
-                    String[] keyArr = key.split(";");
-                    if (keyArr.length > 0) {
-                        app_id = keyArr[0];
-                        app_code = keyArr[keyArr.length > 1 ? keyArr.length - 1 : 0];
-                    }
-                }
-
-                keyEntry.setText(app_id);
-                keyEntry2.setText(app_code);
-            }
         }
     }
 

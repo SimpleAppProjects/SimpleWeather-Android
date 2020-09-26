@@ -298,14 +298,6 @@ public class SettingsActivity extends WearableListenerActivity {
             });
 
             keyEntry = (KeyEntryPreference) findPreference(KEY_APIKEY);
-            keyEntry.setOnDialogCreatedListener(new KeyEntryPreference.DialogCreatedListener() {
-                @Override
-                public void beforeDialogCreated() {
-                    if (keyEntry != null) {
-                        keyEntry.updateAPI(providerPref.getValue());
-                    }
-                }
-            });
             keyEntry.setPositiveButtonOnClickListener(new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
