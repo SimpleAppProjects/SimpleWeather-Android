@@ -30,7 +30,6 @@ public class FCMService extends FirebaseMessagingService {
                 // For long-running tasks (10 seconds or more) use WorkManager.
                 FCMWorker.enqueueAction(this.getApplicationContext(), FCMWorker.ACTION_INVALIDATE);
             }
-
         }
     }
 }

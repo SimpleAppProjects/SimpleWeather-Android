@@ -203,6 +203,6 @@ public class UnitTests {
     @Test
     public void firebaseDBTest() throws ExecutionException, InterruptedException {
         long updateTime = Tasks.await(ImageDatabase.getLastUpdateTime());
-        Assert.assertNotEquals(updateTime, 0);
+        Assert.assertTrue(updateTime > 0);
     }
 }

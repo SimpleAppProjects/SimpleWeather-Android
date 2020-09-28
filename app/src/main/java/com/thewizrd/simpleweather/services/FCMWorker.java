@@ -13,6 +13,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.google.android.gms.tasks.Tasks;
+import com.thewizrd.shared_resources.preferences.FeatureSettings;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.weatherdata.images.ImageDataHelper;
 import com.thewizrd.shared_resources.weatherdata.images.ImageDatabase;
@@ -64,7 +65,7 @@ public class FCMWorker extends Worker {
         Logger.writeLine(Log.INFO, "%s: Work started", TAG);
 
         // Check if cache is populated
-        if (!ImageDataHelper.getImageDataHelper().isEmpty()) {
+        if (!ImageDataHelper.getImageDataHelper().isEmpty() && !FeatureSettings.isUpdateAvailable()) {
             // If so, check if we need to invalidate
             long updateTime = 0L;
 
