@@ -15,6 +15,7 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.weatherdata.images.ImageDataHelper;
 import com.thewizrd.shared_resources.weatherdata.images.ImageDatabase;
@@ -126,10 +127,15 @@ public class ImageDatabaseWorker extends Worker {
         // Check if cache is populated
         if (!ImageDataHelper.getImageDataHelper().isEmpty()) {
             // If so, check if we need to invalidate
-            // if so, invalidate
-            long updateTime = ImageDatabase.getLastUpdateTime();
+            long updateTime = 0L;
+            try {
+                updateTime = Tasks.await(ImageDatabase.getLastUpdateTime());
+            } catch (ExecutionException | InterruptedException e) {
+                Logger.writeLine(Log.ERROR, e);
+            }
 
-            if (updateTime != ImageDataHelper.getImageDBUpdateTime()) {
+            if (updateTime > ImageDataHelper.getImageDBUpdateTime()) {
+                // if so, invalidate
                 ImageDataHelper.setImageDBUpdateTime(updateTime);
 
                 ImageDataHelper.getImageDataHelper().clearCachedImageData();

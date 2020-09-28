@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.android.gms.tasks.Tasks;
 import com.google.common.base.Stopwatch;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.thewizrd.shared_resources.AppState;
@@ -47,6 +48,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 @RunWith(AndroidJUnit4.class)
 public class UnitTests {
@@ -199,8 +201,8 @@ public class UnitTests {
     }
 
     @Test
-    public void firestoreDBTest() {
-        long updateTime = ImageDatabase.getLastUpdateTime();
+    public void firebaseDBTest() throws ExecutionException, InterruptedException {
+        long updateTime = Tasks.await(ImageDatabase.getLastUpdateTime());
         Assert.assertNotEquals(updateTime, 0);
     }
 }

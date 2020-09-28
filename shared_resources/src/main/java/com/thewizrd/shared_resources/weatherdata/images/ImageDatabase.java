@@ -7,8 +7,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -164,25 +170,30 @@ public class ImageDatabase {
     }
 
     @WorkerThread
-    public static long getLastUpdateTime() {
-        return AsyncTask.await(new Callable<Long>() {
-            @Override
-            public Long call() {
-                FirebaseFirestore db = FirebaseHelper.getFirestoreDB();
-                DocumentReference docRef = db.collection("background_images_info")
-                        .document("collection_info");
-                try {
-                    DocumentSnapshot snapshot = Tasks.await(docRef.get(Source.DEFAULT));
-                    Long updateTime = snapshot.getLong("last_updated");
-                    if (updateTime != null) {
-                        return updateTime;
-                    }
-                } catch (ExecutionException | InterruptedException e) {
-                    Logger.writeLine(Log.ERROR, e);
-                }
+    public static Task<Long> getLastUpdateTime() {
+        final TaskCompletionSource<Long> tcs = new TaskCompletionSource<>();
 
-                return 0L;
+        AsyncTask.run(new Runnable() {
+            @Override
+            public void run() {
+                FirebaseDatabase db = FirebaseHelper.getFirebaseDB();
+                DatabaseReference ref = db.getReference().child("background_images_info")
+                        .child("collection_info").child("last_updated");
+                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Long lastUpdated = snapshot.getValue(Long.class);
+                        tcs.setResult(lastUpdated);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        tcs.setResult(0L);
+                    }
+                });
             }
         });
+
+        return tcs.getTask();
     }
 }

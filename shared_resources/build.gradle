@@ -74,6 +74,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:19.4.0'
     implementation 'com.google.firebase:firebase-firestore:21.6.0'
     implementation 'com.google.firebase:firebase-storage:19.2.0'
+    implementation 'com.google.firebase:firebase-database:19.4.0'
 
     implementation 'androidx.arch.core:core-runtime:2.1.0'
     implementation 'androidx.room:room-runtime:2.2.5'

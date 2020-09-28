@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.storage.FirebaseStorage;
@@ -32,6 +33,14 @@ public class FirebaseHelper {
     public static FirebaseStorage getFirebaseStorage() {
         checkSignIn();
         return FirebaseStorage.getInstance();
+    }
+
+    public static FirebaseDatabase getFirebaseDB() {
+        checkSignIn();
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        db.setPersistenceEnabled(true);
+        db.setPersistenceCacheSizeBytes(2 * 1024 * 1024); // 2 MB
+        return FirebaseDatabase.getInstance();
     }
 
     public static String getAccessToken() {
