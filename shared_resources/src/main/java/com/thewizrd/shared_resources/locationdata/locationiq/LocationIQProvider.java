@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -138,9 +139,12 @@ public final class LocationIQProvider extends LocationProviderImpl {
         WeatherException wEx = null;
 
         try {
+            DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
+            df.applyPattern("0.####");
+
             Request request = new Request.Builder()
                     .get()
-                    .url(String.format(GEOLOCATION_QUERY_URL, key, coord.getLatitude(), coord.getLongitude(), locale))
+                    .url(String.format(Locale.ROOT, GEOLOCATION_QUERY_URL, key, df.format(coord.getLatitude()), df.format(coord.getLongitude()), locale))
                     .build();
 
             // Connect to webstream

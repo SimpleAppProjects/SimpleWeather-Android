@@ -15,6 +15,8 @@ import com.thewizrd.shared_resources.weatherdata.AirQuality;
 import com.thewizrd.shared_resources.weatherdata.AirQualityProviderInterface;
 
 import java.io.InputStream;
+import java.text.DecimalFormat;
+import java.util.Locale;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -39,8 +41,11 @@ public class AQICNProvider implements AirQualityProviderInterface {
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             String version = String.format("v%s", packageInfo.versionName);
 
+            DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
+            df.applyPattern("0.####");
+
             Request request = new Request.Builder()
-                    .url(String.format(QUERY_URL, location.getLatitude(), location.getLongitude(), key))
+                    .url(String.format(Locale.ROOT, QUERY_URL, df.format(location.getLatitude()), df.format(location.getLongitude()), key))
                     .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
                     .build();
 

@@ -28,6 +28,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 
 import org.threeten.bp.format.DateTimeFormatter;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -229,7 +230,9 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
                 // Additional Details
                 if (weather.getLocation().getLatitude() != null && weather.getLocation().getLongitude() != null) {
-                    String newUrl = String.format(Locale.ROOT, radarUrlFormat, weather.getLocation().getLongitude(), weather.getLocation().getLatitude());
+                    DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
+                    df.applyPattern("0.####");
+                    String newUrl = String.format(Locale.ROOT, radarUrlFormat, df.format(weather.getLocation().getLongitude()), df.format(weather.getLocation().getLatitude()));
                     if (!ObjectsCompat.equals(radarURL, newUrl)) {
                         radarURL = newUrl;
                         notifyPropertyChanged(BR.radarURL);

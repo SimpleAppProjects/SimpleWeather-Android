@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -128,7 +129,10 @@ public final class HERELocationProvider extends LocationProviderImpl {
     public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coord, String weatherAPI) throws WeatherException {
         LocationQueryViewModel location = null;
 
-        String location_query = String.format(Locale.ROOT, "%s,%s", coord.getLatitude(), coord.getLongitude());
+        DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
+        df.applyPattern("0.####");
+
+        String location_query = String.format(Locale.ROOT, "%s,%s", df.format(coord.getLatitude()), df.format(coord.getLongitude()));
 
         ULocale uLocale = ULocale.forLocale(Locale.getDefault());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
