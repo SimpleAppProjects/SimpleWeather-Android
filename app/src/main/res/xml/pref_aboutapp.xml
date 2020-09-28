@@ -5,18 +5,33 @@
     <Preference
         android:key="key_aboutcredits"
         android:title="@string/pref_title_credits" />
+
     <Preference
         android:key="key_aboutoslibs"
         android:title="@string/pref_title_oslibs" />
 
-    <Preference
-        android:key="key_feedback"
-        android:title="@string/pref_title_feedback"
-        android:summary="@string/pref_summary_feedback" />
-    <Preference
-        android:key="key_ratereview"
-        android:title="@string/pref_title_rateandreview"
-        android:summary="@string/pref_summary_rateandreview" />
+    <PreferenceCategory android:title="@string/pref_category_support">
+
+        <Preference
+            android:key="key_feedback"
+            android:title="@string/pref_title_feedback"
+            android:summary="@string/pref_summary_feedback" />
+
+        <Preference
+            android:key="key_ratereview"
+            android:title="@string/pref_title_rateandreview"
+            android:summary="@string/pref_summary_rateandreview" />
+
+        <Preference
+            android:key="key_translate"
+            android:title="@string/pref_title_translate"
+            android:summary="@string/pref_summary_translate">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://poeditor.com/join/project?hash=x9AzamDQO8" />
+        </Preference>
+
+    </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_category_version">
 
