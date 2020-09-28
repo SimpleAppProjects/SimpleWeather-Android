@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Setup -->
+    <string name="location_search_hint">"Ort eingeben"</string>
+    <string name="api_label">"Wetteranbieter"</string>
+    <string name="key_hint">"Anbieterschlüssel"</string>
+    <string name="label_gpsfollow">"Standort"</string>
+    <string name="label_getstarted">"Loslegen"</string>
+    <string name="setup_welcome_prompt">"Willkommen zu SimpleWeather"</string>
+    <string name="setup_welcome_tagline_prompt">"Nur eine einfache Wetter-App"</string>
+    <string name="setup_location_prompt">"Ort hinzufügen"</string>
+    <string name="setup_preferences_prompt">"Einstellungen anpassen"</string>
+
+    <!-- This could only be shortened as "Vor" but wouldn't be a good replacement. -->
+    <string name="label_next">"Vorwärts"</string>
+
+    <!-- This is the shortest possible string -->
+    <string name="label_back">"Zurück"</string>
+
+    <!-- MainActivity -->
+    <string name="title_activity_weather_now">"Wetter"</string>
+
+    <!-- This would be the shortest translation. -->
+    <string name="action_settings">"Einstellungen"</string>
+
+    <!-- Even "Erneut" would be too long. -->
+    <string name="action_retry">"Erneut versuchen"</string>
+
+    <!-- Weather Details -->
+    <string name="label_details">"Details"</string>
+
+    <!-- Too long and ideally it would be "Luftfeuchtigkeit" -->
+    <string name="label_humidity">"Luftfeuchtigkeit"</string>
+
+    <!-- Could be shortened with "Druck" -->
+    <string name="label_pressure">"Luftdruck"</string>
+    <string name="label_visibility">"Sichtweite"</string>
+    <string name="label_feelslike">"Gefühlt"</string>
+    <string name="label_wind">"Wind"</string>
+
+    <!-- Could only be replaced by "Prognose" but this isn't really used in this case. -->
+    <string name="label_forecast">"Vorhersage"</string>
+    <string name="label_condition">"Bedingung"</string>
+    <string name="label_sunriseset">"Sonnenauf- und -untergang"</string>
+    <string name="label_sunrise">"Sonnenaufgang"</string>
+    <string name="label_sunset">"Sonnenuntergang"</string>
+    <string name="label_hourlyforecast">"Stündlich"</string>
+    <string name="label_precipitation">"Niederschlag"</string>
+
+    <!-- "Chance" could be used as well but isn't really used in this case. -->
+    <string name="label_chance">"Wahrscheinlichkeit"</string>
+    <string name="label_cloudiness">"Bewölkung"</string>
+
+    <!-- There is no better word for it. -->
+    <string name="label_qpf_rain">"Regen"</string>
+
+    <!-- The only German word for snow. -->
+    <string name="label_qpf_snow">"Schnee"</string>
+    <string name="credit_prefix">"Daten von"</string>
+    <string name="attrib_prefix">"Foto von"</string>
+    <string name="label_high">"Höchst-"</string>
+    <string name="label_low">"Tiefstwerte"</string>
+    <string name="label_dewpoint">"Taupunkt"</string>
+    <string name="label_moonrise">"Mondaufgang"</string>
+    <string name="label_moonset">"Monduntergang"</string>
+    <string name="label_moonphase">"Mondphase"</string>
+    <string name="label_beaufort">"Beaufort"</string>
+    <string name="label_uv">"UV-Index"</string>
+    <string name="label_airquality">"Luftqualitätsindex"</string>
+    <string name="label_airquality_short">"Luftqualität"</string>
+    <string name="label_radar">"Radar"</string>
+    <string name="label_day">"Nachmittag"</string>
+    <string name="label_eve">"Abend"</string>
+    <string name="label_morning">"Morgen"</string>
+    <string name="label_night">"Nacht"</string>
+
+    <!-- Abbreviated from temperature or from temporary? -->
+    <string name="label_temp">"Temp"</string>
+
+    <!-- NavBar -->
+    <string name="label_nav_weathernow">"Wetter"</string>
+    <string name="label_nav_alerts">"Warnungen"</string>
+    <string name="label_nav_locations">"Orte"</string>
+    <string name="title_activity_settings">"Einstellungen"</string>
+    <string name="title_fragment_alerts">"Unwetterwarnungen"</string>
+
+    <!-- Settings -->
+    <string name="pref_title_general">"Allgemein"</string>
+    <string name="pref_category_version">"Version"</string>
+    <string name="pref_title_units">"Einheiten"</string>
+    <string name="pref_summary_fahrenheit">"Einheiten in Fahrenheit"</string>
+
+    <!-- Maybe leave out the bracketed metric? -->
+    <string name="pref_summary_celsius">"Einheiten in Celsius"</string>
+    <string name="pref_title_about">"Über"</string>
+    <string name="pref_title_about_app">"Über SimpleWeather"</string>
+    <string name="pref_title_credits">"Danksagungen"</string>
+    <string name="pref_title_oslibs">"Open Source Bibliotheken"</string>
+    <string name="pref_category_providers">"Datenanbieter"</string>
+    <string name="pref_summary_currentlocation">"Standortzugriff per GPS erlauben"</string>
+    <string name="pref_summary_apikey">"Anbieterschlüssel notwendig für %1$s"</string>
+    <string name="message_enter_apikey">"Anbieterschlüssel eingeben"</string>
+    <string name="message_keyverified">"Schlüssel bestätigt"</string>
+    <string name="message_keyinvalid">"Schlüssel ungültig"</string>
+
+    <!-- Or "Laufende Benachrichtigung" in a less formal way. -->
+    <string name="pref_title_onnotification">"Dauerhafte Benachrichtigung"</string>
+
+    <!-- Or dismiss the trailing "anzeigen" -->
+    <string name="pref_summary_notification">"Dauerhafte Benachrichtigung der aktuellen Wetterbedingungen anzeigen"</string>
+
+    <!-- Sometimes the title is Weather Provider sometimes it is Data Provider. It could also be titled more precisely as Weather Data Provider. Maybe we should unify this? -->
+    <string name="pref_title_api">"Wetteranbieter"</string>
+    <string name="pref_category_notification">"Benachrichtigungen"</string>
+    <string name="pref_title_notificationicon">"Benachrichtigungssymbol"</string>
+    <string name="pref_title_alerts">"Wetterwarnungen"</string>
+
+    <!-- Or dismiss the trailing "anzeigen" -->
+    <string name="pref_summary_alerts">"Benachrichtigungen für Wetterwarnungen anzeigen"</string>
+    <string name="pref_summary_alerts_disabled">"Wetterwarnungen werden von diesem Wetteranbieter nicht unterstützt"</string>
+    <string name="pref_title_apiregister">"Benutzerkonto erstellen"</string>
+    <string name="pref_summary_apiregister">"Benutzerkonto zum Erhalt eines Anbieterschlüssels erstellen"</string>
+    <string name="error_message_weather_us_only">"Dieser Wetteranbieter unterstützt nur Orte in den USA"</string>
+
+    <!-- Locations -->
+    <string name="label_btn_add_location">"Ort hinzufügen"</string>
+    <string name="action_editmode">"Bearbeitungsmodus"</string>
+    <string name="label_currentlocation">"Standort"</string>
+    <string name="label_favoritelocations">"Favoriten"</string>
+    <string name="error_location_denied">"Standortzugriff verweigert"</string>
+    <string name="error_retrieve_location">"Standort nicht verfügbar"</string>
+    <string name="error_enable_location_services">"Standortdienste in den Einstellungen aktivieren"</string>
+    <string name="error_noresults">"Keine Ergebnisse gefunden"</string>
+    <string name="label_fab_add_location">"Ort hinzufügen"</string>
+    <string name="message_locationremoved">"Ort entfernt"</string>
+    <string name="message_needfavorite">"Mindestens ein Favorit erforderlich"</string>
+    <string name="undo">"Rückgängig"</string>
+    <string name="delete">"Löschen"</string>
+    <string name="bg_location_permission_rationale">"Standortzugriff für Benachrichtigung und Widgets erlauben"</string>
+
+    <!-- Weather Exceptions -->
+    <string name="werror_noweather">"Laden von Wetterdaten nicht möglich"</string>
+    <string name="werror_networkerror">"Netzwerkverbindungsfehler"</string>
+    <string name="werror_invalidkey">"Ungültiger Anbieterschlüssel"</string>
+    <string name="werror_querynotfound">"Keine passenden Städte gefunden"</string>
+    <string name="werror_unknown">"Unbekannter Fehler"</string>
+
+    <!-- Refresh Intervals -->
+    <string name="pref_title_refreshinterval">"Aktualisierungsintervall"</string>
+    <string name="refresh_60min">"1 Stunde"</string>
+    <string name="refresh_2hrs">"2 Stunden"</string>
+    <string name="refresh_3hrs">"3 Stunden"</string>
+    <string name="refresh_6hrs">"6 Stunden"</string>
+    <string name="refresh_12hrs">"12 Stunden"</string>
+    <string name="update_prefix">"Aktualisiert am"</string>
+    <string name="update_prefix_day">"Aktualisiert um"</string>
+
+    <!-- Notification -->
+    <string name="notificationicon_temperature">"Temperatur"</string>
+    <string name="notificationicon_condition">"Wetterbedingung"</string>
+    <string name="not_channel_name_weather">"Wetterbenachrichtigungen"</string>
+    <string name="not_channel_desc_weather">"Wetterbenachrichtigungen"</string>
+    <string name="not_channel_name_alerts">"Wetterwarnungen"</string>
+    <string name="not_channel_desc_alerts">"Benachrichtigungen für Wetterwarnungen"</string>
+    <string name="not_channel_name_general">"Allgemeine Benachrichtigungen"</string>
+    <string name="not_title_wearable_sync">"Synchronisierung mit tragbarem Gerät..."</string>
+    <string name="not_title_device_sync">"Synchronisierung mit Gerät..."</string>
+
+    <!-- Alerts -->
+    <!-- Fuzzy -->
+    <string name="datetime_day_ago">"vor %1$d Tagen"</string>
+
+    <!-- Fuzzy -->
+    <string name="datetime_hr_ago">"vor %1$d Stunden"</string>
+
+    <!-- Fuzzy -->
+    <string name="datetime_min_ago">"vor %1$d Minuten"</string>
+
+    <!-- Fuzzy -->
+    <string name="datetime_sec_ago">"vor %1$d Sekunden"</string>
+    <string name="datetime_validuntil">"Gültig bis"</string>
+
+    <!-- HERE API -->
+    <string name="pref_title_personalkey">"Persönlicher Anbieterschlüssel"</string>
+    <string name="pref_summary_personalkey">"Persönlichen Anbieterschlüssel benutzen"</string>
+
+    <!-- Dark Theme -->
+    <string name="pref_title_userthememode">"Design"</string>
+    <string name="userthememode_default">"Systemstandard"</string>
+    <string name="userthememode_dark">"Dunkel"</string>
+    <string name="userthememode_black">"Schwarz (AMOLED)"</string>
+    <string name="userthememode_light">"Hell"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_windgust">"Windböe"</string>
+</resources>

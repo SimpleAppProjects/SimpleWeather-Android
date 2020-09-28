@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Feature Settings -->
+    <string name="pref_title_features">"Funktionen"</string>
+    <string name="pref_summary_features">"Funktionen auswählen"</string>
+    <string name="pref_title_feature_bgimage">"Hintergrundbild"</string>
+    <string name="pref_title_feature_forecast">"Vorhersage"</string>
+    <string name="pref_title_feature_hrforecast">"Stündliche Vorhersage"</string>
+    <string name="pref_title_feature_details">"Wetterdetails"</string>
+    <string name="pref_title_feature_uv">"UV"</string>
+    <string name="pref_title_feature_beaufort">"Beaufort"</string>
+    <string name="pref_title_feature_aqindex">"Luftqualitätsindex"</string>
+    <string name="pref_title_feature_moonphase">"Mondphase"</string>
+
+    <!-- Sun Phase or Sunrise/Sunset -->
+    <string name="pref_title_feature_sunphase">"Sonnenphase"</string>
+    <string name="pref_title_feature_radar">"Wetterradar"</string>
+    <string name="pref_title_feature_locpanelimg">"Bild in der Ortsliste"</string>
+
+    <!-- Widget -->
+    <string name="widget_configure_prompt">"Widget konfigurieren"</string>
+    <string name="title_activity_widget_config">"Widgeteinstellungen"</string>
+    <string name="pref_title_bgcolor">"Hintergrund"</string>
+    <string name="label_color_currentconditions">"Aktuelle Bedingung"</string>
+    <string name="label_color_white">"Weiß"</string>
+    <string name="label_color_black">"Schwarz"</string>
+    <string name="label_color_transparent">"Transparent"</string>
+    <string name="pref_title_bgstyle">"Hintergrundstil"</string>
+    <string name="label_style_fullbg">"Hintergrund"</string>
+    <string name="label_style_panda">"Standard"</string>
+
+    <!-- Can be shortened to 'Color' -->
+    <string name="label_style_pendingcolor">"Wetterfarbe"</string>
+    <string name="label_style_light">"Hell"</string>
+    <string name="label_style_dark">"Dunkel"</string>
+    <string name="locname_pref_title">"Ortsname"</string>
+    <string name="locname_pref_summary">"Ortsnamen im Widget ausblenden"</string>
+    <string name="settingsbtn_pref_title">"Einstellungsschaltfläche"</string>
+    <string name="settingsbtn_pref_summary">"Einstellungsschaltfläche im Widget ausblenden"</string>
+    <string name="clock_pref_title">"Uhr"</string>
+    <string name="calendar_pref_title">"Kalender"</string>
+    <string name="summary_default">"Standard"</string>
+    <string name="pref_title_fcastoption">"Vorhersage"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_fcast_full">"Tägliche und stündliche Vorhersage (falls verfügbar)"</string>
+    <string name="label_fcast_daily">"Tägliche Vorhersage"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_fcast_hourly">"Stündliche Vorhersage (falls verfügbar)"</string>
+    <string name="pref_category_timeanddate">"Datum und Zeit"</string>
+    <string name="pref_title_timezone">"Zeitzone"</string>
+    <string name="pref_timezone_summaryoff">"Zeitzone des Systems verwenden"</string>
+    <string name="pref_timezone_summaryon">"Zeitzone des Orts verwenden"</string>
+    <string name="pref_location">"Ort"</string>
+    <string name="pref_item_gpslocation">"Standort"</string>
+    <string name="prompt_setup_app_first">"Anwendung bitte zuerst einrichten"</string>
+
+    <!-- LineView -->
+    <string name="label_series">"Verlauf"</string>
+
+    <!-- In-App Updates -->
+    <string name="not_channel_update_title">"App-Updates"</string>
+    <string name="prompt_update_title">"SimpleWeather aktualisieren"</string>
+    <string name="prompt_update_available">"Aktualisierung verfügbar. Zum Installieren klicken"</string>
+
+    <!-- Support -->
+    <string name="pref_category_support">"Unterstützung"</string>
+
+    <!-- Feedback -->
+    <string name="pref_title_feedback">"Feedback"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_summary_feedback">"Melden Sie alle Probleme oder Vorschläge zur Verbesserung der App"</string>
+
+    <!-- Rate / Review -->
+    <string name="pref_title_rateandreview">"Bewertung und Überprüfung"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_summary_rateandreview">"Mag die App? Helfen Sie bei der Unterstützung durch eine Rezension"</string>
+
+    <!-- Translate -->
+    <string name="pref_title_translate">"Übersetzen"</string>
+
+    <!-- Can be changed to 'Help us translate the app' -->
+    <string name="pref_summary_translate">"Hilfe bei der Übersetzung der App"</string>
+</resources>

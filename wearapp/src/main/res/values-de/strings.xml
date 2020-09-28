@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_setupfromphone">"Vom Telefon einrichten"</string>
+    <string name="action_changelocation">"Ort ändern"</string>
+    <string name="action_openonphone">"Auf Telefon öffnen"</string>
+    <string name="message_openedonphone">"Auf dem Telefon geöffnet..."</string>
+
+    <!-- Connection Status -->
+    <!-- Fuzzy -->
+    <string name="status_disconnected">"Gerät nicht verbunden"</string>
+    <string name="status_connecting">"Verbindung..."</string>
+    <string name="status_notinstalled">"Anwendung nicht auf dem Gerät installiert"</string>
+    <string name="status_connected">"Verbunden"</string>
+    <string name="status_node_unavailable">"Gerät nicht verbunden oder Anwendung nicht auf dem Gerät installiert"</string>
+    <string name="status_node_notsupported">"Verbundenes Gerät nicht unterstützt"</string>
+
+    <!-- Setup -->
+    <string name="prompt_confirmsetup">"Einrichtung und Synchronisierung vom Telefon / verbundenem Gerät"</string>
+    <string name="message_gettingstatus">"Abfrage des Verbindungszustands..."</string>
+    <string name="error_notinstalled">"Anwendung auf Gerät installieren und erneut versuchen"</string>
+    <string name="message_continueondevice">"Einrichtung auf verbundenem Gerät fortsetzen"</string>
+    <string name="message_retrievingdata">"Empfang der Daten vom verbundenen Gerät..."</string>
+    <string name="error_syncing">"Synchronisierung nicht möglich"</string>
+    <string name="message_settingsretrieved">"Einstellungsdaten empfangen..."</string>
+    <string name="message_locationretrieved">"Standortdaten erhalten..."</string>
+    <string name="message_weatherretrieved">"Wetterdaten empfangen..."</string>
+    <string name="message_synccompleted">"Synchronisierung erfolgreich"</string>
+
+    <!-- Preferences -->
+    <string name="pref_sync_off">"Aus"</string>
+    <string name="pref_sync_deviceonly">"Synchronisierung ausschließlich vom Gerät"</string>
+    <string name="pref_sync_whenavailable">"Synchronisierung vom Gerät (falls verfügbar)"</string>
+
+    <!-- Preferences -->
+    <string name="pref_category_title_sync">"Synchronisierung"</string>
+    <string name="pref_sync_title">"Synchronisierung"</string>
+    <string name="pref_connectionstatus_title">"Verbindungszustand"</string>
+</resources>

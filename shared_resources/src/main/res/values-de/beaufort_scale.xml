@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="beaufort_0">"Windstille"</string>
+
+    <!-- Fuzzy -->
+    <string name="beaufort_1">"Sehr leichte Brise"</string>
+    <string name="beaufort_2">"Leichte Brise"</string>
+    <string name="beaufort_3">"Schwache Brise"</string>
+    <string name="beaufort_4">"Mäßige Brise"</string>
+    <string name="beaufort_5">"Frische Brise"</string>
+    <string name="beaufort_6">"Starker Wind"</string>
+
+    <!-- Fuzzy -->
+    <string name="beaufort_7">"Steifer Wind"</string>
+    <string name="beaufort_8">"Stürmischer Wind"</string>
+    <string name="beaufort_9">"Sturm"</string>
+    <string name="beaufort_10">"Schwerer Sturm"</string>
+    <string name="beaufort_11">"Orkanartiger Sturm"</string>
+    <string name="beaufort_12">"Orkan"</string>
+</resources>

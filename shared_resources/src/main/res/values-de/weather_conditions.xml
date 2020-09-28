@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Conditions -->
+    <!-- Fuzzy -->
+    <string name="weather_tornado">"Tornado"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_tropicalstorm">"Tropensturm"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_hurricane">"Hurrikan"</string>
+    <string name="weather_severetstorms">"Schwere Gewitter"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_tstorms">"Gewitter"</string>
+    <string name="weather_rainandsnow">"Regen und Schnee"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_rainandsleet">"Regen und Schneeregen"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_snowandsleet">"Schnee und Schneeregen"</string>
+    <string name="weather_freezingrain">"Gefrierender Regen"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_snowflurries">"Schneegestöber"</string>
+    <string name="weather_lightsnowshowers">"Leichter Schnee"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_blowingsnow">"Schneetreiben"</string>
+    <string name="weather_snow">"Schnee"</string>
+    <string name="weather_hail">"Hagel"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_sleet">"Schneeregen"</string>
+    <string name="weather_dust">"Staub"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_foggy">"Nebelig"</string>
+    <string name="weather_haze">"Dunst"</string>
+    <string name="weather_smoky">"Rauchig"</string>
+    <string name="weather_windy">"Windig"</string>
+    <string name="weather_cold">"Kalt"</string>
+    <string name="weather_cloudy">"Wolkig"</string>
+    <string name="weather_mostlycloudy">"Stark bewölkt"</string>
+    <string name="weather_partlycloudy">"Teilweise wolkig"</string>
+    <string name="weather_clear">"Klar"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_sunny">"Sonnig"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_fair">"Schönwetter"</string>
+    <string name="weather_rainandhail">"Regen und Hagel"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_hot">"Hitze"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_isotstorms">"Isolierte Gewitter"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_scatteredtstorms">"Vereinzelte Gewitter"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_scatteredshowers">"Vereinzelte Regenschauer"</string>
+    <string name="weather_heavysnow">"Schwerer Schnee"</string>
+    <string name="weather_fog">"Nebel"</string>
+    <string name="weather_lightrain">"Leichter Regen"</string>
+    <string name="weather_rain">"Regen"</string>
+    <string name="weather_rainshowers">"Regenschauer"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_blizzard">"Schneesturm"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_overcast">"Bewölkt"</string>
+    <string name="weather_sleet_tstorms">"Schneeregen und Donner"</string>
+    <string name="weather_snow_tstorms">"Schnee und Donner"</string>
+    <string name="weather_clearsky">"Klarer Himmel"</string>
+    <string name="weather_heavyrain">"Starker Regen"</string>
+</resources>

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- https://aqicn.org/scale -->
     <string name="aqi_level_0_50">"Bon"</string>
     <string name="aqi_level_51_100">"Modéré"</string>
     <string name="aqi_level_101_150">"Mauvais pour les groupes sensibles"</string>

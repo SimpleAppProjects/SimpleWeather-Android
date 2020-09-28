@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moonphase_new">"Neumond"</string>
+    <string name="moonphase_waxcrescent">"Zunehmender Sichelmond"</string>
+    <string name="moonphase_firstqtr">"Zunehmender Halbmond"</string>
+    <string name="moonphase_waxgibbous">"Zunehmender Mond"</string>
+    <string name="moonphase_full">"Vollmond"</string>
+    <string name="moonphase_wangibbous">"Abnehmender Mond"</string>
+    <string name="moonphase_lastqtr">"Abnehmender Halbmond"</string>
+    <string name="moonphase_wancrescent">"Abnehmender Sichelmond"</string>
+</resources>

@@ -25,3 +25,4 @@ wearapp/google-services.json
 wearapp/src/*/google-services.json
 /keycheck.bat
 /keycheck.ps1
+/ImportTranslations.bat
