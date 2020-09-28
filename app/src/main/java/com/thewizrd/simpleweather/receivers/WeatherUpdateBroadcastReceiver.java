@@ -3,7 +3,9 @@ package com.thewizrd.simpleweather.receivers;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 
+import com.thewizrd.simpleweather.services.AppUpdaterWorker;
 import com.thewizrd.simpleweather.services.ImageDatabaseWorker;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 
@@ -16,6 +18,10 @@ public class WeatherUpdateBroadcastReceiver extends BroadcastReceiver {
 
             if (Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
                 ImageDatabaseWorker.enqueueAction(context, ImageDatabaseWorker.ACTION_STARTALARM);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    AppUpdaterWorker.registerWorker(context);
+                }
             }
         }
     }

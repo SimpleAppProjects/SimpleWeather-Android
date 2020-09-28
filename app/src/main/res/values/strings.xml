@@ -53,4 +53,9 @@
     <!-- LineView -->
     <string name="label_series">Series</string>
 
+    <!-- In-App Updates -->
+    <string name="not_channel_update_title">App Updates</string>
+    <string name="prompt_update_title">Update SimpleWeather</string>
+    <string name="prompt_update_available">Update available. Click to install</string>
+
 </resources>

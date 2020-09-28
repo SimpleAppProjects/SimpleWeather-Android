@@ -9,6 +9,7 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.database.LocationsDatabase;
 import com.thewizrd.shared_resources.database.WeatherDatabase;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.preferences.FeatureSettings;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
@@ -105,6 +106,12 @@ class VersionMigrations {
             bundle.putLong("CurrentVersionCode", versionCode);
             AnalyticsLogger.logEvent("App_Upgrading", bundle);
         }
-        if (versionCode > 0) Settings.setVersionCode(versionCode);
+
+        if (versionCode > 0) {
+            if (Settings.getVersionCode() < versionCode) {
+                FeatureSettings.setUpdateAvailable(false);
+            }
+            Settings.setVersionCode(versionCode);
+        }
     }
 }
