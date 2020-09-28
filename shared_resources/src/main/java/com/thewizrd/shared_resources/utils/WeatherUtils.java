@@ -14,6 +14,7 @@ import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.ImageDataViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.preferences.FeatureSettings;
 import com.thewizrd.shared_resources.weatherdata.Beaufort;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertSeverity;
@@ -707,9 +708,15 @@ public class WeatherUtils {
         if (imageData != null && imageData.isValid()) {
             return new ImageDataViewModel(imageData);
         } else {
-            imageData = imageHelper.getRemoteImageData(backgroundCode);
-            if (imageData != null && imageData.isValid()) {
-                return new ImageDataViewModel(imageData);
+            if (!FeatureSettings.isUpdateAvailable()) {
+                imageData = imageHelper.getRemoteImageData(backgroundCode);
+                if (imageData != null && imageData.isValid()) {
+                    return new ImageDataViewModel(imageData);
+                } else {
+                    imageData = imageHelper.getDefaultImageData(backgroundCode, weather);
+                    if (imageData != null && imageData.isValid())
+                        return new ImageDataViewModel(imageData);
+                }
             } else {
                 imageData = imageHelper.getDefaultImageData(backgroundCode, weather);
                 if (imageData != null && imageData.isValid())
