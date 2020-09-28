@@ -43,6 +43,11 @@ import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.SwitchPreferenceCompat;
 
+import com.google.android.play.core.review.ReviewInfo;
+import com.google.android.play.core.review.ReviewManager;
+import com.google.android.play.core.review.ReviewManagerFactory;
+import com.google.android.play.core.tasks.OnCompleteListener;
+import com.google.android.play.core.tasks.Task;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -53,6 +58,7 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.shared_resources.utils.WeatherException;
+import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
@@ -943,6 +949,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         // Preference Keys
         private static final String KEY_ABOUTCREDITS = "key_aboutcredits";
         private static final String KEY_ABOUTOSLIBS = "key_aboutoslibs";
+        private static final String KEY_FEEDBACK = "key_feedback";
+        private static final String KEY_RATEREVIEW = "key_ratereview";
         private static final String KEY_ABOUTVERSION = "key_aboutversion";
 
         @Override
@@ -971,6 +979,52 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                     Navigation.findNavController(getAppCompatActivity(), R.id.fragment_container)
                             .navigate(SettingsFragment$AboutAppFragmentDirections.actionAboutAppFragmentToOSSCreditsFragment());
                     return true;
+                }
+            });
+
+            findPreference(KEY_FEEDBACK).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Intent sendTo = new Intent(Intent.ACTION_SENDTO);
+                    sendTo.setData(Uri.parse("mailto:"));
+                    sendTo.putExtra(Intent.EXTRA_EMAIL, "thewizrd.dev+SimpleWeatherAndroid@gmail.com");
+                    startActivity(Intent.createChooser(sendTo, null));
+                    return true;
+                }
+            });
+
+            findPreference(KEY_RATEREVIEW).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        final ReviewManager manager = ReviewManagerFactory.create(requireContext());
+                        Task<ReviewInfo> request = manager.requestReviewFlow();
+                        request.addOnCompleteListener(new OnCompleteListener<ReviewInfo>() {
+                            @Override
+                            public void onComplete(@NonNull Task<ReviewInfo> task) {
+                                if (isViewAlive()) {
+                                    if (task.isSuccessful()) {
+                                        // We can get the ReviewInfo object
+                                        ReviewInfo reviewInfo = task.getResult();
+                                        manager.launchReviewFlow(getAppCompatActivity(), reviewInfo);
+                                    } else {
+                                        openPlayStore();
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        openPlayStore();
+                    }
+
+                    return true;
+                }
+
+                private void openPlayStore() {
+                    Intent intentAndroid = new Intent(Intent.ACTION_VIEW)
+                            .addCategory(Intent.CATEGORY_BROWSABLE)
+                            .setData(WearableHelper.getPlayStoreURI());
+                    startActivity(intentAndroid);
                 }
             });
 

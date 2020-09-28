@@ -58,4 +58,11 @@
     <string name="prompt_update_title">Update SimpleWeather</string>
     <string name="prompt_update_available">Update available. Click to install</string>
 
+    <!-- Feedback -->
+    <string name="pref_title_feedback">Feedback</string>
+    <string name="pref_summary_feedback">Report any bugs or suggestions to improve the app</string>
+    <!-- Rate / Review -->
+    <string name="pref_title_rateandreview">Rate and Review</string>
+    <string name="pref_summary_rateandreview">Like the app? Help support by providing a review</string>
+
 </resources>

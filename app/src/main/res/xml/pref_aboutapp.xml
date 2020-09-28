@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <Preference
         android:key="key_aboutcredits"
@@ -7,11 +8,22 @@
     <Preference
         android:key="key_aboutoslibs"
         android:title="@string/pref_title_oslibs" />
+
+    <Preference
+        android:key="key_feedback"
+        android:title="@string/pref_title_feedback"
+        android:summary="@string/pref_summary_feedback" />
+    <Preference
+        android:key="key_ratereview"
+        android:title="@string/pref_title_rateandreview"
+        android:summary="@string/pref_summary_rateandreview" />
+
     <PreferenceCategory android:title="@string/pref_category_version">
 
         <Preference
             android:key="key_aboutversion"
-            android:title="@string/app_name" />
+            android:title="@string/app_name"
+            tools:summary="v0.00" />
 
     </PreferenceCategory>
 
