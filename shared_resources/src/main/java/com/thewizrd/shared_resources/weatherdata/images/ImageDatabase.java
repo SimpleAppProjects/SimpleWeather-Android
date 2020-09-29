@@ -154,6 +154,7 @@ public class ImageDatabase {
                 Query query = db.collection("background_images");
                 try {
                     Tasks.await(query.get(Source.SERVER));
+                    ImageDataHelper.invalidateCache(false);
                 } catch (ExecutionException | InterruptedException e) {
                     Logger.writeLine(Log.ERROR, e);
                 }
