@@ -149,9 +149,11 @@ public class WeatherNowFragment extends CustomFragment
         public void onChanged(final Weather weather) {
             if (weather != null && weather.isValid()) {
                 weatherView.updateView(weather);
-                forecastPanelsView.updateForecasts(locationData);
 
-                forecastsView.updateForecasts(locationData);
+                if (locationData != null) {
+                    forecastPanelsView.updateForecasts(locationData);
+                    forecastsView.updateForecasts(locationData);
+                }
 
                 binding.swipeRefreshLayout.setRefreshing(false);
 

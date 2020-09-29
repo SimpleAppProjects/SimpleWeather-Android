@@ -250,30 +250,32 @@ public class WeatherNowFragment extends WindowColorFragment
                     }
                 });
 
-                forecastsView.updateForecasts(locationData);
+                if (locationData != null) {
+                    forecastsView.updateForecasts(locationData);
 
-                Context context = App.getInstance().getAppContext();
+                    Context context = App.getInstance().getAppContext();
 
-                if (Settings.getHomeData().equals(locationData)) {
-                    // Update widgets if they haven't been already
-                    if (Duration.between(LocalDateTime.now(ZoneOffset.UTC), Settings.getUpdateTime()).toMinutes() > Settings.getRefreshInterval()) {
-                        WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
-                    } else {
-                        // Update ongoing notification
-                        if (Settings.showOngoingNotification()) {
-                            WeatherNotificationWorker.enqueueAction(context, new Intent(context, WeatherNotificationWorker.class)
-                                    .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION));
+                    if (Settings.getHomeData().equals(locationData)) {
+                        // Update widgets if they haven't been already
+                        if (Duration.between(LocalDateTime.now(ZoneOffset.UTC), Settings.getUpdateTime()).toMinutes() > Settings.getRefreshInterval()) {
+                            WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
+                        } else {
+                            // Update ongoing notification
+                            if (Settings.showOngoingNotification()) {
+                                WeatherNotificationWorker.enqueueAction(context, new Intent(context, WeatherNotificationWorker.class)
+                                        .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION));
+                            }
+
+                            // Update widgets anyway
+                            WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
+                                    .setAction(WeatherWidgetService.ACTION_REFRESHGPSWIDGETS));
                         }
-
+                    } else {
                         // Update widgets anyway
                         WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                                .setAction(WeatherWidgetService.ACTION_REFRESHGPSWIDGETS));
+                                .setAction(WeatherWidgetService.ACTION_REFRESHWIDGETS)
+                                .putExtra(WeatherWidgetService.EXTRA_LOCATIONQUERY, locationData.getQuery()));
                     }
-                } else {
-                    // Update widgets anyway
-                    WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                            .setAction(WeatherWidgetService.ACTION_REFRESHWIDGETS)
-                            .putExtra(WeatherWidgetService.EXTRA_LOCATIONQUERY, locationData.getQuery()));
                 }
             }
         }
@@ -502,6 +504,8 @@ public class WeatherNowFragment extends WindowColorFragment
             @SuppressLint("RestrictedApi")
             @Override
             public void onScrollChange(final NestedScrollView v, int scrollX, final int scrollY, int oldScrollX, final int oldScrollY) {
+                if (!isViewAlive()) return;
+
                 // Default adj = 1.25
                 float adj = 1.25f;
                 float alpha = 1.0f - (1.0f * adj * scrollY / (binding.refreshLayout.getHeight()));
@@ -555,7 +559,7 @@ public class WeatherNowFragment extends WindowColorFragment
             @SuppressLint("RestrictedApi")
             @Override
             public void onFlingStopped(int scrollY) {
-                if (!FeatureSettings.isBackgroundImageEnabled()) return;
+                if (!FeatureSettings.isBackgroundImageEnabled() || !isViewAlive()) return;
 
                 int condPnlHeight = binding.refreshLayout.getHeight();
                 int THRESHOLD = condPnlHeight / 2;
@@ -598,7 +602,7 @@ public class WeatherNowFragment extends WindowColorFragment
             @SuppressLint("RestrictedApi")
             @Override
             public void onTouchScrollChange(int scrollY, int oldScrollY) {
-                if (!FeatureSettings.isBackgroundImageEnabled()) return;
+                if (!FeatureSettings.isBackgroundImageEnabled() || !isViewAlive()) return;
 
                 int condPnlHeight = binding.refreshLayout.getHeight();
                 int THRESHOLD = condPnlHeight / 2;
@@ -966,7 +970,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 binding.imageView.postOnAnimation(new Runnable() {
                     @Override
                     public void run() {
-                        if (!isActive()) return;
+                        if (!isActive() || !isViewAlive()) return;
 
                         // Reload background image
                         if (FeatureSettings.isBackgroundImageEnabled()) {

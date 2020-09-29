@@ -590,7 +590,9 @@ public class SetupLocationFragment extends CustomFragment {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
                     // Do the task you need to do.
-                    fetchGeoLocation();
+                    if (isViewAlive()) {
+                        fetchGeoLocation();
+                    }
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.

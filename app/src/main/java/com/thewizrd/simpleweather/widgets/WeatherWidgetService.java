@@ -1825,7 +1825,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             forecastItem = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_panel_4x1);
 
             int size = (int) ActivityUtils.dpToPx(mContext, 32);
-            if ((!isSmallWidth || cellWidth > 4) && (maxHeight / maxCellHeight) >= 72) {
+            if ((!isSmallWidth || cellWidth > 4) && maxCellHeight > 0 && (maxHeight / maxCellHeight) >= 72) {
                 size *= (8 / 7f); // 40dp
             }
             forecastItem.setInt(R.id.forecast_icon, "setMaxWidth", size);
@@ -1838,7 +1838,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             }
 
             int size = (int) ActivityUtils.dpToPx(mContext, 30);
-            if (((maxHeight / maxCellHeight) >= 72) && (!isSmallWidth || cellWidth > 4)) {
+            if ((maxCellHeight > 0 && (maxHeight / maxCellHeight) >= 72) && (!isSmallWidth || cellWidth > 4)) {
                 size *= (4f / 3); // 40dp
             }
             forecastItem.setInt(R.id.forecast_icon, "setMaxWidth", size);

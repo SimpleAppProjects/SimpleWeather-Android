@@ -38,7 +38,11 @@ public abstract class CustomFragment extends LifecycleAwareFragment implements S
                 if (mSnackMgr == null) {
                     mSnackMgr = createSnackManager();
                 }
-                if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
+                // Snackbar may check higher up in the view hierarchy
+                // Check if fragment is attached
+                if (mSnackMgr != null && mActivity != null) {
+                    mSnackMgr.show(snackbar, callback);
+                }
             }
         });
     }

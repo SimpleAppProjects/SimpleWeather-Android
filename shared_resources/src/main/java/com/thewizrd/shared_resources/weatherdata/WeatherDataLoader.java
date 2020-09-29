@@ -315,9 +315,11 @@ public final class WeatherDataLoader {
             if (request.isLoadForecasts() && weather != null) {
                 Forecasts forecasts = Settings.getWeatherForecastData(location.getQuery());
                 List<HourlyForecast> hrForecasts = Settings.getHourlyWeatherForecastData(location.getQuery());
-                weather.setForecast(forecasts.getForecast());
+                if (forecasts != null) {
+                    weather.setForecast(forecasts.getForecast());
+                    weather.setTxtForecast(forecasts.getTxtForecast());
+                }
                 weather.setHrForecast(hrForecasts);
-                weather.setTxtForecast(forecasts.getTxtForecast());
             }
 
             TaskUtils.throwIfCancellationRequested(request.getCancellationToken());
@@ -336,9 +338,11 @@ public final class WeatherDataLoader {
                 if (request.isLoadForecasts() && weather != null) {
                     Forecasts forecasts = Settings.getWeatherForecastData(location.getQuery());
                     List<HourlyForecast> hrForecasts = Settings.getHourlyWeatherForecastData(location.getQuery());
-                    weather.setForecast(forecasts.getForecast());
+                    if (forecasts != null) {
+                        weather.setForecast(forecasts.getForecast());
+                        weather.setTxtForecast(forecasts.getTxtForecast());
+                    }
                     weather.setHrForecast(hrForecasts);
-                    weather.setTxtForecast(forecasts.getTxtForecast());
                 }
             }
         } catch (Exception ex) {

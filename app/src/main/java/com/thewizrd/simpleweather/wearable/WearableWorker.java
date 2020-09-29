@@ -13,6 +13,7 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.CapabilityClient;
@@ -22,6 +23,7 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
+import com.google.android.gms.wearable.WearableStatusCodes;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -144,7 +146,15 @@ public class WearableWorker extends Worker {
             capabilityInfo = Tasks.await(Wearable.getCapabilityClient(mContext)
                     .getCapability(WearableHelper.CAPABILITY_WEAR_APP, CapabilityClient.FILTER_ALL));
         } catch (ExecutionException | InterruptedException e) {
-            Logger.writeLine(Log.ERROR, e);
+            if (e.getCause() instanceof ApiException) {
+                ApiException apiException = (ApiException) e.getCause();
+                // Ignore this error
+                if (apiException.getStatusCode() != WearableStatusCodes.API_NOT_CONNECTED) {
+                    Logger.writeLine(Log.ERROR, e);
+                }
+            } else {
+                Logger.writeLine(Log.ERROR, e);
+            }
         }
 
         if (capabilityInfo != null) {

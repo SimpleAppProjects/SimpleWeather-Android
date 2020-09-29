@@ -16,6 +16,7 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.wearable.CapabilityClient;
 import com.google.android.gms.wearable.CapabilityInfo;
@@ -23,6 +24,7 @@ import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
+import com.google.android.gms.wearable.WearableStatusCodes;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 
@@ -154,7 +156,16 @@ public class WearableWorker extends Worker {
             Tasks.await(Wearable.getMessageClient(mContext)
                     .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.SettingsPath, null));
         } catch (ExecutionException | InterruptedException e) {
-            Logger.writeLine(Log.ERROR, e);
+            if (e.getCause() instanceof ApiException) {
+                ApiException apiException = (ApiException) e.getCause();
+                // Ignore this error
+                if (apiException.getStatusCode() != WearableStatusCodes.API_NOT_CONNECTED &&
+                        apiException.getStatusCode() != WearableStatusCodes.TARGET_NODE_NOT_CONNECTED) {
+                    Logger.writeLine(Log.ERROR, e);
+                }
+            } else {
+                Logger.writeLine(Log.ERROR, e);
+            }
         }
     }
 
@@ -186,7 +197,16 @@ public class WearableWorker extends Worker {
             Tasks.await(Wearable.getMessageClient(mContext)
                     .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.LocationPath, null));
         } catch (ExecutionException | InterruptedException e) {
-            Logger.writeLine(Log.ERROR, e);
+            if (e.getCause() instanceof ApiException) {
+                ApiException apiException = (ApiException) e.getCause();
+                // Ignore this error
+                if (apiException.getStatusCode() != WearableStatusCodes.API_NOT_CONNECTED &&
+                        apiException.getStatusCode() != WearableStatusCodes.TARGET_NODE_NOT_CONNECTED) {
+                    Logger.writeLine(Log.ERROR, e);
+                }
+            } else {
+                Logger.writeLine(Log.ERROR, e);
+            }
         }
     }
 
@@ -219,7 +239,16 @@ public class WearableWorker extends Worker {
             Tasks.await(Wearable.getMessageClient(mContext)
                     .sendMessage(mPhoneNodeWithApp.getId(), WearableHelper.WeatherPath, null));
         } catch (ExecutionException | InterruptedException e) {
-            Logger.writeLine(Log.ERROR, e);
+            if (e.getCause() instanceof ApiException) {
+                ApiException apiException = (ApiException) e.getCause();
+                // Ignore this error
+                if (apiException.getStatusCode() != WearableStatusCodes.API_NOT_CONNECTED &&
+                        apiException.getStatusCode() != WearableStatusCodes.TARGET_NODE_NOT_CONNECTED) {
+                    Logger.writeLine(Log.ERROR, e);
+                }
+            } else {
+                Logger.writeLine(Log.ERROR, e);
+            }
         }
     }
 

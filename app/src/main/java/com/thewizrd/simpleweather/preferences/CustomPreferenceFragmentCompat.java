@@ -38,7 +38,9 @@ public abstract class CustomPreferenceFragmentCompat extends LifecycleAwarePrefe
                 if (mSnackMgr == null && isAlive()) {
                     mSnackMgr = createSnackManager();
                 }
-                if (mSnackMgr != null) mSnackMgr.show(snackbar, callback);
+                if (mSnackMgr != null && mActivity != null) {
+                    mSnackMgr.show(snackbar, callback);
+                }
             }
         });
     }

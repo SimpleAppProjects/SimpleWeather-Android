@@ -318,10 +318,12 @@ public class SetupFragment extends CustomFragment {
                                 Settings.setFollowGPS(false);
                                 Settings.setWeatherLoaded(false);
 
-                                if (e instanceof WeatherException || e instanceof CustomException) {
-                                    Toast.makeText(getFragmentActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(getFragmentActivity(), R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                                if (getFragmentActivity() != null) {
+                                    if (e instanceof WeatherException || e instanceof CustomException) {
+                                        Toast.makeText(getFragmentActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(getFragmentActivity(), R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                             }
                         }
@@ -442,10 +444,12 @@ public class SetupFragment extends CustomFragment {
                                 Settings.setFollowGPS(false);
                                 Settings.setWeatherLoaded(false);
 
-                                if (e instanceof WeatherException || e instanceof CustomException) {
-                                    Toast.makeText(getFragmentActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(getFragmentActivity(), R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                                if (getFragmentActivity() != null) {
+                                    if (e instanceof WeatherException || e instanceof CustomException) {
+                                        Toast.makeText(getFragmentActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(getFragmentActivity(), R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                             }
                         }
