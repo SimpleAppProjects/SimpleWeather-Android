@@ -399,7 +399,7 @@ public class LineView extends HorizontalScrollView {
                             drawIconsLabels = false;
 
                         Rect r = new Rect();
-                        int longestWidth = 0;
+                        float longestWidth = 0;
                         String longestStr = "";
 
                         for (XLabelData labelData : args.newItems) {
@@ -409,26 +409,26 @@ public class LineView extends HorizontalScrollView {
                                 bottomTextHeight = r.height();
                             }
                             if (longestWidth < r.width()) {
-                                longestWidth = r.width();
                                 longestStr = s;
+                                longestWidth = r.width() + bottomTextPaint.measureText(longestStr, 0, 1) * 2.25f;
                             }
                             if (bottomTextDescent < (Math.abs(r.bottom))) {
                                 bottomTextDescent = Math.abs(r.bottom);
                             }
-
-                            if (longestTextWidth < longestWidth) {
-                                longestTextWidth = longestWidth + (int) bottomTextPaint.measureText(longestStr, 0, 1) * 2.25f;
-                            }
-                            if (sideLineLength < longestWidth / 2f) {
-                                sideLineLength = longestWidth / 2f;
-                            }
-
-                            backgroundGridWidth = longestTextWidth;
-
-                            // Add XCoordinate list
-                            updateHorizontalGridNum();
-                            refreshXCoordinateList();
                         }
+
+                        if (longestTextWidth < longestWidth) {
+                            longestTextWidth = longestWidth;
+                        }
+                        if (sideLineLength < longestWidth / 2f) {
+                            sideLineLength = longestWidth / 2f;
+                        }
+
+                        backgroundGridWidth = longestTextWidth;
+
+                        // Add XCoordinate list
+                        updateHorizontalGridNum();
+                        refreshXCoordinateList();
                         break;
                     case REMOVE:
                         updateHorizontalGridNum();
@@ -451,17 +451,35 @@ public class LineView extends HorizontalScrollView {
             public void onChanged(@NonNull ArrayList<LineDataSeries> sender, @NonNull final ListChangedArgs<LineDataSeries> args) {
                 switch (args.action) {
                     case ADD:
+                        float biggestData = 0;
+                        final float prevLongestTextWidth = longestTextWidth;
+                        Rect r = new Rect();
+                        float longestWidth = 0;
+                        String longestStr = "";
+
                         for (LineDataSeries series : args.newItems) {
                             if (series.getSeriesData().size() > dataLabels.size()) {
                                 throw new RuntimeException("LineView error:" +
                                         " seriesData.size() > dataLabels.size() !!!");
                             }
-                        }
-                        float biggestData = 0;
-                        for (LineDataSeries series : args.newItems) {
+
                             for (YEntryData i : series.getSeriesData()) {
                                 if (biggestData < i.getY()) {
                                     biggestData = i.getY();
+                                }
+
+                                // Measure Y label
+                                String s = i.getLabel().toString();
+                                bottomTextPaint.getTextBounds(s, 0, s.length(), r);
+                                if (longestWidth < r.width()) {
+                                    longestStr = s;
+                                    longestWidth = r.width() + bottomTextPaint.measureText(longestStr, 0, 1) * 2.25f;
+                                }
+                                if (longestTextWidth < longestWidth) {
+                                    longestTextWidth = longestWidth;
+                                }
+                                if (sideLineLength < longestWidth / 2f) {
+                                    sideLineLength = longestWidth / 2f;
                                 }
                             }
                             dataOfAGird = 1;
@@ -470,9 +488,14 @@ public class LineView extends HorizontalScrollView {
                             }
                         }
 
+                        backgroundGridWidth = longestTextWidth;
+
                         AsyncTask.await(new Callable<Void>() {
                             @Override
                             public Void call() throws Exception {
+                                if (prevLongestTextWidth != longestTextWidth) {
+                                    refreshXCoordinateList();
+                                }
                                 updateAfterDataChanged(args.newItems);
                                 return null;
                             }
@@ -487,6 +510,10 @@ public class LineView extends HorizontalScrollView {
                         break;
                     case RESET:
                         verticalGridNum = MIN_VERTICAL_GRID_NUM;
+
+                        longestTextWidth = 0;
+                        refreshXCoordinateList();
+
                         refreshAfterDataChanged();
                         postInvalidate();
                         break;
