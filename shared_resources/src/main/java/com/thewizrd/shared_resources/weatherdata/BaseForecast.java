@@ -1,17 +1,15 @@
 package com.thewizrd.shared_resources.weatherdata;
 
 import com.google.gson.annotations.SerializedName;
+import com.thewizrd.shared_resources.utils.CustomJsonObject;
 
-public abstract class BaseForecast {
-
-    @SerializedName("date")
-    protected String _date;
+public abstract class BaseForecast extends CustomJsonObject {
 
     @SerializedName("high_f")
-    protected String highF;
+    protected Float highF;
 
     @SerializedName("high_c")
-    protected String highC;
+    protected Float highC;
 
     @SerializedName("condition")
     protected String condition;
@@ -19,25 +17,22 @@ public abstract class BaseForecast {
     @SerializedName("icon")
     protected String icon;
 
-    @SerializedName("pop")
-    protected String pop;
-
     @SerializedName("extras")
     protected ForecastExtras extras;
 
-    public String getHighF() {
+    public Float getHighF() {
         return highF;
     }
 
-    public void setHighF(String highF) {
+    public void setHighF(Float highF) {
         this.highF = highF;
     }
 
-    public String getHighC() {
+    public Float getHighC() {
         return highC;
     }
 
-    public void setHighC(String highC) {
+    public void setHighC(Float highC) {
         this.highC = highC;
     }
 
@@ -55,14 +50,6 @@ public abstract class BaseForecast {
 
     public void setIcon(String icon) {
         this.icon = icon;
-    }
-
-    public String getPop() {
-        return pop;
-    }
-
-    public void setPop(String pop) {
-        this.pop = pop;
     }
 
     public ForecastExtras getExtras() {

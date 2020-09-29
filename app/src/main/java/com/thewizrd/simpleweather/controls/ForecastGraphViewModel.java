@@ -9,8 +9,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 
-import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
-import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
@@ -30,8 +28,8 @@ public class ForecastGraphViewModel extends ViewModel {
     private LocationData locationData;
     private String tempUnit;
 
-    private MutableLiveData<List<ForecastItemViewModel>> forecasts;
-    private MutableLiveData<List<HourlyForecastItemViewModel>> hourlyForecasts;
+    private MutableLiveData<List<GraphItemViewModel>> forecasts;
+    private MutableLiveData<List<GraphItemViewModel>> hourlyForecasts;
 
     private LiveData<Forecasts> currentForecastsData;
     private LiveData<List<HourlyForecast>> currentHrForecastsData;
@@ -41,11 +39,11 @@ public class ForecastGraphViewModel extends ViewModel {
         hourlyForecasts = new MutableLiveData<>();
     }
 
-    public LiveData<List<ForecastItemViewModel>> getForecasts() {
+    public LiveData<List<GraphItemViewModel>> getForecasts() {
         return forecasts;
     }
 
-    public LiveData<List<HourlyForecastItemViewModel>> getHourlyForecasts() {
+    public LiveData<List<GraphItemViewModel>> getHourlyForecasts() {
         return hourlyForecasts;
     }
 
@@ -95,31 +93,15 @@ public class ForecastGraphViewModel extends ViewModel {
         }
     }
 
-    private Function<Forecasts, List<ForecastItemViewModel>> forecastMapper = new Function<Forecasts, List<ForecastItemViewModel>>() {
+    private Function<Forecasts, List<GraphItemViewModel>> forecastMapper = new Function<Forecasts, List<GraphItemViewModel>>() {
         @Override
-        public List<ForecastItemViewModel> apply(Forecasts input) {
+        public List<GraphItemViewModel> apply(Forecasts input) {
             if (input != null && input.getForecast() != null) {
                 final int totalCount = input.getForecast().size();
-                final List<ForecastItemViewModel> models = new ArrayList<>(totalCount);
-
-                int textForecastSize = input.getTxtForecast() != null ? input.getTxtForecast().size() : 0;
-
-                boolean isDayAndNt = textForecastSize == input.getForecast().size() * 2;
-                boolean addTextFct = isDayAndNt || textForecastSize == input.getForecast().size();
+                final List<GraphItemViewModel> models = new ArrayList<>(totalCount);
 
                 for (int i = 0; i < Math.min(totalCount, 10); i++) {
-                    ForecastItemViewModel forecast;
-                    if (addTextFct) {
-                        if (isDayAndNt) {
-                            forecast = new ForecastItemViewModel(input.getForecast().get(i), input.getTxtForecast().get(i * 2), input.getTxtForecast().get((i * 2) + 1));
-                        } else {
-                            forecast = new ForecastItemViewModel(input.getForecast().get(i), input.getTxtForecast().get(i));
-                        }
-                    } else {
-                        forecast = new ForecastItemViewModel(input.getForecast().get(i));
-                    }
-
-                    models.add(forecast);
+                    models.add(new GraphItemViewModel(input.getForecast().get(i)));
                 }
 
                 return models;
@@ -129,14 +111,14 @@ public class ForecastGraphViewModel extends ViewModel {
         }
     };
 
-    private Function<List<HourlyForecast>, List<HourlyForecastItemViewModel>> hrForecastMapper = new Function<List<HourlyForecast>, List<HourlyForecastItemViewModel>>() {
+    private Function<List<HourlyForecast>, List<GraphItemViewModel>> hrForecastMapper = new Function<List<HourlyForecast>, List<GraphItemViewModel>>() {
         @Override
-        public List<HourlyForecastItemViewModel> apply(List<HourlyForecast> input) {
+        public List<GraphItemViewModel> apply(List<HourlyForecast> input) {
             if (input != null) {
-                final List<HourlyForecastItemViewModel> models = new ArrayList<>(input.size());
+                final List<GraphItemViewModel> models = new ArrayList<>(input.size());
 
                 for (HourlyForecast fcast : input) {
-                    models.add(new HourlyForecastItemViewModel(fcast));
+                    models.add(new GraphItemViewModel(fcast));
                 }
 
                 return models;

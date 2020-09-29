@@ -10,7 +10,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
-import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
@@ -27,19 +26,7 @@ import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Locale;
 
-public class HourlyForecast extends CustomJsonObject {
-
-    @SerializedName("high_f")
-    private Float highF;
-
-    @SerializedName("high_c")
-    private Float highC;
-
-    @SerializedName("condition")
-    private String condition;
-
-    @SerializedName("icon")
-    private String icon;
+public class HourlyForecast extends BaseForecast {
 
     @SerializedName("wind_degrees")
     private Integer windDegrees;
@@ -52,9 +39,6 @@ public class HourlyForecast extends CustomJsonObject {
 
     @SerializedName("date")
     private String _date;
-
-    @SerializedName("extras")
-    private ForecastExtras extras;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public HourlyForecast() {
@@ -306,38 +290,6 @@ public class HourlyForecast extends CustomJsonObject {
         _date = date.format(DateTimeUtils.getZonedDateTimeFormatter());
     }
 
-    public Float getHighF() {
-        return highF;
-    }
-
-    public void setHighF(Float highF) {
-        this.highF = highF;
-    }
-
-    public Float getHighC() {
-        return highC;
-    }
-
-    public void setHighC(Float highC) {
-        this.highC = highC;
-    }
-
-    public String getCondition() {
-        return condition;
-    }
-
-    public void setCondition(String condition) {
-        this.condition = condition;
-    }
-
-    public String getIcon() {
-        return icon;
-    }
-
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
-
     public Integer getWindDegrees() {
         return windDegrees;
     }
@@ -360,14 +312,6 @@ public class HourlyForecast extends CustomJsonObject {
 
     public void setWindKph(Float windKph) {
         this.windKph = windKph;
-    }
-
-    public ForecastExtras getExtras() {
-        return extras;
-    }
-
-    public void setExtras(ForecastExtras extras) {
-        this.extras = extras;
     }
 
     @Override

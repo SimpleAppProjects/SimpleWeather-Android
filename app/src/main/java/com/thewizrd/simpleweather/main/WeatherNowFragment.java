@@ -94,7 +94,6 @@ import com.google.android.material.transition.MaterialFadeThrough;
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.DateTimeConstants;
-import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ImageDataViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -134,6 +133,7 @@ import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.DetailsItemGridAdapter;
 import com.thewizrd.simpleweather.controls.ForecastGraphPanel;
 import com.thewizrd.simpleweather.controls.ForecastGraphViewModel;
+import com.thewizrd.simpleweather.controls.GraphItemViewModel;
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView;
 import com.thewizrd.simpleweather.controls.SunPhaseView;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding;
@@ -1688,8 +1688,8 @@ public class WeatherNowFragment extends WindowColorFragment
         }
 
         @BindingAdapter("forecast_data")
-        public <T extends BaseForecastItemViewModel> void updateForecastGraph(final ForecastGraphPanel view, final List<T> forecasts) {
-            view.updateForecasts((List<BaseForecastItemViewModel>) forecasts);
+        public void updateForecastGraph(final ForecastGraphPanel view, final List<GraphItemViewModel> graphItems) {
+            view.updateForecasts(graphItems);
         }
 
         @BindingAdapter("sunPhase")

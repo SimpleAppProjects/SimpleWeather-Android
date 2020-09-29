@@ -10,7 +10,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
-import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -27,31 +26,16 @@ import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Locale;
 
-public class Forecast extends CustomJsonObject {
+public class Forecast extends BaseForecast {
 
     @SerializedName("date")
     private LocalDateTime date;
-
-    @SerializedName("high_f")
-    private Float highF;
-
-    @SerializedName("high_c")
-    private Float highC;
 
     @SerializedName("low_f")
     private Float lowF;
 
     @SerializedName("low_c")
     private Float lowC;
-
-    @SerializedName("condition")
-    private String condition;
-
-    @SerializedName("icon")
-    private String icon;
-
-    @SerializedName("extras")
-    private ForecastExtras extras;
 
     @RestrictTo({RestrictTo.Scope.LIBRARY})
     public Forecast() {
@@ -277,22 +261,6 @@ public class Forecast extends CustomJsonObject {
         this.date = date;
     }
 
-    public Float getHighF() {
-        return highF;
-    }
-
-    public void setHighF(Float highF) {
-        this.highF = highF;
-    }
-
-    public Float getHighC() {
-        return highC;
-    }
-
-    public void setHighC(Float highC) {
-        this.highC = highC;
-    }
-
     public Float getLowF() {
         return lowF;
     }
@@ -307,30 +275,6 @@ public class Forecast extends CustomJsonObject {
 
     public void setLowC(Float lowC) {
         this.lowC = lowC;
-    }
-
-    public String getCondition() {
-        return condition;
-    }
-
-    public void setCondition(String condition) {
-        this.condition = condition;
-    }
-
-    public String getIcon() {
-        return icon;
-    }
-
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
-
-    public ForecastExtras getExtras() {
-        return extras;
-    }
-
-    public void setExtras(ForecastExtras extras) {
-        this.extras = extras;
     }
 
     @Override
