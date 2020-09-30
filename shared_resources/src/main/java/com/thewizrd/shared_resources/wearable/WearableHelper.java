@@ -17,9 +17,14 @@ public class WearableHelper {
 
     // Link to Play Store listing
     public static final String PLAY_STORE_APP_URI = "market://details?id=com.thewizrd.simpleweather";
+    public static final String PLAY_STORE_APP_WEBURI = "https://play.google.com/store/apps/details?id=com.thewizrd.simpleweather";
 
     public static Uri getPlayStoreURI() {
         return Uri.parse(PLAY_STORE_APP_URI);
+    }
+
+    public static Uri getPlayStoreWebURI() {
+        return Uri.parse(PLAY_STORE_APP_WEBURI);
     }
 
     // For WearableListenerService

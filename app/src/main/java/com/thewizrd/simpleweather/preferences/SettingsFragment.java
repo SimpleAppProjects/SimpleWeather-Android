@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.preferences;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -43,11 +44,6 @@ import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.SwitchPreferenceCompat;
 
-import com.google.android.play.core.review.ReviewInfo;
-import com.google.android.play.core.review.ReviewManager;
-import com.google.android.play.core.review.ReviewManagerFactory;
-import com.google.android.play.core.tasks.OnCompleteListener;
-import com.google.android.play.core.tasks.Task;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -996,35 +992,20 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             findPreference(KEY_RATEREVIEW).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        final ReviewManager manager = ReviewManagerFactory.create(requireContext());
-                        Task<ReviewInfo> request = manager.requestReviewFlow();
-                        request.addOnCompleteListener(new OnCompleteListener<ReviewInfo>() {
-                            @Override
-                            public void onComplete(@NonNull Task<ReviewInfo> task) {
-                                if (isViewAlive()) {
-                                    if (task.isSuccessful()) {
-                                        // We can get the ReviewInfo object
-                                        ReviewInfo reviewInfo = task.getResult();
-                                        manager.launchReviewFlow(getAppCompatActivity(), reviewInfo);
-                                    } else {
-                                        openPlayStore();
-                                    }
-                                }
-                            }
-                        });
-                    } else {
-                        openPlayStore();
-                    }
-
+                    openPlayStore();
                     return true;
                 }
 
                 private void openPlayStore() {
-                    Intent intentAndroid = new Intent(Intent.ACTION_VIEW)
-                            .addCategory(Intent.CATEGORY_BROWSABLE)
-                            .setData(WearableHelper.getPlayStoreURI());
-                    startActivity(intentAndroid);
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW)
+                                .addCategory(Intent.CATEGORY_BROWSABLE)
+                                .setData(WearableHelper.getPlayStoreURI()));
+                    } catch (ActivityNotFoundException e) {
+                        startActivity(new Intent(Intent.ACTION_VIEW)
+                                .addCategory(Intent.CATEGORY_BROWSABLE)
+                                .setData(WearableHelper.getPlayStoreWebURI()));
+                    }
                 }
             });
 
