@@ -22,6 +22,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.thewizrd.shared_resources.preferences.FeatureSettings;
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.simpleweather.LaunchActivity;
 import com.thewizrd.simpleweather.R;
@@ -100,10 +101,12 @@ public class AppUpdaterWorker extends Worker {
                 initChannel(mNotifyMgr);
 
                 NotificationCompat.Builder mNotif = new NotificationCompat.Builder(getApplicationContext(), NOT_CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_info_outline_white_24dp)
+                        .setSmallIcon(R.drawable.ic_error_white)
                         .setContentTitle(getApplicationContext().getString(R.string.prompt_update_title))
                         .setContentText(getApplicationContext().getString(R.string.prompt_update_available))
-                        .setContentIntent(getLaunchUpdatesIntent(getApplicationContext()));
+                        .setContentIntent(getLaunchUpdatesIntent(getApplicationContext()))
+                        .setColor(Colors.SIMPLEBLUE)
+                        .setAutoCancel(true);
 
                 mNotifyMgr.notify((int) (SystemClock.uptimeMillis() + appUpdateManager.getUpdatePriority()), mNotif.build());
             }

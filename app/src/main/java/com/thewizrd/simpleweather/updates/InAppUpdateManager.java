@@ -42,7 +42,7 @@ public final class InAppUpdateManager {
 
     private InAppUpdateManager(@NonNull Context context) {
         mAppContext = context.getApplicationContext();
-        AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(mAppContext);
+        appUpdateManager = AppUpdateManagerFactory.create(mAppContext);
     }
 
     public static InAppUpdateManager create(@NonNull Context context) {
@@ -56,6 +56,8 @@ public final class InAppUpdateManager {
 
             // Checks that the platform will allow the specified type of update.
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
+                FeatureSettings.setUpdateAvailable(true);
+
                 // Check priority of update
                 // TODO: until this is implemented in Play Console, use Firebase RemoteConfig
                 FirebaseRemoteConfig mConfig = FirebaseRemoteConfig.getInstance();
