@@ -9,6 +9,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
@@ -21,6 +23,7 @@ import com.google.common.collect.Iterables;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.gson.reflect.TypeToken;
 import com.thewizrd.shared_resources.preferences.FeatureSettings;
+import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 
@@ -104,6 +107,19 @@ public final class InAppUpdateManager {
         }
 
         return false;
+    }
+
+    public Task<Boolean> shouldStartImmediateUpdateFlow() {
+        final TaskCompletionSource<Boolean> tcs = new TaskCompletionSource<>();
+
+        AsyncTask.run(new Runnable() {
+            @Override
+            public void run() {
+                tcs.setResult(checkIfUpdateAvailable() && shouldStartImmediateUpdate());
+            }
+        });
+
+        return tcs.getTask();
     }
 
     public void startImmediateUpdateFlow(@NonNull Activity activity, int requestCode) {

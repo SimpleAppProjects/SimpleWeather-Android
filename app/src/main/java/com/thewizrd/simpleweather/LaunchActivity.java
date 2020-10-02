@@ -5,10 +5,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.preferences.FeatureSettings;
@@ -35,10 +38,18 @@ public class LaunchActivity extends AppCompatActivity {
             // Update is available; double check if mandatory
             appUpdateManager = InAppUpdateManager.create(getApplicationContext());
 
-            if (appUpdateManager.checkIfUpdateAvailable() && appUpdateManager.shouldStartImmediateUpdate()) {
-                appUpdateManager.startImmediateUpdateFlow(this, INSTALL_REQUESTCODE);
-                return;
-            }
+            appUpdateManager.shouldStartImmediateUpdateFlow()
+                    .addOnCompleteListener(new OnCompleteListener<Boolean>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Boolean> task) {
+                            if (task.isSuccessful() && task.getResult()) {
+                                appUpdateManager.startImmediateUpdateFlow(LaunchActivity.this, INSTALL_REQUESTCODE);
+                            } else {
+                                startMainActivity();
+                            }
+                        }
+                    });
+            return;
         }
 
         startMainActivity();

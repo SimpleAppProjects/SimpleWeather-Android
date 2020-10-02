@@ -29,6 +29,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 import androidx.transition.TransitionManager;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -109,7 +111,7 @@ public class MainActivity extends AppCompatActivity
 
         updateWindowColors(Settings.getUserThemeMode());
 
-        Bundle args = new Bundle();
+        final Bundle args = new Bundle();
         if (getIntent() != null && getIntent().getExtras() != null) {
             args.putAll(getIntent().getExtras());
         }
@@ -134,12 +136,24 @@ public class MainActivity extends AppCompatActivity
             // Update is available; double check if mandatory
             appUpdateManager = InAppUpdateManager.create(getApplicationContext());
 
-            if (appUpdateManager.checkIfUpdateAvailable() && appUpdateManager.shouldStartImmediateUpdate()) {
-                appUpdateManager.startImmediateUpdateFlow(this, INSTALL_REQUESTCODE);
-                return;
-            }
+            appUpdateManager.shouldStartImmediateUpdateFlow()
+                    .addOnCompleteListener(this, new OnCompleteListener<Boolean>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Boolean> task) {
+                            if (task.isSuccessful() && task.getResult()) {
+                                appUpdateManager.startImmediateUpdateFlow(MainActivity.this, INSTALL_REQUESTCODE);
+                            } else {
+                                initializeNavFragment(args);
+                            }
+                        }
+                    });
+            return;
         }
 
+        initializeNavFragment(args);
+    }
+
+    private void initializeNavFragment(@NonNull Bundle args) {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
 
         if (fragment == null) {
