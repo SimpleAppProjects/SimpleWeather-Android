@@ -247,6 +247,7 @@ public class Condition extends CustomJsonObject {
         } else {
             weather = provider.getWeatherCondition(obsCurrentResponse.getIcon());
         }
+        icon = provider.getWeatherIcon(obsCurrentResponse.getIcon());
 
         if (obsCurrentResponse.getTemperature().getValue() != null) {
             tempC = obsCurrentResponse.getTemperature().getValue();
@@ -278,9 +279,6 @@ public class Condition extends CustomJsonObject {
             feelslikeF = WeatherUtils.getFeelsLikeTemp(tempF, windMph, Math.round(humidity));
             feelslikeC = ConversionMethods.FtoC(feelslikeF);
         }
-
-        icon = WeatherManager.getProvider(WeatherAPI.NWS)
-                .getWeatherIcon(obsCurrentResponse.getIcon());
 
         if (windMph != null) {
             beaufort = new Beaufort(WeatherUtils.getBeaufortScale((int) Math.round(windMph)).getValue());
