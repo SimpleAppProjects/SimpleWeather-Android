@@ -65,25 +65,27 @@ public class GraphItemViewModel {
         }
         tempEntryData = new EntryData<>(xTemp, tempData);
 
-        // Wind Data
-        if (forecast.getExtras().getWindMph() != null && forecast.getExtras().getWindKph() != null && forecast.getExtras().getWindMph() >= 0 &&
-                forecast.getExtras().getWindDegrees() != null && forecast.getExtras().getWindDegrees() >= 0) {
-            int speedVal = isFahrenheit ? Math.round(forecast.getExtras().getWindMph()) : Math.round(forecast.getExtras().getWindKph());
-            String speedUnit = WeatherUtils.getSpeedUnit();
+        if (forecast.getExtras() != null) {
+            // Wind Data
+            if (forecast.getExtras().getWindMph() != null && forecast.getExtras().getWindKph() != null && forecast.getExtras().getWindMph() >= 0 &&
+                    forecast.getExtras().getWindDegrees() != null && forecast.getExtras().getWindDegrees() >= 0) {
+                int speedVal = isFahrenheit ? Math.round(forecast.getExtras().getWindMph()) : Math.round(forecast.getExtras().getWindKph());
+                String speedUnit = WeatherUtils.getSpeedUnit();
 
-            String windSpeed = String.format(Locale.getDefault(), "%d %s", speedVal, speedUnit);
-            int windDirection = forecast.getExtras().getWindDegrees();
+                String windSpeed = String.format(Locale.getDefault(), "%d %s", speedVal, speedUnit);
+                int windDirection = forecast.getExtras().getWindDegrees();
 
-            YEntryData y = new YEntryData(speedVal, windSpeed);
-            XLabelData x = new XLabelData(date, context.getString(R.string.wi_wind_direction), windDirection + 180);
-            windEntryData = new EntryData<>(x, y);
-        }
+                YEntryData y = new YEntryData(speedVal, windSpeed);
+                XLabelData x = new XLabelData(date, context.getString(R.string.wi_wind_direction), windDirection + 180);
+                windEntryData = new EntryData<>(x, y);
+            }
 
-        // PoP Chance Data
-        if (forecast.getExtras().getPop() != null && forecast.getExtras().getPop() >= 0) {
-            YEntryData y = new YEntryData(forecast.getExtras().getPop(), forecast.getExtras().getPop() + "%");
-            XLabelData x = new XLabelData(date, context.getString(R.string.wi_raindrop), 0);
-            chanceEntryData = new EntryData<>(x, y);
+            // PoP Chance Data
+            if (forecast.getExtras().getPop() != null && forecast.getExtras().getPop() >= 0) {
+                YEntryData y = new YEntryData(forecast.getExtras().getPop(), forecast.getExtras().getPop() + "%");
+                XLabelData x = new XLabelData(date, context.getString(R.string.wi_raindrop), 0);
+                chanceEntryData = new EntryData<>(x, y);
+            }
         }
     }
 
