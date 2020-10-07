@@ -95,6 +95,7 @@ public class ExampleInstrumentedTest {
 
         // Start logger
         Logger.init(appContext);
+        Settings.loadIfNeeded();
     }
 
     @Test

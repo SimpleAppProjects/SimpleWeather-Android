@@ -6,6 +6,7 @@ import android.text.format.DateFormat;
 import android.util.SparseArray;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 
@@ -234,6 +235,7 @@ public class WeatherUtils {
         }
     }
 
+    @DrawableRes
     public static int getDrawableFromAlertType(WeatherAlertType type) {
         int drawable = -1;
 
@@ -344,6 +346,7 @@ public class WeatherUtils {
         return color;
     }
 
+    @DrawableRes
     public static int getWeatherIconResource(String icon) {
         int weatherIcon = -1;
 
