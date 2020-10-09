@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- North -->
+    <string name="wind_dir_n">"S"</string>
+
+    <!-- North-North East -->
+    <string name="wind_dir_nne">"SSV"</string>
+
+    <!-- North-East -->
+    <string name="wind_dir_ne">"SV"</string>
+
+    <!-- East North-East -->
+    <string name="wind_dir_ene">"VSV"</string>
+
+    <!-- East -->
+    <string name="wind_dir_e">"V"</string>
+
+    <!-- East South-East -->
+    <string name="wind_dir_ese">"VJV"</string>
+
+    <!-- South-East -->
+    <string name="wind_dir_se">"JV"</string>
+
+    <!-- South South-East -->
+    <string name="wind_dir_sse">"JJV"</string>
+
+    <!-- South -->
+    <string name="wind_dir_s">"J"</string>
+
+    <!-- South South-West -->
+    <string name="wind_dir_ssw">"JJZ"</string>
+
+    <!-- South-West -->
+    <string name="wind_dir_sw">"JZ"</string>
+
+    <!-- West South-West -->
+    <string name="wind_dir_wsw">"ZJZ"</string>
+
+    <!-- West -->
+    <string name="wind_dir_w">"Z"</string>
+
+    <!-- West North-West -->
+    <string name="wind_dir_wnw">"ZSZ"</string>
+
+    <!-- North-West -->
+    <string name="wind_dir_nw">"SZ"</string>
+
+    <!-- North North-West -->
+    <string name="wind_dir_nnw">"SSZ"</string>
+</resources>

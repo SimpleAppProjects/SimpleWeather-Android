@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="beaufort_0">"Bezvetrie"</string>
+    <string name="beaufort_1">"Vánok"</string>
+    <string name="beaufort_2">"Slabý vietor"</string>
+    <string name="beaufort_3">"Mierny vietor"</string>
+    <string name="beaufort_4">"dosť čerstvý vietor"</string>
+    <string name="beaufort_5">"čerstvý vietor"</string>
+    <string name="beaufort_6">"silný vietor"</string>
+    <string name="beaufort_7">"prudký vietor"</string>
+    <string name="beaufort_8">"búrlivý vietor"</string>
+    <string name="beaufort_9">"víchrica"</string>
+    <string name="beaufort_10">"silná víchrica"</string>
+    <string name="beaufort_11">"mohutná víchrica"</string>
+    <string name="beaufort_12">"orkán"</string>
+</resources>

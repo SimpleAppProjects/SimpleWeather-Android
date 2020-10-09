@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Feature Settings -->
+    <string name="pref_title_features">"Vlastnosti"</string>
+    <string name="pref_summary_features">"Vybrať z možností zapnúť/vypnúť"</string>
+    <string name="pref_title_feature_bgimage">"Obrázok pozadia"</string>
+    <string name="pref_title_feature_forecast">"Predpoveď"</string>
+    <string name="pref_title_feature_hrforecast">"Hodinová predpoveď"</string>
+    <string name="pref_title_feature_details">"Podrobnosti počasia"</string>
+    <string name="pref_title_feature_uv">"UV"</string>
+    <string name="pref_title_feature_beaufort">"Beaufort"</string>
+    <string name="pref_title_feature_aqindex">"Index kvality ovzdušia"</string>
+    <string name="pref_title_feature_moonphase">"Fáza mesiaca"</string>
+    <string name="pref_title_feature_sunphase">"Fáza slnka"</string>
+    <string name="pref_title_feature_radar">"MeteoRadar"</string>
+    <string name="pref_title_feature_locpanelimg">"Obrázok panela polohy"</string>
+
+    <!-- Widget -->
+    <string name="widget_configure_prompt">"Nastavenia miniaplikácie"</string>
+    <string name="title_activity_widget_config">"Predvoľby miniaplikácie"</string>
+    <string name="pref_title_bgcolor">"Pozadie"</string>
+    <string name="label_color_currentconditions">"Aktuálne podmienky"</string>
+    <string name="label_color_white">"Biela"</string>
+    <string name="label_color_black">"Čierna"</string>
+    <string name="label_color_transparent">"Priehľadná"</string>
+    <string name="pref_title_bgstyle">"Štýl pozadia"</string>
+    <string name="label_style_fullbg">"Celé pozadie"</string>
+    <string name="label_style_panda">"Predvolené"</string>
+
+    <!-- Can be shortened to 'Color' -->
+    <string name="label_style_pendingcolor">"Farba počasia"</string>
+    <string name="label_style_light">"Svetlá"</string>
+    <string name="label_style_dark">"Tmavá"</string>
+    <string name="locname_pref_title">"Meno lokality"</string>
+    <string name="locname_pref_summary">"Skryť meno lokality v miniaplikácii"</string>
+    <string name="settingsbtn_pref_title">"Tlačidlo nastavení"</string>
+    <string name="settingsbtn_pref_summary">"Skryť tlačidlo nastavení v miniaplikácii"</string>
+    <string name="clock_pref_title">"Hodiny"</string>
+    <string name="calendar_pref_title">"Kalendár"</string>
+    <string name="summary_default">"Predvolené"</string>
+    <string name="pref_title_fcastoption">"Predpoveď"</string>
+    <string name="label_fcast_full">"Denná a hodinová predpoveď (ak je dostupná)"</string>
+    <string name="label_fcast_daily">"Denná predpoveď"</string>
+    <string name="label_fcast_hourly">"Hodinová predpoveď"</string>
+    <string name="pref_category_timeanddate">"Čas a dátum"</string>
+    <string name="pref_title_timezone">"Časová zóna"</string>
+    <string name="pref_timezone_summaryoff">"Použiť systémovú časovú zónu pre čas a dátum"</string>
+    <string name="pref_timezone_summaryon">"Použiť čas a dátum lokality"</string>
+    <string name="pref_location">"Lokalita"</string>
+    <string name="pref_item_gpslocation">"Aktuálna poloha GPS"</string>
+    <string name="prompt_setup_app_first">"Najprv prosím nastavte aplikáciu"</string>
+
+    <!-- LineView -->
+    <string name="label_series">"Rad"</string>
+
+    <!-- In-App Updates -->
+    <string name="not_channel_update_title">"Aktualizácie aplikácie "</string>
+    <string name="prompt_update_title">"Aktualizovať SimpleWeather"</string>
+    <string name="prompt_update_available">"Je dostupná aktualizácia. Ťuknutím inštalujte"</string>
+
+    <!-- Support -->
+    <string name="pref_category_support">"Podpora"</string>
+
+    <!-- Feedback -->
+    <string name="pref_title_feedback">"Spätná väzba"</string>
+    <string name="pref_summary_feedback">"Nahlásiť chyby alebo návrhy na vylepšenie aplikácie"</string>
+
+    <!-- Rate / Review -->
+    <string name="pref_title_rateandreview">"Hodnotenie a recenzia"</string>
+    <string name="pref_summary_rateandreview">"Páči sa Vám aplikácia? Pomôžte podpore poskytnutím recenzie."</string>
+
+    <!-- Translate -->
+    <string name="pref_title_translate">"Preklad"</string>
+    <string name="pref_summary_translate">"Pomôcť s prekladom aplikácie"</string>
+</resources>

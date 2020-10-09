@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Conditions -->
+    <string name="weather_tornado">"Tornádo"</string>
+    <string name="weather_tropicalstorm">"Tropická búrka"</string>
+    <string name="weather_hurricane">"Uragán"</string>
+    <string name="weather_severetstorms">"Silné búrky"</string>
+    <string name="weather_tstorms">"Búrky"</string>
+    <string name="weather_rainandsnow">"Dážď so snehom"</string>
+    <string name="weather_rainandsleet">"Dážď a pľušť"</string>
+    <string name="weather_snowandsleet">"Sneh a pľušť"</string>
+    <string name="weather_freezingrain">"Mrznúci dážď"</string>
+    <string name="weather_snowflurries">"Snehové návaly"</string>
+    <string name="weather_lightsnowshowers">"Slabé sneženie"</string>
+    <string name="weather_blowingsnow">"Snehová vánica"</string>
+    <string name="weather_snow">"Sneženie"</string>
+    <string name="weather_hail">"Krupobitie"</string>
+    <string name="weather_sleet">"Pľušť"</string>
+    <string name="weather_dust">"Prašno"</string>
+    <string name="weather_foggy">"Hmlisto"</string>
+    <string name="weather_haze">"Opar"</string>
+    <string name="weather_smoky">"Dymno"</string>
+    <string name="weather_windy">"Veterno"</string>
+    <string name="weather_cold">"Chladno"</string>
+    <string name="weather_cloudy">"Oblačno"</string>
+    <string name="weather_mostlycloudy">"Prevažne zamračené"</string>
+    <string name="weather_partlycloudy">"Miestami oblačno"</string>
+    <string name="weather_clear">"Jasno"</string>
+    <string name="weather_sunny">"Slnečno"</string>
+    <string name="weather_fair">"Pekne"</string>
+    <string name="weather_rainandhail">"Dážď s krúpami"</string>
+    <string name="weather_hot">"Horúco"</string>
+    <string name="weather_isotstorms">"Ojedinelé búrky"</string>
+    <string name="weather_scatteredtstorms">"Roztrúsené búrky"</string>
+    <string name="weather_scatteredshowers">"Ojedinele prehánky"</string>
+    <string name="weather_heavysnow">"Husté sneženie"</string>
+    <string name="weather_fog">"Hmla"</string>
+    <string name="weather_lightrain">"Slabý dážď"</string>
+    <string name="weather_rain">"Dážď"</string>
+    <string name="weather_rainshowers">"Prehánky"</string>
+    <string name="weather_blizzard">"Fujavica"</string>
+    <string name="weather_overcast">"Zamračené"</string>
+    <string name="weather_sleet_tstorms">"Pľušť a hrmavica"</string>
+    <string name="weather_snow_tstorms">"Hrmavica so snehom"</string>
+    <string name="weather_clearsky">"Jasná obloha"</string>
+    <string name="weather_heavyrain">"Silný dážď"</string>
+</resources>

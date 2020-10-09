@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Setup -->
+    <string name="location_search_hint">"Zadajte polohu"</string>
+    <string name="api_label">"Poskytovateľ počasia"</string>
+    <string name="key_hint">"kľúč poskytovateľa"</string>
+    <string name="label_gpsfollow">"Aktuálna lokalita"</string>
+    <string name="label_getstarted">"Začíname"</string>
+    <string name="setup_welcome_prompt">"Vitajte v SimpleWeather"</string>
+    <string name="setup_welcome_tagline_prompt">"Jednoducho Simple Weather"</string>
+    <string name="setup_location_prompt">"Zadajte Vašu lokalitu"</string>
+    <string name="setup_preferences_prompt">"Úprava Vašich nastavení"</string>
+    <string name="label_next">"Ďalej"</string>
+    <string name="label_back">"Späť"</string>
+
+    <!-- MainActivity -->
+    <string name="title_activity_weather_now">"Počasie"</string>
+    <string name="action_settings">"Nastavenia"</string>
+    <string name="action_retry">"Opakovať"</string>
+
+    <!-- Weather Details -->
+    <string name="label_details">"Detaily"</string>
+    <string name="label_humidity">"Vlhkosť"</string>
+    <string name="label_pressure">"Tlak"</string>
+    <string name="label_visibility">"Viditeľnosť"</string>
+    <string name="label_feelslike">"Pocitovo"</string>
+    <string name="label_wind">"Vietor"</string>
+    <string name="label_forecast">"Predpoveď"</string>
+    <string name="label_condition">"Podmienky"</string>
+    <string name="label_sunriseset">"Svitanie/Súmrak"</string>
+    <string name="label_sunrise">"Svitanie"</string>
+    <string name="label_sunset">"Súmrak"</string>
+    <string name="label_hourlyforecast">"Hodinovo"</string>
+    <string name="label_precipitation">"Zrážky"</string>
+    <string name="label_chance">"Šanca"</string>
+    <string name="label_cloudiness">"Oblačnosť"</string>
+    <string name="label_qpf_rain">"Dážď"</string>
+    <string name="label_qpf_snow">"Sneh"</string>
+    <string name="credit_prefix">"Údaje z"</string>
+    <string name="attrib_prefix">"Fotka od"</string>
+    <string name="label_high">"Najvyššia"</string>
+    <string name="label_low">"Najnižšia"</string>
+    <string name="label_dewpoint">"Rosný bod"</string>
+    <string name="label_moonrise">"Mesiac vychádza"</string>
+    <string name="label_moonset">"Mesiac zapadá"</string>
+    <string name="label_moonphase">"Fáza mesiaca"</string>
+    <string name="label_beaufort">"Beaufort"</string>
+    <string name="label_uv">"UV index"</string>
+    <string name="label_airquality">"Index kvality ovzdušia"</string>
+    <string name="label_airquality_short">"Kvalita ovzdušia"</string>
+    <string name="label_radar">"Radar"</string>
+    <string name="label_day">"Popoludní"</string>
+    <string name="label_eve">"Večer"</string>
+    <string name="label_morning">"Ráno"</string>
+    <string name="label_night">"Noc"</string>
+    <string name="label_temp">"Teplota"</string>
+
+    <!-- NavBar -->
+    <string name="label_nav_weathernow">"Počasie"</string>
+    <string name="label_nav_alerts">"Výstrahy"</string>
+    <string name="label_nav_locations">"Lokality"</string>
+    <string name="title_activity_settings">"Nastavenia"</string>
+    <string name="title_fragment_alerts">"Vážne meteovýstrahy"</string>
+
+    <!-- Settings -->
+    <string name="pref_title_general">"Všeobecné"</string>
+    <string name="pref_category_version">"Verzia"</string>
+    <string name="pref_title_units">"Jednotky"</string>
+    <string name="pref_summary_fahrenheit">"Zobraziť v stupňoch Fahrenheita"</string>
+    <string name="pref_summary_celsius">"Zobraziť v stupňoch Celzia"</string>
+    <string name="pref_title_about">"O aplikácii"</string>
+    <string name="pref_title_about_app">"O SimpleWeather"</string>
+    <string name="pref_title_credits">"S podporou"</string>
+    <string name="pref_title_oslibs">"Open Source Knižnice"</string>
+    <string name="pref_category_providers">"Poskytovatelia dát"</string>
+    <string name="pref_summary_currentlocation">"Povoliť prístup k aktuálnej polohe cez GPS"</string>
+    <string name="pref_summary_apikey">"Vložiť kľúč poskytovateľa pre %1$s"</string>
+    <string name="message_enter_apikey">"Vložte prosím kľúč poskytovateľa"</string>
+    <string name="message_keyverified">"Kľúč overený"</string>
+    <string name="message_keyinvalid">"Neplatný kľúč"</string>
+    <string name="pref_title_onnotification">"Priebežné oznámenia"</string>
+    <string name="pref_summary_notification">"Zobraziť trvalé oznámenie o aktuálnom počasí"</string>
+    <string name="pref_title_api">"Poskytovateľ počasia"</string>
+    <string name="pref_category_notification">"Oznámenia"</string>
+    <string name="pref_title_notificationicon">"Ikona oznámenia"</string>
+    <string name="pref_title_alerts">"Meteovýstrahy"</string>
+    <string name="pref_summary_alerts">"Zobraziť oznámenia o meteovýstrahách"</string>
+    <string name="pref_summary_alerts_disabled">"Tento poskytovateľ nepodporuje meteovýstrahy"</string>
+    <string name="pref_title_apiregister">"Vytvoriť užívateľa"</string>
+    <string name="pref_summary_apiregister">"Vytvoriť registráciu na získanie kľúča poskytovateľa"</string>
+    <string name="error_message_weather_us_only">"Tento poskytovateľ podporuje iba lokality v USA"</string>
+
+    <!-- Locations -->
+    <string name="label_btn_add_location">"Pridať lokalitu"</string>
+    <string name="action_editmode">"Režim úprav"</string>
+    <string name="label_currentlocation">"Súčasná poloha"</string>
+    <string name="label_favoritelocations">"Obľúbené lokality"</string>
+    <string name="error_location_denied">"Prístup k polohe zamietnutý"</string>
+    <string name="error_retrieve_location">"Nie je možné získať polohu"</string>
+    <string name="error_enable_location_services">"Služba určovania polohy je vypnutá. Zapnite ju prosím v Nastaveniach"</string>
+    <string name="error_noresults">"Žiadne výsledky k dispozícii "</string>
+    <string name="label_fab_add_location">"Pridať polohu"</string>
+    <string name="message_locationremoved">"Lokalita vymazaná"</string>
+    <string name="message_needfavorite">"Je potrebná minimálne jedna obľúbená lokalita"</string>
+    <string name="undo">"Vrátiť"</string>
+    <string name="delete">"Vymazať"</string>
+    <string name="bg_location_permission_rationale">"Povoliť aktualizáciu polohy pre oznámenia a miniaplikácie"</string>
+
+    <!-- Weather Exceptions -->
+    <string name="werror_noweather">"Načítanie údajov o počasí nie je možné"</string>
+    <string name="werror_networkerror">"Chyba pripojenia siete"</string>
+    <string name="werror_invalidkey">"Neplatný kľúč poskytovateľa"</string>
+    <string name="werror_querynotfound">"Vami hľadané mesto nenájdené"</string>
+    <string name="werror_unknown">"Vyskytla sa neznáma chyba"</string>
+
+    <!-- Refresh Intervals -->
+    <string name="pref_title_refreshinterval">"Interval aktualizácie"</string>
+    <string name="refresh_60min">"1 hodina"</string>
+    <string name="refresh_2hrs">"2 hodiny"</string>
+    <string name="refresh_3hrs">"3 hodiny"</string>
+    <string name="refresh_6hrs">"6 hodín"</string>
+    <string name="refresh_12hrs">"12 hodín"</string>
+    <string name="update_prefix">"Aktualizované"</string>
+    <string name="update_prefix_day">"Aktualizované"</string>
+
+    <!-- Notification -->
+    <string name="notificationicon_temperature">"Teplota"</string>
+    <string name="notificationicon_condition">"Stav počasia"</string>
+    <string name="not_channel_name_weather">"Oznámenia o počasí"</string>
+    <string name="not_channel_desc_weather">"Oznámenia o počasí"</string>
+    <string name="not_channel_name_alerts">"Meteovýstrahy"</string>
+    <string name="not_channel_desc_alerts">"Oznámenia meteovýstrah"</string>
+    <string name="not_channel_name_general">"Oznámenia všeobecne"</string>
+    <string name="not_title_wearable_sync">"Synchronizujem s nositeľným zariadením…"</string>
+    <string name="not_title_device_sync">"Synchronizujem so zariadením…"</string>
+
+    <!-- Alerts -->
+    <string name="datetime_day_ago">"%1$dd nazad"</string>
+    <string name="datetime_hr_ago">"%1$dh nazad"</string>
+    <string name="datetime_min_ago">"%1$dm nazad"</string>
+    <string name="datetime_sec_ago">"%1$ds nazad"</string>
+    <string name="datetime_validuntil">"Platné do"</string>
+
+    <!-- HERE API -->
+    <string name="pref_title_personalkey">"Váš osobný kľúč poskytovateľa"</string>
+    <string name="pref_summary_personalkey">"Použiť osobný kľúč poskytovateľa počasia"</string>
+
+    <!-- Dark Theme -->
+    <string name="pref_title_userthememode">"Motív"</string>
+    <string name="userthememode_default">"Predvolené nastavenia"</string>
+    <string name="userthememode_dark">"Tmavý"</string>
+    <string name="userthememode_black">"Tmavý (AMOLED)"</string>
+    <string name="userthememode_light">"Svetlý"</string>
+    <string name="label_windgust">"Nárazy vetra"</string>
+</resources>

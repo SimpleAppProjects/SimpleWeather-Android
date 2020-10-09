@@ -49,7 +49,7 @@
     <string name="label_precipitation">"Niederschlag"</string>
 
     <!-- "Chance" could be used as well but isn't really used in this case. -->
-    <string name="label_chance">"Wahrscheinlichkeit"</string>
+    <string name="label_chance">"Niederschlagsgefahr"</string>
     <string name="label_cloudiness">"Bewölkung"</string>
 
     <!-- There is no better word for it. -->

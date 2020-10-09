@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moonphase_new">"Nov"</string>
+    <string name="moonphase_waxcrescent">"dorastajúci polmesiac"</string>
+    <string name="moonphase_firstqtr">"Prvá štvrť"</string>
+    <string name="moonphase_waxgibbous">"dorastajúci mesiac"</string>
+    <string name="moonphase_full">"Spln"</string>
+    <string name="moonphase_wangibbous">"zmenšujúci sa mesiac"</string>
+    <string name="moonphase_lastqtr">"posledná štvrť"</string>
+    <string name="moonphase_wancrescent">"zmenšujúci sa polmesiac"</string>
+</resources>
