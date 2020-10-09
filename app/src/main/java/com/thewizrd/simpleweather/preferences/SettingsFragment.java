@@ -44,6 +44,11 @@ import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.SwitchPreferenceCompat;
 
+import com.google.android.play.core.review.ReviewInfo;
+import com.google.android.play.core.review.ReviewManager;
+import com.google.android.play.core.review.ReviewManagerFactory;
+import com.google.android.play.core.tasks.OnCompleteListener;
+import com.google.android.play.core.tasks.Task;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -992,7 +997,27 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             findPreference(KEY_RATEREVIEW).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    openPlayStore();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        final ReviewManager manager = ReviewManagerFactory.create(requireContext());
+                        Task<ReviewInfo> request = manager.requestReviewFlow();
+                        request.addOnCompleteListener(new OnCompleteListener<ReviewInfo>() {
+                            @Override
+                            public void onComplete(@NonNull Task<ReviewInfo> task) {
+                                if (isViewAlive()) {
+                                    if (task.isSuccessful()) {
+                                        // We can get the ReviewInfo object
+                                        ReviewInfo reviewInfo = task.getResult();
+                                        manager.launchReviewFlow(getAppCompatActivity(), reviewInfo);
+                                    } else {
+                                        openPlayStore();
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        openPlayStore();
+                    }
+
                     return true;
                 }
 
