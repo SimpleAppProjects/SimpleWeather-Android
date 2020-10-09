@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -98,13 +99,11 @@ public class BindingAdapters {
 
     @BindingAdapter(value = {"tempTextColor", "tempUnit"}, requireAll = false)
     public static void tempTextColor(TextView view, CharSequence temp, String tempUnit) {
-        String temp_str = temp != null ? StringUtils.removeNonDigitChars(temp.toString()) : null;
-        if (!StringUtils.isNullOrWhitespace(temp_str)) {
-            float temp_f;
+        String temp_str = StringUtils.removeNonDigitChars(temp);
+        Float temp_f = NumberUtils.tryParseFloat(temp_str);
+        if (temp_f != null) {
             if (ObjectsCompat.equals(tempUnit, Settings.CELSIUS) || temp.toString().endsWith(WeatherIcons.CELSIUS)) {
-                temp_f = ConversionMethods.CtoF(Float.parseFloat(temp_str));
-            } else {
-                temp_f = Float.parseFloat(temp_str);
+                temp_f = ConversionMethods.CtoF(temp_f);
             }
 
             view.setTextColor(WeatherUtils.getColorFromTempF(temp_f, Colors.WHITE));
