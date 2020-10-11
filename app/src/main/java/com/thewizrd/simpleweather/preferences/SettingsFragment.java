@@ -987,8 +987,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     Intent sendTo = new Intent(Intent.ACTION_SENDTO);
-                    sendTo.setData(Uri.parse("mailto:"));
-                    sendTo.putExtra(Intent.EXTRA_EMAIL, "thewizrd.dev+SimpleWeatherAndroid@gmail.com");
+                    sendTo.setData(Uri.parse("mailto:thewizrd.dev+SimpleWeatherAndroid@gmail.com"));
                     startActivity(Intent.createChooser(sendTo, null));
                     return true;
                 }
