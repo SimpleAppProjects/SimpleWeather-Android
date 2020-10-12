@@ -63,6 +63,7 @@ import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.JSONParser;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -93,7 +94,6 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import java.util.Collection;
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
@@ -591,7 +591,7 @@ public class WeatherNowFragment extends CustomFragment
         if (locationChanged || wLoader == null) {
             restore();
         } else {
-            ULocale currentLocale = ULocale.forLocale(Locale.getDefault());
+            ULocale currentLocale = ULocale.forLocale(LocaleUtils.getLocale());
             String locale = wm.localeToLangCode(currentLocale.getLanguage(), currentLocale.toLanguageTag());
 
             // Reset if source || locale is different

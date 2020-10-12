@@ -14,7 +14,6 @@ import android.webkit.WebView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
@@ -43,13 +42,14 @@ import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.activity.UserLocaleActivity;
 import com.thewizrd.simpleweather.databinding.ActivityMainBinding;
 import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationService;
 import com.thewizrd.simpleweather.preferences.SettingsFragment;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
 import com.thewizrd.simpleweather.updates.InAppUpdateManager;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends UserLocaleActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener,
         UserThemeMode.OnThemeChangeListener {
 

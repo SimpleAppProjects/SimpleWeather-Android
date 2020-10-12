@@ -29,7 +29,6 @@ import com.thewizrd.shared_resources.weatherdata.images.model.ImageData;
 
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -45,9 +44,9 @@ public class WeatherUtils {
         String timeformat;
 
         if (DateFormat.is24HourFormat(context))
-            timeformat = update_time.format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_24HR, Locale.getDefault()));
+            timeformat = update_time.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_24HR));
         else
-            timeformat = update_time.format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM, Locale.getDefault()));
+            timeformat = update_time.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM));
 
         timeformat = String.format("%s %s", timeformat, weather.getLocation().getTzShort());
 
@@ -57,7 +56,7 @@ public class WeatherUtils {
         } else {
             prefix = context.getString(R.string.update_prefix);
             date = String.format("%s %s %s", prefix, update_time.format(
-                    DateTimeFormatter.ofPattern(DateTimeConstants.ABBREV_DAY_OF_THE_WEEK, Locale.getDefault())), timeformat);
+                    DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.ABBREV_DAY_OF_THE_WEEK)), timeformat);
         }
 
         return date;

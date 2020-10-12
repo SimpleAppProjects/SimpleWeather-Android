@@ -36,12 +36,12 @@ import com.thewizrd.shared_resources.helpers.ObservableArrayList;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.R;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.Callable;
 
 public class LineView extends HorizontalScrollView {
@@ -905,7 +905,7 @@ public class LineView extends HorizontalScrollView {
                     int seriesColor = colorArray[i % 3];
                     String title = dataLists.get(i).getSeriesLabel();
                     if (StringUtils.isNullOrWhitespace(title)) {
-                        title = String.format(Locale.getDefault(), "%s %d", getContext().getString(R.string.label_series), i);
+                        title = String.format(LocaleUtils.getLocale(), "%s %d", getContext().getString(R.string.label_series), i);
                     }
 
                     Rect textBounds = new Rect();

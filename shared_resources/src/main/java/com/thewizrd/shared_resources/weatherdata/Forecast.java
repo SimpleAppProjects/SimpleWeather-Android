@@ -10,6 +10,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -44,7 +45,7 @@ public class Forecast extends BaseForecast {
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.weatheryahoo.ForecastsItem forecast) {
         WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.YAHOO);
-        Locale locale = Locale.getDefault();
+        Locale locale = LocaleUtils.getLocale();
 
         if (locale.toString().equals("en") || locale.toString().startsWith("en_") || locale.equals(Locale.ROOT)) {
             condition = forecast.getText();
@@ -185,7 +186,7 @@ public class Forecast extends BaseForecast {
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem) {
         WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.NWS);
-        Locale locale = Locale.getDefault();
+        Locale locale = LocaleUtils.getLocale();
 
         date = ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME).toLocalDateTime();
         if (forecastItem.getIsDaytime()) {
@@ -220,7 +221,7 @@ public class Forecast extends BaseForecast {
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem, com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem nightForecastItem) {
         WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.NWS);
-        Locale locale = Locale.getDefault();
+        Locale locale = LocaleUtils.getLocale();
 
         date = ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME).toLocalDateTime();
         highF = (float) forecastItem.getTemperature();

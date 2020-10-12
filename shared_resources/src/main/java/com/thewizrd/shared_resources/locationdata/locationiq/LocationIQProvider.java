@@ -10,6 +10,7 @@ import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.utils.ExceptionUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -61,7 +62,7 @@ public final class LocationIQProvider extends LocationProviderImpl {
         // Limit amount of results shown
         int maxResults = 10;
 
-        ULocale uLocale = ULocale.forLocale(Locale.getDefault());
+        ULocale uLocale = ULocale.forLocale(LocaleUtils.getLocale());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
         String key = getAPIKey();
@@ -128,7 +129,7 @@ public final class LocationIQProvider extends LocationProviderImpl {
     public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coord, String weatherAPI) throws WeatherException {
         LocationQueryViewModel location = null;
 
-        ULocale uLocale = ULocale.forLocale(Locale.getDefault());
+        ULocale uLocale = ULocale.forLocale(LocaleUtils.getLocale());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
         String key = getAPIKey();

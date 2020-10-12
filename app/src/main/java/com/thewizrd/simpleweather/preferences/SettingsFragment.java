@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
@@ -54,6 +55,7 @@ import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -74,6 +76,7 @@ import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
 import static com.thewizrd.shared_resources.utils.Settings.KEY_API;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_APIKEY;
@@ -94,6 +97,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
     // Preference Keys
     private static final String KEY_FEATURES = "key_features";
+    private static final String KEY_LANGUAGE = "key_language";
     private static final String KEY_ABOUTAPP = "key_aboutapp";
     private static final String KEY_APIREGISTER = "key_apiregister";
     private static final String CATEGORY_NOTIFICATION = "category_notification";
@@ -110,6 +114,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
     private SwitchPreferenceCompat alertNotification;
     private Preference registerPref;
     private ListPreference themePref;
+    private ListPreference languagePref;
 
     private PreferenceCategory notCategory;
     private PreferenceCategory apiCategory;
@@ -642,6 +647,44 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 // Display the fragment as the main content.
                 Navigation.findNavController(getAppCompatActivity(), R.id.fragment_container)
                         .navigate(SettingsFragmentDirections.actionSettingsFragmentToFeaturesFragment2());
+                return true;
+            }
+        });
+
+        languagePref = findPreference(KEY_LANGUAGE);
+        CharSequence[] langCodes = languagePref.getEntryValues();
+        CharSequence[] langEntries = new CharSequence[langCodes.length];
+        for (int i = 0; i < langCodes.length; i++) {
+            CharSequence code = langCodes[i];
+
+            if (TextUtils.isEmpty(code)) {
+                langEntries[i] = requireContext().getString(R.string.summary_default);
+            } else {
+                String localeCode = code.toString();
+                Locale locale = new Locale(localeCode);
+                langEntries[i] = locale.getDisplayName(locale);
+            }
+        }
+        languagePref.setEntries(langEntries);
+
+        languagePref.setSummaryProvider(new Preference.SummaryProvider<ListPreference>() {
+            @Override
+            public CharSequence provideSummary(ListPreference preference) {
+                if (StringUtils.isNullOrWhitespace(preference.getValue())) {
+                    return preference.getContext().getString(R.string.summary_default);
+                } else {
+                    return LocaleUtils.getLocaleDisplayName();
+                }
+            }
+        });
+
+        languagePref.setDefaultValue("");
+        languagePref.setValue(LocaleUtils.getLocaleCode());
+        languagePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                LocaleUtils.setLocaleCode(newValue.toString());
+                requireActivity().recreate();
                 return true;
             }
         });

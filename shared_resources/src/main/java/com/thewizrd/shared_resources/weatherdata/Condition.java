@@ -11,6 +11,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -91,7 +92,7 @@ public class Condition extends CustomJsonObject {
 
     public Condition(com.thewizrd.shared_resources.weatherdata.weatheryahoo.CurrentObservation observation) {
         WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.YAHOO);
-        Locale locale = Locale.getDefault();
+        Locale locale = LocaleUtils.getLocale();
 
         if (locale.toString().equals("en") || locale.toString().startsWith("en_") || locale.equals(Locale.ROOT)) {
             weather = observation.getCondition().getText();
@@ -240,7 +241,7 @@ public class Condition extends CustomJsonObject {
 
     public Condition(com.thewizrd.shared_resources.weatherdata.nws.ObservationCurrentResponse obsCurrentResponse) {
         WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.NWS);
-        Locale locale = Locale.getDefault();
+        Locale locale = LocaleUtils.getLocale();
 
         if (locale.toString().equals("en") || locale.toString().startsWith("en_") || locale.equals(Locale.ROOT)) {
             weather = obsCurrentResponse.getTextDescription();

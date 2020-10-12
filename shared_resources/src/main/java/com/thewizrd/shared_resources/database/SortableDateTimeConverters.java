@@ -2,15 +2,19 @@ package com.thewizrd.shared_resources.database;
 
 import androidx.room.TypeConverter;
 
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
+
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
+import java.util.Locale;
+
 public class SortableDateTimeConverters {
-    private static final DateTimeFormatter zDTF = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss ZZZZZ");
-    private static final DateTimeFormatter lDTF = DateTimeFormatter.ISO_INSTANT;
+    private static final DateTimeFormatter zDTF = DateTimeUtils.ofPatternForInvariantLocale("yyyy-MM-dd HH:mm:ss ZZZZZ");
+    private static final DateTimeFormatter lDTF = DateTimeFormatter.ISO_INSTANT.withLocale(Locale.ROOT);
 
     @TypeConverter
     public static ZonedDateTime zonedDateTimeFromString(String value) {

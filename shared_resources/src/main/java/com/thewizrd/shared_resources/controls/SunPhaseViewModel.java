@@ -4,9 +4,8 @@ import android.text.format.DateFormat;
 
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.weatherdata.Astronomy;
-
-import org.threeten.bp.format.DateTimeFormatter;
 
 public class SunPhaseViewModel {
     private String sunrise;
@@ -14,11 +13,11 @@ public class SunPhaseViewModel {
 
     public SunPhaseViewModel(Astronomy astronomy) {
         if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
-            sunrise = astronomy.getSunrise().format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_24HR));
-            sunset = astronomy.getSunset().format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_24HR));
+            sunrise = astronomy.getSunrise().format(DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_24HR));
+            sunset = astronomy.getSunset().format(DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_24HR));
         } else {
-            sunrise = astronomy.getSunrise().format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM));
-            sunset = astronomy.getSunset().format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM));
+            sunrise = astronomy.getSunrise().format(DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM));
+            sunset = astronomy.getSunset().format(DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM));
         }
     }
 

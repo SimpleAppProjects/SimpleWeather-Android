@@ -81,6 +81,7 @@
     <string name="pref_title_credits">Credits</string>
     <string name="pref_title_oslibs">Open Source Libraries</string>
     <string name="pref_category_providers">Data Providers</string>
+    <string name="pref_title_language">Language</string>
     <string name="copyright_here" translatable="false">
         The HERE Logo is a trademark or registered trademark of HERE Global B.V.
     </string>
@@ -181,6 +182,5 @@
     <string name="widget_short_date_format" translatable="false">ccc, MMM dd</string>
     <!-- Forecast pattern: Day and date (ex. Mon 14) -->
     <string name="forecast_date_format" translatable="false">EEE dd</string>
-
 
 </resources>

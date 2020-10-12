@@ -75,7 +75,7 @@ public class DateTimeUtils {
     }
 
     public static String formatDateTimeForSkeleton(@NonNull Instant instant, @NonNull String skeleton) {
-        return formatDateTimeForSkeleton(instant, skeleton, Locale.getDefault());
+        return formatDateTimeForSkeleton(instant, skeleton, LocaleUtils.getLocale());
     }
 
     public static String formatDateTimeForSkeleton(@NonNull Instant instant, @NonNull String skeleton, @NonNull Locale locale) {
@@ -84,12 +84,20 @@ public class DateTimeUtils {
     }
 
     public static String getBestPatternForSkeleton(@NonNull String skeleton) {
-        DateTimePatternGenerator generator = DateTimePatternGenerator.getInstance(Locale.getDefault());
+        DateTimePatternGenerator generator = DateTimePatternGenerator.getInstance(LocaleUtils.getLocale());
         return generator.getBestPattern(skeleton);
     }
 
     public static String getBestPatternForSkeleton(@NonNull String skeleton, @NonNull Locale locale) {
         DateTimePatternGenerator generator = DateTimePatternGenerator.getInstance(locale);
         return generator.getBestPattern(skeleton);
+    }
+
+    public static DateTimeFormatter ofPatternForUserLocale(@NonNull String pattern) {
+        return DateTimeFormatter.ofPattern(pattern, LocaleUtils.getLocale());
+    }
+
+    public static DateTimeFormatter ofPatternForInvariantLocale(@NonNull String pattern) {
+        return DateTimeFormatter.ofPattern(pattern, Locale.ROOT);
     }
 }

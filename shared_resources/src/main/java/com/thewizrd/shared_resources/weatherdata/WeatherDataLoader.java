@@ -20,6 +20,7 @@ import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.tasks.TaskUtils;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.JSONParser;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -35,7 +36,6 @@ import org.threeten.bp.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.Callable;
 
 public final class WeatherDataLoader {
@@ -451,7 +451,7 @@ public final class WeatherDataLoader {
     }
 
     private boolean isDataValid(boolean _override) {
-        ULocale currentLocale = ULocale.forLocale(Locale.getDefault());
+        ULocale currentLocale = ULocale.forLocale(LocaleUtils.getLocale());
         String locale = wm.localeToLangCode(currentLocale.getLanguage(), currentLocale.toLanguageTag());
 
         String API = Settings.getAPI();

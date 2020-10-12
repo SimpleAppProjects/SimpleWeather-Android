@@ -11,6 +11,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -227,7 +228,7 @@ public class HourlyForecast extends BaseForecast {
 
     public HourlyForecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem) {
         WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.NWS);
-        Locale locale = Locale.getDefault();
+        Locale locale = LocaleUtils.getLocale();
 
         setDate(ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME));
         highF = (float) forecastItem.getTemperature();

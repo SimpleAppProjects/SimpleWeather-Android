@@ -110,7 +110,9 @@ import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -167,7 +169,6 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -1138,7 +1139,7 @@ public class WeatherNowFragment extends WindowColorFragment
             restore();
         } else {
             // Refresh current fragment instance
-            ULocale currentLocale = ULocale.forLocale(Locale.getDefault());
+            ULocale currentLocale = ULocale.forLocale(LocaleUtils.getLocale());
             String locale = wm.localeToLangCode(currentLocale.getLanguage(), currentLocale.toLanguageTag());
 
             // Check current weather source (API)
@@ -1702,9 +1703,9 @@ public class WeatherNowFragment extends WindowColorFragment
             if (sunPhase != null && !StringUtils.isNullOrWhitespace(sunPhase.getSunrise()) && !StringUtils.isNullOrWhitespace(sunPhase.getSunset()) && fragment.locationData != null) {
                 DateTimeFormatter fmt;
                 if (DateFormat.is24HourFormat(view.getContext())) {
-                    fmt = DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_24HR);
+                    fmt = DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_24HR);
                 } else {
-                    fmt = DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM);
+                    fmt = DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM);
                 }
                 view.setSunriseSetTimes(LocalTime.parse(sunPhase.getSunrise(), fmt),
                         LocalTime.parse(sunPhase.getSunset(), fmt),

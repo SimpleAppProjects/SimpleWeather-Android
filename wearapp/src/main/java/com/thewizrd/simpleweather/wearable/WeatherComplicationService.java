@@ -14,6 +14,7 @@ import androidx.core.util.ObjectsCompat;
 
 import com.google.android.gms.tasks.Tasks;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -23,7 +24,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.LaunchActivity;
 
-import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
@@ -111,13 +111,13 @@ public class WeatherComplicationService extends ComplicationProviderService {
             String currTemp;
             if (weather.getCondition().getTempF() != null && !ObjectsCompat.equals(weather.getCondition().getTempF(), weather.getCondition().getTempC())) {
                 int temp = Settings.isFahrenheit() ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC());
-                currTemp = String.format(Locale.getDefault(), "%d", temp);
+                currTemp = String.format(LocaleUtils.getLocale(), "%d", temp);
             } else {
                 currTemp = "--";
             }
 
             String tempUnit = Settings.getTempUnit();
-            String temp = String.format(Locale.getDefault(), "%s°%s", currTemp, tempUnit);
+            String temp = String.format(LocaleUtils.getLocale(), "%s°%s", currTemp, tempUnit);
             // Weather Icon
             int weatherIcon = WeatherUtils.getWeatherIconResource(weather.getCondition().getIcon());
             // Condition text

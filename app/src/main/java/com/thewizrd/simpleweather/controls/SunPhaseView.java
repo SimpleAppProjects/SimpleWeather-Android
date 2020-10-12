@@ -21,13 +21,13 @@ import androidx.core.util.ObjectsCompat;
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.simpleweather.R;
 
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetTime;
 import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.format.DateTimeFormatter;
 
 import java.util.Arrays;
 
@@ -83,17 +83,17 @@ public class SunPhaseView extends View {
 
     private String getSunriseLabel() {
         if (DateFormat.is24HourFormat(getContext())) {
-            return sunrise.format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_24HR));
+            return sunrise.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_24HR));
         } else {
-            return sunrise.format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM));
+            return sunrise.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM));
         }
     }
 
     private String getSunsetLabel() {
         if (DateFormat.is24HourFormat(getContext())) {
-            return sunset.format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_24HR));
+            return sunset.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_24HR));
         } else {
-            return sunset.format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM));
+            return sunset.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM));
         }
     }
 

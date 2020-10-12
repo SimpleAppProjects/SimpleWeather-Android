@@ -7,6 +7,7 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.utils.JSONParser;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -58,7 +59,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
         // Limit amount of results shown
         int maxResults = 10;
 
-        ULocale uLocale = ULocale.forLocale(Locale.getDefault());
+        ULocale uLocale = ULocale.forLocale(LocaleUtils.getLocale());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
         OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
@@ -134,7 +135,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
 
         String location_query = String.format(Locale.ROOT, "%s,%s", df.format(coord.getLatitude()), df.format(coord.getLongitude()));
 
-        ULocale uLocale = ULocale.forLocale(Locale.getDefault());
+        ULocale uLocale = ULocale.forLocale(LocaleUtils.getLocale());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
         OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
@@ -191,7 +192,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
     public LocationQueryViewModel getLocationfromLocID(String locationID, String weatherAPI) throws WeatherException {
         LocationQueryViewModel location = null;
 
-        ULocale uLocale = ULocale.forLocale(Locale.getDefault());
+        ULocale uLocale = ULocale.forLocale(LocaleUtils.getLocale());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
         OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();

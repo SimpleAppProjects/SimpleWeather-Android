@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.BaseForecast;
@@ -16,10 +17,6 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.lineview.XLabelData;
 import com.thewizrd.simpleweather.controls.lineview.YEntryData;
-
-import org.threeten.bp.format.DateTimeFormatter;
-
-import java.util.Locale;
 
 public class GraphItemViewModel {
     private EntryData<XLabelData, GraphTemperature> tempEntryData;
@@ -35,14 +32,14 @@ public class GraphItemViewModel {
 
         if (forecast instanceof Forecast) {
             Forecast fcast = (Forecast) forecast;
-            date = fcast.getDate().format(DateTimeFormatter.ofPattern(context.getString(R.string.forecast_date_format)));
+            date = fcast.getDate().format(DateTimeUtils.ofPatternForUserLocale(context.getString(R.string.forecast_date_format)));
         } else if (forecast instanceof HourlyForecast) {
             HourlyForecast fcast = (HourlyForecast) forecast;
 
             if (DateFormat.is24HourFormat(context)) {
-                date = fcast.getDate().format(DateTimeFormatter.ofPattern(DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_24HR)));
+                date = fcast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_24HR)));
             } else {
-                date = fcast.getDate().format(DateTimeFormatter.ofPattern(DateTimeConstants.ABBREV_12HR_AMPM));
+                date = fcast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.ABBREV_12HR_AMPM));
             }
         } else {
             date = "";
@@ -52,14 +49,14 @@ public class GraphItemViewModel {
         XLabelData xTemp = new XLabelData(date, forecast.getIcon(), 0);
         if (forecast.getHighF() != null && forecast.getHighC() != null) {
             int value = isFahrenheit ? Math.round(forecast.getHighF()) : Math.round(forecast.getHighC());
-            String hiTemp = String.format(Locale.getDefault(), "%d°", value);
+            String hiTemp = String.format(LocaleUtils.getLocale(), "%d°", value);
             tempData.setHiTempData(new YEntryData(value, hiTemp));
         }
         if (forecast instanceof Forecast) {
             Forecast fcast = (Forecast) forecast;
             if (fcast.getLowF() != null && fcast.getLowC() != null) {
                 int value = isFahrenheit ? Math.round(fcast.getLowF()) : Math.round(fcast.getLowC());
-                String loTemp = String.format(Locale.getDefault(), "%d°", value);
+                String loTemp = String.format(LocaleUtils.getLocale(), "%d°", value);
                 tempData.setLoTempData(new YEntryData(value, loTemp));
             }
         }
@@ -72,7 +69,7 @@ public class GraphItemViewModel {
                 int speedVal = isFahrenheit ? Math.round(forecast.getExtras().getWindMph()) : Math.round(forecast.getExtras().getWindKph());
                 String speedUnit = WeatherUtils.getSpeedUnit();
 
-                String windSpeed = String.format(Locale.getDefault(), "%d %s", speedVal, speedUnit);
+                String windSpeed = String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit);
                 int windDirection = forecast.getExtras().getWindDegrees();
 
                 YEntryData y = new YEntryData(speedVal, windSpeed);

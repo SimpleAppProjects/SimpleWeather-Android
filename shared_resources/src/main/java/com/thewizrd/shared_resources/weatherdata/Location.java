@@ -18,11 +18,9 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Locale;
 
 public class Location extends CustomJsonObject {
 
@@ -55,7 +53,7 @@ public class Location extends CustomJsonObject {
 
         tzOffset = zId.getRules().getOffset(Instant.now());
         tzShort = ZonedDateTime.now(zId)
-                .format(DateTimeFormatter.ofPattern(DateTimeConstants.TIMEZONE_NAME, Locale.getDefault()));
+                .format(DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.TIMEZONE_NAME));
         tzLong = location.getTimezoneId();
     }
 
@@ -69,7 +67,7 @@ public class Location extends CustomJsonObject {
 
         tzOffset = zId.getRules().getOffset(Instant.now());
         tzShort = ZonedDateTime.now(zId)
-                .format(DateTimeFormatter.ofPattern(DateTimeConstants.TIMEZONE_NAME, Locale.getDefault()));
+                .format(DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.TIMEZONE_NAME));
         tzLong = root.getTimezone();
     }
 
@@ -99,7 +97,7 @@ public class Location extends CustomJsonObject {
 
         tzOffset = zId.getRules().getOffset(Instant.now());
         tzShort = ZonedDateTime.now(zId)
-                .format(DateTimeFormatter.ofPattern(DateTimeConstants.TIMEZONE_NAME, Locale.getDefault()));
+                .format(DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.TIMEZONE_NAME));
         tzLong = pointsResponse.getTimeZone();
     }
 

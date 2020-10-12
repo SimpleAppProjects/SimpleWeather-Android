@@ -18,6 +18,7 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.helpers.WeatherIconTextSpan;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -25,8 +26,6 @@ import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
-
-import org.threeten.bp.format.DateTimeFormatter;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -278,7 +277,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         if (weather.getCondition().getTempF() != null &&
                 !ObjectsCompat.equals(weather.getCondition().getTempF(), weather.getCondition().getTempC())) {
             int temp = Settings.isFahrenheit() ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC());
-            curTempSSBuilder.append(String.format(Locale.getDefault(), "%d", temp));
+            curTempSSBuilder.append(String.format(LocaleUtils.getLocale(), "%d", temp));
         } else {
             curTempSSBuilder.append("--");
         }
@@ -352,17 +351,17 @@ public class WeatherNowViewModel extends ObservableViewModel {
             }
             if (weather.getPrecipitation().getQpfRainIn() != null && weather.getPrecipitation().getQpfRainIn() >= 0) {
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN,
-                                String.format(Locale.getDefault(), "%.2f %s",
-                                        Settings.isFahrenheit() ? weather.getPrecipitation().getQpfRainIn() : weather.getPrecipitation().getQpfRainMm(),
-                                        WeatherUtils.getPrecipitationUnit(false))
+                        String.format(LocaleUtils.getLocale(), "%.2f %s",
+                                Settings.isFahrenheit() ? weather.getPrecipitation().getQpfRainIn() : weather.getPrecipitation().getQpfRainMm(),
+                                WeatherUtils.getPrecipitationUnit(false))
                         )
                 );
             }
             if (weather.getPrecipitation().getQpfSnowIn() != null && weather.getPrecipitation().getQpfSnowIn() >= 0) {
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW,
-                                String.format(Locale.getDefault(), "%.2f %s",
-                                        Settings.isFahrenheit() ? weather.getPrecipitation().getQpfSnowIn() : weather.getPrecipitation().getQpfSnowCm(),
-                                        WeatherUtils.getPrecipitationUnit(true))
+                        String.format(LocaleUtils.getLocale(), "%.2f %s",
+                                Settings.isFahrenheit() ? weather.getPrecipitation().getQpfSnowIn() : weather.getPrecipitation().getQpfSnowCm(),
+                                WeatherUtils.getPrecipitationUnit(true))
                         )
                 );
             }
@@ -382,7 +381,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 SpannableStringBuilder ssBuilder = new SpannableStringBuilder();
                 ssBuilder.append(pressureStateIcon)
                         .append(" ")
-                        .append(String.format(Locale.getDefault(), "%.2f %s", pressureVal, pressureUnit));
+                        .append(String.format(LocaleUtils.getLocale(), "%.2f %s", pressureVal, pressureUnit));
 
                 if (pressureStateIcon.length() > 0) {
                     TypefaceSpan span = new WeatherIconTextSpan(context);
@@ -397,12 +396,12 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
         if (weather.getAtmosphere().getHumidity() != null) {
             weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.HUMIDITY,
-                    String.format(Locale.getDefault(), "%d%%", weather.getAtmosphere().getHumidity())));
+                    String.format(LocaleUtils.getLocale(), "%d%%", weather.getAtmosphere().getHumidity())));
         }
 
         if (weather.getAtmosphere().getDewpointF() != null && !ObjectsCompat.equals(weather.getAtmosphere().getDewpointF(), weather.getAtmosphere().getDewpointC())) {
             weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.DEWPOINT,
-                    String.format(Locale.getDefault(), "%d°",
+                    String.format(LocaleUtils.getLocale(), "%d°",
                             Settings.isFahrenheit() ?
                                     Math.round(weather.getAtmosphere().getDewpointF()) :
                                     Math.round(weather.getAtmosphere().getDewpointC())
@@ -414,7 +413,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
             String visibilityUnit = WeatherUtils.getDistanceUnit();
 
             weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.VISIBILITY,
-                    String.format(Locale.getDefault(), "%.2f %s", visibilityVal, visibilityUnit)));
+                    String.format(LocaleUtils.getLocale(), "%.2f %s", visibilityVal, visibilityUnit)));
         }
 
         if (weather.getCondition().getUv() != null) {
@@ -422,7 +421,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 uvIndex = new UVIndexViewModel(weather.getCondition().getUv());
             } else {
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.UV,
-                        String.format(Locale.getDefault(), "%.1f, %s",
+                        String.format(LocaleUtils.getLocale(), "%.1f, %s",
                                 weather.getCondition().getUv().getIndex(), weather.getCondition().getUv().getDescription())));
             }
         } else {
@@ -447,7 +446,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
             int value = Settings.isFahrenheit() ? Math.round(weather.getCondition().getFeelslikeF()) : Math.round(weather.getCondition().getFeelslikeC());
 
             weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
-                    String.format(Locale.getDefault(), "%d°", value)));
+                    String.format(LocaleUtils.getLocale(), "%d°", value)));
         }
 
         // Wind
@@ -458,11 +457,11 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
             if (weather.getCondition().getWindDegrees() != null) {
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
-                        String.format(Locale.getDefault(), "%d %s, %s", speedVal, speedUnit, WeatherUtils.getWindDirection(weather.getCondition().getWindDegrees())),
+                        String.format(LocaleUtils.getLocale(), "%d %s, %s", speedVal, speedUnit, WeatherUtils.getWindDirection(weather.getCondition().getWindDegrees())),
                         weather.getCondition().getWindDegrees() + 180));
             } else {
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
-                        String.format(Locale.getDefault(), "%d %s", speedVal, speedUnit), 180));
+                        String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit), 180));
             }
         }
 
@@ -472,7 +471,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
             String speedUnit = WeatherUtils.getSpeedUnit();
 
             weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.WINDGUST,
-                            String.format(Locale.getDefault(), "%d %s", speedVal, speedUnit)
+                    String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit)
                     )
             );
         }
@@ -503,14 +502,14 @@ public class WeatherNowViewModel extends ObservableViewModel {
                     && weather.getAstronomy().getMoonset().isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
                 if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
                     weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONRISE,
-                            weather.getAstronomy().getMoonrise().format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_24HR))));
+                            weather.getAstronomy().getMoonrise().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_24HR))));
                     weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONSET,
-                            weather.getAstronomy().getMoonset().format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_24HR))));
+                            weather.getAstronomy().getMoonset().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_24HR))));
                 } else {
                     weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONRISE,
-                            weather.getAstronomy().getMoonrise().format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM))));
+                            weather.getAstronomy().getMoonrise().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM))));
                     weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.MOONSET,
-                            weather.getAstronomy().getMoonset().format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM))));
+                            weather.getAstronomy().getMoonset().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM))));
                 }
             }
 

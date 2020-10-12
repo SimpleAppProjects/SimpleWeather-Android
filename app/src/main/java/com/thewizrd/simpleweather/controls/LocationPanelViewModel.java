@@ -5,6 +5,7 @@ import androidx.core.util.ObjectsCompat;
 
 import com.thewizrd.shared_resources.controls.ImageDataViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -12,8 +13,6 @@ import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
-
-import java.util.Locale;
 
 public class LocationPanelViewModel {
     private WeatherManager wm;
@@ -141,7 +140,7 @@ public class LocationPanelViewModel {
                 int temp = Settings.isFahrenheit() ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC());
                 String unitTemp = Settings.isFahrenheit() ? WeatherIcons.FAHRENHEIT : WeatherIcons.CELSIUS;
 
-                currTemp = String.format(Locale.getDefault(), "%d%s", temp, unitTemp);
+                currTemp = String.format(LocaleUtils.getLocale(), "%d%s", temp, unitTemp);
             } else {
                 currTemp = "--";
             }
@@ -150,14 +149,14 @@ public class LocationPanelViewModel {
 
             if (weather.getCondition().getHighF() != null && !ObjectsCompat.equals(weather.getCondition().getHighF(), weather.getCondition().getHighC())) {
                 int temp = Settings.isFahrenheit() ? Math.round(weather.getCondition().getHighF()) : Math.round(weather.getCondition().getHighC());
-                hiTemp = String.format(Locale.getDefault(), "%d°", temp);
+                hiTemp = String.format(LocaleUtils.getLocale(), "%d°", temp);
             } else {
                 hiTemp = "--";
             }
 
             if (weather.getCondition().getLowF() != null && !ObjectsCompat.equals(weather.getCondition().getLowF(), weather.getCondition().getLowC())) {
                 int temp = Settings.isFahrenheit() ? Math.round(weather.getCondition().getLowF()) : Math.round(weather.getCondition().getLowC());
-                loTemp = String.format(Locale.getDefault(), "%d°", temp);
+                loTemp = String.format(LocaleUtils.getLocale(), "%d°", temp);
             } else {
                 loTemp = "--";
             }
@@ -169,7 +168,7 @@ public class LocationPanelViewModel {
                 int speedVal = Settings.isFahrenheit() ? Math.round(weather.getCondition().getWindMph()) : Math.round(weather.getCondition().getWindKph());
                 String speedUnit = WeatherUtils.getSpeedUnit();
 
-                windSpeed = String.format(Locale.getDefault(), "%d %s", speedVal, speedUnit);
+                windSpeed = String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit);
                 windDir = weather.getCondition().getWindDegrees() + 180;
             } else {
                 windSpeed = "--";

@@ -16,6 +16,7 @@ import com.ibm.icu.util.TimeZone;
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -25,10 +26,8 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
-import java.util.Locale;
 
 @Entity(tableName = "locations")
 public class LocationData extends CustomJsonObject {
@@ -94,7 +93,7 @@ public class LocationData extends CustomJsonObject {
             ZoneId zId = ZoneId.of(tzLong);
             if (zId != null)
                 return ZonedDateTime.now(zId).format(
-                        DateTimeFormatter.ofPattern(DateTimeConstants.TIMEZONE_NAME, Locale.getDefault())
+                        DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.TIMEZONE_NAME)
                 );
         }
         return "UTC";

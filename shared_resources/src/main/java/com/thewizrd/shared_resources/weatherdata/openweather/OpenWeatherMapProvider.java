@@ -9,6 +9,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.locationiq.LocationIQProvider;
 import com.thewizrd.shared_resources.utils.ExceptionUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -133,7 +134,7 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
     public Weather getWeather(final String location_query, final String country_code) throws WeatherException {
         Weather weather;
 
-        ULocale uLocale = ULocale.forLocale(Locale.getDefault());
+        ULocale uLocale = ULocale.forLocale(LocaleUtils.getLocale());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
         String query;

@@ -826,7 +826,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                 forecastPanel.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
 
                 TextView forecastDate = forecastPanel.findViewById(R.id.forecast_date);
-                forecastDate.setText(LocalDateTime.now().plusDays(i).format(DateTimeFormatter.ofPattern(DateTimeConstants.ABBREV_DAY_OF_THE_WEEK)));
+                forecastDate.setText(LocalDateTime.now().plusDays(i).format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.ABBREV_DAY_OF_THE_WEEK)));
 
                 TextView forecastHi = forecastPanel.findViewById(R.id.forecast_hi);
                 forecastHi.setText(75 + i + "°");
@@ -869,7 +869,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                 datePattern = DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_SHORT_DATE_FORMAT);
             }
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                DateTimeFormatter dtfm = DateTimeFormatter.ofPattern(datePattern);
+                DateTimeFormatter dtfm = DateTimeUtils.ofPatternForUserLocale(datePattern);
 
                 TextView dateText = binding.widgetContainer.findViewById(R.id.date_panel);
                 dateText.setText(now.format(dtfm));
@@ -885,9 +885,9 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                 SpannableString timeStr;
 
                 if (DateFormat.is24HourFormat(App.getInstance().getAppContext())) {
-                    timeStr = new SpannableString(now.format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_24HR)));
+                    timeStr = new SpannableString(now.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_24HR)));
                 } else {
-                    timeStr = new SpannableString(now.format(DateTimeFormatter.ofPattern(DateTimeConstants.CLOCK_FORMAT_12HR)));
+                    timeStr = new SpannableString(now.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR)));
                 }
 
                 TextView clockView = binding.widgetContainer.findViewById(R.id.clock_panel);

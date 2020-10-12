@@ -865,10 +865,10 @@ public class WeatherWidgetService extends SafeJobIntentService {
                         }
 
                         SpannableString timeStr;
-                        String timeformat = now.format(DateTimeFormatter.ofPattern(timeFormat12hr));
+                        String timeformat = now.format(DateTimeUtils.ofPatternForUserLocale(timeFormat12hr));
 
                         if (DateFormat.is24HourFormat(App.getInstance().getAppContext())) {
-                            timeformat = now.format(DateTimeFormatter.ofPattern(timeFormat24Hr));
+                            timeformat = now.format(DateTimeUtils.ofPatternForUserLocale(timeFormat24Hr));
                             timeStr = new SpannableString(timeformat);
                         } else {
                             timeStr = new SpannableString(timeformat);
@@ -994,7 +994,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
                         }
                     } else {
                         // Update date
-                        DateTimeFormatter dtfm = DateTimeFormatter.ofPattern(datePattern);
+                        DateTimeFormatter dtfm = DateTimeUtils.ofPatternForUserLocale(datePattern);
                         LocalDateTime now;
 
                         if (WidgetUtils.useTimeZone(appWidgetId) && locationData != null && locationData.getTzOffset() != null) {

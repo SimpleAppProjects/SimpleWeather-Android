@@ -8,7 +8,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -18,11 +17,12 @@ import com.thewizrd.shared_resources.preferences.FeatureSettings;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.simpleweather.activity.UserLocaleActivity;
 import com.thewizrd.simpleweather.main.MainActivity;
 import com.thewizrd.simpleweather.setup.SetupActivity;
 import com.thewizrd.simpleweather.updates.InAppUpdateManager;
 
-public class LaunchActivity extends AppCompatActivity {
+public class LaunchActivity extends UserLocaleActivity {
 
     private static final String TAG = "LaunchActivity";
 

@@ -8,6 +8,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.JSONParser;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -87,7 +88,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
     public Weather getWeather(String location_query, String country_code) throws WeatherException {
         Weather weather;
 
-        ULocale uLocale = ULocale.forLocale(Locale.getDefault());
+        ULocale uLocale = ULocale.forLocale(LocaleUtils.getLocale());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
         OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
@@ -230,7 +231,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
     public List<WeatherAlert> getAlerts(LocationData location) {
         List<WeatherAlert> alerts;
 
-        ULocale uLocale = ULocale.forLocale(Locale.getDefault());
+        ULocale uLocale = ULocale.forLocale(LocaleUtils.getLocale());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
 
         OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();

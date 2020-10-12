@@ -10,6 +10,7 @@ import androidx.core.util.ObjectsCompat;
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -19,10 +20,7 @@ import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.UV;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
-import org.threeten.bp.format.DateTimeFormatter;
-
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
 
@@ -42,18 +40,18 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
         weatherIcon = hrForecast.getIcon();
 
         if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
-            date = hrForecast.getDate().format(DateTimeFormatter.ofPattern(DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_DAYOFWEEK_AND_24HR)));
-            shortDate = hrForecast.getDate().format(DateTimeFormatter.ofPattern(DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_24HR)));
+            date = hrForecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_DAYOFWEEK_AND_24HR)));
+            shortDate = hrForecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_24HR)));
         } else {
-            date = hrForecast.getDate().format(DateTimeFormatter.ofPattern(DateTimeConstants.ABBREV_DAYOFWEEK_AND_12HR_AMPM));
-            shortDate = hrForecast.getDate().format(DateTimeFormatter.ofPattern(DateTimeConstants.ABBREV_12HR_AMPM));
+            date = hrForecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.ABBREV_DAYOFWEEK_AND_12HR_AMPM));
+            shortDate = hrForecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.ABBREV_12HR_AMPM));
         }
 
         condition = hrForecast.getCondition();
         try {
             if (hrForecast.getHighF() != null && hrForecast.getHighC() != null) {
                 int value = Settings.isFahrenheit() ? Math.round(hrForecast.getHighF()) : Math.round(hrForecast.getHighC());
-                hiTemp = String.format(Locale.getDefault(), "%d°", value);
+                hiTemp = String.format(LocaleUtils.getLocale(), "%d°", value);
             } else {
                 hiTemp = "--";
             }
@@ -70,7 +68,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
 
             int speedVal = Settings.isFahrenheit() ? Math.round(hrForecast.getExtras().getWindMph()) : Math.round(hrForecast.getExtras().getWindKph());
             String speedUnit = WeatherUtils.getSpeedUnit();
-            windSpeed = String.format(Locale.getDefault(), "%d %s", speedVal, speedUnit);
+            windSpeed = String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit);
         }
 
         // Extras
@@ -79,22 +77,22 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                 int value = Settings.isFahrenheit() ? Math.round(hrForecast.getExtras().getFeelslikeF()) : Math.round(hrForecast.getExtras().getFeelslikeC());
 
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
-                        String.format(Locale.getDefault(), "%d°", value)));
+                        String.format(LocaleUtils.getLocale(), "%d°", value)));
             }
 
             if (hrForecast.getExtras().getPop() != null && hrForecast.getExtras().getPop() >= 0)
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, hrForecast.getExtras().getPop() + "%"));
             if (hrForecast.getExtras().getQpfRainIn() != null && hrForecast.getExtras().getQpfRainIn() >= 0) {
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN,
-                                String.format(Locale.getDefault(), "%.2f %s",
-                                        Settings.isFahrenheit() ? forecast.getExtras().getQpfRainIn() : forecast.getExtras().getQpfRainMm(),
-                                        WeatherUtils.getPrecipitationUnit(false))
+                        String.format(LocaleUtils.getLocale(), "%.2f %s",
+                                Settings.isFahrenheit() ? forecast.getExtras().getQpfRainIn() : forecast.getExtras().getQpfRainMm(),
+                                WeatherUtils.getPrecipitationUnit(false))
                         )
                 );
             }
             if (hrForecast.getExtras().getQpfSnowIn() != null && hrForecast.getExtras().getQpfSnowIn() >= 0) {
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW,
-                        String.format(Locale.getDefault(), "%.2f %s",
+                        String.format(LocaleUtils.getLocale(), "%.2f %s",
                                 Settings.isFahrenheit() ? forecast.getExtras().getQpfSnowIn() : forecast.getExtras().getQpfSnowCm(),
                                 WeatherUtils.getPrecipitationUnit(true)
                         )
@@ -105,12 +103,12 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
 
             if (hrForecast.getExtras().getHumidity() != null) {
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.HUMIDITY,
-                        String.format(Locale.getDefault(), "%d%%", hrForecast.getExtras().getHumidity())));
+                        String.format(LocaleUtils.getLocale(), "%d%%", hrForecast.getExtras().getHumidity())));
             }
 
             if (hrForecast.getExtras().getDewpointF() != null && (!ObjectsCompat.equals(hrForecast.getExtras().getDewpointF(), hrForecast.getExtras().getDewpointC()))) {
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.DEWPOINT,
-                        String.format(Locale.getDefault(), "%d°",
+                        String.format(LocaleUtils.getLocale(), "%d°",
                                 Settings.isFahrenheit() ?
                                         Math.round(hrForecast.getExtras().getDewpointF()) :
                                         Math.round(hrForecast.getExtras().getDewpointC())
@@ -121,7 +119,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                 UV uv = new UV(hrForecast.getExtras().getUvIndex());
 
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.UV,
-                        String.format(Locale.getDefault(), "%.2f, %s", uv.getIndex(), uv.getDescription())));
+                        String.format(LocaleUtils.getLocale(), "%.2f, %s", uv.getIndex(), uv.getDescription())));
             }
 
             if (hrForecast.getExtras().getPressureIn() != null && hrForecast.getExtras().getPressureMb() != null) {
@@ -129,19 +127,19 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                 String pressureUnit = WeatherUtils.getPressureUnit();
 
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.PRESSURE,
-                        String.format(Locale.getDefault(), "%.2f %s", pressureVal, pressureUnit)));
+                        String.format(LocaleUtils.getLocale(), "%.2f %s", pressureVal, pressureUnit)));
             }
 
             if (!StringUtils.isNullOrWhitespace(windSpeed)) {
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
-                        String.format(Locale.getDefault(), "%s, %s", windSpeed, windDir), windDirection));
+                        String.format(LocaleUtils.getLocale(), "%s, %s", windSpeed, windDir), windDirection));
             }
 
             if (hrForecast.getExtras().getWindGustMph() != null && hrForecast.getExtras().getWindGustKph() != null && hrForecast.getExtras().getWindGustMph() >= 0) {
                 int speedVal = Settings.isFahrenheit() ? Math.round(hrForecast.getExtras().getWindGustMph()) : Math.round(hrForecast.getExtras().getWindGustKph());
                 String speedUnit = WeatherUtils.getSpeedUnit();
 
-                String windGustSpeed = String.format(Locale.getDefault(), "%d %s", speedVal, speedUnit);
+                String windGustSpeed = String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit);
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.WINDGUST, windGustSpeed));
             }
 
@@ -150,7 +148,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                 String visibilityUnit = WeatherUtils.getDistanceUnit();
 
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.VISIBILITY,
-                        String.format(Locale.getDefault(), "%.2f %s", visibilityVal, visibilityUnit)));
+                        String.format(LocaleUtils.getLocale(), "%.2f %s", visibilityVal, visibilityUnit)));
             }
         }
     }

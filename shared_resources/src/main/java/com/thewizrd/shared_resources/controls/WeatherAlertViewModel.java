@@ -5,6 +5,8 @@ import android.content.Context;
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertSeverity;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertType;
@@ -14,8 +16,6 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.FormatStyle;
-
-import java.util.Locale;
 
 public class WeatherAlertViewModel {
     private WeatherAlertType alertType;
@@ -50,8 +50,8 @@ public class WeatherAlertViewModel {
                 context.getString(R.string.datetime_validuntil),
                 weatherAlert.getExpiresDate().format(
                         DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL, FormatStyle.SHORT)
-                                .withLocale(Locale.getDefault())),
-                weatherAlert.getExpiresDate().format(DateTimeFormatter.ofPattern(DateTimeConstants.TIMEZONE_NAME)));
+                                .withLocale(LocaleUtils.getLocale())),
+                weatherAlert.getExpiresDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.TIMEZONE_NAME)));
 
         attribution = weatherAlert.getAttribution();
     }
