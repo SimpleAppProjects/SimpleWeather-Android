@@ -705,9 +705,9 @@ public class WeatherAlert extends CustomJsonObject {
         return type == that.type &&
                 severity == that.severity &&
                 title.equals(that.title) &&
-                message.equals(that.message) &&
+                //message.equals(that.message) &&
                 attribution.equals(that.attribution) &&
-                date.equals(that.date) &&
+                //date.equals(that.date) &&
                 expiresDate.equals(that.expiresDate);
     }
 
@@ -717,9 +717,9 @@ public class WeatherAlert extends CustomJsonObject {
         hashCode = hashCode * -1521134295 + type.hashCode();
         hashCode = hashCode * -1521134295 + severity.hashCode();
         hashCode = hashCode * -1521134295 + (title != null ? title.hashCode() : 0);
-        hashCode = hashCode * -1521134295 + (message != null ? message.hashCode() : 0);
+        //hashCode = hashCode * -1521134295 + (message != null ? message.hashCode() : 0);
         hashCode = hashCode * -1521134295 + (attribution != null ? attribution.hashCode() : 0);
-        hashCode = hashCode * -1521134295 + (date != null ? date.hashCode() : 0);
+        //hashCode = hashCode * -1521134295 + (date != null ? date.hashCode() : 0);
         hashCode = hashCode * -1521134295 + (expiresDate != null ? expiresDate.hashCode() : 0);
         return hashCode;
     }

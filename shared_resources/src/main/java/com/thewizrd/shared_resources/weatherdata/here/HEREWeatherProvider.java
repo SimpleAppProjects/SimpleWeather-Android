@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -151,7 +152,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
                 final int numOfAlerts = (root.getNwsAlerts().getWatch() != null ? root.getNwsAlerts().getWatch().size() : 0) +
                         (root.getNwsAlerts().getWarning() != null ? root.getNwsAlerts().getWarning().size() : 0);
 
-                weather.setWeatherAlerts(new ArrayList<WeatherAlert>(numOfAlerts));
+                weather.setWeatherAlerts(new HashSet<WeatherAlert>(numOfAlerts));
 
                 final double lat = weather.getLocation().getLatitude();
                 final double lon = weather.getLocation().getLongitude();
