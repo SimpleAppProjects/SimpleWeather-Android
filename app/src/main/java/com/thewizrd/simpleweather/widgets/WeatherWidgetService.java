@@ -12,6 +12,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.provider.AlarmClock;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -1533,7 +1534,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             onClickIntent.putExtra(Constants.FRAGTAG_HOME, false);
         }
 
-        return PendingIntent.getActivity(context, location.hashCode(), onClickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        return PendingIntent.getActivity(context, location != null ? location.hashCode() : (int) SystemClock.uptimeMillis(), onClickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     static void setOnSettingsClickIntent(Context context, RemoteViews updateViews, LocationData location, int appWidgetId) {
@@ -1716,10 +1717,9 @@ public class WeatherWidgetService extends SafeJobIntentService {
             }
 
             if (forecastPanel != null && hrForecastPanel != null) {
-                updateViews.setOnClickPendingIntent(R.id.forecast_layout,
-                        getShowNextIntent(mContext, provider, appWidgetId));
+                updateViews.setOnClickPendingIntent(R.id.forecast_layout, getShowNextIntent(mContext, provider, appWidgetId));
             } else {
-                updateViews.setOnClickPendingIntent(R.id.forecast_layout, null);
+                updateViews.setOnClickPendingIntent(R.id.forecast_layout, getOnClickIntent(mContext, WidgetUtils.getLocationData(appWidgetId)));
             }
         }
     }
