@@ -170,7 +170,7 @@ public class WeatherAlert extends CustomJsonObject {
         date = ZonedDateTime.parse(alert.getSent());
         expiresDate = ZonedDateTime.parse(alert.getExpires());
 
-        attribution = "Information provided by the U.S. National Weather Service";
+        attribution = "U.S. National Weather Service";
     }
 
     // HERE GlobalAlerts
@@ -280,7 +280,7 @@ public class WeatherAlert extends CustomJsonObject {
 
         setDateTimeFromSegment(alert.getTimeSegment());
 
-        attribution = "Information provided by HERE Weather";
+        attribution = "HERE Weather";
     }
 
     // HERE NWS Alerts
@@ -294,7 +294,7 @@ public class WeatherAlert extends CustomJsonObject {
         date = ZonedDateTime.parse(alert.getValidFromTimeLocal());
         expiresDate = ZonedDateTime.parse(alert.getValidUntilTimeLocal());
 
-        attribution = "Information provided by the U.S. National Weather Service";
+        attribution = "U.S. National Weather Service";
     }
 
     public WeatherAlert(WarningItem alert) {
@@ -307,7 +307,7 @@ public class WeatherAlert extends CustomJsonObject {
         date = ZonedDateTime.parse(alert.getValidFromTimeLocal());
         expiresDate = ZonedDateTime.parse(alert.getValidUntilTimeLocal());
 
-        attribution = "Information provided by the U.S. National Weather Service";
+        attribution = "U.S. National Weather Service";
     }
 
     private WeatherAlertType getAlertType(@IntRange(from = 0, to = 38) int type, String alertDescription) {
