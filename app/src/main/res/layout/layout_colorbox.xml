@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:background="@drawable/border">
+
+    <com.skydoves.colorpickerview.AlphaTileView
+        android:id="@+id/color_box"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="1dp"
+        app:tileSize="20"
+        app:tileEvenColor="@android:color/white"
+        app:tileOddColor="@android:color/darker_gray"
+        tools:background="@android:color/holo_red_dark" />
+
+</FrameLayout>

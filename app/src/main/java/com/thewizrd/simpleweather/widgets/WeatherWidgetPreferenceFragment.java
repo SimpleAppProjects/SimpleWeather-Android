@@ -11,6 +11,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -151,6 +152,8 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private boolean isWidgetInit;
     private WidgetUtils.WidgetBackground mWidgetBackground;
     private WidgetUtils.WidgetBackgroundStyle mWidgetBGStyle;
+    private int mWidgetBackgroundColor;
+    private int mWidgetTextColor;
 
     private ArrayListPreference locationPref;
     private SwitchPreference hideLocNamePref;
@@ -160,7 +163,9 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private Preference clockPref;
     private Preference calPref;
 
-    private ListPreference bgColorPref;
+    private ListPreference bgChoicePref;
+    private ColorPreference bgColorPref;
+    private ColorPreference txtColorPref;
     private ListPreference bgStylePref;
 
     private ListPreference fcastOptPref;
@@ -183,6 +188,8 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
     private static final String KEY_BACKGROUND = "key_background";
     private static final String KEY_BGCOLOR = "key_bgcolor";
+    private static final String KEY_BGCOLORCODE = "key_bgcolorcode";
+    private static final String KEY_TXTCOLORCODE = "key_txtcolorcode";
     private static final String KEY_BGSTYLE = "key_bgstyle";
 
     private static final String KEY_FORECAST = "key_forecast";
@@ -519,14 +526,19 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         }
 
         // Widget background style
-        bgColorPref = findPreference(KEY_BGCOLOR);
+        bgChoicePref = findPreference(KEY_BGCOLOR);
         bgStylePref = findPreference(KEY_BGSTYLE);
+        bgColorPref = findPreference(KEY_BGCOLORCODE);
+        txtColorPref = findPreference(KEY_TXTCOLORCODE);
 
-        bgColorPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        bgChoicePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 mWidgetBackground = WidgetUtils.WidgetBackground.valueOf(Integer.parseInt(newValue.toString()));
                 updateWidgetView();
+
+                bgColorPref.setVisible(mWidgetBackground == WidgetUtils.WidgetBackground.CUSTOM);
+                txtColorPref.setVisible(mWidgetBackground == WidgetUtils.WidgetBackground.CUSTOM);
 
                 if (mWidgetBackground == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
                     if (mWidgetType == WidgetType.Widget4x2 || mWidgetType == WidgetType.Widget2x2) {
@@ -546,6 +558,24 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 mWidgetBGStyle = WidgetUtils.WidgetBackgroundStyle.valueOf(Integer.parseInt(newValue.toString()));
+                updateWidgetView();
+                return true;
+            }
+        });
+
+        bgColorPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                mWidgetBackgroundColor = (Integer) newValue;
+                updateWidgetView();
+                return true;
+            }
+        });
+
+        txtColorPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                mWidgetTextColor = (Integer) newValue;
                 updateWidgetView();
                 return true;
             }
@@ -583,14 +613,20 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         bgStylePref.setEntryValues(styleEntryValues);
 
         if (WidgetUtils.isBackgroundOptionalWidget(mWidgetType)) {
-            bgColorPref.setValueIndex(WidgetUtils.getWidgetBackground(mAppWidgetId).getValue());
-            bgColorPref.callChangeListener(bgColorPref.getValue());
+            bgChoicePref.setValueIndex(WidgetUtils.getWidgetBackground(mAppWidgetId).getValue());
+            bgChoicePref.callChangeListener(bgChoicePref.getValue());
 
             bgStylePref.setValueIndex(WidgetUtils.getBackgroundStyle(mAppWidgetId).getValue());
             bgStylePref.callChangeListener(bgStylePref.getValue());
+
+            bgColorPref.setColor(WidgetUtils.getBackgroundColor(mAppWidgetId));
+            bgColorPref.callChangeListener(bgColorPref.getColor());
+            txtColorPref.setColor(WidgetUtils.getTextColor(mAppWidgetId));
+            txtColorPref.callChangeListener(txtColorPref.getColor());
+
             findPreference(KEY_BACKGROUND).setVisible(true);
         } else {
-            bgColorPref.setValueIndex(WidgetUtils.WidgetBackground.TRANSPARENT.getValue());
+            bgChoicePref.setValueIndex(WidgetUtils.WidgetBackground.TRANSPARENT.getValue());
             findPreference(KEY_BACKGROUND).setVisible(false);
         }
 
@@ -611,6 +647,17 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         } else {
             fcastOptPref.setValueIndex(WidgetUtils.ForecastOption.FULL.getValue());
             findPreference(KEY_FORECAST).setVisible(false);
+        }
+    }
+
+    @Override
+    public void onDisplayPreferenceDialog(Preference preference) {
+        if (preference instanceof ColorPreference) {
+            ColorPreferenceDialogFragment f = ColorPreferenceDialogFragment.newInstance(preference.getKey());
+            f.setTargetFragment(this, 0);
+            f.show(getParentFragmentManager(), ColorPreferenceDialogFragment.class.getName());
+        } else {
+            super.onDisplayPreferenceDialog(preference);
         }
     }
 
@@ -911,7 +958,23 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                 View.inflate(getAppCompatActivity(), R.layout.layout_panda_bg, bgContainer);
             }
 
-            int backgroundColor = WidgetUtils.getBackgroundColor(getAppCompatActivity(), mWidgetBackground);
+            int backgroundColor;
+            switch (mWidgetBackground) {
+                case WHITE:
+                    backgroundColor = Colors.WHITE;
+                    break;
+                case BLACK:
+                    backgroundColor = Colors.BLACK;
+                    break;
+                case CUSTOM:
+                    backgroundColor = mWidgetBackgroundColor;
+                    break;
+                case TRANSPARENT:
+                default:
+                    backgroundColor = Colors.TRANSPARENT;
+                    break;
+            }
+
             ImageView pandaBG = binding.widgetContainer.findViewById(R.id.panda_background);
             ImageView widgetBG = binding.widgetContainer.findViewById(R.id.widgetBackground);
 
@@ -953,8 +1016,8 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                     pandaBG.setImageBitmap(null);
                 }
             } else {
-                widgetBG.setImageResource(R.drawable.widget_background);
-                widgetBG.setColorFilter(backgroundColor);
+                widgetBG.setImageDrawable(new ColorDrawable(backgroundColor));
+                widgetBG.setColorFilter(Colors.TRANSPARENT);
                 widgetBG.setImageAlpha(0xFF);
                 if (pandaBG != null) {
                     pandaBG.setColorFilter(Colors.TRANSPARENT);
@@ -964,8 +1027,8 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         }
 
         // Set text color
-        int textColor = WidgetUtils.getTextColor(mWidgetBackground);
-        int panelTextColor = WidgetUtils.getPanelTextColor(mWidgetBackground, mWidgetBGStyle, isNightMode);
+        int textColor = mWidgetBackground != WidgetUtils.WidgetBackground.CUSTOM ? WidgetUtils.getTextColor(mAppWidgetId, mWidgetBackground) : mWidgetTextColor;
+        int panelTextColor = mWidgetBackground != WidgetUtils.WidgetBackground.CUSTOM ? WidgetUtils.getPanelTextColor(mAppWidgetId, mWidgetBackground, mWidgetBGStyle, isNightMode) : mWidgetTextColor;
 
         if (mWidgetType != WidgetType.Widget2x2 &&
                 mWidgetType != WidgetType.Widget4x1Google &&
@@ -1334,8 +1397,10 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
     private void finalizeWidgetUpdate() {
         // Save widget preferences
-        WidgetUtils.setWidgetBackground(mAppWidgetId, Integer.parseInt(bgColorPref.getValue()));
-        WidgetUtils.setBackgroundStyle(mAppWidgetId, Integer.parseInt(bgStylePref.getValue()));
+        WidgetUtils.setWidgetBackground(mAppWidgetId, mWidgetBackground.getValue());
+        WidgetUtils.setBackgroundColor(mAppWidgetId, mWidgetBackgroundColor);
+        WidgetUtils.setTextColor(mAppWidgetId, mWidgetTextColor);
+        WidgetUtils.setBackgroundStyle(mAppWidgetId, mWidgetBGStyle.getValue());
         WidgetUtils.setLocationNameHidden(mAppWidgetId, hideLocNamePref.isChecked());
         WidgetUtils.setSettingsButtonHidden(mAppWidgetId, hideSettingsBtnPref.isChecked());
         WidgetUtils.setForecastOption(mAppWidgetId, Integer.parseInt(fcastOptPref.getValue()));

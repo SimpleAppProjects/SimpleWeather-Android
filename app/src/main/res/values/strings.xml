@@ -23,7 +23,10 @@
     <string name="label_color_currentconditions">Current Condition</string>
     <string name="label_color_white">White</string>
     <string name="label_color_black">Black</string>
+    <string name="label_color_custom">Custom</string>
     <string name="label_color_transparent">Transparent</string>
+    <string name="pref_title_bgcolorcode">Background Color</string>
+    <string name="pref_title_txtcolorcode">Text Color</string>
     <string name="pref_title_bgstyle">Background Style</string>
     <string name="label_style_fullbg">Full Background</string>
     <string name="label_style_panda">Default</string>

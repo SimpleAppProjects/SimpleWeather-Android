@@ -1062,7 +1062,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
         final WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
         WidgetUtils.WidgetBackgroundStyle style = null;
         if (isBackgroundOptionalWidget(provider.getWidgetType())) {
-            int backgroundColor = getBackgroundColor(mContext, background);
+            int backgroundColor = getBackgroundColor(mContext, appWidgetId, background);
 
             if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
                 style = WidgetUtils.getBackgroundStyle(appWidgetId);
@@ -1099,9 +1099,10 @@ public class WeatherWidgetService extends SafeJobIntentService {
                 updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.TRANSPARENT);
                 updateViews.setImageViewBitmap(R.id.panda_background, null);
             } else {
-                updateViews.setImageViewResource(R.id.widgetBackground, R.drawable.widget_background);
-                updateViews.setInt(R.id.widgetBackground, "setColorFilter", backgroundColor);
-                updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
+                updateViews.setImageViewBitmap(R.id.widgetBackground, null);
+                updateViews.setInt(R.id.widgetBackground, "setBackgroundColor", backgroundColor);
+                updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.TRANSPARENT);
+                updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0x00);
                 updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.TRANSPARENT);
                 updateViews.setImageViewBitmap(R.id.panda_background, null);
             }
@@ -1117,7 +1118,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
         }
 
         // Colors
-        setTextColorDependents(updateViews, provider, weather, background, style);
+        setTextColorDependents(updateViews, provider, appWidgetId, weather, background, style);
 
         // Temperature
         CharSequence temp = weather.getCurTemp();
@@ -1324,19 +1325,18 @@ public class WeatherWidgetService extends SafeJobIntentService {
         }
     }
 
-    private void setTextColorDependents(final RemoteViews updateViews, WeatherWidgetProvider provider,
+    private void setTextColorDependents(final RemoteViews updateViews, WeatherWidgetProvider provider, final int appWidgetId,
                                         WeatherNowViewModel weather, WidgetUtils.WidgetBackground background, @Nullable WidgetUtils.WidgetBackgroundStyle style) {
-        int textColor = getTextColor(background);
-        int panelTextColor = getPanelTextColor(background, style, isNightMode);
+        int textColor = getTextColor(appWidgetId, background);
+        int panelTextColor = getPanelTextColor(appWidgetId, background, style, isNightMode);
 
         int tempTextSize = 36;
         if (provider.getWidgetType() == WidgetType.Widget4x1Google)
             tempTextSize = 24;
 
         float shadowRadius = 1.75f;
-        if (background != WidgetUtils.WidgetBackground.TRANSPARENT && style != WidgetUtils.WidgetBackgroundStyle.FULLBACKGROUND &&
-                (provider.getWidgetType() == WidgetType.Widget2x2 ||
-                        provider.getWidgetType() == WidgetType.Widget4x2 && background != WidgetUtils.WidgetBackground.CURRENT_CONDITIONS)) {
+        if (background != WidgetUtils.WidgetBackground.TRANSPARENT && background != WidgetUtils.WidgetBackground.CUSTOM && style != WidgetUtils.WidgetBackgroundStyle.FULLBACKGROUND &&
+                (provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x2 && background != WidgetUtils.WidgetBackground.CURRENT_CONDITIONS)) {
             shadowRadius = 0f;
         }
 
@@ -1677,7 +1677,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             // Background & Text Color
             WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
             WidgetUtils.WidgetBackgroundStyle style = WidgetUtils.getBackgroundStyle(appWidgetId);
-            int textColor = getPanelTextColor(background, style, isNightMode);
+            int textColor = getPanelTextColor(appWidgetId, background, style, isNightMode);
             int tempTextSize = 36;
 
             RemoteViews forecastPanel = null;
@@ -1861,7 +1861,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
         }
 
         float shadowRadius = 0f;
-        if (background == WidgetUtils.WidgetBackground.TRANSPARENT || (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS && style == WidgetUtils.WidgetBackgroundStyle.FULLBACKGROUND))
+        if (background == WidgetUtils.WidgetBackground.TRANSPARENT || background == WidgetUtils.WidgetBackground.CUSTOM || (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS && style == WidgetUtils.WidgetBackgroundStyle.FULLBACKGROUND))
             shadowRadius = 1.75f;
 
         forecastItem.setImageViewBitmap(R.id.forecast_icon,

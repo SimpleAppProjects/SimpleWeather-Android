@@ -83,6 +83,20 @@
             android:title="@string/pref_title_bgcolor"
             app:iconSpaceReserved="false" />
 
+        <com.thewizrd.simpleweather.widgets.ColorPreference
+            android:defaultValue="#00000000"
+            android:key="key_bgcolorcode"
+            android:persistent="false"
+            android:title="@string/pref_title_bgcolorcode"
+            app:iconSpaceReserved="false" />
+
+        <com.thewizrd.simpleweather.widgets.ColorPreference
+            android:defaultValue="#FFFFFFFF"
+            android:key="key_txtcolorcode"
+            android:persistent="false"
+            android:title="@string/pref_title_txtcolorcode"
+            app:iconSpaceReserved="false" />
+
         <ListPreference
             android:defaultValue="0"
             android:key="key_bgstyle"

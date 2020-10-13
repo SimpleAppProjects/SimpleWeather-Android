@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/colorPickerViewFrame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.skydoves.colorpickerview.ColorPickerView
+                android:id="@+id/colorPickerView"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:layout_margin="20dp"
+                app:selector="@drawable/wheel" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/alphaSlideBarFrame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.skydoves.colorpickerview.sliders.AlphaSlideBar
+                android:id="@+id/alphaSlideBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="10dp"
+                app:selector_AlphaSlideBar="@drawable/wheel" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/brightnessSlideBarFrame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.skydoves.colorpickerview.sliders.BrightnessSlideBar
+                android:id="@+id/brightnessSlideBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="10dp"
+                app:selector_BrightnessSlider="@drawable/wheel" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical">
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical">
+
+                <com.skydoves.colorpickerview.AlphaTileView
+                    android:id="@+id/black_tile_view"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_margin="1dp"
+                    app:tileSize="20"
+                    app:tileEvenColor="@android:color/white"
+                    app:tileOddColor="@android:color/darker_gray"
+                    android:background="@android:color/black" />
+
+            </FrameLayout>
+
+            <Space
+                android:layout_width="4dp"
+                android:layout_height="wrap_content" />
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical">
+
+                <com.skydoves.colorpickerview.AlphaTileView
+                    android:id="@+id/white_tile_view"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_margin="1dp"
+                    app:tileSize="20"
+                    app:tileEvenColor="@android:color/white"
+                    app:tileOddColor="@android:color/darker_gray"
+                    android:background="@android:color/white" />
+
+            </FrameLayout>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <EditText
+                android:id="@+id/colorPickerText"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:inputType="text"
+                android:importantForAutofill="no"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
+                tools:ignore="LabelFor" />
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical">
+
+                <com.skydoves.colorpickerview.AlphaTileView
+                    android:id="@+id/preview_tile_view"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_margin="1dp"
+                    app:tileSize="20"
+                    app:tileEvenColor="@android:color/white"
+                    app:tileOddColor="@android:color/darker_gray" />
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <Space
+            android:id="@+id/space_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
+
+    </LinearLayout>
+
+</ScrollView>

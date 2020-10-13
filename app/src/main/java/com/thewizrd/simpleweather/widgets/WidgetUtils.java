@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
 import android.util.SparseArray;
@@ -14,9 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import com.google.gson.reflect.TypeToken;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -61,6 +59,8 @@ public class WidgetUtils {
     private static final String KEY_CALENDARAPP = "key_calendarapp";
     private static final String KEY_FORECASTOPTION = "key_fcastoption";
     private static final String KEY_USETIMEZONE = "key_usetimezone";
+    private static final String KEY_BGCOLORCODE = "key_bgcolorcode";
+    private static final String KEY_TXTCOLORCODE = "key_txtcolorcode";
 
     private static final int FORECAST_LENGTH = 3; // 3-day
     private static final int MEDIUM_FORECAST_LENGTH = 4; // 4-day
@@ -74,7 +74,8 @@ public class WidgetUtils {
         CURRENT_CONDITIONS(0),
         WHITE(1),
         BLACK(2),
-        TRANSPARENT(3);
+        TRANSPARENT(3),
+        CUSTOM(4);
 
         private final int value;
 
@@ -638,8 +639,10 @@ public class WidgetUtils {
     }
 
     public static @ColorInt
-    int getTextColor(WidgetUtils.WidgetBackground background) {
-        if (background == WidgetUtils.WidgetBackground.BLACK) {
+    int getTextColor(final int appWidgetId, WidgetUtils.WidgetBackground background) {
+        if (background == WidgetBackground.CUSTOM) {
+            return getTextColor(appWidgetId);
+        } else if (background == WidgetUtils.WidgetBackground.BLACK) {
             return Colors.WHITE;
         } else if (background == WidgetUtils.WidgetBackground.WHITE) {
             return Colors.BLACK;
@@ -651,8 +654,10 @@ public class WidgetUtils {
     }
 
     public static @ColorInt
-    int getPanelTextColor(WidgetUtils.WidgetBackground background, @Nullable WidgetUtils.WidgetBackgroundStyle style, boolean isNightMode) {
-        if (background == WidgetUtils.WidgetBackground.BLACK ||
+    int getPanelTextColor(final int appWidgetId, WidgetUtils.WidgetBackground background, @Nullable WidgetUtils.WidgetBackgroundStyle style, boolean isNightMode) {
+        if (background == WidgetBackground.CUSTOM) {
+            return getTextColor(appWidgetId);
+        } else if (background == WidgetUtils.WidgetBackground.BLACK ||
                 style == WidgetBackgroundStyle.DARK) {
             return Colors.WHITE;
         } else if (background == WidgetUtils.WidgetBackground.WHITE ||
@@ -671,16 +676,44 @@ public class WidgetUtils {
     }
 
     public static @ColorInt
-    int getBackgroundColor(@NonNull Context context, WidgetUtils.WidgetBackground background) {
+    int getBackgroundColor(@NonNull Context context, int appWidgetId, WidgetUtils.WidgetBackground background) {
         if (background == WidgetUtils.WidgetBackground.BLACK) {
             return ContextCompat.getColor(context, R.color.card_background_dark);
         } else if (background == WidgetUtils.WidgetBackground.WHITE) {
             return Colors.WHITE;
         } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
             return Colors.TRANSPARENT;
+        } else if (background == WidgetUtils.WidgetBackground.CUSTOM) {
+            return getBackgroundColor(appWidgetId);
         } else {
             return Colors.TRANSPARENT;
         }
+    }
+
+    public static @ColorInt
+    int getBackgroundColor(int widgetId) {
+        SharedPreferences prefs = getPreferences(widgetId);
+        return prefs.getInt(KEY_BGCOLORCODE, Color.TRANSPARENT);
+    }
+
+    public static void setBackgroundColor(int widgetId, @ColorInt int value) {
+        SharedPreferences.Editor editor = getEditor(widgetId);
+
+        editor.putInt(KEY_BGCOLORCODE, value);
+        editor.commit();
+    }
+
+    public static @ColorInt
+    int getTextColor(int widgetId) {
+        SharedPreferences prefs = getPreferences(widgetId);
+        return prefs.getInt(KEY_TXTCOLORCODE, Color.WHITE);
+    }
+
+    public static void setTextColor(int widgetId, @ColorInt int value) {
+        SharedPreferences.Editor editor = getEditor(widgetId);
+
+        editor.putInt(KEY_TXTCOLORCODE, value);
+        editor.commit();
     }
 
     public static boolean isLocationNameHidden(int widgetId) {
