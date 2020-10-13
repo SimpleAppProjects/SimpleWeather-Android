@@ -21,8 +21,6 @@
     <string name="title_activity_widget_config">"Predvoľby miniaplikácie"</string>
     <string name="pref_title_bgcolor">"Pozadie"</string>
     <string name="label_color_currentconditions">"Aktuálne podmienky"</string>
-    <string name="label_color_white">"Biela"</string>
-    <string name="label_color_black">"Čierna"</string>
     <string name="label_color_transparent">"Priehľadná"</string>
     <string name="pref_title_bgstyle">"Štýl pozadia"</string>
     <string name="label_style_fullbg">"Celé pozadie"</string>

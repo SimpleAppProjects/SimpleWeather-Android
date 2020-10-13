@@ -21,8 +21,6 @@
     <string name="title_activity_widget_config">"Paramètres des widgets"</string>
     <string name="pref_title_bgcolor">"Arrière-plan"</string>
     <string name="label_color_currentconditions">"Condition actuelle"</string>
-    <string name="label_color_white">"Blanc"</string>
-    <string name="label_color_black">"Noir"</string>
     <string name="label_color_transparent">"Transparent"</string>
     <string name="pref_title_bgstyle">"Style de l'arrière-plan"</string>
     <string name="label_style_fullbg">"Arrière-plan complète"</string>

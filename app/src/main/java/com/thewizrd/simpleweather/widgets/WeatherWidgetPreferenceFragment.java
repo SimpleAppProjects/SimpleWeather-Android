@@ -960,12 +960,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
             int backgroundColor;
             switch (mWidgetBackground) {
-                case WHITE:
-                    backgroundColor = Colors.WHITE;
-                    break;
-                case BLACK:
-                    backgroundColor = Colors.BLACK;
-                    break;
                 case CUSTOM:
                     backgroundColor = mWidgetBackgroundColor;
                     break;

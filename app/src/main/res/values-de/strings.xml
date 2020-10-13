@@ -23,8 +23,6 @@
     <string name="title_activity_widget_config">"Widgeteinstellungen"</string>
     <string name="pref_title_bgcolor">"Hintergrund"</string>
     <string name="label_color_currentconditions">"Aktuelle Bedingung"</string>
-    <string name="label_color_white">"Weiß"</string>
-    <string name="label_color_black">"Schwarz"</string>
     <string name="label_color_transparent">"Transparent"</string>
     <string name="pref_title_bgstyle">"Hintergrundstil"</string>
     <string name="label_style_fullbg">"Hintergrund"</string>

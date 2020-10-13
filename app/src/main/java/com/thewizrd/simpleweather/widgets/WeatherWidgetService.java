@@ -1062,7 +1062,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
         final WidgetUtils.WidgetBackground background = WidgetUtils.getWidgetBackground(appWidgetId);
         WidgetUtils.WidgetBackgroundStyle style = null;
         if (isBackgroundOptionalWidget(provider.getWidgetType())) {
-            int backgroundColor = getBackgroundColor(mContext, appWidgetId, background);
+            int backgroundColor = getBackgroundColor(appWidgetId, background);
 
             if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
                 style = WidgetUtils.getBackgroundStyle(appWidgetId);

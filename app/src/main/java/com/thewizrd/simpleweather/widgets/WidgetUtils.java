@@ -13,7 +13,6 @@ import android.util.SparseArray;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 
 import com.google.gson.reflect.TypeToken;
 import com.thewizrd.shared_resources.Constants;
@@ -22,11 +21,11 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.simpleweather.App;
-import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.utils.ArrayUtils;
 
 import java.io.File;
@@ -44,7 +43,7 @@ public class WidgetUtils {
     private static SharedPreferences.Editor editor = widgetPrefs.edit();
 
     // Widget Prefs
-    private static final int CurrentPrefsVersion = 3;
+    private static final int CurrentPrefsVersion = 4;
 
     // Keys
     private static final String KEY_VERSION = "key_version";
@@ -72,10 +71,8 @@ public class WidgetUtils {
 
     enum WidgetBackground {
         CURRENT_CONDITIONS(0),
-        WHITE(1),
-        BLACK(2),
-        TRANSPARENT(3),
-        CUSTOM(4);
+        TRANSPARENT(1),
+        CUSTOM(2);
 
         private final int value;
 
@@ -209,6 +206,38 @@ public class WidgetUtils {
                                 editor.putString(Constants.KEY_GPS, listJson).commit();
                                 editor.remove(key).commit();
                                 break;
+                            }
+                        }
+                    }
+                    break;
+                case 3:
+                    // Migrate color options
+                    int[] widgetIds = getAllWidgetIds();
+                    for (int appWidgetId : widgetIds) {
+                        SharedPreferences prefs = getPreferences(appWidgetId);
+                        String value = prefs.getString(KEY_WIDGETBACKGROUND, null);
+                        if (value != null) {
+                            Integer intVal = NumberUtils.tryParseInt(value, -1);
+                            switch (intVal) {
+                                case 0: // No-op
+                                    break;
+                                case 1: // Old: White
+                                    setWidgetBackground(appWidgetId, WidgetBackground.CUSTOM.getValue());
+                                    setBackgroundColor(appWidgetId, Colors.WHITE);
+                                    setTextColor(appWidgetId, Colors.BLACK);
+                                    break;
+                                case 2: // Old: Black
+                                    setWidgetBackground(appWidgetId, WidgetBackground.CUSTOM.getValue());
+                                    setBackgroundColor(appWidgetId, Colors.BLACK);
+                                    setTextColor(appWidgetId, Colors.WHITE);
+                                    break;
+                                case 4: // Old: Custom
+                                    setWidgetBackground(appWidgetId, WidgetBackground.CUSTOM.getValue());
+                                    break;
+                                case 3: // Old: Transparent
+                                default:
+                                    setWidgetBackground(appWidgetId, WidgetBackground.TRANSPARENT.getValue());
+                                    break;
                             }
                         }
                     }
@@ -587,9 +616,9 @@ public class WidgetUtils {
     public static WidgetBackground getWidgetBackground(int widgetId) {
         SharedPreferences prefs = getPreferences(widgetId);
 
-        String value = prefs.getString(KEY_WIDGETBACKGROUND, "3");
+        String value = prefs.getString(KEY_WIDGETBACKGROUND, "1");
         if (StringUtils.isNullOrWhitespace(value))
-            value = "3";
+            value = "1";
 
         return WidgetBackground.valueOf(Integer.parseInt(value));
     }
@@ -642,12 +671,6 @@ public class WidgetUtils {
     int getTextColor(final int appWidgetId, WidgetUtils.WidgetBackground background) {
         if (background == WidgetBackground.CUSTOM) {
             return getTextColor(appWidgetId);
-        } else if (background == WidgetUtils.WidgetBackground.BLACK) {
-            return Colors.WHITE;
-        } else if (background == WidgetUtils.WidgetBackground.WHITE) {
-            return Colors.BLACK;
-        } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
-            return Colors.WHITE;
         } else {
             return Colors.WHITE;
         }
@@ -657,11 +680,9 @@ public class WidgetUtils {
     int getPanelTextColor(final int appWidgetId, WidgetUtils.WidgetBackground background, @Nullable WidgetUtils.WidgetBackgroundStyle style, boolean isNightMode) {
         if (background == WidgetBackground.CUSTOM) {
             return getTextColor(appWidgetId);
-        } else if (background == WidgetUtils.WidgetBackground.BLACK ||
-                style == WidgetBackgroundStyle.DARK) {
+        } else if (style == WidgetBackgroundStyle.DARK) {
             return Colors.WHITE;
-        } else if (background == WidgetUtils.WidgetBackground.WHITE ||
-                style == WidgetBackgroundStyle.LIGHT) {
+        } else if (style == WidgetBackgroundStyle.LIGHT) {
             return Colors.BLACK;
         } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
             return Colors.WHITE;
@@ -676,14 +697,8 @@ public class WidgetUtils {
     }
 
     public static @ColorInt
-    int getBackgroundColor(@NonNull Context context, int appWidgetId, WidgetUtils.WidgetBackground background) {
-        if (background == WidgetUtils.WidgetBackground.BLACK) {
-            return ContextCompat.getColor(context, R.color.card_background_dark);
-        } else if (background == WidgetUtils.WidgetBackground.WHITE) {
-            return Colors.WHITE;
-        } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
-            return Colors.TRANSPARENT;
-        } else if (background == WidgetUtils.WidgetBackground.CUSTOM) {
+    int getBackgroundColor(int appWidgetId, WidgetUtils.WidgetBackground background) {
+        if (background == WidgetUtils.WidgetBackground.CUSTOM) {
             return getBackgroundColor(appWidgetId);
         } else {
             return Colors.TRANSPARENT;
