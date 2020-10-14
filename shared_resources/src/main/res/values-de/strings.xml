@@ -194,4 +194,5 @@
 
     <!-- Fuzzy -->
     <string name="label_windgust">"Windböe"</string>
+    <string name="pref_title_language">"Sprache"</string>
 </resources>

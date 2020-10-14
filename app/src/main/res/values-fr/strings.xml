@@ -75,4 +75,9 @@
     <!-- Translate -->
     <string name="pref_title_translate">"Traduire"</string>
     <string name="pref_summary_translate">"Aider à traduire l'application"</string>
+
+    <!-- Custom Color -->
+    <string name="label_color_custom">"Personnalisé"</string>
+    <string name="pref_title_bgcolorcode">"Couleur de l'arrière-plan"</string>
+    <string name="pref_title_txtcolorcode">"Couleur du texte"</string>
 </resources>

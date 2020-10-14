@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="uv_0">"Nízke"</string>
-    <string name="uv_3">"Stredné"</string>
-    <string name="uv_6">"Vysoké"</string>
-    <string name="uv_8">"Veľmi vysoké"</string>
-    <string name="uv_11">"Extrémne"</string>
+    <string name="uv_0">"Nízky"</string>
+    <string name="uv_3">"Stredný"</string>
+    <string name="uv_6">"Vysoký"</string>
+    <string name="uv_8">"Veľmi vysoký"</string>
+    <string name="uv_11">"Extrémny"</string>
 </resources>

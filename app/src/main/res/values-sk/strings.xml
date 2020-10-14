@@ -3,7 +3,7 @@
 
     <!-- Feature Settings -->
     <string name="pref_title_features">"Vlastnosti"</string>
-    <string name="pref_summary_features">"Vybrať z možností zapnúť/vypnúť"</string>
+    <string name="pref_summary_features">"Vybrať z možností (zapnúť/vypnúť)"</string>
     <string name="pref_title_feature_bgimage">"Obrázok pozadia"</string>
     <string name="pref_title_feature_forecast">"Predpoveď"</string>
     <string name="pref_title_feature_hrforecast">"Hodinová predpoveď"</string>
@@ -14,7 +14,7 @@
     <string name="pref_title_feature_moonphase">"Fáza mesiaca"</string>
     <string name="pref_title_feature_sunphase">"Fáza slnka"</string>
     <string name="pref_title_feature_radar">"MeteoRadar"</string>
-    <string name="pref_title_feature_locpanelimg">"Obrázok panela polohy"</string>
+    <string name="pref_title_feature_locpanelimg">"Obrázok panelu polohy"</string>
 
     <!-- Widget -->
     <string name="widget_configure_prompt">"Nastavenia miniaplikácie"</string>
@@ -71,4 +71,9 @@
     <!-- Translate -->
     <string name="pref_title_translate">"Preklad"</string>
     <string name="pref_summary_translate">"Pomôcť s prekladom aplikácie"</string>
+
+    <!-- Custom Color -->
+    <string name="label_color_custom">"Vlastné"</string>
+    <string name="pref_title_bgcolorcode">"Farba pozadia"</string>
+    <string name="pref_title_txtcolorcode">"Farba textu"</string>
 </resources>
