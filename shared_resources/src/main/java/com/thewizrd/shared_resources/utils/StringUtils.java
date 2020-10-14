@@ -89,4 +89,59 @@ public class StringUtils {
             return System.getProperty("line.separator");
         }
     }
+
+    public static String unescapeUnicode(String s) {
+        if (isNullOrWhitespace(s)) {
+            return s;
+        } else {
+            StringBuilder sb = new StringBuilder();
+
+            final int seqEnd = s.length();
+            for (int i = 0; i < s.length(); i++) {
+                // Uses -2 to ensure there is something after the &#
+                char c = s.charAt(i);
+                if (s.charAt(i) == '&' && i < seqEnd - 2 && s.charAt(i + 1) == '#') {
+                    int start = i + 2;
+                    boolean isHex = false;
+
+                    final char firstChar = s.charAt(start);
+                    if (firstChar == 'x' || firstChar == 'X') {
+                        start++;
+                        isHex = true;
+
+                        if (start == seqEnd) {
+                            sb.append(s.substring(i));
+                            break;
+                        }
+                    }
+
+                    int end = start;
+                    while (end < seqEnd && s.charAt(end) != ';') {
+                        end++;
+                    }
+
+                    int value;
+                    try {
+                        if (isHex) {
+                            value = Integer.parseInt(s.substring(start, end), 16);
+                        } else {
+                            value = Integer.parseInt(s.substring(start, end), 10);
+                        }
+                    } catch (NumberFormatException nfe) {
+                        sb.append(s.substring(i));
+                        break;
+                    }
+
+                    char[] chars = Character.toChars(value);
+                    sb.append(chars);
+
+                    i = end;
+                } else {
+                    sb.append(s.charAt(i));
+                }
+            }
+
+            return sb.toString();
+        }
+    }
 }

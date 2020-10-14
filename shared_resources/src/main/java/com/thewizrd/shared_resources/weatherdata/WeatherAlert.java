@@ -13,6 +13,7 @@ import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
+import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.here.AlertsItem;
 import com.thewizrd.shared_resources.weatherdata.here.TimeSegmentItem;
 import com.thewizrd.shared_resources.weatherdata.here.WarningItem;
@@ -275,8 +276,8 @@ public class WeatherAlert extends CustomJsonObject {
                 break;
         }
 
-        title = alert.getDescription();
-        message = alert.getDescription();
+        // NOTE: Alert description may be encoded; unescape encoded characters
+        title = message = StringUtils.unescapeUnicode(alert.getDescription());
 
         setDateTimeFromSegment(alert.getTimeSegment());
 
