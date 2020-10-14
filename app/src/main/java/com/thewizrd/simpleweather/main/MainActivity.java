@@ -73,10 +73,10 @@ public class MainActivity extends UserLocaleActivity
 
         // For landscape orientation
         ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavBar, new OnApplyWindowInsetsListener() {
-            private int paddingStart = ViewCompat.getPaddingStart(binding.bottomNavBar);
-            private int paddingTop = binding.bottomNavBar.getPaddingTop();
-            private int paddingEnd = ViewCompat.getPaddingEnd(binding.bottomNavBar);
-            private int paddingBottom = binding.bottomNavBar.getPaddingBottom();
+            private final int paddingStart = ViewCompat.getPaddingStart(binding.bottomNavBar);
+            private final int paddingTop = binding.bottomNavBar.getPaddingTop();
+            private final int paddingEnd = ViewCompat.getPaddingEnd(binding.bottomNavBar);
+            private final int paddingBottom = binding.bottomNavBar.getPaddingBottom();
 
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View v, final WindowInsetsCompat insets) {
@@ -144,6 +144,7 @@ public class MainActivity extends UserLocaleActivity
                                 appUpdateManager.startImmediateUpdateFlow(MainActivity.this, INSTALL_REQUESTCODE);
                             } else {
                                 initializeNavFragment(args);
+                                initializeNavController();
                             }
                         }
                     });
@@ -169,6 +170,15 @@ public class MainActivity extends UserLocaleActivity
     protected void onStart() {
         super.onStart();
 
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP || !FeatureSettings.isUpdateAvailable()) {
+            initializeNavController();
+        }
+
+        // Update app shortcuts
+        ShortcutCreatorWorker.requestUpdateShortcuts(this);
+    }
+
+    private void initializeNavController() {
         mNavController = Navigation.findNavController(this, R.id.fragment_container);
 
         NavigationUI.setupWithNavController(binding.bottomNavBar, mNavController);
@@ -209,9 +219,6 @@ public class MainActivity extends UserLocaleActivity
         // Check nav item in bottom nav view
         // based on current fragment
         refreshNavViewCheckedItem();
-
-        // Update app shortcuts
-        ShortcutCreatorWorker.requestUpdateShortcuts(this);
     }
 
     @Override
