@@ -73,7 +73,7 @@ public class App extends Application implements ApplicationLib, Application.Acti
 
     public void onCreate() {
         super.onCreate();
-        context = getApplicationContext();
+        context = LocaleUtils.attachBaseContext(getApplicationContext());
         sInstance = this;
 
         registerActivityLifecycleCallbacks(this);
@@ -83,7 +83,6 @@ public class App extends Application implements ApplicationLib, Application.Acti
         // Init shared library
         SimpleLibrary.init(this);
         AndroidThreeTen.init(this);
-        context = LocaleUtils.attachBaseContext(context);
 
         // Start logger
         Logger.init(context);

@@ -20,11 +20,11 @@ public final class SimpleLibrary {
 
     private static SimpleLibrary sSimpleLib;
 
-    public SimpleLibrary() {
+    private SimpleLibrary() {
 
     }
 
-    public SimpleLibrary(ApplicationLib app) {
+    private SimpleLibrary(ApplicationLib app) {
         mApp = app;
         mContext = app.getAppContext();
     }
