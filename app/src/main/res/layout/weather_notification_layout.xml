@@ -235,7 +235,7 @@
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.Compat.Notification"
                 android:textSize="@dimen/not_primary_textSize"
-                android:text="@string/label_feelslike" />
+                tools:text="@string/label_feelslike" />
 
             <TextView
                 android:id="@+id/feelslike_label1"

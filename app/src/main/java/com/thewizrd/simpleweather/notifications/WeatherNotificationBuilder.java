@@ -116,6 +116,7 @@ public class WeatherNotificationBuilder {
             bigUpdateViews = updateViews.clone();
         }
         if (feelsLikeModel != null) {
+            bigUpdateViews.setTextViewText(R.id.feelslike_label, context.getString(R.string.label_feelslike));
             bigUpdateViews.setTextViewText(R.id.feelslike_temp, feelsLikeModel.getValue() + viewModel.getTempUnit());
             bigUpdateViews.setViewVisibility(R.id.feelslike_layout, View.VISIBLE);
         }
