@@ -113,7 +113,6 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.getWidgetTypeFromID;
@@ -307,19 +306,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
                 @Override
                 public void onLocationAvailability(LocationAvailability locationAvailability) {
-                    AsyncTask.await(new Callable<Void>() {
-                        @Override
-                        public Void call() {
-                            try {
-                                return Tasks.await(mFusedLocationClient.flushLocations());
-                            } catch (ExecutionException | InterruptedException e) {
-                                Logger.writeLine(Log.ERROR, e);
-                            }
-
-                            return null;
-                        }
-                    });
-
                     if (!locationAvailability.isLocationAvailable()) {
                         stopLocationUpdates();
                         showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
