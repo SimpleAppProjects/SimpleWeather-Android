@@ -228,12 +228,12 @@ public class Condition extends CustomJsonObject {
 
         Integer scale = NumberUtils.tryParseInt(forecastItem.getBeaufortScale());
         if (scale != null) {
-            beaufort = new Beaufort(scale, forecastItem.getBeaufortDescription());
+            beaufort = new Beaufort(scale);
         }
 
         Float index = NumberUtils.tryParseFloat(forecastItem.getUvIndex());
         if (index != null) {
-            uv = new UV(index, forecastItem.getUvDesc());
+            uv = new UV(index);
         }
 
         observationTime = ZonedDateTime.parse(observation.getUtcTime());

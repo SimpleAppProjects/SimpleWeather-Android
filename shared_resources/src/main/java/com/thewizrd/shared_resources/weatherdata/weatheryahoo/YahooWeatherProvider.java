@@ -452,7 +452,7 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
         } catch (NumberFormatException ignored) {
         }
 
-        return context.getString(R.string.weather_notavailable); // TODO: or blank
+        return super.getWeatherCondition(icon);
     }
 
     // Some conditions can be for any time of day

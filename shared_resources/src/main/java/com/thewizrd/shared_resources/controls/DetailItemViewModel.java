@@ -10,6 +10,7 @@ import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.weatherdata.AirQuality;
 import com.thewizrd.shared_resources.weatherdata.Beaufort;
 import com.thewizrd.shared_resources.weatherdata.MoonPhase;
+import com.thewizrd.shared_resources.weatherdata.UV;
 
 public class DetailItemViewModel {
     @NonNull
@@ -110,89 +111,108 @@ public class DetailItemViewModel {
         this.iconRotation = iconRotation;
     }
 
-    public DetailItemViewModel(@NonNull MoonPhase.MoonPhaseType moonPhaseType, CharSequence description) {
+    public DetailItemViewModel(@NonNull MoonPhase.MoonPhaseType moonPhaseType) {
         Context context = SimpleLibrary.getInstance().getAppContext();
         this.detailsType = WeatherDetailsType.MOONPHASE;
 
         this.label = context.getString(R.string.label_moonphase);
-        this.value = description;
         this.iconRotation = 0;
 
         switch (moonPhaseType) {
             case NEWMOON:
                 this.icon = context.getString(R.string.wi_moon_alt_new);
+                this.value = context.getString(R.string.moonphase_new);
                 break;
             case WAXING_CRESCENT:
                 this.icon = context.getString(R.string.wi_moon_alt_waxing_crescent_3);
+                this.value = context.getString(R.string.moonphase_waxcrescent);
                 break;
             case FIRST_QTR:
                 this.icon = context.getString(R.string.wi_moon_alt_first_quarter);
+                this.value = context.getString(R.string.moonphase_firstqtr);
                 break;
             case WAXING_GIBBOUS:
                 this.icon = context.getString(R.string.wi_moon_alt_waxing_gibbous_3);
+                this.value = context.getString(R.string.moonphase_waxgibbous);
                 break;
             case FULL_MOON:
                 this.icon = context.getString(R.string.wi_moon_alt_full);
+                this.value = context.getString(R.string.moonphase_full);
                 break;
             case WANING_GIBBOUS:
                 this.icon = context.getString(R.string.wi_moon_alt_waning_gibbous_3);
+                this.value = context.getString(R.string.moonphase_wangibbous);
                 break;
             case LAST_QTR:
                 this.icon = context.getString(R.string.wi_moon_alt_third_quarter);
+                this.value = context.getString(R.string.moonphase_lastqtr);
                 break;
             case WANING_CRESCENT:
                 this.icon = context.getString(R.string.wi_moon_alt_waning_crescent_3);
+                this.value = context.getString(R.string.moonphase_wancrescent);
                 break;
         }
     }
 
-    public DetailItemViewModel(@NonNull Beaufort.BeaufortScale beaufortScale, CharSequence description) {
+    public DetailItemViewModel(@NonNull Beaufort.BeaufortScale beaufortScale) {
         Context context = SimpleLibrary.getInstance().getAppContext();
         this.detailsType = WeatherDetailsType.BEAUFORT;
 
         this.label = context.getString(R.string.label_beaufort);
-        this.value = description;
         this.iconRotation = 0;
 
         switch (beaufortScale) {
             case B0:
                 this.icon = context.getString(R.string.wi_wind_beaufort_0);
+                this.value = context.getString(R.string.beaufort_0);
                 break;
             case B1:
                 this.icon = context.getString(R.string.wi_wind_beaufort_1);
+                this.value = context.getString(R.string.beaufort_1);
                 break;
             case B2:
                 this.icon = context.getString(R.string.wi_wind_beaufort_2);
+                this.value = context.getString(R.string.beaufort_2);
                 break;
             case B3:
                 this.icon = context.getString(R.string.wi_wind_beaufort_3);
+                this.value = context.getString(R.string.beaufort_3);
                 break;
             case B4:
                 this.icon = context.getString(R.string.wi_wind_beaufort_4);
+                this.value = context.getString(R.string.beaufort_4);
                 break;
             case B5:
                 this.icon = context.getString(R.string.wi_wind_beaufort_5);
+                this.value = context.getString(R.string.beaufort_5);
                 break;
             case B6:
                 this.icon = context.getString(R.string.wi_wind_beaufort_6);
+                this.value = context.getString(R.string.beaufort_6);
                 break;
             case B7:
                 this.icon = context.getString(R.string.wi_wind_beaufort_7);
+                this.value = context.getString(R.string.beaufort_7);
                 break;
             case B8:
                 this.icon = context.getString(R.string.wi_wind_beaufort_8);
+                this.value = context.getString(R.string.beaufort_8);
                 break;
             case B9:
                 this.icon = context.getString(R.string.wi_wind_beaufort_9);
+                this.value = context.getString(R.string.beaufort_9);
                 break;
             case B10:
                 this.icon = context.getString(R.string.wi_wind_beaufort_10);
+                this.value = context.getString(R.string.beaufort_10);
                 break;
             case B11:
                 this.icon = context.getString(R.string.wi_wind_beaufort_11);
+                this.value = context.getString(R.string.beaufort_11);
                 break;
             case B12:
                 this.icon = context.getString(R.string.wi_wind_beaufort_12);
+                this.value = context.getString(R.string.beaufort_12);
                 break;
         }
     }
@@ -216,6 +236,26 @@ public class DetailItemViewModel {
             this.value = String.format(LocaleUtils.getLocale(), "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_201_300));
         } else if (aqi.getIndex() >= 301) {
             this.value = String.format(LocaleUtils.getLocale(), "%d, %s", aqi.getIndex(), context.getString(R.string.aqi_level_300));
+        }
+    }
+
+    public DetailItemViewModel(@NonNull UV uv) {
+        Context context = SimpleLibrary.getInstance().getAppContext();
+        this.detailsType = WeatherDetailsType.UV;
+        this.label = context.getString(R.string.label_uv);
+        this.icon = context.getString(R.string.wi_day_sunny);
+        this.iconRotation = 0;
+
+        if (uv.getIndex() < 3) {
+            this.value = context.getString(R.string.uv_0);
+        } else if (uv.getIndex() < 6) {
+            this.value = context.getString(R.string.uv_3);
+        } else if (uv.getIndex() < 8) {
+            this.value = context.getString(R.string.uv_6);
+        } else if (uv.getIndex() < 11) {
+            this.value = context.getString(R.string.uv_8);
+        } else if (uv.getIndex() >= 11) {
+            this.value = context.getString(R.string.uv_11);
         }
     }
 

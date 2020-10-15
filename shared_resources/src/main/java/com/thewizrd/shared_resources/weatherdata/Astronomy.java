@@ -207,36 +207,28 @@ public class Astronomy extends CustomJsonObject {
         switch (astroData.getIconName()) {
             case "cw_new_moon":
             default:
-                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.NEWMOON,
-                        astroData.getMoonPhaseDesc());
+                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.NEWMOON);
                 break;
             case "cw_waxing_crescent":
-                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.WAXING_CRESCENT,
-                        astroData.getMoonPhaseDesc());
+                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.WAXING_CRESCENT);
                 break;
             case "cw_first_qtr":
-                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.FIRST_QTR,
-                        astroData.getMoonPhaseDesc());
+                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.FIRST_QTR);
                 break;
             case "cw_waxing_gibbous":
-                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.WAXING_GIBBOUS,
-                        astroData.getMoonPhaseDesc());
+                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.WAXING_GIBBOUS);
                 break;
             case "cw_full_moon":
-                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.FULL_MOON,
-                        astroData.getMoonPhaseDesc());
+                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.FULL_MOON);
                 break;
             case "cw_waning_gibbous":
-                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.WANING_GIBBOUS,
-                        astroData.getMoonPhaseDesc());
+                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.WANING_GIBBOUS);
                 break;
             case "cw_last_quarter":
-                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.LAST_QTR,
-                        astroData.getMoonPhaseDesc());
+                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.LAST_QTR);
                 break;
             case "cw_waning_crescent":
-                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.WANING_CRESCENT,
-                        astroData.getMoonPhaseDesc());
+                this.moonPhase = new MoonPhase(MoonPhase.MoonPhaseType.WANING_CRESCENT);
                 break;
         }
     }

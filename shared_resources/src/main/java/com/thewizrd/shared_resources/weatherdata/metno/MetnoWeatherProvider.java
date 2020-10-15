@@ -460,7 +460,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
                 return context.getString(R.string.weather_rainshowers);
 
             default:
-                return context.getString(R.string.weather_notavailable); // TODO: or just blank
+                return super.getWeatherCondition(icon);
         }
     }
 

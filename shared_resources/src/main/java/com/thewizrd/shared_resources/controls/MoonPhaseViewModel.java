@@ -7,8 +7,8 @@ public class MoonPhaseViewModel {
     private MoonPhase.MoonPhaseType phaseType;
 
     public MoonPhaseViewModel(MoonPhase moonPhase) {
-        this.moonPhase = new DetailItemViewModel(moonPhase.getPhase(), moonPhase.getDescription());
         this.phaseType = moonPhase.getPhase();
+        this.moonPhase = new DetailItemViewModel(moonPhase.getPhase());
     }
 
     public DetailItemViewModel getMoonPhase() {

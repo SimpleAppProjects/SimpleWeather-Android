@@ -19,7 +19,6 @@ import com.thewizrd.shared_resources.weatherdata.UV;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class ForecastItemViewModel extends BaseForecastItemViewModel {
     private String loTemp;
@@ -33,7 +32,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
         weatherIcon = forecast.getIcon();
         date = forecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(context.getString(R.string.forecast_date_format)));
         shortDate = date;
-        condition = forecast.getCondition();
+        condition = wm.supportsWeatherLocale() ? forecast.getCondition() : wm.getWeatherCondition(forecast.getIcon());
         try {
             if (forecast.getHighF() != null && forecast.getHighC() != null) {
                 int value = Settings.isFahrenheit() ? Math.round(forecast.getHighF()) : Math.round(forecast.getHighC());
@@ -104,8 +103,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
             if (forecast.getExtras().getUvIndex() != null && forecast.getExtras().getUvIndex() >= 0) {
                 UV uv = new UV(forecast.getExtras().getUvIndex());
 
-                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.UV,
-                        String.format(Locale.ROOT, "%.1f, %s", uv.getIndex(), uv.getDescription())));
+                detailExtras.add(new DetailItemViewModel(uv));
             }
 
             if (forecast.getExtras().getPressureIn() != null && forecast.getExtras().getPressureMb() != null) {

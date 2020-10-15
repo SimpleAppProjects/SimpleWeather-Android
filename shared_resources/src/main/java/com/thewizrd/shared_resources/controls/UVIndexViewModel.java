@@ -1,9 +1,12 @@
 package com.thewizrd.shared_resources.controls;
 
+import android.content.Context;
 import android.graphics.Color;
 
 import androidx.annotation.ColorInt;
 
+import com.thewizrd.shared_resources.R;
+import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.weatherdata.UV;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
@@ -18,21 +21,27 @@ public class UVIndexViewModel {
     int progressColor;
 
     public UVIndexViewModel(UV uvIdx) {
+        Context context = SimpleLibrary.getInstance().getAppContext();
+
         icon = WeatherIcons.DAY_SUNNY;
-        description = uvIdx.getDescription();
         index = uvIdx.getIndex().intValue();
         progressMax = 11;
         progress = Math.min(index, progressMax);
 
         if (uvIdx.getIndex() < 3) {
+            description = context.getString(R.string.uv_0);
             progressColor = Colors.LIMEGREEN;
         } else if (uvIdx.getIndex() < 6) {
+            description = context.getString(R.string.uv_3);
             progressColor = Colors.YELLOW;
         } else if (uvIdx.getIndex() < 8) {
+            description = context.getString(R.string.uv_6);
             progressColor = Colors.ORANGE;
         } else if (uvIdx.getIndex() < 11) {
+            description = context.getString(R.string.uv_8);
             progressColor = Color.rgb(0xBD, 0x00, 0x35); // Maroon
         } else if (uvIdx.getIndex() >= 11) {
+            description = context.getString(R.string.uv_11);
             progressColor = Color.rgb(0xAA, 0x00, 0xFF); // Purple
         }
     }

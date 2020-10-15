@@ -10,11 +10,9 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.StringUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -62,9 +60,6 @@ public class Beaufort extends CustomJsonObject {
     @SerializedName("scale")
     private BeaufortScale scale;
 
-    @SerializedName("desc")
-    private String desc;
-
     @RestrictTo({RestrictTo.Scope.LIBRARY})
     public Beaufort() {
         // Needed for deserialization
@@ -76,64 +71,44 @@ public class Beaufort extends CustomJsonObject {
         switch (beaufortScale) {
             case 0:
                 scale = BeaufortScale.B0;
-                desc = context.getString(R.string.beaufort_0);
                 break;
             case 1:
                 scale = BeaufortScale.B1;
-                desc = context.getString(R.string.beaufort_1);
                 break;
             case 2:
                 scale = BeaufortScale.B2;
-                desc = context.getString(R.string.beaufort_2);
                 break;
             case 3:
                 scale = BeaufortScale.B3;
-                desc = context.getString(R.string.beaufort_3);
                 break;
             case 4:
                 scale = BeaufortScale.B4;
-                desc = context.getString(R.string.beaufort_4);
                 break;
             case 5:
                 scale = BeaufortScale.B5;
-                desc = context.getString(R.string.beaufort_5);
                 break;
             case 6:
                 scale = BeaufortScale.B6;
-                desc = context.getString(R.string.beaufort_6);
                 break;
             case 7:
                 scale = BeaufortScale.B7;
-                desc = context.getString(R.string.beaufort_7);
                 break;
             case 8:
                 scale = BeaufortScale.B8;
-                desc = context.getString(R.string.beaufort_8);
                 break;
             case 9:
                 scale = BeaufortScale.B9;
-                desc = context.getString(R.string.beaufort_9);
                 break;
             case 10:
                 scale = BeaufortScale.B10;
-                desc = context.getString(R.string.beaufort_10);
                 break;
             case 11:
                 scale = BeaufortScale.B11;
-                desc = context.getString(R.string.beaufort_11);
                 break;
             case 12:
                 scale = BeaufortScale.B12;
-                desc = context.getString(R.string.beaufort_12);
                 break;
         }
-    }
-
-    public Beaufort(int beaufortScale, String description) {
-        this(beaufortScale);
-
-        if (!StringUtils.isNullOrWhitespace(description))
-            this.desc = description;
     }
 
     public BeaufortScale getScale() {
@@ -142,14 +117,6 @@ public class Beaufort extends CustomJsonObject {
 
     public void setScale(BeaufortScale scale) {
         this.scale = scale;
-    }
-
-    public String getDescription() {
-        return desc;
-    }
-
-    public void setDescription(String description) {
-        this.desc = description;
     }
 
     @Override
@@ -186,9 +153,6 @@ public class Beaufort extends CustomJsonObject {
                     case "scale":
                         this.scale = BeaufortScale.valueOf(reader.nextInt());
                         break;
-                    case "desc":
-                        this.desc = reader.nextString();
-                        break;
                     default:
                         reader.skipValue();
                         break;
@@ -211,10 +175,6 @@ public class Beaufort extends CustomJsonObject {
             // "scale" : ""
             writer.name("scale");
             writer.value(scale.ordinal());
-
-            // "desc" : ""
-            writer.name("desc");
-            writer.value(desc);
 
             // }
             writer.endObject();

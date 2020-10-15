@@ -13,6 +13,7 @@ import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
@@ -27,6 +28,7 @@ import java.util.List;
 public class ForecastPanelsViewModel extends ViewModel {
     private LocationData locationData;
     private String tempUnit;
+    private String localeCode;
 
     private MutableLiveData<List<ForecastItemViewModel>> forecasts;
     private MutableLiveData<List<HourlyForecastItemViewModel>> hourlyForecasts;
@@ -54,6 +56,7 @@ public class ForecastPanelsViewModel extends ViewModel {
             this.locationData = new LocationData(new LocationQueryViewModel(location));
 
             tempUnit = Settings.getTempUnit();
+            localeCode = LocaleUtils.getLocaleCode();
 
             if (currentForecastsData != null) {
                 currentForecastsData.removeObserver(forecastObserver);
@@ -71,8 +74,9 @@ public class ForecastPanelsViewModel extends ViewModel {
             currentHrForecastsData.observeForever(hrforecastObserver);
             if (hourlyForecasts != null)
                 hourlyForecasts.postValue(hrForecastMapper.apply(currentHrForecastsData.getValue()));
-        } else if (!ObjectsCompat.equals(tempUnit, Settings.getTempUnit())) {
+        } else if (!ObjectsCompat.equals(tempUnit, Settings.getTempUnit()) || !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode())) {
             tempUnit = Settings.getTempUnit();
+            localeCode = LocaleUtils.getLocaleCode();
 
             if (currentForecastsData != null && currentForecastsData.getValue() != null) {
                 forecasts.postValue(forecastMapper.apply(currentForecastsData.getValue()));

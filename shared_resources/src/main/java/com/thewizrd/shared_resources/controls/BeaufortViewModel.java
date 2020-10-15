@@ -15,7 +15,7 @@ public class BeaufortViewModel {
     int progressColor;
 
     public BeaufortViewModel(Beaufort beaufort) {
-        this.beaufort = new DetailItemViewModel(beaufort.getScale(), beaufort.getDescription());
+        this.beaufort = new DetailItemViewModel(beaufort.getScale());
         progressMax = 12;
 
         switch (beaufort.getScale()) {

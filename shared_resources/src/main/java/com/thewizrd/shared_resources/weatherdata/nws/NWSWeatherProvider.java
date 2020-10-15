@@ -449,7 +449,7 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
         Context context = SimpleLibrary.getInstance().getAppContext();
 
         if (icon == null)
-            return context.getString(R.string.weather_notavailable); // TODO: or blank
+            return context.getString(R.string.weather_notavailable);
 
         if (icon.contains("fog")) {
             return context.getString(R.string.weather_fog);
@@ -494,7 +494,7 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
         } else if (icon.contains("bkn")) {
             return context.getString(R.string.weather_cloudy);
         } else {
-            return context.getString(R.string.weather_notavailable); // TODO: or blank
+            return super.getWeatherCondition(icon);
         }
     }
 

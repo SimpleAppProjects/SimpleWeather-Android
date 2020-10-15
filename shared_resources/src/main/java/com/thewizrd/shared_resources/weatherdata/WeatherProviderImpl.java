@@ -1,8 +1,11 @@
 package com.thewizrd.shared_resources.weatherdata;
 
+import android.content.Context;
+
 import androidx.annotation.Nullable;
 
 import com.ibm.icu.util.ULocale;
+import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -203,7 +206,6 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
     @Nullable
     @Override
     public String getWeatherCondition(String icon) {
-        /* For reference
         Context context = SimpleLibrary.getInstance().getAppContext();
 
         switch (icon) {
@@ -218,6 +220,8 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             case WeatherIcons.DAY_CLOUDY:
             case WeatherIcons.NIGHT_ALT_CLOUDY:
             case WeatherIcons.CLOUDY:
+            case WeatherIcons.NIGHT_ALT_CLOUDY_HIGH:
+            case WeatherIcons.DAY_CLOUDY_HIGH:
                 return context.getString(R.string.weather_cloudy);
             case WeatherIcons.DAY_SPRINKLE:
             case WeatherIcons.NIGHT_ALT_SPRINKLE:
@@ -247,6 +251,10 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             case WeatherIcons.DAY_SNOW_THUNDERSTORM:
             case WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM:
                 return context.getString(R.string.weather_snow_tstorms);
+            case WeatherIcons.HAIL:
+            case WeatherIcons.DAY_HAIL:
+            case WeatherIcons.NIGHT_ALT_HAIL:
+                return context.getString(R.string.weather_hail);
             case WeatherIcons.DAY_RAIN:
             case WeatherIcons.NIGHT_ALT_RAIN:
             case WeatherIcons.RAIN:
@@ -266,6 +274,7 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
                 return context.getString(R.string.weather_haze);
             case WeatherIcons.SMOKE:
                 return context.getString(R.string.weather_smoky);
+            case WeatherIcons.SANDSTORM:
             case WeatherIcons.DUST:
                 return context.getString(R.string.weather_dust);
             case WeatherIcons.TORNADO:
@@ -278,15 +287,15 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             case WeatherIcons.WINDY:
             case WeatherIcons.DAY_CLOUDY_WINDY:
             case WeatherIcons.NIGHT_ALT_CLOUDY_WINDY:
+            case WeatherIcons.DAY_CLOUDY_GUSTS:
+            case WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS:
+            case WeatherIcons.STRONG_WIND:
                 return context.getString(R.string.weather_windy);
             case WeatherIcons.HURRICANE:
                 return context.getString(R.string.weather_tropicalstorm);
             default:
-                return "";
+                return context.getString(R.string.weather_notavailable);
         }
-         */
-
-        return null;
     }
 
     @Override

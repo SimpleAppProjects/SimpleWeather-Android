@@ -1,5 +1,6 @@
 package com.thewizrd.shared_resources;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 
@@ -18,6 +19,7 @@ public final class SimpleLibrary {
     private Context mContext;
     private OkHttpClient client;
 
+    @SuppressLint("StaticFieldLeak")
     private static SimpleLibrary sSimpleLib;
 
     private SimpleLibrary() {

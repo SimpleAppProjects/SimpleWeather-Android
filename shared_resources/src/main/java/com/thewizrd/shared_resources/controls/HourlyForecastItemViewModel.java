@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
 
-    private HourlyForecast forecast;
+    private final HourlyForecast forecast;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public HourlyForecast getForecast() {
@@ -47,7 +47,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
             shortDate = hrForecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.ABBREV_12HR_AMPM));
         }
 
-        condition = hrForecast.getCondition();
+        condition = wm.supportsWeatherLocale() ? hrForecast.getCondition() : wm.getWeatherCondition(hrForecast.getIcon());
         try {
             if (hrForecast.getHighF() != null && hrForecast.getHighC() != null) {
                 int value = Settings.isFahrenheit() ? Math.round(hrForecast.getHighF()) : Math.round(hrForecast.getHighC());
@@ -118,8 +118,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
             if (hrForecast.getExtras().getUvIndex() != null && hrForecast.getExtras().getUvIndex() >= 0) {
                 UV uv = new UV(hrForecast.getExtras().getUvIndex());
 
-                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.UV,
-                        String.format(LocaleUtils.getLocale(), "%.2f, %s", uv.getIndex(), uv.getDescription())));
+                detailExtras.add(new DetailItemViewModel(uv));
             }
 
             if (hrForecast.getExtras().getPressureIn() != null && hrForecast.getExtras().getPressureMb() != null) {

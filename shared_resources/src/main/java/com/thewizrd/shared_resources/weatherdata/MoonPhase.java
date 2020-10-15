@@ -1,6 +1,5 @@
 package com.thewizrd.shared_resources.weatherdata;
 
-import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
@@ -9,11 +8,8 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.thewizrd.shared_resources.R;
-import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.StringUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -34,9 +30,6 @@ public class MoonPhase extends CustomJsonObject {
     @SerializedName("phase")
     private MoonPhaseType phase;
 
-    @SerializedName("desc")
-    private String desc;
-
     @RestrictTo({RestrictTo.Scope.LIBRARY})
     public MoonPhase() {
         // Needed for deserialization
@@ -44,42 +37,6 @@ public class MoonPhase extends CustomJsonObject {
 
     public MoonPhase(MoonPhaseType moonPhaseType) {
         this.phase = moonPhaseType;
-
-        Context context = SimpleLibrary.getInstance().getAppContext();
-
-        switch (moonPhaseType) {
-            case NEWMOON:
-                desc = context.getString(R.string.moonphase_new);
-                break;
-            case WAXING_CRESCENT:
-                desc = context.getString(R.string.moonphase_waxcrescent);
-                break;
-            case FIRST_QTR:
-                desc = context.getString(R.string.moonphase_firstqtr);
-                break;
-            case WAXING_GIBBOUS:
-                desc = context.getString(R.string.moonphase_waxgibbous);
-                break;
-            case FULL_MOON:
-                desc = context.getString(R.string.moonphase_full);
-                break;
-            case WANING_GIBBOUS:
-                desc = context.getString(R.string.moonphase_wangibbous);
-                break;
-            case LAST_QTR:
-                desc = context.getString(R.string.moonphase_lastqtr);
-                break;
-            case WANING_CRESCENT:
-                desc = context.getString(R.string.moonphase_wancrescent);
-                break;
-        }
-    }
-
-    public MoonPhase(MoonPhaseType moonPhaseType, String description) {
-        this(moonPhaseType);
-
-        if (!StringUtils.isNullOrWhitespace(description))
-            this.desc = description;
     }
 
     public MoonPhaseType getPhase() {
@@ -88,14 +45,6 @@ public class MoonPhase extends CustomJsonObject {
 
     public void setPhase(MoonPhaseType phase) {
         this.phase = phase;
-    }
-
-    public String getDescription() {
-        return desc;
-    }
-
-    public void setDescription(String description) {
-        this.desc = description;
     }
 
     @Override
@@ -132,9 +81,6 @@ public class MoonPhase extends CustomJsonObject {
                     case "phase":
                         this.phase = MoonPhaseType.valueOf(reader.nextString());
                         break;
-                    case "desc":
-                        this.desc = reader.nextString();
-                        break;
                     default:
                         reader.skipValue();
                         break;
@@ -156,10 +102,6 @@ public class MoonPhase extends CustomJsonObject {
             // "phase" : ""
             writer.name("phase");
             writer.value(phase.name());
-
-            // "desc" : ""
-            writer.name("desc");
-            writer.value(desc);
 
             // }
             writer.endObject();

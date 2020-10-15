@@ -26,6 +26,8 @@ import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
+import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -187,6 +189,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
     private Weather weather;
     private String tempUnit;
+    private String localeCode;
 
     public WeatherNowViewModel() {
         weatherDetails = new ArrayList<>(WeatherDetailsType.values().length);
@@ -253,7 +256,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
                 // Refresh locale/unit dependent values
                 refreshView();
-            } else if (!ObjectsCompat.equals(tempUnit, Settings.getTempUnit())) {
+            } else if (!ObjectsCompat.equals(tempUnit, Settings.getTempUnit()) || !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode())) {
                 refreshView();
             }
         }
@@ -262,9 +265,12 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private void refreshView() {
         final Context context = SimpleLibrary.getInstance().getApp().getAppContext();
         final boolean isPhone = SimpleLibrary.getInstance().getApp().isPhone();
+        final WeatherProviderImpl provider = WeatherManager.getProvider(weather.getSource());
 
         tempUnit = Settings.getTempUnit();
         notifyPropertyChanged(BR.tempUnit);
+
+        localeCode = LocaleUtils.getLocaleCode();
 
         // Date Updated
         if (!ObjectsCompat.equals(updateDate, WeatherUtils.getLastBuildDate(weather))) {
@@ -289,7 +295,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
             curTemp = curTempSSBuilder;
             notifyPropertyChanged(BR.curTemp);
         }
-        String newCondition = (StringUtils.isNullOrWhitespace(weather.getCondition().getWeather()) ? "--" : weather.getCondition().getWeather());
+        final String weatherCondition = provider.supportsWeatherLocale() ? weather.getCondition().getWeather() : provider.getWeatherCondition(weather.getCondition().getIcon());
+        String newCondition = (StringUtils.isNullOrWhitespace(weatherCondition) ? "--" : weatherCondition);
         if (!ObjectsCompat.equals(curCondition, newCondition)) {
             curCondition = newCondition;
             notifyPropertyChanged(BR.curCondition);
@@ -420,9 +427,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
             if (isPhone) {
                 uvIndex = new UVIndexViewModel(weather.getCondition().getUv());
             } else {
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.UV,
-                        String.format(LocaleUtils.getLocale(), "%.1f, %s",
-                                weather.getCondition().getUv().getIndex(), weather.getCondition().getUv().getDescription())));
+                weatherDetails.add(new DetailItemViewModel(weather.getCondition().getUv()));
             }
         } else {
             uvIndex = null;
@@ -480,8 +485,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
             if (isPhone) {
                 beaufort = new BeaufortViewModel(weather.getCondition().getBeaufort());
             } else {
-                weatherDetails.add(new DetailItemViewModel(weather.getCondition().getBeaufort().getScale(),
-                        weather.getCondition().getBeaufort().getDescription()));
+                weatherDetails.add(new DetailItemViewModel(weather.getCondition().getBeaufort().getScale()));
             }
         } else {
             beaufort = null;
@@ -517,8 +521,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 if (isPhone) {
                     moonPhase = new MoonPhaseViewModel(weather.getAstronomy().getMoonPhase());
                 } else {
-                    weatherDetails.add(new DetailItemViewModel(weather.getAstronomy().getMoonPhase().getPhase(),
-                            weather.getAstronomy().getMoonPhase().getDescription()));
+                    weatherDetails.add(new DetailItemViewModel(weather.getAstronomy().getMoonPhase().getPhase()));
                 }
             } else {
                 moonPhase = null;

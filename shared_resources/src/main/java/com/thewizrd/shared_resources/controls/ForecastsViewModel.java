@@ -17,6 +17,7 @@ import androidx.paging.PositionalDataSource;
 import com.thewizrd.shared_resources.database.WeatherDAO;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
@@ -32,6 +33,7 @@ import java.util.concurrent.Callable;
 public class ForecastsViewModel extends ViewModel {
     private LocationData locationData;
     private String tempUnit;
+    private String localeCode;
 
     private MutableLiveData<PagedList<ForecastItemViewModel>> forecasts;
     private MutableLiveData<PagedList<HourlyForecastItemViewModel>> hourlyForecasts;
@@ -59,6 +61,7 @@ public class ForecastsViewModel extends ViewModel {
             this.locationData = new LocationData(new LocationQueryViewModel(location));
 
             tempUnit = Settings.getTempUnit();
+            localeCode = LocaleUtils.getLocaleCode();
 
             if (currentForecastsData != null) {
                 currentForecastsData.removeObserver(forecastObserver);
@@ -99,8 +102,9 @@ public class ForecastsViewModel extends ViewModel {
             currentHrForecastsData.observeForever(hrforecastObserver);
             if (hourlyForecasts != null)
                 hourlyForecasts.postValue(currentHrForecastsData.getValue());
-        } else if (!ObjectsCompat.equals(tempUnit, Settings.getTempUnit())) {
+        } else if (!ObjectsCompat.equals(tempUnit, Settings.getTempUnit()) || !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode())) {
             tempUnit = Settings.getTempUnit();
+            localeCode = LocaleUtils.getLocaleCode();
 
             if (currentForecastsData != null && currentForecastsData.getValue() != null) {
                 currentForecastsData.getValue().getDataSource().invalidate();
