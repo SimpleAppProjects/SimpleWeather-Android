@@ -32,7 +32,7 @@ public abstract class CustomPreferenceFragmentCompat extends LifecycleAwarePrefe
 
     @Override
     public void showSnackbar(@NonNull final com.thewizrd.simpleweather.snackbar.Snackbar snackbar, final com.google.android.material.snackbar.Snackbar.Callback callback) {
-        runOnUiThread(new Runnable() {
+        runWithView(new Runnable() {
             @Override
             public void run() {
                 if (mSnackMgr == null && isAlive()) {
