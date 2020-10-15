@@ -141,7 +141,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private boolean mRequestingLocationUpdates;
 
     // Weather
-    private WeatherManager wm = WeatherManager.getInstance();
+    private final WeatherManager wm = WeatherManager.getInstance();
 
     // Views
     private FragmentWidgetSetupBinding binding;
@@ -598,16 +598,21 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         bgStylePref.setEntries(styleEntries);
         bgStylePref.setEntryValues(styleEntryValues);
 
+        mWidgetBackground = WidgetUtils.getWidgetBackground(mAppWidgetId);
+        mWidgetBGStyle = WidgetUtils.getBackgroundStyle(mAppWidgetId);
+        mWidgetBackgroundColor = WidgetUtils.getBackgroundColor(mAppWidgetId);
+        mWidgetTextColor = WidgetUtils.getTextColor(mAppWidgetId);
+
         if (WidgetUtils.isBackgroundOptionalWidget(mWidgetType)) {
-            bgChoicePref.setValueIndex(WidgetUtils.getWidgetBackground(mAppWidgetId).getValue());
+            bgChoicePref.setValueIndex(mWidgetBackground.getValue());
             bgChoicePref.callChangeListener(bgChoicePref.getValue());
 
-            bgStylePref.setValueIndex(WidgetUtils.getBackgroundStyle(mAppWidgetId).getValue());
+            bgStylePref.setValueIndex(mWidgetBGStyle.getValue());
             bgStylePref.callChangeListener(bgStylePref.getValue());
 
-            bgColorPref.setColor(WidgetUtils.getBackgroundColor(mAppWidgetId));
+            bgColorPref.setColor(mWidgetBackgroundColor);
             bgColorPref.callChangeListener(bgColorPref.getColor());
-            txtColorPref.setColor(WidgetUtils.getTextColor(mAppWidgetId));
+            txtColorPref.setColor(mWidgetTextColor);
             txtColorPref.callChangeListener(txtColorPref.getColor());
 
             findPreference(KEY_BACKGROUND).setVisible(true);
