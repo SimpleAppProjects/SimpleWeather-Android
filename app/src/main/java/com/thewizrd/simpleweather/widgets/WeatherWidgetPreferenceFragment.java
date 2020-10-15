@@ -883,8 +883,10 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private void updateLocationView() {
         if (binding == null) return;
         TextView locationView = binding.widgetContainer.findViewById(R.id.location_name);
-        locationView.setText(mLastSelectedValue != null ? locationPref.findEntryFromValue(mLastSelectedValue) : this.getString(R.string.pref_location));
-        locationView.setVisibility(hideLocNamePref.isChecked() ? View.GONE : View.VISIBLE);
+        if (locationView != null) {
+            locationView.setText(mLastSelectedValue != null ? locationPref.findEntryFromValue(mLastSelectedValue) : this.getString(R.string.pref_location));
+            locationView.setVisibility(hideLocNamePref.isChecked() ? View.GONE : View.VISIBLE);
+        }
     }
 
     private void updateTimeAndDate() {
