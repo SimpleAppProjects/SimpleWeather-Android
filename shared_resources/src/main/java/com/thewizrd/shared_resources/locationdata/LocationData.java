@@ -91,10 +91,11 @@ public class LocationData extends CustomJsonObject {
     public String getTzShort() {
         if (!StringUtils.isNullOrWhitespace(tzLong)) {
             ZoneId zId = ZoneId.of(tzLong);
-            if (zId != null)
+            if (zId != null) {
                 return ZonedDateTime.now(zId).format(
-                        DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.TIMEZONE_NAME)
+                        DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.TIMEZONE_NAME)
                 );
+            }
         }
         return "UTC";
     }

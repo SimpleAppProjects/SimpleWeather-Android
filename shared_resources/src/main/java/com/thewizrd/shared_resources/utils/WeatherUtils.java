@@ -56,7 +56,7 @@ public class WeatherUtils {
         } else {
             prefix = context.getString(R.string.update_prefix);
             date = String.format("%s %s %s", prefix, update_time.format(
-                    DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.ABBREV_DAY_OF_THE_WEEK)), timeformat);
+                    DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.ABBREV_DAY_OF_THE_WEEK)), timeformat);
         }
 
         return date;
