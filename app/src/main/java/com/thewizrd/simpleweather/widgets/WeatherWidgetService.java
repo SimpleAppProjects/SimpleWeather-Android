@@ -1100,10 +1100,9 @@ public class WeatherWidgetService extends SafeJobIntentService {
                 updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.TRANSPARENT);
                 updateViews.setImageViewBitmap(R.id.panda_background, null);
             } else {
-                updateViews.setImageViewBitmap(R.id.widgetBackground, null);
-                updateViews.setInt(R.id.widgetBackground, "setBackgroundColor", backgroundColor);
+                updateViews.setImageViewBitmap(R.id.widgetBackground, ImageUtils.createColorBitmap(backgroundColor));
                 updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.TRANSPARENT);
-                updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0x00);
+                updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
                 updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.TRANSPARENT);
                 updateViews.setImageViewBitmap(R.id.panda_background, null);
             }

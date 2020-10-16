@@ -23,6 +23,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.widget.ImageView;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.FloatRange;
 import androidx.annotation.FontRes;
 import androidx.annotation.NonNull;
@@ -135,10 +136,6 @@ public class ImageUtils {
         return bitmapFromDrawable(drawable);
     }
 
-    public static Bitmap bitmapFromDrawable(@NonNull Context context, @NonNull Drawable drawable) {
-        return bitmapFromDrawable(drawable);
-    }
-
     public static Bitmap tintedBitmapFromDrawable(@NonNull Context context, int resDrawable, int color) {
         Drawable drawable = ContextCompat.getDrawable(context, resDrawable);
         Drawable wrapped = DrawableCompat.wrap(drawable);
@@ -146,7 +143,7 @@ public class ImageUtils {
         return bitmapFromDrawable(wrapped);
     }
 
-    private static Bitmap bitmapFromDrawable(@NonNull Drawable drawable) {
+    public static Bitmap bitmapFromDrawable(@NonNull Drawable drawable) {
         Bitmap bitmap;
 
         if (drawable.getIntrinsicHeight() <= 0 || drawable.getIntrinsicWidth() <= 0) {
@@ -178,6 +175,13 @@ public class ImageUtils {
         } else {
             return source;
         }
+    }
+
+    public static Bitmap createColorBitmap(@ColorInt int color) {
+        Bitmap bmp = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bmp);
+        canvas.drawColor(color);
+        return bmp;
     }
 
     public class CenterCropper {
