@@ -1,16 +1,16 @@
 package com.thewizrd.simpleweather;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.simpleweather.activity.UserLocaleActivity;
 import com.thewizrd.simpleweather.main.MainActivity;
 import com.thewizrd.simpleweather.setup.SetupActivity;
 
-public class LaunchActivity extends Activity {
+public class LaunchActivity extends UserLocaleActivity {
 
     private static final String TAG = "LaunchActivity";
 

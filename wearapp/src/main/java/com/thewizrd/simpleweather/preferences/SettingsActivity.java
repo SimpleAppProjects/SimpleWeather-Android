@@ -22,11 +22,13 @@ import android.preference.SwitchPreference;
 import android.support.wearable.view.ConfirmationOverlay;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.arch.core.util.Function;
 import androidx.core.location.LocationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.wear.widget.SwipeDismissFrameLayout;
@@ -37,6 +39,7 @@ import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -55,6 +58,7 @@ import com.thewizrd.simpleweather.wearable.WearableListenerActivity;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
 import static com.thewizrd.shared_resources.utils.Settings.KEY_API;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_APIKEY;
@@ -140,6 +144,7 @@ public class SettingsActivity extends WearableListenerActivity {
 
         // Preferences
         private SwitchPreference followGps;
+        private ListPreference languagePref;
         private ListPreference providerPref;
         private SwitchPreference personalKeyPref;
         private KeyEntryPreference keyEntry;
@@ -293,6 +298,34 @@ public class SettingsActivity extends WearableListenerActivity {
                         }
                     }
 
+                    return true;
+                }
+            });
+
+            languagePref = (ListPreference) findPreference(LocaleUtils.KEY_LANGUAGE);
+            CharSequence[] langCodes = languagePref.getEntryValues();
+            CharSequence[] langEntries = new CharSequence[langCodes.length];
+            for (int i = 0; i < langCodes.length; i++) {
+                CharSequence code = langCodes[i];
+
+                if (TextUtils.isEmpty(code)) {
+                    langEntries[i] = getString(R.string.summary_default);
+                } else {
+                    String localeCode = code.toString();
+                    Locale locale = new Locale(localeCode);
+                    langEntries[i] = locale.getDisplayName(locale);
+                }
+            }
+            languagePref.setEntries(langEntries);
+
+            languagePref.setDefaultValue("");
+            languagePref.setValue(LocaleUtils.getLocaleCode());
+            languagePref.setSummary(localeSummaryFunc.apply(languagePref.getValue()));
+            languagePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    LocaleUtils.setLocaleCode(newValue.toString());
+                    languagePref.setSummary(localeSummaryFunc.apply(newValue.toString()));
                     return true;
                 }
             });
@@ -518,9 +551,21 @@ public class SettingsActivity extends WearableListenerActivity {
             connStatusPref = findPreference(KEY_CONNSTATUS);
         }
 
+        private final Function<String, CharSequence> localeSummaryFunc = new Function<String, CharSequence>() {
+            @Override
+            public CharSequence apply(String input) {
+                if (StringUtils.isNullOrWhitespace(input)) {
+                    return getString(R.string.summary_default);
+                } else {
+                    return LocaleUtils.getLocaleDisplayName();
+                }
+            }
+        };
+
         private void enableSyncedSettings(boolean enable) {
             findPreference(KEY_USECELSIUS).setEnabled(enable);
             followGps.setEnabled(enable);
+            languagePref.setEnabled(enable);
             apiCategory.setEnabled(enable);
         }
 

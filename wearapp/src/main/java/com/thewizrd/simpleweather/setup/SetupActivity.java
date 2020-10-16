@@ -3,16 +3,16 @@ package com.thewizrd.simpleweather.setup;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.activity.UserLocaleActivity;
 import com.thewizrd.simpleweather.databinding.ActivitySetupBinding;
 
-public class SetupActivity extends FragmentActivity {
+public class SetupActivity extends UserLocaleActivity {
 
     private ActivitySetupBinding binding;
     private NavController mNavController;

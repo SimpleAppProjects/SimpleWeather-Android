@@ -18,6 +18,7 @@ import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.CommonActions;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver;
@@ -65,7 +66,7 @@ public class App extends Application implements ApplicationLib, Application.Acti
 
     public void onCreate() {
         super.onCreate();
-        context = getApplicationContext();
+        context = LocaleUtils.attachBaseContext(getApplicationContext());
         sInstance = this;
 
         registerActivityLifecycleCallbacks(this);

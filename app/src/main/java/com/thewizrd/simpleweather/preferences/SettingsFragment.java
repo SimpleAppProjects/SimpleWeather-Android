@@ -97,7 +97,6 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
     // Preference Keys
     private static final String KEY_FEATURES = "key_features";
-    private static final String KEY_LANGUAGE = "key_language";
     private static final String KEY_ABOUTAPP = "key_aboutapp";
     private static final String KEY_APIREGISTER = "key_apiregister";
     private static final String CATEGORY_NOTIFICATION = "category_notification";
@@ -651,7 +650,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             }
         });
 
-        languagePref = findPreference(KEY_LANGUAGE);
+        languagePref = findPreference(LocaleUtils.KEY_LANGUAGE);
         CharSequence[] langCodes = languagePref.getEntryValues();
         CharSequence[] langEntries = new CharSequence[langCodes.length];
         for (int i = 0; i < langCodes.length; i++) {
@@ -884,6 +883,10 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
                         .setAction(WeatherUpdaterWorker.ACTION_UPDATEALARM));
                 break;
+            // Language changed
+            case LocaleUtils.KEY_LANGUAGE:
+                enqueueIntent(new Intent(context, WearableWorker.class)
+                        .setAction(WearableWorker.ACTION_SENDSETTINGSUPDATE));
             default:
                 break;
         }

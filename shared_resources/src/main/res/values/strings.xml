@@ -82,6 +82,7 @@
     <string name="pref_title_oslibs">Open Source Libraries</string>
     <string name="pref_category_providers">Data Providers</string>
     <string name="pref_title_language">Language</string>
+    <string name="summary_default">Default</string>
     <string name="copyright_here" translatable="false">
         The HERE Logo is a trademark or registered trademark of HERE Global B.V.
     </string>

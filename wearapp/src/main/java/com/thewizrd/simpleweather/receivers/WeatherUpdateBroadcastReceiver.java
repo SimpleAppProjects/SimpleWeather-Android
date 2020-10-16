@@ -17,8 +17,10 @@ public class WeatherUpdateBroadcastReceiver extends BroadcastReceiver {
             WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_STARTALARM);
 
             if (Settings.getDataSync() != WearableDataSync.OFF) {
-                // Request a full update
-                WearableWorker.enqueueAction(context, WearableWorker.ACTION_REQUESTUPDATE);
+                // Request a full update (force Settings refresh + weather + location)
+                WearableWorker.enqueueAction(context, WearableWorker.ACTION_REQUESTSETTINGSUPDATE, true);
+                WearableWorker.enqueueAction(context, WearableWorker.ACTION_REQUESTLOCATIONUPDATE);
+                WearableWorker.enqueueAction(context, WearableWorker.ACTION_REQUESTWEATHERUPDATE);
             }
         }
     }

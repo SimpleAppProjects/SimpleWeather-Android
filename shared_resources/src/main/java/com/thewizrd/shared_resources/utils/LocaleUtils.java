@@ -14,7 +14,7 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import java.util.Locale;
 
 public class LocaleUtils {
-    private static final String KEY_LANGUAGE = "key_language";
+    public static final String KEY_LANGUAGE = "key_language";
     private static Locale sLocale;
 
     public static Context attachBaseContext(@NonNull Context context) {

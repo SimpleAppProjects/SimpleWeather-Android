@@ -16,6 +16,12 @@
             android:summary="@string/pref_summary_currentlocation"
             android:title="@string/label_currentlocation" />
 
+        <ListPreference
+            android:key="key_language"
+            android:title="@string/pref_title_language"
+            android:defaultValue=""
+            android:entryValues="@array/supportedlanguages_values" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

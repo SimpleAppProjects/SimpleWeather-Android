@@ -44,6 +44,11 @@ public class SetupSyncActivity extends WearableListenerActivity {
     }
 
     @Override
+    protected boolean enableLocaleChangeListener() {
+        return false;
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -211,7 +216,9 @@ public class SetupSyncActivity extends WearableListenerActivity {
     private void start(boolean isDeviceSetup) {
         if (isDeviceSetup) {
             binding.message.setText(R.string.message_retrievingdata);
-            WearableWorker.enqueueAction(this, WearableWorker.ACTION_REQUESTUPDATE);
+            WearableWorker.enqueueAction(this, WearableWorker.ACTION_REQUESTSETTINGSUPDATE, true);
+            WearableWorker.enqueueAction(this, WearableWorker.ACTION_REQUESTLOCATIONUPDATE);
+            WearableWorker.enqueueAction(this, WearableWorker.ACTION_REQUESTWEATHERUPDATE);
         } else {
             binding.message.setText(R.string.message_continueondevice);
             if (!openAppOnPhone(true)) {

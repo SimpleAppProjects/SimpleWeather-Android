@@ -38,7 +38,6 @@
     <string name="settingsbtn_pref_summary">Hide settings button from widget</string>
     <string name="clock_pref_title">Clock</string>
     <string name="calendar_pref_title">Calendar</string>
-    <string name="summary_default">Default</string>
     <string name="pref_title_fcastoption">Forecast</string>
     <string name="label_fcast_full">Daily Forecast and Hourly Forecast (if available)</string>
     <string name="label_fcast_daily">Daily Forecast</string>

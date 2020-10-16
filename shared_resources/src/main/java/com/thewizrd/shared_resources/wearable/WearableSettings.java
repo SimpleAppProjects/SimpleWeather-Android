@@ -8,6 +8,7 @@ public class WearableSettings {
     public static final String KEY_UPDATETIME = "update_time";
     public static final String KEY_UNIT = "temp_unit";
     public static final String KEY_REFRESHINTERVAL = "refresh_interval";
+    public static final String KEY_LANGUAGE = "language";
 
     public static final String KEY_LOCATIONDATA = "locationData";
     public static final String KEY_WEATHERDATA = "weatherData";

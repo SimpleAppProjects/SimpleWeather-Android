@@ -26,6 +26,7 @@ import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableStatusCodes;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.JSONParser;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
@@ -172,6 +173,7 @@ public class WearableWorker extends Worker {
         mapRequest.getDataMap().putBoolean(WearableSettings.KEY_FOLLOWGPS, Settings.useFollowGPS());
         mapRequest.getDataMap().putString(WearableSettings.KEY_UNIT, Settings.getTempUnit());
         mapRequest.getDataMap().putInt(WearableSettings.KEY_REFRESHINTERVAL, Settings.getRefreshInterval());
+        mapRequest.getDataMap().putString(WearableSettings.KEY_LANGUAGE, LocaleUtils.getLocaleCode());
         mapRequest.getDataMap().putLong(WearableSettings.KEY_UPDATETIME, Instant.now(Clock.systemUTC()).toEpochMilli());
         PutDataRequest request = mapRequest.asPutDataRequest();
         if (urgent) request.setUrgent();

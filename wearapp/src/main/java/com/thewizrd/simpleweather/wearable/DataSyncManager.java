@@ -18,6 +18,7 @@ import com.google.common.collect.Collections2;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.JSONParser;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -67,6 +68,8 @@ public class DataSyncManager {
 
                 int newInterval = dataMap.getInt(WearableSettings.KEY_REFRESHINTERVAL, Settings.DEFAULTINTERVAL);
                 Settings.setRefreshInterval(newInterval);
+
+                LocaleUtils.setLocaleCode(dataMap.getString(WearableSettings.KEY_LANGUAGE, ""));
 
                 setSettingsUpdateTime(context, updateTimeMillis);
 

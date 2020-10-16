@@ -13,7 +13,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -34,13 +33,14 @@ import com.thewizrd.shared_resources.wearable.WearConnectionStatus;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.activity.UserLocaleActivity;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
 
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
-public abstract class WearableListenerActivity extends FragmentActivity implements MessageClient.OnMessageReceivedListener, CapabilityClient.OnCapabilityChangedListener {
+public abstract class WearableListenerActivity extends UserLocaleActivity implements MessageClient.OnMessageReceivedListener, CapabilityClient.OnCapabilityChangedListener {
     protected Node mPhoneNodeWithApp;
     protected WearConnectionStatus mConnectionStatus = WearConnectionStatus.DISCONNECTED;
     private boolean acceptDataUpdates = false;
