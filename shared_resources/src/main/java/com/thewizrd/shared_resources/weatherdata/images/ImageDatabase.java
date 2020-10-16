@@ -155,6 +155,9 @@ public class ImageDatabase {
                 try {
                     Tasks.await(query.get(Source.SERVER));
                     ImageDataHelper.invalidateCache(false);
+                    if (ImageDataHelper.getImageDBUpdateTime() == 0) {
+                        ImageDataHelper.setImageDBUpdateTime(Tasks.await(ImageDatabase.getLastUpdateTime()));
+                    }
                 } catch (ExecutionException | InterruptedException e) {
                     Logger.writeLine(Log.ERROR, e);
                 }
