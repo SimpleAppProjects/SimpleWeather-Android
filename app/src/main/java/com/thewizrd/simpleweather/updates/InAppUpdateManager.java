@@ -14,7 +14,9 @@ import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.install.InstallException;
 import com.google.android.play.core.install.model.AppUpdateType;
+import com.google.android.play.core.install.model.InstallErrorCode;
 import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.tasks.OnSuccessListener;
 import com.google.android.play.core.tasks.Tasks;
@@ -26,6 +28,7 @@ import com.thewizrd.shared_resources.preferences.FeatureSettings;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.Settings;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
@@ -62,14 +65,7 @@ public final class InAppUpdateManager {
                 FeatureSettings.setUpdateAvailable(true);
 
                 // Check priority of update
-                // TODO: until this is implemented in Play Console, use Firebase RemoteConfig
-                FirebaseRemoteConfig mConfig = FirebaseRemoteConfig.getInstance();
-                com.google.android.gms.tasks.Tasks.await(mConfig.fetchAndActivate());
-                String json = mConfig.getString("android_updates");
-                Type updateTypeToken = new TypeToken<ArrayList<UpdateInfo>>() {
-                }.getType();
-                List<UpdateInfo> remoteUpdateInfo = JSONParser.deserializer(json, updateTypeToken);
-
+                List<UpdateInfo> remoteUpdateInfo = getRemoteUpdateInfo();
                 configUpdateinfo = Iterables.find(remoteUpdateInfo, new Predicate<UpdateInfo>() {
                     @Override
                     public boolean apply(@NullableDecl UpdateInfo input) {
@@ -80,6 +76,40 @@ public final class InAppUpdateManager {
                 if (configUpdateinfo != null) {
                     return true;
                 }
+            }
+        } catch (ExecutionException | InterruptedException e) {
+            Logger.writeLine(Log.ERROR, e);
+
+            if (e.getCause() instanceof InstallException) {
+                int errorCode = ((InstallException) e.getCause()).getErrorCode();
+                if (errorCode == InstallErrorCode.ERROR_APP_NOT_OWNED || errorCode == InstallErrorCode.ERROR_PLAY_STORE_NOT_FOUND) {
+                    Logger.writeLine(Log.INFO, "Checking for update using fallback");
+                    return checkIfUpdateAvailableFallback();
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private List<UpdateInfo> getRemoteUpdateInfo() throws ExecutionException, InterruptedException {
+        // TODO: until this is implemented in Play Console, use Firebase RemoteConfig
+        FirebaseRemoteConfig mConfig = FirebaseRemoteConfig.getInstance();
+        com.google.android.gms.tasks.Tasks.await(mConfig.fetchAndActivate());
+        String json = mConfig.getString("android_updates");
+        Type updateTypeToken = new TypeToken<ArrayList<UpdateInfo>>() {
+        }.getType();
+        List<UpdateInfo> remoteUpdateInfo = JSONParser.deserializer(json, updateTypeToken);
+        return remoteUpdateInfo;
+    }
+
+    private boolean checkIfUpdateAvailableFallback() {
+        try {
+            List<UpdateInfo> remoteUpdateInfo = getRemoteUpdateInfo();
+            UpdateInfo lastUpdate = Iterables.getLast(remoteUpdateInfo, null);
+
+            if (lastUpdate != null) {
+                return Settings.getVersionCode() < lastUpdate.getVersionCode();
             }
         } catch (ExecutionException | InterruptedException e) {
             Logger.writeLine(Log.ERROR, e);

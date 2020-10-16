@@ -984,7 +984,7 @@ public class Settings {
         editor.commit();
     }
 
-    static long getVersionCode() {
+    public static long getVersionCode() {
         return Long.parseLong(versionPrefs.getString(KEY_CURRENTVERSION, "0"));
     }
 
