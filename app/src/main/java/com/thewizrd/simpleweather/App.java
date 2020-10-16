@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.multidex.MultiDex;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.jakewharton.threetenabp.AndroidThreeTen;
@@ -88,6 +89,7 @@ public class App extends Application implements ApplicationLib, Application.Acti
         Logger.init(context);
         FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true);
         FirebaseCrashlytics.getInstance().sendUnsentReports();
+        FirebaseAnalytics.getInstance(context).setUserProperty("device_type", "mobile");
 
         // Init common action broadcast receiver
         registerCommonReceiver();

@@ -12,6 +12,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.thewizrd.shared_resources.AppState;
@@ -81,6 +82,7 @@ public class App extends Application implements ApplicationLib, Application.Acti
         Logger.init(context);
         FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true);
         FirebaseCrashlytics.getInstance().sendUnsentReports();
+        FirebaseAnalytics.getInstance(context).setUserProperty("device_type", "watch");
 
         // Init common action broadcast receiver
         registerCommonReceiver();

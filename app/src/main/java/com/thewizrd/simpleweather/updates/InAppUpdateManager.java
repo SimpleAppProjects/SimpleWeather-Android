@@ -26,6 +26,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.gson.reflect.TypeToken;
 import com.thewizrd.shared_resources.preferences.FeatureSettings;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -41,6 +42,8 @@ import static com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public final class InAppUpdateManager {
+    private static final String TAG = "InAppUpdateManager";
+
     private Context mAppContext;
     private AppUpdateManager appUpdateManager;
     private AppUpdateInfo appUpdateInfo;
@@ -153,6 +156,8 @@ public final class InAppUpdateManager {
     }
 
     public void startImmediateUpdateFlow(@NonNull Activity activity, int requestCode) {
+        AnalyticsLogger.logEvent(TAG + ": startImmediateUpdateFlow");
+
         try {
             appUpdateManager.startUpdateFlowForResult(
                     // Pass the intent that is returned by 'getAppUpdateInfo()'.
@@ -176,6 +181,7 @@ public final class InAppUpdateManager {
                 if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
                     // If an in-app update is already running, resume the update.
                     try {
+                        AnalyticsLogger.logEvent(TAG + ": resuming update flow");
                         appUpdateManager.startUpdateFlowForResult(
                                 appUpdateInfo,
                                 IMMEDIATE,

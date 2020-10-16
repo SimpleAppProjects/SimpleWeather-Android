@@ -24,6 +24,7 @@ import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.firebase.FirebaseHelper;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.weatherdata.images.model.ImageData;
@@ -37,6 +38,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 public class ImageDatabase {
+    private static final String TAG = "ImageDatabase";
+
     @WorkerThread
     public static List<ImageData> getAllImageDataForCondition(final String backgroundCode) {
         return AsyncTask.await(new Callable<List<ImageData>>() {
@@ -147,6 +150,8 @@ public class ImageDatabase {
 
     @WorkerThread
     private static void saveSnapshot(@NonNull final FirebaseFirestore db) {
+        AnalyticsLogger.logEvent(TAG + ": saveSnapshot");
+
         AsyncTask.await(new Callable<Void>() {
             @Override
             public Void call() {

@@ -114,4 +114,13 @@ public class ImageData {
 
         return newData;
     }
+
+    @Override
+    public String toString() {
+        return "ImageData{" +
+                "documentId='" + documentId + '\'' +
+                ", condition='" + condition + '\'' +
+                ", imageURL='" + imageURL + '\'' +
+                '}';
+    }
 }

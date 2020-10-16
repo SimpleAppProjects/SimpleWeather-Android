@@ -3,6 +3,7 @@ package com.thewizrd.shared_resources.weatherdata.images;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.google.android.gms.tasks.Tasks;
@@ -11,6 +12,7 @@ import com.google.firebase.storage.StorageReference;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.firebase.FirebaseHelper;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.weatherdata.Weather;
@@ -25,11 +27,9 @@ import java.util.concurrent.ExecutionException;
 
 public class ImageDataHelperImplApp extends ImageDataHelperImpl {
     // Shared Preferences
-    private SharedPreferences imageDataPrefs;
+    private final SharedPreferences imageDataPrefs;
 
-    // App data files
-    private File cacheDataFolder;
-    private File imageDataFolder;
+    private final File imageDataFolder;
 
     public ImageDataHelperImplApp() {
         super();
@@ -37,7 +37,8 @@ public class ImageDataHelperImplApp extends ImageDataHelperImpl {
         imageDataPrefs = SimpleLibrary.getInstance()
                 .getAppContext().getSharedPreferences("images", Context.MODE_PRIVATE);
 
-        cacheDataFolder = SimpleLibrary.getInstance().getAppContext().getCacheDir();
+        // App data files
+        File cacheDataFolder = SimpleLibrary.getInstance().getAppContext().getCacheDir();
         imageDataFolder = new File(cacheDataFolder, "images");
         imageDataFolder.mkdir();
     }
@@ -66,6 +67,10 @@ public class ImageDataHelperImplApp extends ImageDataHelperImpl {
                         String.format("%s-%s", imageData.getCondition(), UUID.randomUUID().toString()));
 
                 try {
+                    Bundle args = new Bundle();
+                    args.putString("imageData", imageData.toString());
+                    AnalyticsLogger.logEvent("ImageDataHelperImplApp: storeImage", args);
+
                     Tasks.await(storageRef.getFile(imageFile));
                 } catch (ExecutionException | InterruptedException e) {
                     Logger.writeLine(Log.ERROR, e, "ImageDataHelper: Error retrieving download url");
