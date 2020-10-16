@@ -1702,7 +1702,7 @@ public class WeatherNowFragment extends WindowColorFragment
         public void updateSunPhasePanel(SunPhaseView view, SunPhaseViewModel sunPhase) {
             if (sunPhase != null && !StringUtils.isNullOrWhitespace(sunPhase.getSunrise()) && !StringUtils.isNullOrWhitespace(sunPhase.getSunset()) && fragment.locationData != null) {
                 DateTimeFormatter fmt;
-                if (DateFormat.is24HourFormat(view.getContext())) {
+                if (DateFormat.is24HourFormat(App.getInstance().getAppContext())) {
                     fmt = DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_24HR);
                 } else {
                     fmt = DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM);

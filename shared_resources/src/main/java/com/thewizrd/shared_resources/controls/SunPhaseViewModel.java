@@ -7,18 +7,21 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.weatherdata.Astronomy;
 
+import org.threeten.bp.format.DateTimeFormatter;
+
 public class SunPhaseViewModel {
     private String sunrise;
     private String sunset;
 
     public SunPhaseViewModel(Astronomy astronomy) {
+        DateTimeFormatter fmt;
         if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
-            sunrise = astronomy.getSunrise().format(DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_24HR));
-            sunset = astronomy.getSunset().format(DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_24HR));
+            fmt = DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_24HR);
         } else {
-            sunrise = astronomy.getSunrise().format(DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM));
-            sunset = astronomy.getSunset().format(DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM));
+            fmt = DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM);
         }
+        sunrise = astronomy.getSunrise().format(fmt);
+        sunset = astronomy.getSunset().format(fmt);
     }
 
     public String getSunrise() {
