@@ -11,6 +11,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Logger;
 
+import org.threeten.bp.Duration;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +34,9 @@ public class FirebaseHelper {
 
     public static FirebaseStorage getFirebaseStorage() {
         checkSignIn();
-        return FirebaseStorage.getInstance();
+        FirebaseStorage stor = FirebaseStorage.getInstance();
+        stor.setMaxDownloadRetryTimeMillis(Duration.ofHours(1).toMillis());
+        return stor;
     }
 
     public static FirebaseDatabase getFirebaseDB() {
