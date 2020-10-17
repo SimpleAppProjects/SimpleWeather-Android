@@ -18,6 +18,7 @@ import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
+import com.thewizrd.shared_resources.weatherdata.WeatherAlertProviderInterface;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 
@@ -27,15 +28,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public final class HEREWeatherProvider extends WeatherProviderImpl {
+public final class HEREWeatherProvider extends WeatherProviderImpl implements WeatherAlertProviderInterface {
     private static final String WEATHER_GLOBAL_QUERY_URL = "https://weather.ls.hereapi.com/weather/1.0/report.json?" +
             "product=alerts&product=forecast_7days_simple&product=forecast_hourly&product=forecast_astronomy&product=observation&oneobservation=true" +
             "&%s&language=%s&metric=false";
@@ -229,8 +231,8 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
     }
 
     @Override
-    public List<WeatherAlert> getAlerts(LocationData location) {
-        List<WeatherAlert> alerts;
+    public Collection<WeatherAlert> getAlerts(LocationData location) {
+        Collection<WeatherAlert> alerts = null;
 
         ULocale uLocale = ULocale.forLocale(LocaleUtils.getLocale());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
@@ -265,14 +267,42 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
             // Load data
             Rootobject root = JSONParser.deserializer(stream, Rootobject.class);
 
-            alerts = new ArrayList<>(root.getAlerts().getAlerts().size());
-
-            for (AlertsItem result : root.getAlerts().getAlerts()) {
-                alerts.add(new WeatherAlert(result));
-            }
-
             // End Stream
             stream.close();
+
+            // Add weather alerts if available
+            if (root.getAlerts() != null && root.getAlerts().getAlerts().size() > 0) {
+                alerts = new ArrayList<>(root.getAlerts().getAlerts().size());
+
+                for (AlertsItem result : root.getAlerts().getAlerts()) {
+                    alerts.add(new WeatherAlert(result));
+                }
+            } else if (root.getNwsAlerts() != null && (root.getNwsAlerts().getWatch() != null || root.getNwsAlerts().getWarning() != null)) {
+                final int numOfAlerts = (root.getNwsAlerts().getWatch() != null ? root.getNwsAlerts().getWatch().size() : 0) +
+                        (root.getNwsAlerts().getWarning() != null ? root.getNwsAlerts().getWarning().size() : 0);
+
+                alerts = new HashSet<>(numOfAlerts);
+
+                final double lat = location.getLatitude();
+                final double lon = location.getLongitude();
+
+                if (root.getNwsAlerts().getWatch() != null) {
+                    for (WatchItem watchItem : root.getNwsAlerts().getWatch()) {
+                        // Add watch item if location is within 20km of the center of the alert zone
+                        if (ConversionMethods.calculateHaversine(lat, lon, watchItem.getLatitude(), watchItem.getLongitude()) < 20000) {
+                            alerts.add(new WeatherAlert(watchItem));
+                        }
+                    }
+                }
+                if (root.getNwsAlerts().getWarning() != null) {
+                    for (WarningItem warningItem : root.getNwsAlerts().getWarning()) {
+                        // Add warning item if location is within 25km of the center of the alert zone
+                        if (ConversionMethods.calculateHaversine(lat, lon, warningItem.getLatitude(), warningItem.getLongitude()) < 25000) {
+                            alerts.add(new WeatherAlert(warningItem));
+                        }
+                    }
+                }
+            }
         } catch (Exception ex) {
             alerts = new ArrayList<>();
             Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting weather alert data");
@@ -280,6 +310,9 @@ public final class HEREWeatherProvider extends WeatherProviderImpl {
             if (response != null)
                 response.close();
         }
+
+        if (alerts == null)
+            alerts = Collections.emptyList();
 
         return alerts;
     }

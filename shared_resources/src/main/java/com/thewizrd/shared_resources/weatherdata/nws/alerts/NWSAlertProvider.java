@@ -15,6 +15,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAlertProviderInterface;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -27,7 +28,7 @@ public final class NWSAlertProvider implements WeatherAlertProviderInterface {
     private static final String ALERT_QUERY_URL = "https://api.weather.gov/alerts/active?status=actual&message_type=alert&point=%s,%s";
 
     @Override
-    public List<WeatherAlert> getAlerts(LocationData location) {
+    public Collection<WeatherAlert> getAlerts(LocationData location) {
         List<WeatherAlert> alerts;
 
         OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();

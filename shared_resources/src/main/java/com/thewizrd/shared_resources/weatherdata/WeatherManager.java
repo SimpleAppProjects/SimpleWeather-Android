@@ -19,7 +19,6 @@ import com.thewizrd.shared_resources.weatherdata.openweather.OpenWeatherMapProvi
 import com.thewizrd.shared_resources.weatherdata.weatheryahoo.YahooWeatherProvider;
 
 import java.util.Collection;
-import java.util.List;
 
 // Wrapper class for supported Weather Providers
 public final class WeatherManager implements WeatherProviderImplInterface {
@@ -160,7 +159,7 @@ public final class WeatherManager implements WeatherProviderImplInterface {
 
     @WorkerThread
     @Override
-    public List<WeatherAlert> getAlerts(final LocationData location) {
+    public Collection<WeatherAlert> getAlerts(final LocationData location) {
         return weatherProvider.getAlerts(location);
     }
 

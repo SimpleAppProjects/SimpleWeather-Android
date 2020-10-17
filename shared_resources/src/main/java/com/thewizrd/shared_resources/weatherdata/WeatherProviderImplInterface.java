@@ -7,7 +7,6 @@ import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
 import java.util.Collection;
-import java.util.List;
 
 public interface WeatherProviderImplInterface {
     String getWeatherAPI();
@@ -28,7 +27,7 @@ public interface WeatherProviderImplInterface {
 
     Weather getWeather(LocationData location) throws WeatherException;
 
-    List<WeatherAlert> getAlerts(LocationData location);
+    Collection<WeatherAlert> getAlerts(LocationData location);
 
     String getWeatherIcon(String icon);
 

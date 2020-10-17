@@ -19,7 +19,6 @@ import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNProvider;
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider;
 
 import java.util.Collection;
-import java.util.List;
 
 public abstract class WeatherProviderImpl implements WeatherProviderImplInterface {
     protected LocationProviderImpl locationProvider;
@@ -125,7 +124,7 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
      * @return A collection of weather alerts currently available
      */
     @Override
-    public List<WeatherAlert> getAlerts(LocationData location) {
+    public Collection<WeatherAlert> getAlerts(LocationData location) {
         if ("US".equals(location.getCountryCode()))
             return new NWSAlertProvider().getAlerts(location);
         else
