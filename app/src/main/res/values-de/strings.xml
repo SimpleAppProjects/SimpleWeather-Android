@@ -38,7 +38,6 @@
     <string name="settingsbtn_pref_summary">"Einstellungsschaltfläche im Widget ausblenden"</string>
     <string name="clock_pref_title">"Uhr"</string>
     <string name="calendar_pref_title">"Kalender"</string>
-    <string name="summary_default">"Standard"</string>
     <string name="pref_title_fcastoption">"Vorhersage"</string>
 
     <!-- Fuzzy -->
@@ -75,17 +74,18 @@
     <!-- Rate / Review -->
     <string name="pref_title_rateandreview">"Bewertung und Überprüfung"</string>
 
+    <!-- Gefällt die Anwendung? Die Entwicklung durch eine Bewertung unterstützen -->
     <!-- Fuzzy -->
     <string name="pref_summary_rateandreview">"Mag die App? Helfen Sie bei der Unterstützung durch eine Rezension"</string>
 
     <!-- Translate -->
-    <string name="pref_title_translate">"Übersetzen"</string>
+    <string name="pref_title_translate">"Übersetzung"</string>
 
     <!-- Can be changed to 'Help us translate the app' -->
     <string name="pref_summary_translate">"Bei der Übersetzung der Anwendung helfen"</string>
 
     <!-- Custom Color -->
-    <string name="label_color_custom">"Benutzerdefiniert"</string>
+    <string name="label_color_custom">"Individuelle Farbe"</string>
     <string name="pref_title_bgcolorcode">"Hintergrundfarbe"</string>
     <string name="pref_title_txtcolorcode">"Textfarbe"</string>
 </resources>

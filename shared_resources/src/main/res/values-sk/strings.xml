@@ -140,7 +140,7 @@
     <string name="datetime_hr_ago">"%1$dh dozadu"</string>
     <string name="datetime_min_ago">"%1$dm dozadu"</string>
     <string name="datetime_sec_ago">"%1$ds dozadu"</string>
-    <string name="datetime_validuntil">"Platné do"</string>
+    <string name="datetime_validuntil">"Platné do:"</string>
 
     <!-- HERE API -->
     <string name="pref_title_personalkey">"Váš osobný kľúč poskytovateľa"</string>
@@ -152,6 +152,7 @@
     <string name="userthememode_dark">"Tmavý"</string>
     <string name="userthememode_black">"Tmavý (AMOLED)"</string>
     <string name="userthememode_light">"Svetlý"</string>
+    <string name="summary_default">"Predvolené"</string>
     <string name="label_windgust">"Nárazy vetra"</string>
     <string name="pref_title_language">"Jazyk"</string>
 </resources>

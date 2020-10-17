@@ -36,7 +36,6 @@
     <string name="settingsbtn_pref_summary">"Skryť tlačidlo nastavení v miniaplikácii"</string>
     <string name="clock_pref_title">"Hodiny"</string>
     <string name="calendar_pref_title">"Kalendár"</string>
-    <string name="summary_default">"Predvolené"</string>
     <string name="pref_title_fcastoption">"Predpoveď"</string>
     <string name="label_fcast_full">"Denná a hodinová predpoveď (ak je dostupná)"</string>
     <string name="label_fcast_daily">"Denná predpoveď"</string>

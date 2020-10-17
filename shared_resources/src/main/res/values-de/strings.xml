@@ -191,6 +191,7 @@
     <string name="userthememode_dark">"Dunkel"</string>
     <string name="userthememode_black">"Schwarz (AMOLED)"</string>
     <string name="userthememode_light">"Hell"</string>
+    <string name="summary_default">"Standard"</string>
 
     <!-- Fuzzy -->
     <string name="label_windgust">"Windböe"</string>
