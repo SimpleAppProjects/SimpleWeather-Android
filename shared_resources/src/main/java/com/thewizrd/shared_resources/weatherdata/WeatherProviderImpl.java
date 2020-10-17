@@ -111,7 +111,6 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
 
         weather.getLocation().setLatitude((float) location.getLatitude());
         weather.getLocation().setLongitude((float) location.getLongitude());
-        weather.getLocation().setTzOffset(location.getTzOffset());
 
         // Additional external data
         weather.getCondition().setAirQuality(new AQICNProvider().getAirQualityData(location));

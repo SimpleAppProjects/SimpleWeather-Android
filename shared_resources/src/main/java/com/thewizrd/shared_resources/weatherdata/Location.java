@@ -31,15 +31,13 @@ public class Location extends CustomJsonObject {
     private Float latitude;
     @SerializedName("longitude")
     private Float longitude;
-    @SerializedName("tz_offset")
-    private ZoneOffset tzOffset;
     @SerializedName("tz_long")
     private String tzLong;
 
     @RestrictTo({RestrictTo.Scope.LIBRARY})
     public Location() {
         // Needed for deserialization
-        tzOffset = ZoneOffset.UTC;
+        tzLong = "UTC";
     }
 
     public Location(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Location location) {
@@ -47,10 +45,6 @@ public class Location extends CustomJsonObject {
         name = null;
         latitude = (float) location.getLat();
         longitude = (float) location.getJsonMemberLong();
-
-        ZoneId zId = ZoneId.of(location.getTimezoneId());
-
-        tzOffset = zId.getRules().getOffset(Instant.now());
         tzLong = location.getTimezoneId();
     }
 
@@ -59,10 +53,6 @@ public class Location extends CustomJsonObject {
         name = null;
         latitude = root.getLat();
         longitude = root.getLon();
-
-        ZoneId zId = ZoneId.of(root.getTimezone());
-
-        tzOffset = zId.getRules().getOffset(Instant.now());
         tzLong = root.getTimezone();
     }
 
@@ -71,7 +61,7 @@ public class Location extends CustomJsonObject {
         name = null;
         latitude = foreRoot.getGeometry().getCoordinates().get(1);
         longitude = foreRoot.getGeometry().getCoordinates().get(0);
-        tzOffset = ZoneOffset.UTC;
+        tzLong = "UTC";
     }
 
     public Location(com.thewizrd.shared_resources.weatherdata.here.LocationItem location) {
@@ -79,16 +69,12 @@ public class Location extends CustomJsonObject {
         name = null;
         latitude = location.getLatitude();
         longitude = location.getLongitude();
-        tzOffset = ZoneOffset.UTC;
+        tzLong = "UTC";
     }
 
     public Location(com.thewizrd.shared_resources.weatherdata.nws.PointsResponse pointsResponse) {
         // Use location name from location provider
         name = null;
-
-        ZoneId zId = ZoneId.of(pointsResponse.getTimeZone());
-
-        tzOffset = zId.getRules().getOffset(Instant.now());
         tzLong = pointsResponse.getTimeZone();
     }
 
@@ -117,11 +103,12 @@ public class Location extends CustomJsonObject {
     }
 
     public ZoneOffset getTzOffset() {
-        return tzOffset;
-    }
-
-    public void setTzOffset(ZoneOffset tzOffset) {
-        this.tzOffset = tzOffset;
+        if (!StringUtils.isNullOrWhitespace(tzLong)) {
+            ZoneId tzId = ZoneId.of(tzLong);
+            if (tzId != null)
+                return tzId.getRules().getOffset(Instant.now());
+        }
+        return ZoneOffset.UTC;
     }
 
     public String getTzShort() {
@@ -184,9 +171,6 @@ public class Location extends CustomJsonObject {
                     case "longitude":
                         this.longitude = NumberUtils.tryParseFloat(reader.nextString());
                         break;
-                    case "tz_offset":
-                        this.tzOffset = ZoneOffset.of(reader.nextString());
-                        break;
                     case "tz_long":
                         this.tzLong = reader.nextString();
                         break;
@@ -220,10 +204,6 @@ public class Location extends CustomJsonObject {
             // "longitude" : ""
             writer.name("longitude");
             writer.value(longitude);
-
-            // "tz_offset" : ""
-            writer.name("tz_offset");
-            writer.value(DateTimeUtils.offsetToHMSFormat(tzOffset));
 
             // "tz_long" : ""
             writer.name("tz_long");
