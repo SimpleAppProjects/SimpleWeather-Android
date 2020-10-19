@@ -61,7 +61,7 @@ public class Location extends CustomJsonObject {
         name = null;
         latitude = foreRoot.getGeometry().getCoordinates().get(1);
         longitude = foreRoot.getGeometry().getCoordinates().get(0);
-        tzLong = "UTC";
+        tzLong = null;
     }
 
     public Location(com.thewizrd.shared_resources.weatherdata.here.LocationItem location) {
@@ -69,7 +69,7 @@ public class Location extends CustomJsonObject {
         name = null;
         latitude = location.getLatitude();
         longitude = location.getLongitude();
-        tzLong = "UTC";
+        tzLong = null;
     }
 
     public Location(com.thewizrd.shared_resources.weatherdata.nws.PointsResponse pointsResponse) {
