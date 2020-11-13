@@ -4,10 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
-import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
@@ -86,13 +84,7 @@ public class WearableWorker extends Worker {
 
         Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG);
 
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .setRequiresCharging(false)
-                .build();
-
         OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(WearableWorker.class)
-                .setConstraints(constraints)
                 .setInputData(
                         new Data.Builder()
                                 .putString(KEY_ACTION, intentAction)

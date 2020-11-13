@@ -69,7 +69,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class WeatherUpdaterWorker extends ListenableWorker {
-    private static String TAG = "WeatherUpdaterWorker";
+    private static final String TAG = "WeatherUpdaterWorker";
 
     public static final String ACTION_UPDATEWEATHER = "SimpleWeather.Droid.action.UPDATE_WEATHER";
 
@@ -79,10 +79,10 @@ public class WeatherUpdaterWorker extends ListenableWorker {
 
     private final Context mContext;
 
-    private WeatherManager wm = WeatherManager.getInstance();
+    private final WeatherManager wm = WeatherManager.getInstance();
 
     private FusedLocationProviderClient mFusedLocationClient;
-    private CancellationTokenSource cts = new CancellationTokenSource();
+    private final CancellationTokenSource cts = new CancellationTokenSource();
 
     public WeatherUpdaterWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -123,13 +123,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
         // Check if features are actually enabled which require this service
         if (cancelWork(context)) return;
 
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .setRequiresCharging(false)
-                .build();
-
         OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(WeatherUpdaterWorker.class)
-                .setConstraints(constraints)
                 .setInitialDelay(30, TimeUnit.SECONDS)
                 .build();
 
@@ -156,7 +150,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                 .build();
 
         PeriodicWorkRequest updateRequest =
-                new PeriodicWorkRequest.Builder(WeatherUpdaterWorker.class, 60, TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
+                new PeriodicWorkRequest.Builder(WeatherUpdaterWorker.class, Settings.getRefreshInterval(), TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
                         .setConstraints(constraints)
                         .setBackoffCriteria(BackoffPolicy.LINEAR, 1, TimeUnit.MINUTES)
                         .build();

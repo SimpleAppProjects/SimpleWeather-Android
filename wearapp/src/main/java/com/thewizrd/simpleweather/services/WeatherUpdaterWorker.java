@@ -17,11 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
 import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.ListenableWorker;
-import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
@@ -64,7 +62,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class WeatherUpdaterWorker extends ListenableWorker {
-    private static String TAG = "WeatherUpdaterWorker";
+    private static final String TAG = "WeatherUpdaterWorker";
 
     public static final String ACTION_UPDATEWEATHER = "SimpleWeather.Droid.Wear.action.UPDATE_WEATHER";
 
@@ -76,8 +74,8 @@ public class WeatherUpdaterWorker extends ListenableWorker {
 
     private FusedLocationProviderClient mFusedLocationClient;
 
-    private WeatherManager wm = WeatherManager.getInstance();
-    private CancellationTokenSource cts = new CancellationTokenSource();
+    private final WeatherManager wm = WeatherManager.getInstance();
+    private final CancellationTokenSource cts = new CancellationTokenSource();
 
     public WeatherUpdaterWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -118,13 +116,8 @@ public class WeatherUpdaterWorker extends ListenableWorker {
         // Check if features are actually enabled which require this service
         if (cancelWork(context)) return;
 
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .setRequiresCharging(false)
-                .build();
-
         OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(WeatherUpdaterWorker.class)
-                .setConstraints(constraints)
+                .setInitialDelay(30, TimeUnit.SECONDS)
                 .build();
 
         WorkManager.getInstance(context)
@@ -144,14 +137,8 @@ public class WeatherUpdaterWorker extends ListenableWorker {
         // Check if features are actually enabled which require this service
         if (cancelWork(context)) return;
 
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .setRequiresCharging(false)
-                .build();
-
         PeriodicWorkRequest updateRequest =
-                new PeriodicWorkRequest.Builder(WeatherUpdaterWorker.class, 120, TimeUnit.MINUTES, 30, TimeUnit.MINUTES)
-                        .setConstraints(constraints)
+                new PeriodicWorkRequest.Builder(WeatherUpdaterWorker.class, 60, TimeUnit.MINUTES, 30, TimeUnit.MINUTES)
                         .setBackoffCriteria(BackoffPolicy.LINEAR, 1, TimeUnit.MINUTES)
                         .build();
 
@@ -210,7 +197,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                     }
 
                     // Update for home
-                    final Weather weather = AsyncTask.await(new Callable<Weather>() {
+                    AsyncTask.await(new Callable<Weather>() {
                         @Override
                         public Weather call() {
                             return getWeather();
