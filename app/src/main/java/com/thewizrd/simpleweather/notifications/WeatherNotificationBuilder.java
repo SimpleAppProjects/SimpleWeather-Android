@@ -140,16 +140,6 @@ public class WeatherNotificationBuilder {
         }
         bigUpdateViews.setViewVisibility(R.id.extra2_layout, feelsLikeModel != null || humidityModel != null || popRainModel != null || popSnowModel != null ? View.VISIBLE : View.GONE);
 
-        int level;
-        try {
-            level = Integer.parseInt(temp.replace("°", ""));
-        } catch (NumberFormatException e) {
-            // Do nothing
-            level = Integer.MAX_VALUE;
-        }
-
-        int resId = level < 0 ? R.drawable.notification_temp_neg : R.drawable.notification_temp_pos;
-
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context, notificationID)
                         .setCustomContentView(updateViews)
@@ -158,10 +148,12 @@ public class WeatherNotificationBuilder {
                         .setOngoing(true);
 
         if (Settings.getNotificationIcon().equals(Settings.TEMPERATURE_ICON)) {
-            if (level == Integer.MAX_VALUE) {
+            Integer tempLevel = NumberUtils.tryParseInt(temp.replace("°", ""));
+
+            if (tempLevel == null) {
                 mBuilder.setSmallIcon(R.drawable.notification_temp_unknown);
             } else {
-                mBuilder.setSmallIcon(resId, Math.abs(level));
+                mBuilder.setSmallIcon(WeatherNotificationTemp.getTempDrawable(tempLevel));
             }
         } else if (Settings.getNotificationIcon().equals(Settings.CONDITION_ICON)) {
             mBuilder.setSmallIcon(WeatherUtils.getWeatherIconResource(viewModel.getWeatherIcon()));
