@@ -8,6 +8,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -23,10 +24,12 @@ import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.controls.lineview.LineDataSeries;
-import com.thewizrd.simpleweather.controls.lineview.LineView;
-import com.thewizrd.simpleweather.controls.lineview.XLabelData;
-import com.thewizrd.simpleweather.controls.lineview.YEntryData;
+import com.thewizrd.simpleweather.controls.graphs.IGraph;
+import com.thewizrd.simpleweather.controls.graphs.LineDataSeries;
+import com.thewizrd.simpleweather.controls.graphs.LineView;
+import com.thewizrd.simpleweather.controls.graphs.RangeBarGraphView;
+import com.thewizrd.simpleweather.controls.graphs.XLabelData;
+import com.thewizrd.simpleweather.controls.graphs.YEntryData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +37,11 @@ import java.util.concurrent.Callable;
 
 public class ForecastGraphPanel extends LinearLayout {
     private Context context;
-    private LineView view;
+
+    private FrameLayout frameLayout;
+    private LineView lineView;
+    private RangeBarGraphView barChartView;
+
     private TabLayout tabLayout;
     private List<GraphItemViewModel> forecasts;
 
@@ -84,9 +91,10 @@ public class ForecastGraphPanel extends LinearLayout {
         currentConfig = new Configuration(newConfig);
 
         updateTabColors();
-        updateLineViewColors();
+        updateViewColors();
 
-        view.postInvalidate();
+        lineView.postInvalidate();
+        barChartView.postInvalidate();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -94,22 +102,30 @@ public class ForecastGraphPanel extends LinearLayout {
         this.context = context;
         this.currentConfig = new Configuration(context.getResources().getConfiguration());
         setOrientation(LinearLayout.VERTICAL);
-        view = new LineView(context);
+        frameLayout = new FrameLayout(context);
+        lineView = new LineView(context);
+        barChartView = new RangeBarGraphView(context);
         tabLayout = new TabLayout(context);
 
         int lineViewHeight = context.getResources().getDimensionPixelSize(R.dimen.forecast_panel_height);
-        view.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, lineViewHeight));
-        view.setOnTouchListener(new View.OnTouchListener() {
+        frameLayout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, lineViewHeight));
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        View.OnTouchListener onTouchListener = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    if (onClickListener != null)
-                        onClickListener.onClick(v, view.getItemPositionFromPoint(event.getX()));
+                    if (onClickListener != null && v instanceof IGraph) {
+                        onClickListener.onClick(v, ((IGraph) v).getItemPositionFromPoint(event.getX()));
+                    }
                     return true;
                 }
                 return false;
             }
-        });
+        };
+        lineView.setLayoutParams(layoutParams);
+        lineView.setOnTouchListener(onTouchListener);
+        barChartView.setLayoutParams(layoutParams);
+        barChartView.setOnTouchListener(onTouchListener);
 
         int tabHeight = (int) ActivityUtils.dpToPx(context, 48.f);
         int tabLayoutPadding = (int) ActivityUtils.dpToPx(context, 12.f);
@@ -124,7 +140,7 @@ public class ForecastGraphPanel extends LinearLayout {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mGraphType = (GraphType) tab.getTag();
-                resetLineView();
+                resetView();
             }
 
             @Override
@@ -134,18 +150,19 @@ public class ForecastGraphPanel extends LinearLayout {
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-                view.smoothScrollTo(0, 0);
+                lineView.smoothScrollTo(0, 0);
+                barChartView.smoothScrollTo(0, 0);
             }
         });
 
         this.removeAllViews();
-        this.addView(view);
+        this.addView(frameLayout);
         this.addView(tabLayout);
         // Individual transitions on the view can cause
         // OpenGLRenderer: GL error:  GL_INVALID_VALUE
         ViewGroupCompat.setTransitionGroup(this, true);
 
-        resetLineView();
+        resetView();
     }
 
     private void updateTabs() {
@@ -263,20 +280,22 @@ public class ForecastGraphPanel extends LinearLayout {
         tabLayout.setSelectedTabIndicatorColor(isNightMode ? Colors.WHITE : Colors.BLACK);
     }
 
-    private void updateLineViewColors() {
+    private void updateViewColors() {
         final int systemNightMode = currentConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
         final boolean isNightMode = systemNightMode == Configuration.UI_MODE_NIGHT_YES;
+        final int bottomTextColor = isNightMode ? Colors.WHITE : Colors.BLACK;
 
-        view.setLineColor(ColorUtils.setAlphaComponent(isNightMode ? Colors.WHITE : Colors.GRAY, 0x80));
-        view.setBackgroundLineColor(ColorUtils.setAlphaComponent(isNightMode ? Colors.WHITE : Colors.GRAY, 0x80));
-        view.setBottomTextColor(isNightMode ? Colors.WHITE : Colors.BLACK);
+        lineView.setBackgroundLineColor(ColorUtils.setAlphaComponent(isNightMode ? Colors.WHITE : Colors.GRAY, 0x99));
+        lineView.setBottomTextColor(bottomTextColor);
+        barChartView.setBottomTextColor(bottomTextColor);
     }
 
-    private void resetLineView() {
-        updateLineViewColors();
+    private void resetView() {
+        updateViewColors();
         updateTabs();
 
-        view.resetData(false);
+        lineView.resetData(false);
+        barChartView.resetData(false);
 
         AsyncTask.await(new Callable<Void>() {
             @Override
@@ -297,72 +316,82 @@ public class ForecastGraphPanel extends LinearLayout {
             }
         });
 
-        view.smoothScrollTo(0, 0);
+        lineView.smoothScrollTo(0, 0);
+        barChartView.smoothScrollTo(0, 0);
+    }
+
+    private void resetFrame(final boolean useBarChart) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                frameLayout.removeAllViews();
+                frameLayout.addView(useBarChart ? barChartView : lineView);
+            }
+        });
     }
 
     private void updateForecastGraph() {
         if (forecasts != null && forecasts.size() > 0) {
-            view.setDrawGridLines(false);
-            view.setDrawDotLine(false);
-            view.setDrawDataLabels(true);
-            view.setDrawIconLabels(true);
-            view.setDrawGraphBackground(true);
-            view.setDrawDotPoints(false);
-
-            List<XLabelData> labelDataset = new ArrayList<>(forecasts.size());
-            List<YEntryData> hiTempDataset = new ArrayList<>(forecasts.size());
-            List<YEntryData> loTempDataset = null;
+            boolean loTempDataPresent = false;
 
             if (forecasts.get(0) != null && forecasts.get(0).getTempEntryData().getEntryData().getLoTempData() != null) {
-                loTempDataset = new ArrayList<>(forecasts.size());
-                view.setDrawSeriesLabels(true);
-            } else {
-                view.setDrawSeriesLabels(false);
+                loTempDataPresent = true;
             }
 
-            for (int i = 0; i < forecasts.size(); i++) {
-                GraphItemViewModel graphModel = forecasts.get(i);
+            if (loTempDataPresent) {
+                resetFrame(true);
+                barChartView.setDrawDataLabels(true);
+                barChartView.setDrawIconLabels(true);
 
-                if (graphModel.getTempEntryData().getEntryData().getHiTempData() != null) {
-                    hiTempDataset.add(graphModel.getTempEntryData().getEntryData().getHiTempData());
-                } else if (i == 0 && i + 1 < forecasts.size()) { // For NWS, which contains bi-daily forecasts
-                    GraphItemViewModel nextVM = forecasts.get(i + 1);
-                    if (nextVM.getTempEntryData().getEntryData().getHiTempData() != null)
-                        hiTempDataset.add(nextVM.getTempEntryData().getEntryData().getHiTempData());
-                } else if (i == forecasts.size() - 1) { // For NWS, which contains bi-daily forecasts
-                    GraphItemViewModel prevVM = forecasts.get(i - 1);
-                    if (prevVM.getTempEntryData().getEntryData().getHiTempData() != null)
-                        hiTempDataset.add(prevVM.getTempEntryData().getEntryData().getHiTempData());
+                List<XLabelData> labelDataset = new ArrayList<>(forecasts.size());
+                List<GraphTemperature> tempDataSet = new ArrayList<>(forecasts.size());
+
+                for (int i = 0; i < forecasts.size(); i++) {
+                    GraphItemViewModel graphModel = forecasts.get(i);
+
+                    labelDataset.add(graphModel.getTempEntryData().getLabelData());
+                    tempDataSet.add(graphModel.getTempEntryData().getEntryData());
                 }
 
-                if (loTempDataset != null) {
-                    if (graphModel.getTempEntryData().getEntryData().getLoTempData() != null) {
-                        loTempDataset.add(graphModel.getTempEntryData().getEntryData().getLoTempData());
+                barChartView.getDataLabels().addAll(labelDataset);
+                barChartView.getDataLists().addAll(tempDataSet);
+            } else {
+                resetFrame(false);
+                lineView.setDrawGridLines(false);
+                lineView.setDrawDotLine(false);
+                lineView.setDrawDataLabels(true);
+                lineView.setDrawIconLabels(true);
+                lineView.setDrawGraphBackground(true);
+                lineView.setDrawDotPoints(false);
+
+                List<XLabelData> labelDataset = new ArrayList<>(forecasts.size());
+                List<YEntryData> hiTempDataset = new ArrayList<>(forecasts.size());
+
+                for (int i = 0; i < forecasts.size(); i++) {
+                    GraphItemViewModel graphModel = forecasts.get(i);
+
+                    if (graphModel.getTempEntryData().getEntryData().getHiTempData() != null) {
+                        hiTempDataset.add(graphModel.getTempEntryData().getEntryData().getHiTempData());
                     } else if (i == 0 && i + 1 < forecasts.size()) { // For NWS, which contains bi-daily forecasts
                         GraphItemViewModel nextVM = forecasts.get(i + 1);
-                        if (nextVM.getTempEntryData().getEntryData().getLoTempData() != null)
-                            loTempDataset.add(nextVM.getTempEntryData().getEntryData().getLoTempData());
+                        if (nextVM.getTempEntryData().getEntryData().getHiTempData() != null)
+                            hiTempDataset.add(nextVM.getTempEntryData().getEntryData().getHiTempData());
                     } else if (i == forecasts.size() - 1) { // For NWS, which contains bi-daily forecasts
                         GraphItemViewModel prevVM = forecasts.get(i - 1);
-                        if (prevVM.getTempEntryData().getEntryData().getLoTempData() != null)
-                            loTempDataset.add(prevVM.getTempEntryData().getEntryData().getLoTempData());
+                        if (prevVM.getTempEntryData().getEntryData().getHiTempData() != null)
+                            hiTempDataset.add(prevVM.getTempEntryData().getEntryData().getHiTempData());
                     }
+
+                    labelDataset.add(graphModel.getTempEntryData().getLabelData());
                 }
 
-                labelDataset.add(graphModel.getTempEntryData().getLabelData());
-            }
+                lineView.getDataLabels().addAll(labelDataset);
 
-            view.getDataLabels().addAll(labelDataset);
-
-            if (hiTempDataset.size() > 0) {
-                final String hiTempSeriesLabel = context.getString(R.string.label_high);
-                view.getDataLists().add(new LineDataSeries(hiTempSeriesLabel, hiTempDataset));
-            }
-
-            if (loTempDataset != null) {
-                if (loTempDataset.size() > 0) {
-                    final String loTempSeriesLabel = context.getString(R.string.label_low);
-                    view.getDataLists().add(new LineDataSeries(loTempSeriesLabel, loTempDataset));
+                if (hiTempDataset.size() > 0) {
+                    final String hiTempSeriesLabel = context.getString(R.string.label_high);
+                    final LineDataSeries series = new LineDataSeries(hiTempSeriesLabel, hiTempDataset);
+                    series.setSeriesColors(Colors.ORANGERED);
+                    lineView.getDataLists().add(series);
                 }
             }
         }
@@ -370,13 +399,14 @@ public class ForecastGraphPanel extends LinearLayout {
 
     private void updateWindForecastGraph() {
         if (forecasts != null && forecasts.size() > 0) {
-            view.setDrawGridLines(false);
-            view.setDrawDotLine(false);
-            view.setDrawDataLabels(true);
-            view.setDrawIconLabels(false);
-            view.setDrawGraphBackground(true);
-            view.setDrawDotPoints(false);
-            view.setDrawSeriesLabels(false);
+            resetFrame(false);
+            lineView.setDrawGridLines(false);
+            lineView.setDrawDotLine(false);
+            lineView.setDrawDataLabels(true);
+            lineView.setDrawIconLabels(true);
+            lineView.setDrawGraphBackground(true);
+            lineView.setDrawDotPoints(false);
+            lineView.setDrawSeriesLabels(false);
 
             List<XLabelData> labelData = new ArrayList<>(forecasts.size());
             List<YEntryData> windDataSet = new ArrayList<>(forecasts.size());
@@ -389,23 +419,26 @@ public class ForecastGraphPanel extends LinearLayout {
                 }
             }
 
-            view.getDataLabels().addAll(labelData);
+            lineView.getDataLabels().addAll(labelData);
 
             if (windDataSet.size() > 0) {
-                view.getDataLists().add(new LineDataSeries(windDataSet));
+                LineDataSeries series = new LineDataSeries(windDataSet);
+                series.setSeriesColors(Colors.SEAGREEN);
+                lineView.getDataLists().add(series);
             }
         }
     }
 
     private void updatePrecipicationGraph() {
         if (forecasts != null && forecasts.size() > 0) {
-            view.setDrawGridLines(false);
-            view.setDrawDotLine(false);
-            view.setDrawDataLabels(true);
-            view.setDrawIconLabels(false);
-            view.setDrawGraphBackground(true);
-            view.setDrawDotPoints(false);
-            view.setDrawSeriesLabels(false);
+            resetFrame(false);
+            lineView.setDrawGridLines(false);
+            lineView.setDrawDotLine(false);
+            lineView.setDrawDataLabels(true);
+            lineView.setDrawIconLabels(true);
+            lineView.setDrawGraphBackground(true);
+            lineView.setDrawDotPoints(false);
+            lineView.setDrawSeriesLabels(false);
 
             List<XLabelData> labelData = new ArrayList<>(forecasts.size());
             List<YEntryData> popDataSet = new ArrayList<>(forecasts.size());
@@ -418,10 +451,12 @@ public class ForecastGraphPanel extends LinearLayout {
                 }
             }
 
-            view.getDataLabels().addAll(labelData);
+            lineView.getDataLabels().addAll(labelData);
 
             if (popDataSet.size() > 0) {
-                view.getDataLists().add(new LineDataSeries(popDataSet));
+                LineDataSeries series = new LineDataSeries(popDataSet);
+                series.setSeriesColors(Colors.SIMPLEBLUE);
+                lineView.getDataLists().add(series);
             }
         }
     }
@@ -429,7 +464,7 @@ public class ForecastGraphPanel extends LinearLayout {
     public void updateForecasts(@NonNull final List<GraphItemViewModel> dataset) {
         if (forecasts != dataset) {
             forecasts = dataset;
-            resetLineView();
+            resetView();
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.controls.lineview;
+package com.thewizrd.simpleweather.controls.graphs;
 
 public class XLabelData {
     private CharSequence xLabel;

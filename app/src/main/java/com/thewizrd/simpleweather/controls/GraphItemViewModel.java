@@ -15,8 +15,8 @@ import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.controls.lineview.XLabelData;
-import com.thewizrd.simpleweather.controls.lineview.YEntryData;
+import com.thewizrd.simpleweather.controls.graphs.XLabelData;
+import com.thewizrd.simpleweather.controls.graphs.YEntryData;
 
 public class GraphItemViewModel {
     private EntryData<XLabelData, GraphTemperature> tempEntryData;
@@ -28,7 +28,7 @@ public class GraphItemViewModel {
         boolean isFahrenheit = Settings.isFahrenheit();
 
         String date;
-        GraphTemperature tempData = new GraphTemperature();
+        GraphTemperature tempData = new GraphTemperature(isFahrenheit);
 
         if (forecast instanceof Forecast) {
             Forecast fcast = (Forecast) forecast;
@@ -125,30 +125,6 @@ public class GraphItemViewModel {
 
         public void setEntryData(@NonNull Y entryData) {
             this.entryData = entryData;
-        }
-    }
-
-    static class GraphTemperature {
-        private YEntryData hiTempData;
-        private YEntryData loTempData;
-
-        private GraphTemperature() {
-        }
-
-        public YEntryData getHiTempData() {
-            return hiTempData;
-        }
-
-        public void setHiTempData(YEntryData hiTempData) {
-            this.hiTempData = hiTempData;
-        }
-
-        public YEntryData getLoTempData() {
-            return loTempData;
-        }
-
-        public void setLoTempData(YEntryData loTempData) {
-            this.loTempData = loTempData;
         }
     }
 }
