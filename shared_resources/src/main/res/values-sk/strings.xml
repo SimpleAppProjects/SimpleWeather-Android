@@ -155,4 +155,10 @@
     <string name="summary_default">"Predvolené"</string>
     <string name="label_windgust">"Nárazy vetra"</string>
     <string name="pref_title_language">"Jazyk"</string>
+
+    <!-- Units -->
+    <string name="label_temperature">"Teplota"</string>
+    <string name="label_speed">"Rýchlosť"</string>
+    <string name="label_distance">"Vzdialenosť"</string>
+    <string name="pref_title_resetunits">"Obnovte pôvodné hodnoty jednotiek"</string>
 </resources>

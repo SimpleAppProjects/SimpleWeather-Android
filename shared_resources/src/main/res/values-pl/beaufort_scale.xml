@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="beaufort_0">"Cisza"</string>
+    <string name="beaufort_1">"Powiew"</string>
+    <string name="beaufort_2">"Słaby wiatr"</string>
+    <string name="beaufort_3">"Łagodny wiatr"</string>
+    <string name="beaufort_4">"Umiarkowany wiatr"</string>
+    <string name="beaufort_5">"Dość silny wiatr"</string>
+    <string name="beaufort_6">"Silny wiatr"</string>
+    <string name="beaufort_7">"Bardzo silny wiatr"</string>
+    <string name="beaufort_8">"Sztorm/wicher"</string>
+    <string name="beaufort_9">"Silny sztorm"</string>
+    <string name="beaufort_10">"Bardzo silny sztorm"</string>
+    <string name="beaufort_11">"Gwałtowny sztorm"</string>
+    <string name="beaufort_12">"Huragan"</string>
+</resources>

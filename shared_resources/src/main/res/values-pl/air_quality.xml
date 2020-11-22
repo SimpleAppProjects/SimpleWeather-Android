@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- https://aqicn.org/scale -->
+    <string name="aqi_level_0_50">"Dobra"</string>
+    <string name="aqi_level_51_100">"Średnia"</string>
+    <string name="aqi_level_101_150">"Niezdrowa dla osób wrażliwych"</string>
+    <string name="aqi_level_151_200">"Niezdrowa"</string>
+    <string name="aqi_level_201_300">"Bardzo niezdrowa"</string>
+    <string name="aqi_level_300">"Zagrożenie dla życia"</string>
+    <string name="aqi_desc_0_50">"Jakość powietrza jest uznawana za zadowalającą, a zanieczyszczenie powietrza stanowi niewielkie ryzyko lub jego brak."</string>
+    <string name="aqi_desc_51_100">"Jakość powietrza jest dopuszczalna"</string>
+    <string name="aqi_desc_101_150">"Osób wrażliwych mogą wystąpić negatywne skutki dla zdrowia. Większość populacji może nie odczuwać negatywnych objawów."</string>
+    <string name="aqi_desc_151_200">"Niezdrowe - Każdy może zacząć doświadczać negatywnych skutków zdrowotnych; U osób wrażliwych mogą wystąpić poważniejsze skutki zdrowotne."</string>
+    <string name="aqi_desc_201_300">"Bardzo niezdrowe - Ostrzeżenie zdrowotne, poziom alarmowy. Bardzo prawdopodobny negatywny wpływ na całą populację."</string>
+    <string name="aqi_desc_300">"Niebezpieczny - Alarm Zdrowotny: każdy może doświadczyć poważniejszych skutków zdrowotnych."</string>
+</resources>

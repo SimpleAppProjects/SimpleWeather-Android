@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_setupfromphone">"Skonfiguruj z telefonu"</string>
+    <string name="action_changelocation">"Zmień lokalizację"</string>
+    <string name="action_openonphone">"Otwórz w telefonie"</string>
+    <string name="message_openedonphone">"Otwarto w telefonie"</string>
+
+    <!-- Connection Status -->
+    <string name="status_disconnected">"Urządzenie nie jest podłączone"</string>
+    <string name="status_connecting">"Łączenie"</string>
+    <string name="status_notinstalled">"Aplikacja nie jest zainstalowana na urządzeniu"</string>
+    <string name="status_connected">"Połączono"</string>
+    <string name="status_node_unavailable">"Urządzenie nie jest połączone lub aplikacja nie jest zainstalowana na urządzeniu"</string>
+    <string name="status_node_notsupported">"Połączone urządzenie nie jest wspierane"</string>
+
+    <!-- Setup -->
+    <string name="prompt_confirmsetup">"Czy chcesz skonfigurować i zsynchronizować dane z telefonu/podłączonego urządzenia?"</string>
+    <string name="message_gettingstatus">"Pobieranie statusu połączenia"</string>
+    <string name="error_notinstalled">"Zainstaluj aplikację na urządzeniu i spróbuj ponownie"</string>
+    <string name="message_continueondevice">"Kontynuuj konfigurację na podłączonym urządzeniu"</string>
+    <string name="message_retrievingdata">"Pobieranie danych z podłączonego urządzenia"</string>
+    <string name="error_syncing">"Nie udało się zsynchronizować danych"</string>
+    <string name="message_settingsretrieved">"Odebrano dane"</string>
+    <string name="message_locationretrieved">"Odbierano dane lokalizacyjne"</string>
+    <string name="message_weatherretrieved">"Odebrano dane pogodowe"</string>
+    <string name="message_synccompleted">"Synchronizacja danych pomyślna"</string>
+
+    <!-- Preferences -->
+    <string name="pref_sync_off">"Wyłącz"</string>
+    <string name="pref_sync_deviceonly">"Synchronizuj tylko z urządzenia"</string>
+    <string name="pref_sync_whenavailable">"Synchronizuj z urządzenia (kiedy dostępne)"</string>
+
+    <!-- Preferences -->
+    <string name="pref_category_title_sync">"Synchronizuj"</string>
+    <string name="pref_sync_title">"Synchronizacja danych"</string>
+    <string name="pref_connectionstatus_title">"Stan połączenia"</string>
+</resources>

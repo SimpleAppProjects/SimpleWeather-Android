@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Conditions -->
+    <string name="weather_tornado">"Tornado"</string>
+    <string name="weather_tropicalstorm">"Burza tropikalna"</string>
+    <string name="weather_hurricane">"Huragan"</string>
+    <string name="weather_severetstorms">"Silne burze"</string>
+    <string name="weather_tstorms">"Burze"</string>
+    <string name="weather_rainandsnow">"Deszcz ze śniegiem"</string>
+    <string name="weather_rainandsleet">"Deszcz, deszcz ze śniegiem"</string>
+    <string name="weather_snowandsleet">"Śnieg, deszcz ze śniegiem"</string>
+    <string name="weather_freezingrain">"Marznący deszcz"</string>
+    <string name="weather_snowflurries">"Przelotne opady śniegu"</string>
+    <string name="weather_lightsnowshowers">"Lekkie opady śniegu"</string>
+    <string name="weather_blowingsnow">"Zawieja"</string>
+    <string name="weather_snow">"Śnieg"</string>
+    <string name="weather_hail">"Grad"</string>
+    <string name="weather_sleet">"Gołoledź"</string>
+    <string name="weather_dust">"Pył"</string>
+    <string name="weather_foggy">"Mgła"</string>
+    <string name="weather_haze">"Mgiełka"</string>
+    <string name="weather_smoky">"Dym"</string>
+    <string name="weather_windy">"Wietrznie"</string>
+    <string name="weather_cold">"Zimno"</string>
+    <string name="weather_cloudy">"Pochmurno"</string>
+    <string name="weather_mostlycloudy">"Przeważnie pochmurno"</string>
+    <string name="weather_partlycloudy">"Częściowe zachmurzenie"</string>
+    <string name="weather_clear">"Bezchmurnie"</string>
+    <string name="weather_sunny">"Słonecznie"</string>
+    <string name="weather_fair">"Ładnie"</string>
+    <string name="weather_rainandhail">"Deszcz z gradem"</string>
+    <string name="weather_hot">"Gorąco"</string>
+    <string name="weather_isotstorms">"Lokalne burze"</string>
+    <string name="weather_scatteredtstorms">"Rozproszone burze"</string>
+    <string name="weather_scatteredshowers">"Rozproszone przelotne opady"</string>
+    <string name="weather_heavysnow">"Silne opady śniegu"</string>
+    <string name="weather_fog">"Mgła"</string>
+    <string name="weather_lightrain">"Lekki deszcz"</string>
+    <string name="weather_rain">"Deszcz"</string>
+    <string name="weather_rainshowers">"Przelotne deszcze"</string>
+    <string name="weather_blizzard">"Śnieżyca"</string>
+    <string name="weather_overcast">"Zachmurzenie całkowite"</string>
+    <string name="weather_sleet_tstorms">"Burza i gołoledź"</string>
+    <string name="weather_snow_tstorms">"Śnieg i burza"</string>
+    <string name="weather_clearsky">"Czyste niebo"</string>
+    <string name="weather_heavyrain">"Silny deszcz"</string>
+</resources>

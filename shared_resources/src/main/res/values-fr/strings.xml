@@ -155,4 +155,10 @@
     <string name="summary_default">"Défaut"</string>
     <string name="label_windgust">"Rafale de vent"</string>
     <string name="pref_title_language">"Langue"</string>
+
+    <!-- Units -->
+    <string name="label_temperature">"Température"</string>
+    <string name="label_speed">"Vitesse"</string>
+    <string name="label_distance">"Distance"</string>
+    <string name="pref_title_resetunits">"Réinitialisation des unités aux valeurs par défaut"</string>
 </resources>

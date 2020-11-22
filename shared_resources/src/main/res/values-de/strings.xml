@@ -196,4 +196,10 @@
     <!-- Fuzzy -->
     <string name="label_windgust">"Windböe"</string>
     <string name="pref_title_language">"Sprache"</string>
+
+    <!-- Units -->
+    <string name="label_temperature">"Temperatur"</string>
+    <string name="label_speed">"Geschwindigkeit"</string>
+    <string name="label_distance">"Entfernung"</string>
+    <string name="pref_title_resetunits">"Einheiten auf Standardwerte zurücksetzen"</string>
 </resources>

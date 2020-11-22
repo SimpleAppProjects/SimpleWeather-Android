@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moonphase_new">"Nów"</string>
+    <string name="moonphase_waxcrescent">"Przybywa (&lt;50%)"</string>
+    <string name="moonphase_firstqtr">"Pierwsza kwadra"</string>
+    <string name="moonphase_waxgibbous">"Przybywa (&gt;50%)"</string>
+    <string name="moonphase_full">"Pełnia"</string>
+    <string name="moonphase_wangibbous">"Ubywa (&gt;50%)"</string>
+    <string name="moonphase_lastqtr">"Trzecia kwadra"</string>
+    <string name="moonphase_wancrescent">"Ubywa (&lt;50%)"</string>
+</resources>
