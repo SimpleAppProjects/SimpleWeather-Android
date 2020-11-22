@@ -99,6 +99,16 @@ class VersionMigrations {
                 }
             }
 
+            // v4.2.0+ (Units)
+            if (Settings.getVersionCode() < 294200000) {
+                final String tempUnit = Settings.getTemperatureUnit();
+                if (Units.CELSIUS.equals(tempUnit)) {
+                    Settings.setDefaultUnits(Units.CELSIUS);
+                } else {
+                    Settings.setDefaultUnits(Units.FAHRENHEIT);
+                }
+            }
+
             Bundle bundle = new Bundle();
             bundle.putString("API", Settings.getAPI());
             bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));

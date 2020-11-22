@@ -117,6 +117,7 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -1770,11 +1771,11 @@ public class WeatherNowFragment extends WindowColorFragment
         }
 
         @BindingAdapter(value = {"tempTextColor", "tempUnit"}, requireAll = false)
-        public void tempTextColor(TextView view, CharSequence temp, String tempUnit) {
+        public void tempTextColor(TextView view, CharSequence temp, @Units.TemperatureUnits String tempUnit) {
             String temp_str = StringUtils.removeNonDigitChars(temp);
             Float temp_f = NumberUtils.tryParseFloat(temp_str);
             if (temp_f != null) {
-                if (ObjectsCompat.equals(tempUnit, Settings.CELSIUS) || temp.toString().endsWith(WeatherIcons.CELSIUS)) {
+                if (ObjectsCompat.equals(tempUnit, Units.CELSIUS) || temp.toString().endsWith(WeatherIcons.CELSIUS)) {
                     temp_f = ConversionMethods.CtoF(temp_f);
                 }
 

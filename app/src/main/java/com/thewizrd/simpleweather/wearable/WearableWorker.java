@@ -17,6 +17,7 @@ import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.CapabilityClient;
 import com.google.android.gms.wearable.CapabilityInfo;
 import com.google.android.gms.wearable.DataClient;
+import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
@@ -163,7 +164,16 @@ public class WearableWorker extends Worker {
         mapRequest.getDataMap().putString(WearableSettings.KEY_APIKEY, Settings.getAPIKEY());
         mapRequest.getDataMap().putBoolean(WearableSettings.KEY_APIKEY_VERIFIED, Settings.isKeyVerified());
         mapRequest.getDataMap().putBoolean(WearableSettings.KEY_FOLLOWGPS, Settings.useFollowGPS());
-        mapRequest.getDataMap().putString(WearableSettings.KEY_UNIT, Settings.getTempUnit());
+        mapRequest.getDataMap().putString(WearableSettings.KEY_TEMPUNIT, Settings.getTemperatureUnit());
+
+        DataMap unitMap = new DataMap();
+        unitMap.putString(WearableSettings.KEY_TEMPUNIT, Settings.getTemperatureUnit());
+        unitMap.putString(WearableSettings.KEY_SPEEDUNIT, Settings.getSpeedUnit());
+        unitMap.putString(WearableSettings.KEY_DISTANCEUNIT, Settings.getDistanceUnit());
+        unitMap.putString(WearableSettings.KEY_PRESSUREUNIT, Settings.getPressureUnit());
+        unitMap.putString(WearableSettings.KEY_PRECIPITATIONUNIT, Settings.getPrecipitationUnit());
+        mapRequest.getDataMap().putDataMap(WearableSettings.KEY_UNITS, unitMap);
+
         mapRequest.getDataMap().putInt(WearableSettings.KEY_REFRESHINTERVAL, Settings.getRefreshInterval());
         mapRequest.getDataMap().putString(WearableSettings.KEY_LANGUAGE, LocaleUtils.getLocaleCode());
         mapRequest.getDataMap().putLong(WearableSettings.KEY_UPDATETIME, Instant.now(Clock.systemUTC()).toEpochMilli());

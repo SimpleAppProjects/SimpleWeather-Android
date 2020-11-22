@@ -7,6 +7,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
+import androidx.core.util.ObjectsCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.tasks.Tasks;
@@ -17,11 +18,13 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.wearable.WearableSettings;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
@@ -46,6 +49,8 @@ public class DataSyncManager {
         context = context.getApplicationContext();
 
         if (dataMap != null && !dataMap.isEmpty()) {
+            LocalBroadcastManager localBroadcastMgr = LocalBroadcastManager.getInstance(context);
+
             long updateTimeMillis = dataMap.getLong(WearableSettings.KEY_UPDATETIME);
 
             if (updateTimeMillis != getSettingsUpdateTime(context)) {
@@ -64,7 +69,23 @@ public class DataSyncManager {
                 }
 
                 Settings.setFollowGPS(dataMap.getBoolean(WearableSettings.KEY_FOLLOWGPS, false));
-                Settings.setTempUnit(dataMap.getString(WearableSettings.KEY_UNIT, Settings.FAHRENHEIT));
+
+                DataMap unitMap = dataMap.getDataMap(WearableSettings.KEY_UNITS);
+                final String oldUnits = Settings.getUnitString();
+                if (unitMap != null) {
+                    Settings.setTemperatureUnit(dataMap.getString(WearableSettings.KEY_TEMPUNIT, Units.FAHRENHEIT));
+                    Settings.setSpeedUnit(dataMap.getString(WearableSettings.KEY_SPEEDUNIT, Units.MILES_PER_HOUR));
+                    Settings.setDistanceUnit(dataMap.getString(WearableSettings.KEY_DISTANCEUNIT, Units.MILES));
+                    Settings.setPressureUnit(dataMap.getString(WearableSettings.KEY_PRESSUREUNIT, Units.INHG));
+                    Settings.setPrecipitationUnit(dataMap.getString(WearableSettings.KEY_PRECIPITATIONUNIT, Units.INCHES));
+                } else {
+                    Settings.setDefaultUnits(dataMap.getString(WearableSettings.KEY_TEMPUNIT, Units.FAHRENHEIT));
+                }
+                final String newUnits = Settings.getUnitString();
+
+                if (!ObjectsCompat.equals(oldUnits, newUnits)) {
+                    localBroadcastMgr.sendBroadcast(new Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT));
+                }
 
                 int newInterval = dataMap.getInt(WearableSettings.KEY_REFRESHINTERVAL, Settings.DEFAULTINTERVAL);
                 Settings.setRefreshInterval(newInterval);
@@ -77,8 +98,7 @@ public class DataSyncManager {
             }
 
             // Send callback to receiver
-            LocalBroadcastManager.getInstance(context).sendBroadcast(
-                    new Intent(WearableHelper.SettingsPath));
+            localBroadcastMgr.sendBroadcast(new Intent(WearableHelper.SettingsPath));
         }
     }
 

@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.weatherdata.Weather;
@@ -107,16 +108,18 @@ public class WeatherComplicationService extends ComplicationProviderService {
         if ((weather == null || !weather.isValid()) || (dataType != ComplicationData.TYPE_SHORT_TEXT && dataType != ComplicationData.TYPE_LONG_TEXT)) {
             return null;
         } else {
+            final boolean isFahrenheit = Units.FAHRENHEIT.equals(Settings.getTemperatureUnit());
+
             // Temperature
             String currTemp;
             if (weather.getCondition().getTempF() != null && !ObjectsCompat.equals(weather.getCondition().getTempF(), weather.getCondition().getTempC())) {
-                int temp = Settings.isFahrenheit() ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC());
+                int temp = isFahrenheit ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC());
                 currTemp = String.format(LocaleUtils.getLocale(), "%d", temp);
             } else {
                 currTemp = "--";
             }
 
-            String tempUnit = Settings.getTempUnit();
+            String tempUnit = isFahrenheit ? Units.FAHRENHEIT : Units.CELSIUS;
             String temp = String.format(LocaleUtils.getLocale(), "%s°%s", currTemp, tempUnit);
             // Weather Icon
             int weatherIcon = WeatherUtils.getWeatherIconResource(weather.getCondition().getIcon());

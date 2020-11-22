@@ -185,55 +185,6 @@ public class WeatherUtils {
         }
     }
 
-    /* Units */
-    public static String getSpeedUnit() {
-        Context context = SimpleLibrary.getInstance().getApp().getAppContext();
-        boolean isFahrenheit = Settings.isFahrenheit();
-
-        if (isFahrenheit) {
-            return context.getString(R.string.unit_mph);
-        } else {
-            return context.getString(R.string.unit_kph);
-        }
-    }
-
-    public static String getPressureUnit() {
-        Context context = SimpleLibrary.getInstance().getApp().getAppContext();
-        boolean isFahrenheit = Settings.isFahrenheit();
-
-        if (isFahrenheit) {
-            return context.getString(R.string.unit_inHg);
-        } else {
-            return context.getString(R.string.unit_mBar);
-        }
-    }
-
-    public static String getDistanceUnit() {
-        Context context = SimpleLibrary.getInstance().getApp().getAppContext();
-        boolean isFahrenheit = Settings.isFahrenheit();
-
-        if (isFahrenheit) {
-            return context.getString(R.string.unit_miles);
-        } else {
-            return context.getString(R.string.unit_kilometers);
-        }
-    }
-
-    public static String getPrecipitationUnit(boolean snow) {
-        Context context = SimpleLibrary.getInstance().getApp().getAppContext();
-        boolean isFahrenheit = Settings.isFahrenheit();
-
-        if (isFahrenheit) {
-            return context.getString(R.string.unit_in);
-        } else {
-            if (snow) {
-                return context.getString(R.string.unit_cm);
-            } else {
-                return context.getString(R.string.unit_mm);
-            }
-        }
-    }
-
     @DrawableRes
     public static int getDrawableFromAlertType(WeatherAlertType type) {
         int drawable = -1;

@@ -18,8 +18,8 @@ import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.NumberUtils;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.simpleweather.R;
@@ -98,11 +98,11 @@ public class BindingAdapters {
     }
 
     @BindingAdapter(value = {"tempTextColor", "tempUnit"}, requireAll = false)
-    public static void tempTextColor(TextView view, CharSequence temp, String tempUnit) {
+    public static void tempTextColor(TextView view, CharSequence temp, @Units.TemperatureUnits String tempUnit) {
         String temp_str = StringUtils.removeNonDigitChars(temp);
         Float temp_f = NumberUtils.tryParseFloat(temp_str);
         if (temp_f != null) {
-            if (ObjectsCompat.equals(tempUnit, Settings.CELSIUS) || temp.toString().endsWith(WeatherIcons.CELSIUS)) {
+            if (ObjectsCompat.equals(tempUnit, Units.CELSIUS) || temp.toString().endsWith(WeatherIcons.CELSIUS)) {
                 temp_f = ConversionMethods.CtoF(temp_f);
             }
 

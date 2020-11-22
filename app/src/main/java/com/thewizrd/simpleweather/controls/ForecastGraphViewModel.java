@@ -27,7 +27,7 @@ import java.util.concurrent.Callable;
 
 public class ForecastGraphViewModel extends ViewModel {
     private LocationData locationData;
-    private String tempUnit;
+    private String unitCode;
     private String localeCode;
 
     private MutableLiveData<List<GraphItemViewModel>> forecasts;
@@ -55,7 +55,7 @@ public class ForecastGraphViewModel extends ViewModel {
             // Clone location data
             this.locationData = new LocationData(new LocationQueryViewModel(location));
 
-            tempUnit = Settings.getTempUnit();
+            unitCode = Settings.getUnitString();
             localeCode = LocaleUtils.getLocaleCode();
 
             if (currentForecastsData != null) {
@@ -84,8 +84,8 @@ public class ForecastGraphViewModel extends ViewModel {
             currentHrForecastsData.observeForever(hrforecastObserver);
             if (hourlyForecasts != null)
                 hourlyForecasts.postValue(hrForecastMapper.apply(currentHrForecastsData.getValue()));
-        } else if (!ObjectsCompat.equals(tempUnit, Settings.getTempUnit()) || !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode())) {
-            tempUnit = Settings.getTempUnit();
+        } else if (!ObjectsCompat.equals(unitCode, Settings.getUnitString()) || !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode())) {
+            unitCode = Settings.getUnitString();
             localeCode = LocaleUtils.getLocaleCode();
 
             if (currentForecastsData != null && currentForecastsData.getValue() != null) {

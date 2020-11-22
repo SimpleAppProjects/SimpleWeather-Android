@@ -82,6 +82,9 @@
         android:label="SettingsFragment"
         tools:layout="@layout/fragment_settings">
         <action
+            android:id="@+id/action_settingsFragment_to_unitsFragment"
+            app:destination="@id/unitsFragment" />
+        <action
             android:id="@+id/action_settingsFragment_to_featuresFragment2"
             app:destination="@id/featuresFragment" />
         <action
@@ -119,4 +122,8 @@
         android:name="com.thewizrd.simpleweather.fragments.LocationSearchFragment"
         android:label="LocationSearchFragment"
         tools:layout="@layout/fragment_location_search" />
+    <fragment
+        android:id="@+id/unitsFragment"
+        android:name="com.thewizrd.simpleweather.preferences.SettingsFragment$UnitsFragment"
+        android:label="UnitsFragment" />
 </navigation>

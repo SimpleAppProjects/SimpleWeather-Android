@@ -7,17 +7,20 @@ import androidx.core.util.ObjectsCompat;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.TextForecast;
 import com.thewizrd.shared_resources.weatherdata.UV;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class ForecastItemViewModel extends BaseForecastItemViewModel {
@@ -25,8 +28,12 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
     private String conditionLongDesc;
 
     public ForecastItemViewModel(Forecast forecast, TextForecast... txtForecasts) {
-        Context context = SimpleLibrary.getInstance().getAppContext();
+        final Context context = SimpleLibrary.getInstance().getAppContext();
         wm = WeatherManager.getInstance();
+        final boolean isFahrenheit = Units.FAHRENHEIT.equals(Settings.getTemperatureUnit());
+        final DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(LocaleUtils.getLocale());
+        df.applyPattern("0.##");
+
         detailExtras = new ArrayList<>(WeatherDetailsType.values().length);
 
         weatherIcon = forecast.getIcon();
@@ -35,7 +42,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
         condition = wm.supportsWeatherLocale() ? forecast.getCondition() : wm.getWeatherCondition(forecast.getIcon());
         try {
             if (forecast.getHighF() != null && forecast.getHighC() != null) {
-                int value = Settings.isFahrenheit() ? Math.round(forecast.getHighF()) : Math.round(forecast.getHighC());
+                int value = isFahrenheit ? Math.round(forecast.getHighF()) : Math.round(forecast.getHighC());
                 hiTemp = String.format(LocaleUtils.getLocale(), "%d°", value);
             } else {
                 hiTemp = "--";
@@ -46,7 +53,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
         }
         try {
             if (forecast.getLowF() != null && forecast.getLowC() != null) {
-                int value = Settings.isFahrenheit() ? Math.round(forecast.getLowF()) : Math.round(forecast.getLowC());
+                int value = isFahrenheit ? Math.round(forecast.getLowF()) : Math.round(forecast.getLowC());
                 loTemp = String.format(LocaleUtils.getLocale(), "%d°", value);
             } else {
                 loTemp = "--";
@@ -59,7 +66,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
         // Extras
         if (forecast.getExtras() != null) {
             if (forecast.getExtras().getFeelslikeF() != null && (!ObjectsCompat.equals(forecast.getExtras().getFeelslikeF(), forecast.getExtras().getFeelslikeC()))) {
-                int value = Settings.isFahrenheit() ? Math.round(forecast.getExtras().getFeelslikeF()) : Math.round(forecast.getExtras().getFeelslikeC());
+                int value = isFahrenheit ? Math.round(forecast.getExtras().getFeelslikeF()) : Math.round(forecast.getExtras().getFeelslikeC());
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
                         String.format(LocaleUtils.getLocale(), "%d°", value)));
             }
@@ -67,18 +74,46 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
             if (forecast.getExtras().getPop() != null && forecast.getExtras().getPop() >= 0)
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, forecast.getExtras().getPop() + "%"));
             if (forecast.getExtras().getQpfRainIn() != null && forecast.getExtras().getQpfRainIn() >= 0) {
+                final String unit = Settings.getPrecipitationUnit();
+                float precipValue;
+                String precipUnit;
+
+                switch (unit) {
+                    case Units.INCHES:
+                    default:
+                        precipValue = forecast.getExtras().getQpfRainIn();
+                        precipUnit = context.getString(R.string.unit_in);
+                        break;
+                    case Units.MILLIMETERS:
+                        precipValue = forecast.getExtras().getQpfRainMm();
+                        precipUnit = context.getString(R.string.unit_mm);
+                        break;
+                }
+
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN,
-                        String.format(LocaleUtils.getLocale(), "%.2f %s",
-                                Settings.isFahrenheit() ? forecast.getExtras().getQpfRainIn() : forecast.getExtras().getQpfRainMm(),
-                                WeatherUtils.getPrecipitationUnit(false))
+                                String.format(LocaleUtils.getLocale(), "%s %s", df.format(precipValue), precipUnit)
                         )
                 );
             }
             if (forecast.getExtras().getQpfSnowIn() != null && forecast.getExtras().getQpfSnowIn() >= 0) {
+                final String unit = Settings.getPrecipitationUnit();
+                float precipValue;
+                String precipUnit;
+
+                switch (unit) {
+                    case Units.INCHES:
+                    default:
+                        precipValue = forecast.getExtras().getQpfSnowIn();
+                        precipUnit = context.getString(R.string.unit_in);
+                        break;
+                    case Units.MILLIMETERS:
+                        precipValue = forecast.getExtras().getQpfSnowCm() * 10;
+                        precipUnit = context.getString(R.string.unit_mm);
+                        break;
+                }
+
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW,
-                        String.format(LocaleUtils.getLocale(), "%.2f %s",
-                                Settings.isFahrenheit() ? forecast.getExtras().getQpfSnowIn() : forecast.getExtras().getQpfSnowCm(),
-                                WeatherUtils.getPrecipitationUnit(true))
+                                String.format(LocaleUtils.getLocale(), "%s %s", df.format(precipValue), precipUnit)
                         )
                 );
             }
@@ -93,7 +128,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
             if (forecast.getExtras().getDewpointF() != null && (!ObjectsCompat.equals(forecast.getExtras().getDewpointF(), forecast.getExtras().getDewpointC()))) {
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.DEWPOINT,
                         String.format(LocaleUtils.getLocale(), "%d°",
-                                Settings.isFahrenheit() ?
+                                isFahrenheit ?
                                         Math.round(forecast.getExtras().getDewpointF()) :
                                         Math.round(forecast.getExtras().getDewpointC())
                         ))
@@ -107,17 +142,47 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
             }
 
             if (forecast.getExtras().getPressureIn() != null && forecast.getExtras().getPressureMb() != null) {
-                float pressureVal = Settings.isFahrenheit() ? forecast.getExtras().getPressureIn() : forecast.getExtras().getPressureMb();
-                String pressureUnit = WeatherUtils.getPressureUnit();
+                final String unit = Settings.getPressureUnit();
+                float pressureVal;
+                String pressureUnit;
+
+                switch (unit) {
+                    case Units.INHG:
+                    default:
+                        pressureVal = forecast.getExtras().getPressureIn();
+                        pressureUnit = context.getString(R.string.unit_inHg);
+                        break;
+                    case Units.MILLIBAR:
+                        pressureVal = forecast.getExtras().getPressureMb();
+                        pressureUnit = context.getString(R.string.unit_mBar);
+                        break;
+                }
 
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.PRESSURE,
-                        String.format(LocaleUtils.getLocale(), "%.2f %s", pressureVal, pressureUnit)));
+                        String.format(LocaleUtils.getLocale(), "%s %s", df.format(pressureVal), pressureUnit)));
             }
 
             if (forecast.getExtras().getWindMph() != null && forecast.getExtras().getWindKph() != null && forecast.getExtras().getWindMph() >= 0 &&
                     forecast.getExtras().getWindDegrees() != null && forecast.getExtras().getWindDegrees() >= 0) {
-                int speedVal = Settings.isFahrenheit() ? Math.round(forecast.getExtras().getWindMph()) : Math.round(forecast.getExtras().getWindKph());
-                String speedUnit = WeatherUtils.getSpeedUnit();
+                final String unit = Settings.getSpeedUnit();
+                int speedVal;
+                String speedUnit;
+
+                switch (unit) {
+                    case Units.MILES_PER_HOUR:
+                    default:
+                        speedVal = Math.round(forecast.getExtras().getWindMph());
+                        speedUnit = context.getString(R.string.unit_mph);
+                        break;
+                    case Units.KILOMETERS_PER_HOUR:
+                        speedVal = Math.round(forecast.getExtras().getWindKph());
+                        speedUnit = context.getString(R.string.unit_kph);
+                        break;
+                    case Units.METERS_PER_SECOND:
+                        speedVal = Math.round(ConversionMethods.kphToMsec(forecast.getExtras().getWindKph()));
+                        speedUnit = context.getString(R.string.unit_msec);
+                        break;
+                }
 
                 windSpeed = String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit);
 
@@ -129,19 +194,49 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
             }
 
             if (forecast.getExtras().getWindGustMph() != null && forecast.getExtras().getWindGustKph() != null && forecast.getExtras().getWindGustMph() >= 0) {
-                int speedVal = Settings.isFahrenheit() ? Math.round(forecast.getExtras().getWindGustMph()) : Math.round(forecast.getExtras().getWindGustKph());
-                String speedUnit = WeatherUtils.getSpeedUnit();
+                final String unit = Settings.getSpeedUnit();
+                int speedVal;
+                String speedUnit;
+
+                switch (unit) {
+                    case Units.MILES_PER_HOUR:
+                    default:
+                        speedVal = Math.round(forecast.getExtras().getWindGustMph());
+                        speedUnit = context.getString(R.string.unit_mph);
+                        break;
+                    case Units.KILOMETERS_PER_HOUR:
+                        speedVal = Math.round(forecast.getExtras().getWindGustKph());
+                        speedUnit = context.getString(R.string.unit_kph);
+                        break;
+                    case Units.METERS_PER_SECOND:
+                        speedVal = Math.round(ConversionMethods.kphToMsec(forecast.getExtras().getWindGustKph()));
+                        speedUnit = context.getString(R.string.unit_msec);
+                        break;
+                }
 
                 String windGustSpeed = String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit);
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.WINDGUST, windGustSpeed));
             }
 
             if (forecast.getExtras().getVisibilityMi() != null && forecast.getExtras().getVisibilityMi() >= 0) {
-                float visibilityVal = Settings.isFahrenheit() ? forecast.getExtras().getVisibilityMi() : forecast.getExtras().getVisibilityKm();
-                String visibilityUnit = WeatherUtils.getDistanceUnit();
+                final String unit = Settings.getDistanceUnit();
+                int visibilityVal;
+                String visibilityUnit;
+
+                switch (unit) {
+                    case Units.MILES:
+                    default:
+                        visibilityVal = Math.round(forecast.getExtras().getVisibilityMi());
+                        visibilityUnit = context.getString(R.string.unit_miles);
+                        break;
+                    case Units.KILOMETERS:
+                        visibilityVal = Math.round(forecast.getExtras().getVisibilityKm());
+                        visibilityUnit = context.getString(R.string.unit_kilometers);
+                        break;
+                }
 
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.VISIBILITY,
-                        String.format(LocaleUtils.getLocale(), "%.2f %s", visibilityVal, visibilityUnit)));
+                        String.format(LocaleUtils.getLocale(), "%d %s", visibilityVal, visibilityUnit)));
             }
         }
 
@@ -151,13 +246,13 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
                 StringBuilder sb = new StringBuilder();
 
                 TextForecast fctDay = txtForecasts[0];
-                sb.append(Settings.isFahrenheit() ? fctDay.getFcttext() : fctDay.getFcttextMetric());
+                sb.append(isFahrenheit ? fctDay.getFcttext() : fctDay.getFcttextMetric());
 
                 if (dayAndNt) {
                     sb.append(StringUtils.lineSeparator()).append(StringUtils.lineSeparator());
 
                     TextForecast fctNt = txtForecasts[1];
-                    sb.append(Settings.isFahrenheit() ? fctNt.getFcttext() : fctNt.getFcttextMetric());
+                    sb.append(isFahrenheit ? fctNt.getFcttext() : fctNt.getFcttextMetric());
                 }
 
                 conditionLongDesc = sb.toString();

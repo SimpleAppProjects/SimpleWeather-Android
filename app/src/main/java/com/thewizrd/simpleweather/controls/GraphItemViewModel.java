@@ -6,10 +6,11 @@ import android.text.format.DateFormat;
 import androidx.annotation.NonNull;
 
 import com.thewizrd.shared_resources.DateTimeConstants;
+import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Settings;
-import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.weatherdata.BaseForecast;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
@@ -25,10 +26,10 @@ public class GraphItemViewModel {
 
     public GraphItemViewModel(BaseForecast forecast) {
         Context context = App.getInstance().getAppContext();
-        boolean isFahrenheit = Settings.isFahrenheit();
+        final boolean isFahrenheit = Units.FAHRENHEIT.equals(Settings.getTemperatureUnit());
 
         String date;
-        GraphTemperature tempData = new GraphTemperature(isFahrenheit);
+        GraphTemperature tempData = new GraphTemperature();
 
         if (forecast instanceof Forecast) {
             Forecast fcast = (Forecast) forecast;
@@ -66,8 +67,25 @@ public class GraphItemViewModel {
             // Wind Data
             if (forecast.getExtras().getWindMph() != null && forecast.getExtras().getWindKph() != null && forecast.getExtras().getWindMph() >= 0 &&
                     forecast.getExtras().getWindDegrees() != null && forecast.getExtras().getWindDegrees() >= 0) {
-                int speedVal = isFahrenheit ? Math.round(forecast.getExtras().getWindMph()) : Math.round(forecast.getExtras().getWindKph());
-                String speedUnit = WeatherUtils.getSpeedUnit();
+                final String unit = Settings.getSpeedUnit();
+                int speedVal;
+                String speedUnit;
+
+                switch (unit) {
+                    case Units.MILES_PER_HOUR:
+                    default:
+                        speedVal = Math.round(forecast.getExtras().getWindMph());
+                        speedUnit = context.getString(com.thewizrd.shared_resources.R.string.unit_mph);
+                        break;
+                    case Units.KILOMETERS_PER_HOUR:
+                        speedVal = Math.round(forecast.getExtras().getWindKph());
+                        speedUnit = context.getString(com.thewizrd.shared_resources.R.string.unit_kph);
+                        break;
+                    case Units.METERS_PER_SECOND:
+                        speedVal = Math.round(ConversionMethods.kphToMsec(forecast.getExtras().getWindKph()));
+                        speedUnit = context.getString(com.thewizrd.shared_resources.R.string.unit_msec);
+                        break;
+                }
 
                 String windSpeed = String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit);
                 int windDirection = forecast.getExtras().getWindDegrees();

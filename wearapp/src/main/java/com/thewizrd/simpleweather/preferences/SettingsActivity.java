@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.preferences;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -28,6 +29,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.arch.core.util.Function;
 import androidx.core.location.LocationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -43,6 +45,7 @@ import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.wearable.WearConnectionStatus;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
@@ -63,8 +66,12 @@ import java.util.Locale;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_API;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_APIKEY;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_DATASYNC;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_DISTANCEUNIT;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_FOLLOWGPS;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_USECELSIUS;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_PRECIPITATIONUNIT;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_PRESSUREUNIT;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_SPEEDUNIT;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_TEMPUNIT;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_USEPERSONALKEY;
 
 public class SettingsActivity extends WearableListenerActivity {
@@ -139,6 +146,7 @@ public class SettingsActivity extends WearableListenerActivity {
         private static final String KEY_ABOUTAPP = "key_aboutapp";
         private static final String KEY_CONNSTATUS = "key_connectionstatus";
         private static final String KEY_APIREGISTER = "key_apiregister";
+        private static final String KEY_UNITS = "key_units";
 
         private static final String CATEGORY_API = "category_api";
 
@@ -298,6 +306,18 @@ public class SettingsActivity extends WearableListenerActivity {
                         }
                     }
 
+                    return true;
+                }
+            });
+
+            findPreference(KEY_UNITS).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    // Display the fragment as the main content.
+                    getFragmentManager().beginTransaction()
+                            .replace(android.R.id.content, new UnitsFragment())
+                            .addToBackStack(null)
+                            .commit();
                     return true;
                 }
             });
@@ -563,7 +583,7 @@ public class SettingsActivity extends WearableListenerActivity {
         };
 
         private void enableSyncedSettings(boolean enable) {
-            findPreference(KEY_USECELSIUS).setEnabled(enable);
+            findPreference(KEY_UNITS).setEnabled(enable);
             followGps.setEnabled(enable);
             languagePref.setEnabled(enable);
             apiCategory.setEnabled(enable);
@@ -679,10 +699,6 @@ public class SettingsActivity extends WearableListenerActivity {
                 case KEY_FOLLOWGPS:
                     enqueueIntent(new Intent(CommonActions.ACTION_SETTINGS_UPDATEGPS));
                     break;
-                // Settings unit changed
-                case KEY_USECELSIUS:
-                    enqueueIntent(new Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT));
-                    break;
                 // Refresh interval changed
                 case KEY_DATASYNC:
                     enqueueIntent(new Intent(CommonActions.ACTION_SETTINGS_UPDATEDATASYNC));
@@ -713,6 +729,65 @@ public class SettingsActivity extends WearableListenerActivity {
                 default:
                     break;
             }
+        }
+    }
+
+    public static class UnitsFragment extends SwipeDismissPreferenceFragment {
+        private static final String KEY_RESETUNITS = "key_resetunits";
+
+        private ListPreference tempUnitPref;
+        private ListPreference speedUnitPref;
+        private ListPreference distanceUnitPref;
+        private ListPreference precipationUnitPref;
+        private ListPreference pressureUnitPref;
+
+        private LocalBroadcastManager localBroadcastMgr;
+
+        @Override
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_units);
+
+            getPreferenceScreen().setTitle(R.string.pref_title_units);
+
+            localBroadcastMgr = LocalBroadcastManager.getInstance(getParentActivity());
+
+            tempUnitPref = (ListPreference) findPreference(KEY_TEMPUNIT);
+            speedUnitPref = (ListPreference) findPreference(KEY_SPEEDUNIT);
+            distanceUnitPref = (ListPreference) findPreference(KEY_DISTANCEUNIT);
+            precipationUnitPref = (ListPreference) findPreference(KEY_PRECIPITATIONUNIT);
+            pressureUnitPref = (ListPreference) findPreference(KEY_PRESSUREUNIT);
+
+            findPreference(KEY_RESETUNITS).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    new AlertDialog.Builder(getParentActivity())
+                            .setTitle(R.string.pref_title_units)
+                            .setItems(R.array.default_units, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    final boolean isFahrenheit = which == 0;
+                                    tempUnitPref.setValue(isFahrenheit ? Units.FAHRENHEIT : Units.CELSIUS);
+                                    speedUnitPref.setValue(isFahrenheit ? Units.MILES_PER_HOUR : Units.KILOMETERS_PER_HOUR);
+                                    distanceUnitPref.setValue(isFahrenheit ? Units.MILES : Units.KILOMETERS);
+                                    precipationUnitPref.setValue(isFahrenheit ? Units.INCHES : Units.MILLIMETERS);
+                                    pressureUnitPref.setValue(isFahrenheit ? Units.INHG : Units.MILLIBAR);
+                                    dialog.dismiss();
+
+                                    localBroadcastMgr.sendBroadcast(new Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT));
+                                }
+                            })
+                            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            })
+                            .setCancelable(true)
+                            .show();
+                    return true;
+                }
+            });
         }
     }
 

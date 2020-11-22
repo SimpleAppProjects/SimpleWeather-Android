@@ -36,6 +36,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.Navigation;
 import androidx.preference.EditTextPreference;
 import androidx.preference.EditTextPreferenceDialogFragmentCompat;
@@ -45,6 +46,7 @@ import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.SwitchPreferenceCompat;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -54,6 +56,7 @@ import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
@@ -75,12 +78,16 @@ import java.util.Locale;
 
 import static com.thewizrd.shared_resources.utils.Settings.KEY_API;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_APIKEY;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_DISTANCEUNIT;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_FOLLOWGPS;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_NOTIFICATIONICON;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_ONGOINGNOTIFICATION;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_PRECIPITATIONUNIT;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_PRESSUREUNIT;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_REFRESHINTERVAL;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_SPEEDUNIT;
+import static com.thewizrd.shared_resources.utils.Settings.KEY_TEMPUNIT;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_USEALERTS;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_USECELSIUS;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_USEPERSONALKEY;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_USERTHEME;
 
@@ -91,6 +98,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
     private static final int PERMISSION_BGLOCATION_REQUEST_CODE = 1;
 
     // Preference Keys
+    private static final String KEY_UNITS = "key_units";
     private static final String KEY_FEATURES = "key_features";
     private static final String KEY_ABOUTAPP = "key_aboutapp";
     private static final String KEY_APIREGISTER = "key_apiregister";
@@ -98,7 +106,6 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
     private static final String CATEGORY_API = "category_api";
 
     // Preferences
-    private SwitchPreferenceCompat unitPref;
     private SwitchPreferenceCompat followGps;
     private ListPreference providerPref;
     private SwitchPreferenceCompat personalKeyPref;
@@ -282,27 +289,15 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             }
         });
 
-        unitPref = findPreference(KEY_USECELSIUS);
-        unitPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        findPreference(KEY_UNITS).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if ((boolean) newValue) {
-                    preference.setIcon(R.drawable.ic_celsius);
-                    AnalyticsLogger.logEvent("Settings: celsius checked");
-                } else {
-                    preference.setIcon(R.drawable.ic_fahrenheit);
-                    AnalyticsLogger.logEvent("Settings: fahrenheit checked");
-                }
-                tintIcons(unitPref, ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
+            public boolean onPreferenceClick(Preference preference) {
+                // Display the fragment as the main content.
+                Navigation.findNavController(getAppCompatActivity(), R.id.fragment_container)
+                        .navigate(SettingsFragmentDirections.actionSettingsFragmentToUnitsFragment());
                 return true;
             }
         });
-
-        if (Settings.isFahrenheit()) {
-            unitPref.setIcon(R.drawable.ic_fahrenheit);
-        } else {
-            unitPref.setIcon(R.drawable.ic_celsius);
-        }
 
         followGps = findPreference(KEY_FOLLOWGPS);
         followGps.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -866,13 +861,6 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 enqueueIntent(new Intent(context, WeatherWidgetService.class)
                         .setAction(value ? WeatherWidgetService.ACTION_REFRESHGPSWIDGETS : WeatherWidgetService.ACTION_RESETGPSWIDGETS));
                 break;
-            // Settings unit changed
-            case KEY_USECELSIUS:
-                enqueueIntent(new Intent(context, WearableWorker.class)
-                        .setAction(WearableWorker.ACTION_SENDSETTINGSUPDATE));
-                enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
-                        .setAction(WeatherUpdaterWorker.ACTION_UPDATEWEATHER));
-                break;
             // Refresh interval changed
             case KEY_REFRESHINTERVAL:
                 enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
@@ -972,6 +960,67 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             }
 
             key = Settings.getAPIKEY();
+        }
+    }
+
+    public static class UnitsFragment extends ToolbarPreferenceFragmentCompat {
+        private static final String KEY_RESETUNITS = "key_resetunits";
+
+        private ListPreference tempUnitPref;
+        private ListPreference speedUnitPref;
+        private ListPreference distanceUnitPref;
+        private ListPreference precipationUnitPref;
+        private ListPreference pressureUnitPref;
+
+        private LocalBroadcastManager localBroadcastMgr;
+
+        @Override
+        protected int getTitle() {
+            return R.string.pref_title_units;
+        }
+
+        @Override
+        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+            setPreferencesFromResource(R.xml.pref_units, null);
+
+            localBroadcastMgr = LocalBroadcastManager.getInstance(getAppCompatActivity());
+
+            tempUnitPref = findPreference(KEY_TEMPUNIT);
+            speedUnitPref = findPreference(KEY_SPEEDUNIT);
+            distanceUnitPref = findPreference(KEY_DISTANCEUNIT);
+            precipationUnitPref = findPreference(KEY_PRECIPITATIONUNIT);
+            pressureUnitPref = findPreference(KEY_PRESSUREUNIT);
+
+            findPreference(KEY_RESETUNITS).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    new MaterialAlertDialogBuilder(getAppCompatActivity())
+                            .setTitle(R.string.pref_title_units)
+                            .setItems(R.array.default_units, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    final boolean isFahrenheit = which == 0;
+                                    tempUnitPref.setValue(isFahrenheit ? Units.FAHRENHEIT : Units.CELSIUS);
+                                    speedUnitPref.setValue(isFahrenheit ? Units.MILES_PER_HOUR : Units.KILOMETERS_PER_HOUR);
+                                    distanceUnitPref.setValue(isFahrenheit ? Units.MILES : Units.KILOMETERS);
+                                    precipationUnitPref.setValue(isFahrenheit ? Units.INCHES : Units.MILLIMETERS);
+                                    pressureUnitPref.setValue(isFahrenheit ? Units.INHG : Units.MILLIBAR);
+                                    dialog.dismiss();
+
+                                    localBroadcastMgr.sendBroadcast(new Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT));
+                                }
+                            })
+                            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            })
+                            .setCancelable(true)
+                            .show();
+                    return true;
+                }
+            });
         }
     }
 

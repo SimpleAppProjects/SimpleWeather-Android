@@ -63,6 +63,13 @@
     <string name="label_morning">Morning</string>
     <string name="label_night">Night</string>
     <string name="label_temp">Temp</string>
+    <!-- Units -->
+    <string name="label_temperature">Temperature</string>
+    <string name="label_speed">Speed</string>
+    <string name="label_distance">Distance</string>
+    <string name="pref_title_resetunits">Reset units to default values</string>
+    <string name="default_units_imperial" translatable="false">°F, mph, in, inHg, mi</string>
+    <string name="default_units_metric" translatable="false">°C, km/h, mm, mb, km</string>
     <!-- NavBar -->
     <string name="label_nav_weathernow">Weather</string>
     <string name="label_nav_alerts">Alerts</string>

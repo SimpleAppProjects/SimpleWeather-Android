@@ -59,6 +59,7 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.TransparentOverlay;
+import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
@@ -1194,7 +1195,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             SpannableStringBuilder str = new SpannableStringBuilder()
                     .append(StringUtils.removeNonDigitChars(temp));
             int idx = str.length();
-            str.append(ObjectsCompat.equals(weather.getTempUnit(), Settings.FAHRENHEIT) ? "°F" : "°C");
+            str.append(ObjectsCompat.equals(weather.getTempUnit(), Units.FAHRENHEIT) ? "°F" : "°C");
             if (provider.getWidgetType() != WidgetType.Widget4x1Google && provider.getWidgetType() != WidgetType.Widget4x1) {
                 str.setSpan(new RelativeSizeSpan(0.60f), idx, str.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 str.setSpan(new SuperscriptSpan(), idx, str.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

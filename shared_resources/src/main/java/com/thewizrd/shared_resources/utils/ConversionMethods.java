@@ -67,6 +67,10 @@ public class ConversionMethods {
         return input * MSEC_TO_KPH;
     }
 
+    public static float kphToMsec(float input) {
+        return input / MSEC_TO_KPH;
+    }
+
     public static float FtoC(float input) {
         return (input - 32) * (5f / 9);
     }

@@ -63,10 +63,6 @@ public class Settings {
     private static final int CACHE_LIMIT = 25;
     private static final int MAX_LOCATIONS = 10;
 
-    // Units
-    public static final String FAHRENHEIT = "F";
-    public static final String CELSIUS = "C";
-
     private static final String DEFAULT_UPDATE_INTERVAL;
     public static final int DEFAULTINTERVAL;
 
@@ -84,8 +80,7 @@ public class Settings {
     public static final String KEY_API = "API";
     public static final String KEY_APIKEY = "API_KEY";
     public static final String KEY_APIKEY_VERIFIED = "API_KEY_VERIFIED";
-    public static final String KEY_USECELSIUS = "key_usecelsius";
-    public static final String KEY_UNITS = "Units";
+    private static final String KEY_USECELSIUS = "key_usecelsius";
     private static final String KEY_WEATHERLOADED = "weatherLoaded";
     public static final String KEY_FOLLOWGPS = "key_followgps";
     private static final String KEY_LASTGPSLOCATION = "key_lastgpslocation";
@@ -95,7 +90,11 @@ public class Settings {
     public static final String KEY_USEALERTS = "key_usealerts";
     public static final String KEY_USEPERSONALKEY = "key_usepersonalkey";
     private static final String KEY_CURRENTVERSION = "key_currentversion";
-    private static final String KEY_REQUESTED_BGLOCATION_ACCESS = "key_requested_bglocation_access";
+    public static final String KEY_TEMPUNIT = "key_tempunit";
+    public static final String KEY_SPEEDUNIT = "key_speedunit";
+    public static final String KEY_DISTANCEUNIT = "key_distanceunit";
+    public static final String KEY_PRECIPITATIONUNIT = "key_precipitationunit";
+    public static final String KEY_PRESSUREUNIT = "key_pressureunit";
     // !ANDROID_WEAR
     public static final String KEY_ONGOINGNOTIFICATION = "key_ongoingnotification";
     public static final String KEY_NOTIFICATIONICON = "key_notificationicon";
@@ -117,7 +116,7 @@ public class Settings {
 
     // Shared Preferences listener
     public static class SettingsListener implements SharedPreferences.OnSharedPreferenceChangeListener {
-        private LocalBroadcastManager mLocalBroadcastManager;
+        private final LocalBroadcastManager mLocalBroadcastManager;
         private Context mContext;
 
         public SettingsListener(Context context) {
@@ -146,11 +145,6 @@ public class Settings {
                     if (Settings.IS_PHONE)
                         mLocalBroadcastManager.sendBroadcast(
                                 new Intent(value ? CommonActions.ACTION_WIDGET_REFRESHWIDGETS : CommonActions.ACTION_WIDGET_RESETWIDGETS));
-                    break;
-                // Settings unit changed
-                case KEY_USECELSIUS:
-                    mLocalBroadcastManager.sendBroadcast(
-                            new Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT));
                     break;
                 // Refresh interval changed
                 case KEY_REFRESHINTERVAL:
@@ -769,25 +763,74 @@ public class Settings {
     }
 
     // Settings Members
-    public static boolean isFahrenheit() {
-        return FAHRENHEIT.equals(getTempUnit());
+    @Units.TemperatureUnits
+    public static String getTemperatureUnit() {
+        return preferences.getString(KEY_TEMPUNIT, preferences.getBoolean(KEY_USECELSIUS, false) ? Units.CELSIUS : Units.FAHRENHEIT);
     }
 
-    public static String getTempUnit() {
-        if (!preferences.contains(KEY_USECELSIUS)) {
-            return FAHRENHEIT;
-        } else if (preferences.getBoolean(KEY_USECELSIUS, false)) {
-            return CELSIUS;
-        }
-
-        return FAHRENHEIT;
+    public static void setTemperatureUnit(@Units.TemperatureUnits String unit) {
+        editor.putString(KEY_TEMPUNIT, unit);
+        editor.commit();
     }
 
-    public static void setTempUnit(String value) {
-        if (CELSIUS.equals(value))
-            editor.putBoolean(KEY_USECELSIUS, true);
-        else
-            editor.putBoolean(KEY_USECELSIUS, false);
+    @Units.SpeedUnits
+    public static String getSpeedUnit() {
+        return preferences.getString(KEY_SPEEDUNIT, Units.MILES_PER_HOUR);
+    }
+
+    public static void setSpeedUnit(@Units.SpeedUnits String unit) {
+        editor.putString(KEY_SPEEDUNIT, unit);
+        editor.commit();
+    }
+
+    @Units.PressureUnits
+    public static String getPressureUnit() {
+        return preferences.getString(KEY_PRESSUREUNIT, Units.INHG);
+    }
+
+    public static void setPressureUnit(@Units.PressureUnits String unit) {
+        editor.putString(KEY_PRESSUREUNIT, unit);
+        editor.commit();
+    }
+
+    @Units.DistanceUnits
+    public static String getDistanceUnit() {
+        return preferences.getString(KEY_DISTANCEUNIT, Units.MILES);
+    }
+
+    public static void setDistanceUnit(@Units.DistanceUnits String unit) {
+        editor.putString(KEY_DISTANCEUNIT, unit);
+        editor.commit();
+    }
+
+    @Units.PrecipitationUnits
+    public static String getPrecipitationUnit() {
+        return preferences.getString(KEY_PRECIPITATIONUNIT, Units.INCHES);
+    }
+
+    public static void setPrecipitationUnit(@Units.PrecipitationUnits String unit) {
+        editor.putString(KEY_PRECIPITATIONUNIT, unit);
+        editor.commit();
+    }
+
+    public static String getUnitString() {
+        return String.format(Locale.ROOT, "%s;%s;%s;%s;%s",
+                getTemperatureUnit(),
+                getSpeedUnit(),
+                getPressureUnit(),
+                getDistanceUnit(),
+                getPrecipitationUnit()
+        );
+    }
+
+    public static void setDefaultUnits(@Units.TemperatureUnits String unit) {
+        final boolean isFahrenheit = Units.FAHRENHEIT.equals(unit);
+        editor.putString(KEY_TEMPUNIT, unit);
+        editor.putString(KEY_SPEEDUNIT, isFahrenheit ? Units.MILES_PER_HOUR : Units.KILOMETERS_PER_HOUR);
+        editor.putString(KEY_PRESSUREUNIT, isFahrenheit ? Units.INHG : Units.MILLIBAR);
+        editor.putString(KEY_DISTANCEUNIT, isFahrenheit ? Units.MILES : Units.KILOMETERS);
+        editor.putString(KEY_PRECIPITATIONUNIT, isFahrenheit ? Units.INCHES : Units.MILLIMETERS);
+        editor.apply();
     }
 
     public static boolean isWeatherLoaded() {

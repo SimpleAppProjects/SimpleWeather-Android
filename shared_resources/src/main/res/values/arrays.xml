@@ -21,4 +21,54 @@
         <item>de</item>
         <item>sk</item>
     </string-array>
+    <string-array name="default_units">
+        <item>@string/default_units_imperial</item>
+        <item>@string/default_units_metric</item>
+    </string-array>
+    <string-array name="default_units_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+    <string-array name="temperatureunit_entries">
+        <item>°F</item>
+        <item>°C</item>
+    </string-array>
+    <string-array name="temperatureunit_values">
+        <item>F</item>
+        <item>C</item>
+    </string-array>
+    <string-array name="speedunit_entries">
+        <item>mph</item>
+        <item>km/h</item>
+        <item>m/s</item>
+    </string-array>
+    <string-array name="speedunit_values">
+        <item>MPH</item>
+        <item>KMPH</item>
+        <item>MSEC</item>
+    </string-array>
+    <string-array name="pressureunit_entries">
+        <item>inHg</item>
+        <item>mb</item>
+    </string-array>
+    <string-array name="pressureunit_values">
+        <item>INMERCURY</item>
+        <item>MILLIBAR</item>
+    </string-array>
+    <string-array name="distanceunit_entries">
+        <item>mi</item>
+        <item>km</item>
+    </string-array>
+    <string-array name="distanceunit_values">
+        <item>MILES</item>
+        <item>KILOMETERS</item>
+    </string-array>
+    <string-array name="precipitationunit_entries">
+        <item>in</item>
+        <item>mm</item>
+    </string-array>
+    <string-array name="precipitationunit_values">
+        <item>INCHES</item>
+        <item>MILLIMETERS</item>
+    </string-array>
 </resources>

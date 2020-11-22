@@ -4,6 +4,8 @@
     <string name="unit_mph" translatable="false">mph</string>
     <!-- Kilometers per hour -->
     <string name="unit_kph" translatable="false">km/h</string>
+    <!-- Meters per second -->
+    <string name="unit_msec" translatable="false">m/s</string>
     <!-- Inches -->
     <string name="unit_in" translatable="false">in</string>
     <!-- Centimeters -->
