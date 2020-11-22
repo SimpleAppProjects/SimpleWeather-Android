@@ -19,6 +19,7 @@
         <item>en</item>
         <item>fr</item>
         <item>de</item>
+        <item>pl</item>
         <item>sk</item>
     </string-array>
     <string-array name="default_units">
