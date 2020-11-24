@@ -75,11 +75,11 @@ public class WeatherNotificationWorker extends Worker {
 
         Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG);
 
-        Constraints.Builder constraints = new Constraints.Builder();
-        if (ACTION_REFRESHNOTIFICATION.equals(intent.getAction())) {
-            constraints
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresCharging(false);
+        Constraints.Builder constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+                .setRequiresCharging(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            constraints.setRequiresDeviceIdle(false);
         }
 
         OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(WeatherNotificationWorker.class)
