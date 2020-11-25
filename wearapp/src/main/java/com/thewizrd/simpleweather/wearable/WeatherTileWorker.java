@@ -31,7 +31,7 @@ public class WeatherTileWorker extends Worker {
     // Extras
     public static final String EXTRA_TILEID = "SimpleWeather.Droid.Wear.extra.TILE_ID";
 
-    private TileProviderUpdateRequester updateRequester;
+    private final TileProviderUpdateRequester updateRequester;
 
     public WeatherTileWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);

@@ -107,6 +107,10 @@ class VersionMigrations {
                 } else {
                     Settings.setDefaultUnits(Units.FAHRENHEIT);
                 }
+
+                if (!SimpleLibrary.getInstance().getApp().isPhone()) {
+                    Settings.setRefreshInterval(Settings.DEFAULTINTERVAL);
+                }
             }
 
             Bundle bundle = new Bundle();

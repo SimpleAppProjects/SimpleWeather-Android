@@ -144,7 +144,7 @@ public class WeatherNowFragment extends CustomFragment
         setArguments(new Bundle());
     }
 
-    private Observer<Weather> weatherObserver = new Observer<Weather>() {
+    private final Observer<Weather> weatherObserver = new Observer<Weather>() {
         @Override
         public void onChanged(final Weather weather) {
             if (weather != null && weather.isValid()) {
@@ -160,7 +160,7 @@ public class WeatherNowFragment extends CustomFragment
                 Context context = App.getInstance().getAppContext();
 
                 Duration span = Duration.between(ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime(), Settings.getUpdateTime());
-                if (Settings.getDataSync() != WearableDataSync.OFF && span.toMinutes() > Settings.getRefreshInterval()) {
+                if (Settings.getDataSync() != WearableDataSync.OFF && span.toMinutes() > Settings.DEFAULTINTERVAL) {
                     WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
                 } else {
                     // Update complications if they haven't been already

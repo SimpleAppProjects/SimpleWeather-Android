@@ -87,9 +87,6 @@ public class DataSyncManager {
                     localBroadcastMgr.sendBroadcast(new Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT));
                 }
 
-                int newInterval = dataMap.getInt(WearableSettings.KEY_REFRESHINTERVAL, Settings.DEFAULTINTERVAL);
-                Settings.setRefreshInterval(newInterval);
-
                 LocaleUtils.setLocaleCode(dataMap.getString(WearableSettings.KEY_LANGUAGE, ""));
 
                 setSettingsUpdateTime(context, updateTimeMillis);

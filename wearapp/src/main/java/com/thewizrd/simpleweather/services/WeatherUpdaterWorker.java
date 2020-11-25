@@ -17,12 +17,13 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
 import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.ListenableWorker;
+import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkerParameters;
 
@@ -55,7 +56,6 @@ import com.thewizrd.simpleweather.wearable.WearableWorker;
 import com.thewizrd.simpleweather.wearable.WeatherComplicationWorker;
 import com.thewizrd.simpleweather.wearable.WeatherTileWorker;
 
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -113,15 +113,12 @@ public class WeatherUpdaterWorker extends ListenableWorker {
 
         Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG);
 
-        // Check if features are actually enabled which require this service
-        if (cancelWork(context)) return;
-
         OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(WeatherUpdaterWorker.class)
-                .setInitialDelay(30, TimeUnit.SECONDS)
+                .setInitialDelay(60, TimeUnit.SECONDS)
                 .build();
 
         WorkManager.getInstance(context)
-                .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.KEEP, updateRequest);
+                .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.REPLACE, updateRequest);
 
         Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG);
 
@@ -132,37 +129,23 @@ public class WeatherUpdaterWorker extends ListenableWorker {
     private static void enqueueWork(@NonNull Context context) {
         context = context.getApplicationContext();
 
-        Logger.writeLine(Log.INFO, "%s: Requesting work; workExists: %s", TAG, Boolean.toString(isWorkScheduled(context)));
+        Logger.writeLine(Log.INFO, "%s: Requesting work", TAG);
 
-        // Check if features are actually enabled which require this service
-        if (cancelWork(context)) return;
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresCharging(false)
+                .build();
 
         PeriodicWorkRequest updateRequest =
-                new PeriodicWorkRequest.Builder(WeatherUpdaterWorker.class, 60, TimeUnit.MINUTES, 30, TimeUnit.MINUTES)
-                        .setBackoffCriteria(BackoffPolicy.LINEAR, 1, TimeUnit.MINUTES)
+                new PeriodicWorkRequest.Builder(WeatherUpdaterWorker.class, Settings.DEFAULTINTERVAL, TimeUnit.MINUTES, 30, TimeUnit.MINUTES)
+                        .setConstraints(constraints)
+                        .setBackoffCriteria(BackoffPolicy.LINEAR, 5, TimeUnit.MINUTES)
                         .build();
 
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest);
 
         Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG);
-    }
-
-    private static boolean isWorkScheduled(@NonNull Context context) {
-        context = context.getApplicationContext();
-        WorkManager workMgr = WorkManager.getInstance(context);
-        List<WorkInfo> statuses = null;
-        try {
-            statuses = workMgr.getWorkInfosForUniqueWork(TAG).get();
-        } catch (ExecutionException | InterruptedException ignored) {
-        }
-        if (statuses == null || statuses.isEmpty()) return false;
-        boolean running = false;
-        for (WorkInfo workStatus : statuses) {
-            running = workStatus.getState() == WorkInfo.State.RUNNING
-                    | workStatus.getState() == WorkInfo.State.ENQUEUED;
-        }
-        return running;
     }
 
     private static boolean cancelWork(@NonNull Context context) {
@@ -193,27 +176,31 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                             updateLocation().get();
                         } catch (ExecutionException | InterruptedException e) {
                             Logger.writeLine(Log.ERROR, e);
+                            return Result.failure();
                         }
                     }
 
                     // Update for home
-                    AsyncTask.await(new Callable<Weather>() {
+                    final Weather weather = AsyncTask.await(new Callable<Weather>() {
                         @Override
                         public Weather call() {
                             return getWeather();
                         }
                     });
 
-                    // Update complications
-                    WeatherComplicationWorker.enqueueAction(mContext, new Intent(WeatherComplicationWorker.ACTION_UPDATECOMPLICATIONS));
+                    if (weather != null) {
+                        // Update complications
+                        WeatherComplicationWorker.enqueueAction(mContext, new Intent(WeatherComplicationWorker.ACTION_UPDATECOMPLICATIONS));
 
-                    // Update tiles
-                    WeatherTileWorker.enqueueAction(mContext, new Intent(WeatherTileWorker.ACTION_UPDATETILES));
-                }
-
-                if (Settings.getDataSync() != WearableDataSync.OFF) {
-                    // Check if data has been updated
-                    WearableWorker.enqueueAction(mContext, WearableWorker.ACTION_REQUESTWEATHERUPDATE);
+                        // Update tiles
+                        WeatherTileWorker.enqueueAction(mContext, new Intent(WeatherTileWorker.ACTION_UPDATETILES));
+                    } else {
+                        if (Settings.getDataSync() != WearableDataSync.OFF) {
+                            // Check if data has been updated
+                            WearableWorker.enqueueAction(mContext, WearableWorker.ACTION_REQUESTWEATHERUPDATE);
+                        }
+                        return Result.failure();
+                    }
                 }
 
                 return Result.success();

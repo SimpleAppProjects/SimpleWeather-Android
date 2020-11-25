@@ -1,9 +1,12 @@
 package com.thewizrd.simpleweather.services;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
@@ -15,40 +18,49 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import com.google.android.gms.tasks.Tasks;
-import com.thewizrd.shared_resources.preferences.FeatureSettings;
-import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.weatherdata.images.ImageDataHelper;
-import com.thewizrd.shared_resources.weatherdata.images.ImageDatabase;
+import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.simpleweather.notifications.WeatherNotificationBroadcastReceiver;
+import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker;
+import com.thewizrd.simpleweather.wearable.WearableWorker;
+import com.thewizrd.simpleweather.widgets.WeatherWidgetBroadcastReceiver;
+import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public class ImageDatabaseWorker extends Worker {
-    private static String TAG = "ImageDatabaseWorker";
+public class WidgetUpdaterWorker extends Worker {
+    private static final String TAG = "WidgetUpdaterWorker";
 
-    public static final String ACTION_CHECKUPDATETIME = "SimpleWeather.Droid.action.CHECK_UPDATE_TIME";
+    public static final String ACTION_UPDATEWIDGETS = "SimpleWeather.Droid.action.UPDATE_WIDGETS";
 
     public static final String ACTION_STARTALARM = "SimpleWeather.Droid.action.START_ALARM";
     public static final String ACTION_CANCELALARM = "SimpleWeather.Droid.action.CANCEL_ALARM";
     public static final String ACTION_UPDATEALARM = "SimpleWeather.Droid.action.UPDATE_ALARM";
 
-    public ImageDatabaseWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    private final Context mContext;
+
+    public WidgetUpdaterWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
+        mContext = context.getApplicationContext();
     }
 
     public static void enqueueAction(@NonNull Context context, @NonNull String intentAction) {
         context = context.getApplicationContext();
 
-        if (ACTION_UPDATEALARM.equals(intentAction)) {
-            enqueueWork(context);
-        } else if (ACTION_CHECKUPDATETIME.equals(intentAction) || ACTION_STARTALARM.equals(intentAction)) {
-            // For immediate action
-            startWork(context);
-        } else if (ACTION_CANCELALARM.equals(intentAction)) {
-            cancelWork(context);
+        switch (intentAction) {
+            case ACTION_UPDATEALARM:
+                enqueueWork(context);
+                break;
+            case ACTION_STARTALARM:
+            case ACTION_UPDATEWIDGETS:
+                // For immediate action
+                startWork(context);
+                break;
+            case ACTION_CANCELALARM:
+                cancelWork(context);
+                break;
         }
     }
 
@@ -57,14 +69,7 @@ public class ImageDatabaseWorker extends Worker {
 
         Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG);
 
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .setRequiresCharging(false)
-                .build();
-
-        OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(ImageDatabaseWorker.class)
-                .setConstraints(constraints)
-                .setInitialDelay(1, TimeUnit.MINUTES)
+        OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(WidgetUpdaterWorker.class)
                 .build();
 
         WorkManager.getInstance(context)
@@ -81,14 +86,17 @@ public class ImageDatabaseWorker extends Worker {
 
         Logger.writeLine(Log.INFO, "%s: Requesting work; workExists: %s", TAG, Boolean.toString(isWorkScheduled(context)));
 
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .setRequiresCharging(false)
-                .build();
+        Constraints.Builder constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+                .setRequiresCharging(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            constraints.setRequiresDeviceIdle(false);
+        }
 
         PeriodicWorkRequest updateRequest =
-                new PeriodicWorkRequest.Builder(ImageDatabaseWorker.class, 7, TimeUnit.DAYS)
-                        .setConstraints(constraints)
+                new PeriodicWorkRequest.Builder(WidgetUpdaterWorker.class, 60, TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
+                        .setConstraints(constraints.build())
+                        .setBackoffCriteria(BackoffPolicy.LINEAR, 5, TimeUnit.MINUTES)
                         .build();
 
         WorkManager.getInstance(context)
@@ -114,37 +122,34 @@ public class ImageDatabaseWorker extends Worker {
         return running;
     }
 
-
-    private static void cancelWork(@NonNull Context context) {
+    private static boolean cancelWork(@NonNull Context context) {
+        // Cancel alarm if dependent features are turned off
         context = context.getApplicationContext();
-        WorkManager.getInstance(context).cancelUniqueWork(TAG);
-        Logger.writeLine(Log.INFO, "%s: Canceled work", TAG);
+        if (!WeatherWidgetService.widgetsExist(context) && !Settings.showOngoingNotification()) {
+            WorkManager.getInstance(context).cancelUniqueWork(TAG);
+            Logger.writeLine(Log.INFO, "%s: Canceled work", TAG);
+            return true;
+        }
+
+        return false;
     }
 
     @NonNull
     @Override
     public Result doWork() {
-        Logger.writeLine(Log.INFO, "%s: Work started", TAG);
-
-        // Check if cache is populated
-        if (!ImageDataHelper.getImageDataHelper().isEmpty() && !FeatureSettings.isUpdateAvailable()) {
-            // If so, check if we need to invalidate
-            long updateTime = 0L;
-            try {
-                updateTime = Tasks.await(ImageDatabase.getLastUpdateTime());
-            } catch (ExecutionException | InterruptedException e) {
-                Logger.writeLine(Log.ERROR, e);
+        if (Settings.isWeatherLoaded()) {
+            if (WeatherWidgetService.widgetsExist(mContext)) {
+                mContext.sendBroadcast(new Intent(mContext, WeatherWidgetBroadcastReceiver.class)
+                        .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET));
             }
 
-            if (updateTime > ImageDataHelper.getImageDBUpdateTime()) {
-                AnalyticsLogger.logEvent(TAG + ": clearing image cache");
-
-                // if so, invalidate
-                ImageDataHelper.setImageDBUpdateTime(updateTime);
-
-                ImageDataHelper.getImageDataHelper().clearCachedImageData();
-                ImageDataHelper.invalidateCache(true);
+            if (Settings.showOngoingNotification()) {
+                mContext.sendBroadcast(new Intent(mContext, WeatherNotificationBroadcastReceiver.class)
+                        .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION));
             }
+
+            // Update weather data for Wearables
+            WearableWorker.enqueueAction(mContext, WearableWorker.ACTION_SENDWEATHERUPDATE, false);
         }
 
         return Result.success();

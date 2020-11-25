@@ -31,7 +31,7 @@ public class WeatherComplicationWorker extends Worker {
     // Extras
     public static final String EXTRA_COMPLICATIONID = "SimpleWeather.Droid.Wear.extra.COMPLICATION_ID";
 
-    private ProviderUpdateRequester updateRequester;
+    private final ProviderUpdateRequester updateRequester;
 
     public WeatherComplicationWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);

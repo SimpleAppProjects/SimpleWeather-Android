@@ -33,7 +33,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class WearableWorker extends Worker {
-    private static String TAG = "WearableWorker";
+    private static final String TAG = "WearableWorker";
 
     // Actions
     private static final String KEY_ACTION = "action";

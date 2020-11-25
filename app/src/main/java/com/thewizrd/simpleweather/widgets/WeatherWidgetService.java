@@ -123,27 +123,27 @@ public class WeatherWidgetService extends SafeJobIntentService {
     private static BroadcastReceiver mTickReceiver;
 
     // Weather Widget Providers
-    private WeatherWidgetProvider1x1 mAppWidget1x1 =
+    private final WeatherWidgetProvider1x1 mAppWidget1x1 =
             WeatherWidgetProvider1x1.getInstance();
-    private WeatherWidgetProvider2x2 mAppWidget2x2 =
+    private final WeatherWidgetProvider2x2 mAppWidget2x2 =
             WeatherWidgetProvider2x2.getInstance();
-    private WeatherWidgetProvider4x1 mAppWidget4x1 =
+    private final WeatherWidgetProvider4x1 mAppWidget4x1 =
             WeatherWidgetProvider4x1.getInstance();
-    private WeatherWidgetProvider4x2 mAppWidget4x2 =
+    private final WeatherWidgetProvider4x2 mAppWidget4x2 =
             WeatherWidgetProvider4x2.getInstance();
-    private WeatherWidgetProvider4x1Google mAppWidget4x1Google =
+    private final WeatherWidgetProvider4x1Google mAppWidget4x1Google =
             WeatherWidgetProvider4x1Google.getInstance();
-    private WeatherWidgetProvider4x1Notification mAppWidget4x1Notif =
+    private final WeatherWidgetProvider4x1Notification mAppWidget4x1Notif =
             WeatherWidgetProvider4x1Notification.getInstance();
-    private WeatherWidgetProvider4x2Clock mAppWidget4x2Clock =
+    private final WeatherWidgetProvider4x2Clock mAppWidget4x2Clock =
             WeatherWidgetProvider4x2Clock.getInstance();
-    private WeatherWidgetProvider4x2Huawei mAppWidget4x2Huawei =
+    private final WeatherWidgetProvider4x2Huawei mAppWidget4x2Huawei =
             WeatherWidgetProvider4x2Huawei.getInstance();
 
     private boolean isNightMode = false;
     private float maxBitmapSize;
 
-    private CancellationTokenSource cts = new CancellationTokenSource();
+    private final CancellationTokenSource cts = new CancellationTokenSource();
 
     public static void enqueueWork(Context context, Intent work) {
         enqueueWork(context, WeatherWidgetService.class,

@@ -9,8 +9,8 @@ import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
-import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
+import com.thewizrd.simpleweather.services.WidgetUpdaterWorker;
 
 public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "CommonActionsBroadcastReceiver";
@@ -19,14 +19,12 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
             if (CommonActions.ACTION_SETTINGS_UPDATEAPI.equals(intent.getAction()) ||
-                    CommonActions.ACTION_SETTINGS_UPDATEGPS.equals(intent.getAction()) ||
-                    CommonActions.ACTION_SETTINGS_UPDATEUNIT.equals(intent.getAction()) ||
-                    CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE.equals(intent.getAction())) {
+                    CommonActions.ACTION_SETTINGS_UPDATEGPS.equals(intent.getAction())) {
                 WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
+            } else if (CommonActions.ACTION_SETTINGS_UPDATEUNIT.equals(intent.getAction()) ||
+                    CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE.equals(intent.getAction())) {
+                WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_UPDATEWIDGETS);
             } else if (CommonActions.ACTION_SETTINGS_UPDATEDATASYNC.equals(intent.getAction())) {
-                // Reset interval if setting is off
-                if (Settings.getDataSync() == WearableDataSync.OFF)
-                    Settings.setRefreshInterval(Settings.DEFAULTINTERVAL);
                 // Reset UpdateTime value to force a refresh
                 Settings.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN());
             }

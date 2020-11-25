@@ -154,9 +154,9 @@ import com.thewizrd.simpleweather.databinding.WeathernowUvcontrolBinding;
 import com.thewizrd.simpleweather.fragments.WindowColorFragment;
 import com.thewizrd.simpleweather.helpers.RadarWebClient;
 import com.thewizrd.simpleweather.helpers.WebViewHelper;
-import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker;
 import com.thewizrd.simpleweather.preferences.FeatureSettings;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
+import com.thewizrd.simpleweather.services.WidgetUpdaterWorker;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler;
@@ -263,15 +263,8 @@ public class WeatherNowFragment extends WindowColorFragment
                         if (Duration.between(LocalDateTime.now(ZoneOffset.UTC), Settings.getUpdateTime()).toMinutes() > Settings.getRefreshInterval()) {
                             WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
                         } else {
-                            // Update ongoing notification
-                            if (Settings.showOngoingNotification()) {
-                                WeatherNotificationWorker.enqueueAction(context, new Intent(context, WeatherNotificationWorker.class)
-                                        .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION));
-                            }
-
-                            // Update widgets anyway
-                            WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                                    .setAction(WeatherWidgetService.ACTION_REFRESHGPSWIDGETS));
+                            // Update widgets
+                            WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_UPDATEWIDGETS);
                         }
                     } else {
                         // Update widgets anyway

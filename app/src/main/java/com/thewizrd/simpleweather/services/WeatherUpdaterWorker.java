@@ -25,7 +25,6 @@ import androidx.work.ListenableWorker;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkerParameters;
 
@@ -62,7 +61,6 @@ import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -120,15 +118,12 @@ public class WeatherUpdaterWorker extends ListenableWorker {
 
         Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG);
 
-        // Check if features are actually enabled which require this service
-        if (cancelWork(context)) return;
-
         OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(WeatherUpdaterWorker.class)
-                .setInitialDelay(30, TimeUnit.SECONDS)
+                .setInitialDelay(60, TimeUnit.SECONDS)
                 .build();
 
         WorkManager.getInstance(context)
-                .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.KEEP, updateRequest);
+                .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.REPLACE, updateRequest);
 
         Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG);
 
@@ -139,10 +134,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
     private static void enqueueWork(@NonNull Context context) {
         context = context.getApplicationContext();
 
-        Logger.writeLine(Log.INFO, "%s: Requesting work; workExists: %s", TAG, Boolean.toString(isWorkScheduled(context)));
-
-        // Check if features are actually enabled which require this service
-        if (cancelWork(context)) return;
+        Logger.writeLine(Log.INFO, "%s: Requesting work", TAG);
 
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -152,30 +144,13 @@ public class WeatherUpdaterWorker extends ListenableWorker {
         PeriodicWorkRequest updateRequest =
                 new PeriodicWorkRequest.Builder(WeatherUpdaterWorker.class, Settings.getRefreshInterval(), TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
                         .setConstraints(constraints)
-                        .setBackoffCriteria(BackoffPolicy.LINEAR, 1, TimeUnit.MINUTES)
+                        .setBackoffCriteria(BackoffPolicy.LINEAR, 5, TimeUnit.MINUTES)
                         .build();
 
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest);
 
         Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG);
-    }
-
-    private static boolean isWorkScheduled(@NonNull Context context) {
-        context = context.getApplicationContext();
-        WorkManager workMgr = WorkManager.getInstance(context);
-        List<WorkInfo> statuses = null;
-        try {
-            statuses = workMgr.getWorkInfosForUniqueWork(TAG).get();
-        } catch (ExecutionException | InterruptedException ignored) {
-        }
-        if (statuses == null || statuses.isEmpty()) return false;
-        boolean running = false;
-        for (WorkInfo workStatus : statuses) {
-            running = workStatus.getState() == WorkInfo.State.RUNNING
-                    | workStatus.getState() == WorkInfo.State.ENQUEUED;
-        }
-        return running;
     }
 
     private static boolean cancelWork(@NonNull Context context) {
@@ -210,6 +185,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                             updateLocation().get();
                         } catch (ExecutionException | InterruptedException e) {
                             Logger.writeLine(Log.ERROR, e);
+                            return Result.failure();
                         }
                     }
 
@@ -239,6 +215,8 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                         // Update weather data for Wearables
                         LocalBroadcastManager.getInstance(mContext)
                                 .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE));
+                    } else {
+                        return Result.failure();
                     }
                 }
 
@@ -283,6 +261,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
         final SettableFuture<Boolean> result = SettableFuture.create();
 
         Executors.newSingleThreadExecutor().submit(new Runnable() {
+            @SuppressLint("MissingPermission")
             @Override
             public void run() {
                 if (Settings.useFollowGPS()) {

@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class AppUpdaterWorker extends Worker {
-    private static String TAG = "AppUpdaterWorker";
+    private static final String TAG = "AppUpdaterWorker";
 
     // Sets an ID for the notification
     private static final String NOT_CHANNEL_ID = "SimpleWeather.appupdates";
@@ -64,7 +64,7 @@ public class AppUpdaterWorker extends Worker {
                         .build();
 
         WorkManager.getInstance(context)
-                .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.KEEP, updateRequest);
+                .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest);
 
         Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG);
     }

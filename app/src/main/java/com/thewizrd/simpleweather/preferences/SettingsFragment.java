@@ -614,13 +614,12 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         alertNotification.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                SwitchPreferenceCompat pref = (SwitchPreferenceCompat) preference;
-                Context context = App.getInstance().getAppContext();
+                final Context context = App.getInstance().getAppContext();
 
                 // Alert notification
                 if ((boolean) newValue) {
                     enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
-                            .setAction(WeatherUpdaterWorker.ACTION_UPDATEALARM));
+                            .setAction(WeatherUpdaterWorker.ACTION_STARTALARM));
                 } else {
                     enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
                             .setAction(WeatherUpdaterWorker.ACTION_CANCELALARM));
@@ -811,7 +810,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         if (intent == null)
             return false;
         else {
-            if (WeatherUpdaterWorker.ACTION_UPDATEALARM.equals(intent.getAction())) {
+            if (WeatherUpdaterWorker.ACTION_UPDATEALARM.equals(intent.getAction()) ||
+                    WeatherUpdaterWorker.ACTION_STARTALARM.equals(intent.getAction())) {
                 for (Intent.FilterComparison filter : intentQueue) {
                     if (WeatherUpdaterWorker.ACTION_CANCELALARM.equals(filter.getIntent().getAction())) {
                         intentQueue.remove(filter);
@@ -820,7 +820,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 }
             } else if (WeatherUpdaterWorker.ACTION_CANCELALARM.equals(intent.getAction())) {
                 for (Intent.FilterComparison filter : intentQueue) {
-                    if (WeatherUpdaterWorker.ACTION_UPDATEALARM.equals(filter.getIntent().getAction())) {
+                    if (WeatherUpdaterWorker.ACTION_UPDATEALARM.equals(filter.getIntent().getAction()) ||
+                            WeatherUpdaterWorker.ACTION_STARTALARM.equals(intent.getAction())) {
                         intentQueue.remove(filter);
                         break;
                     }
@@ -844,8 +845,6 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 enqueueIntent(new Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI));
                 enqueueIntent(new Intent(context, WearableWorker.class)
                         .setAction(WearableWorker.ACTION_SENDSETTINGSUPDATE));
-                enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
-                        .setAction(WeatherUpdaterWorker.ACTION_UPDATEWEATHER));
                 break;
             // FollowGPS changed
             case KEY_FOLLOWGPS:
@@ -908,7 +907,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             keyEntry.addTextChangedListener(editTextWatcher);
         }
 
-        private TextWatcher editTextWatcher = new TextWatcher() {
+        private final TextWatcher editTextWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
