@@ -13,7 +13,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 29
         // NOTE: Version Code Format (TargetSDK, Version Name, Build Number, Variant Code (Android: 00, WearOS: 01)
-        versionCode 294200000
+        versionCode 294200100
         versionName "4.2.0"
 
         multiDexEnabled true
