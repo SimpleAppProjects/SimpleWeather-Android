@@ -341,7 +341,11 @@ public final class AsyncTask {
 
             @Override
             public void onFailure(@NonNull Throwable t) {
-                tcs.trySetException((Exception) t);
+                if (t instanceof Exception) {
+                    tcs.trySetException((Exception) t);
+                } else {
+                    tcs.trySetException(new Exception(t));
+                }
             }
         }, MainThreadExecutor.Instance);
 
@@ -396,7 +400,11 @@ public final class AsyncTask {
             @Override
             public void onFailure(@NonNull Throwable t) {
                 lifecycle.removeObserver(observer);
-                tcs.trySetException((Exception) t);
+                if (t instanceof Exception) {
+                    tcs.trySetException((Exception) t);
+                } else {
+                    tcs.trySetException(new Exception(t));
+                }
             }
         }, MainThreadExecutor.Instance);
 

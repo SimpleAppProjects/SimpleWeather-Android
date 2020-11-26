@@ -905,6 +905,7 @@ public class WeatherNowFragment extends CustomFragment
                 binding.swipeRefreshLayout.setRefreshing(true);
 
                 // Check data map if data is available to load
+                wLoader = null;
                 locationData = null;
                 WearableWorker.enqueueAction(getFragmentActivity(), WearableWorker.ACTION_REQUESTUPDATE, forceRefresh);
 

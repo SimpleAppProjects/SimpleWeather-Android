@@ -845,7 +845,7 @@ public class LocationsFragment extends ToolbarFragment
                     reload = true;
 
                 if (Settings.useFollowGPS()) {
-                    if (!reload && (gpsPanelViewModel != null && !locations.get(0).getQuery().equals(gpsPanelViewModel.getLocationData().getQuery())))
+                    if (!reload && (gpsPanelViewModel != null && !ObjectsCompat.equals(locations.get(0).getQuery(), gpsPanelViewModel.getLocationData().getQuery())))
                         reload = true;
                 }
 

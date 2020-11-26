@@ -39,8 +39,13 @@ public final class SimpleLibrary {
     }
 
     public static void init(ApplicationLib app) {
-        if (sSimpleLib == null || sSimpleLib.mApp == null || sSimpleLib.mContext == null)
+        if (sSimpleLib == null) {
             sSimpleLib = new SimpleLibrary(app);
+        } else {
+            sSimpleLib.mApp = app;
+            sSimpleLib.mContext = app.getAppContext();
+        }
+
         try {
             ProviderInstaller.installIfNeeded(sSimpleLib.getAppContext());
         } catch (Exception e) {
