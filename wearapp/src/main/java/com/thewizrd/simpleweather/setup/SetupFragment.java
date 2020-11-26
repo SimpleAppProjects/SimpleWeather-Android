@@ -312,7 +312,7 @@ public class SetupFragment extends CustomFragment {
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull final Exception e) {
-                            if (isActive()) {
+                            if (isActive() && isViewAlive()) {
                                 // Restore controls
                                 enableControls(true);
                                 Settings.setFollowGPS(false);
@@ -422,7 +422,7 @@ public class SetupFragment extends CustomFragment {
                     }).addOnSuccessListener(new OnSuccessListener<LocationData>() {
                         @Override
                         public void onSuccess(LocationData locationData) {
-                            if (isActive()) {
+                            if (isActive() && isViewAlive()) {
                                 if (locationData != null) {
                                     // Start WeatherNow Activity with weather data
                                     Intent intent = new Intent(getFragmentActivity(), MainActivity.class);
@@ -438,7 +438,7 @@ public class SetupFragment extends CustomFragment {
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            if (isActive()) {
+                            if (isActive() && isViewAlive()) {
                                 // Restore controls
                                 enableControls(true);
                                 Settings.setFollowGPS(false);

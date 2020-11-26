@@ -69,8 +69,8 @@ public abstract class CustomPreferenceFragmentCompat extends LifecycleAwarePrefe
 
     @Override
     public void onDetach() {
-        super.onDetach();
         mActivity = null;
+        super.onDetach();
     }
 
     @Override
@@ -91,7 +91,7 @@ public abstract class CustomPreferenceFragmentCompat extends LifecycleAwarePrefe
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         mActivity = null;
+        super.onDestroy();
     }
 }

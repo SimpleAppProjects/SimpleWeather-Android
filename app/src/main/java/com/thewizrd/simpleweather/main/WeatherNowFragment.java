@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
@@ -93,7 +92,6 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.transition.MaterialFadeThrough;
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.Constants;
-import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ImageDataViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -110,7 +108,6 @@ import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
-import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -993,7 +990,8 @@ public class WeatherNowFragment extends WindowColorFragment
                                                     binding.refreshLayout.postOnAnimation(new Runnable() {
                                                         @Override
                                                         public void run() {
-                                                            if (!isActive()) return;
+                                                            if (!isActive() || !isViewAlive())
+                                                                return;
                                                             binding.refreshLayout.setRefreshing(false);
                                                             binding.progressBar.hide();
                                                             binding.scrollView.setVisibility(View.VISIBLE);

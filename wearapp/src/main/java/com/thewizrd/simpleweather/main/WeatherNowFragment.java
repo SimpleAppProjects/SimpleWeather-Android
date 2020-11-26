@@ -196,15 +196,15 @@ public class WeatherNowFragment extends CustomFragment
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         wLoader = null;
+        super.onDestroy();
     }
 
     @Override
     public void onDetach() {
         App.getInstance().getPreferences().unregisterOnSharedPreferenceChangeListener(this);
-        super.onDetach();
         wLoader = null;
+        super.onDetach();
     }
 
     @Override

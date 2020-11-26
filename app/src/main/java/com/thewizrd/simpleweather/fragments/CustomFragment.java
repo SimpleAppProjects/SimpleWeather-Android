@@ -35,13 +35,15 @@ public abstract class CustomFragment extends LifecycleAwareFragment implements S
         runWithView(new Runnable() {
             @Override
             public void run() {
-                if (mSnackMgr == null) {
-                    mSnackMgr = createSnackManager();
-                }
-                // Snackbar may check higher up in the view hierarchy
-                // Check if fragment is attached
-                if (mSnackMgr != null && mActivity != null) {
-                    mSnackMgr.show(snackbar, callback);
+                if (mActivity != null) {
+                    if (mSnackMgr == null) {
+                        mSnackMgr = createSnackManager();
+                    }
+                    // Snackbar may check higher up in the view hierarchy
+                    // Check if fragment is attached
+                    if (mSnackMgr != null) {
+                        mSnackMgr.show(snackbar, callback);
+                    }
                 }
             }
         });
@@ -71,8 +73,8 @@ public abstract class CustomFragment extends LifecycleAwareFragment implements S
 
     @Override
     public void onDetach() {
-        super.onDetach();
         mActivity = null;
+        super.onDetach();
     }
 
     @Override
@@ -93,7 +95,7 @@ public abstract class CustomFragment extends LifecycleAwareFragment implements S
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         mActivity = null;
+        super.onDestroy();
     }
 }

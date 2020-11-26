@@ -149,7 +149,7 @@ public class LocationSearchFragment extends WindowColorFragment {
             runWithView(new LifecycleRunnable(getViewLifecycleOwner().getLifecycle()) {
                 @Override
                 public void run() {
-                    if (!isActive()) return;
+                    if (!isActive() || !isViewAlive()) return;
 
                     showLoading(true);
                     enableRecyclerView(false);

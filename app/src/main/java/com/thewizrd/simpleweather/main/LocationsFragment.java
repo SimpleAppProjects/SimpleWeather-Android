@@ -748,7 +748,7 @@ public class LocationsFragment extends ToolbarFragment
                 List<LocationData> locations = new ArrayList<>(Settings.getFavorites());
                 mAdapter.removeAll();
 
-                if (!isActive()) return;
+                if (!isActive() || !isViewAlive()) return;
 
                 // Setup saved favorite locations
                 LocationData gpsData = null;
@@ -781,7 +781,7 @@ public class LocationsFragment extends ToolbarFragment
                             });
                 }
 
-                if (!isActive()) return;
+                if (!isActive() || !isViewAlive()) return;
 
                 if (gpsData != null) {
                     locations.add(0, gpsData);
@@ -849,7 +849,7 @@ public class LocationsFragment extends ToolbarFragment
                         reload = true;
                 }
 
-                if (!isActive()) return;
+                if (!isActive() || !isViewAlive()) return;
 
                 if (reload) {
                     mAdapter.removeAll();
@@ -893,7 +893,7 @@ public class LocationsFragment extends ToolbarFragment
                     gpsData = null;
                 }
 
-                if (!isActive()) return;
+                if (!isActive() || !isViewAlive()) return;
 
                 if (gpsData != null) {
                     WeatherDataLoader wLoader = new WeatherDataLoader(gpsData);

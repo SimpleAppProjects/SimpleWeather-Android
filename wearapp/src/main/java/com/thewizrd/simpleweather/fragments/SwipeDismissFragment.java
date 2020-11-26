@@ -33,14 +33,14 @@ public class SwipeDismissFragment extends LifecycleAwareFragment {
 
     @Override
     public void onDetach() {
-        super.onDetach();
         mActivity = null;
+        super.onDetach();
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         mActivity = null;
+        super.onDestroy();
     }
 
     @SuppressLint("RestrictedApi")
