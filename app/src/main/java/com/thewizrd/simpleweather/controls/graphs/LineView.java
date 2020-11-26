@@ -124,6 +124,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
         this.setFillViewport(true);
         this.setVerticalScrollBarEnabled(false);
         this.setHorizontalScrollBarEnabled(false);
+        this.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
         this.removeAllViews();
         this.addView(graph, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -186,8 +187,8 @@ public class LineView extends HorizontalScrollView implements IGraph {
     @Override
     public void invalidate() {
         super.invalidate();
-        this.graph.invalidate();
         visibleRect.setEmpty();
+        this.graph.invalidate();
     }
 
     @Override
@@ -293,6 +294,8 @@ public class LineView extends HorizontalScrollView implements IGraph {
 
         LineViewGraph(Context context, AttributeSet attrs) {
             super(context, attrs);
+            setWillNotDraw(false);
+
             bottomTextPaint = new Paint();
             bigCirPaint = new Paint();
             dataLabels = new ObservableArrayList<>();
@@ -644,8 +647,8 @@ public class LineView extends HorizontalScrollView implements IGraph {
         @Override
         public void invalidate() {
             setMinimumWidth(0);
-            super.invalidate();
             visibleRect.setEmpty();
+            super.invalidate();
         }
 
         @Override
@@ -713,9 +716,9 @@ public class LineView extends HorizontalScrollView implements IGraph {
                         float endX = nextDot.x;
                         float endY = nextDot.y;
 
-                        drawingRect.set(0, dot.y, dot.x, dot.y);
+                        drawingRect.set(visibleRect.left, dot.y, dot.x, dot.y);
                         if (firstX == -1 && RectF.intersects(drawingRect, visibleRect)) {
-                            canvas.drawLine(0, dot.y, dot.x, dot.y, linePaint);
+                            canvas.drawLine(visibleRect.left, dot.y, dot.x, dot.y, linePaint);
                         }
 
                         drawingRect.set(dot.x, dot.y, nextDot.x, nextDot.y);
@@ -725,12 +728,9 @@ public class LineView extends HorizontalScrollView implements IGraph {
                         if (drawDataLabels) {
                             // Draw top label
                             drwTextWidth = bottomTextPaint.measureText(entry.getLabel().toString());
-                            drawingRect.set(sideLineLength + backgroundGridWidth * i,
-                                    dot.y,
-                                    sideLineLength + backgroundGridWidth * i + drwTextWidth,
-                                    dot.y + bottomTextHeight);
+                            drawingRect.set(dot.x, dot.y, dot.x + drwTextWidth, dot.y + bottomTextHeight);
                             if (RectF.intersects(drawingRect, visibleRect))
-                                textEntries.add(new TextEntry(entry.getLabel().toString(), sideLineLength + backgroundGridWidth * i, dot.y - bottomTextHeight - bottomTextDescent));
+                                textEntries.add(new TextEntry(entry.getLabel().toString(), dot.x, dot.y - bottomTextHeight - bottomTextDescent));
                         }
 
                         if (firstX == -1) {
@@ -750,13 +750,10 @@ public class LineView extends HorizontalScrollView implements IGraph {
                             if (drawDataLabels) {
                                 // Draw top label
                                 drwTextWidth = bottomTextPaint.measureText(nextEntry.getLabel().toString());
-                                drawingRect.set(sideLineLength + backgroundGridWidth * (i + 1),
-                                        nextDot.y,
-                                        sideLineLength + backgroundGridWidth * (i + 1) + drwTextWidth,
-                                        nextDot.y + bottomTextHeight);
+                                drawingRect.set(nextDot.x, nextDot.y, nextDot.x + drwTextWidth, nextDot.y + bottomTextHeight);
 
                                 if (RectF.intersects(drawingRect, visibleRect))
-                                    textEntries.add(new TextEntry(nextEntry.getLabel().toString(), sideLineLength + backgroundGridWidth * (i + 1), nextDot.y - bottomTextHeight - bottomTextDescent));
+                                    textEntries.add(new TextEntry(nextEntry.getLabel().toString(), nextDot.x, nextDot.y - bottomTextHeight - bottomTextDescent));
                             }
 
                             drawingRect.set(nextDot.x, nextDot.y, visibleRect.right, nextDot.y);
@@ -814,10 +811,10 @@ public class LineView extends HorizontalScrollView implements IGraph {
 
                 // draw horizontal lines
                 for (int i = 0; i < yCoordinateList.size(); i++) {
-                    drawingRect.set(0, yCoordinateList.get(i), visibleRect.right, yCoordinateList.get(i));
+                    drawingRect.set(visibleRect.left, yCoordinateList.get(i), visibleRect.right, yCoordinateList.get(i));
 
                     if ((yCoordinateList.size() - 1 - i) % dataOfAGird == 0 && RectF.intersects(drawingRect, visibleRect)) {
-                        canvas.drawLine(0, yCoordinateList.get(i), visibleRect.right, yCoordinateList.get(i), bgLinesPaint);
+                        canvas.drawLine(visibleRect.left, yCoordinateList.get(i), visibleRect.right, yCoordinateList.get(i), bgLinesPaint);
                     }
                 }
             }
@@ -825,7 +822,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
             // draw bottom text
             if (dataLabels != null) {
                 for (int i = 0; i < dataLabels.size(); i++) {
-                    float x = sideLineLength + backgroundGridWidth * i;
+                    float x = xCoordinateList.get(i);
                     float y = mViewHeight - bottomTextDescent;
                     XLabelData xData = dataLabels.get(i);
 

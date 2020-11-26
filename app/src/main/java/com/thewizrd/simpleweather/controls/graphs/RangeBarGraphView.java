@@ -120,6 +120,7 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
         this.setFillViewport(true);
         this.setVerticalScrollBarEnabled(false);
         this.setHorizontalScrollBarEnabled(false);
+        this.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
         this.removeAllViews();
         this.addView(graph, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -155,8 +156,8 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
     @Override
     public void invalidate() {
         super.invalidate();
-        this.graph.invalidate();
         visibleRect.setEmpty();
+        this.graph.invalidate();
     }
 
     @Override
@@ -238,6 +239,8 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
 
         RangeBarChartGraph(Context context, AttributeSet attrs) {
             super(context, attrs);
+            setWillNotDraw(false);
+
             bottomTextPaint = new Paint();
             dataLabels = new ObservableArrayList<>();
             dataLists = new ObservableArrayList<>();
@@ -467,8 +470,8 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
         @Override
         public void invalidate() {
             setMinimumWidth(0);
-            super.invalidate();
             visibleRect.setEmpty();
+            super.invalidate();
         }
 
         @Override
