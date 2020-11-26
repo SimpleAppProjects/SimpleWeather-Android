@@ -36,7 +36,7 @@
     <string name="label_chance">"Szansa na opady"</string>
     <string name="label_cloudiness">"Zachmurzenie"</string>
     <string name="label_qpf_rain">"Deszcz"</string>
-    <string name="label_qpf_snow">"Pokaż"</string>
+    <string name="label_qpf_snow">"Śnieg"</string>
     <string name="credit_prefix">"Dane z"</string>
     <string name="attrib_prefix">"Autor zdjecia"</string>
     <string name="label_high">"Wysoka"</string>
