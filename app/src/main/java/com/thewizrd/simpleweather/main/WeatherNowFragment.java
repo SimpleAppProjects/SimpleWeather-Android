@@ -1748,7 +1748,10 @@ public class WeatherNowFragment extends WindowColorFragment
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(imageData.getOriginalLink())));
+                        Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(imageData.getOriginalLink()));
+                        if (i.resolveActivity(view.getContext().getPackageManager()) != null) {
+                            view.getContext().startActivity(i);
+                        }
                     }
                 });
             } else {

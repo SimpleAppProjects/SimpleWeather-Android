@@ -1095,9 +1095,13 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                                 .addCategory(Intent.CATEGORY_BROWSABLE)
                                 .setData(WearableHelper.getPlayStoreURI()));
                     } catch (ActivityNotFoundException e) {
-                        startActivity(new Intent(Intent.ACTION_VIEW)
+                        Intent i = new Intent(Intent.ACTION_VIEW)
                                 .addCategory(Intent.CATEGORY_BROWSABLE)
-                                .setData(WearableHelper.getPlayStoreWebURI()));
+                                .setData(WearableHelper.getPlayStoreWebURI());
+
+                        if (i.resolveActivity(getAppCompatActivity().getPackageManager()) != null) {
+                            startActivity(i);
+                        }
                     }
                 }
             });
