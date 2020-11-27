@@ -323,28 +323,30 @@ public class MainActivity extends UserLocaleActivity
 
     @SuppressLint("RestrictedApi")
     private void refreshNavViewCheckedItem() {
-        final int currentId = mNavController.getCurrentDestination().getId();
-        final String currentName;
-        if (mNavController.getCurrentDestination() instanceof FragmentNavigator.Destination) {
-            currentName = ((FragmentNavigator.Destination) mNavController.getCurrentDestination()).getClassName();
-        } else {
-            currentName = mNavController.getCurrentDestination().getDisplayName();
-        }
-        int checkedItemId = -1;
+        if (mNavController.getCurrentDestination() != null) {
+            final int currentId = mNavController.getCurrentDestination().getId();
+            final String currentName;
+            if (mNavController.getCurrentDestination() instanceof FragmentNavigator.Destination) {
+                currentName = ((FragmentNavigator.Destination) mNavController.getCurrentDestination()).getClassName();
+            } else {
+                currentName = mNavController.getCurrentDestination().getDisplayName();
+            }
+            int checkedItemId = -1;
 
-        if (currentId == R.id.weatherNowFragment || currentId == R.id.weatherListFragment) {
-            checkedItemId = R.id.weatherNowFragment;
-        } else if (currentId == R.id.weatherRadarFragment) {
-            checkedItemId = R.id.weatherRadarFragment;
-        } else if (currentId == R.id.locationsFragment) {
-            checkedItemId = R.id.locationsFragment;
-        } else if (currentName.contains(SettingsFragment.class.getName())) {
-            checkedItemId = R.id.settingsFragment;
-        }
+            if (currentId == R.id.weatherNowFragment || currentId == R.id.weatherListFragment) {
+                checkedItemId = R.id.weatherNowFragment;
+            } else if (currentId == R.id.weatherRadarFragment) {
+                checkedItemId = R.id.weatherRadarFragment;
+            } else if (currentId == R.id.locationsFragment) {
+                checkedItemId = R.id.locationsFragment;
+            } else if (currentName.contains(SettingsFragment.class.getName())) {
+                checkedItemId = R.id.settingsFragment;
+            }
 
-        MenuItem item = binding.bottomNavBar.getMenu().findItem(checkedItemId);
-        if (item != null) {
-            item.setChecked(true);
+            MenuItem item = binding.bottomNavBar.getMenu().findItem(checkedItemId);
+            if (item != null) {
+                item.setChecked(true);
+            }
         }
     }
 
