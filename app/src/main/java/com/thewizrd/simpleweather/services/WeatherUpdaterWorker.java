@@ -185,7 +185,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                             updateLocation().get();
                         } catch (ExecutionException | InterruptedException e) {
                             Logger.writeLine(Log.ERROR, e);
-                            return Result.failure();
+                            return Result.retry();
                         }
                     }
 
@@ -216,7 +216,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                         LocalBroadcastManager.getInstance(mContext)
                                 .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE));
                     } else {
-                        return Result.failure();
+                        return Result.retry();
                     }
                 }
 
