@@ -35,7 +35,7 @@ public abstract class CustomFragment extends LifecycleAwareFragment implements S
         runWithView(new Runnable() {
             @Override
             public void run() {
-                if (mActivity != null) {
+                if (mActivity != null && isVisible()) {
                     if (mSnackMgr == null) {
                         mSnackMgr = createSnackManager();
                     }
