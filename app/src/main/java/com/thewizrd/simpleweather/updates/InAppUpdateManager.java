@@ -44,14 +44,12 @@ import static com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE
 public final class InAppUpdateManager {
     private static final String TAG = "InAppUpdateManager";
 
-    private Context mAppContext;
-    private AppUpdateManager appUpdateManager;
+    private final AppUpdateManager appUpdateManager;
     private AppUpdateInfo appUpdateInfo;
     private UpdateInfo configUpdateinfo;
 
     private InAppUpdateManager(@NonNull Context context) {
-        mAppContext = context.getApplicationContext();
-        appUpdateManager = AppUpdateManagerFactory.create(mAppContext);
+        appUpdateManager = AppUpdateManagerFactory.create(context.getApplicationContext());
     }
 
     public static InAppUpdateManager create(@NonNull Context context) {
@@ -156,7 +154,7 @@ public final class InAppUpdateManager {
     }
 
     public void startImmediateUpdateFlow(@NonNull Activity activity, int requestCode) {
-        AnalyticsLogger.logEvent(TAG + ": startImmediateUpdateFlow");
+        AnalyticsLogger.logEvent(TAG + ": startImmedUpdateFlow");
 
         try {
             appUpdateManager.startUpdateFlowForResult(
