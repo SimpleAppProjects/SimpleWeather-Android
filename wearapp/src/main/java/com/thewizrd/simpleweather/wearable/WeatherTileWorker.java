@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
-import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
@@ -58,14 +57,8 @@ public class WeatherTileWorker extends Worker {
 
         Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG);
 
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-                .setRequiresCharging(false)
-                .setRequiresDeviceIdle(false)
-                .build();
-
         OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(WeatherTileWorker.class)
-                .setConstraints(constraints)
+                .setConstraints(Constraints.NONE)
                 .setInputData(
                         new Data.Builder()
                                 .putString(KEY_ACTION, intent.getAction())
@@ -76,7 +69,7 @@ public class WeatherTileWorker extends Worker {
 
         WorkManager.getInstance(context)
                 .enqueueUniqueWork(String.format(Locale.ROOT, "%s:%s_oneTime", TAG, intent.getAction()),
-                        ExistingWorkPolicy.REPLACE, updateRequest);
+                        ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest);
 
         Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG);
     }

@@ -64,7 +64,7 @@ public class AppUpdaterWorker extends Worker {
                         .build();
 
         WorkManager.getInstance(context)
-                .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest);
+                .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.KEEP, updateRequest);
 
         Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG);
     }

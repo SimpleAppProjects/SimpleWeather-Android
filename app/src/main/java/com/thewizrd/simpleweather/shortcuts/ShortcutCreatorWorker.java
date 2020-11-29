@@ -36,7 +36,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 public class ShortcutCreatorWorker extends Worker {
-    private static String TAG = "ShortcutCreatorWorker";
+    private static final String TAG = "ShortcutCreatorWorker";
 
     private final Context mContext;
 
@@ -57,7 +57,7 @@ public class ShortcutCreatorWorker extends Worker {
                     .build();
 
             WorkManager.getInstance(context)
-                    .enqueueUniqueWork(TAG, ExistingWorkPolicy.REPLACE, workRequest);
+                    .enqueueUniqueWork(TAG, ExistingWorkPolicy.APPEND_OR_REPLACE, workRequest);
         }
     }
 

@@ -2,15 +2,12 @@ package com.thewizrd.simpleweather.services;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
-import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
@@ -22,6 +19,7 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationBroadcastReceiver;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker;
+import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
 import com.thewizrd.simpleweather.wearable.WearableWorker;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetBroadcastReceiver;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
@@ -73,7 +71,7 @@ public class WidgetUpdaterWorker extends Worker {
                 .build();
 
         WorkManager.getInstance(context)
-                .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.REPLACE, updateRequest);
+                .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest);
 
         Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG);
 
@@ -86,21 +84,13 @@ public class WidgetUpdaterWorker extends Worker {
 
         Logger.writeLine(Log.INFO, "%s: Requesting work; workExists: %s", TAG, Boolean.toString(isWorkScheduled(context)));
 
-        Constraints.Builder constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-                .setRequiresCharging(false);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            constraints.setRequiresDeviceIdle(false);
-        }
-
         PeriodicWorkRequest updateRequest =
                 new PeriodicWorkRequest.Builder(WidgetUpdaterWorker.class, 60, TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
-                        .setConstraints(constraints.build())
-                        .setBackoffCriteria(BackoffPolicy.LINEAR, 5, TimeUnit.MINUTES)
+                        .setConstraints(Constraints.NONE)
                         .build();
 
         WorkManager.getInstance(context)
-                .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest);
+                .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.KEEP, updateRequest);
 
         Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG);
     }
@@ -147,6 +137,8 @@ public class WidgetUpdaterWorker extends Worker {
                 mContext.sendBroadcast(new Intent(mContext, WeatherNotificationBroadcastReceiver.class)
                         .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION));
             }
+
+            ShortcutCreatorWorker.requestUpdateShortcuts(mContext);
 
             // Update weather data for Wearables
             WearableWorker.enqueueAction(mContext, WearableWorker.ACTION_SENDWEATHERUPDATE, false);

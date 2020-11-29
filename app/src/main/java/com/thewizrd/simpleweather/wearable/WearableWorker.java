@@ -95,7 +95,7 @@ public class WearableWorker extends Worker {
                 .build();
 
         WorkManager.getInstance(context)
-                .enqueueUniqueWork(String.format(Locale.ROOT, "%s:%s_oneTime", TAG, intentAction), ExistingWorkPolicy.REPLACE, updateRequest);
+                .enqueueUniqueWork(String.format(Locale.ROOT, "%s:%s_oneTime", TAG, intentAction), ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest);
 
         Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG);
     }

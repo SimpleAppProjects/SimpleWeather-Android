@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.multidex.MultiDex;
+import androidx.work.Configuration;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
@@ -31,7 +32,7 @@ import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver;
 
 import static com.thewizrd.shared_resources.utils.Settings.loadIfNeeded;
 
-public class App extends Application implements ApplicationLib, Application.ActivityLifecycleCallbacks {
+public class App extends Application implements ApplicationLib, Application.ActivityLifecycleCallbacks, Configuration.Provider {
     public static final int HOMEIDX = 0;
 
     private static ApplicationLib sInstance = null;
@@ -242,5 +243,13 @@ public class App extends Application implements ApplicationLib, Application.Acti
         if (activity.getLocalClassName().contains("MainActivity")) {
             applicationState = AppState.CLOSED;
         }
+    }
+
+    @NonNull
+    @Override
+    public Configuration getWorkManagerConfiguration() {
+        return new Configuration.Builder()
+                .setMinimumLoggingLevel(BuildConfig.DEBUG ? Log.DEBUG : Log.INFO)
+                .build();
     }
 }

@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
-import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
@@ -75,15 +74,8 @@ public class WeatherNotificationWorker extends Worker {
 
         Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG);
 
-        Constraints.Builder constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-                .setRequiresCharging(false);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            constraints.setRequiresDeviceIdle(false);
-        }
-
         OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(WeatherNotificationWorker.class)
-                .setConstraints(constraints.build())
+                .setConstraints(Constraints.NONE)
                 .setInputData(
                         new Data.Builder()
                                 .putString(KEY_ACTION, intent.getAction())

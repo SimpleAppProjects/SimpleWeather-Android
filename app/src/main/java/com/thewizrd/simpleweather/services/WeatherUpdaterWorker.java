@@ -17,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
@@ -123,7 +122,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                 .build();
 
         WorkManager.getInstance(context)
-                .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.REPLACE, updateRequest);
+                .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest);
 
         Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG);
 
@@ -144,11 +143,10 @@ public class WeatherUpdaterWorker extends ListenableWorker {
         PeriodicWorkRequest updateRequest =
                 new PeriodicWorkRequest.Builder(WeatherUpdaterWorker.class, Settings.getRefreshInterval(), TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
                         .setConstraints(constraints)
-                        .setBackoffCriteria(BackoffPolicy.LINEAR, 5, TimeUnit.MINUTES)
                         .build();
 
         WorkManager.getInstance(context)
-                .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest);
+                .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.KEEP, updateRequest);
 
         Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG);
     }
