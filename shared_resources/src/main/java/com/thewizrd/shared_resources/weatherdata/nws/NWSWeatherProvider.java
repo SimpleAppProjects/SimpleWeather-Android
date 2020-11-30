@@ -13,10 +13,12 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.weatherdata.Astronomy;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
+import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalTime;
@@ -324,7 +326,10 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
         weather.setUpdateTime(weather.getUpdateTime().withZoneSameInstant(location.getTzOffset()));
 
         // NWS does not provide astrodata; calculate this ourselves (using their calculator)
-        weather.setAstronomy(new SolCalcAstroProvider().getAstronomyData(location, weather.getUpdateTime()));
+        Astronomy solCalcData = new SolCalcAstroProvider().getAstronomyData(location, weather.getUpdateTime());
+        weather.setAstronomy(new SunMoonCalcProvider().getAstronomyData(location, weather.getUpdateTime()));
+        weather.getAstronomy().setSunrise(solCalcData.getSunrise());
+        weather.getAstronomy().setSunset(solCalcData.getSunset());
 
         return weather;
     }

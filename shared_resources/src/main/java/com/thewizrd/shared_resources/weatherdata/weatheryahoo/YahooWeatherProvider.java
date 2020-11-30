@@ -20,6 +20,7 @@ import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
+import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalTime;
@@ -171,6 +172,12 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
         Weather weather = super.getWeather(location);
 
         weather.setUpdateTime(weather.getUpdateTime().withZoneSameInstant(location.getTzOffset()));
+
+        Astronomy old = weather.getAstronomy();
+        Astronomy newAstro = new SunMoonCalcProvider().getAstronomyData(location, weather.getUpdateTime());
+        newAstro.setSunrise(old.getSunrise());
+        newAstro.setSunset(old.getSunset());
+        weather.setAstronomy(newAstro);
 
         return weather;
     }

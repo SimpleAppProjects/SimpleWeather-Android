@@ -35,6 +35,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import com.thewizrd.shared_resources.weatherdata.images.ImageDatabase;
 import com.thewizrd.shared_resources.weatherdata.nws.SolCalcAstroProvider;
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider;
+import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -45,7 +46,7 @@ import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -124,7 +125,7 @@ public class UnitTests {
         LocationQueryViewModel location = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
                 .getLocation(new WeatherUtils.Coordinate(47.6721646, -122.1706614));
         LocationData locData = new LocationData(location);
-        List<WeatherAlert> alerts = new NWSAlertProvider().getAlerts(locData);
+        Collection<WeatherAlert> alerts = new NWSAlertProvider().getAlerts(locData);
         Assert.assertNotNull(alerts);
     }
 
@@ -204,5 +205,26 @@ public class UnitTests {
     public void firebaseDBTest() throws ExecutionException, InterruptedException {
         long updateTime = Tasks.await(ImageDatabase.getLastUpdateTime());
         Assert.assertTrue(updateTime > 0);
+    }
+
+    @Test
+    public void simpleAstroTest() throws Exception {
+        final ZonedDateTime date = ZonedDateTime.now();
+        String tz_long = "America/Los_Angeles";
+        final LocationData locationData = new LocationData();
+        locationData.setLatitude(47.6721646);
+        locationData.setLongitude(-122.1706614);
+        locationData.setTzLong(tz_long);
+        Astronomy astro = new SunMoonCalcProvider().getAstronomyData(locationData, date);
+
+        DateTimeFormatter fmt = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        Log.d("SMC", String.format(Locale.ROOT,
+                "Sunrise: %s; Sunset: %s, Moonrise: %s; Moonset: %s", astro.getSunrise().format(fmt), astro.getSunset().format(fmt), astro.getMoonrise().format(fmt), astro.getMoonset().format(fmt)));
+        if (astro.getMoonPhase() != null) {
+            Log.d("SMC", String.format(Locale.ROOT,
+                    "Moonphase: %s", astro.getMoonPhase().getPhase().name()));
+        }
+
+        Assert.assertTrue(astro.getSunrise() != LocalDateTime.MIN && astro.getSunset() != LocalDateTime.MIN && astro.getMoonrise() != LocalDateTime.MIN && astro.getMoonset() != LocalDateTime.MIN);
     }
 }

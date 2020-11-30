@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/SimpleWeather-Android.iml" filepath="$PROJECT_DIR$/SimpleWeather-Android.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/SimpleWeather-Android.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/SimpleWeather-Android.app.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/shared_resources/SimpleWeather-Android.shared_resources.iml" filepath="$PROJECT_DIR$/.idea/modules/shared_resources/SimpleWeather-Android.shared_resources.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/simpleastronomy/SimpleWeather-Android.simpleastronomy.iml" filepath="$PROJECT_DIR$/.idea/modules/simpleastronomy/SimpleWeather-Android.simpleastronomy.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/unofficialtileapi/SimpleWeather-Android.unofficialtileapi.iml" filepath="$PROJECT_DIR$/.idea/modules/unofficialtileapi/SimpleWeather-Android.unofficialtileapi.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/wearapp/SimpleWeather-Android.wearapp.iml" filepath="$PROJECT_DIR$/.idea/modules/wearapp/SimpleWeather-Android.wearapp.iml" />
     </modules>

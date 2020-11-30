@@ -15,12 +15,14 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.weatherdata.Astronomy;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
+import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalTime;
@@ -207,6 +209,12 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
         }
         weather.getAstronomy().setSunrise(weather.getAstronomy().getSunrise().plusSeconds(offset.getTotalSeconds()));
         weather.getAstronomy().setSunset(weather.getAstronomy().getSunset().plusSeconds(offset.getTotalSeconds()));
+
+        Astronomy old = weather.getAstronomy();
+        Astronomy newAstro = new SunMoonCalcProvider().getAstronomyData(location, weather.getUpdateTime());
+        newAstro.setSunrise(old.getSunrise());
+        newAstro.setSunset(old.getSunset());
+        weather.setAstronomy(newAstro);
 
         return weather;
     }
