@@ -8,13 +8,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.RenderProcessGoneDetail;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
@@ -26,20 +24,19 @@ import com.google.android.material.transition.MaterialContainerTransform;
 import com.google.android.material.transition.MaterialFadeThrough;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
-import com.thewizrd.shared_resources.utils.Colors;
-import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherRadarBinding;
 import com.thewizrd.simpleweather.fragments.ToolbarFragment;
-import com.thewizrd.simpleweather.helpers.RadarWebClient;
-import com.thewizrd.simpleweather.helpers.WebViewHelper;
+import com.thewizrd.simpleweather.radar.RadarProvider;
+import com.thewizrd.simpleweather.radar.RadarViewProvider;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 
+@RequiresApi(value = Build.VERSION_CODES.KITKAT)
 public class WeatherRadarFragment extends ToolbarFragment {
     private WeatherNowViewModel weatherView = null;
     private FragmentWeatherRadarBinding binding;
 
-    private static final String DEFAULT_URL = "https://earth.nullschool.net/#current/wind/surface/level/overlay=precip_3hr";
+    private RadarViewProvider radarViewProvider;
 
     @NonNull
     @Override
@@ -85,36 +82,25 @@ public class WeatherRadarFragment extends ToolbarFragment {
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-
-        if (binding != null) {
-            WebView webView = getRadarWebView();
-            if (webView != null) {
-                if (!StringUtils.isNullOrWhitespace(weatherView.getRadarURL())) {
-                    WebViewHelper.forceReload(webView, weatherView.getRadarURL());
-                } else {
-                    WebViewHelper.forceReload(webView, DEFAULT_URL);
-                }
-            }
-        }
+        radarViewProvider.onConfigurationChanged();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         weatherView = new ViewModelProvider(getAppCompatActivity()).get(WeatherNowViewModel.class);
+        radarViewProvider = RadarProvider.getRadarViewProvider(this, binding.radarWebviewContainer);
+        radarViewProvider.enableInteractions(true);
+        if (weatherView.getLocationCoord() != null) {
+            radarViewProvider.onViewCreated(weatherView.getLocationCoord());
+        }
     }
 
     @Override
     public void onDestroyView() {
-        if (binding != null) {
-            WebView webView = getRadarWebView();
-            if (webView != null) {
-                WebViewHelper.loadBlank(webView);
-                binding.radarWebviewContainer.removeAllViews();
-                webView.destroy();
-            }
-        }
+        radarViewProvider.onDestroyView();
         super.onDestroyView();
+        radarViewProvider = null;
         binding = null;
     }
 
@@ -123,13 +109,7 @@ public class WeatherRadarFragment extends ToolbarFragment {
         super.onResume();
         AnalyticsLogger.logEvent("WeatherRadarFragment: onResume");
 
-        if (binding != null) {
-            WebView webView = getRadarWebView();
-            if (webView != null) {
-                webView.onResume();
-            }
-        }
-
+        radarViewProvider.onResume();
         initialize();
     }
 
@@ -137,13 +117,7 @@ public class WeatherRadarFragment extends ToolbarFragment {
     public void onPause() {
         AnalyticsLogger.logEvent("WeatherRadarFragment: onPause");
 
-        if (binding != null) {
-            WebView webView = getRadarWebView();
-            if (webView != null) {
-                webView.onPause();
-            }
-        }
-
+        radarViewProvider.onPause();
         super.onPause();
     }
 
@@ -155,85 +129,6 @@ public class WeatherRadarFragment extends ToolbarFragment {
     // Initialize views here
     @CallSuper
     protected void initialize() {
-        navigateToRadarURL();
-    }
-
-    private void navigateToRadarURL() {
-        runWithView(new Runnable() {
-            @Override
-            public void run() {
-                WebView webView = getRadarWebView();
-
-                if (webView == null) {
-                    binding.radarWebviewContainer.addView(webView = createWebView());
-                }
-
-                String url = null;
-                if (weatherView.isValid()) {
-                    url = weatherView.getRadarURL();
-                }
-
-                if (!StringUtils.isNullOrWhitespace(url)) {
-                    WebViewHelper.loadUrl(webView, url);
-                } else {
-                    WebViewHelper.loadUrl(webView, DEFAULT_URL);
-                }
-            }
-        });
-    }
-
-    @NonNull
-    private WebView createWebView() {
-        WebView webView = new WebView(this.getContext());
-
-        // WebView
-        WebViewHelper.restrictWebView(webView);
-        WebViewHelper.enableJS(webView, true);
-        webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            webView.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, true);
-        }
-
-        webView.setWebViewClient(new RadarWebClient(false) {
-            @Override
-            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    Bundle args = new Bundle();
-                    args.putBoolean("didCrash", detail.didCrash());
-                    args.putInt("renderPriorityAtExit", detail.rendererPriorityAtExit());
-                    AnalyticsLogger.logEvent("WeatherRadarFragment: render gone", args);
-                } else {
-                    AnalyticsLogger.logEvent("WeatherRadarFragment: render gone");
-                }
-
-                if (binding != null) {
-                    WebView wv = getRadarWebView();
-
-                    if (wv == view) {
-                        binding.radarWebviewContainer.removeAllViews();
-                        wv = null;
-                        view.loadUrl("about:blank");
-                        view.onPause();
-                        view.destroy();
-                        navigateToRadarURL();
-                        return true;
-                    }
-                }
-
-                return super.onRenderProcessGone(view, detail);
-            }
-        });
-        webView.setBackgroundColor(Colors.BLACK);
-        webView.resumeTimers();
-
-        return webView;
-    }
-
-    private WebView getRadarWebView() {
-        if (binding != null) {
-            return (WebView) binding.radarWebviewContainer.getChildAt(0);
-        }
-
-        return null;
+        radarViewProvider.updateRadarView();
     }
 }

@@ -66,6 +66,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker;
+import com.thewizrd.simpleweather.radar.RadarProvider;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.wearable.WearableWorker;
@@ -108,6 +109,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
     // Preferences
     private SwitchPreferenceCompat followGps;
     private ListPreference providerPref;
+    private ListPreference radarProviderPref;
     private SwitchPreferenceCompat personalKeyPref;
     private EditTextPreference keyEntry;
     private SwitchPreferenceCompat onGoingNotification;
@@ -554,6 +556,20 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
         updateKeySummary();
         updateRegisterLink();
+
+        radarProviderPref = findPreference(RadarProvider.KEY_RADARPROVIDER);
+        List<ProviderEntry> radarProviders = RadarProvider.RadarProviders;
+        entries = new String[radarProviders.size()];
+        entryValues = new String[radarProviders.size()];
+
+        for (int i = 0; i < radarProviders.size(); i++) {
+            entries[i] = radarProviders.get(i).getDisplay();
+            entryValues[i] = radarProviders.get(i).getValue();
+        }
+
+        radarProviderPref.setEntries(entries);
+        radarProviderPref.setEntryValues(entryValues);
+        radarProviderPref.setValue(RadarProvider.getRadarProvider());
 
         onGoingNotification = findPreference(KEY_ONGOINGNOTIFICATION);
         onGoingNotification.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {

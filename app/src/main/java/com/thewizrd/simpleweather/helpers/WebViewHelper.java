@@ -24,8 +24,17 @@ public class WebViewHelper {
 
         WebSettings webSettings = webView.getSettings();
         webSettings.setSupportZoom(false);
-        webSettings.setBuiltInZoomControls(false);
         webSettings.setDisplayZoomControls(false);
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    public static void enableInteractions(@NonNull WebView webView) {
+        webView.setEnabled(true);
+        webView.setOnTouchListener(null);
+
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setSupportZoom(true);
+        webSettings.setDisplayZoomControls(true);
     }
 
     public static void restrictWebView(@NonNull WebView webView) {

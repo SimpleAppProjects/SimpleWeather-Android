@@ -19,7 +19,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="@{!FeatureSettings.radarEnabled || StringUtils.isNullOrWhitespace(weatherView.radarURL) ? View.GONE : View.VISIBLE}">
+        android:visibility="@{!FeatureSettings.radarEnabled ? View.GONE : View.VISIBLE}">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/radar_label"
@@ -54,38 +54,16 @@
             android:id="@+id/radar_webview_container"
             android:layout_width="0dp"
             android:layout_height="@dimen/sun_phase_view_height"
-            android:layout_marginBottom="12dp"
             android:background="@android:color/black"
             android:clickable="false"
             android:focusable="false"
             android:focusableInTouchMode="false"
-            app:layout_constraintBottom_toTopOf="@id/radar_attribution"
+            app:layout_constraintBottom_toTopOf="@id/border"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/radar_label"
             app:layout_constraintWidth_max="720dp"
             app:layout_constraintWidth_min="wrap" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/radar_attribution"
-            style="@style/ShadowText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:paddingStart="12dp"
-            android:paddingLeft="12dp"
-            android:paddingTop="0dp"
-            android:paddingEnd="12dp"
-            android:paddingRight="12dp"
-            android:paddingBottom="12dp"
-            android:text="@{@string/credit_prefix + ` ` + @string/radar_earthnullschool}"
-            android:textAppearance="?android:textAppearanceMedium"
-            android:textColor="@color/colorTextPrimary"
-            android:textSize="12sp"
-            app:layout_constraintBottom_toTopOf="@id/border"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/radar_webview_container" />
 
         <View
             android:id="@+id/border"
@@ -96,7 +74,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/radar_attribution" />
+            app:layout_constraintTop_toBottomOf="@id/radar_webview_container" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

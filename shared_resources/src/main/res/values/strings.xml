@@ -13,6 +13,7 @@
     <string name="api_nws" translatable="false">U.S. National Weather Service</string>
     <string name="api_waqi" translatable="false"> World Air Quality Index Project</string>
     <string name="radar_earthnullschool" translatable="false">EarthWindMap Project</string>
+    <string name="radar_rainviewer" translatable="false">RainViewer</string>
     <string name="label_gpsfollow">Current Location</string>
     <string name="label_getstarted">Get Started</string>
     <string name="setup_welcome_prompt">Welcome to SimpleWeather</string>

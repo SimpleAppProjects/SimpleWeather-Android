@@ -100,6 +100,11 @@
             android:summary="@string/pref_summary_apikey"
             android:title="@string/key_hint" />
 
+        <ListPreference
+            android:key="key_radarprovider"
+            android:summary="%s"
+            android:title="@string/label_radar" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_title_about">

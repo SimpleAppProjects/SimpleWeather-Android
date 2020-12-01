@@ -914,6 +914,28 @@ public class WeatherUtils {
         public String toString() {
             return String.format(Locale.ROOT, "%s,%s", Double.toString(lat), Double.toString(_long));
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Coordinate that = (Coordinate) o;
+
+            if (Double.compare(that.lat, lat) != 0) return false;
+            return Double.compare(that._long, _long) == 0;
+        }
+
+        @Override
+        public int hashCode() {
+            int result;
+            long temp;
+            temp = Double.doubleToLongBits(lat);
+            result = (int) (temp ^ (temp >>> 32));
+            temp = Double.doubleToLongBits(_long);
+            result = 31 * result + (int) (temp ^ (temp >>> 32));
+            return result;
+        }
     }
 
     public enum ErrorStatus {

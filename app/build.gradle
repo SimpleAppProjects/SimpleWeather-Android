@@ -18,6 +18,13 @@ android {
 
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
+
+        // Read the API key from ./secure.properties into R.string.maps_api_key
+        def secureProps = new Properties()
+        if (file("../secure.properties").exists()) {
+            file("../secure.properties")?.withInputStream { secureProps.load(it) }
+        }
+        resValue "string", "maps_api_key", (secureProps.getProperty("MAPS_API_KEY") ?: "")
     }
 
     buildTypes {
@@ -88,6 +95,7 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-base:17.5.0'
     implementation 'com.google.android.gms:play-services-location:17.1.0'
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.android.gms:play-services-wearable:17.0.0'
     implementation 'com.google.android.play:core:1.8.3'
 

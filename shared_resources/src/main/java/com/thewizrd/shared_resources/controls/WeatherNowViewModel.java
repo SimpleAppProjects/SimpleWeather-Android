@@ -34,7 +34,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class WeatherNowViewModel extends ObservableViewModel {
     private String location;
@@ -58,8 +57,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private AirQualityViewModel airQuality;
 
     // Radar
-    private static final String radarUrlFormat = "https://earth.nullschool.net/#current/wind/surface/level/overlay=precip_3hr/orthographic=%s,%s,3000";
-    private String radarURL;
+    private WeatherUtils.Coordinate locationCoord;
 
     // Background
     private ImageDataViewModel imageData;
@@ -147,8 +145,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
     }
 
     @Bindable
-    public String getRadarURL() {
-        return radarURL;
+    public WeatherUtils.Coordinate getLocationCoord() {
+        return locationCoord;
     }
 
     @Bindable
@@ -197,6 +195,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
     public WeatherNowViewModel() {
         weatherDetails = new ArrayList<>(WeatherDetailsType.values().length);
+        locationCoord = new WeatherUtils.Coordinate(0, 0);
     }
 
     public WeatherNowViewModel(Weather weather) {
@@ -236,17 +235,11 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
                 // Additional Details
                 if (weather.getLocation().getLatitude() != null && weather.getLocation().getLongitude() != null) {
-                    DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
-                    df.applyPattern("0.####");
-                    String newUrl = String.format(Locale.ROOT, radarUrlFormat, df.format(weather.getLocation().getLongitude()), df.format(weather.getLocation().getLatitude()));
-                    if (!ObjectsCompat.equals(radarURL, newUrl)) {
-                        radarURL = newUrl;
-                        notifyPropertyChanged(BR.radarURL);
-                    }
+                    locationCoord.setCoordinate(weather.getLocation().getLatitude(), weather.getLocation().getLongitude());
                 } else {
-                    radarURL = null;
-                    notifyPropertyChanged(BR.radarURL);
+                    locationCoord.setCoordinate(0, 0);
                 }
+                notifyPropertyChanged(BR.locationCoord);
 
                 // Additional Details
                 if (!ObjectsCompat.equals(weatherSource, weather.getSource())) {
