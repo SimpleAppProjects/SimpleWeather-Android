@@ -132,10 +132,12 @@ public class MainActivity extends UserLocaleActivity
             }
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            appUpdateManager = InAppUpdateManager.create(getApplicationContext());
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && FeatureSettings.isUpdateAvailable()) {
             // Update is available; double check if mandatory
-            appUpdateManager = InAppUpdateManager.create(getApplicationContext());
-
             appUpdateManager.shouldStartImmediateUpdateFlow()
                     .addOnCompleteListener(this, new OnCompleteListener<Boolean>() {
                         @Override
