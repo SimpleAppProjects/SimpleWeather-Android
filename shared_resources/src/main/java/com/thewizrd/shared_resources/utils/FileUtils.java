@@ -125,9 +125,6 @@ public class FileUtils {
                     outputStream = mFile.startWrite();
                     writer = new OutputStreamWriter(outputStream);
 
-                    // Clear file before writing
-                    //outputStream.SetLength(0);
-                    // TODOnevermind: async write and flush
                     writer.write(data);
                     writer.flush();
                     mFile.finishWrite(outputStream);

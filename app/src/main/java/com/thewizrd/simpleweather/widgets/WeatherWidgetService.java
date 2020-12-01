@@ -97,7 +97,6 @@ import static com.thewizrd.simpleweather.widgets.WidgetUtils.isClockWidget;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.isDateWidget;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.isForecastWidget;
 
-// TODO: Migrate service to Worker
 public class WeatherWidgetService extends SafeJobIntentService {
     private static final String TAG = "WeatherWidgetService";
 

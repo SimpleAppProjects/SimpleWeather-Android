@@ -56,10 +56,6 @@ public class WeatherAlertViewModel {
         attribution = weatherAlert.getAttribution();
 
         if (attribution != null) {
-            // TODO: this is temporary; will be removed next release
-            if (attribution.contains("Information provided by ")) {
-                attribution = attribution.replace("Information provided by ", "");
-            }
             attribution = String.format("%s %s", context.getString(R.string.credit_prefix), attribution);
         }
     }
