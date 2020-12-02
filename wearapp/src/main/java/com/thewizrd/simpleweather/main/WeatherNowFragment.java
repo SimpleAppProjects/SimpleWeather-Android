@@ -700,7 +700,9 @@ public class WeatherNowFragment extends CustomFragment
                                     runWithView(new Runnable() {
                                         @Override
                                         public void run() {
-                                            alertsView.updateAlerts(locationData);
+                                            if (locationData != null) {
+                                                alertsView.updateAlerts(locationData);
+                                            }
 
                                             if (task.isSuccessful()) {
                                                 final Collection<WeatherAlert> weatherAlerts = task.getResult();

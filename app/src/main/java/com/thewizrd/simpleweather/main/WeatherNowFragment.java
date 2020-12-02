@@ -1233,7 +1233,9 @@ public class WeatherNowFragment extends WindowColorFragment
                                     runWithView(new Runnable() {
                                         @Override
                                         public void run() {
-                                            alertsView.updateAlerts(locationData);
+                                            if (locationData != null) {
+                                                alertsView.updateAlerts(locationData);
+                                            }
 
                                             if (task.isSuccessful()) {
                                                 final Collection<WeatherAlert> weatherAlerts = task.getResult();
@@ -1241,7 +1243,7 @@ public class WeatherNowFragment extends WindowColorFragment
                                                     conditionPanelBinding.alertButton.setVisibility(View.VISIBLE);
                                                 }
 
-                                                if (wm.supportsAlerts()) {
+                                                if (wm.supportsAlerts() && locationData != null) {
                                                     if (weatherAlerts != null && !weatherAlerts.isEmpty()) {
                                                         // Alerts are posted to the user here. Set them as notified.
                                                         AsyncTask.run(new Runnable() {
