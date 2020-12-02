@@ -327,7 +327,7 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
 
             if (timestamp > 0) {
                 /* Define the URL pattern for the tile images */
-                String s = String.format(Locale.ROOT, "https://tilecache.rainviewer.com/v2/radar/%d/256/%d/%d/%d/1/1_1.png", timestamp, zoom, x, y);
+                String s = String.format(Locale.ROOT, "https://tilecache.rainviewer.com/v2/radar/%d/256/%d/%d/%d/1/1_0.png", timestamp, zoom, x, y);
                 return s;
             }
 
