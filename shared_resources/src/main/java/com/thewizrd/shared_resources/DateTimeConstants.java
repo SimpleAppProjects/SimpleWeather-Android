@@ -7,6 +7,7 @@ public final class DateTimeConstants {
     public static final String TIMEZONE_NAME = "z";
     public static final String ABBREV_DAY_OF_THE_WEEK = "eee";
     public static final String ABBREV_DAYOFWEEK_AND_12HR_AMPM = "eee h a";
+    public static final String ABBREV_DAYOFWEEK_AND_12HR_MIN_AMPM = "eee h:mm a";
     public static final String ABBREV_12HR_AMPM = "h a";
 
     /**

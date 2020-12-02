@@ -51,7 +51,7 @@ public final class RadarProvider {
         return prefs.getString(KEY_RADARPROVIDER, EARTHWINDMAP);
     }
 
-    @RequiresApi(value = Build.VERSION_CODES.KITKAT)
+    @RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
     public static RadarViewProvider getRadarViewProvider(@NonNull Fragment fragment, @NonNull ViewGroup rootView) {
         if (ObjectsCompat.equals(RadarProvider.getRadarProvider(), RadarProvider.RAINVIEWER)) {
             return new RainViewerViewProvider(fragment, rootView);

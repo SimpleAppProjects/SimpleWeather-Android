@@ -23,7 +23,7 @@ import com.thewizrd.simpleweather.R;
 
 import java.util.Locale;
 
-@RequiresApi(api = Build.VERSION_CODES.KITKAT)
+@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class OWMRadarViewProvider extends MapTileRadarViewProvider {
     public OWMRadarViewProvider(@NonNull Fragment fragment, @NonNull ViewGroup rootView) {
         super(fragment, rootView);

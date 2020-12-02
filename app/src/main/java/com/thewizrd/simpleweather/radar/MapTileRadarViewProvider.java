@@ -17,12 +17,14 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.TileProvider;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
-@RequiresApi(api = Build.VERSION_CODES.KITKAT)
+@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public abstract class MapTileRadarViewProvider extends RadarViewProvider implements OnMapReadyCallback {
-    private SupportMapFragment mapFragment;
+    protected SupportMapFragment mapFragment;
     private WeatherUtils.Coordinate locationCoords;
     protected Marker locationMarker = null;
     protected TileProvider tileProvider = null;
+
+    private boolean isViewAlive = false;
 
     public MapTileRadarViewProvider(@NonNull Fragment fragment, @NonNull ViewGroup rootView) {
         super(fragment, rootView);
@@ -49,7 +51,20 @@ public abstract class MapTileRadarViewProvider extends RadarViewProvider impleme
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        isViewAlive = true;
+    }
+
+    @Override
+    public void onPause() {
+        isViewAlive = false;
+        super.onPause();
+    }
+
+    @Override
     public void onDestroyView() {
+        isViewAlive = false;
         if (getViewContainer() != null) {
             if (mapFragment != null) {
                 getParentFragment().getChildFragmentManager()
@@ -61,7 +76,11 @@ public abstract class MapTileRadarViewProvider extends RadarViewProvider impleme
         }
     }
 
-    private SupportMapFragment createMapFragment() {
+    protected final boolean isViewAlive() {
+        return isViewAlive;
+    }
+
+    protected final SupportMapFragment createMapFragment() {
         GoogleMapOptions mapOptions = new GoogleMapOptions()
                 .compassEnabled(false)
                 .mapToolbarEnabled(false)
@@ -82,7 +101,7 @@ public abstract class MapTileRadarViewProvider extends RadarViewProvider impleme
         return SupportMapFragment.newInstance(mapOptions);
     }
 
-    protected CameraPosition getMapCameraPosition() {
+    protected final CameraPosition getMapCameraPosition() {
         if (locationCoords != null) {
             return CameraPosition.builder()
                     .target(new LatLng(locationCoords.getLatitude(), locationCoords.getLongitude()))

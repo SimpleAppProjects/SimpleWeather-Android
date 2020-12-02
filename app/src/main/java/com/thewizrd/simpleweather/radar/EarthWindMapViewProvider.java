@@ -20,7 +20,7 @@ import com.thewizrd.simpleweather.helpers.WebViewHelper;
 
 import java.util.Locale;
 
-@RequiresApi(value = Build.VERSION_CODES.KITKAT)
+@RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
 public class EarthWindMapViewProvider extends RadarViewProvider {
     private String radarURL;
 

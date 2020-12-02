@@ -5,12 +5,13 @@ import android.os.Build;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
-@RequiresApi(value = Build.VERSION_CODES.KITKAT)
+@RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
 public abstract class RadarViewProvider {
     private final Fragment fragment;
     private final ViewGroup mRootLayout;
@@ -26,9 +27,9 @@ public abstract class RadarViewProvider {
         return fragment;
     }
 
-    @NonNull
+    @Nullable
     public final Context getContext() {
-        return fragment.requireContext();
+        return fragment.getContext();
     }
 
     public final ViewGroup getViewContainer() {

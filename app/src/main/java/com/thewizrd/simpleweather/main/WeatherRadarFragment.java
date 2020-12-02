@@ -31,7 +31,7 @@ import com.thewizrd.simpleweather.radar.RadarProvider;
 import com.thewizrd.simpleweather.radar.RadarViewProvider;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 
-@RequiresApi(value = Build.VERSION_CODES.KITKAT)
+@RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
 public class WeatherRadarFragment extends ToolbarFragment {
     private WeatherNowViewModel weatherView = null;
     private FragmentWeatherRadarBinding binding;

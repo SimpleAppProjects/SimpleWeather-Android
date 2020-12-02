@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/radar_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:id="@+id/radar_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="?attr/colorSurface"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <androidx.appcompat.widget.AppCompatToggleButton
+            android:id="@+id/play_button"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/play_pause"
+            android:backgroundTint="?attr/colorAccent"
+            android:layout_margin="10dp"
+            android:textOn=""
+            android:textOff=""
+            android:layout_gravity="center_vertical"
+            android:checkable="true"
+            android:checked="false" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/animation_seekbar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:progressTint="?attr/colorAccent"
+            android:thumbTint="?attr/colorAccent"
+            android:layout_gravity="center_vertical"
+            android:value="0"
+            app:labelBehavior="gone"
+            app:thumbRadius="8dp"
+            app:haloRadius="16dp"
+            tools:valueFrom="0"
+            tools:valueTo="5"
+            tools:value="0"
+            tools:stepSize="1" />
+
+        <TextView
+            android:id="@+id/timestamp_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:textColor="@color/colorTextPrimary"
+            tools:text="Fri 6:30 PM" />
+
+    </LinearLayout>
+
+</LinearLayout>

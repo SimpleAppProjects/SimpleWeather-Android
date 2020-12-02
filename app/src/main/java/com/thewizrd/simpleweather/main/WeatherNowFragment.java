@@ -244,7 +244,7 @@ public class WeatherNowFragment extends WindowColorFragment
                                     binding.scrollView.setVisibility(View.VISIBLE);
                                 }
 
-                                if (radarViewProvider != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                                if (radarViewProvider != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                     radarViewProvider.updateCoordinates(weatherView.getLocationCoord(), true);
                                 }
                             }
@@ -799,7 +799,7 @@ public class WeatherNowFragment extends WindowColorFragment
         }
 
         // Radar
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && FeatureSettings.isRadarEnabled()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && FeatureSettings.isRadarEnabled()) {
             radarControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_radarcontrol, binding.listLayout, false, dataBindingComponent);
 
             radarControlBinding.radarWebviewCover.setOnClickListener(new View.OnClickListener() {
@@ -864,7 +864,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     });
                 } else if (propertyId == BR.locationCoord) {
                     // Restrict control to Kitkat+ for Chromium WebView
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && FeatureSettings.isRadarEnabled()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && FeatureSettings.isRadarEnabled()) {
                         if (radarViewProvider != null) {
                             radarViewProvider.updateCoordinates(weatherView.getLocationCoord(), true);
                         }
@@ -892,7 +892,7 @@ public class WeatherNowFragment extends WindowColorFragment
         });
 
         // Restrict control to Kitkat+ for Chromium WebView
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && FeatureSettings.isRadarEnabled() && radarControlBinding != null) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && FeatureSettings.isRadarEnabled() && radarControlBinding != null) {
             radarViewProvider = RadarProvider.getRadarViewProvider(this, radarControlBinding.radarWebviewContainer);
             radarViewProvider.enableInteractions(false);
             radarViewProvider.onViewCreated(weatherView.getLocationCoord());
@@ -903,7 +903,7 @@ public class WeatherNowFragment extends WindowColorFragment
     @SuppressLint("RestrictedApi")
     @Override
     public void onDestroyView() {
-        if (radarControlBinding != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (radarControlBinding != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             radarViewProvider.onDestroyView();
         }
         wNowViewModel.setScrollViewPosition(binding.scrollView.computeVerticalScrollOffset());
@@ -951,7 +951,7 @@ public class WeatherNowFragment extends WindowColorFragment
         loadBackgroundImage(backgroundUri, true);
 
         // Reload Webview
-        if (radarControlBinding != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (radarControlBinding != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             radarViewProvider.onConfigurationChanged();
         }
     }
@@ -1054,7 +1054,7 @@ public class WeatherNowFragment extends WindowColorFragment
         super.onResume();
         AnalyticsLogger.logEvent("WeatherNowFragment: onResume");
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             radarViewProvider.onResume();
         }
     }
@@ -1063,7 +1063,7 @@ public class WeatherNowFragment extends WindowColorFragment
     public void onPause() {
         AnalyticsLogger.logEvent("WeatherNowFragment: onPause");
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             radarViewProvider.onPause();
         }
         // Remove location updates to save battery.
@@ -1529,7 +1529,7 @@ public class WeatherNowFragment extends WindowColorFragment
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private void updateRadarView() {
         runWithView(new Runnable() {
             @Override
