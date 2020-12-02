@@ -122,7 +122,7 @@ public class Weather extends CustomJsonObject {
         atmosphere = new Atmosphere(root.getCurrent());
         astronomy = new Astronomy(root.getCurrent());
         precipitation = new Precipitation(root.getCurrent());
-        ttl = 120;
+        ttl = 180;
 
         DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
         df.applyPattern("#.####");
