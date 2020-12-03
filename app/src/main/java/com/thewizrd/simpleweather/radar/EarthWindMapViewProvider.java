@@ -36,6 +36,8 @@ public class EarthWindMapViewProvider extends RadarViewProvider {
 
     @Override
     public void updateRadarView() {
+        if (getContext() == null) return;
+
         WebView webView = getRadarWebView();
 
         if (webView == null) {
@@ -111,7 +113,7 @@ public class EarthWindMapViewProvider extends RadarViewProvider {
 
     @NonNull
     private WebView createWebView() {
-        WebView webView = new WebView(getParentFragment().getContext());
+        WebView webView = new WebView(getContext());
 
         // WebView
         WebViewHelper.restrictWebView(webView);
