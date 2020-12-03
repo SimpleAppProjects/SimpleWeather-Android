@@ -3,6 +3,8 @@ package com.thewizrd.shared_resources.utils;
 import android.os.Build;
 import android.text.TextUtils;
 
+import java.util.regex.Pattern;
+
 public class StringUtils {
     public static boolean isNullOrEmpty(String s) {
         return s == null || s.length() == 0;
@@ -79,6 +81,14 @@ public class StringUtils {
             return "";
         else {
             return s.replaceAll("[0-9]", "").trim();
+        }
+    }
+
+    public static boolean containsDigits(String s) {
+        if (isNullOrWhitespace(s))
+            return false;
+        else {
+            return Pattern.matches(".*[0-9].*", s);
         }
     }
 

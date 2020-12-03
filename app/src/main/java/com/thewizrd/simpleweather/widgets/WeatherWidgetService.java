@@ -1139,8 +1139,8 @@ public class WeatherWidgetService extends SafeJobIntentService {
                             weather.getTempUnit(),
                             weather.getCurCondition()));
 
-            updateViews.setTextViewText(R.id.condition_hi, !StringUtils.isNullOrWhitespace(hiTemp) ? hiTemp + "°" : "--");
-            updateViews.setTextViewText(R.id.condition_lo, !StringUtils.isNullOrWhitespace(loTemp) ? loTemp + "°" : "--");
+            updateViews.setTextViewText(R.id.condition_hi, StringUtils.containsDigits(hiTemp) ? (hiTemp + "°") : "--");
+            updateViews.setTextViewText(R.id.condition_lo, StringUtils.containsDigits(loTemp) ? (loTemp + "°") : "--");
             updateViews.setViewVisibility(R.id.condition_hilo_layout, weather.isShowHiLo() ? View.VISIBLE : View.GONE);
 
             DetailItemViewModel chanceModel = null;
@@ -1184,9 +1184,9 @@ public class WeatherWidgetService extends SafeJobIntentService {
 
             // Condition text
             updateViews.setTextViewText(R.id.condition_hilo,
-                    String.format(Locale.ROOT, "%s° | %s°",
-                            !StringUtils.isNullOrWhitespace(hiTemp) ? hiTemp : "--",
-                            !StringUtils.isNullOrWhitespace(loTemp) ? loTemp : "--"));
+                    String.format(Locale.ROOT, "%s | %s",
+                            StringUtils.containsDigits(hiTemp) ? (hiTemp + "°") : "--",
+                            StringUtils.containsDigits(loTemp) ? (loTemp + "°") : "--"));
             updateViews.setViewVisibility(R.id.condition_hilo, weather.isShowHiLo() ? View.VISIBLE : View.GONE);
         }
 

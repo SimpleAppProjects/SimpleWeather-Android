@@ -14,6 +14,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 
@@ -97,7 +98,7 @@ public class ForecastGraphViewModel extends ViewModel {
         }
     }
 
-    private Function<Forecasts, List<GraphItemViewModel>> forecastMapper = new Function<Forecasts, List<GraphItemViewModel>>() {
+    private final Function<Forecasts, List<GraphItemViewModel>> forecastMapper = new Function<Forecasts, List<GraphItemViewModel>>() {
         @Override
         public List<GraphItemViewModel> apply(Forecasts input) {
             if (input != null && input.getForecast() != null) {
@@ -105,7 +106,10 @@ public class ForecastGraphViewModel extends ViewModel {
                 final List<GraphItemViewModel> models = new ArrayList<>(totalCount);
 
                 for (int i = 0; i < Math.min(totalCount, 10); i++) {
-                    models.add(new GraphItemViewModel(input.getForecast().get(i)));
+                    Forecast fcast = input.getForecast().get(i);
+                    if (fcast.getHighF() != null && fcast.getLowF() != null) {
+                        models.add(new GraphItemViewModel(fcast));
+                    }
                 }
 
                 return models;
@@ -115,7 +119,7 @@ public class ForecastGraphViewModel extends ViewModel {
         }
     };
 
-    private Function<List<HourlyForecast>, List<GraphItemViewModel>> hrForecastMapper = new Function<List<HourlyForecast>, List<GraphItemViewModel>>() {
+    private final Function<List<HourlyForecast>, List<GraphItemViewModel>> hrForecastMapper = new Function<List<HourlyForecast>, List<GraphItemViewModel>>() {
         @Override
         public List<GraphItemViewModel> apply(List<HourlyForecast> input) {
             if (input != null) {
@@ -132,7 +136,7 @@ public class ForecastGraphViewModel extends ViewModel {
         }
     };
 
-    private Observer<Forecasts> forecastObserver = new Observer<Forecasts>() {
+    private final Observer<Forecasts> forecastObserver = new Observer<Forecasts>() {
         @Override
         public void onChanged(Forecasts forecastData) {
             if (forecasts != null) {
@@ -141,7 +145,7 @@ public class ForecastGraphViewModel extends ViewModel {
         }
     };
 
-    private Observer<List<HourlyForecast>> hrforecastObserver = new Observer<List<HourlyForecast>>() {
+    private final Observer<List<HourlyForecast>> hrforecastObserver = new Observer<List<HourlyForecast>>() {
         @Override
         public void onChanged(List<HourlyForecast> forecastData) {
             if (hourlyForecasts != null) {

@@ -50,14 +50,14 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
     // Weather Details
     private SunPhaseViewModel sunPhase;
-    private List<DetailItemViewModel> weatherDetails;
+    private final List<DetailItemViewModel> weatherDetails;
     private UVIndexViewModel uvIndex;
     private BeaufortViewModel beaufort;
     private MoonPhaseViewModel moonPhase;
     private AirQualityViewModel airQuality;
 
     // Radar
-    private WeatherUtils.Coordinate locationCoord;
+    private final WeatherUtils.Coordinate locationCoord;
 
     // Background
     private ImageDataViewModel imageData;
@@ -316,7 +316,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 hiTempBuilder.append(String.valueOf(isFahrenheit ? Math.round(weather.getCondition().getHighF()) : Math.round(weather.getCondition().getHighC())))
                         .append("°");
             } else {
-                hiTempBuilder.append("--°");
+                hiTempBuilder.append("--");
                 shouldHideHi = true;
             }
 
@@ -333,7 +333,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 loTempBuilder.append(String.valueOf(isFahrenheit ? Math.round(weather.getCondition().getLowF()) : Math.round(weather.getCondition().getLowC())))
                         .append("°");
             } else {
-                loTempBuilder.append("--°");
+                loTempBuilder.append("--");
                 shouldHideLo = true;
             }
 
@@ -344,7 +344,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
             loTemp = loTempBuilder;
             notifyPropertyChanged(BR.loTemp);
 
-            showHiLo = !shouldHideHi && !shouldHideLo;
+            showHiLo = !shouldHideHi || !shouldHideLo;
             notifyPropertyChanged(BR.showHiLo);
         }
 

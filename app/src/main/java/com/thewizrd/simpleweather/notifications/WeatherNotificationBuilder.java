@@ -54,8 +54,8 @@ public class WeatherNotificationBuilder {
                 String.format("%s°%s - %s", !StringUtils.isNullOrWhitespace(temp) ? temp : "--", viewModel.getTempUnit(), condition));
 
         // Details
-        updateViews.setTextViewText(R.id.condition_hi, !StringUtils.isNullOrWhitespace(hiTemp) ? hiTemp + "°" : "--");
-        updateViews.setTextViewText(R.id.condition_lo, !StringUtils.isNullOrWhitespace(loTemp) ? loTemp + "°" : "--");
+        updateViews.setTextViewText(R.id.condition_hi, StringUtils.containsDigits(hiTemp) ? (hiTemp + "°") : "--");
+        updateViews.setTextViewText(R.id.condition_lo, StringUtils.containsDigits(loTemp) ? (loTemp + "°") : "--");
         updateViews.setViewVisibility(R.id.condition_hilo_layout, viewModel.isShowHiLo() ? View.VISIBLE : View.GONE);
 
         // Get extras
