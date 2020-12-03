@@ -114,7 +114,7 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
                     .commit();
         }
 
-        radarContainerBinding.radarToolbar.setVisibility(interactionsEnabled() ? View.VISIBLE : View.GONE);
+        radarContainerBinding.radarToolbar.setVisibility(/*interactionsEnabled() ? View.VISIBLE : */View.GONE);
 
         mapFragment.getMapAsync(this);
     }
