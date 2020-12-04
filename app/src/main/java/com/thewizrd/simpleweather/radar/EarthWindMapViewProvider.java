@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.radar;
 
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.ViewGroup;
@@ -8,8 +9,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.fragment.app.Fragment;
 
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -24,8 +25,8 @@ import java.util.Locale;
 public class EarthWindMapViewProvider extends RadarViewProvider {
     private String radarURL;
 
-    public EarthWindMapViewProvider(@NonNull Fragment fragment, @NonNull ViewGroup rootView) {
-        super(fragment, rootView);
+    public EarthWindMapViewProvider(@NonNull Context context, @NonNull ViewGroup rootView) {
+        super(context, rootView);
     }
 
     @Override
@@ -35,9 +36,13 @@ public class EarthWindMapViewProvider extends RadarViewProvider {
     }
 
     @Override
-    public void updateRadarView() {
-        if (getContext() == null) return;
+    public void onCreateView(@Nullable Bundle savedInstanceState) {
+        super.onCreateView(savedInstanceState);
+        getViewContainer().addView(createWebView());
+    }
 
+    @Override
+    public void updateRadarView() {
         WebView webView = getRadarWebView();
 
         if (webView == null) {
@@ -123,7 +128,7 @@ public class EarthWindMapViewProvider extends RadarViewProvider {
             webView.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, true);
         }
 
-        webView.setWebViewClient(new RadarWebClient(false) {
+        webView.setWebViewClient(new RadarWebClient(!interactionsEnabled()) {
             @Override
             public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

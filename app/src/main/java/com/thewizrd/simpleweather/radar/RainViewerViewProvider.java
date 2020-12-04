@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.format.DateFormat;
@@ -14,8 +15,8 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,6 +33,7 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.RadarAnimateContainerBinding;
 
@@ -67,56 +69,56 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
     private int animationPosition = 0;
     private final Handler mMainHandler;
 
-    public RainViewerViewProvider(@NonNull Fragment fragment, @NonNull ViewGroup rootView) {
-        super(fragment, rootView);
+    public RainViewerViewProvider(@NonNull Context context, @NonNull ViewGroup rootView) {
+        super(context, rootView);
         availableTimestamps = new ArrayList<>();
         radarLayers = new HashMap<>();
         mMainHandler = new Handler(Looper.getMainLooper());
     }
 
     @Override
+    public void onCreateView(@Nullable Bundle savedInstanceState) {
+        super.onCreateView(savedInstanceState);
+
+        radarContainerBinding = RadarAnimateContainerBinding.inflate(LayoutInflater.from(getContext()));
+        getViewContainer().addView(radarContainerBinding.getRoot());
+
+        radarContainerBinding.playButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    mMainHandler.post(animationRunnable);
+                } else {
+                    mMainHandler.removeCallbacks(animationRunnable);
+                }
+            }
+        });
+
+        radarContainerBinding.animationSeekbar.addOnChangeListener(new Slider.OnChangeListener() {
+            @Override
+            public void onValueChange(@NonNull Slider slider, float value, boolean fromUser) {
+                if (fromUser) {
+                    mMainHandler.removeCallbacks(animationRunnable);
+                    showFrame((int) value);
+                }
+            }
+        });
+        radarContainerBinding.animationSeekbar.setValue(0);
+
+        if (radarContainerBinding.radarContainer.getChildCount() == 0) {
+            radarContainerBinding.radarContainer.addView(getMapView());
+        }
+    }
+
+    @Override
+    public void onViewCreated(WeatherUtils.Coordinate coordinates) {
+        super.onViewCreated(coordinates);
+    }
+
+    @Override
     public void updateRadarView() {
-        if (getContext() == null) return;
-
-        if (radarContainerBinding == null) {
-            radarContainerBinding = RadarAnimateContainerBinding.inflate(LayoutInflater.from(getContext()));
-            getViewContainer().addView(radarContainerBinding.getRoot());
-
-            radarContainerBinding.playButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) {
-                        mMainHandler.post(animationRunnable);
-                    } else {
-                        mMainHandler.removeCallbacks(animationRunnable);
-                    }
-                }
-            });
-
-            radarContainerBinding.animationSeekbar.addOnChangeListener(new Slider.OnChangeListener() {
-                @Override
-                public void onValueChange(@NonNull Slider slider, float value, boolean fromUser) {
-                    if (fromUser) {
-                        mMainHandler.removeCallbacks(animationRunnable);
-                        showFrame((int) value);
-                    }
-                }
-            });
-            radarContainerBinding.animationSeekbar.setValue(0);
-        }
-
-        if (mapFragment == null) {
-            mapFragment = createMapFragment();
-
-            getParentFragment().getChildFragmentManager()
-                    .beginTransaction()
-                    .replace(radarContainerBinding.radarContainer.getId(), mapFragment)
-                    .commit();
-        }
-
         radarContainerBinding.radarToolbar.setVisibility(/*interactionsEnabled() ? View.VISIBLE : */View.GONE);
-
-        mapFragment.getMapAsync(this);
+        getMapView().getMapAsync(this);
     }
 
     @Override
@@ -172,7 +174,7 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
 
         Request request = new Request.Builder()
                 .get()
-                .url(HttpUrl.parse("https://api.rainviewer.com/public/maps.json"))
+                .url(HttpUrl.get("https://api.rainviewer.com/public/maps.json"))
                 .build();
 
         // Connect to webstream
@@ -197,8 +199,10 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
 
                     for (Long key : radarLayers.keySet()) {
                         if (!availableTimestamps.contains(key)) {
-                            TileOverlay overlay = radarLayers.get(key);
-                            overlay.remove();
+                            TileOverlay overlay = radarLayers.remove(key);
+                            if (overlay != null) {
+                                overlay.remove();
+                            }
                         }
                     }
 
@@ -216,8 +220,7 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
                 } catch (Exception ex) {
                     Logger.writeLine(Log.ERROR, ex);
                 } finally {
-                    if (response != null)
-                        response.close();
+                    response.close();
                 }
             }
         });
@@ -261,10 +264,14 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
 
         if (radarLayers.containsKey(currentTimeStamp)) {
             TileOverlay currentOverlay = radarLayers.get(currentTimeStamp);
-            currentOverlay.setTransparency(1);
+            if (currentOverlay != null) {
+                currentOverlay.setTransparency(1);
+            }
         }
         TileOverlay nextOverlay = radarLayers.get(nextTimeStamp);
-        nextOverlay.setTransparency(0);
+        if (nextOverlay != null) {
+            nextOverlay.setTransparency(0);
+        }
 
         updateToolbar(position, nextTimeStamp);
     }

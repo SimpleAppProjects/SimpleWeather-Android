@@ -76,32 +76,28 @@ public class WeatherRadarFragment extends ToolbarFragment {
             }
         });
 
-        return root;
-    }
+        radarViewProvider = RadarProvider.getRadarViewProvider(context, binding.radarWebviewContainer);
+        radarViewProvider.enableInteractions(true);
+        radarViewProvider.onCreateView(savedInstanceState);
 
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        radarViewProvider.onConfigurationChanged();
+        return root;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         weatherView = new ViewModelProvider(getAppCompatActivity()).get(WeatherNowViewModel.class);
-        radarViewProvider = RadarProvider.getRadarViewProvider(this, binding.radarWebviewContainer);
-        radarViewProvider.enableInteractions(true);
-        if (weatherView.getLocationCoord() != null) {
+        if (radarViewProvider != null && weatherView.getLocationCoord() != null) {
             radarViewProvider.onViewCreated(weatherView.getLocationCoord());
         }
     }
 
     @Override
-    public void onDestroyView() {
-        radarViewProvider.onDestroyView();
-        super.onDestroyView();
-        radarViewProvider = null;
-        binding = null;
+    public void onStart() {
+        super.onStart();
+        if (radarViewProvider != null) {
+            radarViewProvider.onStart();
+        }
     }
 
     @Override
@@ -109,7 +105,9 @@ public class WeatherRadarFragment extends ToolbarFragment {
         super.onResume();
         AnalyticsLogger.logEvent("WeatherRadarFragment: onResume");
 
-        radarViewProvider.onResume();
+        if (radarViewProvider != null) {
+            radarViewProvider.onResume();
+        }
         initialize();
     }
 
@@ -117,8 +115,52 @@ public class WeatherRadarFragment extends ToolbarFragment {
     public void onPause() {
         AnalyticsLogger.logEvent("WeatherRadarFragment: onPause");
 
-        radarViewProvider.onPause();
+        if (radarViewProvider != null) {
+            radarViewProvider.onPause();
+        }
         super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        if (radarViewProvider != null) {
+            radarViewProvider.onStop();
+        }
+        super.onStop();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        if (radarViewProvider != null) {
+            radarViewProvider.onSaveInstanceState(outState);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (radarViewProvider != null) {
+            radarViewProvider.onDestroyView();
+            radarViewProvider = null;
+        }
+        super.onDestroyView();
+        binding = null;
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        if (radarViewProvider != null) {
+            radarViewProvider.onLowMemory();
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (radarViewProvider != null) {
+            radarViewProvider.onConfigurationChanged();
+        }
     }
 
     @Override

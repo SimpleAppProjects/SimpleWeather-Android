@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.radar;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.view.ViewGroup;
@@ -8,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringDef;
 import androidx.core.util.ObjectsCompat;
-import androidx.fragment.app.Fragment;
 
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.simpleweather.App;
@@ -49,11 +49,11 @@ public final class RadarProvider {
     }
 
     @RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
-    public static RadarViewProvider getRadarViewProvider(@NonNull Fragment fragment, @NonNull ViewGroup rootView) {
+    public static RadarViewProvider getRadarViewProvider(@NonNull Context context, @NonNull ViewGroup rootView) {
         if (ObjectsCompat.equals(RadarProvider.getRadarProvider(), RadarProvider.RAINVIEWER)) {
-            return new RainViewerViewProvider(fragment, rootView);
+            return new RainViewerViewProvider(context, rootView);
         } else {
-            return new EarthWindMapViewProvider(fragment, rootView);
+            return new EarthWindMapViewProvider(context, rootView);
         }
     }
 }
