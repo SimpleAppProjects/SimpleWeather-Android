@@ -208,12 +208,12 @@
                 app:layout_constraintVertical_chainStyle="packed"
                 tools:text="@string/wi_umbrella"
                 tools:textColor="@color/colorOnSurface"
-                tools:visibility="gone" />
+                tools:visibility="visible" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_pop"
                 style="@style/ShadowText"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="start|center_vertical"
                 android:paddingStart="0dp"
@@ -240,7 +240,7 @@
                 app:layout_constraintWidth_min="60dp"
                 tools:text="100%"
                 tools:textColor="@color/colorOnSurface"
-                tools:visibility="gone" />
+                tools:visibility="visible" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_windicon"
@@ -272,7 +272,7 @@
                 app:layout_constraintTop_toTopOf="@id/weather_windspeed"
                 tools:rotation="0"
                 tools:textColor="@color/colorOnSurface"
-                tools:visibility="gone" />
+                tools:visibility="visible" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_windspeed"
@@ -303,7 +303,7 @@
                 app:layout_constraintWidth_min="60dp"
                 tools:text="6 mph"
                 tools:textColor="@color/colorOnSurface"
-                tools:visibility="gone" />
+                tools:visibility="visible" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

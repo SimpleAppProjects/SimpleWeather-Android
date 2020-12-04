@@ -227,7 +227,7 @@ public class LocationPanelViewModel {
             windSpeed = String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit);
             windDir = weather.getCondition().getWindDegrees() + 180;
         } else {
-            windSpeed = "--";
+            windSpeed = null;
             windDir = 0;
         }
     }
