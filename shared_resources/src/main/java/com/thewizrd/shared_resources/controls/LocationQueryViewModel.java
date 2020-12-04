@@ -1,5 +1,7 @@
 package com.thewizrd.shared_resources.controls;
 
+import androidx.core.util.ObjectsCompat;
+
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -44,33 +46,51 @@ public class LocationQueryViewModel {
         locationCountry = data.getCountryCode();
     }
 
+    /* HERE Autocomplete */
     public LocationQueryViewModel(SuggestionsItem location, String weatherAPI) {
         setLocation(location, weatherAPI);
     }
 
+    /* HERE Autocomplete */
     public void setLocation(SuggestionsItem location, String weatherAPI) {
         if (location == null || location.getAddress() == null)
             return;
 
-        String town, region;
+        String town, region, country;
 
         // Try to get district name or fallback to city name
-        if (!StringUtils.isNullOrEmpty(location.getAddress().getDistrict()))
-            town = location.getAddress().getDistrict();
-        else
+        town = location.getAddress().getDistrict();
+
+        if (StringUtils.isNullOrEmpty(town))
             town = location.getAddress().getCity();
 
-        // Try to get district name or fallback to city name
-        if (!StringUtils.isNullOrEmpty(location.getAddress().getState()))
-            region = location.getAddress().getState();
-        else
-            region = location.getAddress().getCountry();
+        region = location.getAddress().getState();
 
-        if (!StringUtils.isNullOrEmpty(location.getAddress().getCounty())
-                && !(location.getAddress().getCounty().equals(region) || location.getAddress().getCounty().equals(town)))
+        if (StringUtils.isNullOrEmpty(region) && !ObjectsCompat.equals(town, location.getAddress().getCounty()))
+            region = location.getAddress().getCounty();
+
+        country = location.getAddress().getCountry();
+
+        if (!StringUtils.isNullOrWhitespace(town) && !StringUtils.isNullOrWhitespace(region) &&
+                !StringUtils.isNullOrEmpty(location.getAddress().getCounty())
+                && !(ObjectsCompat.equals(location.getAddress().getCounty(), region) ||
+                ObjectsCompat.equals(location.getAddress().getCounty(), town))) {
             locationName = String.format("%s, %s, %s", town, location.getAddress().getCounty(), region);
-        else
-            locationName = String.format("%s, %s", town, region);
+        } else if (!StringUtils.isNullOrWhitespace(town) && !StringUtils.isNullOrWhitespace(region)) {
+            if (ObjectsCompat.equals(town, region)) {
+                locationName = String.format("%s, %s", town, country);
+            } else {
+                locationName = String.format("%s, %s", town, region);
+            }
+        } else {
+            if (StringUtils.isNullOrWhitespace(town) || StringUtils.isNullOrWhitespace(region)) {
+                if (StringUtils.isNullOrWhitespace(town)) {
+                    locationName = String.format("%s, %s", region, country);
+                } else {
+                    locationName = String.format("%s, %s", town, country);
+                }
+            }
+        }
 
         locationCountry = location.getCountryCode();
         locationQuery = location.getLocationId();
@@ -84,49 +104,77 @@ public class LocationQueryViewModel {
         weatherSource = weatherAPI;
     }
 
+    /* HERE Geocoder */
     public LocationQueryViewModel(ResultItem location, String weatherAPI) {
         setLocation(location, weatherAPI);
     }
 
+    /* HERE Geocoder */
     public void setLocation(ResultItem location, String weatherAPI) {
         if (location == null || location.getLocation() == null || location.getLocation().getAddress() == null)
             return;
 
-        String country = null, region = null, town = null;
+        String country = null, countryCode = null, region = null, town = null;
 
         if (location.getLocation().getAddress().getAdditionalData() != null) {
             for (AdditionalDataItem item : location.getLocation().getAddress().getAdditionalData()) {
                 if ("Country2".equals(item.getKey()))
+                    countryCode = item.getValue();
+                else if ("CountryName".equals(item.getKey()))
                     country = item.getValue();
-                else if ("StateName".equals(item.getKey()))
-                    region = item.getValue();
 
-                if (country != null && region != null)
+                if (countryCode != null && country != null)
                     break;
             }
         }
 
         // Try to get district name or fallback to city name
-        if (!StringUtils.isNullOrEmpty(location.getLocation().getAddress().getDistrict()))
-            town = location.getLocation().getAddress().getDistrict();
-        else
+        town = location.getLocation().getAddress().getDistrict();
+
+        if (StringUtils.isNullOrEmpty(town))
             town = location.getLocation().getAddress().getCity();
 
-        if (StringUtils.isNullOrEmpty(region))
-            region = location.getLocation().getAddress().getState();
+        region = location.getLocation().getAddress().getState();
 
-        if (StringUtils.isNullOrEmpty(region))
+        if (StringUtils.isNullOrEmpty(region) && !ObjectsCompat.equals(town, location.getLocation().getAddress().getCounty()))
             region = location.getLocation().getAddress().getCounty();
 
         if (StringUtils.isNullOrEmpty(country))
             country = location.getLocation().getAddress().getCountry();
 
-        if (!StringUtils.isNullOrEmpty(location.getLocation().getAddress().getCounty())
-                && !(location.getLocation().getAddress().getCounty().equals(region) || location.getLocation().getAddress().getCounty().equals(town)))
+        if (StringUtils.isNullOrEmpty(countryCode))
+            countryCode = location.getLocation().getAddress().getCountry();
+
+        if (!StringUtils.isNullOrWhitespace(town) && !StringUtils.isNullOrWhitespace(region) &&
+                !StringUtils.isNullOrEmpty(location.getLocation().getAddress().getCounty())
+                && !(ObjectsCompat.equals(location.getLocation().getAddress().getCounty(), region) ||
+                ObjectsCompat.equals(location.getLocation().getAddress().getCounty(), town))) {
             locationName = String.format("%s, %s, %s", town, location.getLocation().getAddress().getCounty(), region);
-        else
-            locationName = String.format("%s, %s", town, region);
-        locationCountry = country;
+        } else if (!StringUtils.isNullOrWhitespace(town) && !StringUtils.isNullOrWhitespace(region)) {
+            if (ObjectsCompat.equals(town, region)) {
+                locationName = String.format("%s, %s", town, country);
+            } else {
+                locationName = String.format("%s, %s", town, region);
+            }
+        } else {
+            if (StringUtils.isNullOrWhitespace(town) || StringUtils.isNullOrWhitespace(region)) {
+                if (!StringUtils.isNullOrWhitespace(location.getLocation().getAddress().getLabel())) {
+                    locationName = location.getLocation().getAddress().getLabel();
+
+                    if (locationName != null && locationName.contains(", " + country)) {
+                        locationName = locationName.replace(", " + country, "");
+                    }
+                } else {
+                    if (StringUtils.isNullOrWhitespace(town)) {
+                        locationName = String.format("%s, %s", region, country);
+                    } else {
+                        locationName = String.format("%s, %s", town, country);
+                    }
+                }
+            }
+        }
+
+        locationCountry = countryCode;
 
         locationLat = location.getLocation().getDisplayPosition().getLatitude();
         locationLong = location.getLocation().getDisplayPosition().getLongitude();
@@ -139,10 +187,12 @@ public class LocationQueryViewModel {
         updateLocationQuery();
     }
 
+    /* LocationIQ AutoComplete */
     public LocationQueryViewModel(AutoCompleteQuery result, String weatherAPI) {
         setLocation(result, weatherAPI);
     }
 
+    /* LocationIQ AutoComplete */
     private void setLocation(AutoCompleteQuery result, String weatherAPI) {
         if (result == null || result.getAddress() == null)
             return;
@@ -198,10 +248,12 @@ public class LocationQueryViewModel {
         updateLocationQuery();
     }
 
+    /* LocationIQ Geocoder */
     public LocationQueryViewModel(GeoLocation result, String weatherAPI) {
         setLocation(result, weatherAPI);
     }
 
+    /* LocationIQ Geocoder */
     private void setLocation(GeoLocation result, String weatherAPI) {
         if (result == null || result.getAddress() == null)
             return;

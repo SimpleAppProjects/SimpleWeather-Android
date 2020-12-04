@@ -31,10 +31,10 @@ import okhttp3.Response;
 public final class HERELocationProvider extends LocationProviderImpl {
     private static final String AUTOCOMPLETE_QUERY_URL = "https://autocomplete.geocoder.ls.hereapi.com/6.2/suggest.json?query=%s&language=%s&maxresults=10";
     private static final String GEOLOCATION_QUERY_URL = "https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json" +
-            "?prox=%s,150&mode=retrieveAddresses&maxresults=1&additionaldata=Country2,true&gen=9&jsonattributes=1" +
+            "?prox=%s,150&mode=retrieveAreas&maxresults=1&additionaldata=Country2,true&gen=9&jsonattributes=1" +
             "&locationattributes=adminInfo,timeZone,-mapView,-mapReference&language=%s";
     private static final String GEOCODER_QUERY_URL = "https://geocoder.ls.hereapi.com/6.2/geocode.json" +
-            "?locationid=%s&mode=retrieveAddresses&maxresults=1&additionaldata=Country2,true&gen=9&jsonattributes=1" +
+            "?locationid=%s&mode=retrieveAreas&maxresults=1&additionaldata=Country2,true&gen=9&jsonattributes=1" +
             "&locationattributes=adminInfo,timeZone,-mapView,-mapReference&language=%s";
 
     @Override
