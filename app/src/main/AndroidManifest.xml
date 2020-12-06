@@ -253,6 +253,11 @@
             android:authorities="${applicationId}.workmanager-init"
             tools:node="remove" />
 
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync|location"
+            tools:node="merge" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/maps_api_key" />

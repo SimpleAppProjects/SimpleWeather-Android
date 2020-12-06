@@ -109,6 +109,11 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync|location"
+            tools:node="merge" />
+
         <uses-library
             android:name="com.google.android.wearable"
             android:required="false" />
