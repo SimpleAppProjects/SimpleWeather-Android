@@ -2,9 +2,14 @@ package com.thewizrd.simpleweather.services;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -15,12 +20,14 @@ import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
+import androidx.work.ForegroundInfo;
 import androidx.work.ListenableWorker;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
@@ -52,6 +59,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.App;
+import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationBroadcastReceiver;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker;
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler;
@@ -75,7 +83,8 @@ public class WeatherUpdaterWorker extends ListenableWorker {
     public static final String ACTION_CANCELALARM = "SimpleWeather.Droid.action.CANCEL_ALARM";
     public static final String ACTION_UPDATEALARM = "SimpleWeather.Droid.action.UPDATE_ALARM";
 
-    private final Context mContext;
+    private static final int JOB_ID = 1004;
+    private static final String NOT_CHANNEL_ID = "SimpleWeather.generalnotif";
 
     private final WeatherManager wm = WeatherManager.getInstance();
 
@@ -84,10 +93,9 @@ public class WeatherUpdaterWorker extends ListenableWorker {
 
     public WeatherUpdaterWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
-        mContext = context.getApplicationContext();
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {
-            mFusedLocationClient = new FusedLocationProviderClient(mContext);
+            mFusedLocationClient = new FusedLocationProviderClient(getApplicationContext());
         }
     }
 
@@ -173,10 +181,25 @@ public class WeatherUpdaterWorker extends ListenableWorker {
     @NonNull
     @Override
     public ListenableFuture<Result> startWork() {
+        final Context context = getApplicationContext();
+
         return MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor()).submit(new Callable<Result>() {
             @Override
             public Result call() {
                 Logger.writeLine(Log.INFO, "%s: Work started", TAG);
+
+                // Request work to be in foreground (only for Oreo+)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            setForegroundAsync(new ForegroundInfo(JOB_ID, getForegroundNotification(context), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC | ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)).get();
+                        } else {
+                            setForegroundAsync(new ForegroundInfo(JOB_ID, getForegroundNotification(context))).get();
+                        }
+                    } catch (ExecutionException | InterruptedException e) {
+                        // no-op
+                    }
+                }
 
                 if (Settings.isWeatherLoaded()) {
                     if (Settings.useFollowGPS()) {
@@ -185,7 +208,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                         } catch (ExecutionException | InterruptedException e) {
                             Logger.writeLine(Log.ERROR, e);
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                                    ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                                    ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                                 return Result.retry();
                             }
                         }
@@ -199,14 +222,14 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                         }
                     });
 
-                    if (WeatherWidgetService.widgetsExist(mContext)) {
-                        mContext.sendBroadcast(new Intent(mContext, WeatherWidgetBroadcastReceiver.class)
+                    if (WeatherWidgetService.widgetsExist(context)) {
+                        context.sendBroadcast(new Intent(context, WeatherWidgetBroadcastReceiver.class)
                                 .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET));
                     }
 
                     if (weather != null) {
                         if (Settings.showOngoingNotification()) {
-                            mContext.sendBroadcast(new Intent(mContext, WeatherNotificationBroadcastReceiver.class)
+                            context.sendBroadcast(new Intent(context, WeatherNotificationBroadcastReceiver.class)
                                     .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION));
                         }
 
@@ -215,7 +238,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                         }
 
                         // Update weather data for Wearables
-                        LocalBroadcastManager.getInstance(mContext)
+                        LocalBroadcastManager.getInstance(context)
                                 .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE));
                     } else {
                         return Result.retry();
@@ -261,21 +284,22 @@ public class WeatherUpdaterWorker extends ListenableWorker {
 
     private ListenableFuture<Boolean> updateLocation() {
         final SettableFuture<Boolean> result = SettableFuture.create();
+        final Context context = getApplicationContext();
 
         Executors.newSingleThreadExecutor().submit(new Runnable() {
             @SuppressLint("MissingPermission")
             @Override
             public void run() {
                 if (Settings.useFollowGPS()) {
-                    if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                            ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         result.set(false);
                         return;
                     }
 
                     Location location = null;
 
-                    final LocationManager locMan = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+                    final LocationManager locMan = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
                     if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
                         result.set(false);
@@ -412,7 +436,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                         lastGPSLocData.setData(query_vm, location);
                         Settings.saveLastGPSLocData(lastGPSLocData);
 
-                        LocalBroadcastManager.getInstance(mContext)
+                        LocalBroadcastManager.getInstance(context)
                                 .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
                                         .putExtra(CommonActions.EXTRA_FORCEUPDATE, false));
 
@@ -426,5 +450,40 @@ public class WeatherUpdaterWorker extends ListenableWorker {
         });
 
         return result;
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private static void initChannel(@NonNull final Context context) {
+        // Gets an instance of the NotificationManager service
+        final NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID);
+        final String notchannel_name = context.getResources().getString(R.string.not_channel_name_general);
+
+        if (mChannel == null) {
+            mChannel = new NotificationChannel(NOT_CHANNEL_ID, notchannel_name, NotificationManager.IMPORTANCE_LOW);
+        }
+
+        // Configure the notification channel.
+        mChannel.setName(notchannel_name);
+        mChannel.setShowBadge(false);
+        mChannel.enableLights(false);
+        mChannel.enableVibration(false);
+        mNotifyMgr.createNotificationChannel(mChannel);
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private static Notification getForegroundNotification(@NonNull final Context context) {
+        initChannel(context);
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(context, NOT_CHANNEL_ID)
+                        .setSmallIcon(R.drawable.day_cloudy)
+                        .setContentTitle(context.getString(R.string.not_title_weather_update))
+                        .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
+                        .setOnlyAlertOnce(true)
+                        .setNotificationSilent()
+                        .setPriority(NotificationCompat.PRIORITY_LOW);
+
+        return mBuilder.build();
     }
 }

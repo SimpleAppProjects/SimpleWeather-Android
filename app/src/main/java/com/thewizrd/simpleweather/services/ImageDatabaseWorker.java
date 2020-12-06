@@ -109,7 +109,7 @@ public class ImageDatabaseWorker extends Worker {
         boolean running = false;
         for (WorkInfo workStatus : statuses) {
             running = workStatus.getState() == WorkInfo.State.RUNNING
-                    | workStatus.getState() == WorkInfo.State.ENQUEUED;
+                    || workStatus.getState() == WorkInfo.State.ENQUEUED;
         }
         return running;
     }

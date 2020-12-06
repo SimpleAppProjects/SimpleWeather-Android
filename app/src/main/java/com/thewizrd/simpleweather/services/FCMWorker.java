@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class FCMWorker extends Worker {
-    private static String TAG = "FCMWorker";
+    private static final String TAG = "FCMWorker";
 
     public static final String ACTION_INVALIDATE = "SimpleWeather.Droid.action.INVALIDATE";
 

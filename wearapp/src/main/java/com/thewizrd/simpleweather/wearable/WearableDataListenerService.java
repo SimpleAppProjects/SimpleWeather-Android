@@ -15,8 +15,6 @@ import com.thewizrd.shared_resources.wearable.WearableHelper;
 public class WearableDataListenerService extends WearableListenerService {
     private static final String TAG = "WearableDataListenerService";
 
-    private static final int JOB_ID = 1001;
-
     private static boolean acceptDataUpdates = false;
 
     public static void setAcceptDataUpdates(boolean value) {
