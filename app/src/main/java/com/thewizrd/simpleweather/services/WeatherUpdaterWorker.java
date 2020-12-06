@@ -188,12 +188,18 @@ public class WeatherUpdaterWorker extends ListenableWorker {
             @Override
             public Result call() {
                 Logger.writeLine(Log.INFO, "%s: Work started", TAG);
+                final boolean hasBackgroundLocationAccess = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
                 // Request work to be in foreground (only for Oreo+)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     try {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            setForegroundAsync(new ForegroundInfo(JOB_ID, getForegroundNotification(context), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC | ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)).get();
+                            int foregroundServiceTypeFlags = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC;
+                            if (hasBackgroundLocationAccess)
+                                foregroundServiceTypeFlags |= ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
+
+                            setForegroundAsync(new ForegroundInfo(JOB_ID, getForegroundNotification(context), foregroundServiceTypeFlags)).get();
                         } else {
                             setForegroundAsync(new ForegroundInfo(JOB_ID, getForegroundNotification(context))).get();
                         }
@@ -208,8 +214,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                             updateLocation().get();
                         } catch (ExecutionException | InterruptedException e) {
                             Logger.writeLine(Log.ERROR, e);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                                    ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                            if (hasBackgroundLocationAccess) {
                                 return Result.retry();
                             }
                         }
