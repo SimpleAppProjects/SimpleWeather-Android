@@ -39,6 +39,7 @@ import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -90,7 +91,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
         super(context, workerParams);
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {
-            mFusedLocationClient = new FusedLocationProviderClient(getApplicationContext());
+            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
         }
     }
 

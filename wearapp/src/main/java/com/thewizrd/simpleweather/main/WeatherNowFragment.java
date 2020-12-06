@@ -45,6 +45,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -230,7 +231,7 @@ public class WeatherNowFragment extends CustomFragment
         }
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {
-            mFusedLocationClient = new FusedLocationProviderClient(getFragmentActivity());
+            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getFragmentActivity());
             mLocCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(final LocationResult locationResult) {

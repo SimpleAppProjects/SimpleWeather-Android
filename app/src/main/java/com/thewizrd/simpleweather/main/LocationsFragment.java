@@ -49,6 +49,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -358,7 +359,7 @@ public class LocationsFragment extends ToolbarFragment
         mErrorCounter = new boolean[WeatherUtils.ErrorStatus.values().length];
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {
-            mFusedLocationClient = new FusedLocationProviderClient(getAppCompatActivity());
+            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getAppCompatActivity());
             mLocCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(final LocationResult locationResult) {
