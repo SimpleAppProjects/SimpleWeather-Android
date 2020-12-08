@@ -164,8 +164,6 @@
     <string name="not_channel_name_alerts">"Wetterwarnungen"</string>
     <string name="not_channel_desc_alerts">"Benachrichtigungen für Wetterwarnungen"</string>
     <string name="not_channel_name_general">"Allgemeine Benachrichtigungen"</string>
-    <string name="not_title_wearable_sync">"Synchronisierung mit tragbarem Gerät..."</string>
-    <string name="not_title_device_sync">"Synchronisierung mit Gerät..."</string>
 
     <!-- Alerts -->
     <!-- Fuzzy -->
@@ -202,4 +200,5 @@
     <string name="label_speed">"Geschwindigkeit"</string>
     <string name="label_distance">"Entfernung"</string>
     <string name="pref_title_resetunits">"Einheiten auf Standardwerte zurücksetzen"</string>
+    <string name="not_title_weather_update">"Aktualisierung des Wetters…"</string>
 </resources>

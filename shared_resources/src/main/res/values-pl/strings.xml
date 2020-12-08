@@ -132,8 +132,6 @@
     <string name="not_channel_name_alerts">"Alarmy pogodowe"</string>
     <string name="not_channel_desc_alerts">"Powiadomienia dla alarmów pogodowych"</string>
     <string name="not_channel_name_general">"Ogólne powiadomienia"</string>
-    <string name="not_title_wearable_sync">"Synchronizacja z urządzeniem"</string>
-    <string name="not_title_device_sync">"Synchronizacja z urzączeniem"</string>
 
     <!-- Alerts -->
     <string name="datetime_day_ago">"%1$dd temu"</string>
@@ -163,4 +161,5 @@
 
     <!-- Fuzzy -->
     <string name="pref_title_resetunits">"Zresetuj jednostki do wartości domyślnych"</string>
+    <string name="not_title_weather_update">"Aktualizacja pogody…"</string>
 </resources>

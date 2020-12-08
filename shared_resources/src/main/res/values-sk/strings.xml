@@ -132,8 +132,6 @@
     <string name="not_channel_name_alerts">"Meteovýstrahy"</string>
     <string name="not_channel_desc_alerts">"Oznámenia meteovýstrah"</string>
     <string name="not_channel_name_general">"Oznámenia všeobecne"</string>
-    <string name="not_title_wearable_sync">"Synchronizujem s nositeľným zariadením…"</string>
-    <string name="not_title_device_sync">"Synchronizujem so zariadením…"</string>
 
     <!-- Alerts -->
     <string name="datetime_day_ago">"%1$dd dozadu"</string>
@@ -161,4 +159,5 @@
     <string name="label_speed">"Rýchlosť"</string>
     <string name="label_distance">"Vzdialenosť"</string>
     <string name="pref_title_resetunits">"Obnovte pôvodné hodnoty jednotiek"</string>
+    <string name="not_title_weather_update">"Aktualizuje sa počasie…"</string>
 </resources>

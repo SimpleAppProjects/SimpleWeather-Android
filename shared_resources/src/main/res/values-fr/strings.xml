@@ -132,8 +132,6 @@
     <string name="not_channel_name_alerts">"Alertes météo"</string>
     <string name="not_channel_desc_alerts">"Notifications pour les alertes météo"</string>
     <string name="not_channel_name_general">"Notifications générales"</string>
-    <string name="not_title_wearable_sync">"Synchronisation avec l'appareil wearable…"</string>
-    <string name="not_title_device_sync">"Synchronisation avec l'appareil…"</string>
 
     <!-- Alerts -->
     <string name="datetime_day_ago">"il y a %1$dj"</string>
@@ -161,4 +159,5 @@
     <string name="label_speed">"Vitesse"</string>
     <string name="label_distance">"Distance"</string>
     <string name="pref_title_resetunits">"Réinitialisation des unités aux valeurs par défaut"</string>
+    <string name="not_title_weather_update">"Mise à jour de la météo…"</string>
 </resources>
