@@ -53,6 +53,7 @@ import com.thewizrd.shared_resources.tasks.TaskUtils;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CustomException;
 import com.thewizrd.shared_resources.utils.JSONParser;
+import com.thewizrd.shared_resources.utils.LocationUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -98,7 +99,7 @@ public class SetupLocationFragment extends CustomFragment {
 
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
 
-    private WeatherManager wm = WeatherManager.getInstance();
+    private final WeatherManager wm = WeatherManager.getInstance();
 
     @NonNull
     @Override
@@ -378,17 +379,25 @@ public class SetupLocationFragment extends CustomFragment {
                                 throw new CustomException(R.string.error_retrieve_location);
                             }
 
+                            final boolean isUS = LocationUtils.isUS(view.getLocationCountry());
+
+                            if (!Settings.isWeatherLoaded()) {
+                                // Default US location to NWS
+                                if (isUS) {
+                                    Settings.setAPI(WeatherAPI.NWS);
+                                } else {
+                                    Settings.setAPI(WeatherAPI.HERE);
+                                }
+                                wm.updateAPI();
+                            }
+
                             if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired()) {
                                 throw new CustomException(R.string.werror_invalidkey);
                             }
 
                             TaskUtils.throwIfCancellationRequested(token);
 
-                            String country_code = view.getLocationCountry();
-                            if (!StringUtils.isNullOrWhitespace(country_code))
-                                country_code = country_code.toLowerCase();
-
-                            if (WeatherAPI.NWS.equals(Settings.getAPI()) && !("usa".equals(country_code) || "us".equals(country_code))) {
+                            if (WeatherAPI.NWS.equals(Settings.getAPI()) && !isUS) {
                                 throw new CustomException(R.string.error_message_weather_us_only);
                             }
 

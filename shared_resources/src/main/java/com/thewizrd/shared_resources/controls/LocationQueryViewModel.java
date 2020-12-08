@@ -1,5 +1,6 @@
 package com.thewizrd.shared_resources.controls;
 
+import androidx.annotation.NonNull;
 import androidx.core.util.ObjectsCompat;
 
 import com.thewizrd.shared_resources.R;
@@ -320,6 +321,11 @@ public class LocationQueryViewModel {
         } else {
             locationQuery = String.format(Locale.ROOT, "lat=%s&lon=%s", df.format(locationLat), df.format(locationLong));
         }
+    }
+
+    public void updateWeatherSource(@WeatherAPI.WeatherAPIs @NonNull String API) {
+        weatherSource = API;
+        updateLocationQuery();
     }
 
     public String getLocationName() {

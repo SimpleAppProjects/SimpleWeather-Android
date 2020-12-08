@@ -867,7 +867,7 @@ public class Settings {
             return preferences.getString(KEY_API, null);
     }
 
-    public static void setAPI(String api) {
+    public static void setAPI(@WeatherAPI.WeatherAPIs String api) {
         editor.putString(KEY_API, api);
         editor.commit();
     }

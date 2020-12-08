@@ -21,6 +21,7 @@ import com.thewizrd.shared_resources.tasks.TaskUtils;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
+import com.thewizrd.shared_resources.utils.LocationUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -157,7 +158,7 @@ public final class WeatherDataLoader {
         try {
             TaskUtils.throwIfCancellationRequested(request.getCancellationToken());
 
-            if (WeatherAPI.NWS.equals(Settings.getAPI()) && !"US".equals(location.getCountryCode())) {
+            if (WeatherAPI.NWS.equals(Settings.getAPI()) && !LocationUtils.isUS(location.getCountryCode())) {
                 // If location data hasn't been updated, try loading weather from the previous provider
                 if (!StringUtils.isNullOrWhitespace(location.getWeatherSource()) &&
                         !WeatherAPI.NWS.equals(location.getWeatherSource())) {
@@ -260,7 +261,7 @@ public final class WeatherDataLoader {
                 if ((weather != null && !weather.getSource().equals(Settings.getAPI()))
                         || (weather == null && location != null && !location.getWeatherSource().equals(Settings.getAPI()))) {
                     // Only update location data if weather provider is not NWS or if it is NWS and the location is supported
-                    if (!WeatherAPI.NWS.equals(location.getWeatherSource()) || "US".equals(location.getCountryCode())) {
+                    if (!WeatherAPI.NWS.equals(location.getWeatherSource()) || LocationUtils.isUS(location.getCountryCode())) {
                         // Update location query and source for new API
                         String oldKey = location.getQuery();
 
@@ -457,7 +458,7 @@ public final class WeatherDataLoader {
         String API = Settings.getAPI();
         boolean isInvalid = weather == null || !weather.isValid();
         if (!isInvalid && !weather.getSource().equals(API)) {
-            if (!API.equals(WeatherAPI.NWS) || "US".equals(location.getCountryCode())) {
+            if (!API.equals(WeatherAPI.NWS) || LocationUtils.isUS(location.getCountryCode())) {
                 isInvalid = true;
             }
         }

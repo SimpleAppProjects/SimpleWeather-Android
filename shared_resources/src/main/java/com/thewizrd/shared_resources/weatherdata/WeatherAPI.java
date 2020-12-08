@@ -1,7 +1,11 @@
 package com.thewizrd.shared_resources.weatherdata;
 
+import androidx.annotation.StringDef;
+
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -15,6 +19,20 @@ public class WeatherAPI {
     public static final String HERE = "Here";
     public static final String LOCATIONIQ = "LocIQ";
     public static final String NWS = "NWS";
+
+    @StringDef({
+            HERE, YAHOO, METNO, NWS, OPENWEATHERMAP
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface WeatherAPIs {
+    }
+
+    @StringDef({
+            HERE, LOCATIONIQ
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface LocationAPIs {
+    }
 
     public static List<ProviderEntry> APIs = asList(
             new ProviderEntry("HERE Weather", HERE,

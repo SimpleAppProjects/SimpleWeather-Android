@@ -9,6 +9,7 @@ import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
+import com.thewizrd.shared_resources.utils.LocationUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -106,7 +107,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl implements We
             }
 
             final String url;
-            if ("US".equalsIgnoreCase(country_code) || "CA".equalsIgnoreCase(country_code)) {
+            if (LocationUtils.isUSorCanada(country_code)) {
                 url = String.format(WEATHER_US_CA_QUERY_URL, location_query, locale);
             } else {
                 url = String.format(WEATHER_GLOBAL_QUERY_URL, location_query, locale);
@@ -249,7 +250,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl implements We
 
             final String country_code = location.getCountryCode();
             String url;
-            if ("US".equalsIgnoreCase(country_code) || "CA".equalsIgnoreCase(country_code)) {
+            if (LocationUtils.isUSorCanada(country_code)) {
                 url = String.format(ALERT_US_CA_QUERY_URL, location.getQuery(), locale);
             } else {
                 url = String.format(ALERT_GLOBAL_QUERY_URL, location.getQuery(), locale);

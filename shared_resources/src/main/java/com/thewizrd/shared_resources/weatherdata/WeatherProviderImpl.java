@@ -11,6 +11,7 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.tzdb.TZDBCache;
+import com.thewizrd.shared_resources.utils.LocationUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -125,7 +126,7 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
      */
     @Override
     public Collection<WeatherAlert> getAlerts(LocationData location) {
-        if ("US".equals(location.getCountryCode()))
+        if (LocationUtils.isUS(location.getCountryCode()))
             return new NWSAlertProvider().getAlerts(location);
         else
             return null;
