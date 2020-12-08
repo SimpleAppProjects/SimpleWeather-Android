@@ -1,13 +1,22 @@
 package com.thewizrd.simpleweather.services;
 
+import android.annotation.TargetApi;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
+import androidx.work.ForegroundInfo;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
@@ -17,6 +26,7 @@ import androidx.work.WorkerParameters;
 
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationBroadcastReceiver;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
@@ -36,6 +46,9 @@ public class WidgetUpdaterWorker extends Worker {
     public static final String ACTION_STARTALARM = "SimpleWeather.Droid.action.START_ALARM";
     public static final String ACTION_CANCELALARM = "SimpleWeather.Droid.action.CANCEL_ALARM";
     public static final String ACTION_UPDATEALARM = "SimpleWeather.Droid.action.UPDATE_ALARM";
+
+    private static final int JOB_ID = 1005;
+    private static final String NOT_CHANNEL_ID = "SimpleWeather.generalnotif";
 
     private final Context mContext;
 
@@ -127,6 +140,19 @@ public class WidgetUpdaterWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+        // Request work to be in foreground (only for Oreo+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    setForegroundAsync(new ForegroundInfo(JOB_ID, getForegroundNotification(mContext), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)).get();
+                } else {
+                    setForegroundAsync(new ForegroundInfo(JOB_ID, getForegroundNotification(mContext))).get();
+                }
+            } catch (ExecutionException | InterruptedException e) {
+                // no-op
+            }
+        }
+
         if (Settings.isWeatherLoaded()) {
             if (WeatherWidgetService.widgetsExist(mContext)) {
                 mContext.sendBroadcast(new Intent(mContext, WeatherWidgetBroadcastReceiver.class)
@@ -145,5 +171,40 @@ public class WidgetUpdaterWorker extends Worker {
         }
 
         return Result.success();
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private static void initChannel(@NonNull final Context context) {
+        // Gets an instance of the NotificationManager service
+        final NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID);
+        final String notchannel_name = context.getResources().getString(R.string.not_channel_name_general);
+
+        if (mChannel == null) {
+            mChannel = new NotificationChannel(NOT_CHANNEL_ID, notchannel_name, NotificationManager.IMPORTANCE_LOW);
+        }
+
+        // Configure the notification channel.
+        mChannel.setName(notchannel_name);
+        mChannel.setShowBadge(false);
+        mChannel.enableLights(false);
+        mChannel.enableVibration(false);
+        mNotifyMgr.createNotificationChannel(mChannel);
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private static Notification getForegroundNotification(@NonNull final Context context) {
+        initChannel(context);
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(context, NOT_CHANNEL_ID)
+                        .setSmallIcon(R.drawable.day_cloudy)
+                        .setContentTitle(context.getString(R.string.not_title_weather_update))
+                        .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
+                        .setOnlyAlertOnce(true)
+                        .setNotificationSilent()
+                        .setPriority(NotificationCompat.PRIORITY_LOW);
+
+        return mBuilder.build();
     }
 }

@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class ImageDatabaseWorker extends Worker {
-    private static String TAG = "ImageDatabaseWorker";
+    private static final String TAG = "ImageDatabaseWorker";
 
     public static final String ACTION_CHECKUPDATETIME = "SimpleWeather.Droid.action.CHECK_UPDATE_TIME";
 

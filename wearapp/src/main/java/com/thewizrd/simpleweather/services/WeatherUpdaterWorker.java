@@ -175,29 +175,30 @@ public class WeatherUpdaterWorker extends ListenableWorker {
     public ListenableFuture<Result> startWork() {
         final Context context = getApplicationContext();
 
+        final boolean hasBackgroundLocationAccess = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
+                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
+
+        // Request work to be in foreground (only for Oreo+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    int foregroundServiceTypeFlags = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC;
+                    if (hasBackgroundLocationAccess)
+                        foregroundServiceTypeFlags |= ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
+
+                    setForegroundAsync(new ForegroundInfo(JOB_ID, getForegroundNotification(context), foregroundServiceTypeFlags)).get();
+                } else {
+                    setForegroundAsync(new ForegroundInfo(JOB_ID, getForegroundNotification(context))).get();
+                }
+            } catch (ExecutionException | InterruptedException e) {
+                // no-op
+            }
+        }
+
         return MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor()).submit(new Callable<Result>() {
             @Override
             public Result call() {
                 Logger.writeLine(Log.INFO, "%s: Work started", TAG);
-                final boolean hasBackgroundLocationAccess = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
-                        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
-
-                // Request work to be in foreground (only for Oreo+)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    try {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            int foregroundServiceTypeFlags = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC;
-                            if (hasBackgroundLocationAccess)
-                                foregroundServiceTypeFlags |= ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
-
-                            setForegroundAsync(new ForegroundInfo(JOB_ID, getForegroundNotification(context), foregroundServiceTypeFlags)).get();
-                        } else {
-                            setForegroundAsync(new ForegroundInfo(JOB_ID, getForegroundNotification(context))).get();
-                        }
-                    } catch (ExecutionException | InterruptedException e) {
-                        // no-op
-                    }
-                }
 
                 if (Settings.isWeatherLoaded()) {
                     if (Settings.getDataSync() == WearableDataSync.OFF && Settings.useFollowGPS()) {
