@@ -1,37 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="action_setupfromphone">Setup from Phone</string>
-    <string name="action_changelocation">Change Location</string>
-    <string name="action_openonphone">Open on Phone</string>
-    <string name="message_openedonphone">Opened on Phone…</string>
+    <string name="action_setupfromphone">"Setup from Phone"</string>
+    <string name="action_changelocation">"Change Location"</string>
+    <string name="action_openonphone">"Open on Phone"</string>
+    <string name="message_openedonphone">"Opened on Phone…"</string>
 
     <!-- Connection Status -->
-    <string name="status_disconnected">Device not connected</string>
-    <string name="status_connecting">Connecting…</string>
-    <string name="status_notinstalled">App not installed on device</string>
-    <string name="status_connected">Connected</string>
-
-    <string name="status_node_unavailable">Device is not connected or app is not installed on device…</string>
-    <string name="status_node_notsupported">Connected device is not supported</string>
+    <string name="status_disconnected">"Device not connected"</string>
+    <string name="status_connecting">"Connecting…"</string>
+    <string name="status_notinstalled">"App not installed on device"</string>
+    <string name="status_connected">"Connected"</string>
+    <string name="status_node_unavailable">"Device is not connected or app is not installed on device…"</string>
+    <string name="status_node_notsupported">"Connected device is not supported"</string>
 
     <!-- Setup -->
     <string name="prompt_confirmsetup">"Do you want to setup and sync data from your phone/connected device?"</string>
-    <string name="message_gettingstatus">Getting connection status…</string>
-    <string name="error_notinstalled">Install app on device and try again</string>
-    <string name="message_continueondevice">Continue setup on connected device</string>
-    <string name="message_retrievingdata">Retrieving data from connected device…</string>
-    <string name="error_syncing">Unable to sync data</string>
-    <string name="message_settingsretrieved">Received settings data…</string>
-    <string name="message_locationretrieved">Received location data…</string>
-    <string name="message_weatherretrieved">Received weather data…</string>
-    <string name="message_synccompleted">Data sync successful</string>
+    <string name="message_gettingstatus">"Getting connection status…"</string>
+    <string name="error_notinstalled">"Install app on device and try again"</string>
+    <string name="message_continueondevice">"Continue setup on connected device"</string>
+    <string name="message_retrievingdata">"Retrieving data from connected device…"</string>
+    <string name="error_syncing">"Unable to sync data"</string>
+    <string name="message_settingsretrieved">"Received settings data…"</string>
+    <string name="message_locationretrieved">"Received location data…"</string>
+    <string name="message_weatherretrieved">"Received weather data…"</string>
+    <string name="message_synccompleted">"Data sync successful"</string>
 
     <!-- Preferences -->
-    <string name="pref_category_title_sync">Sync</string>
-    <string name="pref_sync_title">Data Synchronization</string>
-    <string name="pref_connectionstatus_title">Connection Status</string>
-    <string name="pref_sync_off">Off</string>
-    <string name="pref_sync_deviceonly">Sync from device only</string>
-    <string name="pref_sync_whenavailable">Sync from device (when available)</string>
+    <string name="pref_sync_off">"Off"</string>
+    <string name="pref_sync_deviceonly">"Sync from device only"</string>
+    <string name="pref_sync_whenavailable">"Sync from device (when available)"</string>
 
+    <!-- Preferences -->
+    <string name="pref_category_title_sync">"Sync"</string>
+    <string name="pref_sync_title">"Data Synchronization"</string>
+    <string name="pref_connectionstatus_title">"Connection Status"</string>
 </resources>
