@@ -39,9 +39,9 @@
         <item>C</item>
     </string-array>
     <string-array name="speedunit_entries">
-        <item>mph</item>
-        <item>km/h</item>
-        <item>m/s</item>
+        <item>@string/unit_mph</item>
+        <item>@string/unit_kph</item>
+        <item>@string/unit_msec</item>
     </string-array>
     <string-array name="speedunit_values">
         <item>MPH</item>
@@ -49,24 +49,24 @@
         <item>MSEC</item>
     </string-array>
     <string-array name="pressureunit_entries">
-        <item>inHg</item>
-        <item>mb</item>
+        <item>@string/unit_inHg</item>
+        <item>@string/unit_mBar</item>
     </string-array>
     <string-array name="pressureunit_values">
         <item>INMERCURY</item>
         <item>MILLIBAR</item>
     </string-array>
     <string-array name="distanceunit_entries">
-        <item>mi</item>
-        <item>km</item>
+        <item>@string/unit_miles</item>
+        <item>@string/unit_kilometers</item>
     </string-array>
     <string-array name="distanceunit_values">
         <item>MILES</item>
         <item>KILOMETERS</item>
     </string-array>
     <string-array name="precipitationunit_entries">
-        <item>in</item>
-        <item>mm</item>
+        <item>@string/unit_in</item>
+        <item>@string/unit_mm</item>
     </string-array>
     <string-array name="precipitationunit_values">
         <item>INCHES</item>
