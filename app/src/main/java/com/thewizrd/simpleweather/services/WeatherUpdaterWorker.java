@@ -42,10 +42,10 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.CancellationTokenSource;
+import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.google.common.util.concurrent.SettableFuture;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
@@ -74,6 +74,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import timber.log.Timber;
 
 public class WeatherUpdaterWorker extends ListenableWorker {
     private static final String TAG = "WeatherUpdaterWorker";
@@ -290,18 +293,16 @@ public class WeatherUpdaterWorker extends ListenableWorker {
     }
 
     private ListenableFuture<Boolean> updateLocation() {
-        final SettableFuture<Boolean> result = SettableFuture.create();
         final Context context = getApplicationContext();
 
-        Executors.newSingleThreadExecutor().submit(new Runnable() {
+        return MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor()).submit(new Callable<Boolean>() {
             @SuppressLint("MissingPermission")
             @Override
-            public void run() {
+            public Boolean call() {
                 if (Settings.useFollowGPS()) {
                     if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                             ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        result.set(false);
-                        return;
+                        return false;
                     }
 
                     Location location = null;
@@ -309,8 +310,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                     final LocationManager locMan = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
                     if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                        result.set(false);
-                        return;
+                        return false;
                     }
 
                     if (WearableHelper.isGooglePlayServicesInstalled()) {
@@ -334,27 +334,42 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                             mLocationRequest.setInterval(10000);
                             mLocationRequest.setFastestInterval(1000);
                             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                            mLocationRequest.setExpirationDuration(60000);
 
                             Looper.prepare();
 
-                            Log.i(TAG, "Fused: Requesting location updates...");
+                            Timber.tag(TAG).i("Fused: Requesting location updates...");
+                            final TaskCompletionSource<LocationResult> tcs = new TaskCompletionSource<>(cts.getToken());
                             mFusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback() {
                                 @Override
                                 public void onLocationResult(LocationResult locationResult) {
                                     super.onLocationResult(locationResult);
                                     mFusedLocationClient.removeLocationUpdates(this);
 
-                                    Log.i(TAG, "Fused: Location update received...");
-                                    result.setFuture(updateLocation());
+                                    Timber.tag(TAG).i("Fused: Location update received...");
+                                    tcs.trySetResult(locationResult);
                                 }
 
                                 @Override
                                 public void onLocationAvailability(LocationAvailability locationAvailability) {
                                     super.onLocationAvailability(locationAvailability);
+
+                                    if (!locationAvailability.isLocationAvailable()) {
+                                        mFusedLocationClient.removeLocationUpdates(this);
+                                        tcs.trySetResult(null);
+                                    }
                                 }
                             }, Looper.myLooper());
 
-                            return;
+                            try {
+                                LocationResult locationResult = Tasks.await(tcs.getTask());
+
+                                if (locationResult != null) {
+                                    location = locationResult.getLastLocation();
+                                }
+                            } catch (ExecutionException | InterruptedException e) {
+                                // no-op
+                            }
                         }
                     } else {
                         boolean isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -371,14 +386,15 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                             if (location == null) {
                                 Looper.prepare();
 
-                                Log.i(TAG, "LocMan: Requesting location update...");
-                                locMan.requestSingleUpdate(provider, new LocationListener() {
+                                Timber.tag(TAG).i("LocMan: Requesting location update...");
+                                final TaskCompletionSource<Location> tcs = new TaskCompletionSource<>(cts.getToken());
+                                LocationListener locationListener = new LocationListener() {
                                     @Override
                                     public void onLocationChanged(Location location) {
                                         locMan.removeUpdates(this);
 
-                                        Log.i(TAG, "LocMan: Location update received...");
-                                        result.setFuture(updateLocation());
+                                        Timber.tag(TAG).i("LocMan: Location update received...");
+                                        tcs.setResult(location);
                                     }
 
                                     @Override
@@ -395,9 +411,14 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                                     public void onProviderDisabled(String s) {
 
                                     }
-                                }, Looper.myLooper());
+                                };
+                                locMan.requestSingleUpdate(provider, locationListener, Looper.myLooper());
 
-                                return;
+                                try {
+                                    location = Tasks.await(tcs.getTask(), 60, TimeUnit.SECONDS);
+                                } catch (ExecutionException | InterruptedException | TimeoutException e) {
+                                    locMan.removeUpdates(locationListener);
+                                }
                             }
                         }
                     }
@@ -406,16 +427,14 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                         LocationData lastGPSLocData = Settings.getLastGPSLocData();
 
                         if (isCtsCancelRequested()) {
-                            result.set(false);
-                            return;
+                            return false;
                         }
 
                         // Check previous location difference
                         if (lastGPSLocData.getQuery() != null &&
                                 Math.abs(ConversionMethods.calculateHaversine(lastGPSLocData.getLatitude(), lastGPSLocData.getLongitude(),
                                         location.getLatitude(), location.getLongitude())) < 1600) {
-                            result.set(false);
-                            return;
+                            return false;
                         }
 
                         LocationQueryViewModel query_vm;
@@ -430,13 +449,11 @@ public class WeatherUpdaterWorker extends ListenableWorker {
 
                         if (query_vm == null || StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
                             // Stop since there is no valid query
-                            result.set(false);
-                            return;
+                            return false;
                         }
 
                         if (isCtsCancelRequested()) {
-                            result.set(false);
-                            return;
+                            return false;
                         }
 
                         // Save location as last known
@@ -447,16 +464,13 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                                 .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
                                         .putExtra(CommonActions.EXTRA_FORCEUPDATE, false));
 
-                        result.set(true);
-                        return;
+                        return true;
                     }
                 }
 
-                result.set(false);
+                return false;
             }
         });
-
-        return result;
     }
 
     @TargetApi(Build.VERSION_CODES.O)
