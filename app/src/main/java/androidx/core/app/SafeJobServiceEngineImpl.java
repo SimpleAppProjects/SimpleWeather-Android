@@ -43,8 +43,8 @@ public final class SafeJobServiceEngineImpl extends JobServiceEngine
                 if (mParams != null) {
                     try {
                         mParams.completeWork(mJobWork);
-                    } catch (SecurityException s) {
-                        Logger.writeLine(Log.ERROR, s);
+                    } catch (SecurityException | IllegalArgumentException e) {
+                        Logger.writeLine(Log.ERROR, e);
                     }
                 }
             }
