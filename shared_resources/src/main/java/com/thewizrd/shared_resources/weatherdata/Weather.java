@@ -116,7 +116,7 @@ public class Weather extends CustomJsonObject {
         // Store potential min/max values
         float dayMax = Float.NaN;
         float dayMin = Float.NaN;
-        int lastDay = 0;
+        int lastDay = -1;
 
         for (int i = 0; i < foreRoot.getList().size(); i++) {
             hrForecast.add(new HourlyForecast(foreRoot.getList().get(i)));
@@ -131,23 +131,25 @@ public class Weather extends CustomJsonObject {
                 dayMin = min;
             }
 
-            // Get every 8th item for daily forecast
-            if (i % 8 == 0) {
-                lastDay = i / 8;
-
-                forecast.add(i / 8, new Forecast(foreRoot.getList().get(i)));
+            // Add mid-day forecast
+            int currHour = hrForecast.get(i).getDate().plusSeconds(currRoot.getTimezone()).getHour();
+            if (currHour >= 11 && currHour <= 13) {
+                forecast.add(new Forecast(foreRoot.getList().get(i)));
+                lastDay = forecast.size() - 1;
             }
 
             // This is possibly the last forecast for the day (3-hrly forecast)
             // Set the min / max temp here and reset
-            if (hrForecast.get(i).getDate().getHour() >= 21) {
-                if (!Float.isNaN(dayMax)) {
-                    forecast.get(lastDay).setHighF(ConversionMethods.KtoF(dayMax));
-                    forecast.get(lastDay).setHighC(ConversionMethods.KtoC(dayMax));
-                }
-                if (!Float.isNaN(dayMin)) {
-                    forecast.get(lastDay).setLowF(ConversionMethods.KtoF(dayMin));
-                    forecast.get(lastDay).setLowC(ConversionMethods.KtoC(dayMin));
+            if (currHour >= 21) {
+                if (lastDay >= 0) {
+                    if (!Float.isNaN(dayMax)) {
+                        forecast.get(lastDay).setHighF(ConversionMethods.KtoF(dayMax));
+                        forecast.get(lastDay).setHighC(ConversionMethods.KtoC(dayMax));
+                    }
+                    if (!Float.isNaN(dayMin)) {
+                        forecast.get(lastDay).setLowF(ConversionMethods.KtoF(dayMin));
+                        forecast.get(lastDay).setLowC(ConversionMethods.KtoC(dayMin));
+                    }
                 }
 
                 dayMax = Float.NaN;
