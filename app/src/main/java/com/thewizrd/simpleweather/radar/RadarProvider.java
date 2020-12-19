@@ -24,9 +24,10 @@ public final class RadarProvider {
 
     public static final String EARTHWINDMAP = "nullschool";
     public static final String RAINVIEWER = "rainviewer";
+    public static final String OPENWEATHERMAP = "openweather";
 
     @StringDef({
-            EARTHWINDMAP, RAINVIEWER
+            EARTHWINDMAP, RAINVIEWER, OPENWEATHERMAP
     })
     @Retention(RetentionPolicy.CLASS)
     public @interface RadarProviders {
@@ -39,7 +40,9 @@ public final class RadarProvider {
             new ProviderEntry("EarthWindMap Project", EARTHWINDMAP,
                     "https://earth.nullschool.net/", "https://earth.nullschool.net/"),
             new ProviderEntry("RainViewer", RAINVIEWER,
-                    "https://www.rainviewer.com/", "https://www.rainviewer.com/api.html")
+                    "https://www.rainviewer.com/", "https://www.rainviewer.com/api.html"),
+            new ProviderEntry("OpenWeatherMap", OPENWEATHERMAP,
+                    "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up")
     );
 
     @RadarProviders
@@ -52,6 +55,8 @@ public final class RadarProvider {
     public static RadarViewProvider getRadarViewProvider(@NonNull Context context, @NonNull ViewGroup rootView) {
         if (ObjectsCompat.equals(RadarProvider.getRadarProvider(), RadarProvider.RAINVIEWER)) {
             return new RainViewerViewProvider(context, rootView);
+        } else if (ObjectsCompat.equals(RadarProvider.getRadarProvider(), RadarProvider.OPENWEATHERMAP)) {
+            return new OWMRadarViewProvider(context, rootView);
         } else {
             return new EarthWindMapViewProvider(context, rootView);
         }
