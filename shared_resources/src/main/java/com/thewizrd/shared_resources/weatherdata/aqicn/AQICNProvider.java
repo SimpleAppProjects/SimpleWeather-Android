@@ -15,6 +15,7 @@ import com.thewizrd.shared_resources.weatherdata.AirQuality;
 import com.thewizrd.shared_resources.weatherdata.AirQualityProviderInterface;
 
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.text.DecimalFormat;
 import java.util.Locale;
 
@@ -24,6 +25,7 @@ import okhttp3.Response;
 
 public class AQICNProvider implements AirQualityProviderInterface {
     private static final String QUERY_URL = "https://api.waqi.info/feed/geo:%s;%s/?token=%s";
+    private static final int MAX_ATTEMPTS = 2;
 
     @Override
     public AirQuality getAirQualityData(LocationData location) throws WeatherException {
@@ -49,17 +51,31 @@ public class AQICNProvider implements AirQualityProviderInterface {
                     .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
                     .build();
 
-            // Connect to webstream
-            response = client.newCall(request).execute();
-            final InputStream stream = response.body().byteStream();
+            for (int i = 0; i < MAX_ATTEMPTS; i++) {
+                try {
+                    // Connect to webstream
+                    response = client.newCall(request).execute();
 
-            // Load data
-            Rootobject root = JSONParser.deserializer(stream, Rootobject.class);
+                    if (response.code() == HttpURLConnection.HTTP_BAD_REQUEST) {
+                        break;
+                    } else {
+                        final InputStream stream = response.body().byteStream();
 
-            aqiData = new AirQuality(root);
+                        // Load data
+                        Rootobject root = JSONParser.deserializer(stream, Rootobject.class);
 
-            // End Stream
-            stream.close();
+                        aqiData = new AirQuality(root);
+
+                        // End Stream
+                        stream.close();
+                    }
+                } catch (Exception ignored) {
+                }
+
+                if (i < MAX_ATTEMPTS - 1 && response == null) {
+                    Thread.sleep(1000);
+                }
+            }
         } catch (Exception ex) {
             aqiData = null;
             Logger.writeLine(Log.ERROR, ex, "AQICNProvider: error getting air quality data");

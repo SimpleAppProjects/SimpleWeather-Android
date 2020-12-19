@@ -26,12 +26,14 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.utils.here.HEREOAuthUtils;
+import com.thewizrd.shared_resources.weatherdata.AirQuality;
 import com.thewizrd.shared_resources.weatherdata.Astronomy;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
+import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNProvider;
 import com.thewizrd.shared_resources.weatherdata.images.ImageDatabase;
 import com.thewizrd.shared_resources.weatherdata.nws.SolCalcAstroProvider;
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider;
@@ -160,6 +162,17 @@ public class UnitTests {
         String tz = new TimeZoneProvider().getTimeZone(0, 0);
         Log.d("TZTest", "tz = " + tz);
         Assert.assertFalse(StringUtils.isNullOrWhitespace(tz));
+    }
+
+    @Test
+    public void getAQIData() throws WeatherException {
+        String tz_long = "America/Los_Angeles";
+        final LocationData locationData = new LocationData();
+        locationData.setLatitude(47.6721646);
+        locationData.setLongitude(-122.1706614);
+        locationData.setTzLong(tz_long);
+        AirQuality aqi = new AQICNProvider().getAirQualityData(locationData);
+        Assert.assertNotNull(aqi);
     }
 
     @Test
