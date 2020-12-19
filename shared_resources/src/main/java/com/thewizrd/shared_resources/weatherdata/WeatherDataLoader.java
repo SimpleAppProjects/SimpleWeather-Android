@@ -40,12 +40,12 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public final class WeatherDataLoader {
-    private LocationData location;
+    private final LocationData location;
     private Weather weather = null;
     private Collection<WeatherAlert> weatherAlerts = null;
-    private WeatherManager wm = WeatherManager.getInstance();
+    private final WeatherManager wm = WeatherManager.getInstance();
 
-    private LocalBroadcastManager mLocalBroadcastManager;
+    private final LocalBroadcastManager mLocalBroadcastManager;
 
     private static final String TAG = "WeatherDataLoader";
 
@@ -261,7 +261,7 @@ public final class WeatherDataLoader {
                 if ((weather != null && !weather.getSource().equals(Settings.getAPI()))
                         || (weather == null && location != null && !location.getWeatherSource().equals(Settings.getAPI()))) {
                     // Only update location data if weather provider is not NWS or if it is NWS and the location is supported
-                    if (!WeatherAPI.NWS.equals(location.getWeatherSource()) || LocationUtils.isUS(location.getCountryCode())) {
+                    if (!WeatherAPI.NWS.equals(Settings.getAPI()) || LocationUtils.isUS(location.getCountryCode())) {
                         // Update location query and source for new API
                         String oldKey = location.getQuery();
 
