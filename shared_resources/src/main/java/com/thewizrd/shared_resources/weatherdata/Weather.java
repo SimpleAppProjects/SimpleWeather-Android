@@ -98,6 +98,12 @@ public class Weather extends CustomJsonObject {
             condition.setLowC(forecast.get(0).getLowC());
         }
 
+        if (atmosphere.getDewpointC() == null && condition.getTempC() != null && atmosphere.getHumidity() != null &&
+                condition.getTempC() > 0 && condition.getTempC() < 60 && atmosphere.getHumidity() > 1) {
+            atmosphere.setDewpointC((float) Math.round(WeatherUtils.calculateDewpointC(condition.getTempC(), atmosphere.getHumidity())));
+            atmosphere.setDewpointF((float) Math.round(ConversionMethods.CtoF(atmosphere.getDewpointC())));
+        }
+
         condition.setObservationTime(updateTime);
 
         source = WeatherAPI.YAHOO;
@@ -175,6 +181,12 @@ public class Weather extends CustomJsonObject {
             condition.setHighC(forecast.get(0).getHighC());
             condition.setLowF(forecast.get(0).getLowF());
             condition.setLowC(forecast.get(0).getLowC());
+        }
+
+        if (atmosphere.getDewpointC() == null && condition.getTempC() != null && atmosphere.getHumidity() != null &&
+                condition.getTempC() > 0 && condition.getTempC() < 60 && atmosphere.getHumidity() > 1) {
+            atmosphere.setDewpointC((float) Math.round(WeatherUtils.calculateDewpointC(condition.getTempC(), atmosphere.getHumidity())));
+            atmosphere.setDewpointF((float) Math.round(ConversionMethods.CtoF(atmosphere.getDewpointC())));
         }
 
         condition.setObservationTime(updateTime);

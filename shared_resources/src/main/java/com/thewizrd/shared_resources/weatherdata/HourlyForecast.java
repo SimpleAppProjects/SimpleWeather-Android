@@ -80,6 +80,10 @@ public class HourlyForecast extends BaseForecast {
         extras.setWindDegrees(windDegrees);
         extras.setWindMph(windMph);
         extras.setWindKph(windKph);
+        if (highC > 0 && highC < 60 && hr_forecast.getMain().getHumidity() > 1) {
+            extras.setDewpointC((float) Math.round(WeatherUtils.calculateDewpointC(highC, hr_forecast.getMain().getHumidity())));
+            extras.setDewpointF((float) Math.round(ConversionMethods.CtoF(extras.getDewpointC())));
+        }
         if (hr_forecast.getMain().getFeelsLike() != null) {
             extras.setFeelslikeF(ConversionMethods.KtoF(hr_forecast.getMain().getFeelsLike()));
             extras.setFeelslikeC(ConversionMethods.KtoC(hr_forecast.getMain().getFeelsLike()));

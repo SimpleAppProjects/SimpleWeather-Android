@@ -81,6 +81,11 @@ public class Forecast extends BaseForecast {
         extras.setWindDegrees(Math.round(forecast.getWind().getDeg()));
         extras.setWindMph((float) Math.round(ConversionMethods.msecToMph(forecast.getWind().getSpeed())));
         extras.setWindKph((float) Math.round(ConversionMethods.msecToKph(forecast.getWind().getSpeed())));
+        float temp_c = ConversionMethods.KtoC(forecast.getMain().getTemp());
+        if (temp_c > 0 && temp_c < 60 && forecast.getMain().getHumidity() > 1) {
+            extras.setDewpointC((float) Math.round(WeatherUtils.calculateDewpointC(temp_c, forecast.getMain().getHumidity())));
+            extras.setDewpointF((float) Math.round(ConversionMethods.CtoF(extras.getDewpointC())));
+        }
         if (forecast.getMain().getFeelsLike() != null) {
             extras.setFeelslikeF(ConversionMethods.KtoF(forecast.getMain().getFeelsLike()));
             extras.setFeelslikeC(ConversionMethods.KtoC(forecast.getMain().getFeelsLike()));

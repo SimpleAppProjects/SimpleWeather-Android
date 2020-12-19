@@ -110,6 +110,14 @@ public class WeatherUtils {
             return temp_f;
     }
 
+    public static float calculateDewpointF(float temp_f, int humidity) {
+        return ConversionMethods.CtoF(calculateDewpointC(ConversionMethods.FtoC(temp_f), humidity));
+    }
+
+    public static float calculateDewpointC(float temp_c, int humidity) {
+        return (float) (243.04f * (Math.log(humidity / 100f) + ((17.625f * temp_c) / (243.04f + temp_c))) / (17.625f - Math.log(humidity / 100f) - ((17.625f * temp_c) / (243.04f + temp_c))));
+    }
+
     public static String getWindDirection(float angle) {
         Context context = SimpleLibrary.getInstance().getApp().getAppContext();
 
