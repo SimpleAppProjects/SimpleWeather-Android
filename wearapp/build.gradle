@@ -41,6 +41,14 @@ android {
         viewBinding = true
     }
 
+    compileOptions {
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
+        // Sets Java compatibility to Java 8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     // Workaround for binding class errors
     sourceSets {
         debug {
@@ -64,6 +72,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.ext:truth:1.3.0'
     androidTestImplementation 'com.google.truth:truth:1.1'
+
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
 
     implementation 'androidx.wear:wear:1.1.0'
     implementation 'com.google.android.support:wearable:2.8.1'
@@ -103,9 +113,9 @@ dependencies {
 
     implementation 'com.jakewharton.timber:timber:4.7.1'
     implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'com.google.guava:guava:30.0-android'
+    implementation 'com.google.guava:guava:30.1-android'
     implementation 'com.ibm.icu:icu4j:62.1' // Keep @ 62.1 - 63.1 requires Java 7 (API 21+)
-    implementation 'com.jakewharton.threetenabp:threetenabp:1.3.0'
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.3.0' // TODO: migrate to java.time* (desugaring)
 
     implementation("com.vimeo.stag:stag-library:2.6.0") {
         exclude group: "org.jetbrains", module: "annotations-java5"
