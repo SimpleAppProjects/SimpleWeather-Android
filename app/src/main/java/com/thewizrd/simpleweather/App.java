@@ -105,6 +105,7 @@ public class App extends Application implements ApplicationLib, Application.Acti
             StrictMode.VmPolicy.Builder vmPolicyBuild = new StrictMode.VmPolicy.Builder()
                     .detectActivityLeaks()
                     .detectLeakedClosableObjects()
+                    .detectLeakedSqlLiteObjects()
                     .penaltyLog();
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
