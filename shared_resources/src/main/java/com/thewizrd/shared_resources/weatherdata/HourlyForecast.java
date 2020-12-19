@@ -46,7 +46,67 @@ public class HourlyForecast extends BaseForecast {
 
     }
 
-    public HourlyForecast(com.thewizrd.shared_resources.weatherdata.openweather.HourlyItem hr_forecast) {
+    public HourlyForecast(com.thewizrd.shared_resources.weatherdata.openweather.ListItem hr_forecast) {
+        setDate(ZonedDateTime.ofInstant(Instant.ofEpochSecond(hr_forecast.getDt()), ZoneOffset.UTC));
+        highF = ConversionMethods.KtoF(hr_forecast.getMain().getTemp());
+        highC = ConversionMethods.KtoC(hr_forecast.getMain().getTemp());
+        condition = StringUtils.toUpperCase(hr_forecast.getWeather().get(0).getDescription());
+
+        // Use icon to determine if day or night
+        String ico = hr_forecast.getWeather().get(0).getIcon();
+        String dn = Character.toString(ico.charAt(ico.length() == 0 ? 0 : ico.length() - 1));
+
+        try {
+            int x = Integer.parseInt(dn);
+            dn = "";
+        } catch (NumberFormatException ex) {
+            // Do nothing
+        }
+
+        icon = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
+                .getWeatherIcon(hr_forecast.getWeather().get(0).getId() + dn);
+
+        windDegrees = Math.round(hr_forecast.getWind().getDeg());
+        windMph = (float) Math.round(ConversionMethods.msecToMph(hr_forecast.getWind().getSpeed()));
+        windKph = (float) Math.round(ConversionMethods.msecToKph(hr_forecast.getWind().getSpeed()));
+
+        // Extras
+        extras = new ForecastExtras();
+        extras.setHumidity(hr_forecast.getMain().getHumidity());
+        extras.setCloudiness(hr_forecast.getClouds().getAll());
+        // 1hPA = 1mbar
+        extras.setPressureMb(hr_forecast.getMain().getPressure());
+        extras.setPressureIn(ConversionMethods.mbToInHg(hr_forecast.getMain().getPressure()));
+        extras.setWindDegrees(windDegrees);
+        extras.setWindMph(windMph);
+        extras.setWindKph(windKph);
+        if (hr_forecast.getMain().getFeelsLike() != null) {
+            extras.setFeelslikeF(ConversionMethods.KtoF(hr_forecast.getMain().getFeelsLike()));
+            extras.setFeelslikeC(ConversionMethods.KtoC(hr_forecast.getMain().getFeelsLike()));
+        }
+        if (hr_forecast.getPop() != null) {
+            extras.setPop(Math.round(hr_forecast.getPop() * 100));
+        }
+        if (hr_forecast.getWind().getGust() != null) {
+            extras.setWindGustMph((float) Math.round(ConversionMethods.msecToMph(hr_forecast.getWind().getGust())));
+            extras.setWindGustKph((float) Math.round(ConversionMethods.msecToKph(hr_forecast.getWind().getGust())));
+        }
+        if (hr_forecast.getVisibility() != null) {
+            extras.setVisibilityKm(hr_forecast.getVisibility().floatValue() / 1000);
+            extras.setVisibilityMi(ConversionMethods.kmToMi(extras.getVisibilityKm()));
+        }
+        if (hr_forecast.getRain() != null && hr_forecast.getRain().get_3h() != null) {
+            extras.setQpfRainMm(hr_forecast.getRain().get_3h());
+            extras.setQpfRainIn(ConversionMethods.mmToIn(hr_forecast.getRain().get_3h()));
+        }
+        if (hr_forecast.getSnow() != null && hr_forecast.getSnow().get_3h() != null) {
+            extras.setQpfSnowCm(hr_forecast.getSnow().get_3h() / 10);
+            extras.setQpfSnowIn(ConversionMethods.mmToIn(hr_forecast.getSnow().get_3h()));
+        }
+    }
+
+    /* OpenWeather OneCall
+    public HourlyForecast(com.thewizrd.shared_resources.weatherdata.openweather.onecall.HourlyItem hr_forecast) {
         setDate(ZonedDateTime.ofInstant(Instant.ofEpochSecond(hr_forecast.getDt()), ZoneOffset.UTC));
         highF = ConversionMethods.KtoF(hr_forecast.getTemp());
         highC = ConversionMethods.KtoC(hr_forecast.getTemp());
@@ -104,6 +164,7 @@ public class HourlyForecast extends BaseForecast {
             extras.setQpfSnowIn(ConversionMethods.mmToIn(hr_forecast.getSnow().get_1h()));
         }
     }
+     */
 
     public HourlyForecast(com.thewizrd.shared_resources.weatherdata.metno.TimeseriesItem hr_forecast) {
         // new DateTimeOffset(, TimeSpan.Zero);

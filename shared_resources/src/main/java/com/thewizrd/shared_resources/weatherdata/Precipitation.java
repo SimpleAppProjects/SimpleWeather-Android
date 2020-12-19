@@ -41,7 +41,31 @@ public class Precipitation extends CustomJsonObject {
         // Needed for deserialization
     }
 
-    public Precipitation(com.thewizrd.shared_resources.weatherdata.openweather.Current current) {
+    public Precipitation(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
+        // Use cloudiness value here
+        cloudiness = root.getClouds().getAll();
+        if (root.getRain() != null) {
+            if (root.getRain().get_1h() != null) {
+                qpfRainIn = ConversionMethods.mmToIn(root.getRain().get_1h());
+                qpfRainMm = root.getRain().get_1h();
+            } else if (root.getRain().get_3h() != null) {
+                qpfRainIn = ConversionMethods.mmToIn(root.getRain().get_3h());
+                qpfRainMm = root.getRain().get_3h();
+            }
+        }
+        if (root.getSnow() != null) {
+            if (root.getRain().get_1h() != null) {
+                qpfSnowIn = ConversionMethods.mmToIn(root.getSnow().get_1h());
+                qpfSnowCm = root.getSnow().get_1h() / 10;
+            } else if (root.getRain().get_3h() != null) {
+                qpfSnowIn = ConversionMethods.mmToIn(root.getSnow().get_3h());
+                qpfSnowCm = root.getSnow().get_3h() / 10;
+            }
+        }
+    }
+
+    /* OpenWeather OneCall
+    public Precipitation(com.thewizrd.shared_resources.weatherdata.openweather.onecall.Current current) {
         // Use cloudiness value here
         cloudiness = current.getClouds();
         if (current.getRain() != null) {
@@ -53,6 +77,7 @@ public class Precipitation extends CustomJsonObject {
             qpfSnowCm = current.getSnow().get_1h() / 10;
         }
     }
+    */
 
     public Precipitation(com.thewizrd.shared_resources.weatherdata.metno.TimeseriesItem time) {
         // Use cloudiness value here

@@ -61,7 +61,53 @@ public class Forecast extends BaseForecast {
         lowC = ConversionMethods.FtoC(lowF);
     }
 
-    public Forecast(com.thewizrd.shared_resources.weatherdata.openweather.DailyItem forecast) {
+    public Forecast(com.thewizrd.shared_resources.weatherdata.openweather.ListItem forecast) {
+        date = LocalDateTime.ofEpochSecond(forecast.getDt(), 0, ZoneOffset.UTC);
+        highF = ConversionMethods.KtoF(forecast.getMain().getTempMax());
+        highC = ConversionMethods.KtoC(forecast.getMain().getTempMax());
+        lowF = ConversionMethods.KtoF(forecast.getMain().getTempMin());
+        lowC = ConversionMethods.KtoC(forecast.getMain().getTempMin());
+        condition = StringUtils.toUpperCase(forecast.getWeather().get(0).getDescription());
+        icon = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
+                .getWeatherIcon(Integer.toString(forecast.getWeather().get(0).getId()));
+
+        // Extras
+        extras = new ForecastExtras();
+        extras.setHumidity(forecast.getMain().getHumidity());
+        extras.setCloudiness(forecast.getClouds().getAll());
+        // 1hPA = 1mbar
+        extras.setPressureMb(forecast.getMain().getPressure());
+        extras.setPressureIn(ConversionMethods.mbToInHg(forecast.getMain().getPressure()));
+        extras.setWindDegrees(Math.round(forecast.getWind().getDeg()));
+        extras.setWindMph((float) Math.round(ConversionMethods.msecToMph(forecast.getWind().getSpeed())));
+        extras.setWindKph((float) Math.round(ConversionMethods.msecToKph(forecast.getWind().getSpeed())));
+        if (forecast.getMain().getFeelsLike() != null) {
+            extras.setFeelslikeF(ConversionMethods.KtoF(forecast.getMain().getFeelsLike()));
+            extras.setFeelslikeC(ConversionMethods.KtoC(forecast.getMain().getFeelsLike()));
+        }
+        if (forecast.getPop() != null) {
+            extras.setPop(Math.round(forecast.getPop() * 100));
+        }
+        if (forecast.getVisibility() != null) {
+            extras.setVisibilityKm(forecast.getVisibility().floatValue() / 1000);
+            extras.setVisibilityMi(ConversionMethods.kmToMi(extras.getVisibilityKm()));
+        }
+        if (forecast.getWind().getGust() != null) {
+            extras.setWindGustMph((float) Math.round(ConversionMethods.msecToMph(forecast.getWind().getGust())));
+            extras.setWindGustKph((float) Math.round(ConversionMethods.msecToKph(forecast.getWind().getGust())));
+        }
+        if (forecast.getRain() != null && forecast.getRain().get_3h() != null) {
+            extras.setQpfRainMm(forecast.getRain().get_3h());
+            extras.setQpfRainIn(ConversionMethods.mmToIn(forecast.getRain().get_3h()));
+        }
+        if (forecast.getSnow() != null && forecast.getSnow().get_3h() != null) {
+            extras.setQpfSnowCm(forecast.getSnow().get_3h() / 10);
+            extras.setQpfSnowIn(ConversionMethods.mmToIn(forecast.getSnow().get_3h()));
+        }
+    }
+
+    /* OpenWeather OneCall
+    public Forecast(com.thewizrd.shared_resources.weatherdata.openweather.onecall.DailyItem forecast) {
         date = LocalDateTime.ofEpochSecond(forecast.getDt(), 0, ZoneOffset.UTC);
         highF = ConversionMethods.KtoF(forecast.getTemp().getMax());
         highC = ConversionMethods.KtoC(forecast.getTemp().getMax());
@@ -104,6 +150,7 @@ public class Forecast extends BaseForecast {
             extras.setQpfSnowIn(ConversionMethods.mmToIn(forecast.getSnow()));
         }
     }
+     */
 
     public Forecast(com.thewizrd.shared_resources.weatherdata.metno.TimeseriesItem time) {
         date = LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time.getTime())), ZoneOffset.UTC);

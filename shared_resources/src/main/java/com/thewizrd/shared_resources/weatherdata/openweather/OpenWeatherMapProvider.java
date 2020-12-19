@@ -43,8 +43,9 @@ import okhttp3.Response;
 
 public final class OpenWeatherMapProvider extends WeatherProviderImpl {
     private static final String BASE_URL = "https://api.openweathermap.org/data/2.5/";
-    private static final String KEY_QUERY_URL = BASE_URL + "forecast?appid=%s";
-    private static final String WEATHER_QUERY_URL = BASE_URL + "onecall?%s&exclude=minutely&appid=%s&lang=%s";
+    private static final String KEYCHECK_QUERY_URL = BASE_URL + "forecast?appid=%s";
+    private static final String CURRENT_QUERY_URL = BASE_URL + "weather?%s&appid=%s&lang=%s";
+    private static final String FORECAST_QUERY_URL = BASE_URL + "forecast?%s&appid=%s&lang=%s";
 
     public OpenWeatherMapProvider() {
         super();
@@ -90,7 +91,7 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
 
         try {
             Request request = new Request.Builder()
-                    .url(String.format(KEY_QUERY_URL, key))
+                    .url(String.format(KEYCHECK_QUERY_URL, key))
                     .cacheControl(CacheControl.FORCE_NETWORK)
                     .build();
 
@@ -149,25 +150,32 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
         String key = Settings.usePersonalKey() ? Settings.getAPIKEY() : getAPIKey();
 
         OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
-        Response response = null;
+        Response currentResponse = null, forecastResponse = null;
         WeatherException wEx = null;
 
         try {
-            Request request = new Request.Builder()
-                    .url(String.format(WEATHER_QUERY_URL, query, key, locale))
+            Request currentRequest = new Request.Builder()
+                    .url(String.format(CURRENT_QUERY_URL, query, key, locale))
+                    .build();
+            Request forecastRequest = new Request.Builder()
+                    .url(String.format(FORECAST_QUERY_URL, query, key, locale))
                     .build();
 
             // Connect to webstream
-            response = client.newCall(request).execute();
-            final InputStream stream = response.body().byteStream();
+            currentResponse = client.newCall(currentRequest).execute();
+            forecastResponse = client.newCall(forecastRequest).execute();
+            final InputStream currentStream = currentResponse.body().byteStream();
+            final InputStream forecastStream = forecastResponse.body().byteStream();
 
             // Load weather
-            Rootobject root = JSONParser.deserializer(stream, Rootobject.class);
+            CurrentRootobject currRoot = JSONParser.deserializer(currentStream, CurrentRootobject.class);
+            ForecastRootobject foreRoot = JSONParser.deserializer(forecastStream, ForecastRootobject.class);
 
             // End Stream
-            stream.close();
+            currentStream.close();
+            forecastStream.close();
 
-            weather = new Weather(root);
+            weather = new Weather(currRoot, foreRoot);
         } catch (Exception ex) {
             weather = null;
             if (ex instanceof IOException) {
@@ -175,8 +183,10 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
             }
             Logger.writeLine(Log.ERROR, ex, "OpenWeatherMapProvider: error getting weather data");
         } finally {
-            if (response != null)
-                response.close();
+            if (currentResponse != null)
+                currentResponse.close();
+            if (forecastResponse != null)
+                forecastResponse.close();
         }
 
         if (wEx == null && (weather == null || !weather.isValid())) {
@@ -201,6 +211,7 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
         // OWM reports datetime in UTC; add location tz_offset
         ZoneOffset offset = location.getTzOffset();
         weather.setUpdateTime(weather.getUpdateTime().withZoneSameInstant(offset));
+        weather.getCondition().setObservationTime(weather.getCondition().getObservationTime().withZoneSameInstant(offset));
         for (HourlyForecast hr_forecast : weather.getHrForecast()) {
             hr_forecast.setDate(hr_forecast.getDate().withZoneSameInstant(offset));
         }

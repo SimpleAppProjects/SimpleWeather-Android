@@ -103,18 +103,96 @@ public class Weather extends CustomJsonObject {
         source = WeatherAPI.YAHOO;
     }
 
-    public Weather(com.thewizrd.shared_resources.weatherdata.openweather.Rootobject root) {
+    public Weather(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject currRoot,
+                   com.thewizrd.shared_resources.weatherdata.openweather.ForecastRootobject foreRoot) {
+        location = new Location(foreRoot);
+        updateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(currRoot.getDt()), ZoneOffset.UTC);
+
+        // 5-day forecast / 3-hr forecast
+        // 24hr / 3hr = 8items for each day
+        forecast = new ArrayList<>(5);
+        hrForecast = new ArrayList<>(foreRoot.getList().size());
+
+        // Store potential min/max values
+        float dayMax = Float.NaN;
+        float dayMin = Float.NaN;
+        int lastDay = 0;
+
+        for (int i = 0; i < foreRoot.getList().size(); i++) {
+            hrForecast.add(new HourlyForecast(foreRoot.getList().get(i)));
+
+            float max = foreRoot.getList().get(i).getMain().getTempMax();
+            if (!Float.isNaN(max) && (Float.isNaN(dayMax) || max > dayMax)) {
+                dayMax = max;
+            }
+
+            float min = foreRoot.getList().get(i).getMain().getTempMin();
+            if (!Float.isNaN(min) && (Float.isNaN(dayMin) || min < dayMin)) {
+                dayMin = min;
+            }
+
+            // Get every 8th item for daily forecast
+            if (i % 8 == 0) {
+                lastDay = i / 8;
+
+                forecast.add(i / 8, new Forecast(foreRoot.getList().get(i)));
+            }
+
+            // This is possibly the last forecast for the day (3-hrly forecast)
+            // Set the min / max temp here and reset
+            if (hrForecast.get(i).getDate().getHour() >= 21) {
+                if (!Float.isNaN(dayMax)) {
+                    forecast.get(lastDay).setHighF(ConversionMethods.KtoF(dayMax));
+                    forecast.get(lastDay).setHighC(ConversionMethods.KtoC(dayMax));
+                }
+                if (!Float.isNaN(dayMin)) {
+                    forecast.get(lastDay).setLowF(ConversionMethods.KtoF(dayMin));
+                    forecast.get(lastDay).setLowC(ConversionMethods.KtoC(dayMin));
+                }
+
+                dayMax = Float.NaN;
+                dayMin = Float.NaN;
+            }
+        }
+        condition = new Condition(currRoot);
+        atmosphere = new Atmosphere(currRoot);
+        astronomy = new Astronomy(currRoot);
+        precipitation = new Precipitation(currRoot);
+        ttl = 180;
+
+        query = Integer.toString(currRoot.getId());
+
+        // Set feelslike temp
+        if (condition.getFeelslikeF() == null && condition.getTempF() != null && condition.getWindMph() != null && atmosphere.getHumidity() != null) {
+            condition.setFeelslikeF(WeatherUtils.getFeelsLikeTemp(condition.getTempF(), condition.getWindMph(), atmosphere.getHumidity()));
+            condition.setFeelslikeC(ConversionMethods.FtoC(condition.getFeelslikeF()));
+        }
+
+        if ((condition.getHighF() == null || condition.getHighC() == null) && forecast.size() > 0) {
+            condition.setHighF(forecast.get(0).getHighF());
+            condition.setHighC(forecast.get(0).getHighC());
+            condition.setLowF(forecast.get(0).getLowF());
+            condition.setLowC(forecast.get(0).getLowC());
+        }
+
+        condition.setObservationTime(updateTime);
+
+        source = WeatherAPI.OPENWEATHERMAP;
+    }
+
+    /* OpenWeather OneCall
+    public Weather(com.thewizrd.shared_resources.weatherdata.openweather.onecall.Rootobject root) {
         location = new Location(root);
         updateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(root.getCurrent().getDt()), ZoneOffset.UTC);
 
         forecast = new ArrayList<>(root.getDaily().size());
         txtForecast = new ArrayList<>(root.getDaily().size());
-        for (com.thewizrd.shared_resources.weatherdata.openweather.DailyItem daily : root.getDaily()) {
+        for (DailyItem daily : root.getDaily()) {
             forecast.add(new Forecast(daily));
             txtForecast.add(new TextForecast(daily));
         }
         hrForecast = new ArrayList<>(root.getHourly().size());
-        for (com.thewizrd.shared_resources.weatherdata.openweather.HourlyItem hourly : root.getHourly()) {
+        for (HourlyItem hourly : root.getHourly()) {
             hrForecast.add(new HourlyForecast(hourly));
         }
 
@@ -135,8 +213,11 @@ public class Weather extends CustomJsonObject {
             condition.setLowC(forecast.get(0).getLowC());
         }
 
+        condition.setObservationTime(updateTime);
+
         source = WeatherAPI.OPENWEATHERMAP;
     }
+     */
 
     public Weather(com.thewizrd.shared_resources.weatherdata.metno.Response foreRoot, com.thewizrd.shared_resources.weatherdata.metno.AstroResponse astroRoot) {
         ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);

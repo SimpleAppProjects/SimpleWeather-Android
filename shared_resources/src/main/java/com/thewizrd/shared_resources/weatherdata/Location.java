@@ -48,13 +48,23 @@ public class Location extends CustomJsonObject {
         tzLong = location.getTimezoneId();
     }
 
-    public Location(com.thewizrd.shared_resources.weatherdata.openweather.Rootobject root) {
+    public Location(com.thewizrd.shared_resources.weatherdata.openweather.ForecastRootobject root) {
+        // Use location name from location provider
+        name = null;
+        latitude = root.getCity().getCoord().getLat();
+        longitude = root.getCity().getCoord().getLon();
+        tzLong = null;
+    }
+
+    /* OpenWeather OneCall
+    public Location(com.thewizrd.shared_resources.weatherdata.openweather.onecall.Rootobject root) {
         // Use location name from location provider
         name = null;
         latitude = root.getLat();
         longitude = root.getLon();
         tzLong = root.getTimezone();
     }
+     */
 
     public Location(com.thewizrd.shared_resources.weatherdata.metno.Response foreRoot) {
         // API doesn't provide location name (at all)

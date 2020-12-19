@@ -56,7 +56,18 @@ public class Atmosphere extends CustomJsonObject {
         visibilityKm = ConversionMethods.miToKm(visibilityMi);
     }
 
-    public Atmosphere(com.thewizrd.shared_resources.weatherdata.openweather.Current current) {
+    public Atmosphere(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
+        humidity = root.getMain().getHumidity();
+        // 1hPa = 1mbar
+        pressureMb = root.getMain().getPressure();
+        pressureIn = ConversionMethods.mbToInHg(root.getMain().getPressure());
+        pressureTrend = "";
+        visibilityKm = root.getVisibility() / 1000f;
+        visibilityMi = ConversionMethods.kmToMi(visibilityKm);
+    }
+
+    /* OpenWeather OneCall
+    public Atmosphere(com.thewizrd.shared_resources.weatherdata.openweather.onecall.Current current) {
         humidity = current.getHumidity();
         // 1hPa = 1mbar
         pressureMb = current.getPressure();
@@ -67,6 +78,7 @@ public class Atmosphere extends CustomJsonObject {
         dewpointF = ConversionMethods.KtoF(current.getDewPoint());
         dewpointC = ConversionMethods.KtoC(current.getDewPoint());
     }
+    */
 
     public Atmosphere(com.thewizrd.shared_resources.weatherdata.metno.TimeseriesItem time) {
         humidity = Math.round(time.getData().getInstant().getDetails().getRelativeHumidity());

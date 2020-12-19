@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.weatherdata.openweather;
+package com.thewizrd.shared_resources.weatherdata.openweather.onecall;
 
 import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.UseStag;

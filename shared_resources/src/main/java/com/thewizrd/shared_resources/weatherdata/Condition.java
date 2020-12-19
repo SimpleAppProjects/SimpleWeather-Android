@@ -112,7 +112,46 @@ public class Condition extends CustomJsonObject {
         beaufort = new Beaufort(WeatherUtils.getBeaufortScale((int) Math.round(windMph)).getValue());
     }
 
-    public Condition(com.thewizrd.shared_resources.weatherdata.openweather.Current current) {
+    public Condition(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject current) {
+        weather = StringUtils.toUpperCase(current.getWeather().get(0).getDescription());
+        tempF = ConversionMethods.KtoF(current.getMain().getTemp());
+        tempC = ConversionMethods.KtoC(current.getMain().getTemp());
+        highF = ConversionMethods.KtoF(current.getMain().getTempMax());
+        highC = ConversionMethods.KtoC(current.getMain().getTempMax());
+        lowF = ConversionMethods.KtoF(current.getMain().getTempMin());
+        lowC = ConversionMethods.KtoC(current.getMain().getTempMin());
+        windDegrees = (int) current.getWind().getDeg();
+        windMph = ConversionMethods.msecToMph(current.getWind().getSpeed());
+        windKph = ConversionMethods.msecToKph(current.getWind().getSpeed());
+        if (current.getMain().getFeelsLike() != null) {
+            feelslikeF = ConversionMethods.KtoF(current.getMain().getFeelsLike());
+            feelslikeC = ConversionMethods.KtoC(current.getMain().getFeelsLike());
+        }
+        if (current.getWind().getGust() != null) {
+            windGustMph = ConversionMethods.msecToMph(current.getWind().getGust());
+            windGustMph = ConversionMethods.msecToKph(current.getWind().getGust());
+        }
+
+        String ico = current.getWeather().get(0).getIcon();
+        String dn = Character.toString(ico.charAt(ico.length() == 0 ? 0 : ico.length() - 1));
+
+        try {
+            int x = Integer.parseInt(dn);
+            dn = "";
+        } catch (NumberFormatException ex) {
+            // DO nothing
+        }
+
+        icon = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
+                .getWeatherIcon(current.getWeather().get(0).getId() + dn);
+
+        beaufort = new Beaufort(WeatherUtils.getBeaufortScale(current.getWind().getSpeed()).getValue());
+
+        observationTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(current.getDt()), ZoneOffset.UTC);
+    }
+
+    /* OpenWeather OneCall
+    public Condition(com.thewizrd.shared_resources.weatherdata.openweather.onecall.Current current) {
         weather = StringUtils.toUpperCase(current.getWeather().get(0).getDescription());
         tempF = ConversionMethods.KtoF(current.getTemp());
         tempC = ConversionMethods.KtoC(current.getTemp());
@@ -144,6 +183,7 @@ public class Condition extends CustomJsonObject {
 
         observationTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(current.getDt()), ZoneOffset.UTC);
     }
+     */
 
     public Condition(com.thewizrd.shared_resources.weatherdata.metno.TimeseriesItem time) {
         // weather

@@ -75,7 +75,35 @@ public class Astronomy extends CustomJsonObject {
         }
     }
 
-    public Astronomy(com.thewizrd.shared_resources.weatherdata.openweather.Current current) {
+    public Astronomy(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
+        try {
+            sunrise = LocalDateTime.ofEpochSecond(root.getSys().getSunrise(), 0, ZoneOffset.UTC);
+        } catch (Exception e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
+        try {
+            sunset = LocalDateTime.ofEpochSecond(root.getSys().getSunset(), 0, ZoneOffset.UTC);
+        } catch (Exception e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
+
+        // If the sun won't set/rise, set time to the future
+        if (sunrise == null) {
+            sunrise = LocalDateTime.now().plusYears(1).minusNanos(1);
+        }
+        if (sunset == null) {
+            sunset = LocalDateTime.now().plusYears(1).minusNanos(1);
+        }
+        if (moonrise == null) {
+            moonrise = DateTimeUtils.getLocalDateTimeMIN();
+        }
+        if (moonset == null) {
+            moonset = DateTimeUtils.getLocalDateTimeMIN();
+        }
+    }
+
+    /* OpenWeather OneCall
+    public Astronomy(com.thewizrd.shared_resources.weatherdata.openweather.onecall.Current current) {
         try {
             sunrise = LocalDateTime.ofEpochSecond(current.getSunrise(), 0, ZoneOffset.UTC);
         } catch (Exception e) {
@@ -101,6 +129,7 @@ public class Astronomy extends CustomJsonObject {
             moonset = DateTimeUtils.getLocalDateTimeMIN();
         }
     }
+    */
 
     public Astronomy(com.thewizrd.shared_resources.weatherdata.metno.AstroResponse astroRoot) {
         int moonPhaseValue = -1;

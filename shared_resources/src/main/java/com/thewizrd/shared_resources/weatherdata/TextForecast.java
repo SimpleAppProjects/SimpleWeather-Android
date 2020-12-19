@@ -1,6 +1,5 @@
 package com.thewizrd.shared_resources.weatherdata;
 
-import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
@@ -9,15 +8,10 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.thewizrd.shared_resources.R;
-import com.thewizrd.shared_resources.SimpleLibrary;
-import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 
-import org.threeten.bp.Instant;
-import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
@@ -41,7 +35,8 @@ public class TextForecast extends CustomJsonObject {
         // Needed for deserialization
     }
 
-    public TextForecast(com.thewizrd.shared_resources.weatherdata.openweather.DailyItem forecast) {
+    /* OpenWeather OneCall
+    public TextForecast(com.thewizrd.shared_resources.weatherdata.openweather.onecall.DailyItem forecast) {
         Context context = SimpleLibrary.getInstance().getApp().getAppContext();
 
         date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(forecast.getDt()), ZoneOffset.UTC);
@@ -108,6 +103,7 @@ public class TextForecast extends CustomJsonObject {
 
         fcttextMetric = sb_metric.toString();
     }
+     */
 
     public TextForecast(com.thewizrd.shared_resources.weatherdata.here.ForecastItem forecast) {
         date = ZonedDateTime.parse(forecast.getUtcTime());

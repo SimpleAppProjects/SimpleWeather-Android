@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.weatherdata.openweather;
+package com.thewizrd.shared_resources.weatherdata.openweather.onecall;
 
 import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.UseStag;
@@ -6,40 +6,19 @@ import com.vimeo.stag.UseStag;
 import java.util.List;
 
 @UseStag(UseStag.FieldOption.ALL)
-public class Current {
-
-    @SerializedName("sunrise")
-    private long sunrise;
-
-    @SerializedName("temp")
-    private float temp;
-
-    @SerializedName("visibility")
-    private int visibility;
-
-    @SerializedName("uvi")
-    private float uvi;
-
-    @SerializedName("pressure")
-    private float pressure;
-
-    @SerializedName("clouds")
-    private int clouds;
-
-    @SerializedName("feels_like")
-    private float feelsLike;
+public class HourlyItem {
 
     @SerializedName("dt")
     private long dt;
+
+    @SerializedName("temp")
+    private float temp;
 
     @SerializedName("wind_deg")
     private int windDeg;
 
     @SerializedName("dew_point")
     private float dewPoint;
-
-    @SerializedName("sunset")
-    private long sunset;
 
     @SerializedName("weather")
     private List<WeatherItem> weather;
@@ -53,18 +32,33 @@ public class Current {
     @SerializedName("wind_gust")
     private Float windGust;
 
+    @SerializedName("pressure")
+    private float pressure;
+
+    @SerializedName("clouds")
+    private int clouds;
+
+    @SerializedName("pop")
+    private Float pop;
+
+    @SerializedName("feels_like")
+    private float feelsLike;
+
     @SerializedName("rain")
     private Rain rain;
 
     @SerializedName("snow")
     private Snow snow;
 
-    public long getSunrise() {
-        return sunrise;
+    @SerializedName("visibility")
+    private Integer visibility;
+
+    public long getDt() {
+        return dt;
     }
 
-    public void setSunrise(long sunrise) {
-        this.sunrise = sunrise;
+    public void setDt(long dt) {
+        this.dt = dt;
     }
 
     public float getTemp() {
@@ -73,54 +67,6 @@ public class Current {
 
     public void setTemp(float temp) {
         this.temp = temp;
-    }
-
-    public int getVisibility() {
-        return visibility;
-    }
-
-    public void setVisibility(int visibility) {
-        this.visibility = visibility;
-    }
-
-    public float getUvi() {
-        return uvi;
-    }
-
-    public void setUvi(float uvi) {
-        this.uvi = uvi;
-    }
-
-    public float getPressure() {
-        return pressure;
-    }
-
-    public void setPressure(float pressure) {
-        this.pressure = pressure;
-    }
-
-    public int getClouds() {
-        return clouds;
-    }
-
-    public void setClouds(int clouds) {
-        this.clouds = clouds;
-    }
-
-    public float getFeelsLike() {
-        return feelsLike;
-    }
-
-    public void setFeelsLike(float feelsLike) {
-        this.feelsLike = feelsLike;
-    }
-
-    public long getDt() {
-        return dt;
-    }
-
-    public void setDt(long dt) {
-        this.dt = dt;
     }
 
     public int getWindDeg() {
@@ -137,14 +83,6 @@ public class Current {
 
     public void setDewPoint(float dewPoint) {
         this.dewPoint = dewPoint;
-    }
-
-    public long getSunset() {
-        return sunset;
-    }
-
-    public void setSunset(long sunset) {
-        this.sunset = sunset;
     }
 
     public List<WeatherItem> getWeather() {
@@ -179,6 +117,38 @@ public class Current {
         this.windGust = windGust;
     }
 
+    public float getPressure() {
+        return pressure;
+    }
+
+    public void setPressure(float pressure) {
+        this.pressure = pressure;
+    }
+
+    public int getClouds() {
+        return clouds;
+    }
+
+    public void setClouds(int clouds) {
+        this.clouds = clouds;
+    }
+
+    public Float getPop() {
+        return pop;
+    }
+
+    public void setPop(Float pop) {
+        this.pop = pop;
+    }
+
+    public float getFeelsLike() {
+        return feelsLike;
+    }
+
+    public void setFeelsLike(float feelsLike) {
+        this.feelsLike = feelsLike;
+    }
+
     public Rain getRain() {
         return rain;
     }
@@ -193,5 +163,13 @@ public class Current {
 
     public void setSnow(Snow snow) {
         this.snow = snow;
+    }
+
+    public Integer getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(Integer visibility) {
+        this.visibility = visibility;
     }
 }
