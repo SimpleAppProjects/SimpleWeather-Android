@@ -13,9 +13,11 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertProviderInterface;
 
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -26,10 +28,11 @@ import okhttp3.Response;
 
 public final class NWSAlertProvider implements WeatherAlertProviderInterface {
     private static final String ALERT_QUERY_URL = "https://api.weather.gov/alerts/active?status=actual&message_type=alert&point=%s,%s";
+    private static final int MAX_ATTEMPTS = 2;
 
     @Override
     public Collection<WeatherAlert> getAlerts(LocationData location) {
-        List<WeatherAlert> alerts;
+        List<WeatherAlert> alerts = null;
 
         OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
         Response response = null;
@@ -48,31 +51,48 @@ public final class NWSAlertProvider implements WeatherAlertProviderInterface {
                     .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
                     .build();
 
-            // Connect to webstream
-            response = client.newBuilder()
-                    // Extend timeout to 15s
-                    .readTimeout(15, TimeUnit.SECONDS)
-                    .build()
-                    .newCall(request).execute();
-            final InputStream stream = OkHttp3Utils.getStream(response);
+            for (int i = 0; i < MAX_ATTEMPTS; i++) {
+                try {
+                    // Connect to webstream
+                    response = client.newBuilder()
+                            // Extend timeout to 15s
+                            .readTimeout(15, TimeUnit.SECONDS)
+                            .build()
+                            .newCall(request).execute();
 
-            // Load data
-            AlertRootobject root = JSONParser.deserializer(stream, AlertRootobject.class);
+                    if (response.code() == HttpURLConnection.HTTP_BAD_REQUEST) {
+                        break;
+                    } else {
+                        final InputStream stream = OkHttp3Utils.getStream(response);
 
-            alerts = new ArrayList<>(root.getGraph().size());
+                        // Load data
+                        AlertRootobject root = JSONParser.deserializer(stream, AlertRootobject.class);
 
-            for (GraphItem result : root.getGraph()) {
-                alerts.add(new WeatherAlert(result));
+                        alerts = new ArrayList<>(root.getGraph().size());
+
+                        for (GraphItem result : root.getGraph()) {
+                            alerts.add(new WeatherAlert(result));
+                        }
+
+                        // End Stream
+                        stream.close();
+                    }
+                } catch (Exception ignored) {
+                }
+
+                if (i < MAX_ATTEMPTS - 1 && response == null) {
+                    Thread.sleep(1000);
+                }
             }
-
-            // End Stream
-            stream.close();
         } catch (Exception ex) {
-            alerts = new ArrayList<>();
             Logger.writeLine(Log.ERROR, ex, "NWSAlertProvider: error getting weather alert data");
         } finally {
             if (response != null)
                 response.close();
+        }
+
+        if (alerts == null) {
+            alerts = Collections.emptyList();
         }
 
         return alerts;

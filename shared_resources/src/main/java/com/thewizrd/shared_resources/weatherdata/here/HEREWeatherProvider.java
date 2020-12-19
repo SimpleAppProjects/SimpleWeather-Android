@@ -306,7 +306,6 @@ public final class HEREWeatherProvider extends WeatherProviderImpl implements We
                 }
             }
         } catch (Exception ex) {
-            alerts = new ArrayList<>();
             Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting weather alert data");
         } finally {
             if (response != null)

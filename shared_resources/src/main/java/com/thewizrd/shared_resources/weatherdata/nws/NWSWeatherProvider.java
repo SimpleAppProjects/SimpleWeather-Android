@@ -38,6 +38,7 @@ import okhttp3.Response;
 
 public class NWSWeatherProvider extends WeatherProviderImpl {
     private static final String POINTS_QUERY_URL = "https://api.weather.gov/points/%s";
+    private static final int MAX_ATTEMPTS = 2;
 
     public NWSWeatherProvider() {
         super();
@@ -148,7 +149,7 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
     }
 
     private ForecastResponse getForecastResponse(String url) throws Exception {
-        ForecastResponse responseData;
+        ForecastResponse responseData = null;
 
         OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
         Response response = null;
@@ -164,19 +165,32 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
                     .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
                     .build();
 
-            // Connect to webstream
-            response = client.newCall(request).execute();
+            for (int i = 0; i < MAX_ATTEMPTS; i++) {
+                try {
+                    // Connect to webstream
+                    response = client.newCall(request).execute();
 
-            // Check for errors
-            checkForErrors(response.code());
+                    if (response.code() == HttpURLConnection.HTTP_BAD_REQUEST) {
+                        break;
+                    } else {
+                        // Check for errors
+                        checkForErrors(response.code());
 
-            final InputStream stream = response.body().byteStream();
+                        final InputStream stream = response.body().byteStream();
 
-            // Load point json data
-            responseData = JSONParser.deserializer(stream, ForecastResponse.class);
+                        // Load point json data
+                        responseData = JSONParser.deserializer(stream, ForecastResponse.class);
 
-            // End Stream
-            stream.close();
+                        // End Stream
+                        stream.close();
+                    }
+                } catch (Exception ignored) {
+                }
+
+                if (i < MAX_ATTEMPTS - 1 && responseData == null) {
+                    Thread.sleep(1000);
+                }
+            }
         } finally {
             if (response != null)
                 response.close();
@@ -186,7 +200,7 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
     }
 
     private HourlyForecastResponse getHourlyForecastResponse(String url) throws Exception {
-        HourlyForecastResponse responseData;
+        HourlyForecastResponse responseData = null;
 
         OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
         Response response = null;
@@ -202,22 +216,35 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
                     .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
                     .build();
 
-            // Connect to webstream
-            response = client.newCall(request).execute();
+            for (int i = 0; i < MAX_ATTEMPTS; i++) {
+                try {
+                    // Connect to webstream
+                    response = client.newCall(request).execute();
 
-            // Check for errors
-            checkForErrors(response.code());
+                    if (response.code() == HttpURLConnection.HTTP_BAD_REQUEST) {
+                        break;
+                    } else {
+                        // Connect to webstream
+                        response = client.newCall(request).execute();
 
-            final InputStream stream = response.body().byteStream();
+                        // Check for errors
+                        checkForErrors(response.code());
 
-            // Load point json data
-            responseData = JSONParser.deserializer(stream, HourlyForecastResponse.class);
+                        final InputStream stream = response.body().byteStream();
 
-            // End Stream
-            stream.close();
-        } catch (WeatherException wEx) {
-            // Allow continuing w/o the data
-            responseData = null;
+                        // Load point json data
+                        responseData = JSONParser.deserializer(stream, HourlyForecastResponse.class);
+
+                        // End Stream
+                        stream.close();
+                    }
+                } catch (Exception ignored) {
+                }
+
+                if (i < MAX_ATTEMPTS - 1 && responseData == null) {
+                    Thread.sleep(1000);
+                }
+            }
         } finally {
             if (response != null)
                 response.close();
@@ -227,7 +254,7 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
     }
 
     private ObservationStationsResponse getObservationStationsResponse(String url) throws Exception {
-        ObservationStationsResponse responseData;
+        ObservationStationsResponse responseData = null;
 
         OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
         Response response = null;
@@ -243,19 +270,35 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
                     .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
                     .build();
 
-            // Connect to webstream
-            response = client.newCall(request).execute();
+            for (int i = 0; i < MAX_ATTEMPTS; i++) {
+                try {
+                    // Connect to webstream
+                    response = client.newCall(request).execute();
 
-            // Check for errors
-            checkForErrors(response.code());
+                    if (response.code() == HttpURLConnection.HTTP_BAD_REQUEST) {
+                        break;
+                    } else {
+                        // Connect to webstream
+                        response = client.newCall(request).execute();
 
-            final InputStream stream = response.body().byteStream();
+                        // Check for errors
+                        checkForErrors(response.code());
 
-            // Load point json data
-            responseData = JSONParser.deserializer(stream, ObservationStationsResponse.class);
+                        final InputStream stream = response.body().byteStream();
 
-            // End Stream
-            stream.close();
+                        // Load point json data
+                        responseData = JSONParser.deserializer(stream, ObservationStationsResponse.class);
+
+                        // End Stream
+                        stream.close();
+                    }
+                } catch (Exception ignored) {
+                }
+
+                if (i < MAX_ATTEMPTS - 1 && responseData == null) {
+                    Thread.sleep(1000);
+                }
+            }
         } finally {
             if (response != null)
                 response.close();
@@ -265,7 +308,7 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
     }
 
     private ObservationCurrentResponse getObservationCurrentResponse(String url) throws Exception {
-        ObservationCurrentResponse responseData;
+        ObservationCurrentResponse responseData = null;
 
         OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
         Response response = null;
@@ -281,19 +324,32 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
                     .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
                     .build();
 
-            // Connect to webstream
-            response = client.newCall(request).execute();
+            for (int i = 0; i < MAX_ATTEMPTS; i++) {
+                try {
+                    // Connect to webstream
+                    response = client.newCall(request).execute();
 
-            // Check for errors
-            checkForErrors(response.code());
+                    if (response.code() == HttpURLConnection.HTTP_BAD_REQUEST) {
+                        break;
+                    } else {
+                        // Check for errors
+                        checkForErrors(response.code());
 
-            final InputStream stream = response.body().byteStream();
+                        final InputStream stream = response.body().byteStream();
 
-            // Load point json data
-            responseData = JSONParser.deserializer(stream, ObservationCurrentResponse.class);
+                        // Load point json data
+                        responseData = JSONParser.deserializer(stream, ObservationCurrentResponse.class);
 
-            // End Stream
-            stream.close();
+                        // End Stream
+                        stream.close();
+                    }
+                } catch (Exception ignored) {
+                }
+
+                if (i < MAX_ATTEMPTS - 1 && responseData == null) {
+                    Thread.sleep(1000);
+                }
+            }
         } finally {
             if (response != null)
                 response.close();

@@ -133,6 +133,7 @@ public class UnitTests {
     public void getNWSWeather() throws WeatherException {
         WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.NWS);
         Weather weather = getWeather(provider);
+        Assert.assertTrue(weather != null && weather.getForecast() != null && weather.getForecast().size() > 0 && weather.getHrForecast() != null && weather.getHrForecast().size() > 0);
         Assert.assertTrue(weather != null && weather.isValid());
     }
 
