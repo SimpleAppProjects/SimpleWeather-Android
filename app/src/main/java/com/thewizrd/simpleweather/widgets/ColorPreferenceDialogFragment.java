@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -78,9 +79,11 @@ public class ColorPreferenceDialogFragment extends PreferenceDialogFragmentCompa
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                try {
-                    pickerBinding.colorPickerView.setInitialColor(Color.parseColor(s.toString()));
-                } catch (IllegalArgumentException ignored) {
+                if (!TextUtils.isEmpty(s)) {
+                    try {
+                        pickerBinding.colorPickerView.setInitialColor(Color.parseColor(s.toString()));
+                    } catch (IllegalArgumentException ignored) {
+                    }
                 }
             }
 
