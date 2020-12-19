@@ -223,6 +223,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl implements We
 
         // Update tz for weather properties
         weather.setUpdateTime(weather.getUpdateTime().withZoneSameInstant(location.getTzOffset()));
+        weather.getCondition().setObservationTime(weather.getCondition().getObservationTime().withZoneSameInstant(location.getTzOffset()));
 
         for (Forecast forecast : weather.getForecast()) {
             forecast.setDate(forecast.getDate().plusSeconds(offset.getTotalSeconds()));

@@ -324,10 +324,11 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
         Weather weather = super.getWeather(location);
 
         weather.setUpdateTime(weather.getUpdateTime().withZoneSameInstant(location.getTzOffset()));
+        weather.getCondition().setObservationTime(weather.getCondition().getObservationTime().withZoneSameInstant(location.getTzOffset()));
 
         // NWS does not provide astrodata; calculate this ourselves (using their calculator)
-        Astronomy solCalcData = new SolCalcAstroProvider().getAstronomyData(location, weather.getUpdateTime());
-        weather.setAstronomy(new SunMoonCalcProvider().getAstronomyData(location, weather.getUpdateTime()));
+        Astronomy solCalcData = new SolCalcAstroProvider().getAstronomyData(location, weather.getCondition().getObservationTime());
+        weather.setAstronomy(new SunMoonCalcProvider().getAstronomyData(location, weather.getCondition().getObservationTime()));
         weather.getAstronomy().setSunrise(solCalcData.getSunrise());
         weather.getAstronomy().setSunset(solCalcData.getSunset());
 

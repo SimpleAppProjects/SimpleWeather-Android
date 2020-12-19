@@ -172,9 +172,10 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
         Weather weather = super.getWeather(location);
 
         weather.setUpdateTime(weather.getUpdateTime().withZoneSameInstant(location.getTzOffset()));
+        weather.getCondition().setObservationTime(weather.getCondition().getObservationTime().withZoneSameInstant(location.getTzOffset()));
 
         Astronomy old = weather.getAstronomy();
-        Astronomy newAstro = new SunMoonCalcProvider().getAstronomyData(location, weather.getUpdateTime());
+        Astronomy newAstro = new SunMoonCalcProvider().getAstronomyData(location, weather.getCondition().getObservationTime());
         newAstro.setSunrise(old.getSunrise());
         newAstro.setSunset(old.getSunset());
         weather.setAstronomy(newAstro);

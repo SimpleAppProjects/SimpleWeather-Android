@@ -189,8 +189,6 @@ public class Weather extends CustomJsonObject {
             atmosphere.setDewpointF((float) Math.round(ConversionMethods.CtoF(atmosphere.getDewpointC())));
         }
 
-        condition.setObservationTime(updateTime);
-
         source = WeatherAPI.OPENWEATHERMAP;
     }
 

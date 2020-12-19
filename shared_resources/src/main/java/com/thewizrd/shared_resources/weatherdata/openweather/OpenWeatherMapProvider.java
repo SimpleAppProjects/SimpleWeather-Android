@@ -222,7 +222,7 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
         weather.getAstronomy().setSunset(weather.getAstronomy().getSunset().plusSeconds(offset.getTotalSeconds()));
 
         Astronomy old = weather.getAstronomy();
-        Astronomy newAstro = new SunMoonCalcProvider().getAstronomyData(location, weather.getUpdateTime());
+        Astronomy newAstro = new SunMoonCalcProvider().getAstronomyData(location, weather.getCondition().getObservationTime());
         newAstro.setSunrise(old.getSunrise());
         newAstro.setSunset(old.getSunset());
         weather.setAstronomy(newAstro);
