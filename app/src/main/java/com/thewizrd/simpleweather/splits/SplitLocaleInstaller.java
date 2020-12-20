@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.splits;
+package com.thewizrd.simpleweather.splits;
 
 import android.app.Activity;
 import android.content.IntentSender;
@@ -18,11 +18,11 @@ import com.google.android.play.core.splitinstall.SplitInstallRequest;
 import com.google.android.play.core.splitinstall.SplitInstallSessionState;
 import com.google.android.play.core.splitinstall.SplitInstallStateUpdatedListener;
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus;
-import com.thewizrd.shared_resources.R;
-import com.thewizrd.shared_resources.databinding.SplitInstallDialogBinding;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.databinding.SplitInstallDialogBinding;
 
 import java.util.Locale;
 import java.util.Set;
