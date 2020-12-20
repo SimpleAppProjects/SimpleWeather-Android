@@ -354,11 +354,13 @@ public class SetupFragment extends CustomFragment {
                             final boolean isUS = LocationUtils.isUS(view.getLocationCountry());
 
                             if (!Settings.isWeatherLoaded()) {
-                                // Default US location to NWS
+                                // Default US provider to NWS
                                 if (isUS) {
                                     Settings.setAPI(WeatherAPI.NWS);
+                                    view.updateWeatherSource(WeatherAPI.NWS);
                                 } else {
                                     Settings.setAPI(WeatherAPI.HERE);
+                                    view.updateWeatherSource(WeatherAPI.HERE);
                                 }
                                 wm.updateAPI();
                             }

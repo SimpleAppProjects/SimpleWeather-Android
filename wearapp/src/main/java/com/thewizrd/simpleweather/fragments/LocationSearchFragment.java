@@ -149,8 +149,10 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                                 // Default US provider to NWS
                                 if (isUS) {
                                     Settings.setAPI(WeatherAPI.NWS);
+                                    queryResult.updateWeatherSource(WeatherAPI.NWS);
                                 } else {
                                     Settings.setAPI(WeatherAPI.HERE);
+                                    queryResult.updateWeatherSource(WeatherAPI.HERE);
                                 }
                                 wm.updateAPI();
                             }

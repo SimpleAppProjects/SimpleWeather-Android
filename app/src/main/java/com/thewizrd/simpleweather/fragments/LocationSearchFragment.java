@@ -175,11 +175,13 @@ public class LocationSearchFragment extends WindowColorFragment {
                             final boolean isUS = LocationUtils.isUS(queryResult.getLocationCountry());
 
                             if (!Settings.isWeatherLoaded()) {
-                                // Default US location to NWS
+                                // Default US provider to NWS
                                 if (isUS) {
                                     Settings.setAPI(WeatherAPI.NWS);
+                                    queryResult.updateWeatherSource(WeatherAPI.NWS);
                                 } else {
                                     Settings.setAPI(WeatherAPI.HERE);
+                                    queryResult.updateWeatherSource(WeatherAPI.HERE);
                                 }
                                 wm.updateAPI();
                             }
