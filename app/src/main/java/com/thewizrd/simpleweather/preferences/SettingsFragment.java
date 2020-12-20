@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.preferences;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -34,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -50,6 +52,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.splits.InstallRequest;
+import com.thewizrd.shared_resources.splits.SplitLocaleInstaller;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
@@ -126,6 +130,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
     private HashSet<Intent.FilterComparison> intentQueue;
 
     private List<UserThemeMode.OnThemeChangeListener> mThemeChangeListeners;
+
+    private InstallRequest splitInstallRequest;
 
     @Override
     protected int getTitle() {
@@ -687,13 +693,38 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         languagePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                LocaleUtils.setLocaleCode(newValue.toString());
-                requireActivity().recreate();
+                final String requestedLang = newValue.toString();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    splitInstallRequest = SplitLocaleInstaller.installLocale(requireActivity(), requestedLang);
+                    return false;
+                } else {
+                    LocaleUtils.setLocaleCode(newValue.toString());
+                    ActivityCompat.recreate(requireActivity());
+                }
                 return true;
             }
         });
 
         tintIcons(getPreferenceScreen(), ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (requestCode == SplitLocaleInstaller.CONFIRMATION_REQUEST_CODE) {
+                // Handle the user's decision. For example, if the user selects "Cancel",
+                // you may want to disable certain functionality that depends on the module.
+                if (resultCode == Activity.RESULT_CANCELED) {
+                    if (splitInstallRequest != null) {
+                        splitInstallRequest.cancelRequest();
+                        splitInstallRequest = null;
+                    }
+                    return;
+                }
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private static void tintIcons(Preference preference, @ColorInt int color) {

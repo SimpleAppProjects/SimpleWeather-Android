@@ -3,8 +3,10 @@ package com.thewizrd.simpleweather.activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import com.google.android.play.core.splitcompat.SplitCompat;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.App;
@@ -13,6 +15,7 @@ public abstract class UserLocaleActivity extends FragmentActivity {
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(LocaleUtils.attachBaseContext(newBase));
+        SplitCompat.installActivity(this);
     }
 
     protected boolean enableLocaleChangeListener() {
@@ -40,7 +43,7 @@ public abstract class UserLocaleActivity extends FragmentActivity {
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             if (!StringUtils.isNullOrWhitespace(key)) {
                 if (LocaleUtils.KEY_LANGUAGE.equals(key)) {
-                    recreate();
+                    ActivityCompat.recreate(UserLocaleActivity.this);
                 }
             }
         }

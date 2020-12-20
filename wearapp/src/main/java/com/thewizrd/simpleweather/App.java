@@ -12,6 +12,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.google.android.play.core.splitcompat.SplitCompat;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.jakewharton.threetenabp.AndroidThreeTen;
@@ -63,6 +64,12 @@ public class App extends Application implements ApplicationLib, Application.Acti
     @Override
     public boolean isPhone() {
         return false;
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        SplitCompat.install(this);
     }
 
     public void onCreate() {

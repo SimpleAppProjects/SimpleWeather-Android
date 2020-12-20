@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.preferences;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
@@ -38,6 +39,8 @@ import androidx.wear.widget.SwipeDismissFrameLayout;
 import com.google.android.wearable.intent.RemoteIntent;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
+import com.thewizrd.shared_resources.splits.InstallRequest;
+import com.thewizrd.shared_resources.splits.SplitLocaleInstaller;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
@@ -86,6 +89,11 @@ public class SettingsActivity extends WearableListenerActivity {
     @Override
     protected IntentFilter getIntentFilter() {
         return mIntentFilter;
+    }
+
+    @Override
+    protected boolean enableLocaleChangeListener() {
+        return false;
     }
 
     @Override
@@ -168,6 +176,8 @@ public class SettingsActivity extends WearableListenerActivity {
         // Wearable status
         private WearConnectionStatus mConnectionStatus = WearConnectionStatus.DISCONNECTED;
         private BroadcastReceiver statusReceiver;
+
+        private InstallRequest splitInstallRequest;
 
         @Override
         public void onResume() {
@@ -344,9 +354,9 @@ public class SettingsActivity extends WearableListenerActivity {
             languagePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    LocaleUtils.setLocaleCode(newValue.toString());
-                    languagePref.setSummary(localeSummaryFunc.apply(newValue.toString()));
-                    return true;
+                    final String requestedLang = newValue.toString();
+                    splitInstallRequest = SplitLocaleInstaller.installLocale(getParentActivity(), requestedLang);
+                    return false;
                 }
             });
 
@@ -569,6 +579,22 @@ public class SettingsActivity extends WearableListenerActivity {
             enableSyncedSettings(Settings.getDataSync() == WearableDataSync.OFF);
 
             connStatusPref = findPreference(KEY_CONNSTATUS);
+        }
+
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            if (requestCode == SplitLocaleInstaller.CONFIRMATION_REQUEST_CODE) {
+                // Handle the user's decision. For example, if the user selects "Cancel",
+                // you may want to disable certain functionality that depends on the module.
+                if (resultCode == Activity.RESULT_CANCELED) {
+                    if (splitInstallRequest != null) {
+                        splitInstallRequest.cancelRequest();
+                        splitInstallRequest = null;
+                    }
+                }
+            } else {
+                super.onActivityResult(requestCode, resultCode, data);
+            }
         }
 
         private final Function<String, CharSequence> localeSummaryFunc = new Function<String, CharSequence>() {

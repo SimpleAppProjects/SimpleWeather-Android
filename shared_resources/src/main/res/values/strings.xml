@@ -191,4 +191,10 @@
     <!-- Forecast pattern: Day and date (ex. Mon 14) -->
     <string name="forecast_date_format" translatable="false">EEE dd</string>
 
+    <!-- SplitInstall Prompts -->
+    <string name="splitlang_start_install">Starting install for language pack…</string>
+    <string name="splitlang_installing">Installing language pack…</string>
+    <string name="splitlang_downloading">Downloading language pack…</string>
+    <string name="splitlang_failure">Failed to install language pack</string>
+
 </resources>

@@ -17,6 +17,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.multidex.MultiDex;
 import androidx.work.Configuration;
 
+import com.google.android.play.core.splitcompat.SplitCompat;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -163,6 +164,7 @@ public class App extends Application implements ApplicationLib, Application.Acti
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         MultiDex.install(this);
+        SplitCompat.install(this);
     }
 
     private void registerCommonReceiver() {
