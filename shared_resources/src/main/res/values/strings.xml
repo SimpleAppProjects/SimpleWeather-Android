@@ -1,203 +1,194 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">"SimpleWeather"</string>
+    <string name="app_name" translatable="false">SimpleWeather</string>
 
     <!-- Setup -->
-    <string name="location_search_hint">"Enter Location"</string>
-    <string name="api_label">"Weather Provider"</string>
-    <string name="key_hint">"Provider Key"</string>
-    <string name="api_here" translatable="false">"HERE Weather"</string>
-    <string name="api_metno" translatable="false">"MET Norway"</string>
-    <string name="api_owm" translatable="false">"OpenWeatherMap"</string>
-    <string name="api_yahoo" translatable="false">"Yahoo Weather"</string>
-    <string name="api_lociq" translatable="false">"LocationIQ"</string>
-    <string name="api_nws" translatable="false">"U.S. National Weather Service"</string>
-    <string name="api_waqi" translatable="false">" World Air Quality Index Project"</string>
-    <string name="radar_earthnullschool" translatable="false">"EarthWindMap Project"</string>
-    <string name="label_gpsfollow">"Current Location"</string>
-    <string name="label_getstarted">"Get Started"</string>
-    <string name="setup_welcome_prompt">"Welcome to SimpleWeather"</string>
-    <string name="setup_welcome_tagline_prompt">"Just a simple weather app"</string>
-    <string name="setup_location_prompt">"Add a location to start"</string>
-    <string name="setup_preferences_prompt">"Customize your settings below"</string>
-    <string name="label_next">"Next"</string>
-    <string name="label_back">"Back"</string>
-
+    <string name="location_search_hint">Enter Location</string>
+    <string name="api_label">Weather Provider</string>
+    <string name="key_hint">Provider Key</string>
+    <string name="api_here" translatable="false">HERE Weather</string>
+    <string name="api_metno" translatable="false">MET Norway</string>
+    <string name="api_owm" translatable="false">OpenWeatherMap</string>
+    <string name="api_yahoo" translatable="false">Yahoo Weather</string>
+    <string name="api_lociq" translatable="false">LocationIQ</string>
+    <string name="api_nws" translatable="false">U.S. National Weather Service</string>
+    <string name="api_waqi" translatable="false"> World Air Quality Index Project</string>
+    <string name="radar_earthnullschool" translatable="false">EarthWindMap Project</string>
+    <string name="radar_rainviewer" translatable="false">RainViewer</string>
+    <string name="label_gpsfollow">Current Location</string>
+    <string name="label_getstarted">Get Started</string>
+    <string name="setup_welcome_prompt">Welcome to SimpleWeather</string>
+    <string name="setup_welcome_tagline_prompt">Just a simple weather app</string>
+    <string name="setup_location_prompt">Add a location to start</string>
+    <string name="setup_preferences_prompt">Customize your settings below</string>
+    <string name="label_next">Next</string>
+    <string name="label_back">Back</string>
     <!-- MainActivity -->
-    <string name="title_activity_weather_now">"Weather"</string>
-    <string name="action_settings">"Settings"</string>
-    <string name="action_retry">"Retry"</string>
-    <string name="placeholder_text" translatable="false">"--"</string>
-
+    <string name="title_activity_weather_now">Weather</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_retry">Retry</string>
+    <string name="placeholder_text" translatable="false">--</string>
     <!-- Weather Details -->
-    <string name="label_details">"Details"</string>
-    <string name="label_humidity">"Humidity"</string>
-    <string name="label_pressure">"Pressure"</string>
-    <string name="label_visibility">"Visibility"</string>
-    <string name="label_feelslike">"Feels Like"</string>
-    <string name="label_wind">"Wind"</string>
-    <string name="label_forecast">"Forecast"</string>
-    <string name="label_condition">"Condition"</string>
-    <string name="label_sunriseset">"Sunrise / Sunset"</string>
-    <string name="label_sunrise">"Sunrise"</string>
-    <string name="label_sunset">"Sunset"</string>
-    <string name="label_hourlyforecast">"Hourly"</string>
-    <string name="label_precipitation">"Precipitation"</string>
-    <string name="label_chance">"Chance"</string>
-    <string name="label_cloudiness">"Cloudiness"</string>
-    <string name="label_qpf_rain">"Rain"</string>
-    <string name="label_qpf_snow">"Snow"</string>
-    <string name="credit_prefix">"Data from"</string>
-    <string name="attrib_prefix">"Photo by"</string>
-    <string name="label_high">"High"</string>
-    <string name="label_low">"Low"</string>
-    <string name="label_dewpoint">"Dew Point"</string>
-    <string name="label_moonrise">"Moonrise"</string>
-    <string name="label_moonset">"Moonset"</string>
-    <string name="label_moonphase">"Moon Phase"</string>
-    <string name="label_beaufort">"Beaufort"</string>
-    <string name="label_uv">"UV Index"</string>
-    <string name="label_airquality">"Air Quality Index"</string>
-    <string name="label_airquality_short">"Air Quality"</string>
-    <string name="label_radar">"Radar"</string>
-    <string name="label_day">"Afternoon"</string>
-    <string name="label_eve">"Evening"</string>
-    <string name="label_morning">"Morning"</string>
-    <string name="label_night">"Night"</string>
-    <string name="label_temp">"Temp"</string>
-
+    <string name="label_details">Details</string>
+    <string name="label_humidity">Humidity</string>
+    <string name="label_pressure">Pressure</string>
+    <string name="label_visibility">Visibility</string>
+    <string name="label_feelslike">Feels Like</string>
+    <string name="label_wind">Wind</string>
+    <string name="label_windgust">Wind Gust</string>
+    <string name="label_forecast">Forecast</string>
+    <string name="label_condition">Condition</string>
+    <string name="label_sunriseset">Sunrise / Sunset</string>
+    <string name="label_sunrise">Sunrise</string>
+    <string name="label_sunset">Sunset</string>
+    <string name="label_hourlyforecast">Hourly</string>
+    <string name="label_precipitation">Precipitation</string>
+    <string name="label_chance">Chance</string>
+    <string name="label_cloudiness">Cloudiness</string>
+    <string name="label_qpf_rain">Rain</string>
+    <string name="label_qpf_snow">Snow</string>
+    <string name="credit_prefix">Data from</string>
+    <string name="attrib_prefix">Photo by</string>
+    <string name="label_high">High</string>
+    <string name="label_low">Low</string>
+    <string name="label_dewpoint">Dew Point</string>
+    <string name="label_moonrise">Moonrise</string>
+    <string name="label_moonset">Moonset</string>
+    <string name="label_moonphase">Moon Phase</string>
+    <string name="label_beaufort">Beaufort</string>
+    <string name="label_uv">UV Index</string>
+    <string name="label_airquality">Air Quality Index</string>
+    <string name="label_airquality_short">Air Quality</string>
+    <string name="label_radar">Radar</string>
+    <string name="label_day">Afternoon</string>
+    <string name="label_eve">Evening</string>
+    <string name="label_morning">Morning</string>
+    <string name="label_night">Night</string>
+    <string name="label_temp">Temp</string>
+    <!-- Units -->
+    <string name="label_temperature">Temperature</string>
+    <string name="label_speed">Speed</string>
+    <string name="label_distance">Distance</string>
+    <string name="pref_title_resetunits">Reset units to default values</string>
+    <string name="default_units_imperial" translatable="false">°F, mph, in, inHg, mi</string>
+    <string name="default_units_metric" translatable="false">°C, km/h, mm, mb, km</string>
     <!-- NavBar -->
-    <string name="label_nav_weathernow">"Weather"</string>
-    <string name="label_nav_alerts">"Alerts"</string>
-    <string name="label_nav_locations">"Locations"</string>
-    <string name="title_activity_settings">"Settings"</string>
-    <string name="title_fragment_alerts">"Severe Weather Alerts"</string>
+    <string name="label_nav_weathernow">Weather</string>
+    <string name="label_nav_alerts">Alerts</string>
+    <string name="label_nav_locations">Locations</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="title_fragment_alerts">Severe Weather Alerts</string>
 
     <!-- Settings -->
-    <string name="pref_title_general">"General"</string>
-    <string name="pref_category_version">"Version"</string>
-    <string name="pref_title_units">"Units"</string>
-    <string name="pref_summary_fahrenheit">"Display units in Fahrenheit"</string>
-    <string name="pref_summary_celsius">"Display units in Celsius"</string>
-    <string name="pref_title_about">"About"</string>
-    <string name="pref_title_about_app">"About SimpleWeather"</string>
-    <string name="pref_title_credits">"Credits"</string>
-    <string name="pref_title_oslibs">"Open Source Libraries"</string>
-    <string name="pref_category_providers">"Data Providers"</string>
-    <string name="copyright_here" translatable="false">"
+    <string name="pref_title_general">General</string>
+    <string name="pref_category_version">Version</string>
+    <string name="pref_title_units">Units</string>
+    <string name="pref_summary_fahrenheit">Display units in Fahrenheit</string>
+    <string name="pref_summary_celsius">Display units in Celsius</string>
+    <string name="pref_title_about">About</string>
+    <string name="pref_title_about_app">About SimpleWeather</string>
+    <string name="pref_title_credits">Credits</string>
+    <string name="pref_title_oslibs">Open Source Libraries</string>
+    <string name="pref_category_providers">Data Providers</string>
+    <string name="pref_title_language">Language</string>
+    <string name="summary_default">Default</string>
+    <string name="copyright_here" translatable="false">
         The HERE Logo is a trademark or registered trademark of HERE Global B.V.
-    "</string>
-    <string name="copyright_yahoo" translatable="false">"
+    </string>
+    <string name="copyright_yahoo" translatable="false">
         YAHOO! is a registered trademark of Yahoo! Inc. both in the United States and internationally.
-    "</string>
-    <string name="pref_summary_currentlocation">"Allow access to current location via GPS"</string>
-    <string name="pref_summary_apikey">"Enter Provider Key required for %1$s"</string>
+    </string>
+    <string name="pref_summary_currentlocation">Allow access to current location via GPS</string>
+    <string name="pref_summary_apikey">Enter Provider Key required for %1$s</string>
     <string name="message_enter_apikey">"Please enter a Provider Key"</string>
-    <string name="message_keyverified">"Key Verified"</string>
-    <string name="message_keyinvalid">"Key Invalid"</string>
-    <string name="pref_title_onnotification">"On-going Notification"</string>
-    <string name="pref_summary_notification">"Show persistent notification displaying current weather conditions"</string>
-    <string name="pref_title_api">"Weather Provider"</string>
-    <string name="pref_category_notification">"Notifications"</string>
-    <string name="pref_title_notificationicon">"Notification Icon"</string>
-    <string name="pref_title_alerts">"Weather Alerts"</string>
-    <string name="pref_summary_alerts">"Show notifications for weather alerts"</string>
-    <string name="pref_summary_alerts_disabled">"Weather alerts are not supported by this weather provider"</string>
-    <string name="pref_title_apiregister">"Create an account"</string>
-    <string name="pref_summary_apiregister">"Create an account to register for a Provider key"</string>
-    <string name="error_message_weather_us_only">"This weather provider only supports locations in the U.S."</string>
+    <string name="message_keyverified">Key Verified</string>
+    <string name="message_keyinvalid">Key Invalid</string>
+    <string name="pref_title_onnotification">On-going Notification</string>
+    <string name="pref_summary_notification">Show persistent notification displaying current weather conditions</string>
+    <string name="pref_title_api">Weather Provider</string>
+    <string name="pref_category_notification">Notifications</string>
+    <string name="pref_title_notificationicon">Notification Icon</string>
+    <string name="pref_title_alerts">Weather Alerts</string>
+    <string name="pref_summary_alerts">Show notifications for weather alerts</string>
+    <string name="pref_summary_alerts_disabled">Weather alerts are not supported by this weather provider</string>
+    <string name="pref_title_apiregister">Create an account</string>
+    <string name="pref_summary_apiregister">Create an account to register for a Provider key</string>
+    <string name="error_message_weather_us_only">This weather provider only supports locations in the U.S.</string>
 
     <!-- Locations -->
-    <string name="label_btn_add_location">"Add Location"</string>
-    <string name="action_editmode">"Edit Mode"</string>
-    <string name="label_currentlocation">"Current Location"</string>
-    <string name="label_favoritelocations">"Favorite Locations"</string>
-    <string name="error_location_denied">"Location access denied"</string>
-    <string name="error_retrieve_location">"Unable to get location"</string>
-    <string name="error_enable_location_services">"Location Services disabled. Please enable in Settings"</string>
-    <string name="error_noresults">"No results found"</string>
-    <string name="label_fab_add_location">"Add a location"</string>
-    <string name="message_locationremoved">"Location removed"</string>
-    <string name="message_needfavorite">"Must have at least one favorite location"</string>
-    <string name="undo">"Undo"</string>
-    <string name="delete">"Delete"</string>
-    <string name="bg_location_permission_rationale">"Allow access to update location for notification and widgets"</string>
+    <string name="label_btn_add_location">Add Location</string>
+    <string name="action_editmode">Edit Mode</string>
+    <string name="label_currentlocation">Current Location</string>
+    <string name="label_favoritelocations">Favorite Locations</string>
+    <string name="error_location_denied">Location access denied</string>
+    <string name="error_retrieve_location">Unable to get location</string>
+    <string name="error_enable_location_services">Location Services disabled. Please enable in Settings</string>
+    <string name="error_noresults">No results found</string>
+    <string name="label_fab_add_location">Add a location</string>
+    <string name="message_locationremoved">Location removed</string>
+    <string name="message_needfavorite">Must have at least one favorite location</string>
+    <string name="undo">Undo</string>
+    <string name="delete">Delete</string>
+    <string name="bg_location_permission_rationale">Allow access to update location for notification and widgets</string>
 
     <!-- Weather Exceptions -->
-    <string name="werror_noweather">"Unable to load weather data"</string>
-    <string name="werror_networkerror">"Network Connection Error"</string>
-    <string name="werror_invalidkey">"Invalid Provider Key"</string>
-    <string name="werror_querynotfound">"No cities match your search query"</string>
-    <string name="werror_unknown">"Unknown error occurred"</string>
+    <string name="werror_noweather">Unable to load weather data</string>
+    <string name="werror_networkerror">Network Connection Error</string>
+    <string name="werror_invalidkey">Invalid Provider Key</string>
+    <string name="werror_querynotfound">No cities match your search query</string>
+    <string name="werror_unknown">Unknown error occurred</string>
 
     <!-- Refresh Intervals -->
-    <string name="pref_title_refreshinterval">"Update Interval"</string>
-    <string name="refresh_60min">"1 hour"</string>
-    <string name="refresh_2hrs">"2 hours"</string>
-    <string name="refresh_3hrs">"3 hours"</string>
-    <string name="refresh_6hrs">"6 hours"</string>
-    <string name="refresh_12hrs">"12 hours"</string>
-    <string name="update_prefix">"Updated on"</string>
-    <string name="update_prefix_day">"Updated at"</string>
+    <string name="pref_title_refreshinterval">Update Interval</string>
+    <string name="refresh_60min">1 hour</string>
+    <string name="refresh_2hrs">2 hours</string>
+    <string name="refresh_3hrs">3 hours</string>
+    <string name="refresh_6hrs">6 hours</string>
+    <string name="refresh_12hrs">12 hours</string>
+
+    <string name="update_prefix">Updated on</string>
+    <string name="update_prefix_day">Updated at</string>
 
     <!-- Notification -->
-    <string name="notificationicon_temperature">"Temperature"</string>
-    <string name="notificationicon_condition">"Weather Condition"</string>
-    <string name="not_channel_name_weather">"Weather Notifications"</string>
-    <string name="not_channel_desc_weather">"Weather notifications"</string>
-    <string name="not_channel_name_alerts">"Weather Alerts"</string>
-    <string name="not_channel_desc_alerts">"Notifications for weather alerts"</string>
-    <string name="not_channel_name_general">"General notifications"</string>
+    <string name="notificationicon_temperature">Temperature</string>
+    <string name="notificationicon_condition">Weather Condition</string>
+    <string name="not_channel_name_weather">Weather Notifications</string>
+    <string name="not_channel_desc_weather">Weather notifications</string>
+    <string name="not_channel_name_alerts">Weather Alerts</string>
+    <string name="not_channel_desc_alerts">Notifications for weather alerts</string>
+    <string name="not_channel_name_general">General notifications</string>
+    <string name="not_title_weather_update">Updating weather…</string>
 
     <!-- Alerts -->
-    <string name="datetime_day_ago">"%1$dd ago"</string>
-    <string name="datetime_hr_ago">"%1$dh ago"</string>
-    <string name="datetime_min_ago">"%1$dm ago"</string>
-    <string name="datetime_sec_ago">"%1$ds ago"</string>
-    <string name="datetime_validuntil">"Valid until"</string>
+    <string name="datetime_day_ago">%1$dd ago</string>
+    <string name="datetime_hr_ago">%1$dh ago</string>
+    <string name="datetime_min_ago">%1$dm ago</string>
+    <string name="datetime_sec_ago">%1$ds ago</string>
+    <string name="datetime_validuntil">Valid until</string>
 
     <!-- HERE API -->
-    <string name="pref_title_personalkey">"Personal Provider Key"</string>
-    <string name="pref_summary_personalkey">"Use personal weather provider key"</string>
+    <string name="pref_title_personalkey">Personal Provider Key</string>
+    <string name="pref_summary_personalkey">Use personal weather provider key</string>
 
     <!-- Dark Theme -->
-    <string name="pref_title_userthememode">"Theme"</string>
-    <string name="userthememode_default">"System Default"</string>
-    <string name="userthememode_dark">"Dark"</string>
-    <string name="userthememode_black">"Dark (AMOLED)"</string>
-    <string name="userthememode_light">"Light"</string>
-    <string name="summary_default">"Default"</string>
+    <string name="pref_title_userthememode">Theme</string>
+    <string name="userthememode_default">System Default</string>
+    <string name="userthememode_dark">Dark</string>
+    <string name="userthememode_black">Dark (AMOLED)</string>
+    <string name="userthememode_light">Light</string>
 
-    <!-- format strings for clocks -->
-    <string name="clock_12_hours_ampm_format" translatable="false">"h:mm&lt;font size=24&gt;a&lt;/font&gt;"</string>
-    <string name="clock_12_hours_format" translatable="false">"h:mm"</string>
-    <string name="clock_24_hours_format" translatable="false">"HH:mm"</string>
-
+    <!-- Date and Time Format -->
+    <string name="clock_12_hours_ampm_format" translatable="false">h:mm<font size="24">a</font></string>
+    <string name="clock_12_hours_format" translatable="false">h:mm</string>
+    <string name="clock_24_hours_format" translatable="false">HH:mm</string>
     <!-- Widget: Full day and month -->
-    <string name="widget_long_date_format" translatable="false">"cccc, MMMM dd"</string>
-    <string name="widget4x1_date_format" translatable="false">"cccc, MMM dd"</string>
-
-    <!-- Widget: Abbreviated day and full month -->
-    <string name="widget_4x2_date_format" translatable="false">"ccc, MMMM dd"</string>
-
-    <!-- Widget: Abbreviated day and month -->
-    <string name="widget_short_date_format" translatable="false">"ccc, MMM dd"</string>
-    <string name="label_windgust">"Wind Gust"</string>
-
+    <string name="widget_long_date_format" translatable="false">cccc, MMMM dd</string>
     <!-- Widget: Full day and abbreviated month -->
-    <string name="widget_4x1_date_format" translatable="false">"cccc, MMM dd"</string>
-
+    <string name="widget_4x1_date_format" translatable="false">cccc, MMM dd</string>
+    <!-- Widget: Abbreviated day and full month -->
+    <string name="widget_4x2_date_format" translatable="false">ccc, MMMM dd</string>
+    <!-- Widget: Abbreviated day and month -->
+    <string name="widget_short_date_format" translatable="false">ccc, MMM dd</string>
     <!-- Forecast pattern: Day and date (ex. Mon 14) -->
-    <string name="forecast_date_format" translatable="false">"EEE dd"</string>
-    <string name="pref_title_language">"Language"</string>
+    <string name="forecast_date_format" translatable="false">EEE dd</string>
 
-    <!-- Units -->
-    <string name="label_temperature">"Temperature"</string>
-    <string name="label_speed">"Speed"</string>
-    <string name="label_distance">"Distance"</string>
-    <string name="pref_title_resetunits">"Reset units to default values"</string>
-    <string name="default_units_imperial" translatable="false">"°F, mph, in, inHg, mi"</string>
-    <string name="default_units_metric" translatable="false">"°C, km/h, mm, mb, km"</string>
-    <string name="radar_rainviewer" translatable="false">"RainViewer"</string>
-    <string name="not_title_weather_update">"Updating weather…"</string>
 </resources>

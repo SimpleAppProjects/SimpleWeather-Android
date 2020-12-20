@@ -1,51 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!-- Conditions -->
-    <string name="weather_tornado">"Tornado"</string>
-    <string name="weather_tropicalstorm">"Tropical Storm"</string>
-    <string name="weather_hurricane">"Hurricane"</string>
-    <string name="weather_severetstorms">"Severe Thunderstorms"</string>
-    <string name="weather_tstorms">"Thunderstorms"</string>
-    <string name="weather_rainandsnow">"Mixed Rain and Snow"</string>
-    <string name="weather_rainandsleet">"Mixed Rain and Sleet"</string>
-    <string name="weather_snowandsleet">"Mixed Snow and Sleet"</string>
-    <string name="weather_freezingrain">"Freezing Rain"</string>
-    <string name="weather_snowflurries">"Snow Flurries"</string>
-    <string name="weather_lightsnowshowers">"Light Snow"</string>
-    <string name="weather_blowingsnow">"Blowing Snow"</string>
-    <string name="weather_snow">"Snow"</string>
-    <string name="weather_hail">"Hail"</string>
-    <string name="weather_sleet">"Sleet"</string>
-    <string name="weather_dust">"Dust"</string>
-    <string name="weather_foggy">"Foggy"</string>
-    <string name="weather_haze">"Haze"</string>
-    <string name="weather_smoky">"Smoky"</string>
-    <string name="weather_windy">"Windy"</string>
-    <string name="weather_cold">"Cold"</string>
-    <string name="weather_cloudy">"Cloudy"</string>
-    <string name="weather_mostlycloudy">"Mostly Cloudy"</string>
-    <string name="weather_partlycloudy">"Partly Cloudy"</string>
-    <string name="weather_clear">"Clear"</string>
-    <string name="weather_sunny">"Sunny"</string>
-    <string name="weather_fair">"Fair"</string>
-    <string name="weather_rainandhail">"Mixed Rain and Hail"</string>
-    <string name="weather_hot">"Hot"</string>
-    <string name="weather_isotstorms">"Isolated Thunderstorms"</string>
-    <string name="weather_scatteredtstorms">"Scattered Thunderstorms"</string>
-    <string name="weather_scatteredshowers">"Scattered Showers"</string>
-    <string name="weather_heavysnow">"Heavy Snow"</string>
-
+    <string name="weather_tornado">Tornado</string>
+    <string name="weather_tropicalstorm">Tropical Storm</string>
+    <string name="weather_hurricane">Hurricane</string>
+    <string name="weather_severetstorms">Severe Thunderstorms</string>
+    <string name="weather_tstorms">Thunderstorms</string>
+    <string name="weather_rainandsnow">Mixed Rain and Snow</string>
+    <string name="weather_rainandsleet">Mixed Rain and Sleet</string>
+    <string name="weather_snowandsleet">Mixed Snow and Sleet</string>
+    <string name="weather_freezingrain">Freezing Rain</string>
+    <string name="weather_snowflurries">Snow Flurries</string>
+    <string name="weather_lightsnowshowers">Light Snow</string>
+    <string name="weather_blowingsnow">Blowing Snow</string>
+    <string name="weather_snow">Snow</string>
+    <string name="weather_hail">Hail</string>
+    <string name="weather_sleet">Sleet</string>
+    <string name="weather_dust">Dust</string>
+    <string name="weather_foggy">Foggy</string>
+    <string name="weather_haze">Haze</string>
+    <string name="weather_smoky">Smoky</string>
+    <string name="weather_windy">Windy</string>
+    <string name="weather_cold">Cold</string>
+    <string name="weather_cloudy">Cloudy</string>
+    <string name="weather_mostlycloudy">Mostly Cloudy</string>
+    <string name="weather_partlycloudy">Partly Cloudy</string>
+    <string name="weather_clear">Clear</string>
+    <string name="weather_sunny">Sunny</string>
+    <string name="weather_fair">Fair</string>
+    <string name="weather_rainandhail">Mixed Rain and Hail</string>
+    <string name="weather_hot">Hot</string>
+    <string name="weather_isotstorms">Isolated Thunderstorms</string>
+    <string name="weather_scatteredtstorms">Scattered Thunderstorms</string>
+    <string name="weather_scatteredshowers">Scattered Showers</string>
+    <string name="weather_heavysnow">Heavy Snow</string>
     <!-- Not Available -->
-    <string name="weather_notavailable" translatable="false">"N/A"</string>
-    <string name="weather_fog">"Fog"</string>
-    <string name="weather_lightrain">"Light Rain"</string>
-    <string name="weather_rain">"Rain"</string>
-    <string name="weather_rainshowers">"Rain Showers"</string>
-    <string name="weather_blizzard">"Blizzard"</string>
-    <string name="weather_overcast">"Overcast"</string>
-    <string name="weather_sleet_tstorms">"Sleet and Thunder"</string>
-    <string name="weather_snow_tstorms">"Snow and Thunder"</string>
-    <string name="weather_clearsky">"Clear sky"</string>
-    <string name="weather_heavyrain">"Heavy rain"</string>
+    <string name="weather_notavailable" translatable="false" />
+
+    <string name="weather_fog">Fog</string>
+    <string name="weather_lightrain">Light Rain</string>
+    <string name="weather_rain">Rain</string>
+    <string name="weather_rainshowers">Rain Showers</string>
+    <string name="weather_blizzard">Blizzard</string>
+
+    <string name="weather_overcast">Overcast</string>
+    <string name="weather_sleet_tstorms">Sleet and Thunder</string>
+    <string name="weather_snow_tstorms">Snow and Thunder</string>
+
+    <string name="weather_clearsky">Clear sky</string>
+    <string name="weather_heavyrain">Heavy rain</string>
+
 </resources>

@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="aqi_level_0_50">Good</string>
+    <string name="aqi_level_51_100">Moderate</string>
+    <string name="aqi_level_101_150">Unhealthy for Sensitive Groups</string>
+    <string name="aqi_level_151_200">Unhealthy</string>
+    <string name="aqi_level_201_300">Very Unhealthy</string>
+    <string name="aqi_level_300">Hazardous</string>
 
-    <!-- https://aqicn.org/scale -->
-    <string name="aqi_level_0_50">"Good"</string>
-    <string name="aqi_level_51_100">"Moderate"</string>
-    <string name="aqi_level_101_150">"Unhealthy for Sensitive Groups"</string>
-    <string name="aqi_level_151_200">"Unhealthy"</string>
-    <string name="aqi_level_201_300">"Very Unhealthy"</string>
-    <string name="aqi_level_300">"Hazardous"</string>
-    <string name="aqi_desc_0_50">"Air quality is considered satisfactory, and air pollution poses little or no risk"</string>
-    <string name="aqi_desc_51_100">"Air quality is acceptable"</string>
-    <string name="aqi_desc_101_150">"Members of sensitive groups may experience health effects. The general public is not likely to be affected."</string>
-    <string name="aqi_desc_151_200">"Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects"</string>
-    <string name="aqi_desc_201_300">"Health warnings of emergency conditions. The entire population is more likely to be affected."</string>
-    <string name="aqi_desc_300">"Health alert: everyone may experience more serious health effects"</string>
+    <string name="aqi_desc_0_50">Air quality is considered satisfactory, and air pollution poses little or no risk</string>
+    <string name="aqi_desc_51_100">Air quality is acceptable</string>
+    <string name="aqi_desc_101_150">Members of sensitive groups may experience health effects. The general public is not likely to be affected.</string>
+    <string name="aqi_desc_151_200">Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects</string>
+    <string name="aqi_desc_201_300">Health warnings of emergency conditions. The entire population is more likely to be affected.</string>
+    <string name="aqi_desc_300">Health alert: everyone may experience more serious health effects</string>
 </resources>

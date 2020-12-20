@@ -2,77 +2,74 @@
 <resources>
 
     <!-- Feature Settings -->
-    <string name="pref_title_features">"Features"</string>
-    <string name="pref_summary_features">"Select features to enable/disable"</string>
-    <string name="pref_title_feature_bgimage">"Background Image"</string>
-    <string name="pref_title_feature_forecast">"Forecast"</string>
-    <string name="pref_title_feature_hrforecast">"Hourly Forecast"</string>
-    <string name="pref_title_feature_details">"Weather Details"</string>
-    <string name="pref_title_feature_uv">"UV"</string>
-    <string name="pref_title_feature_beaufort">"Beaufort"</string>
-    <string name="pref_title_feature_aqindex">"Air Quality Index"</string>
-    <string name="pref_title_feature_moonphase">"Moon Phase"</string>
-    <string name="pref_title_feature_sunphase">"Sun Phase"</string>
-    <string name="pref_title_feature_radar">"Weather Radar"</string>
-    <string name="pref_title_feature_locpanelimg">"Location Panel Image"</string>
+    <string name="pref_title_features">Features</string>
+    <string name="pref_summary_features">Select features to enable/disable</string>
+    <string name="pref_title_feature_bgimage">Background Image</string>
+    <string name="pref_title_feature_forecast">Forecast</string>
+    <string name="pref_title_feature_hrforecast">Hourly Forecast</string>
+    <string name="pref_title_feature_details">Weather Details</string>
+    <string name="pref_title_feature_uv">UV</string>
+    <string name="pref_title_feature_beaufort">Beaufort</string>
+    <string name="pref_title_feature_aqindex">Air Quality Index</string>
+    <string name="pref_title_feature_moonphase">Moon Phase</string>
+    <string name="pref_title_feature_sunphase">Sun Phase</string>
+    <string name="pref_title_feature_radar">Weather Radar</string>
+    <string name="pref_title_feature_locpanelimg">Location Panel Image</string>
 
     <!-- Widget -->
-    <string name="widget_configure_prompt">"Configure Widget"</string>
-    <string name="title_activity_widget_config">"Widget Preferences"</string>
-    <string name="pref_title_bgcolor">"Background"</string>
-    <string name="label_color_currentconditions">"Current Condition"</string>
-    <string name="label_color_transparent">"Transparent"</string>
-    <string name="pref_title_bgstyle">"Background Style"</string>
-    <string name="label_style_fullbg">"Full Background"</string>
-    <string name="label_style_panda">"Default"</string>
-
+    <string name="widget_configure_prompt">Configure Widget</string>
+    <string name="title_activity_widget_config">Widget Preferences</string>
+    <string name="pref_title_bgcolor">Background</string>
+    <string name="label_color_currentconditions">Current Condition</string>
+    <string name="label_color_custom">Custom</string>
+    <string name="label_color_transparent">Transparent</string>
+    <string name="pref_title_bgcolorcode">Background Color</string>
+    <string name="pref_title_txtcolorcode">Text Color</string>
+    <string name="pref_title_bgstyle">Background Style</string>
+    <string name="label_style_fullbg">Full Background</string>
+    <string name="label_style_panda">Default</string>
     <!-- Can be shortened to 'Color' -->
-    <string name="label_style_pendingcolor">"Weather Color"</string>
-    <string name="label_style_light">"Light"</string>
-    <string name="label_style_dark">"Dark"</string>
-    <string name="locname_pref_title">"Location Name"</string>
-    <string name="locname_pref_summary">"Hide location name from widget"</string>
-    <string name="settingsbtn_pref_title">"Settings Button"</string>
-    <string name="settingsbtn_pref_summary">"Hide settings button from widget"</string>
-    <string name="clock_pref_title">"Clock"</string>
-    <string name="calendar_pref_title">"Calendar"</string>
-    <string name="pref_title_fcastoption">"Forecast"</string>
-    <string name="label_fcast_full">"Daily Forecast and Hourly Forecast (if available)"</string>
-    <string name="label_fcast_daily">"Daily Forecast"</string>
-    <string name="label_fcast_hourly">"Hourly Forecast (if available)"</string>
-    <string name="pref_category_timeanddate">"Time and Date"</string>
-    <string name="pref_title_timezone">"Time zone"</string>
-    <string name="pref_timezone_summaryoff">"Use system time zone for time and date"</string>
-    <string name="pref_timezone_summaryon">"Use location time zone for time and date"</string>
-    <string name="pref_location">"Location"</string>
-    <string name="pref_item_gpslocation">"Current GPS Location"</string>
-    <string name="prompt_setup_app_first">"Please setup application first"</string>
+    <string name="label_style_pendingcolor">Weather Color</string>
+    <string name="label_style_light">Light</string>
+    <string name="label_style_dark">Dark</string>
+    <string name="locname_pref_title">Location Name</string>
+    <string name="locname_pref_summary">Hide location name from widget</string>
+    <string name="settingsbtn_pref_title">Settings Button</string>
+    <string name="settingsbtn_pref_summary">Hide settings button from widget</string>
+    <string name="clock_pref_title">Clock</string>
+    <string name="calendar_pref_title">Calendar</string>
+    <string name="pref_title_fcastoption">Forecast</string>
+    <string name="label_fcast_full">Daily Forecast and Hourly Forecast (if available)</string>
+    <string name="label_fcast_daily">Daily Forecast</string>
+    <string name="label_fcast_hourly">Hourly Forecast (if available)</string>
 
+    <string name="pref_category_timeanddate">Time and Date</string>
+    <string name="pref_title_timezone">Time zone</string>
+    <string name="pref_timezone_summaryoff">Use system time zone for time and date</string>
+    <string name="pref_timezone_summaryon">Use location time zone for time and date</string>
+    <string name="pref_location">Location</string>
+    <string name="pref_item_gpslocation">Current GPS Location</string>
+    <string name="prompt_setup_app_first">Please setup application first</string>
     <!-- LineView -->
-    <string name="label_series">"Series"</string>
+    <string name="label_series">Series</string>
 
     <!-- In-App Updates -->
-    <string name="not_channel_update_title">"App Updates"</string>
-    <string name="prompt_update_title">"Update SimpleWeather"</string>
-    <string name="prompt_update_available">"Update available. Click to install"</string>
+    <string name="not_channel_update_title">App Updates</string>
+    <string name="prompt_update_title">Update SimpleWeather</string>
+    <string name="prompt_update_available">Update available. Click to install</string>
 
     <!-- Support -->
-    <string name="pref_category_support">"Support"</string>
+    <string name="pref_category_support">Support</string>
 
     <!-- Feedback -->
-    <string name="pref_title_feedback">"Feedback"</string>
-    <string name="pref_summary_feedback">"Report any bugs or suggestions to improve the app"</string>
-
+    <string name="pref_title_feedback">Feedback</string>
+    <string name="pref_summary_feedback">Report any bugs or suggestions to improve the app</string>
     <!-- Rate / Review -->
-    <string name="pref_title_rateandreview">"Rate and Review"</string>
-    <string name="pref_summary_rateandreview">"Like the app? Help support by providing a review"</string>
+    <string name="pref_title_rateandreview">Rate and Review</string>
+    <string name="pref_summary_rateandreview">Like the app? Help support by providing a review</string>
 
     <!-- Translate -->
-    <string name="pref_title_translate">"Translate"</string>
-    <string name="pref_summary_translate">"Help translate the app"</string>
+    <string name="pref_title_translate">Translate</string>
+    <string name="pref_summary_translate">Help translate the app</string>
 
-    <!-- Custom Color -->
-    <string name="label_color_custom">"Custom"</string>
-    <string name="pref_title_bgcolorcode">"Background Color"</string>
-    <string name="pref_title_txtcolorcode">"Text Color"</string>
 </resources>

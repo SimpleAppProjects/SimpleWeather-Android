@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="uv_0">"Low"</string>
-    <string name="uv_3">"Moderate"</string>
-    <string name="uv_6">"High"</string>
-    <string name="uv_8">"Very High"</string>
-    <string name="uv_11">"Extreme"</string>
+    <string name="uv_0">Low</string>
+    <string name="uv_3">Moderate</string>
+    <string name="uv_6">High</string>
+    <string name="uv_8">Very High</string>
+    <string name="uv_11">Extreme</string>
 </resources>

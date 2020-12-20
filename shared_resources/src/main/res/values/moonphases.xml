@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="moonphase_new">"New Moon"</string>
-    <string name="moonphase_waxcrescent">"Waxing Crescent"</string>
-    <string name="moonphase_firstqtr">"First Quarter"</string>
-    <string name="moonphase_waxgibbous">"Waxing Gibbous"</string>
-    <string name="moonphase_full">"Full Moon"</string>
-    <string name="moonphase_wangibbous">"Waning Gibbous"</string>
-    <string name="moonphase_lastqtr">"Last Quarter"</string>
-    <string name="moonphase_wancrescent">"Waning Crescent"</string>
+    <string name="moonphase_new">New Moon</string>
+    <string name="moonphase_waxcrescent">Waxing Crescent</string>
+    <string name="moonphase_firstqtr">First Quarter</string>
+    <string name="moonphase_waxgibbous">Waxing Gibbous</string>
+    <string name="moonphase_full">Full Moon</string>
+    <string name="moonphase_wangibbous">Waning Gibbous</string>
+    <string name="moonphase_lastqtr">Last Quarter</string>
+    <string name="moonphase_wancrescent">Waning Crescent</string>
 </resources>
