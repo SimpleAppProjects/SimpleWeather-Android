@@ -88,4 +88,10 @@
     <string name="label_color_custom">"Individuelle Farbe"</string>
     <string name="pref_title_bgcolorcode">"Hintergrundfarbe"</string>
     <string name="pref_title_txtcolorcode">"Textfarbe"</string>
+
+    <!-- SplitInstall Prompts -->
+    <string name="splitlang_start_install">"Installation für Sprachpaket starten..."</string>
+    <string name="splitlang_installing">"Sprachpaket installieren..."</string>
+    <string name="splitlang_downloading">"Herunterladen des Sprachpakets..."</string>
+    <string name="splitlang_failure">"Sprachpaket konnte nicht installiert werden"</string>
 </resources>

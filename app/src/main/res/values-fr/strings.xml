@@ -79,4 +79,10 @@
     <string name="label_color_custom">"Personnalisé"</string>
     <string name="pref_title_bgcolorcode">"Couleur de l'arrière-plan"</string>
     <string name="pref_title_txtcolorcode">"Couleur du texte"</string>
+
+    <!-- SplitInstall Prompts -->
+    <string name="splitlang_start_install">"Démarrage de l'installation du module linguistique…"</string>
+    <string name="splitlang_installing">"Installation du module linguistique…"</string>
+    <string name="splitlang_downloading">"Téléchargement du module linguistique…"</string>
+    <string name="splitlang_failure">"Échec de l'installation du module linguistique"</string>
 </resources>

@@ -75,4 +75,10 @@
     <string name="label_color_custom">"Vlastné"</string>
     <string name="pref_title_bgcolorcode">"Farba pozadia"</string>
     <string name="pref_title_txtcolorcode">"Farba textu"</string>
+
+    <!-- SplitInstall Prompts -->
+    <string name="splitlang_start_install">"Spúšťa sa inštalácia pre jazykový balík ..."</string>
+    <string name="splitlang_installing">"Inštaluje sa jazykový balík ..."</string>
+    <string name="splitlang_downloading">"Sťahuje sa jazykový balík ..."</string>
+    <string name="splitlang_failure">"Nepodarilo sa nainštalovať jazykový balík"</string>
 </resources>
