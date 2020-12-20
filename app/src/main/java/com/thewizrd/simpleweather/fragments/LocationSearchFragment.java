@@ -172,29 +172,11 @@ public class LocationSearchFragment extends WindowColorFragment {
                                 throw new CustomException(R.string.error_retrieve_location);
                             }
 
-                            final boolean isUS = LocationUtils.isUS(queryResult.getLocationCountry());
-
-                            if (!Settings.isWeatherLoaded()) {
-                                // Default US provider to NWS
-                                if (isUS) {
-                                    Settings.setAPI(WeatherAPI.NWS);
-                                    queryResult.updateWeatherSource(WeatherAPI.NWS);
-                                } else {
-                                    Settings.setAPI(WeatherAPI.HERE);
-                                    queryResult.updateWeatherSource(WeatherAPI.HERE);
-                                }
-                                wm.updateAPI();
-                            }
-
                             if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired()) {
                                 throw new CustomException(R.string.werror_invalidkey);
                             }
 
                             TaskUtils.throwIfCancellationRequested(token);
-
-                            if (WeatherAPI.NWS.equals(Settings.getAPI()) && !LocationUtils.isUS(queryResult.getLocationCountry())) {
-                                throw new CustomException(R.string.error_message_weather_us_only);
-                            }
 
                             // Need to get FULL location data for HERE API
                             // Data provided is incomplete
@@ -212,6 +194,24 @@ public class LocationSearchFragment extends WindowColorFragment {
 
                             if (queryResult == null) {
                                 throw new InterruptedException();
+                            }
+
+                            final boolean isUS = LocationUtils.isUS(queryResult.getLocationCountry());
+
+                            if (!Settings.isWeatherLoaded()) {
+                                // Default US provider to NWS
+                                if (isUS) {
+                                    Settings.setAPI(WeatherAPI.NWS);
+                                    queryResult.updateWeatherSource(WeatherAPI.NWS);
+                                } else {
+                                    Settings.setAPI(WeatherAPI.HERE);
+                                    queryResult.updateWeatherSource(WeatherAPI.HERE);
+                                }
+                                wm.updateAPI();
+                            }
+
+                            if (WeatherAPI.NWS.equals(Settings.getAPI()) && !isUS) {
+                                throw new CustomException(R.string.error_message_weather_us_only);
                             }
 
                             // Check if location already exists
