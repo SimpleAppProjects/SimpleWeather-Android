@@ -172,6 +172,22 @@ public class LocationSearchFragment extends WindowColorFragment {
                                 throw new CustomException(R.string.error_retrieve_location);
                             }
 
+                            final boolean isUS = LocationUtils.isUS(queryResult.getLocationCountry());
+
+                            if (!Settings.isWeatherLoaded()) {
+                                // Default US location to NWS
+                                if (isUS) {
+                                    Settings.setAPI(WeatherAPI.NWS);
+                                } else {
+                                    Settings.setAPI(WeatherAPI.HERE);
+                                }
+                                wm.updateAPI();
+                            }
+
+                            if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired()) {
+                                throw new CustomException(R.string.werror_invalidkey);
+                            }
+
                             TaskUtils.throwIfCancellationRequested(token);
 
                             if (WeatherAPI.NWS.equals(Settings.getAPI()) && !LocationUtils.isUS(queryResult.getLocationCountry())) {
