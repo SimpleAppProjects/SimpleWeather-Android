@@ -6,7 +6,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.util.Log;
 
@@ -16,7 +15,6 @@ import androidx.core.content.ContextCompat;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
-import androidx.work.ForegroundInfo;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
@@ -140,6 +138,7 @@ public class WidgetUpdaterWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+        /*
         // Request work to be in foreground (only for Oreo+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             try {
@@ -152,6 +151,7 @@ public class WidgetUpdaterWorker extends Worker {
                 // no-op
             }
         }
+        */
 
         if (Settings.isWeatherLoaded()) {
             if (WeatherWidgetService.widgetsExist(mContext)) {
