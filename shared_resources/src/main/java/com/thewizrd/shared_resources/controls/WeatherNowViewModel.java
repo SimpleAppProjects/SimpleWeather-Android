@@ -543,7 +543,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
             }
         }
 
-        if (weather.getCondition().getWindGustMph() != null &&
+        if (weather.getCondition().getWindGustMph() != null && weather.getCondition().getWindGustKph() != null &&
                 !ObjectsCompat.equals(weather.getCondition().getWindGustMph(), weather.getCondition().getWindGustKph())) {
             final String unit = Settings.getSpeedUnit();
             int speedVal;

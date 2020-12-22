@@ -54,10 +54,10 @@ public class Precipitation extends CustomJsonObject {
             }
         }
         if (root.getSnow() != null) {
-            if (root.getRain().get_1h() != null) {
+            if (root.getSnow().get_1h() != null) {
                 qpfSnowIn = ConversionMethods.mmToIn(root.getSnow().get_1h());
                 qpfSnowCm = root.getSnow().get_1h() / 10;
-            } else if (root.getRain().get_3h() != null) {
+            } else if (root.getSnow().get_3h() != null) {
                 qpfSnowIn = ConversionMethods.mmToIn(root.getSnow().get_3h());
                 qpfSnowCm = root.getSnow().get_3h() / 10;
             }

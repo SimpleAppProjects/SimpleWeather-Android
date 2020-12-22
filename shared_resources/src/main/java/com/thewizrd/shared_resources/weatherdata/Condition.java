@@ -129,7 +129,7 @@ public class Condition extends CustomJsonObject {
         }
         if (current.getWind().getGust() != null) {
             windGustMph = ConversionMethods.msecToMph(current.getWind().getGust());
-            windGustMph = ConversionMethods.msecToKph(current.getWind().getGust());
+            windGustKph = ConversionMethods.msecToKph(current.getWind().getGust());
         }
 
         String ico = current.getWeather().get(0).getIcon();
