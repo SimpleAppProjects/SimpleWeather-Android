@@ -26,4 +26,7 @@
     <dimen name="details_icon_size">28dp</dimen>
     <dimen name="details_text_size">12sp</dimen>
 
+    <!-- Tiles -->
+    <dimen name="tile_horizontal_padding">4dp</dimen>
+
 </resources>

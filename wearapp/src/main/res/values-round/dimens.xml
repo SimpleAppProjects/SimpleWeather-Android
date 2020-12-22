@@ -13,4 +13,7 @@
     <dimen name="wnow_horizontal_padding">24dp</dimen>
     <dimen name="wnow_vertical_padding">24dp</dimen>
 
+    <!-- Tiles -->
+    <dimen name="tile_horizontal_padding">20dp</dimen>
+
 </resources>
