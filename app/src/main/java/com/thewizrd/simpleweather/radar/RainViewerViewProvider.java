@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -195,7 +196,11 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
                     List<Long> root = JSONParser.deserializer(stream, arrListType);
 
                     availableTimestamps.clear();
-                    availableTimestamps.addAll(root);
+
+                    if (root != null && !root.isEmpty()) {
+                        root.removeAll(Collections.singleton(null));
+                        availableTimestamps.addAll(root);
+                    }
 
                     for (Long key : radarLayers.keySet()) {
                         if (!availableTimestamps.contains(key)) {
