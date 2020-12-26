@@ -13,9 +13,17 @@ public interface LocationProviderImplInterface {
 
     boolean supportsLocale();
 
+    boolean needsLocationFromID();
+
+    boolean needsLocationFromName();
+
     Collection<LocationQueryViewModel> getLocations(String ac_query, String weatherAPI) throws WeatherException;
 
     LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate, String weatherAPI) throws WeatherException;
+
+    LocationQueryViewModel getLocationFromID(String locationID, String weatherAPI) throws WeatherException;
+
+    LocationQueryViewModel getLocationFromName(String locationName, String weatherAPI) throws WeatherException;
 
     boolean isKeyValid(String key) throws WeatherException;
 

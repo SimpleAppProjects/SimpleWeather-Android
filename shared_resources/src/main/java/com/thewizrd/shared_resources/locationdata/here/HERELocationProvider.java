@@ -53,6 +53,16 @@ public final class HERELocationProvider extends LocationProviderImpl {
     }
 
     @Override
+    public boolean needsLocationFromID() {
+        return true;
+    }
+
+    @Override
+    public boolean needsLocationFromName() {
+        return false;
+    }
+
+    @Override
     public Collection<LocationQueryViewModel> getLocations(String ac_query, String weatherAPI) throws WeatherException {
         Collection<LocationQueryViewModel> locations = null;
 
@@ -189,7 +199,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
         return location;
     }
 
-    public LocationQueryViewModel getLocationfromLocID(String locationID, String weatherAPI) throws WeatherException {
+    public LocationQueryViewModel getLocationFromID(String locationID, String weatherAPI) throws WeatherException {
         LocationQueryViewModel location = null;
 
         ULocale uLocale = ULocale.forLocale(LocaleUtils.getLocale());
@@ -244,6 +254,11 @@ public final class HERELocationProvider extends LocationProviderImpl {
             location = new LocationQueryViewModel();
 
         return location;
+    }
+
+    @Override
+    public LocationQueryViewModel getLocationFromName(String locationName, String weatherAPI) throws WeatherException {
+        return null;
     }
 
     @Override

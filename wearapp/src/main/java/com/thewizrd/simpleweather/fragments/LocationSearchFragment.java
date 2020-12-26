@@ -35,7 +35,6 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.lifecycle.LifecycleRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.tasks.CallableEx;
 import com.thewizrd.shared_resources.tasks.TaskUtils;
@@ -151,14 +150,14 @@ public class LocationSearchFragment extends SwipeDismissFragment {
 
                             // Need to get FULL location data for HERE API
                             // Data provided is incomplete
-                            if (WeatherAPI.HERE.equals(queryResult.getLocationSource())
-                                    && queryResult.getLocationLat() == -1 && queryResult.getLocationLong() == -1
-                                    && queryResult.getLocationTZLong() == null) {
+                            if (queryResult.getLocationLat() == -1 && queryResult.getLocationLong() == -1
+                                    && queryResult.getLocationTZLong() == null
+                                    && wm.getLocationProvider().needsLocationFromID()) {
                                 final LocationQueryViewModel loc = queryResult;
                                 queryResult = AsyncTask.await(new CallableEx<LocationQueryViewModel, WeatherException>() {
                                     @Override
                                     public LocationQueryViewModel call() throws WeatherException {
-                                        return new HERELocationProvider().getLocationfromLocID(loc.getLocationQuery(), loc.getWeatherSource());
+                                        return wm.getLocationProvider().getLocationFromID(loc.getLocationQuery(), loc.getWeatherSource());
                                     }
                                 }, token);
                             }

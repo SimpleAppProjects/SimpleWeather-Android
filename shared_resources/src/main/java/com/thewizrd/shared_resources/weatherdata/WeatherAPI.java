@@ -17,8 +17,11 @@ public class WeatherAPI {
     public static final String OPENWEATHERMAP = "openweather";
     public static final String METNO = "Metno";
     public static final String HERE = "Here";
-    public static final String LOCATIONIQ = "LocIQ";
     public static final String NWS = "NWS";
+
+    // Location APIs
+    public static final String LOCATIONIQ = "LocIQ";
+    public static final String GOOGLE = "google";
 
     @StringDef({
             HERE, YAHOO, METNO, NWS, OPENWEATHERMAP
@@ -28,7 +31,7 @@ public class WeatherAPI {
     }
 
     @StringDef({
-            HERE, LOCATIONIQ
+            HERE, LOCATIONIQ, GOOGLE
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface LocationAPIs {
@@ -51,6 +54,8 @@ public class WeatherAPI {
             new ProviderEntry("HERE Maps", HERE,
                     "https://www.here.com/en", "https://developer.here.com/"),
             new ProviderEntry("LocationIQ", LOCATIONIQ,
-                    "https://locationiq.com", "https://locationiq.com")
+                    "https://locationiq.com", "https://locationiq.com"),
+            new ProviderEntry("Google", GOOGLE,
+                    "https://google.com/maps", "https://google.com/maps")
     );
 }

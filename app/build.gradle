@@ -109,6 +109,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-wearable:17.0.0'
     implementation 'com.google.android.play:core:1.9.0'
     implementation "com.android.billingclient:billing:3.0.2"
+    implementation 'com.google.android.libraries.places:places:2.4.0'
 
     // Firebase
     implementation 'com.google.firebase:firebase-analytics:18.0.0'

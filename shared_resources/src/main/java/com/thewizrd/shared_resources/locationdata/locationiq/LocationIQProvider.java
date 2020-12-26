@@ -56,6 +56,16 @@ public final class LocationIQProvider extends LocationProviderImpl {
     }
 
     @Override
+    public boolean needsLocationFromID() {
+        return false;
+    }
+
+    @Override
+    public boolean needsLocationFromName() {
+        return false;
+    }
+
+    @Override
     public Collection<LocationQueryViewModel> getLocations(String ac_query, String weatherAPI) throws WeatherException {
         Collection<LocationQueryViewModel> locations = null;
 
@@ -177,6 +187,16 @@ public final class LocationIQProvider extends LocationProviderImpl {
             location = new LocationQueryViewModel();
 
         return location;
+    }
+
+    @Override
+    public LocationQueryViewModel getLocationFromID(String locationID, String weatherAPI) throws WeatherException {
+        return null;
+    }
+
+    @Override
+    public LocationQueryViewModel getLocationFromName(String locationName, String weatherAPI) throws WeatherException {
+        return null;
     }
 
     @Override

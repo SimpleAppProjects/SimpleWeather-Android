@@ -15,7 +15,6 @@ import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.FileUtils;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -127,14 +126,14 @@ public class ExampleInstrumentedTest {
 
         // Need to get FULL location data for HERE API
         // Data provided is incomplete
-        if (WeatherAPI.HERE.equals(Settings.getAPI())
-                && loc.getLocationLat() == -1 && loc.getLocationLong() == -1
-                && loc.getLocationTZLong() == null) {
+        if (loc.getLocationLat() == -1 && loc.getLocationLong() == -1
+                && loc.getLocationTZLong() == null
+                && wm.getLocationProvider().needsLocationFromID()) {
             final LocationQueryViewModel query_vm = loc;
             loc = AsyncTask.await(new Callable<LocationQueryViewModel>() {
                 @Override
                 public LocationQueryViewModel call() throws WeatherException {
-                    return new HERELocationProvider().getLocationfromLocID(query_vm.getLocationQuery(), WeatherAPI.HERE);
+                    return wm.getLocationProvider().getLocationFromID(query_vm.getLocationQuery(), WeatherAPI.HERE);
                 }
             });
         }
@@ -156,14 +155,14 @@ public class ExampleInstrumentedTest {
 
         // Need to get FULL location data for HERE API
         // Data provided is incomplete
-        if (WeatherAPI.HERE.equals(Settings.getAPI())
-                && loc.getLocationLat() == -1 && loc.getLocationLong() == -1
-                && loc.getLocationTZLong() == null) {
+        if (loc.getLocationLat() == -1 && loc.getLocationLong() == -1
+                && loc.getLocationTZLong() == null
+                && wm.getLocationProvider().needsLocationFromID()) {
             final LocationQueryViewModel query_vm = loc;
             loc = AsyncTask.await(new Callable<LocationQueryViewModel>() {
                 @Override
                 public LocationQueryViewModel call() throws WeatherException {
-                    return new HERELocationProvider().getLocationfromLocID(query_vm.getLocationQuery(), WeatherAPI.HERE);
+                    return wm.getLocationProvider().getLocationFromID(query_vm.getLocationQuery(), WeatherAPI.HERE);
                 }
             });
         }

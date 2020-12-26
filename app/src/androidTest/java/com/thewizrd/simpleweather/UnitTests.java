@@ -2,6 +2,8 @@ package com.thewizrd.simpleweather;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Address;
+import android.location.Geocoder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -10,12 +12,15 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.android.gms.tasks.Tasks;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Iterables;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
+import com.thewizrd.shared_resources.locationdata.google.GoogleLocationProvider;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.tasks.CallableEx;
 import com.thewizrd.shared_resources.tzdb.TimeZoneProvider;
@@ -49,6 +54,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -240,5 +246,44 @@ public class UnitTests {
         }
 
         Assert.assertTrue(astro.getSunrise() != LocalDateTime.MIN && astro.getSunset() != LocalDateTime.MIN && astro.getMoonrise() != LocalDateTime.MIN && astro.getMoonset() != LocalDateTime.MIN);
+    }
+
+    @Test
+    public void androidAutoCompleteLocTest() throws IOException {
+        Assert.assertTrue(Geocoder.isPresent());
+        Geocoder geocoder = new Geocoder(App.getInstance().getAppContext(), Locale.getDefault());
+        List<Address> addressList = geocoder.getFromLocationName("Redmon", 5); // Redmond
+        Assert.assertTrue(addressList != null && !addressList.isEmpty());
+    }
+
+    @Test
+    public void androidGeocoderTest() throws IOException {
+        Assert.assertTrue(Geocoder.isPresent());
+        Geocoder geocoder = new Geocoder(App.getInstance().getAppContext(), Locale.getDefault());
+        //List<Address> addressList = geocoder.getFromLocation(47.6721646, -122.1706614, 1); // Washington
+        List<Address> addressList = geocoder.getFromLocation(51.5073884, -0.1334347, 1); // London
+        Assert.assertTrue(addressList != null && !addressList.isEmpty());
+        Address result = addressList.get(0);
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void placesAPITest() throws WeatherException {
+        LocationProviderImpl locationProvider = new GoogleLocationProvider();
+        Collection<LocationQueryViewModel> locations = locationProvider.getLocations("Berlin, Germany", null);
+        Assert.assertTrue(locations != null && !locations.isEmpty());
+
+        LocationQueryViewModel queryVM = Iterables.getFirst(locations, null);
+        Assert.assertNotNull(queryVM);
+
+        LocationQueryViewModel idModel = locationProvider.getLocationFromID(queryVM.getLocationQuery(), null);
+        /*
+        LocationQueryViewModel nameModel = locationProvider.getLocationFromName(
+                String.format("%s, %s", queryVM.getLocationName(), queryVM.getLocationCountry()), null
+        );
+
+         */
+        Assert.assertNotNull(idModel);
+        //Assert.assertNotNull(nameModel);
     }
 }

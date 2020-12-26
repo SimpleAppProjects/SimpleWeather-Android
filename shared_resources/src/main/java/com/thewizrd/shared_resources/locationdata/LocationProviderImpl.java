@@ -22,6 +22,10 @@ public abstract class LocationProviderImpl implements LocationProviderImplInterf
 
     public abstract boolean supportsLocale();
 
+    public abstract boolean needsLocationFromID();
+
+    public abstract boolean needsLocationFromName();
+
     /**
      * Retrieve a list of locations from the location provider
      *
@@ -41,6 +45,26 @@ public abstract class LocationProviderImpl implements LocationProviderImplInterf
      * @throws WeatherException Weather Exception
      */
     public abstract LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate, String weatherAPI) throws WeatherException;
+
+    /**
+     * Retrieve a single location using the location id
+     *
+     * @param locationID The location id for the location to be queried
+     * @param weatherAPI The weather source to be assigned
+     * @return A single location matching the provided location id
+     * @throws WeatherException Weather Exception
+     */
+    public abstract LocationQueryViewModel getLocationFromID(String locationID, String weatherAPI) throws WeatherException;
+
+    /**
+     * Retrieve a single location using the location name
+     *
+     * @param locationName The location name for the location to be queried
+     * @param weatherAPI   The weather source to be assigned
+     * @return A single location matching the provided location id
+     * @throws WeatherException Weather Exception
+     */
+    public abstract LocationQueryViewModel getLocationFromName(String locationName, String weatherAPI) throws WeatherException;
 
     /**
      * Query the location provider if the provided key is valid
