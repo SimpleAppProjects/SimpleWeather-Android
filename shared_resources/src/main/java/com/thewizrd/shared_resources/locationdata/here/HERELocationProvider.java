@@ -138,7 +138,11 @@ public final class HERELocationProvider extends LocationProviderImpl {
 
     @Override
     public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coord, String weatherAPI) throws WeatherException {
-        LocationQueryViewModel location = null;
+        LocationQueryViewModel location = super.getLocation(coord, weatherAPI);
+
+        if (location != null) {
+            return location;
+        }
 
         DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
         df.applyPattern("0.####");

@@ -137,7 +137,11 @@ public final class LocationIQProvider extends LocationProviderImpl {
 
     @Override
     public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coord, String weatherAPI) throws WeatherException {
-        LocationQueryViewModel location = null;
+        LocationQueryViewModel location = super.getLocation(coord, weatherAPI);
+
+        if (location != null) {
+            return location;
+        }
 
         ULocale uLocale = ULocale.forLocale(LocaleUtils.getLocale());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());

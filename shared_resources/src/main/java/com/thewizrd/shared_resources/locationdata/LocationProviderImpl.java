@@ -1,18 +1,23 @@
 package com.thewizrd.shared_resources.locationdata;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.util.Log;
 
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.tzdb.TZDBCache;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
+import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 public abstract class LocationProviderImpl implements LocationProviderImplInterface {
     // Variables
@@ -44,7 +49,40 @@ public abstract class LocationProviderImpl implements LocationProviderImplInterf
      * @return A single location matching the provided coordinate
      * @throws WeatherException Weather Exception
      */
-    public abstract LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate, String weatherAPI) throws WeatherException;
+    public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate, String weatherAPI) throws WeatherException {
+        if (Geocoder.isPresent()) {
+            LocationQueryViewModel location;
+            Address result;
+            WeatherException wEx = null;
+
+            try {
+                Geocoder geocoder = new Geocoder(SimpleLibrary.getInstance().getAppContext(), LocaleUtils.getLocale());
+                List<Address> addresses = geocoder.getFromLocation(coordinate.getLatitude(), coordinate.getLongitude(), 1);
+
+                result = addresses.get(0);
+            } catch (Exception ex) {
+                result = null;
+                if (ex instanceof IOException) {
+                    wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
+                } else if (ex instanceof IllegalArgumentException) {
+                    wEx = new WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND);
+                }
+                Logger.writeLine(Log.ERROR, ex, "GoogleLocationProvider: error getting location");
+            }
+
+            if (wEx != null)
+                throw wEx;
+
+            if (result != null)
+                location = new LocationQueryViewModel(result, weatherAPI);
+            else
+                location = new LocationQueryViewModel();
+
+            return location;
+        }
+
+        return null;
+    }
 
     /**
      * Retrieve a single location using the location id
