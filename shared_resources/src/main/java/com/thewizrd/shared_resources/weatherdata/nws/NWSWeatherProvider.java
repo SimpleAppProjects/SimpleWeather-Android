@@ -4,6 +4,12 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonStreamParser;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -18,6 +24,10 @@ import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
+import com.thewizrd.shared_resources.weatherdata.nws.hourly.HourlyForecastResponse;
+import com.thewizrd.shared_resources.weatherdata.nws.hourly.Location;
+import com.thewizrd.shared_resources.weatherdata.nws.hourly.PeriodsItem;
+import com.thewizrd.shared_resources.weatherdata.nws.observation.ForecastResponse;
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider;
 
 import org.threeten.bp.Instant;
@@ -28,17 +38,21 @@ import org.threeten.bp.ZonedDateTime;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Locale;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 public class NWSWeatherProvider extends WeatherProviderImpl {
-    private static final String POINTS_QUERY_URL = "https://api.weather.gov/points/%s";
-    private static final int MAX_ATTEMPTS = 2;
+    private static final String FORECAST_QUERY_URL = "https://forecast.weather.gov/MapClick.php?%s&FcstType=json";
+    private static final String HRFORECAST_QUERY_URL = "https://forecast.weather.gov/MapClick.php?%s&FcstType=digitalJSON";
 
     public NWSWeatherProvider() {
         super();
@@ -85,7 +99,8 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
         Weather weather;
 
         OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
-        Response pointsResponse = null;
+        Response observationResponse = null;
+        Response forecastResponse = null;
         WeatherException wEx = null;
 
         try {
@@ -93,38 +108,47 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             String version = String.format("v%s", packageInfo.versionName);
 
-            Request request = new Request.Builder()
-                    .url(String.format(POINTS_QUERY_URL, location_query))
+            Request observationRequest = new Request.Builder()
+                    .url(String.format(FORECAST_QUERY_URL, location_query))
                     .addHeader("Accept", "application/ld+json")
                     .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
                     .build();
 
             // Connect to webstream
-            pointsResponse = client.newCall(request).execute();
+            observationResponse = client.newCall(observationRequest).execute();
 
             // Check for errors
-            checkForErrors(pointsResponse.code());
+            checkForErrors(observationResponse.code());
 
-            final InputStream stream = pointsResponse.body().byteStream();
+            final InputStream observationStream = observationResponse.body().byteStream();
 
             // Load point json data
-            PointsResponse pointsResponseData = JSONParser.deserializer(stream, PointsResponse.class);
+            ForecastResponse observationData = JSONParser.deserializer(observationStream, ForecastResponse.class);
 
             // End Stream
-            stream.close();
+            observationStream.close();
 
-            final String forecastUrl = pointsResponseData.getForecast();
-            final String forecastHourlyUrl = pointsResponseData.getForecastHourly();
-            final String observationStationsUrl = pointsResponseData.getObservationStations();
+            Request hrForecastRequest = new Request.Builder()
+                    .url(String.format(HRFORECAST_QUERY_URL, location_query))
+                    .addHeader("Accept", "application/ld+json")
+                    .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
+                    .build();
 
-            ForecastResponse forecastResponse = getForecastResponse(forecastUrl);
-            HourlyForecastResponse hourlyForecastResponse = getHourlyForecastResponse(forecastHourlyUrl);
-            ObservationStationsResponse stationsResponse = getObservationStationsResponse(observationStationsUrl);
+            // Connect to webstream
+            forecastResponse = client.newCall(hrForecastRequest).execute();
 
-            final String stationUrl = stationsResponse.getObservationStations().get(0);
-            ObservationCurrentResponse obsCurrentResponse = getObservationCurrentResponse(stationUrl);
+            // Check for errors
+            checkForErrors(forecastResponse.code());
 
-            weather = new Weather(pointsResponseData, forecastResponse, hourlyForecastResponse, obsCurrentResponse);
+            final InputStream forecastStream = forecastResponse.body().byteStream();
+
+            // Load point json data
+            HourlyForecastResponse forecastData = createHourlyForecastResponse(forecastStream);
+
+            // End Stream
+            forecastStream.close();
+
+            weather = new Weather(observationData, forecastData);
         } catch (Exception ex) {
             weather = null;
             if (ex instanceof IOException) {
@@ -132,8 +156,8 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
             }
             Logger.writeLine(Log.ERROR, ex, "NWSWeatherProvider: error getting weather data");
         } finally {
-            if (pointsResponse != null)
-                pointsResponse.close();
+            if (observationResponse != null)
+                observationResponse.close();
         }
 
         if (wEx == null && (weather == null || !weather.isValid())) {
@@ -148,214 +172,120 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
         return weather;
     }
 
-    private ForecastResponse getForecastResponse(String url) throws Exception {
-        ForecastResponse responseData = null;
+    private HourlyForecastResponse createHourlyForecastResponse(@NonNull InputStream forecastStream) {
+        HourlyForecastResponse forecastData = new HourlyForecastResponse();
+        JsonStreamParser forecastParser = new JsonStreamParser(new InputStreamReader(forecastStream));
 
-        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
-        Response response = null;
+        if (forecastParser.hasNext()) {
+            JsonElement element = forecastParser.next();
+            JsonObject fcastRoot = element.getAsJsonObject();
 
-        try {
-            Context context = SimpleLibrary.getInstance().getApp().getAppContext();
-            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            String version = String.format("v%s", packageInfo.versionName);
+            forecastData.setCreationDate(fcastRoot.get("creationDate").getAsString());
+            forecastData.setLocation(new Location());
 
-            Request request = new Request.Builder()
-                    .url(url + "?units=us")
-                    .addHeader("Accept", "application/ld+json")
-                    .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
-                    .build();
+            JsonObject location = fcastRoot.getAsJsonObject("location");
+            forecastData.getLocation().setLatitude(location.getAsJsonPrimitive("latitude").getAsDouble());
+            forecastData.getLocation().setLongitude(location.getAsJsonPrimitive("longitude").getAsDouble());
 
-            for (int i = 0; i < MAX_ATTEMPTS; i++) {
-                try {
-                    // Connect to webstream
-                    response = client.newCall(request).execute();
+            JsonObject periodNameList = fcastRoot.getAsJsonObject("PeriodNameList");
+            SortedSet<String> sortedKeys = new TreeSet<>(periodNameList.keySet());
 
-                    if (response.code() == HttpURLConnection.HTTP_BAD_REQUEST) {
-                        break;
-                    } else {
-                        // Check for errors
-                        checkForErrors(response.code());
+            forecastData.setPeriodsItems(new ArrayList<>(sortedKeys.size()));
 
-                        final InputStream stream = response.body().byteStream();
+            for (final String periodNumber : sortedKeys) {
+                final String periodName = periodNameList.getAsJsonPrimitive(periodNumber).getAsString();
 
-                        // Load point json data
-                        responseData = JSONParser.deserializer(stream, ForecastResponse.class);
+                if (!fcastRoot.has(periodName))
+                    continue;
 
-                        // End Stream
-                        stream.close();
-                    }
-                } catch (Exception ignored) {
+                final PeriodsItem item = new PeriodsItem();
+
+                JsonObject periodObj = fcastRoot.getAsJsonObject(periodName);
+                JsonArray unixTimeArr = periodObj.getAsJsonArray("unixtime");
+                JsonArray windChillArr = periodObj.getAsJsonArray("windChill");
+                JsonArray windSpeedArr = periodObj.getAsJsonArray("windSpeed");
+                JsonArray cloudAmtArr = periodObj.getAsJsonArray("cloudAmount");
+                JsonArray popArr = periodObj.getAsJsonArray("pop");
+                JsonArray humidityArr = periodObj.getAsJsonArray("relativeHumidity");
+                JsonArray windGustArr = periodObj.getAsJsonArray("windGust");
+                JsonArray tempArr = periodObj.getAsJsonArray("temperature");
+                JsonArray windDirArr = periodObj.getAsJsonArray("windDirection");
+                JsonArray iconArr = periodObj.getAsJsonArray("iconLink");
+                JsonArray conditionTxtArr = periodObj.getAsJsonArray("weather");
+
+                item.setPeriodName(periodObj.getAsJsonPrimitive("periodName").getAsString());
+
+                item.setUnixtime(new ArrayList<>(unixTimeArr.size()));
+                for (JsonElement jsonElement : unixTimeArr) {
+                    String time = jsonElement.getAsString();
+                    item.getUnixtime().add(time);
                 }
 
-                if (i < MAX_ATTEMPTS - 1 && responseData == null) {
-                    Thread.sleep(1000);
+                item.setWindChill(new ArrayList<>(windChillArr.size()));
+                for (JsonElement jsonElement : windChillArr) {
+                    String windChill = jsonElement.getAsString();
+                    item.getWindChill().add(windChill);
                 }
+
+                item.setWindSpeed(new ArrayList<>(windSpeedArr.size()));
+                for (JsonElement jsonElement : windSpeedArr) {
+                    String windSpeed = jsonElement.getAsString();
+                    item.getWindSpeed().add(windSpeed);
+                }
+
+                item.setCloudAmount(new ArrayList<>(cloudAmtArr.size()));
+                for (JsonElement jsonElement : cloudAmtArr) {
+                    String cloudAmt = jsonElement.getAsString();
+                    item.getCloudAmount().add(cloudAmt);
+                }
+
+                item.setPop(new ArrayList<>(popArr.size()));
+                for (JsonElement jsonElement : popArr) {
+                    String pop = jsonElement.getAsString();
+                    item.getPop().add(pop);
+                }
+
+                item.setRelativeHumidity(new ArrayList<>(humidityArr.size()));
+                for (JsonElement jsonElement : humidityArr) {
+                    String humidity = jsonElement.getAsString();
+                    item.getRelativeHumidity().add(humidity);
+                }
+
+                item.setWindGust(new ArrayList<>(windGustArr.size()));
+                for (JsonElement jsonElement : windGustArr) {
+                    String windGust = jsonElement.getAsString();
+                    item.getWindGust().add(windGust);
+                }
+
+                item.setTemperature(new ArrayList<>(tempArr.size()));
+                for (JsonElement jsonElement : tempArr) {
+                    String temp = jsonElement.getAsString();
+                    item.getTemperature().add(temp);
+                }
+
+                item.setWindDirection(new ArrayList<>(windDirArr.size()));
+                for (JsonElement jsonElement : windDirArr) {
+                    String windDir = jsonElement.getAsString();
+                    item.getWindDirection().add(windDir);
+                }
+
+                item.setIconLink(new ArrayList<>(iconArr.size()));
+                for (JsonElement jsonElement : iconArr) {
+                    String icon = jsonElement.getAsString();
+                    item.getIconLink().add(icon);
+                }
+
+                item.setWeather(new ArrayList<>(conditionTxtArr.size()));
+                for (JsonElement jsonElement : conditionTxtArr) {
+                    String condition = jsonElement.getAsString();
+                    item.getWeather().add(condition);
+                }
+
+                forecastData.getPeriodsItems().add(item);
             }
-        } finally {
-            if (response != null)
-                response.close();
         }
 
-        return responseData;
-    }
-
-    private HourlyForecastResponse getHourlyForecastResponse(String url) throws Exception {
-        HourlyForecastResponse responseData = null;
-
-        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
-        Response response = null;
-
-        try {
-            Context context = SimpleLibrary.getInstance().getApp().getAppContext();
-            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            String version = String.format("v%s", packageInfo.versionName);
-
-            Request request = new Request.Builder()
-                    .url(url + "?units=us")
-                    .addHeader("Accept", "application/ld+json")
-                    .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
-                    .build();
-
-            for (int i = 0; i < MAX_ATTEMPTS; i++) {
-                try {
-                    // Connect to webstream
-                    response = client.newCall(request).execute();
-
-                    if (response.code() == HttpURLConnection.HTTP_BAD_REQUEST) {
-                        break;
-                    } else {
-                        // Connect to webstream
-                        response = client.newCall(request).execute();
-
-                        // Check for errors
-                        checkForErrors(response.code());
-
-                        final InputStream stream = response.body().byteStream();
-
-                        // Load point json data
-                        responseData = JSONParser.deserializer(stream, HourlyForecastResponse.class);
-
-                        // End Stream
-                        stream.close();
-                    }
-                } catch (Exception ignored) {
-                }
-
-                if (i < MAX_ATTEMPTS - 1 && responseData == null) {
-                    Thread.sleep(1000);
-                }
-            }
-        } finally {
-            if (response != null)
-                response.close();
-        }
-
-        return responseData;
-    }
-
-    private ObservationStationsResponse getObservationStationsResponse(String url) throws Exception {
-        ObservationStationsResponse responseData = null;
-
-        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
-        Response response = null;
-
-        try {
-            Context context = SimpleLibrary.getInstance().getApp().getAppContext();
-            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            String version = String.format("v%s", packageInfo.versionName);
-
-            Request request = new Request.Builder()
-                    .url(url)
-                    .addHeader("Accept", "application/ld+json")
-                    .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
-                    .build();
-
-            for (int i = 0; i < MAX_ATTEMPTS; i++) {
-                try {
-                    // Connect to webstream
-                    response = client.newCall(request).execute();
-
-                    if (response.code() == HttpURLConnection.HTTP_BAD_REQUEST) {
-                        break;
-                    } else {
-                        // Connect to webstream
-                        response = client.newCall(request).execute();
-
-                        // Check for errors
-                        checkForErrors(response.code());
-
-                        final InputStream stream = response.body().byteStream();
-
-                        // Load point json data
-                        responseData = JSONParser.deserializer(stream, ObservationStationsResponse.class);
-
-                        // End Stream
-                        stream.close();
-                    }
-                } catch (Exception ignored) {
-                }
-
-                if (i < MAX_ATTEMPTS - 1 && responseData == null) {
-                    Thread.sleep(1000);
-                }
-            }
-        } finally {
-            if (response != null)
-                response.close();
-        }
-
-        return responseData;
-    }
-
-    private ObservationCurrentResponse getObservationCurrentResponse(String url) throws Exception {
-        ObservationCurrentResponse responseData = null;
-
-        OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
-        Response response = null;
-
-        try {
-            Context context = SimpleLibrary.getInstance().getApp().getAppContext();
-            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            String version = String.format("v%s", packageInfo.versionName);
-
-            Request request = new Request.Builder()
-                    .url(url + "/observations/latest?require_qc=true")
-                    .addHeader("Accept", "application/ld+json")
-                    .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
-                    .build();
-
-            for (int i = 0; i < MAX_ATTEMPTS; i++) {
-                try {
-                    // Connect to webstream
-                    response = client.newCall(request).execute();
-
-                    if (response.code() == HttpURLConnection.HTTP_BAD_REQUEST) {
-                        break;
-                    } else {
-                        // Check for errors
-                        checkForErrors(response.code());
-
-                        final InputStream stream = response.body().byteStream();
-
-                        // Load point json data
-                        responseData = JSONParser.deserializer(stream, ObservationCurrentResponse.class);
-
-                        // End Stream
-                        stream.close();
-                    }
-                } catch (Exception ignored) {
-                }
-
-                if (i < MAX_ATTEMPTS - 1 && responseData == null) {
-                    Thread.sleep(1000);
-                }
-            }
-        } finally {
-            if (response != null)
-                response.close();
-        }
-
-        return responseData;
+        return forecastData;
     }
 
     private void checkForErrors(int responseCode) throws WeatherException {
@@ -395,14 +325,14 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
     public String updateLocationQuery(Weather weather) {
         DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
         df.applyPattern("0.####");
-        return String.format(Locale.ROOT, "%s,%s", df.format(weather.getLocation().getLatitude()), df.format(weather.getLocation().getLongitude()));
+        return String.format(Locale.ROOT, "lat=%s&lon=%s", df.format(weather.getLocation().getLatitude()), df.format(weather.getLocation().getLongitude()));
     }
 
     @Override
     public String updateLocationQuery(LocationData location) {
         DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
         df.applyPattern("0.####");
-        return String.format(Locale.ROOT, "%s,%s", df.format(location.getLatitude()), location.getLongitude());
+        return String.format(Locale.ROOT, "lat=%s&lon=%s", df.format(location.getLatitude()), location.getLongitude());
     }
 
     @Override

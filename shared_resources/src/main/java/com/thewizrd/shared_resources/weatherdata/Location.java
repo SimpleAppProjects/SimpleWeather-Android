@@ -82,10 +82,12 @@ public class Location extends CustomJsonObject {
         tzLong = null;
     }
 
-    public Location(com.thewizrd.shared_resources.weatherdata.nws.PointsResponse pointsResponse) {
+    public Location(com.thewizrd.shared_resources.weatherdata.nws.observation.ForecastResponse forecastResponse) {
         // Use location name from location provider
         name = null;
-        tzLong = pointsResponse.getTimeZone();
+        latitude = Float.parseFloat(forecastResponse.getLocation().getLatitude());
+        longitude = Float.parseFloat(forecastResponse.getLocation().getLongitude());
+        tzLong = null;
     }
 
     public String getName() {

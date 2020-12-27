@@ -4,7 +4,6 @@ import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 
-import com.google.common.collect.Iterables;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -24,7 +23,6 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Arrays;
 import java.util.Locale;
 
 public class HourlyForecast extends BaseForecast {
@@ -291,41 +289,63 @@ public class HourlyForecast extends BaseForecast {
         extras.setWindKph(windKph);
     }
 
-    public HourlyForecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem) {
+    public HourlyForecast(com.thewizrd.shared_resources.weatherdata.nws.hourly.PeriodItem forecastItem) {
         WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.NWS);
         Locale locale = LocaleUtils.getLocale();
 
-        setDate(ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME));
-        highF = (float) forecastItem.getTemperature();
-        highC = ConversionMethods.FtoC(highF);
+        setDate(Instant.ofEpochSecond(Long.parseLong(forecastItem.getUnixTime())).atZone(ZoneOffset.UTC));
+
+        Float temp = NumberUtils.tryParseFloat(forecastItem.getTemperature());
+        if (temp != null) {
+            highF = temp;
+            highC = ConversionMethods.FtoC(temp);
+        }
 
         if (locale.toString().equals("en") || locale.toString().startsWith("en_") || locale.equals(Locale.ROOT)) {
-            condition = forecastItem.getShortForecast();
+            condition = forecastItem.getWeather();
         } else {
-            condition = provider.getWeatherCondition(forecastItem.getIcon());
+            condition = provider.getWeatherCondition(forecastItem.getIconLink());
         }
-        icon = provider.getWeatherIcon(forecastItem.getIcon());
+        icon = provider.getWeatherIcon(forecastItem.getIconLink());
+
+        // Extras
+        extras = new ForecastExtras();
 
         if (forecastItem.getWindSpeed() != null && forecastItem.getWindDirection() != null) {
-            windDegrees = WeatherUtils.getWindDirection(forecastItem.getWindDirection());
+            windDegrees = Integer.parseInt(forecastItem.getWindDirection());
+            windMph = Float.parseFloat(forecastItem.getWindSpeed());
+            windKph = ConversionMethods.mphTokph(windMph);
 
-            // windSpeed is reported usually as, for ex., '7 to 10 mph'
-            // Format and split text into min and max
-            String[] speeds = forecastItem.getWindSpeed().replace(" mph", "").split(" to ");
-            String maxWindSpeed = Iterables.getLast(Arrays.asList(speeds), null);
-            if (!StringUtils.isNullOrWhitespace(maxWindSpeed)) {
-                Integer windSpeed = NumberUtils.tryParseInt(maxWindSpeed);
-                if (windSpeed != null) {
-                    windMph = windSpeed.floatValue();
-                    windKph = ConversionMethods.mphTokph(windSpeed);
+            extras.setWindDegrees(this.windDegrees);
+            extras.setWindMph(this.windMph);
+            extras.setWindKph(this.windKph);
+        }
 
-                    // Extras
-                    extras = new ForecastExtras();
-                    extras.setWindDegrees(this.windDegrees);
-                    extras.setWindMph(this.windMph);
-                    extras.setWindKph(this.windKph);
-                }
-            }
+        Float windChill = NumberUtils.tryParseFloat(forecastItem.getWindChill());
+        if (windChill != null) {
+            extras.setFeelslikeF(windChill);
+            extras.setFeelslikeC(ConversionMethods.FtoC(windChill));
+        }
+
+        Integer cloudiness = NumberUtils.tryParseInt(forecastItem.getCloudAmount());
+        if (cloudiness != null) {
+            extras.setCloudiness(cloudiness);
+        }
+
+        Integer pop = NumberUtils.tryParseInt(forecastItem.getPop());
+        if (pop != null) {
+            extras.setPop(pop);
+        }
+
+        Integer humidity = NumberUtils.tryParseInt(forecastItem.getRelativeHumidity());
+        if (humidity != null) {
+            extras.setHumidity(humidity);
+        }
+
+        Float windGust = NumberUtils.tryParseFloat(forecastItem.getWindGust());
+        if (windGust != null) {
+            extras.setWindGustMph(windGust);
+            extras.setWindGustKph(ConversionMethods.mphTokph(windGust));
         }
     }
 

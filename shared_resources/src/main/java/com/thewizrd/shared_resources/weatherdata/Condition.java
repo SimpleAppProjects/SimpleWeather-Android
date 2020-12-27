@@ -279,53 +279,57 @@ public class Condition extends CustomJsonObject {
         observationTime = ZonedDateTime.parse(observation.getUtcTime());
     }
 
-    public Condition(com.thewizrd.shared_resources.weatherdata.nws.ObservationCurrentResponse obsCurrentResponse) {
+    public Condition(com.thewizrd.shared_resources.weatherdata.nws.observation.ForecastResponse forecastResponse) {
         WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.NWS);
         Locale locale = LocaleUtils.getLocale();
 
         if (locale.toString().equals("en") || locale.toString().startsWith("en_") || locale.equals(Locale.ROOT)) {
-            weather = obsCurrentResponse.getTextDescription();
+            weather = forecastResponse.getCurrentobservation().getWeather();
         } else {
-            weather = provider.getWeatherCondition(obsCurrentResponse.getIcon());
+            weather = provider.getWeatherCondition(forecastResponse.getCurrentobservation().getWeatherimage());
         }
-        icon = provider.getWeatherIcon(obsCurrentResponse.getIcon());
+        icon = provider.getWeatherIcon(forecastResponse.getCurrentobservation().getWeatherimage());
 
-        if (obsCurrentResponse.getTemperature().getValue() != null) {
-            tempC = obsCurrentResponse.getTemperature().getValue();
-            tempF = ConversionMethods.CtoF(tempC);
-        }
-
-        if (obsCurrentResponse.getWindDirection().getValue() != null) {
-            windDegrees = obsCurrentResponse.getWindDirection().getValue().intValue();
+        Float temp = NumberUtils.tryParseFloat(forecastResponse.getCurrentobservation().getTemp());
+        if (temp != null) {
+            tempF = temp;
+            tempC = ConversionMethods.FtoC(temp);
         }
 
-        if (obsCurrentResponse.getWindSpeed().getValue() != null) {
-            windKph = obsCurrentResponse.getWindSpeed().getValue();
-            windMph = ConversionMethods.kphTomph(windKph);
+        Integer windDir = NumberUtils.tryParseInt(forecastResponse.getCurrentobservation().getWindd());
+        if (windDir != null) {
+            windDegrees = windDir;
         }
 
-        if (obsCurrentResponse.getWindGust().getValue() != null) {
-            windGustKph = obsCurrentResponse.getWindGust().getValue();
-            windGustMph = ConversionMethods.kphTomph(windGustKph);
+        Float windSpeed = NumberUtils.tryParseFloat(forecastResponse.getCurrentobservation().getWinds());
+        if (windSpeed != null) {
+            windMph = windSpeed;
+            windKph = ConversionMethods.mphTokph(windSpeed);
         }
 
-        if (obsCurrentResponse.getHeatIndex().getValue() != null) {
-            feelslikeC = obsCurrentResponse.getHeatIndex().getValue();
-            feelslikeF = ConversionMethods.CtoF(feelslikeC);
-        } else if (obsCurrentResponse.getWindChill().getValue() != null) {
-            feelslikeC = obsCurrentResponse.getWindChill().getValue();
-            feelslikeF = ConversionMethods.CtoF(feelslikeC);
+        Float windGust = NumberUtils.tryParseFloat(forecastResponse.getCurrentobservation().getGust());
+        if (windGust != null) {
+            windGustMph = windGust;
+            windGustKph = ConversionMethods.mphTokph(windGust);
+        }
+
+        Float windChill = NumberUtils.tryParseFloat(forecastResponse.getCurrentobservation().getWindChill());
+        if (windChill != null) {
+            feelslikeF = windChill;
+            feelslikeC = ConversionMethods.FtoC(windChill);
         } else if (tempF != null && !ObjectsCompat.equals(tempF, tempC) && windMph != null) {
-            float humidity = NumberUtils.getValueOrDefault(obsCurrentResponse.getRelativeHumidity().getValue(), -1.f);
-            feelslikeF = WeatherUtils.getFeelsLikeTemp(tempF, windMph, Math.round(humidity));
-            feelslikeC = ConversionMethods.FtoC(feelslikeF);
+            float humidity = NumberUtils.tryParseFloat(forecastResponse.getCurrentobservation().getRelh(), -1.f);
+            if (humidity >= 0) {
+                feelslikeF = WeatherUtils.getFeelsLikeTemp(tempF, windMph, Math.round(humidity));
+                feelslikeC = ConversionMethods.FtoC(feelslikeF);
+            }
         }
 
         if (windMph != null) {
             beaufort = new Beaufort(WeatherUtils.getBeaufortScale((int) Math.round(windMph)).getValue());
         }
 
-        observationTime = ZonedDateTime.parse(obsCurrentResponse.getTimestamp());
+        observationTime = ZonedDateTime.parse(forecastResponse.getCreationDate(), DateTimeFormatter.ISO_ZONED_DATE_TIME);
     }
 
     public String getWeather() {

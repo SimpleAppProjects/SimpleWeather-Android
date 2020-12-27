@@ -124,25 +124,29 @@ public class Atmosphere extends CustomJsonObject {
         }
     }
 
-    public Atmosphere(com.thewizrd.shared_resources.weatherdata.nws.ObservationCurrentResponse obsCurrentResponse) {
-        if (obsCurrentResponse.getRelativeHumidity().getValue() != null) {
-            humidity = Math.round(obsCurrentResponse.getRelativeHumidity().getValue());
+    public Atmosphere(com.thewizrd.shared_resources.weatherdata.nws.observation.ForecastResponse forecastResponse) {
+        Integer relh = NumberUtils.tryParseInt(forecastResponse.getCurrentobservation().getRelh());
+        if (relh != null) {
+            humidity = relh;
         }
-        if (obsCurrentResponse.getBarometricPressure().getValue() != null) {
-            float pressure_pa = obsCurrentResponse.getBarometricPressure().getValue();
-            pressureIn = ConversionMethods.paToInHg(pressure_pa);
-            pressureMb = ConversionMethods.paToMB(pressure_pa);
+
+        Float pressure = NumberUtils.tryParseFloat(forecastResponse.getCurrentobservation().getSLP());
+        if (pressure != null) {
+            pressureIn = pressure;
+            pressureMb = ConversionMethods.inHgToMB(pressure);
         }
         pressureTrend = "";
 
-        if (obsCurrentResponse.getVisibility().getValue() != null) {
-            visibilityKm = obsCurrentResponse.getVisibility().getValue() / 1000;
-            visibilityMi = ConversionMethods.kmToMi(obsCurrentResponse.getVisibility().getValue() / 1000);
+        Float visibility = NumberUtils.tryParseFloat(forecastResponse.getCurrentobservation().getVisibility());
+        if (visibility != null) {
+            visibilityMi = visibility;
+            visibilityKm = ConversionMethods.miToKm(visibility);
         }
 
-        if (obsCurrentResponse.getDewpoint().getValue() != null) {
-            dewpointC = obsCurrentResponse.getDewpoint().getValue();
-            dewpointF = ConversionMethods.CtoF(obsCurrentResponse.getDewpoint().getValue());
+        Float dewp = NumberUtils.tryParseFloat(forecastResponse.getCurrentobservation().getDewp());
+        if (dewp != null) {
+            dewpointF = dewp;
+            dewpointC = ConversionMethods.FtoC(dewp);
         }
     }
 

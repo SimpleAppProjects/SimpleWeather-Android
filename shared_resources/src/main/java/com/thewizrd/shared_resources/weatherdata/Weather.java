@@ -362,8 +362,8 @@ public class Weather extends CustomJsonObject {
         source = WeatherAPI.HERE;
     }
 
-    public Weather(com.thewizrd.shared_resources.weatherdata.nws.PointsResponse pointsResponse, com.thewizrd.shared_resources.weatherdata.nws.ForecastResponse forecastResponse, com.thewizrd.shared_resources.weatherdata.nws.HourlyForecastResponse hourlyForecastResponse, com.thewizrd.shared_resources.weatherdata.nws.ObservationCurrentResponse obsCurrentResponse) {
-        location = new Location(pointsResponse);
+    public Weather(com.thewizrd.shared_resources.weatherdata.nws.observation.ForecastResponse forecastResponse, com.thewizrd.shared_resources.weatherdata.nws.hourly.HourlyForecastResponse hourlyForecastResponse) {
+        location = new Location(forecastResponse);
         ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
         updateTime = now;
 
@@ -371,34 +371,74 @@ public class Weather extends CustomJsonObject {
         forecast = new ArrayList<>(8);
         txtForecast = new ArrayList<>(16);
 
-        for (int i = 0; i < forecastResponse.getPeriods().size(); i++) {
-            com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem = forecastResponse.getPeriods().get(i);
+        {
+            final int periodsSize = forecastResponse.getTime().getStartValidTime().size();
+            for (int i = 0; i < periodsSize; i++) {
+                com.thewizrd.shared_resources.weatherdata.nws.observation.PeriodsItem forecastItem = new com.thewizrd.shared_resources.weatherdata.nws.observation.PeriodsItem(
+                        forecastResponse.getTime().getStartPeriodName().get(i),
+                        forecastResponse.getTime().getStartValidTime().get(i),
+                        forecastResponse.getTime().getTempLabel().get(i),
+                        forecastResponse.getData().getTemperature().get(i),
+                        forecastResponse.getData().getPop().get(i),
+                        forecastResponse.getData().getWeather().get(i),
+                        forecastResponse.getData().getIconLink().get(i),
+                        forecastResponse.getData().getText().get(i)
+                );
 
-            if ((forecast.isEmpty() && !forecastItem.getIsDaytime()) ||
-                    (forecast.size() == forecastResponse.getPeriods().size() - 1 && forecastItem.getIsDaytime())) {
-                forecast.add(new Forecast(forecastItem));
-                txtForecast.add(new TextForecast(forecastItem));
-            } else if (forecastItem.getIsDaytime() && (i + 1) < forecastResponse.getPeriods().size()) {
-                com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem nightForecastItem = forecastResponse.getPeriods().get(i + 1);
-                forecast.add(new Forecast(forecastItem, nightForecastItem));
-                txtForecast.add(new TextForecast(forecastItem, nightForecastItem));
+                if ((forecast.isEmpty() && !forecastItem.getIsDaytime()) || (forecast.size() == periodsSize - 1 && forecastItem.getIsDaytime())) {
+                    forecast.add(new Forecast(forecastItem));
+                    txtForecast.add(new TextForecast(forecastItem));
+                } else if (forecastItem.getIsDaytime() && (i + 1) < periodsSize) {
+                    com.thewizrd.shared_resources.weatherdata.nws.observation.PeriodsItem nightForecastItem = new com.thewizrd.shared_resources.weatherdata.nws.observation.PeriodsItem(
+                            forecastResponse.getTime().getStartPeriodName().get(i + 1),
+                            forecastResponse.getTime().getStartValidTime().get(i + 1),
+                            forecastResponse.getTime().getTempLabel().get(i + 1),
+                            forecastResponse.getData().getTemperature().get(i + 1),
+                            forecastResponse.getData().getPop().get(i + 1),
+                            forecastResponse.getData().getWeather().get(i + 1),
+                            forecastResponse.getData().getIconLink().get(i + 1),
+                            forecastResponse.getData().getText().get(i + 1)
+                    );
 
-                i++;
+                    forecast.add(new Forecast(forecastItem, nightForecastItem));
+                    txtForecast.add(new TextForecast(forecastItem, nightForecastItem));
+
+                    i++;
+                }
             }
         }
-        if (hourlyForecastResponse != null) {
-            hrForecast = new ArrayList<>(hourlyForecastResponse.getPeriods().size());
-            for (com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem period : hourlyForecastResponse.getPeriods()) {
-                if (ZonedDateTime.parse(period.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME).truncatedTo(ChronoUnit.HOURS).isBefore(now.truncatedTo(ChronoUnit.HOURS)))
-                    continue;
 
-                hrForecast.add(new HourlyForecast(period));
+        {
+            hrForecast = new ArrayList<>(144);
+            for (com.thewizrd.shared_resources.weatherdata.nws.hourly.PeriodsItem period : hourlyForecastResponse.getPeriodsItems()) {
+                final int periodsSize = period.getUnixtime().size();
+                for (int i = 0; i < periodsSize; i++) {
+                    if (Instant.ofEpochSecond(Long.parseLong(period.getUnixtime().get(i))).atZone(ZoneOffset.UTC).isBefore(now.truncatedTo(ChronoUnit.HOURS)))
+                        continue;
+
+                    com.thewizrd.shared_resources.weatherdata.nws.hourly.PeriodItem forecastItem = new com.thewizrd.shared_resources.weatherdata.nws.hourly.PeriodItem(
+                            period.getUnixtime().get(i),
+                            period.getWindChill().get(i),
+                            period.getWindSpeed().get(i),
+                            period.getCloudAmount().get(i),
+                            period.getPop().get(i),
+                            period.getRelativeHumidity().get(i),
+                            period.getWindGust().get(i),
+                            period.getTemperature().get(i),
+                            period.getWindDirection().get(i),
+                            period.getIconLink().get(i),
+                            period.getWeather().get(i)
+                    );
+
+                    hrForecast.add(new HourlyForecast(forecastItem));
+                }
             }
         }
-        condition = new Condition(obsCurrentResponse);
-        atmosphere = new Atmosphere(obsCurrentResponse);
+
+        condition = new Condition(forecastResponse);
+        atmosphere = new Atmosphere(forecastResponse);
         //astronomy = new Astronomy(obsCurrentResponse);
-        precipitation = new Precipitation(obsCurrentResponse);
+        precipitation = new Precipitation(forecastResponse);
         ttl = 180;
 
         if (condition.getHighF() == null && forecast.size() > 0) {

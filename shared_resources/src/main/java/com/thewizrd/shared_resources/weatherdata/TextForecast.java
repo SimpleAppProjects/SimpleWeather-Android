@@ -114,15 +114,15 @@ public class TextForecast extends CustomJsonObject {
         fcttextMetric = fcttext;
     }
 
-    public TextForecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem) {
+    public TextForecast(com.thewizrd.shared_resources.weatherdata.nws.observation.PeriodsItem forecastItem) {
         date = ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME);
         fcttext = String.format(Locale.ROOT,
                 "%s - %s", forecastItem.getName(), forecastItem.getDetailedForecast());
         fcttextMetric = fcttext;
     }
 
-    public TextForecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem,
-                        com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem ntForecastItem) {
+    public TextForecast(com.thewizrd.shared_resources.weatherdata.nws.observation.PeriodsItem forecastItem,
+                        com.thewizrd.shared_resources.weatherdata.nws.observation.PeriodsItem ntForecastItem) {
         date = ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME);
         fcttext = String.format(Locale.ROOT,
                 "%s - %s\n\n%s - %s",

@@ -4,7 +4,6 @@ import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 
-import com.google.common.collect.Iterables;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -24,7 +23,6 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Arrays;
 import java.util.Locale;
 
 public class Forecast extends BaseForecast {
@@ -236,16 +234,16 @@ public class Forecast extends BaseForecast {
         }
     }
 
-    public Forecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem) {
+    public Forecast(com.thewizrd.shared_resources.weatherdata.nws.observation.PeriodsItem forecastItem) {
         WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.NWS);
         Locale locale = LocaleUtils.getLocale();
 
         date = ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME).toLocalDateTime();
         if (forecastItem.getIsDaytime()) {
-            highF = (float) forecastItem.getTemperature();
+            highF = Float.parseFloat(forecastItem.getTemperature());
             highC = ConversionMethods.FtoC(highF);
         } else {
-            lowF = (float) forecastItem.getTemperature();
+            lowF = Float.parseFloat(forecastItem.getTemperature());
             lowC = ConversionMethods.FtoC(lowF);
         }
 
@@ -256,29 +254,18 @@ public class Forecast extends BaseForecast {
         }
         icon = provider.getWeatherIcon(forecastItem.getIcon());
 
-        if (forecastItem.getWindSpeed() != null && forecastItem.getWindDirection() != null) {
-            String[] speeds = forecastItem.getWindSpeed().replace(" mph", "").split(" to ");
-            String maxWindSpeed = Iterables.getLast(Arrays.asList(speeds), null);
-            if (!StringUtils.isNullOrWhitespace(maxWindSpeed)) {
-                Integer windSpeed = NumberUtils.tryParseInt(maxWindSpeed);
-                if (windSpeed != null) {
-                    extras = new ForecastExtras();
-                    extras.setWindDegrees(WeatherUtils.getWindDirection(forecastItem.getWindDirection()));
-                    extras.setWindMph(windSpeed.floatValue());
-                    extras.setWindKph(ConversionMethods.mphTokph(windSpeed.floatValue()));
-                }
-            }
-        }
+        extras = new ForecastExtras();
+        extras.setPop(NumberUtils.tryParseInt(forecastItem.getPop(), 0));
     }
 
-    public Forecast(com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem forecastItem, com.thewizrd.shared_resources.weatherdata.nws.PeriodsItem nightForecastItem) {
+    public Forecast(com.thewizrd.shared_resources.weatherdata.nws.observation.PeriodsItem forecastItem, com.thewizrd.shared_resources.weatherdata.nws.observation.PeriodsItem nightForecastItem) {
         WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.NWS);
         Locale locale = LocaleUtils.getLocale();
 
         date = ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME).toLocalDateTime();
-        highF = (float) forecastItem.getTemperature();
+        highF = Float.parseFloat(forecastItem.getTemperature());
         highC = ConversionMethods.FtoC(highF);
-        lowF = (float) nightForecastItem.getTemperature();
+        lowF = Float.parseFloat(nightForecastItem.getTemperature());
         lowC = ConversionMethods.FtoC(lowF);
 
         if (locale.toString().equals("en") || locale.toString().startsWith("en_") || locale.equals(Locale.ROOT)) {
@@ -288,22 +275,8 @@ public class Forecast extends BaseForecast {
         }
         icon = provider.getWeatherIcon(forecastItem.getIcon());
 
-        if (forecastItem.getWindSpeed() != null && forecastItem.getWindDirection() != null) {
-            // windSpeed is reported usually as, for ex., '7 to 10 mph'
-            // Format and split text into min and max
-            String[] speeds = forecastItem.getWindSpeed().replace(" mph", "").split(" to ");
-            String maxWindSpeed = Iterables.getLast(Arrays.asList(speeds), null);
-            if (!StringUtils.isNullOrWhitespace(maxWindSpeed)) {
-                Integer windSpeed = NumberUtils.tryParseInt(maxWindSpeed);
-                if (windSpeed != null) {
-                    // Extras
-                    extras = new ForecastExtras();
-                    extras.setWindDegrees(WeatherUtils.getWindDirection(forecastItem.getWindDirection()));
-                    extras.setWindMph(windSpeed.floatValue());
-                    extras.setWindKph(ConversionMethods.mphTokph(windSpeed.floatValue()));
-                }
-            }
-        }
+        extras = new ForecastExtras();
+        extras.setPop(NumberUtils.tryParseInt(forecastItem.getPop(), 0));
     }
 
     public LocalDateTime getDate() {
