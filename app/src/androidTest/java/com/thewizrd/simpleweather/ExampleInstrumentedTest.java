@@ -20,6 +20,7 @@ import com.thewizrd.shared_resources.utils.FileUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.WeatherException;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
@@ -133,7 +134,23 @@ public class ExampleInstrumentedTest {
             loc = AsyncTask.await(new Callable<LocationQueryViewModel>() {
                 @Override
                 public LocationQueryViewModel call() throws WeatherException {
-                    return wm.getLocationProvider().getLocationFromID(query_vm.getLocationQuery(), WeatherAPI.HERE);
+                    return wm.getLocationProvider().getLocationFromID(query_vm);
+                }
+            });
+        } else if (wm.getLocationProvider().needsLocationFromName()) {
+            final LocationQueryViewModel query_vm = loc;
+            loc = AsyncTask.await(new Callable<LocationQueryViewModel>() {
+                @Override
+                public LocationQueryViewModel call() throws WeatherException {
+                    return wm.getLocationProvider().getLocationFromName(query_vm);
+                }
+            });
+        } else if (wm.getLocationProvider().needsLocationFromGeocoder()) {
+            final LocationQueryViewModel query_vm = loc;
+            loc = AsyncTask.await(new Callable<LocationQueryViewModel>() {
+                @Override
+                public LocationQueryViewModel call() throws WeatherException {
+                    return wm.getLocationProvider().getLocation(new WeatherUtils.Coordinate(query_vm.getLocationLat(), query_vm.getLocationLong()), query_vm.getWeatherSource());
                 }
             });
         }
@@ -162,7 +179,23 @@ public class ExampleInstrumentedTest {
             loc = AsyncTask.await(new Callable<LocationQueryViewModel>() {
                 @Override
                 public LocationQueryViewModel call() throws WeatherException {
-                    return wm.getLocationProvider().getLocationFromID(query_vm.getLocationQuery(), WeatherAPI.HERE);
+                    return wm.getLocationProvider().getLocationFromID(query_vm);
+                }
+            });
+        } else if (wm.getLocationProvider().needsLocationFromName()) {
+            final LocationQueryViewModel query_vm = loc;
+            loc = AsyncTask.await(new Callable<LocationQueryViewModel>() {
+                @Override
+                public LocationQueryViewModel call() throws WeatherException {
+                    return wm.getLocationProvider().getLocationFromName(query_vm);
+                }
+            });
+        } else if (wm.getLocationProvider().needsLocationFromGeocoder()) {
+            final LocationQueryViewModel query_vm = loc;
+            loc = AsyncTask.await(new Callable<LocationQueryViewModel>() {
+                @Override
+                public LocationQueryViewModel call() throws WeatherException {
+                    return wm.getLocationProvider().getLocation(new WeatherUtils.Coordinate(query_vm.getLocationLat(), query_vm.getLocationLong()), query_vm.getWeatherSource());
                 }
             });
         }

@@ -157,7 +157,23 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                                 queryResult = AsyncTask.await(new CallableEx<LocationQueryViewModel, WeatherException>() {
                                     @Override
                                     public LocationQueryViewModel call() throws WeatherException {
-                                        return wm.getLocationProvider().getLocationFromID(loc.getLocationQuery(), loc.getWeatherSource());
+                                        return wm.getLocationProvider().getLocationFromID(loc);
+                                    }
+                                }, token);
+                            } else if (wm.getLocationProvider().needsLocationFromName()) {
+                                final LocationQueryViewModel loc = queryResult;
+                                queryResult = AsyncTask.await(new CallableEx<LocationQueryViewModel, WeatherException>() {
+                                    @Override
+                                    public LocationQueryViewModel call() throws WeatherException {
+                                        return wm.getLocationProvider().getLocationFromName(loc);
+                                    }
+                                }, token);
+                            } else if (wm.getLocationProvider().needsLocationFromGeocoder()) {
+                                final LocationQueryViewModel loc = queryResult;
+                                queryResult = AsyncTask.await(new CallableEx<LocationQueryViewModel, WeatherException>() {
+                                    @Override
+                                    public LocationQueryViewModel call() throws WeatherException {
+                                        return wm.getLocationProvider().getLocation(new WeatherUtils.Coordinate(loc.getLocationLat(), loc.getLocationLong()), loc.getWeatherSource());
                                     }
                                 }, token);
                             }

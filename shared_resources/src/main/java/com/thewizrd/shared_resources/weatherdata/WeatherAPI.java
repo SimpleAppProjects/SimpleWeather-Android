@@ -22,6 +22,7 @@ public class WeatherAPI {
     // Location APIs
     public static final String LOCATIONIQ = "LocIQ";
     public static final String GOOGLE = "google";
+    public static final String WEATHERAPI = "weatherapi";
 
     @StringDef({
             HERE, YAHOO, METNO, NWS, OPENWEATHERMAP
@@ -31,7 +32,7 @@ public class WeatherAPI {
     }
 
     @StringDef({
-            HERE, LOCATIONIQ, GOOGLE
+            HERE, LOCATIONIQ, GOOGLE, WEATHERAPI
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface LocationAPIs {
@@ -56,6 +57,8 @@ public class WeatherAPI {
             new ProviderEntry("LocationIQ", LOCATIONIQ,
                     "https://locationiq.com", "https://locationiq.com"),
             new ProviderEntry("Google", GOOGLE,
-                    "https://google.com/maps", "https://google.com/maps")
+                    "https://google.com/maps", "https://google.com/maps"),
+            new ProviderEntry("WeatherAPI", WEATHERAPI,
+                    "https://weatherapi.com", "https://weatherapi.com/api")
     );
 }

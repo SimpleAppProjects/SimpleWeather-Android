@@ -2,6 +2,8 @@ package com.thewizrd.shared_resources.locationdata.here;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -55,11 +57,6 @@ public final class HERELocationProvider extends LocationProviderImpl {
     @Override
     public boolean needsLocationFromID() {
         return true;
-    }
-
-    @Override
-    public boolean needsLocationFromName() {
-        return false;
     }
 
     @Override
@@ -137,8 +134,8 @@ public final class HERELocationProvider extends LocationProviderImpl {
     }
 
     @Override
-    public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coord, String weatherAPI) throws WeatherException {
-        LocationQueryViewModel location = super.getLocation(coord, weatherAPI);
+    public LocationQueryViewModel getLocation(@NonNull WeatherUtils.Coordinate coordinate, String weatherAPI) throws WeatherException {
+        LocationQueryViewModel location = super.getLocation(coordinate, weatherAPI);
 
         if (location != null) {
             return location;
@@ -147,7 +144,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
         DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
         df.applyPattern("0.####");
 
-        String location_query = String.format(Locale.ROOT, "%s,%s", df.format(coord.getLatitude()), df.format(coord.getLongitude()));
+        String location_query = String.format(Locale.ROOT, "%s,%s", df.format(coordinate.getLatitude()), df.format(coordinate.getLongitude()));
 
         ULocale uLocale = ULocale.forLocale(LocaleUtils.getLocale());
         String locale = localeToLangCode(uLocale.getLanguage(), uLocale.toLanguageTag());
@@ -203,7 +200,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
         return location;
     }
 
-    public LocationQueryViewModel getLocationFromID(String locationID, String weatherAPI) throws WeatherException {
+    public LocationQueryViewModel getLocationFromID(@NonNull LocationQueryViewModel model) throws WeatherException {
         LocationQueryViewModel location = null;
 
         ULocale uLocale = ULocale.forLocale(LocaleUtils.getLocale());
@@ -222,7 +219,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
             }
 
             Request request = new Request.Builder()
-                    .url(String.format(GEOCODER_QUERY_URL, locationID, locale))
+                    .url(String.format(GEOCODER_QUERY_URL, model.getLocationQuery(), locale))
                     .addHeader("Authorization", authorization)
                     .build();
 
@@ -253,7 +250,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
             throw wEx;
 
         if (result != null && !StringUtils.isNullOrWhitespace(result.getLocation().getLocationId()))
-            location = new LocationQueryViewModel(result, weatherAPI);
+            location = new LocationQueryViewModel(result, model.getWeatherSource());
         else
             location = new LocationQueryViewModel();
 
@@ -261,7 +258,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
     }
 
     @Override
-    public LocationQueryViewModel getLocationFromName(String locationName, String weatherAPI) throws WeatherException {
+    public LocationQueryViewModel getLocationFromName(@NonNull LocationQueryViewModel model) throws WeatherException {
         return null;
     }
 

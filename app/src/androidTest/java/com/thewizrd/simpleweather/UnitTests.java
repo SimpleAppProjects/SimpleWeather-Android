@@ -11,6 +11,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.android.gms.tasks.Tasks;
+import com.google.common.base.Predicate;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Iterables;
 import com.jakewharton.threetenabp.AndroidThreeTen;
@@ -21,6 +22,7 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.locationdata.google.GoogleLocationProvider;
+import com.thewizrd.shared_resources.locationdata.weatherapi.WeatherApiLocationProvider;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.tasks.CallableEx;
 import com.thewizrd.shared_resources.tzdb.TimeZoneProvider;
@@ -44,6 +46,7 @@ import com.thewizrd.shared_resources.weatherdata.nws.SolCalcAstroProvider;
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider;
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider;
 
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -276,14 +279,29 @@ public class UnitTests {
         LocationQueryViewModel queryVM = Iterables.getFirst(locations, null);
         Assert.assertNotNull(queryVM);
 
-        LocationQueryViewModel idModel = locationProvider.getLocationFromID(queryVM.getLocationQuery(), null);
+        LocationQueryViewModel idModel = locationProvider.getLocationFromID(queryVM);
         /*
-        LocationQueryViewModel nameModel = locationProvider.getLocationFromName(
-                String.format("%s, %s", queryVM.getLocationName(), queryVM.getLocationCountry()), null
-        );
-
+        LocationQueryViewModel nameModel = locationProvider.getLocationFromName(queryVM);
          */
         Assert.assertNotNull(idModel);
         //Assert.assertNotNull(nameModel);
+    }
+
+    @Test
+    public void weatherAPILocationTest() throws WeatherException {
+        LocationProviderImpl locationProvider = new WeatherApiLocationProvider();
+        Collection<LocationQueryViewModel> locations = locationProvider.getLocations("Redmond, WA", null);
+        Assert.assertTrue(locations != null && !locations.isEmpty());
+
+        LocationQueryViewModel queryVM = Iterables.find(locations, new Predicate<LocationQueryViewModel>() {
+            @Override
+            public boolean apply(@NullableDecl LocationQueryViewModel input) {
+                return input != null && input.getLocationName().startsWith("Redmond, ");
+            }
+        });
+        Assert.assertNotNull(queryVM);
+
+        LocationQueryViewModel nameModel = locationProvider.getLocationFromName(queryVM);
+        Assert.assertNotNull(nameModel);
     }
 }

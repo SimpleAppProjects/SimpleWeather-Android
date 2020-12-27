@@ -1,5 +1,7 @@
 package com.thewizrd.shared_resources.locationdata;
 
+import androidx.annotation.NonNull;
+
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -17,13 +19,15 @@ public interface LocationProviderImplInterface {
 
     boolean needsLocationFromName();
 
+    boolean needsLocationFromGeocoder();
+
     Collection<LocationQueryViewModel> getLocations(String ac_query, String weatherAPI) throws WeatherException;
 
-    LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate, String weatherAPI) throws WeatherException;
+    LocationQueryViewModel getLocation(@NonNull WeatherUtils.Coordinate coordinate, String weatherAPI) throws WeatherException;
 
-    LocationQueryViewModel getLocationFromID(String locationID, String weatherAPI) throws WeatherException;
+    LocationQueryViewModel getLocationFromID(@NonNull LocationQueryViewModel model) throws WeatherException;
 
-    LocationQueryViewModel getLocationFromName(String locationName, String weatherAPI) throws WeatherException;
+    LocationQueryViewModel getLocationFromName(@NonNull LocationQueryViewModel model) throws WeatherException;
 
     boolean isKeyValid(String key) throws WeatherException;
 

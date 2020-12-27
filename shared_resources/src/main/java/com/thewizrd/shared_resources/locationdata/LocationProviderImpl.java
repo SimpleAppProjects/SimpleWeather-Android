@@ -4,10 +4,13 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.tzdb.TZDBCache;
+import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -27,9 +30,20 @@ public abstract class LocationProviderImpl implements LocationProviderImplInterf
 
     public abstract boolean supportsLocale();
 
-    public abstract boolean needsLocationFromID();
+    @Override
+    public boolean needsLocationFromID() {
+        return false;
+    }
 
-    public abstract boolean needsLocationFromName();
+    @Override
+    public boolean needsLocationFromName() {
+        return false;
+    }
+
+    @Override
+    public boolean needsLocationFromGeocoder() {
+        return false;
+    }
 
     /**
      * Retrieve a list of locations from the location provider
@@ -49,17 +63,26 @@ public abstract class LocationProviderImpl implements LocationProviderImplInterf
      * @return A single location matching the provided coordinate
      * @throws WeatherException Weather Exception
      */
-    public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate, String weatherAPI) throws WeatherException {
+    public LocationQueryViewModel getLocation(@NonNull WeatherUtils.Coordinate coordinate, String weatherAPI) throws WeatherException {
         if (Geocoder.isPresent()) {
             LocationQueryViewModel location;
-            Address result;
+            Address result = null;
             WeatherException wEx = null;
 
             try {
                 Geocoder geocoder = new Geocoder(SimpleLibrary.getInstance().getAppContext(), LocaleUtils.getLocale());
-                List<Address> addresses = geocoder.getFromLocation(coordinate.getLatitude(), coordinate.getLongitude(), 1);
+                List<Address> addresses = geocoder.getFromLocation(coordinate.getLatitude(), coordinate.getLongitude(), 5);
 
-                result = addresses.get(0);
+                for (Address addr : addresses) {
+                    if (Math.abs(ConversionMethods.calculateHaversine(coordinate.getLatitude(), coordinate.getLongitude(), addr.getLatitude(), addr.getLongitude())) <= 100) {
+                        result = addr;
+                        break;
+                    }
+                }
+
+                if (result == null) {
+                    result = addresses.get(0);
+                }
             } catch (Exception ex) {
                 result = null;
                 if (ex instanceof IOException) {
@@ -78,6 +101,8 @@ public abstract class LocationProviderImpl implements LocationProviderImplInterf
             else
                 location = new LocationQueryViewModel();
 
+            location.setLocationSource(getLocationAPI());
+
             return location;
         }
 
@@ -87,22 +112,55 @@ public abstract class LocationProviderImpl implements LocationProviderImplInterf
     /**
      * Retrieve a single location using the location id
      *
-     * @param locationID The location id for the location to be queried
-     * @param weatherAPI The weather source to be assigned
+     * @param model The location model containing location data
      * @return A single location matching the provided location id
      * @throws WeatherException Weather Exception
      */
-    public abstract LocationQueryViewModel getLocationFromID(String locationID, String weatherAPI) throws WeatherException;
+    public abstract LocationQueryViewModel getLocationFromID(@NonNull LocationQueryViewModel model) throws WeatherException;
 
     /**
      * Retrieve a single location using the location name
      *
-     * @param locationName The location name for the location to be queried
-     * @param weatherAPI   The weather source to be assigned
+     * @param model The location model containing location data
      * @return A single location matching the provided location id
      * @throws WeatherException Weather Exception
      */
-    public abstract LocationQueryViewModel getLocationFromName(String locationName, String weatherAPI) throws WeatherException;
+    public LocationQueryViewModel getLocationFromName(@NonNull LocationQueryViewModel model) throws WeatherException {
+        if (Geocoder.isPresent()) {
+            LocationQueryViewModel location;
+            Address result;
+            WeatherException wEx = null;
+
+            try {
+                Geocoder geocoder = new Geocoder(SimpleLibrary.getInstance().getAppContext(), LocaleUtils.getLocale());
+                List<Address> addresses = geocoder.getFromLocationName(model.getLocationName(), 1);
+
+                result = addresses.get(0);
+            } catch (Exception ex) {
+                result = null;
+                if (ex instanceof IOException) {
+                    wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
+                } else if (ex instanceof IllegalArgumentException) {
+                    wEx = new WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND);
+                }
+                Logger.writeLine(Log.ERROR, ex, "GoogleLocationProvider: error getting location");
+            }
+
+            if (wEx != null)
+                throw wEx;
+
+            if (result != null)
+                location = new LocationQueryViewModel(result, model.getWeatherSource());
+            else
+                location = new LocationQueryViewModel();
+
+            location.setLocationSource(getLocationAPI());
+
+            return location;
+        }
+
+        return null;
+    }
 
     /**
      * Query the location provider if the provided key is valid

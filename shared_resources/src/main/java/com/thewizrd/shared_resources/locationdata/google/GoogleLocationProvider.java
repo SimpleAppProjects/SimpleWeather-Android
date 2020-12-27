@@ -5,6 +5,8 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
@@ -124,7 +126,7 @@ public final class GoogleLocationProvider extends LocationProviderImpl {
         return locations;
     }
 
-    public LocationQueryViewModel getLocationFromID(String locationID, String weatherAPI) throws WeatherException {
+    public LocationQueryViewModel getLocationFromID(@NonNull LocationQueryViewModel model) throws WeatherException {
         if (!Geocoder.isPresent()) {
             throw new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
         }
@@ -134,7 +136,7 @@ public final class GoogleLocationProvider extends LocationProviderImpl {
         WeatherException wEx = null;
 
         try {
-            FetchPlaceRequest request = FetchPlaceRequest.builder(locationID, BASIC_PLACE_FIELDS)
+            FetchPlaceRequest request = FetchPlaceRequest.builder(model.getLocationQuery(), BASIC_PLACE_FIELDS)
                     .setSessionToken(autocompleteToken)
                     .build();
 
@@ -155,14 +157,14 @@ public final class GoogleLocationProvider extends LocationProviderImpl {
             throw wEx;
 
         if (response != null)
-            location = new LocationQueryViewModel(response, weatherAPI);
+            location = new LocationQueryViewModel(response, model.getWeatherSource());
         else
             location = new LocationQueryViewModel();
 
         return location;
     }
 
-    public LocationQueryViewModel getLocationFromName(String locationName, String weatherAPI) throws WeatherException {
+    public LocationQueryViewModel getLocationFromName(@NonNull LocationQueryViewModel model) throws WeatherException {
         if (!Geocoder.isPresent()) {
             throw new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
         }
@@ -173,7 +175,7 @@ public final class GoogleLocationProvider extends LocationProviderImpl {
 
         try {
             Geocoder geocoder = new Geocoder(SimpleLibrary.getInstance().getAppContext(), LocaleUtils.getLocale());
-            List<Address> addresses = geocoder.getFromLocationName(locationName, 1);
+            List<Address> addresses = geocoder.getFromLocationName(model.getLocationName(), 1);
 
             result = addresses.get(0);
         } catch (Exception ex) {
@@ -190,7 +192,7 @@ public final class GoogleLocationProvider extends LocationProviderImpl {
             throw wEx;
 
         if (result != null)
-            location = new LocationQueryViewModel(result, weatherAPI);
+            location = new LocationQueryViewModel(result, model.getWeatherSource());
         else
             location = new LocationQueryViewModel();
 
@@ -198,7 +200,7 @@ public final class GoogleLocationProvider extends LocationProviderImpl {
     }
 
     @Override
-    public LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate, String weatherAPI) throws WeatherException {
+    public LocationQueryViewModel getLocation(@NonNull WeatherUtils.Coordinate coordinate, String weatherAPI) throws WeatherException {
         if (!Geocoder.isPresent()) {
             throw new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
         }

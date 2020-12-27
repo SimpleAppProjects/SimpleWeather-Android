@@ -16,6 +16,7 @@ import com.thewizrd.shared_resources.locationdata.here.ResultItem;
 import com.thewizrd.shared_resources.locationdata.here.SuggestionsItem;
 import com.thewizrd.shared_resources.locationdata.locationiq.AutoCompleteQuery;
 import com.thewizrd.shared_resources.locationdata.locationiq.GeoLocation;
+import com.thewizrd.shared_resources.locationdata.weatherapi.LocationItem;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 
@@ -334,7 +335,11 @@ public class LocationQueryViewModel {
         }
         String region = result.getAdminArea();
 
-        locationName = String.format("%s, %s", town, region);
+        if (!ObjectsCompat.equals(town, region)) {
+            locationName = String.format("%s, %s", town, region);
+        } else {
+            locationName = String.format("%s, %s", town, result.getCountryName());
+        }
 
         locationLat = result.getLatitude();
         locationLong = result.getLongitude();
@@ -371,10 +376,12 @@ public class LocationQueryViewModel {
         weatherSource = weatherAPI;
     }
 
+    /* Google Places API Place */
     public LocationQueryViewModel(FetchPlaceResponse response, String weatherAPI) {
         setLocation(response, weatherAPI);
     }
 
+    /* Google Places API Place */
     private void setLocation(FetchPlaceResponse response, String weatherAPI) {
         if (response == null || response.getPlace() == null)
             return;
@@ -453,6 +460,30 @@ public class LocationQueryViewModel {
         locationTZLong = null;
 
         locationSource = WeatherAPI.GOOGLE;
+        weatherSource = weatherAPI;
+
+        updateLocationQuery();
+    }
+
+    /* WeatherAPI AutoComplete Query */
+    public LocationQueryViewModel(LocationItem result, String weatherAPI) {
+        setLocation(result, weatherAPI);
+    }
+
+    private void setLocation(LocationItem result, String weatherAPI) {
+        if (result == null)
+            return;
+
+        locationName = result.getName();
+        locationCountry = result.getCountry();
+        locationQuery = Integer.toString(result.getId());
+
+        locationLat = result.getLat();
+        locationLong = result.getLon();
+
+        locationTZLong = null;
+
+        locationSource = WeatherAPI.WEATHERAPI;
         weatherSource = weatherAPI;
 
         updateLocationQuery();
