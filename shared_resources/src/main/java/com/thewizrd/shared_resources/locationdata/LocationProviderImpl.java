@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -24,6 +25,7 @@ import java.util.List;
 
 public abstract class LocationProviderImpl implements LocationProviderImplInterface {
     // Variables
+    @WeatherAPI.LocationAPIs
     public abstract String getLocationAPI();
 
     public abstract boolean isKeyRequired();

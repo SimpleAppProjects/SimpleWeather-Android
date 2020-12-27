@@ -37,6 +37,7 @@ import okhttp3.Response;
 public final class WeatherApiLocationProvider extends LocationProviderImpl {
     private static final String QUERY_URL = "https://api.weatherapi.com/v1/search.json?key=%s&q=%s&lang=%s";
 
+    @WeatherAPI.LocationAPIs
     @Override
     public String getLocationAPI() {
         return WeatherAPI.WEATHERAPI;

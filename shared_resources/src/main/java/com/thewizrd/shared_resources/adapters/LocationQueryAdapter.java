@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.ObjectsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.thewizrd.shared_resources.R;
@@ -132,12 +133,18 @@ public class LocationQueryAdapter extends RecyclerView.Adapter {
 
         public void setHeader() {
             String creditPrefix = SimpleLibrary.getInstance().getAppContext().getString(R.string.credit_prefix);
+            @WeatherAPI.LocationAPIs
             String locationAPI = WeatherManager.getInstance().getLocationProvider().getLocationAPI();
 
-            if (WeatherAPI.HERE.equals(locationAPI))
+            if (ObjectsCompat.equals(locationAPI, WeatherAPI.HERE)) {
                 header.setText(String.format("%s HERE Maps", creditPrefix));
-            else if (WeatherAPI.LOCATIONIQ.equals(locationAPI))
+            } else if (ObjectsCompat.equals(locationAPI, WeatherAPI.LOCATIONIQ)) {
                 header.setText(String.format("%s LocationIQ", creditPrefix));
+            } else if (ObjectsCompat.equals(locationAPI, WeatherAPI.GOOGLE)) {
+                header.setText(String.format("%s Google", creditPrefix));
+            } else if (ObjectsCompat.equals(locationAPI, WeatherAPI.WEATHERAPI)) {
+                header.setText(String.format("%s WeatherAPI.com", creditPrefix));
+            }
         }
     }
 }

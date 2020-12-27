@@ -39,6 +39,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
             "?locationid=%s&mode=retrieveAreas&maxresults=1&additionaldata=Country2,true&gen=9&jsonattributes=1" +
             "&locationattributes=adminInfo,timeZone,-mapView,-mapReference&language=%s";
 
+    @WeatherAPI.LocationAPIs
     @Override
     public String getLocationAPI() {
         return WeatherAPI.HERE;

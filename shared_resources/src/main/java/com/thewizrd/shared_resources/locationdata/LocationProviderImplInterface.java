@@ -5,10 +5,12 @@ import androidx.annotation.NonNull;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 
 import java.util.Collection;
 
 public interface LocationProviderImplInterface {
+    @WeatherAPI.LocationAPIs
     String getLocationAPI();
 
     boolean isKeyRequired();

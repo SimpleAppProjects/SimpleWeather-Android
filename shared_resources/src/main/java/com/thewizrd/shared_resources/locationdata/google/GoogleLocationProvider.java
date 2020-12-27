@@ -39,6 +39,7 @@ public final class GoogleLocationProvider extends LocationProviderImpl {
     private AutocompleteSessionToken autocompleteToken;
     private static final List<Place.Field> BASIC_PLACE_FIELDS = Arrays.asList(Place.Field.ADDRESS_COMPONENTS, Place.Field.ADDRESS, Place.Field.LAT_LNG, Place.Field.NAME, Place.Field.TYPES);
 
+    @WeatherAPI.LocationAPIs
     @Override
     public String getLocationAPI() {
         return WeatherAPI.GOOGLE;

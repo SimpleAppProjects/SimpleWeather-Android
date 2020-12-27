@@ -42,6 +42,7 @@ public final class LocationIQProvider extends LocationProviderImpl {
     private static final String GEOLOCATION_QUERY_URL = "https://api.locationiq.com/v1/reverse.php?key=%s&lat=%s&lon=%s&format=json&zoom=14&namedetails=0&addressdetails=1&accept-language=%s&normalizecity=1";
     private static final String KEY_QUERY_URL = "https://us1.unwiredlabs.com/v2/timezone.php?token=%s";
 
+    @WeatherAPI.LocationAPIs
     @Override
     public String getLocationAPI() {
         return WeatherAPI.LOCATIONIQ;
