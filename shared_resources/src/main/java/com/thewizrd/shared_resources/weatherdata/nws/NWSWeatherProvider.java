@@ -7,7 +7,7 @@ import android.util.Log;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
+import com.thewizrd.shared_resources.locationdata.weatherapi.WeatherApiLocationProvider;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -42,7 +42,7 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
 
     public NWSWeatherProvider() {
         super();
-        locationProvider = new HERELocationProvider();
+        locationProvider = new WeatherApiLocationProvider();
     }
 
     @Override
