@@ -288,7 +288,7 @@ public class Condition extends CustomJsonObject {
         } else {
             weather = provider.getWeatherCondition(forecastResponse.getCurrentobservation().getWeatherimage());
         }
-        icon = provider.getWeatherIcon(forecastResponse.getCurrentobservation().getWeatherimage());
+        icon = forecastResponse.getCurrentobservation().getWeatherimage();
 
         Float temp = NumberUtils.tryParseFloat(forecastResponse.getCurrentobservation().getTemp());
         if (temp != null) {

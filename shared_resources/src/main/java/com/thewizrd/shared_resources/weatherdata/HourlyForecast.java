@@ -306,7 +306,7 @@ public class HourlyForecast extends BaseForecast {
         } else {
             condition = provider.getWeatherCondition(forecastItem.getIconLink());
         }
-        icon = provider.getWeatherIcon(forecastItem.getIconLink());
+        icon = forecastItem.getIconLink();
 
         // Extras
         extras = new ForecastExtras();

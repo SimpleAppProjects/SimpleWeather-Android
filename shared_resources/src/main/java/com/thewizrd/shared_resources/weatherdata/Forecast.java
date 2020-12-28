@@ -252,7 +252,7 @@ public class Forecast extends BaseForecast {
         } else {
             condition = provider.getWeatherCondition(forecastItem.getIcon());
         }
-        icon = provider.getWeatherIcon(forecastItem.getIcon());
+        icon = provider.getWeatherIcon(!forecastItem.getIsDaytime(), forecastItem.getIcon());
 
         extras = new ForecastExtras();
         extras.setPop(NumberUtils.tryParseInt(forecastItem.getPop(), 0));
@@ -273,7 +273,7 @@ public class Forecast extends BaseForecast {
         } else {
             condition = provider.getWeatherCondition(forecastItem.getIcon());
         }
-        icon = provider.getWeatherIcon(forecastItem.getIcon());
+        icon = provider.getWeatherIcon(false, forecastItem.getIcon());
 
         extras = new ForecastExtras();
         extras.setPop(NumberUtils.tryParseInt(forecastItem.getPop(), 0));

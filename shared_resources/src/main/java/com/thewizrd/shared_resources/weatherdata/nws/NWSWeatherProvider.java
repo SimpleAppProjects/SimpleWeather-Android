@@ -20,6 +20,7 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Astronomy;
+import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
@@ -309,14 +310,31 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
     public Weather getWeather(final LocationData location) throws WeatherException {
         Weather weather = super.getWeather(location);
 
-        weather.setUpdateTime(weather.getUpdateTime().withZoneSameInstant(location.getTzOffset()));
-        weather.getCondition().setObservationTime(weather.getCondition().getObservationTime().withZoneSameInstant(location.getTzOffset()));
+        ZoneOffset offset = location.getTzOffset();
+
+        weather.setUpdateTime(weather.getUpdateTime().withZoneSameInstant(offset));
+        weather.getCondition().setObservationTime(weather.getCondition().getObservationTime().withZoneSameInstant(offset));
 
         // NWS does not provide astrodata; calculate this ourselves (using their calculator)
         Astronomy solCalcData = new SolCalcAstroProvider().getAstronomyData(location, weather.getCondition().getObservationTime());
         weather.setAstronomy(new SunMoonCalcProvider().getAstronomyData(location, weather.getCondition().getObservationTime()));
         weather.getAstronomy().setSunrise(solCalcData.getSunrise());
         weather.getAstronomy().setSunset(solCalcData.getSunset());
+
+        // Update icons
+        LocalTime now = ZonedDateTime.now(ZoneOffset.UTC).withZoneSameInstant(offset).toLocalTime();
+        LocalTime sunrise = weather.getAstronomy().getSunrise().toLocalTime();
+        LocalTime sunset = weather.getAstronomy().getSunset().toLocalTime();
+
+        weather.getCondition().setIcon(getWeatherIcon(now.isBefore(sunrise) || now.isAfter(sunset), weather.getCondition().getIcon()));
+
+        for (HourlyForecast hr_forecast : weather.getHrForecast()) {
+            ZonedDateTime hrf_date = hr_forecast.getDate().withZoneSameInstant(offset);
+            hr_forecast.setDate(hrf_date);
+
+            LocalTime hrf_localTime = hrf_date.toLocalTime();
+            hr_forecast.setIcon(getWeatherIcon(hrf_localTime.isBefore(sunrise) || hrf_localTime.isAfter(sunset), hr_forecast.getIcon()));
+        }
 
         return weather;
     }
@@ -337,8 +355,7 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
 
     @Override
     public String getWeatherIcon(String icon) {
-        // Example: https://api.weather.gov/icons/land/day/tsra_hi,20?size=medium
-        return getWeatherIcon(icon.contains("/night/"), icon);
+        return getWeatherIcon(false, icon);
     }
 
     @Override
