@@ -586,10 +586,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
         if (weather.getAstronomy() != null) {
             sunPhase = new SunPhaseViewModel(weather.getAstronomy());
 
-            if (!isPhone) {
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE, sunPhase.getSunrise()));
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET, sunPhase.getSunset()));
-            }
+            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNRISE, sunPhase.getSunrise()));
+            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.SUNSET, sunPhase.getSunset()));
 
             if (weather.getAstronomy().getMoonrise() != null && weather.getAstronomy().getMoonset() != null
                     && weather.getAstronomy().getMoonrise().isAfter(DateTimeUtils.getLocalDateTimeMIN())
