@@ -7,7 +7,7 @@ import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.locationdata.google.GoogleLocationProvider;
+import com.thewizrd.shared_resources.locationdata.weatherapi.WeatherApiLocationProvider;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -42,7 +42,7 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
 
     public YahooWeatherProvider() {
         super();
-        locationProvider = new GoogleLocationProvider();
+        locationProvider = new WeatherApiLocationProvider();
     }
 
     @Override
