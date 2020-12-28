@@ -1,11 +1,13 @@
 package com.thewizrd.shared_resources.utils;
 
+import java.util.Locale;
+
 public class LocationUtils {
     public static boolean isUS(String countryCode) {
         if (StringUtils.isNullOrWhitespace(countryCode))
             return false;
         else {
-            return countryCode.equalsIgnoreCase("us") || countryCode.equalsIgnoreCase("usa");
+            return countryCode.equalsIgnoreCase("us") || countryCode.equalsIgnoreCase("usa") || countryCode.toLowerCase(Locale.ROOT).contains("united states");
         }
     }
 
@@ -13,7 +15,7 @@ public class LocationUtils {
         if (StringUtils.isNullOrWhitespace(countryCode))
             return false;
         else {
-            return countryCode.equalsIgnoreCase("US") || countryCode.equalsIgnoreCase("CA");
+            return isUS(countryCode) || countryCode.equalsIgnoreCase("CA") || countryCode.toLowerCase(Locale.ROOT).contains("canada");
         }
     }
 }

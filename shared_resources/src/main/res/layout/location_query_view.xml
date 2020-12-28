@@ -39,7 +39,7 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintStart_toEndOf="@id/pin"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="New York, New York" />
+            tools:text="London, United Kingdom" />
 
         <TextView
             android:id="@+id/location_country"
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/list_horizontal_padding"
             android:layout_marginLeft="@dimen/list_horizontal_padding"
-            android:text="@{viewModel.locationCountry}"
+            android:text='@{StringUtils.isNullOrWhitespace(viewModel.locationRegion) ? viewModel.locationCountry : viewModel.locationRegion + `, ` + viewModel.locationCountry}'
             android:textColor="?android:attr/textColorSecondaryNoDisable"
             android:textSize="@dimen/list_secondary_text_size"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -56,7 +56,7 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintStart_toEndOf="@id/pin"
             app:layout_constraintTop_toBottomOf="@id/location_name"
-            tools:text="USA" />
+            tools:text="City of London, Greater London, United Kingdom" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/pin"

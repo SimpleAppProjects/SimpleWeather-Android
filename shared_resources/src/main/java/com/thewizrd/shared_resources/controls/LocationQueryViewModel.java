@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.locationdata.here.SuggestionsItem;
 import com.thewizrd.shared_resources.locationdata.locationiq.AutoCompleteQuery;
 import com.thewizrd.shared_resources.locationdata.locationiq.GeoLocation;
 import com.thewizrd.shared_resources.locationdata.weatherapi.LocationItem;
+import com.thewizrd.shared_resources.utils.LocationUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 
@@ -26,6 +27,7 @@ import java.util.Locale;
 
 public class LocationQueryViewModel {
     private String locationName;
+    private String locationRegion;
     private String locationCountry;
     private String locationQuery;
 
@@ -341,6 +343,8 @@ public class LocationQueryViewModel {
             locationName = String.format("%s, %s", town, result.getCountryName());
         }
 
+        locationRegion = result.getSubAdminArea();
+
         locationLat = result.getLatitude();
         locationLong = result.getLongitude();
 
@@ -465,16 +469,27 @@ public class LocationQueryViewModel {
         updateLocationQuery();
     }
 
-    /* WeatherAPI AutoComplete Query */
+    /* WeatherAPI Search/AutoComplete Query */
     public LocationQueryViewModel(LocationItem result, String weatherAPI) {
         setLocation(result, weatherAPI);
     }
 
+    /* WeatherAPI Search/AutoComplete Query */
     private void setLocation(LocationItem result, String weatherAPI) {
         if (result == null)
             return;
 
-        locationName = result.getName();
+        final boolean isUSorCA = LocationUtils.isUSorCanada(result.getCountry());
+
+        String name = result.getName();
+        if (isUSorCA) {
+            name = name.replaceFirst(String.format(", %s", result.getCountry()), "");
+        } else {
+            name = name.replaceFirst(String.format(", %s, %s", result.getRegion(), result.getCountry()), String.format(", %s", result.getCountry()));
+            locationRegion = result.getRegion();
+        }
+
+        locationName = name;
         locationCountry = result.getCountry();
         locationQuery = Integer.toString(result.getId());
 
@@ -511,6 +526,14 @@ public class LocationQueryViewModel {
 
     public void setLocationName(String locationName) {
         this.locationName = locationName;
+    }
+
+    public String getLocationRegion() {
+        return locationRegion;
+    }
+
+    public void setLocationRegion(String locationRegion) {
+        this.locationRegion = locationRegion;
     }
 
     public String getLocationCountry() {
@@ -578,17 +601,16 @@ public class LocationQueryViewModel {
 
         if (locationName != null ? !locationName.equals(that.locationName) : that.locationName != null)
             return false;
-        //if (locationCountry != null ? !locationCountry.equals(that.locationCountry) : that.locationCountry != null)
-        //    return false;
+        if (locationRegion != null ? !locationRegion.equals(that.locationRegion) : that.locationRegion != null)
+            return false;
         return locationCountry != null ? locationCountry.equals(that.locationCountry) : that.locationCountry == null;
-        //return locationQuery != null ? locationQuery.equals(that.locationQuery) : that.locationQuery == null;
     }
 
     @Override
     public int hashCode() {
         int result = locationName != null ? locationName.hashCode() : 0;
+        result = 31 * result + (locationRegion != null ? locationRegion.hashCode() : 0);
         result = 31 * result + (locationCountry != null ? locationCountry.hashCode() : 0);
-        //result = 31 * result + (locationQuery != null ? locationQuery.hashCode() : 0);
         return result;
     }
 }
