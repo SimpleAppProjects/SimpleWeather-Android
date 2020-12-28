@@ -213,9 +213,9 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && WeatherManager.isKeyRequired(providerPref.getValue())) {
             // Fallback to supported weather provider
             WeatherManager wm = WeatherManager.getInstance();
-            providerPref.setValue(WeatherAPI.HERE);
-            providerPref.callChangeListener(WeatherAPI.HERE);
-            Settings.setAPI(WeatherAPI.HERE);
+            providerPref.setValue(WeatherAPI.YAHOO);
+            providerPref.callChangeListener(WeatherAPI.YAHOO);
+            Settings.setAPI(WeatherAPI.YAHOO);
             wm.updateAPI();
 
             if (wm.isKeyRequired() && StringUtils.isNullOrWhitespace(wm.getAPIKey())) {

@@ -215,10 +215,7 @@ public class SetupLocationFragment extends CustomFragment {
         // Reset focus
         binding.getRoot().requestFocus();
 
-        // Set default API to HERE
-        Settings.setAPI(WeatherAPI.HERE);
-        wm.updateAPI();
-
+        // Verify provider key
         if (wm.isKeyRequired() && StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
             // If (internal) key doesn't exist, fallback to Yahoo
             Settings.setAPI(WeatherAPI.YAHOO);
@@ -387,8 +384,8 @@ public class SetupLocationFragment extends CustomFragment {
                                     Settings.setAPI(WeatherAPI.NWS);
                                     view.updateWeatherSource(WeatherAPI.NWS);
                                 } else {
-                                    Settings.setAPI(WeatherAPI.HERE);
-                                    view.updateWeatherSource(WeatherAPI.HERE);
+                                    Settings.setAPI(WeatherAPI.YAHOO);
+                                    view.updateWeatherSource(WeatherAPI.YAHOO);
                                 }
                                 wm.updateAPI();
                             }

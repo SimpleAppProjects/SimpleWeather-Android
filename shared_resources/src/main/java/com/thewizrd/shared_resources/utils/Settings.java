@@ -859,10 +859,11 @@ public class Settings {
         editor.commit();
     }
 
+    @WeatherAPI.WeatherAPIs
     public static String getAPI() {
         if (!preferences.contains(KEY_API)) {
-            setAPI(WeatherAPI.HERE);
-            return WeatherAPI.HERE;
+            setAPI(WeatherAPI.YAHOO);
+            return WeatherAPI.YAHOO;
         } else
             return preferences.getString(KEY_API, null);
     }
