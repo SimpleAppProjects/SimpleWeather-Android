@@ -25,7 +25,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.CacheControl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -82,6 +84,9 @@ public final class HERELocationProvider extends LocationProviderImpl {
             }
 
             Request request = new Request.Builder()
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(1, TimeUnit.DAYS)
+                            .build())
                     .url(String.format(AUTOCOMPLETE_QUERY_URL, URLEncoder.encode(ac_query, "UTF-8"), locale))
                     .addHeader("Authorization", authorization)
                     .build();
@@ -163,6 +168,9 @@ public final class HERELocationProvider extends LocationProviderImpl {
             }
 
             Request request = new Request.Builder()
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(1, TimeUnit.DAYS)
+                            .build())
                     .url(String.format(GEOLOCATION_QUERY_URL, location_query, locale))
                     .addHeader("Authorization", authorization)
                     .build();
@@ -220,6 +228,9 @@ public final class HERELocationProvider extends LocationProviderImpl {
             }
 
             Request request = new Request.Builder()
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(1, TimeUnit.DAYS)
+                            .build())
                     .url(String.format(GEOCODER_QUERY_URL, model.getLocationQuery(), locale))
                     .addHeader("Authorization", authorization)
                     .build();

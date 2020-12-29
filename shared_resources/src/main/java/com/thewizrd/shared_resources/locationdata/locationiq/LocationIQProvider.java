@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.CacheControl;
 import okhttp3.OkHttpClient;
@@ -76,6 +77,9 @@ public final class LocationIQProvider extends LocationProviderImpl {
 
         try {
             Request request = new Request.Builder()
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(1, TimeUnit.DAYS)
+                            .build())
                     .get()
                     .url(String.format(AUTOCOMPLETE_QUERY_URL, key, URLEncoder.encode(ac_query, "UTF-8"), locale))
                     .build();
@@ -151,6 +155,9 @@ public final class LocationIQProvider extends LocationProviderImpl {
             df.applyPattern("0.####");
 
             Request request = new Request.Builder()
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(1, TimeUnit.DAYS)
+                            .build())
                     .get()
                     .url(String.format(Locale.ROOT, GEOLOCATION_QUERY_URL, key, df.format(coordinate.getLatitude()), df.format(coordinate.getLongitude()), locale))
                     .build();
@@ -210,8 +217,10 @@ public final class LocationIQProvider extends LocationProviderImpl {
 
         try {
             Request request = new Request.Builder()
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(1, TimeUnit.DAYS)
+                            .build())
                     .url(String.format(KEY_QUERY_URL, key))
-                    .cacheControl(CacheControl.FORCE_NETWORK)
                     .build();
 
             // Connect to webstream

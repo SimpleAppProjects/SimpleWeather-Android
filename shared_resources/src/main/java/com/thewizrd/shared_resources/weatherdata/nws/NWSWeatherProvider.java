@@ -47,7 +47,9 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.CacheControl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -115,6 +117,9 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
             String version = String.format("v%s", packageInfo.versionName);
 
             Request observationRequest = new Request.Builder()
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(1, TimeUnit.HOURS)
+                            .build())
                     .url(String.format(FORECAST_QUERY_URL, location_query))
                     .addHeader("Accept", "application/ld+json")
                     .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))

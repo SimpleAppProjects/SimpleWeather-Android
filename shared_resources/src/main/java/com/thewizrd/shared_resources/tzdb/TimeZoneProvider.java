@@ -12,7 +12,9 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 
 import java.io.InputStream;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.CacheControl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -46,6 +48,9 @@ public class TimeZoneProvider implements TimeZoneProviderInterface {
 
         try {
             Request request = new Request.Builder()
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(1, TimeUnit.DAYS)
+                            .build())
                     .url(String.format(Locale.ROOT, "%s?lat=%s&lon=%s", tzAPI, latitude, longitude))
                     .addHeader("Authorization", String.format(Locale.ROOT, "Bearer %s", userToken))
                     .build();

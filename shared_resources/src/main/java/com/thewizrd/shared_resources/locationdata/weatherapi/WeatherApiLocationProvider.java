@@ -29,7 +29,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.CacheControl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -76,6 +78,9 @@ public final class WeatherApiLocationProvider extends LocationProviderImpl {
 
         try {
             Request request = new Request.Builder()
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(1, TimeUnit.DAYS)
+                            .build())
                     .get()
                     .url(String.format(QUERY_URL, key, URLEncoder.encode(ac_query, "UTF-8"), locale))
                     .build();
@@ -149,6 +154,9 @@ public final class WeatherApiLocationProvider extends LocationProviderImpl {
             df.applyPattern("0.##");
 
             Request request = new Request.Builder()
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(1, TimeUnit.DAYS)
+                            .build())
                     .get()
                     .url(String.format(Locale.ROOT, QUERY_URL, key, String.format("%s,%s", df.format(coordinate.getLatitude()), df.format(coordinate.getLongitude())), locale))
                     .build();

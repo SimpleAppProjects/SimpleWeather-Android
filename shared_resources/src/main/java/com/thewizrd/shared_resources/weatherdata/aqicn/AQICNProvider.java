@@ -18,7 +18,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.text.DecimalFormat;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.CacheControl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -47,6 +49,9 @@ public class AQICNProvider implements AirQualityProviderInterface {
             df.applyPattern("0.####");
 
             Request request = new Request.Builder()
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(1, TimeUnit.HOURS)
+                            .build())
                     .url(String.format(Locale.ROOT, QUERY_URL, df.format(location.getLatitude()), df.format(location.getLongitude()), key))
                     .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
                     .build();

@@ -34,7 +34,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.CacheControl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
@@ -101,6 +103,9 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
             String version = String.format("v%s", packageInfo.versionName);
 
             Request forecastRequest = new Request.Builder()
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(1, TimeUnit.HOURS)
+                            .build())
                     .url(String.format(FORECAST_QUERY_URL, location_query))
                     .addHeader("Accept-Encoding", "gzip")
                     .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
@@ -108,6 +113,9 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
 
             final String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT));
             Request sunriseRequest = new Request.Builder()
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(3, TimeUnit.HOURS)
+                            .build())
                     .url(String.format(SUNRISE_QUERY_URL, location_query, date))
                     .addHeader("Accept-Encoding", "gzip")
                     .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))

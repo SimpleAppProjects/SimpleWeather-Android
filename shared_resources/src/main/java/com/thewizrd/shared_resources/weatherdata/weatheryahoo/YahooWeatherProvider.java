@@ -33,7 +33,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.CacheControl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -110,6 +112,9 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
             final String authorization = authRequest.getAuthorizationHeader(url);
 
             Request request = new Request.Builder()
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(1, TimeUnit.HOURS)
+                            .build())
                     .url(url)
                     .addHeader("Authorization", authorization)
                     .addHeader("X-Yahoo-App-Id", getAppID())

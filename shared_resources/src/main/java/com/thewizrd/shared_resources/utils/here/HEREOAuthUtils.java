@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 
+import okhttp3.CacheControl;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -55,9 +56,9 @@ public class HEREOAuthUtils {
                 String authorization = oAuthRequest.getAuthorizationHeader(HERE_OAUTH_URL, true);
 
                 Request request = new Request.Builder()
+                        .cacheControl(CacheControl.FORCE_NETWORK)
                         .url(HERE_OAUTH_URL)
                         .addHeader("Authorization", authorization)
-                        .addHeader("Cache-Control", "no-cache")
                         .post(new FormBody.Builder().addEncoded("grant_type", "client_credentials").build())
                         .build();
 

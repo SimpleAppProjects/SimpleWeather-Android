@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.text.DecimalFormat;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.CacheControl;
 import okhttp3.OkHttpClient;
@@ -96,8 +97,10 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
 
         try {
             Request request = new Request.Builder()
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(1, TimeUnit.DAYS)
+                            .build())
                     .url(String.format(KEYCHECK_QUERY_URL, key))
-                    .cacheControl(CacheControl.FORCE_NETWORK)
                     .build();
 
             // Connect to webstream
@@ -160,9 +163,15 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
 
         try {
             Request currentRequest = new Request.Builder()
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(15, TimeUnit.MINUTES)
+                            .build())
                     .url(String.format(CURRENT_QUERY_URL, query, key, locale))
                     .build();
             Request forecastRequest = new Request.Builder()
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(1, TimeUnit.HOURS)
+                            .build())
                     .url(String.format(FORECAST_QUERY_URL, query, key, locale))
                     .build();
 

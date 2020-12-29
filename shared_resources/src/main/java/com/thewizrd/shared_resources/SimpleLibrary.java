@@ -5,6 +5,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.google.android.gms.security.ProviderInstaller;
+import com.thewizrd.shared_resources.okhttp3.CacheInterceptor;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 
@@ -72,7 +73,8 @@ public final class SimpleLibrary {
                     .connectTimeout(Settings.CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)
                     .followRedirects(true)
                     .retryOnConnectionFailure(true)
-                    .cache(new Cache(new File(mContext.getCacheDir(), "okhttp3"), 10 * 1024 * 1024))
+                    .cache(new Cache(new File(mContext.getCacheDir(), "okhttp3"), 50L * 1024 * 1024))
+                    .addNetworkInterceptor(new CacheInterceptor())
                     .build();
         }
 
