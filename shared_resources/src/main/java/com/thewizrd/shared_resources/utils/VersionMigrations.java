@@ -113,6 +113,18 @@ class VersionMigrations {
                 }
             }
 
+            if (Settings.getVersionCode() < 294310000) {
+                if (WeatherAPI.HERE.equals(Settings.getAPI())) {
+                    // Set default API to Yahoo
+                    Settings.setAPI(WeatherAPI.YAHOO);
+                    WeatherManager wm = WeatherManager.getInstance();
+                    wm.updateAPI();
+
+                    Settings.setPersonalKey(false);
+                    Settings.setKeyVerified(true);
+                }
+            }
+
             Bundle bundle = new Bundle();
             bundle.putString("API", Settings.getAPI());
             bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));

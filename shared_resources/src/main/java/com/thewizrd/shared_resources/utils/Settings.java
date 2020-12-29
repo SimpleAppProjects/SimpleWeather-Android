@@ -23,6 +23,7 @@ import com.thewizrd.shared_resources.database.LocationsDatabase;
 import com.thewizrd.shared_resources.database.WeatherDAO;
 import com.thewizrd.shared_resources.database.WeatherDatabase;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.weatherdata.Favorites;
@@ -862,10 +863,12 @@ public class Settings {
     @WeatherAPI.WeatherAPIs
     public static String getAPI() {
         if (!preferences.contains(KEY_API)) {
-            setAPI(WeatherAPI.YAHOO);
-            return WeatherAPI.YAHOO;
-        } else
+            String API = RemoteConfig.getDefaultWeatherProvider();
+            setAPI(API);
+            return API;
+        } else {
             return preferences.getString(KEY_API, null);
+        }
     }
 
     public static void setAPI(@WeatherAPI.WeatherAPIs String api) {

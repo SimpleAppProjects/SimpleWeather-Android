@@ -6,6 +6,7 @@ import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
+import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
@@ -50,7 +51,11 @@ public final class HEREWeatherProvider extends WeatherProviderImpl implements We
 
     public HEREWeatherProvider() {
         super();
-        locationProvider = new HERELocationProvider();
+
+        locationProvider = RemoteConfig.getLocationProvider(getWeatherAPI());
+        if (locationProvider == null) {
+            locationProvider = new HERELocationProvider();
+        }
     }
 
     @Override

@@ -14,6 +14,7 @@ import com.google.android.gms.tasks.Task;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.preferences.FeatureSettings;
+import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -51,6 +52,9 @@ public class LaunchActivity extends UserLocaleActivity {
                     });
             return;
         }
+
+        // Update configuration
+        RemoteConfig.checkConfig();
 
         startMainActivity();
     }

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.activity.UserLocaleActivity;
@@ -27,6 +28,9 @@ public class LaunchActivity extends UserLocaleActivity {
             } else {
                 intent = new Intent(this, SetupActivity.class);
             }
+
+            // Update configuration
+            RemoteConfig.checkConfig();
         } catch (Exception e) {
             Logger.writeLine(Log.ERROR, e, "SimpleWeather: %s: error loading", TAG);
         } finally {

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<defaultsMap>
+    <entry>
+        <key>Here</key>
+        <value>
+            {
+            "enabled": false,
+            "locSource": "Here",
+            "newWeatherSource": "Yahoo"
+            }
+        </value>
+    </entry>
+    <entry>
+        <key>Yahoo</key>
+        <value>
+            {
+            "enabled": true,
+            "locSource": "weatherapi",
+            "newWeatherSource": ""
+            }
+        </value>
+    </entry>
+    <entry>
+        <key>Metno</key>
+        <value>
+            {
+            "enabled": true,
+            "locSource": "LocIQ",
+            "newWeatherSource": ""
+            }
+        </value>
+    </entry>
+    <entry>
+        <key>NWS</key>
+        <value>
+            {
+            "enabled": true,
+            "locSource": "weatherapi",
+            "newWeatherSource": ""
+            }
+        </value>
+    </entry>
+    <entry>
+        <key>openweather</key>
+        <value>
+            {
+            "enabled": true,
+            "locSource": "google",
+            "newWeatherSource": ""
+            }
+        </value>
+    </entry>
+    <entry>
+        <key>default_weather_provider</key>
+        <value>Yahoo</value>
+    </entry>
+</defaultsMap>

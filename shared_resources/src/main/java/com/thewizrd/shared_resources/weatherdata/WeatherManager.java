@@ -4,6 +4,7 @@ import android.location.Location;
 
 import androidx.annotation.WorkerThread;
 
+import com.thewizrd.shared_resources.BuildConfig;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
@@ -63,6 +64,9 @@ public final class WeatherManager implements WeatherProviderImplInterface {
                 providerImpl = new NWSWeatherProvider();
                 break;
             default:
+                if (!BuildConfig.DEBUG) {
+                    providerImpl = new YahooWeatherProvider();
+                }
                 break;
         }
 

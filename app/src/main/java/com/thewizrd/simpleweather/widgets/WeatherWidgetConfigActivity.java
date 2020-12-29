@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -70,6 +71,9 @@ public class WeatherWidgetConfigActivity extends UserLocaleActivity {
                     .setPrimaryNavigationFragment(hostFragment)
                     .commit();
         }
+
+        // Update configuration
+        RemoteConfig.checkConfig();
     }
 
     @Override

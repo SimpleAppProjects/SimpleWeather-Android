@@ -46,6 +46,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
@@ -211,6 +212,9 @@ public class WeatherUpdaterWorker extends ListenableWorker {
             @Override
             public Result call() {
                 Logger.writeLine(Log.INFO, "%s: Work started", TAG);
+
+                // Update configuration
+                RemoteConfig.checkConfig();
 
                 if (Settings.isWeatherLoaded()) {
                     if (Settings.useFollowGPS()) {

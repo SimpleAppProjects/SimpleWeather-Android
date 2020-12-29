@@ -9,6 +9,7 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.locationiq.LocationIQProvider;
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils;
+import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -43,7 +44,11 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
 
     public MetnoWeatherProvider() {
         super();
-        locationProvider = new LocationIQProvider();
+
+        locationProvider = RemoteConfig.getLocationProvider(getWeatherAPI());
+        if (locationProvider == null) {
+            locationProvider = new LocationIQProvider();
+        }
     }
 
     @Override
