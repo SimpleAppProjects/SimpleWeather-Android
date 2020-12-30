@@ -40,8 +40,10 @@ public class WeatherAPI {
     }
 
     public static List<ProviderEntry> APIs = asList(
+            /*
             new ProviderEntry("HERE Weather", HERE,
                     "https://www.here.com/en", "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"),
+             */
             new ProviderEntry("Yahoo Weather", YAHOO,
                     "https://www.yahoo.com/weather?ilc=401", "https://www.yahoo.com/weather?ilc=401"),
             new ProviderEntry("MET Norway", METNO,
