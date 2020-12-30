@@ -152,6 +152,8 @@ public class DetailItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 header.setText(String.format("%s HERE Weather", creditPrefix));
             else if (WeatherAPI.NWS.equals(weatherAPI))
                 header.setText(String.format("%s U.S. National Weather Service", creditPrefix));
+            else if (WeatherAPI.WEATHERUNLOCKED.equals(weatherAPI))
+                header.setText(String.format("%s WeatherUnlocked", creditPrefix));
         }
     }
 }

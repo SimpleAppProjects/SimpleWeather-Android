@@ -18,6 +18,7 @@ public class WeatherAPI {
     public static final String METNO = "Metno";
     public static final String HERE = "Here";
     public static final String NWS = "NWS";
+    public static final String WEATHERUNLOCKED = "wunlocked";
 
     // Location APIs
     public static final String LOCATIONIQ = "LocIQ";
@@ -25,7 +26,7 @@ public class WeatherAPI {
     public static final String WEATHERAPI = "weatherapi";
 
     @StringDef({
-            HERE, YAHOO, METNO, NWS, OPENWEATHERMAP
+            HERE, YAHOO, METNO, NWS, OPENWEATHERMAP, WEATHERUNLOCKED
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface WeatherAPIs {
@@ -48,7 +49,9 @@ public class WeatherAPI {
             new ProviderEntry("U.S. National Weather Service (NOAA - U.S. Only)", NWS,
                     "https://www.weather.gov", "https://www.weather.gov"),
             new ProviderEntry("OpenWeatherMap", OPENWEATHERMAP,
-                    "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up")
+                    "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"),
+            new ProviderEntry("WeatherUnlocked", WEATHERUNLOCKED,
+                    "https://developer.weatherunlocked.com/", "https://developer.weatherunlocked.com/")
     );
 
     public static List<ProviderEntry> LocationAPIs = asList(

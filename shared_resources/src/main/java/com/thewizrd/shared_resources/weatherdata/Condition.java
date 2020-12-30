@@ -332,6 +332,22 @@ public class Condition extends CustomJsonObject {
         observationTime = ZonedDateTime.parse(forecastResponse.getCreationDate(), DateTimeFormatter.ISO_ZONED_DATE_TIME);
     }
 
+    public Condition(com.thewizrd.shared_resources.weatherdata.weatherunlocked.CurrentResponse currRoot) {
+        tempF = currRoot.getTempF();
+        tempC = currRoot.getTempC();
+
+        weather = currRoot.getWxDesc();
+        icon = Integer.toString(currRoot.getWxCode());
+
+        windDegrees = (int) Math.round(currRoot.getWinddirDeg());
+        windMph = currRoot.getWindspdMph();
+        windKph = currRoot.getWindspdKmh();
+        feelslikeF = currRoot.getFeelslikeF();
+        feelslikeC = currRoot.getFeelslikeC();
+
+        beaufort = new Beaufort(WeatherUtils.getBeaufortScale(currRoot.getWindspdMs()).getValue());
+    }
+
     public String getWeather() {
         return weather;
     }

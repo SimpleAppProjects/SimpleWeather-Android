@@ -90,6 +90,14 @@ public class Location extends CustomJsonObject {
         tzLong = null;
     }
 
+    public Location(com.thewizrd.shared_resources.weatherdata.weatherunlocked.CurrentResponse currRoot) {
+        // Use location name from location provider
+        name = null;
+        latitude = currRoot.getLat();
+        longitude = currRoot.getLon();
+        tzLong = null;
+    }
+
     public String getName() {
         return name;
     }

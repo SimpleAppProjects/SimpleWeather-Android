@@ -51,6 +51,16 @@
         </value>
     </entry>
     <entry>
+        <key>wunlocked</key>
+        <value>
+            {
+            "enabled": true,
+            "locSource": "google",
+            "newWeatherSource": ""
+            }
+        </value>
+    </entry>
+    <entry>
         <key>default_weather_provider</key>
         <value>Yahoo</value>
     </entry>

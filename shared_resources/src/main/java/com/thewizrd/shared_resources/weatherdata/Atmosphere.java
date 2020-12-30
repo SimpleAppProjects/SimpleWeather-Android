@@ -150,6 +150,15 @@ public class Atmosphere extends CustomJsonObject {
         }
     }
 
+    public Atmosphere(com.thewizrd.shared_resources.weatherdata.weatherunlocked.CurrentResponse currRoot) {
+        humidity = Math.round(currRoot.getHumidPct());
+        pressureIn = currRoot.getSlpIn();
+        pressureMb = currRoot.getSlpMb();
+        pressureTrend = "";
+        visibilityMi = currRoot.getVisMi();
+        visibilityKm = currRoot.getVisKm();
+    }
+
     public Integer getHumidity() {
         return humidity;
     }

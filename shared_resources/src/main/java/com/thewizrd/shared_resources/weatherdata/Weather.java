@@ -453,6 +453,60 @@ public class Weather extends CustomJsonObject {
         source = WeatherAPI.NWS;
     }
 
+    public Weather(com.thewizrd.shared_resources.weatherdata.weatherunlocked.CurrentResponse currRoot,
+                   com.thewizrd.shared_resources.weatherdata.weatherunlocked.ForecastResponse foreRoot) {
+        location = new Location(currRoot);
+        updateTime = ZonedDateTime.now(ZoneOffset.UTC);
+
+        // 8-day forecast / 3-hr forecast
+        // 24hr / 3hr = 8items for each day
+        forecast = new ArrayList<>(8);
+        hrForecast = new ArrayList<>(64);
+
+        // Forecast
+        for (com.thewizrd.shared_resources.weatherdata.weatherunlocked.DaysItem day : foreRoot.getDays()) {
+            Forecast fcast = new Forecast(day);
+
+            final int midDayIdx = day.getTimeframes().size() / 2;
+            for (int i = 0; i < day.getTimeframes().size(); i++) {
+                HourlyForecast hrfcast = new HourlyForecast(day.getTimeframes().get(i));
+
+                if (i == midDayIdx) {
+                    fcast.setIcon(WeatherManager.getProvider(WeatherAPI.WEATHERUNLOCKED)
+                            .getWeatherIcon(hrfcast.icon));
+                    fcast.setCondition(hrfcast.condition);
+                }
+
+                hrForecast.add(hrfcast);
+            }
+
+            forecast.add(fcast);
+        }
+
+        condition = new Condition(currRoot);
+        atmosphere = new Atmosphere(currRoot);
+        //astronomy = new Astronomy(currRoot);
+        //precipitation = new Precipitation(currRoot);
+        ttl = 180;
+
+        // Set feelslike temp
+        if (condition.getFeelslikeF() == null && condition.getTempF() != null && condition.getWindMph() != null && atmosphere.getHumidity() != null) {
+            condition.setFeelslikeF(WeatherUtils.getFeelsLikeTemp(condition.getTempF(), condition.getWindMph(), atmosphere.getHumidity()));
+            condition.setFeelslikeC(ConversionMethods.FtoC(condition.getFeelslikeF()));
+        }
+
+        if ((condition.getHighF() == null || condition.getHighC() == null) && forecast.size() > 0) {
+            condition.setHighF(forecast.get(0).getHighF());
+            condition.setHighC(forecast.get(0).getHighC());
+            condition.setLowF(forecast.get(0).getLowF());
+            condition.setLowC(forecast.get(0).getLowC());
+        }
+
+        condition.setObservationTime(updateTime);
+
+        source = WeatherAPI.WEATHERUNLOCKED;
+    }
+
     public Location getLocation() {
         return location;
     }

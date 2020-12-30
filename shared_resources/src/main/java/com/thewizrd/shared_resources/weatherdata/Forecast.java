@@ -16,6 +16,7 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
@@ -277,6 +278,40 @@ public class Forecast extends BaseForecast {
 
         extras = new ForecastExtras();
         extras.setPop(NumberUtils.tryParseInt(forecastItem.getPop(), 0));
+    }
+
+    public Forecast(com.thewizrd.shared_resources.weatherdata.weatherunlocked.DaysItem day) {
+        date = LocalDate.parse(day.getDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ROOT)).atStartOfDay();
+        highF = day.getTempMaxF();
+        highC = day.getTempMaxC();
+        lowF = day.getTempMinF();
+        lowC = day.getTempMinC();
+
+        //condition = null;
+        //icon = null;
+
+        // Extras
+        extras = new ForecastExtras();
+        extras.setHumidity((int) Math.round((day.getHumidMinPct() + day.getHumidMaxPct()) / 2));
+        extras.setPressureMb((float) Math.round((day.getSlpMinMb() + day.getSlpMaxMb()) / 2));
+        extras.setPressureIn((float) Math.round((day.getSlpMinIn() + day.getSlpMaxIn()) / 2));
+        if (day.getWindspdMaxMph() > 0 && day.getHumidMaxPct() > 0) {
+            extras.setFeelslikeF(WeatherUtils.getFeelsLikeTemp(highF, (float) day.getWindspdMaxMph(), (int) Math.round(day.getHumidMaxPct())));
+            extras.setFeelslikeC(ConversionMethods.FtoC(extras.getFeelslikeF()));
+        }
+        if (highC > 0 && highC < 60 && day.getHumidMaxPct() > 1) {
+            extras.setDewpointC((float) Math.round(WeatherUtils.calculateDewpointC(highC, (int) Math.round(day.getHumidMaxPct()))));
+            extras.setDewpointF((float) Math.round(ConversionMethods.CtoF(extras.getDewpointC())));
+        }
+        extras.setWindMph((float) Math.round(day.getWindspdMaxMph()));
+        extras.setWindKph((float) Math.round(day.getWindspdMaxKmh()));
+        extras.setPop((int) Math.round(day.getProbPrecipPct()));
+        extras.setWindGustMph((float) Math.round(day.getWindgstMaxMph()));
+        extras.setWindGustKph((float) Math.round(day.getWindgstMaxKmh()));
+        extras.setQpfRainMm(day.getRainTotalMm());
+        extras.setQpfRainIn(day.getRainTotalIn());
+        extras.setQpfSnowCm(day.getSnowTotalMm() / 10f);
+        extras.setQpfSnowIn(day.getSnowTotalIn());
     }
 
     public LocalDateTime getDate() {

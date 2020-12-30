@@ -156,6 +156,14 @@ public class UnitTests {
     }
 
     @Test
+    public void getWUnlockedWeather() throws WeatherException {
+        WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.WEATHERUNLOCKED);
+        Weather weather = getWeather(provider);
+        Assert.assertTrue(weather != null && weather.getForecast() != null && weather.getForecast().size() > 0 && weather.getHrForecast() != null && weather.getHrForecast().size() > 0);
+        Assert.assertTrue(weather != null && weather.isValid());
+    }
+
+    @Test
     public void getHEREOAuthToken() {
         String token = AsyncTask.await(new Callable<String>() {
             @Override

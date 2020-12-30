@@ -17,6 +17,8 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -347,6 +349,51 @@ public class HourlyForecast extends BaseForecast {
             extras.setWindGustMph(windGust);
             extras.setWindGustKph(ConversionMethods.mphTokph(windGust));
         }
+    }
+
+    public HourlyForecast(com.thewizrd.shared_resources.weatherdata.weatherunlocked.TimeframesItem timeframe) {
+        final String date = timeframe.getUtcdate();
+        final int time = timeframe.getUtctime();
+        LocalDate dateObj = LocalDate.parse(date, DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ROOT));
+        LocalTime timeObj;
+        if (time == 0) {
+            timeObj = LocalTime.MIDNIGHT;
+        } else {
+            timeObj = LocalTime.parse(Integer.toString(time), DateTimeFormatter.ofPattern("Hmm", Locale.ROOT));
+        }
+        setDate(ZonedDateTime.of(dateObj, timeObj, ZoneOffset.UTC));
+
+        highF = timeframe.getTempF();
+        highC = timeframe.getTempC();
+        condition = timeframe.getWxDesc();
+        icon = Integer.toString(timeframe.getWxCode());
+
+        windDegrees = (int) Math.round(timeframe.getWinddirDeg());
+        windMph = (float) Math.round(timeframe.getWindspdMph());
+        windKph = (float) Math.round(timeframe.getWindspdKmh());
+
+        // Extras
+        extras = new ForecastExtras();
+        extras.setHumidity((int) Math.round(timeframe.getHumidPct()));
+        extras.setCloudiness((int) Math.round(timeframe.getCloudtotalPct()));
+        extras.setPressureMb(timeframe.getSlpMb());
+        extras.setPressureIn(timeframe.getSlpIn());
+        extras.setWindDegrees(windDegrees);
+        extras.setWindMph(windMph);
+        extras.setWindKph(windKph);
+        extras.setDewpointF((float) Math.round(timeframe.getDewpointF()));
+        extras.setDewpointC((float) Math.round(timeframe.getDewpointC()));
+        extras.setFeelslikeF((float) Math.round(timeframe.getFeelslikeF()));
+        extras.setFeelslikeC((float) Math.round(timeframe.getFeelslikeC()));
+        extras.setPop(NumberUtils.tryParseInt(timeframe.getProbPrecipPct(), 0));
+        extras.setWindGustMph((float) Math.round(timeframe.getWindgstMph()));
+        extras.setWindGustKph((float) Math.round(timeframe.getWindgstKmh()));
+        extras.setVisibilityMi(timeframe.getVisMi());
+        extras.setVisibilityKm(timeframe.getVisKm());
+        extras.setQpfRainMm(timeframe.getRainMm());
+        extras.setQpfRainIn(timeframe.getRainIn());
+        extras.setQpfSnowCm(timeframe.getSnowMm() / 10);
+        extras.setQpfSnowIn(timeframe.getSnowIn());
     }
 
     public String get_date() {

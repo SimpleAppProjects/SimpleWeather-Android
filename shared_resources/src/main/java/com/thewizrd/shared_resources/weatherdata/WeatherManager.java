@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.weatherdata.here.HEREWeatherProvider;
 import com.thewizrd.shared_resources.weatherdata.metno.MetnoWeatherProvider;
 import com.thewizrd.shared_resources.weatherdata.nws.NWSWeatherProvider;
 import com.thewizrd.shared_resources.weatherdata.openweather.OpenWeatherMapProvider;
+import com.thewizrd.shared_resources.weatherdata.weatherunlocked.WeatherUnlockedProvider;
 import com.thewizrd.shared_resources.weatherdata.weatheryahoo.YahooWeatherProvider;
 
 import java.util.Collection;
@@ -62,6 +63,9 @@ public final class WeatherManager implements WeatherProviderImplInterface {
                 break;
             case WeatherAPI.NWS:
                 providerImpl = new NWSWeatherProvider();
+                break;
+            case WeatherAPI.WEATHERUNLOCKED:
+                providerImpl = new WeatherUnlockedProvider();
                 break;
             default:
                 if (!BuildConfig.DEBUG) {
