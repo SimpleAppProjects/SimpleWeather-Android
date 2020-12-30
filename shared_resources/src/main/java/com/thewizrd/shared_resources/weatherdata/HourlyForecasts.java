@@ -7,7 +7,7 @@ import androidx.room.TypeConverters;
 
 import com.thewizrd.shared_resources.database.SortableDateTimeConverters;
 
-import org.threeten.bp.ZonedDateTime;
+import java.time.ZonedDateTime;
 
 @Entity(tableName = "hr_forecasts", primaryKeys = {"query", "dateblob"})
 public class HourlyForecasts {

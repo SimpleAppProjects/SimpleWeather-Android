@@ -12,8 +12,8 @@ import com.thewizrd.simpleweather.BuildConfig;
 import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationBuilder;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
-import org.threeten.bp.ZonedDateTime;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 
 public class WeatherAlertHandler {

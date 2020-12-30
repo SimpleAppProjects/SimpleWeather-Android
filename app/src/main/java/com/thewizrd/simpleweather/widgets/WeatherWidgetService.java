@@ -74,11 +74,10 @@ import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.main.MainActivity;
 import com.thewizrd.simpleweather.utils.ArrayUtils;
 
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.temporal.ChronoUnit;
-
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

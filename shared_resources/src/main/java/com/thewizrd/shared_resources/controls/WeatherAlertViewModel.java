@@ -11,11 +11,11 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertSeverity;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertType;
 
-import org.threeten.bp.Duration;
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.FormatStyle;
+import java.time.Duration;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 
 public class WeatherAlertViewModel {
     private WeatherAlertType alertType;

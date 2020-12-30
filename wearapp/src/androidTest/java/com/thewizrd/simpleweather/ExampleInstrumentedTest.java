@@ -7,7 +7,6 @@ import android.preference.PreferenceManager;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.SimpleLibrary;
@@ -24,9 +23,9 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -75,7 +74,6 @@ public class ExampleInstrumentedTest {
         };
 
         SimpleLibrary.init(app);
-        AndroidThreeTen.init(appContext);
 
         // Start logger
         Logger.init(appContext);

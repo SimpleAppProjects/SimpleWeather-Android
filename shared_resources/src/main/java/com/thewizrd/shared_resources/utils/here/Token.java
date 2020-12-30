@@ -3,7 +3,7 @@ package com.thewizrd.shared_resources.utils.here;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.vimeo.stag.UseStag;
 
-import org.threeten.bp.ZonedDateTime;
+import java.time.ZonedDateTime;
 
 @UseStag(UseStag.FieldOption.ALL)
 class Token {

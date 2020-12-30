@@ -2,9 +2,9 @@ package com.thewizrd.shared_resources.utils;
 
 import android.location.Location;
 
-import org.threeten.bp.Instant;
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.ZonedDateTime;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 public class ConversionMethods {
     // Constants

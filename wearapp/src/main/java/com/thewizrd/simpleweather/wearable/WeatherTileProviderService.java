@@ -32,8 +32,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.LaunchActivity;
 import com.thewizrd.simpleweather.R;
 
-import org.threeten.bp.ZonedDateTime;
-
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

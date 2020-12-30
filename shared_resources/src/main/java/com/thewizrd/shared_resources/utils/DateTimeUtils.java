@@ -5,15 +5,14 @@ import androidx.annotation.NonNull;
 import com.ibm.icu.text.DateFormat;
 import com.ibm.icu.text.DateTimePatternGenerator;
 
-import org.threeten.bp.DayOfWeek;
-import org.threeten.bp.Duration;
-import org.threeten.bp.Instant;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.temporal.TemporalAdjusters;
-
+import java.time.DayOfWeek;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 import java.util.Locale;
 
@@ -79,7 +78,7 @@ public class DateTimeUtils {
     }
 
     public static String formatDateTimeForSkeleton(@NonNull Instant instant, @NonNull String skeleton, @NonNull Locale locale) {
-        Date date = org.threeten.bp.DateTimeUtils.toDate(instant);
+        Date date = Date.from(instant);
         return DateFormat.getInstanceForSkeleton(skeleton, locale).format(date);
     }
 

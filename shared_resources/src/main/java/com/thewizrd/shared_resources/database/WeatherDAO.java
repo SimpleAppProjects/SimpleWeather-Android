@@ -16,8 +16,7 @@ import com.thewizrd.shared_resources.weatherdata.HourlyForecasts;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlerts;
 
-import org.threeten.bp.ZonedDateTime;
-
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
 

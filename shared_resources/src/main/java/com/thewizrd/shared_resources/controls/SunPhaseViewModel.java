@@ -7,7 +7,7 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.weatherdata.Astronomy;
 
-import org.threeten.bp.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatter;
 
 public class SunPhaseViewModel {
     private final String sunrise;

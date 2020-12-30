@@ -32,17 +32,16 @@ import com.thewizrd.shared_resources.weatherdata.nws.hourly.PeriodsItem;
 import com.thewizrd.shared_resources.weatherdata.nws.observation.ForecastResponse;
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider;
 
-import org.threeten.bp.Instant;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.ZoneId;
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.ZonedDateTime;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.text.DecimalFormat;
+import java.time.Instant;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.SortedSet;

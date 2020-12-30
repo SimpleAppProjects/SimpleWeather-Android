@@ -8,9 +8,9 @@ import com.thewizrd.shared_resources.weatherdata.AstroDataProviderDateInterface;
 import com.thewizrd.shared_resources.weatherdata.AstroDataProviderInterface;
 import com.thewizrd.shared_resources.weatherdata.Astronomy;
 
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.ZonedDateTime;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
 
 public class SolCalcAstroProvider implements AstroDataProviderInterface, AstroDataProviderDateInterface {
 

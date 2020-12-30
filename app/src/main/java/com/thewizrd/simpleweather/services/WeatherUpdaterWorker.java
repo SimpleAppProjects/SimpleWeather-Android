@@ -66,9 +66,8 @@ import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetBroadcastReceiver;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.ZoneOffset;
-
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;

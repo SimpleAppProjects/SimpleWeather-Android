@@ -17,7 +17,8 @@ import com.thewizrd.shared_resources.database.WeatherDatabase;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.threeten.bp.ZonedDateTime;
+
+import java.time.ZonedDateTime;
 
 class DBMigrations {
     static final Migration MIGRATION_0_3 = new Migration(0, 3) {

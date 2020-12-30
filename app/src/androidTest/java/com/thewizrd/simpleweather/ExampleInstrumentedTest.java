@@ -9,7 +9,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.ibm.icu.text.DateFormat;
-import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.SimpleLibrary;
@@ -34,14 +33,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.threeten.bp.DateTimeUtils;
-import org.threeten.bp.ZoneId;
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -91,7 +89,6 @@ public class ExampleInstrumentedTest {
         };
 
         SimpleLibrary.init(app);
-        AndroidThreeTen.init(appContext);
 
         // Start logger
         Logger.init(appContext);
@@ -302,7 +299,7 @@ public class ExampleInstrumentedTest {
     @Test
     public void timeIsRelative() {
         ZonedDateTime dateTime = ZonedDateTime.of(2020, 1, 1, 18, 0, 0, 0, ZoneId.systemDefault());
-        Date date = DateTimeUtils.toDate(dateTime.toInstant());
+        Date date = Date.from(dateTime.toInstant());
 
         Log.d("Time", DateFormat.getInstanceForSkeleton("eeeeMMMMdd", Locale.US).format(date));
         Log.d("Time", DateFormat.getInstanceForSkeleton("eeeeMMMMdd", Locale.FRANCE).format(date));

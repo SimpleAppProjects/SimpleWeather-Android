@@ -90,10 +90,9 @@ import com.thewizrd.simpleweather.wearable.WearableWorker;
 import com.thewizrd.simpleweather.wearable.WeatherComplicationWorker;
 import com.thewizrd.simpleweather.wearable.WeatherTileWorker;
 
-import org.threeten.bp.Duration;
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.ZonedDateTime;
-
+import java.time.Duration;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Timer;
 import java.util.TimerTask;

@@ -22,9 +22,6 @@ import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.vimeo.stag.generated.Stag;
 
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.ZonedDateTime;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -35,6 +32,8 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 public class JSONParser {
 

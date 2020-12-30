@@ -35,10 +35,9 @@ import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 
-import org.threeten.bp.Clock;
-import org.threeten.bp.Instant;
-
 import java.nio.charset.Charset;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;

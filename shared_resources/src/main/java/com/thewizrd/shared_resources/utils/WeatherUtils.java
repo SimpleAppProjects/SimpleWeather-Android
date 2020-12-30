@@ -27,11 +27,10 @@ import com.thewizrd.shared_resources.weatherdata.images.ImageDataHelper;
 import com.thewizrd.shared_resources.weatherdata.images.ImageDataHelperImpl;
 import com.thewizrd.shared_resources.weatherdata.images.model.ImageData;
 
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.ZonedDateTime;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Locale;
 
 public class WeatherUtils {

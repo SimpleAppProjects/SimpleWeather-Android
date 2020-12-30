@@ -37,14 +37,13 @@ import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.RadarAnimateContainerBinding;
 
-import org.threeten.bp.Instant;
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

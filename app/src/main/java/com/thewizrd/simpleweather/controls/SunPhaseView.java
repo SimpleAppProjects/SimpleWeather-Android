@@ -25,10 +25,9 @@ import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.simpleweather.R;
 
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.OffsetTime;
-import org.threeten.bp.ZoneOffset;
-
+import java.time.LocalTime;
+import java.time.OffsetTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 
 public class SunPhaseView extends View {

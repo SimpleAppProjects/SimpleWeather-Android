@@ -24,11 +24,10 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAlertProviderInterface;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 
-import org.threeten.bp.ZoneOffset;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

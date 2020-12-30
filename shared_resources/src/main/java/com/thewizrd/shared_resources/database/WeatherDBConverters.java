@@ -20,15 +20,14 @@ import com.thewizrd.shared_resources.weatherdata.Precipitation;
 import com.thewizrd.shared_resources.weatherdata.TextForecast;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 
-import org.threeten.bp.Instant;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

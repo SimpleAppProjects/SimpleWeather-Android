@@ -108,9 +108,9 @@ import com.thewizrd.simpleweather.setup.SetupActivity;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Callable;
