@@ -28,23 +28,6 @@
 }
 -dontwarn com.thewizrd.shared_resources.R$*
 
-# SimpleXML
--keepclassmembers class com.thewizrd.shared_resources.locationdata.here.AutoCompleteQuery$** {
-   <init>(...);
-}
--keepclassmembers class com.thewizrd.shared_resources.weatherdata.metno.Weatherdata$** {
-   <init>(...);
-}
--keepclassmembers class com.thewizrd.shared_resources.weatherdata.metno.Astrodata$** {
-   <init>(...);
-}
--keepclassmembers class com.thewizrd.shared_resources.weatherdata.openweather.Location$** {
-   <init>(...);
-}
--keepclassmembers class com.thewizrd.shared_resources.weatherdata.weatheryahoo.AutoCompleteQuery$** {
-   <init>(...);
-}
-
 # Crashlytics
 -keepattributes SourceFile,LineNumberTable        # Keep file names/line numbers
 -keep public class * extends java.lang.Exception  # Keep custom exceptions (opt)
