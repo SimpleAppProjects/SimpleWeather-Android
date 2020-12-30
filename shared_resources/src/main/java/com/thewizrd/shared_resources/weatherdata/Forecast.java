@@ -239,11 +239,13 @@ public class Forecast extends BaseForecast {
         Locale locale = LocaleUtils.getLocale();
 
         date = ZonedDateTime.parse(forecastItem.getStartTime(), DateTimeFormatter.ISO_ZONED_DATE_TIME).toLocalDateTime();
+
+        Float temp = NumberUtils.tryParseFloat(forecastItem.getTemperature());
         if (forecastItem.getIsDaytime()) {
-            highF = Float.parseFloat(forecastItem.getTemperature());
+            highF = temp;
             highC = ConversionMethods.FtoC(highF);
         } else {
-            lowF = Float.parseFloat(forecastItem.getTemperature());
+            lowF = temp;
             lowC = ConversionMethods.FtoC(lowF);
         }
 

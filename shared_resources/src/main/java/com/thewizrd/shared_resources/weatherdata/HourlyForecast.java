@@ -312,9 +312,11 @@ public class HourlyForecast extends BaseForecast {
         // Extras
         extras = new ForecastExtras();
 
-        if (forecastItem.getWindSpeed() != null && forecastItem.getWindDirection() != null) {
-            windDegrees = Integer.parseInt(forecastItem.getWindDirection());
-            windMph = Float.parseFloat(forecastItem.getWindSpeed());
+        Float windSpeed = NumberUtils.tryParseFloat(forecastItem.getWindSpeed());
+        Integer windDirection = NumberUtils.tryParseInt(forecastItem.getWindDirection());
+        if (windSpeed != null && windDirection != null) {
+            windDegrees = windDirection;
+            windMph = windSpeed;
             windKph = ConversionMethods.mphTokph(windMph);
 
             extras.setWindDegrees(this.windDegrees);

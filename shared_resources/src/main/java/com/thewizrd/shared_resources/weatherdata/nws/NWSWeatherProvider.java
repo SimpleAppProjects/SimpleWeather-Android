@@ -135,6 +135,9 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
 
             Request hrForecastRequest = new Request.Builder()
                     .url(String.format(HRFORECAST_QUERY_URL, location_query))
+                    .cacheControl(new CacheControl.Builder()
+                            .maxAge(1, TimeUnit.HOURS)
+                            .build())
                     .addHeader("Accept", "application/ld+json")
                     .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
                     .build();
