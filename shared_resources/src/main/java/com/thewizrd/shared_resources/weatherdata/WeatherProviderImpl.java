@@ -31,7 +31,10 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
 
     public abstract boolean supportsWeatherLocale();
 
-    public abstract boolean supportsAlerts();
+    @Override
+    public boolean supportsAlerts() {
+        return true;
+    }
 
     public abstract boolean needsExternalAlertData();
 

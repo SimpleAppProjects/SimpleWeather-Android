@@ -73,11 +73,6 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
     }
 
     @Override
-    public boolean supportsAlerts() {
-        return true;
-    }
-
-    @Override
     public boolean needsExternalAlertData() {
         return true;
     }

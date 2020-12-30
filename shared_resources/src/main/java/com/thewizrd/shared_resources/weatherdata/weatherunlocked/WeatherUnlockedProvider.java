@@ -67,11 +67,6 @@ public final class WeatherUnlockedProvider extends WeatherProviderImpl {
     }
 
     @Override
-    public boolean supportsAlerts() {
-        return false;
-    }
-
-    @Override
     public boolean needsExternalAlertData() {
         return true;
     }

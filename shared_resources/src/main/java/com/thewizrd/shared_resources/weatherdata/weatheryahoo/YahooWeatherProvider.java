@@ -67,11 +67,6 @@ public class YahooWeatherProvider extends WeatherProviderImpl implements AstroDa
     }
 
     @Override
-    public boolean supportsAlerts() {
-        return true;
-    }
-
-    @Override
     public boolean needsExternalAlertData() {
         return true;
     }

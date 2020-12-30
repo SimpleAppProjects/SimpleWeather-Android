@@ -75,11 +75,6 @@ public final class HEREWeatherProvider extends WeatherProviderImpl implements We
     }
 
     @Override
-    public boolean supportsAlerts() {
-        return true;
-    }
-
-    @Override
     public boolean needsExternalAlertData() {
         return false;
     }
