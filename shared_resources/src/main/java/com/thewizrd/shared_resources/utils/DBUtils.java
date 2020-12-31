@@ -56,4 +56,20 @@ class DBUtils {
             }
         });
     }
+
+    static void updateLocationKey(final LocationsDatabase locationDB) {
+        AsyncTask.run(new Runnable() {
+            @Override
+            public void run() {
+                for (LocationData location : locationDB.locationsDAO().loadAllLocationData()) {
+                    String oldKey = location.getQuery();
+
+                    location.setQuery(WeatherManager.getProvider(location.getWeatherSource())
+                            .updateLocationQuery(location));
+
+                    Settings.updateLocationWithKey(location, oldKey);
+                }
+            }
+        });
+    }
 }

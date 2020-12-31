@@ -125,6 +125,20 @@ class VersionMigrations {
                 }
             }
 
+            if (Settings.getVersionCode() < 294310500) {
+                // Update location keys
+                // NWS key is different now
+                if (Settings.IS_PHONE) {
+                    DBUtils.updateLocationKey(locationDB);
+                }
+                LocationData locData = Settings.getLastGPSLocData();
+                if (locData != null && locData.isValid()) {
+                    locData.setQuery(WeatherManager.getProvider(locData.getWeatherSource())
+                            .updateLocationQuery(locData));
+                    Settings.saveLastGPSLocData(locData);
+                }
+            }
+
             Bundle bundle = new Bundle();
             bundle.putString("API", Settings.getAPI());
             bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));
