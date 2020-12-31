@@ -370,6 +370,9 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
         // Example: https://api.weather.gov/icons/land/day/tsra_hi,20?size=medium
         String weatherIcon = "";
 
+        if (icon == null)
+            return WeatherIcons.NA;
+
         if (icon.contains("fog")) {
             if (isNight)
                 weatherIcon = WeatherIcons.NIGHT_FOG;

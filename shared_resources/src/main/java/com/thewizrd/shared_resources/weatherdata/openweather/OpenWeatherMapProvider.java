@@ -358,6 +358,9 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
     public String getWeatherIcon(String icon) {
         boolean isNight = false;
 
+        if (icon == null)
+            return WeatherIcons.NA;
+
         if (icon.endsWith("n"))
             isNight = true;
 
@@ -367,6 +370,9 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
     @Override
     public String getWeatherIcon(boolean isNight, String icon) {
         String weatherIcon = "";
+
+        if (icon == null)
+            return WeatherIcons.NA;
 
         switch (icon.substring(0, 3)) {
             case "200": // thunderstorm w/ light rain

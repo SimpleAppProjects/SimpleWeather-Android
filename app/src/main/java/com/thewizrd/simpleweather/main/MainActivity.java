@@ -325,7 +325,7 @@ public class MainActivity extends UserLocaleActivity
 
     @SuppressLint("RestrictedApi")
     private void refreshNavViewCheckedItem() {
-        if (mNavController.getCurrentDestination() != null) {
+        if (mNavController != null && mNavController.getCurrentDestination() != null) {
             final int currentId = mNavController.getCurrentDestination().getId();
             final String currentName;
             if (mNavController.getCurrentDestination() instanceof FragmentNavigator.Destination) {

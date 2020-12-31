@@ -345,6 +345,9 @@ public final class HEREWeatherProvider extends WeatherProviderImpl implements We
     public String getWeatherIcon(String icon) {
         boolean isNight = false;
 
+        if (icon == null)
+            return WeatherIcons.NA;
+
         if (icon.startsWith("N_") || icon.contains("night_"))
             isNight = true;
 
@@ -354,6 +357,9 @@ public final class HEREWeatherProvider extends WeatherProviderImpl implements We
     @Override
     public String getWeatherIcon(boolean isNight, String icon) {
         String weatherIcon = "";
+
+        if (icon == null)
+            return WeatherIcons.NA;
 
         if (icon.contains("mostly_sunny") || icon.contains("mostly_clear") || icon.contains("partly_cloudy")
                 || icon.contains("passing_clounds") || icon.contains("more_sun_than_clouds") || icon.contains("scattered_clouds")
