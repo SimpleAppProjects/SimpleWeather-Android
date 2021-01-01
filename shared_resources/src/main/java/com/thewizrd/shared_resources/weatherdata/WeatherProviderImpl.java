@@ -92,7 +92,7 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
         if (StringUtils.isNullOrWhitespace(location.getTzLong())) {
             if (!StringUtils.isNullOrWhitespace(weather.getLocation().getTzLong())) {
                 location.setTzLong(weather.getLocation().getTzLong());
-            } else if (location.getLongitude() != 0 && location.getLatitude() != 0) {
+            } else if (location.getLatitude() != 0 && location.getLongitude() != 0) {
                 String tzId = TZDBCache.getTimeZone(location.getLatitude(), location.getLongitude());
                 if (!"unknown".equals(tzId))
                     location.setTzLong(tzId);

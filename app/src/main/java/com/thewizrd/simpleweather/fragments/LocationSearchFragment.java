@@ -47,6 +47,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.tasks.CallableEx;
 import com.thewizrd.shared_resources.tasks.TaskUtils;
+import com.thewizrd.shared_resources.tzdb.TZDBCache;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CustomException;
@@ -209,6 +210,10 @@ public class LocationSearchFragment extends WindowColorFragment {
 
                             if (queryResult == null) {
                                 throw new InterruptedException();
+                            } else if (StringUtils.isNullOrWhitespace(queryResult.getLocationTZLong()) && queryResult.getLocationLat() != 0 && queryResult.getLocationLong() != 0) {
+                                String tzId = TZDBCache.getTimeZone(queryResult.getLocationLat(), queryResult.getLocationLong());
+                                if (!"unknown".equals(tzId))
+                                    queryResult.setLocationTZLong(tzId);
                             }
 
                             final boolean isUS = LocationUtils.isUS(queryResult.getLocationCountry());

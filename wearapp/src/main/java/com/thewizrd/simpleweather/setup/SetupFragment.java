@@ -46,6 +46,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.tasks.CallableEx;
 import com.thewizrd.shared_resources.tasks.TaskUtils;
+import com.thewizrd.shared_resources.tzdb.TZDBCache;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.CustomException;
@@ -341,8 +342,13 @@ public class SetupFragment extends CustomFragment {
 
                             view = wm.getLocation(mLocation);
 
-                            if (StringUtils.isNullOrWhitespace(view.getLocationQuery()))
+                            if (StringUtils.isNullOrWhitespace(view.getLocationQuery())) {
                                 view = new LocationQueryViewModel();
+                            } else if (StringUtils.isNullOrWhitespace(view.getLocationTZLong()) && view.getLocationLat() != 0 && view.getLocationLong() != 0) {
+                                String tzId = TZDBCache.getTimeZone(view.getLocationLat(), view.getLocationLong());
+                                if (!"unknown".equals(tzId))
+                                    view.setLocationTZLong(tzId);
+                            }
 
                             if (StringUtils.isNullOrWhitespace(view.getLocationQuery())) {
                                 throw new CustomException(R.string.error_retrieve_location);

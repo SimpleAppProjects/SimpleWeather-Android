@@ -131,12 +131,7 @@ class VersionMigrations {
                 if (Settings.IS_PHONE) {
                     DBUtils.updateLocationKey(locationDB);
                 }
-                LocationData locData = Settings.getLastGPSLocData();
-                if (locData != null && locData.isValid()) {
-                    locData.setQuery(WeatherManager.getProvider(locData.getWeatherSource())
-                            .updateLocationQuery(locData));
-                    Settings.saveLastGPSLocData(locData);
-                }
+                Settings.saveLastGPSLocData(new LocationData());
             }
 
             Bundle bundle = new Bundle();

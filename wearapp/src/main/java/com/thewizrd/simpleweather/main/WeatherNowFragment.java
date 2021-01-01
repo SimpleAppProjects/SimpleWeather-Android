@@ -61,6 +61,7 @@ import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.tzdb.TZDBCache;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -825,8 +826,13 @@ public class WeatherNowFragment extends CustomFragment
                             return false;
                         }
 
-                        if (StringUtils.isNullOrEmpty(view.getLocationQuery()))
+                        if (StringUtils.isNullOrEmpty(view.getLocationQuery())) {
                             view = new LocationQueryViewModel();
+                        } else if (StringUtils.isNullOrWhitespace(view.getLocationTZLong()) && view.getLocationLat() != 0 && view.getLocationLong() != 0) {
+                            String tzId = TZDBCache.getTimeZone(view.getLocationLat(), view.getLocationLong());
+                            if (!"unknown".equals(tzId))
+                                view.setLocationTZLong(tzId);
+                        }
 
                         if (StringUtils.isNullOrWhitespace(view.getLocationQuery())) {
                             // Stop since there is no valid query

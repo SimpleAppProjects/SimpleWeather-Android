@@ -84,6 +84,7 @@ import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.tasks.CallableEx;
+import com.thewizrd.shared_resources.tzdb.TZDBCache;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CustomException;
@@ -1497,6 +1498,10 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                     if (query_vm == null || StringUtils.isNullOrWhitespace(query_vm.getLocationQuery())) {
                         // Stop since there is no valid query
                         return false;
+                    } else if (StringUtils.isNullOrWhitespace(query_vm.getLocationTZLong()) && query_vm.getLocationLat() != 0 && query_vm.getLocationLong() != 0) {
+                        String tzId = TZDBCache.getTimeZone(query_vm.getLocationLat(), query_vm.getLocationLong());
+                        if (!"unknown".equals(tzId))
+                            query_vm.setLocationTZLong(tzId);
                     }
 
                     if (token.isCancellationRequested()) return false;

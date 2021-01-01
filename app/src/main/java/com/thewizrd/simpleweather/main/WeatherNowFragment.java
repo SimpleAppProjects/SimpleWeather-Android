@@ -102,6 +102,7 @@ import com.thewizrd.shared_resources.lifecycle.CheckAliveRunnable;
 import com.thewizrd.shared_resources.lifecycle.LifecycleRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.tzdb.TZDBCache;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
@@ -1523,6 +1524,10 @@ public class WeatherNowFragment extends WindowColorFragment
                         if (StringUtils.isNullOrWhitespace(view.getLocationQuery())) {
                             // Stop since there is no valid query
                             return false;
+                        } else if (StringUtils.isNullOrWhitespace(view.getLocationTZLong()) && view.getLocationLat() != 0 && view.getLocationLong() != 0) {
+                            String tzId = TZDBCache.getTimeZone(view.getLocationLat(), view.getLocationLong());
+                            if (!"unknown".equals(tzId))
+                                view.setLocationTZLong(tzId);
                         }
 
                         // Save location as last known

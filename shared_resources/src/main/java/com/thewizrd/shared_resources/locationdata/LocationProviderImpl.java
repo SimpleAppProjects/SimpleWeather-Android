@@ -198,7 +198,7 @@ public abstract class LocationProviderImpl implements LocationProviderImplInterf
             location.setLatitude(qview.getLocationLat());
             location.setLongitude(qview.getLocationLong());
             location.setTzLong(qview.getLocationTZLong());
-            if (StringUtils.isNullOrWhitespace(location.getTzLong()) && location.getLongitude() != 0 && location.getLatitude() != 0) {
+            if (StringUtils.isNullOrWhitespace(location.getTzLong()) && location.getLatitude() != 0 && location.getLongitude() != 0) {
                 String tzId = TZDBCache.getTimeZone(location.getLatitude(), location.getLongitude());
                 if (!"unknown".equals(tzId))
                     location.setTzLong(tzId);
