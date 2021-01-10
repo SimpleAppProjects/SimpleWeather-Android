@@ -209,6 +209,7 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
                 final PeriodsItem item = new PeriodsItem();
 
                 JsonObject periodObj = fcastRoot.getAsJsonObject(periodName);
+                JsonArray timeArr = periodObj.getAsJsonArray("time");
                 JsonArray unixTimeArr = periodObj.getAsJsonArray("unixtime");
                 JsonArray windChillArr = periodObj.getAsJsonArray("windChill");
                 JsonArray windSpeedArr = periodObj.getAsJsonArray("windSpeed");
@@ -222,6 +223,12 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
                 JsonArray conditionTxtArr = periodObj.getAsJsonArray("weather");
 
                 item.setPeriodName(periodObj.getAsJsonPrimitive("periodName").getAsString());
+
+                item.setTime(new ArrayList<>(timeArr.size()));
+                for (JsonElement jsonElement : timeArr) {
+                    String time = jsonElement.getAsString();
+                    item.getTime().add(time);
+                }
 
                 item.setUnixtime(new ArrayList<>(unixTimeArr.size()));
                 for (JsonElement jsonElement : unixTimeArr) {

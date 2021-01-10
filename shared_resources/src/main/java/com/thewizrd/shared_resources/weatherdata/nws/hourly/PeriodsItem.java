@@ -4,6 +4,8 @@ import java.util.List;
 
 public class PeriodsItem {
 
+    private List<String> time;
+
     private List<String> unixtime;
 
     private List<String> windChill;
@@ -27,6 +29,14 @@ public class PeriodsItem {
     private List<String> windSpeed;
 
     private List<String> cloudAmount;
+
+    public void setTime(List<String> time) {
+        this.time = time;
+    }
+
+    public List<String> getTime() {
+        return time;
+    }
 
     public void setUnixtime(List<String> unixtime) {
         this.unixtime = unixtime;

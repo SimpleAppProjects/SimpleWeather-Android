@@ -408,11 +408,29 @@ public class Weather extends CustomJsonObject {
         }
 
         {
+            boolean adjustDate = false;
+            final ZonedDateTime creationDate = ZonedDateTime.parse(hourlyForecastResponse.getCreationDate(), DateTimeFormatter.ISO_ZONED_DATE_TIME);
             hrForecast = new ArrayList<>(144);
             for (com.thewizrd.shared_resources.weatherdata.nws.hourly.PeriodsItem period : hourlyForecastResponse.getPeriodsItems()) {
                 final int periodsSize = period.getUnixtime().size();
                 for (int i = 0; i < periodsSize; i++) {
-                    if (Instant.ofEpochSecond(Long.parseLong(period.getUnixtime().get(i))).atZone(ZoneOffset.UTC).isBefore(now.truncatedTo(ChronoUnit.HOURS)))
+                    Instant instant = Instant.ofEpochSecond(Long.parseLong(period.getUnixtime().get(i)));
+
+                    // BUG: NWS MapClick API
+                    // The epoch time sometimes is a day ahead
+                    // If this is the case, adjust all dates accordingly
+                    if (i == 0 && "Tonight".equals(period.getPeriodName()) && "6 pm".equals(period.getTime().get(i))) {
+                        ZonedDateTime hrDate = instant.atZone(creationDate.getZone());
+                        if (creationDate.plusDays(1).truncatedTo(ChronoUnit.DAYS).isEqual(hrDate.truncatedTo(ChronoUnit.DAYS))) {
+                            adjustDate = true;
+                        }
+                    }
+
+                    if (adjustDate) {
+                        instant = instant.minus(1, ChronoUnit.DAYS);
+                    }
+
+                    if (instant.atZone(ZoneOffset.UTC).isBefore(now.truncatedTo(ChronoUnit.HOURS)))
                         continue;
 
                     com.thewizrd.shared_resources.weatherdata.nws.hourly.PeriodItem forecastItem = new com.thewizrd.shared_resources.weatherdata.nws.hourly.PeriodItem(
@@ -429,7 +447,7 @@ public class Weather extends CustomJsonObject {
                             period.getWeather().get(i)
                     );
 
-                    hrForecast.add(new HourlyForecast(forecastItem));
+                    hrForecast.add(new HourlyForecast(forecastItem, adjustDate));
                 }
             }
         }

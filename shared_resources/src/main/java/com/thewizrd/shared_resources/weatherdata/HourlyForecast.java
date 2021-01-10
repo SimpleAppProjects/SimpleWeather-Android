@@ -291,10 +291,16 @@ public class HourlyForecast extends BaseForecast {
     }
 
     public HourlyForecast(com.thewizrd.shared_resources.weatherdata.nws.hourly.PeriodItem forecastItem) {
+        this(forecastItem, false);
+    }
+
+    public HourlyForecast(com.thewizrd.shared_resources.weatherdata.nws.hourly.PeriodItem forecastItem, boolean adjustDate) {
         WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.NWS);
         Locale locale = LocaleUtils.getLocale();
 
-        setDate(Instant.ofEpochSecond(Long.parseLong(forecastItem.getUnixTime())).atZone(ZoneOffset.UTC));
+        ZonedDateTime date = Instant.ofEpochSecond(Long.parseLong(forecastItem.getUnixTime())).atZone(ZoneOffset.UTC);
+        if (adjustDate) date = date.minusDays(1);
+        setDate(date);
 
         Float temp = NumberUtils.tryParseFloat(forecastItem.getTemperature());
         if (temp != null) {
