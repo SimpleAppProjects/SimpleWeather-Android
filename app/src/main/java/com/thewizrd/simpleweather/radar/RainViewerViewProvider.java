@@ -255,6 +255,10 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
             position += availableTimestamps.size();
         }
 
+        if (availableTimestamps.isEmpty() || animationPosition >= availableTimestamps.size() || position >= availableTimestamps.size()) {
+            return;
+        }
+
         long currentTimeStamp = availableTimestamps.get(animationPosition);
         long nextTimeStamp = availableTimestamps.get(position);
 
@@ -266,6 +270,7 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
 
         animationPosition = position;
 
+        // 0 is opaque; 1 is transparent
         if (radarLayers.containsKey(currentTimeStamp)) {
             TileOverlay currentOverlay = radarLayers.get(currentTimeStamp);
             if (currentOverlay != null) {
