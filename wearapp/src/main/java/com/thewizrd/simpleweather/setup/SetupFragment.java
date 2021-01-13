@@ -80,6 +80,7 @@ import java.util.concurrent.TimeUnit;
 import static android.app.Activity.RESULT_OK;
 
 public class SetupFragment extends CustomFragment {
+    private static final String TAG = "SetupFragment";
 
     private FragmentSetupBinding binding;
 
@@ -98,7 +99,7 @@ public class SetupFragment extends CustomFragment {
 
     private CancellationTokenSource cts = new CancellationTokenSource();
 
-    private WeatherManager wm = WeatherManager.getInstance();
+    private final WeatherManager wm = WeatherManager.getInstance();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -207,7 +208,20 @@ public class SetupFragment extends CustomFragment {
         binding.searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Navigation.findNavController(v).navigate(SetupFragmentDirections.actionSetupFragmentToLocationSearchFragment());
+                try {
+                    Navigation.findNavController(v).navigate(SetupFragmentDirections.actionSetupFragmentToLocationSearchFragment());
+                } catch (IllegalArgumentException ex) {
+                    Logger.writeLine(Log.ERROR, ex);
+
+                    Bundle props = new Bundle();
+                    props.putString("method", "searchButton.setOnClickListener");
+                    props.putBoolean("isAlive", isAlive());
+                    props.putBoolean("isViewAlive", isViewAlive());
+                    props.putBoolean("isDetached", isDetached());
+                    props.putBoolean("isResumed", isResumed());
+                    props.putBoolean("isRemoving", isRemoving());
+                    AnalyticsLogger.logEvent(String.format("%s: navigation failed", TAG), props);
+                }
             }
         });
         binding.locationButton.setOnClickListener(new View.OnClickListener() {

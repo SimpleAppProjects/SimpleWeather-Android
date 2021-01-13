@@ -23,6 +23,7 @@ import androidx.core.view.ViewCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 
@@ -81,6 +82,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class SetupLocationFragment extends CustomFragment {
+    private static final String TAG = "SetupLocationFragment";
 
     // Views
     private FragmentSetupLocationBinding binding;
@@ -238,8 +240,9 @@ public class SetupLocationFragment extends CustomFragment {
 
         viewModel = new ViewModelProvider(getAppCompatActivity()).get(SetupViewModel.class);
 
-        MutableLiveData<String> liveData =
-                Navigation.findNavController(view).getCurrentBackStackEntry()
+        final NavController navController = Navigation.findNavController(view);
+        final MutableLiveData<String> liveData =
+                navController.getCurrentBackStackEntry()
                         .getSavedStateHandle()
                         .getLiveData(Constants.KEY_DATA);
         liveData.observe(getViewLifecycleOwner(), new Observer<String>() {
@@ -253,8 +256,9 @@ public class SetupLocationFragment extends CustomFragment {
                     if (data != null) {
                         // Setup complete
                         viewModel.setLocationData(data);
-                        Navigation.findNavController(binding.getRoot())
-                                .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment());
+                        navController.navigate(
+                                SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment()
+                        );
                         return;
                     }
                 }
@@ -471,8 +475,22 @@ public class SetupLocationFragment extends CustomFragment {
                                         if (data != null && data.isValid()) {
                                             // Setup complete
                                             viewModel.setLocationData(data);
-                                            Navigation.findNavController(binding.getRoot())
-                                                    .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment());
+                                            try {
+                                                Navigation.findNavController(binding.getRoot())
+                                                        .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment());
+                                            } catch (IllegalStateException ex) {
+                                                Logger.writeLine(Log.ERROR, ex);
+
+                                                Bundle args = new Bundle();
+                                                args.putString("method", "fetchGeoLocation");
+                                                args.putBoolean("isActive", isActive());
+                                                args.putBoolean("isAlive", isAlive());
+                                                args.putBoolean("isViewAlive", isViewAlive());
+                                                args.putBoolean("isDetached", isDetached());
+                                                args.putBoolean("isResumed", isResumed());
+                                                args.putBoolean("isRemoving", isRemoving());
+                                                AnalyticsLogger.logEvent(String.format("%s: navigation failed", TAG), args);
+                                            }
                                         } else {
                                             enableControls(true);
                                             Settings.setFollowGPS(false);

@@ -108,6 +108,8 @@ import java.util.concurrent.TimeUnit;
 
 public class LocationsFragment extends ToolbarFragment
         implements WeatherRequest.WeatherErrorListener {
+    private static final String TAG = "LocationsFragment";
+
     private boolean mEditMode = false;
     private boolean mDataChanged = false;
     private boolean mHomeChanged = false;
@@ -280,7 +282,7 @@ public class LocationsFragment extends ToolbarFragment
     }
 
     // For LocationPanels
-    private RecyclerOnClickListenerInterface onRecyclerClickListener = new RecyclerOnClickListenerInterface() {
+    private final RecyclerOnClickListenerInterface onRecyclerClickListener = new RecyclerOnClickListenerInterface() {
         @Override
         public void onClick(View view, int position) {
             AnalyticsLogger.logEvent("LocationsFragment: recycler click");
@@ -297,7 +299,20 @@ public class LocationsFragment extends ToolbarFragment
                                 .setBackground(vm.getImageData() != null ? vm.getImageData().getImageURI() : null)
                                 .setHome(isHome);
 
-                Navigation.findNavController(binding.getRoot()).navigate(args);
+                try {
+                    Navigation.findNavController(binding.getRoot()).navigate(args);
+                } catch (IllegalArgumentException ex) {
+                    Logger.writeLine(Log.ERROR, ex);
+
+                    Bundle props = new Bundle();
+                    props.putString("method", "onRecyclerClickListener.onClick");
+                    props.putBoolean("isAlive", isAlive());
+                    props.putBoolean("isViewAlive", isViewAlive());
+                    props.putBoolean("isDetached", isDetached());
+                    props.putBoolean("isResumed", isResumed());
+                    props.putBoolean("isRemoving", isRemoving());
+                    AnalyticsLogger.logEvent(String.format("%s: navigation failed", TAG), props);
+                }
             }
         }
     };

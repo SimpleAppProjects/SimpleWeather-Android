@@ -52,6 +52,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.SavedStateHandle;
 import androidx.navigation.Navigation;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -660,10 +661,10 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
         args = WeatherWidgetPreferenceFragmentArgs.fromBundle(requireArguments());
 
-        MutableLiveData<String> liveData =
-                Navigation.findNavController(view).getCurrentBackStackEntry()
-                        .getSavedStateHandle()
-                        .getLiveData(Constants.KEY_DATA);
+        final SavedStateHandle savedStateHandle = Navigation.findNavController(view).getCurrentBackStackEntry()
+                .getSavedStateHandle();
+        final MutableLiveData<String> liveData = savedStateHandle.getLiveData(Constants.KEY_DATA);
+
         liveData.observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String result) {
@@ -682,8 +683,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                         }
                         locationPref.callChangeListener(item.getValue());
 
-                        Navigation.findNavController(view).getCurrentBackStackEntry()
-                                .getSavedStateHandle().remove(Constants.KEY_DATA);
+                        savedStateHandle.remove(Constants.KEY_DATA);
                     } else {
                         query_vm = null;
                     }

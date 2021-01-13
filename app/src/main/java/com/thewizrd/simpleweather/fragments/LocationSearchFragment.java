@@ -22,6 +22,7 @@ import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewGroupCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.SavedStateHandle;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -82,13 +83,15 @@ import java.util.TimerTask;
 import java.util.concurrent.Callable;
 
 public class LocationSearchFragment extends WindowColorFragment {
+    private static final String TAG = "LocationSearchFragment";
+
     private FragmentLocationSearchBinding binding;
     private SearchActionBarBinding searchBarBinding;
     private LocationQueryAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
     private CancellationTokenSource cts = new CancellationTokenSource();
-    private WeatherManager wm = WeatherManager.getInstance();
+    private final WeatherManager wm = WeatherManager.getInstance();
 
     private static final String KEY_SEARCHTEXT = "search_text";
 
@@ -106,7 +109,7 @@ public class LocationSearchFragment extends WindowColorFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AnalyticsLogger.logEvent("LocationSearchFragment: onCreate");
+        AnalyticsLogger.logEvent(TAG + ": onCreate");
         setSharedElementEnterTransition(new MaterialContainerTransform().setDuration(Constants.ANIMATION_DURATION));
     }
 
@@ -143,10 +146,17 @@ public class LocationSearchFragment extends WindowColorFragment {
         return mAdapter;
     }
 
-    private RecyclerOnClickListenerInterface recyclerClickListener = new RecyclerOnClickListenerInterface() {
+    private final RecyclerOnClickListenerInterface recyclerClickListener = new RecyclerOnClickListenerInterface() {
         @Override
         public void onClick(final View view, final int position) {
-            AnalyticsLogger.logEvent("LocationsFragment: searchFragment click");
+            Bundle props = new Bundle();
+            props.putString("method", "recyclerClickListener.onClick");
+            AnalyticsLogger.logEvent(TAG + ": onClick", props);
+
+            final NavController navController = Navigation.findNavController(binding.getRoot());
+            final SavedStateHandle savedStateHandle = navController.getPreviousBackStackEntry()
+                    .getSavedStateHandle();
+
             runWithView(new LifecycleRunnable(getViewLifecycleOwner().getLifecycle()) {
                 @Override
                 public void run() {
@@ -293,11 +303,8 @@ public class LocationSearchFragment extends WindowColorFragment {
                                 @Override
                                 public void run() {
                                     // Go back to where we started
-                                    NavController navController = Navigation.findNavController(binding.getRoot());
                                     if (result != null) {
-                                        navController.getPreviousBackStackEntry()
-                                                .getSavedStateHandle()
-                                                .set(Constants.KEY_DATA, JSONParser.serializer(result, LocationData.class));
+                                        savedStateHandle.set(Constants.KEY_DATA, JSONParser.serializer(result, LocationData.class));
                                     }
                                     navController.navigateUp();
                                 }
