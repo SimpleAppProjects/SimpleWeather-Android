@@ -155,14 +155,13 @@ public class MainActivity extends WearableListenerActivity implements MenuItem.O
                         xTotalOffset += delta * 1.5f;
                     }
 
-                    if (!pager.isFakeDragging())
-                        pager.beginFakeDrag();
-
-                    pager.fakeDragBy(xTotalOffset);
-                    if (Math.abs(xTotalOffset) >= pager.getMeasuredWidth()) {
-                        timer.onFinish();
-                    } else {
-                        timer.start();
+                    if (pager.isFakeDragging() || pager.beginFakeDrag()) {
+                        pager.fakeDragBy(xTotalOffset);
+                        if (Math.abs(xTotalOffset) >= pager.getMeasuredWidth()) {
+                            timer.onFinish();
+                        } else {
+                            timer.start();
+                        }
                     }
 
                     return true;
