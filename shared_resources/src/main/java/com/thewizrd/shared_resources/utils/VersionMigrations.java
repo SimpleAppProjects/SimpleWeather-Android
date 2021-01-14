@@ -125,7 +125,7 @@ class VersionMigrations {
                 }
             }
 
-            if (Settings.getVersionCode() < 294310500) {
+            if (Settings.getVersionCode() < 294320000) {
                 // Update location keys
                 // NWS key is different now
                 if (Settings.IS_PHONE) {
