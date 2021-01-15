@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="@drawable/widget_background"
     android:backgroundTint="#40121212"
-    android:padding="@dimen/widget_margin"
     tools:layout_height="144dp"
     tools:layout_width="144dp">
 

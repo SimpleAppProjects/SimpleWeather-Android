@@ -29,7 +29,7 @@
             android:paddingEnd="8dp"
             android:scaleType="fitCenter"
             android:tint="@android:color/white"
-            tools:srcCompat="@drawable/day_sunny" />
+            tools:srcCompat="@drawable/wi_day_sunny" />
 
         <ImageView
             android:id="@+id/condition_temp"
@@ -41,7 +41,7 @@
             android:paddingStart="8dp"
             android:scaleType="fitCenter"
             android:tint="@android:color/white"
-            tools:srcCompat="@drawable/na" />
+            tools:srcCompat="@drawable/wi_na" />
 
     </LinearLayout>
 

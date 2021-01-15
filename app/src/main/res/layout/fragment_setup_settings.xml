@@ -8,35 +8,31 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
-        tools:context=".setup.SetupActivity">
+        tools:context=".setup.SetupActivity"
+        tools:background="@color/colorPrimaryBackground">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@null">
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/main_logo"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
+                android:adjustViewBounds="true"
                 android:gravity="bottom|center_horizontal"
-                android:text="@string/materialicon_settings"
-                android:textColor="@android:color/white"
-                android:textSize="72sp"
-                app:autoSizeMaxTextSize="72sp"
-                app:autoSizeMinTextSize="32sp"
-                app:autoSizeTextType="uniform"
-                app:fontFamily="@font/materialicons_regular"
+                android:paddingTop="75dp"
+                app:srcCompat="@drawable/ic_settings_black_24dp"
+                app:tint="@android:color/white"
                 app:layout_constraintBottom_toTopOf="@+id/welcome_subtext"
+                app:layout_constraintWidth_max="75dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHeight_max="150dp"
-                app:layout_constraintHeight_min="100dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="1.0"
-                tools:fontFamily="@font/materialicons_regular" />
+                app:layout_constraintVertical_bias="1.0" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/welcome_subtext"

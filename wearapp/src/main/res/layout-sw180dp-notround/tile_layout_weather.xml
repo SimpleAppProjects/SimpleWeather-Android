@@ -29,7 +29,7 @@
             android:paddingEnd="8dp"
             android:scaleType="fitCenter"
             android:tint="@android:color/white"
-            tools:srcCompat="@drawable/day_sunny" />
+            tools:srcCompat="@drawable/wi_day_sunny" />
 
         <ImageView
             android:id="@+id/condition_temp"
@@ -41,7 +41,7 @@
             android:paddingStart="8dp"
             android:scaleType="fitCenter"
             android:tint="@android:color/white"
-            tools:srcCompat="@drawable/na" />
+            tools:srcCompat="@drawable/wi_na" />
 
     </LinearLayout>
 
@@ -70,7 +70,7 @@
                 android:layout_height="24dp"
                 android:layout_gravity="end"
                 android:padding="2dp"
-                android:src="@drawable/cloudy"
+                android:src="@drawable/wi_cloudy"
                 android:tint="@color/colorPrimaryLight" />
 
             <TextView
@@ -102,7 +102,7 @@
                 android:layout_height="24dp"
                 android:layout_gravity="end"
                 android:padding="2dp"
-                android:src="@drawable/direction_up"
+                android:src="@drawable/wi_direction_up"
                 android:tint="@color/colorPrimaryLight" />
 
             <TextView

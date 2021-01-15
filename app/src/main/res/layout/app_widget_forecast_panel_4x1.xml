@@ -45,7 +45,7 @@
             android:layout_margin="4dp"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
-            android:src="@drawable/day_sunny_overcast" />
+            android:src="@drawable/wi_day_sunny_overcast" />
 
         <TextView
             android:id="@+id/spacer_middle"

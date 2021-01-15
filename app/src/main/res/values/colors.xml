@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- this is needed as preference_category_material layout uses this color as the text color -->
-    <color name="preference_fallback_accent_color" tools:override="true">@color/colorPrimary
-    </color>
+    <color name="preference_fallback_accent_color" tools:override="true">@color/colorPrimary</color>
 
     <color name="design_snackbar_background_color" tools:override="true">#121212</color>
+
+    <!-- Notification -->
+    <color name="not_icon_tint">@android:color/black</color>
+    <color name="not_secondary_text_color">#8a000000</color>
 
     <color name="sun_color">#FFFFA500</color>
     <color name="beaufort_color">#FF800080</color>

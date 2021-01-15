@@ -88,21 +88,17 @@
                     app:autoSizeMinTextSize="2dp"
                     tools:text="1hr ago" />
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <CheckBox
                     android:id="@+id/expand_icon"
-                    style="@style/MaterialIcon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:background="@android:color/transparent"
-                    android:paddingEnd="24dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="24dp"
                     android:paddingStart="8dp"
-                    android:text="@string/materialicon_expand_more"
-                    android:textColor="@android:color/white"
-                    app:fontFamily="@font/materialicons_regular"
-                    tools:fontFamily="@font/materialicons_regular" />
+                    android:paddingLeft="8dp"
+                    android:paddingEnd="24dp"
+                    android:paddingRight="24dp"
+                    android:button="@drawable/expand_toggle"
+                    android:buttonTint="@android:color/white" />
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>

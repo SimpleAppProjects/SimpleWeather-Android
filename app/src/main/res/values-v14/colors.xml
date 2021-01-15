@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Notification -->
-    <color name="not_icon_tint">@android:color/white</color>
-    <color name="not_secondary_text_color">#bebebe</color>
-</resources>

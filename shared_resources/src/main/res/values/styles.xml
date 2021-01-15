@@ -1,11 +1,5 @@
 <resources>
 
-    <style name="MaterialIcon">
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:textSize">24sp</item>
-        <item name="fontFamily">@font/materialicons_regular</item>
-    </style>
-
     <style name="ShadowText">
         <item name="android:shadowColor">@color/colorTextShadow</item>
         <item name="android:shadowDx">1</item>
@@ -18,6 +12,18 @@
         <item name="android:shadowDx">1</item>
         <item name="android:shadowDy">1</item>
         <item name="android:shadowRadius">10</item>
+    </style>
+
+    <style name="Widget.MaterialComponents.Button.IconButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:minWidth">0dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetRight">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconPadding">0dp</item>
+        <item name="iconTint">@color/mtrl_btn_text_color_selector</item>
+        <item name="rippleColor">?colorOnPrimary</item>
     </style>
 
 </resources>

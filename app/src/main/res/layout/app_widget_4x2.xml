@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:layout_height="180dp"
-    tools:layout_width="match_parent">
+    tools:layout_width="match_parent"
+    tools:targetApi="JELLY_BEAN_MR1">
 
     <ImageView
         android:id="@+id/widgetBackground"
@@ -32,10 +33,9 @@
         android:layout_gravity="center_vertical"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:alpha="0.7"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
         android:src="@drawable/ic_settings_black_24dp"
         android:tint="@android:color/white" />
 
@@ -57,14 +57,14 @@
                 android:id="@+id/location_name"
                 style="@style/ShadowText"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
                 android:shadowColor="#000000"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
@@ -75,7 +75,6 @@
 
         <TextView
             android:id="@+id/condition_weather"
-            style="@style/ShadowText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -89,6 +88,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
             android:textSize="14sp"
+            style="@style/ShadowText"
             tools:text="Mostly Sunny. Refreshingly cool." />
 
         <LinearLayout
@@ -104,15 +104,16 @@
                 android:layout_gravity="center_vertical"
                 android:gravity="center_vertical"
                 android:layout_marginStart="4dp"
-                android:layout_marginLeft="4dp"
                 android:orientation="vertical">
 
-                <TextView
+                <TextClock
                     android:id="@+id/clock_panel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:baselineAligned="true"
                     android:fontFamily="sans-serif-light"
+                    android:format12Hour="@string/clock_12_hours_ampm_format"
+                    android:format24Hour="@string/clock_24_hours_format"
                     android:layout_gravity="start"
                     android:gravity="start"
                     android:maxLines="1"
@@ -120,21 +121,23 @@
                     android:shadowDy="2.0"
                     android:shadowRadius="2.75"
                     android:textColor="@android:color/white"
-                    android:textSize="@dimen/clock_text_size"
-                    tools:text="4:00 PM" />
+                    android:textSize="@dimen/clock_text_size" />
 
-                <TextView
+                <TextClock
                     android:id="@+id/date_panel"
-                    style="@style/ShadowText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
+                    android:format12Hour="@string/widget_long_date_format"
+                    android:format24Hour="@string/widget_long_date_format"
                     android:gravity="bottom"
+                    android:maxLines="1"
                     android:shadowColor="#DD000000"
+                    android:shadowDy="2.0"
+                    android:shadowRadius="2.75"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="@android:color/white"
-                    android:textSize="@dimen/date_text_size"
-                    tools:text="Sun, Oct 08" />
+                    android:textSize="@dimen/date_text_size" />
 
             </LinearLayout>
 
@@ -148,7 +151,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
-                    android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentBottom="true"
                     android:layout_gravity="center_vertical"
@@ -175,10 +177,8 @@
                     android:fontFamily="sans-serif-light"
                     android:gravity="center_vertical"
                     android:layout_marginStart="2dp"
-                    android:layout_marginLeft="2dp"
                     android:layout_marginBottom="2dp"
                     android:layout_toEndOf="@id/weather_icon"
-                    android:layout_toRightOf="@id/weather_icon"
                     android:shadowColor="#000000"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="@android:color/white"

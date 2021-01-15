@@ -92,7 +92,7 @@
                 android:layout_toRightOf="@id/condition_hi"
                 android:layout_alignTop="@id/condition_hi"
                 android:layout_alignBottom="@id/condition_hi"
-                android:src="@drawable/direction_up"
+                android:src="@drawable/wi_direction_up"
                 android:tint="@color/colorOnSurface" />
 
             <TextView
@@ -133,7 +133,7 @@
                 android:layout_alignTop="@id/condition_hi"
                 android:layout_alignBottom="@id/condition_hi"
                 android:layout_marginTop="2dp"
-                android:src="@drawable/direction_down"
+                android:src="@drawable/wi_direction_down"
                 android:tint="@color/colorOnSurface" />
 
         </RelativeLayout>
@@ -168,7 +168,7 @@
                 android:layout_height="24dp"
                 android:layout_gravity="end"
                 android:padding="2dp"
-                android:src="@drawable/cloudy"
+                android:src="@drawable/wi_cloudy"
                 android:tint="@color/colorOnSurface" />
 
             <TextView
@@ -201,7 +201,7 @@
                 android:layout_height="24dp"
                 android:layout_gravity="end"
                 android:padding="2dp"
-                android:src="@drawable/direction_up"
+                android:src="@drawable/wi_direction_up"
                 android:tint="@color/colorOnSurface" />
 
             <TextView

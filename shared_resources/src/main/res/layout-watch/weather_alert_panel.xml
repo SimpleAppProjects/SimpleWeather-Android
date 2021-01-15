@@ -41,7 +41,8 @@
                     android:adjustViewBounds="true"
                     android:paddingEnd="4dp"
                     android:paddingStart="4dp"
-                    android:src="@{ContextCompat.getDrawable(context, WeatherUtils.getDrawableFromAlertType(viewModel.alertType))}" />
+                    android:src="@{ContextCompat.getDrawable(context, WeatherUtils.getDrawableFromAlertType(viewModel.alertType))}"
+                    tools:srcCompat="@drawable/wi_snowflake_cold" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/alert_title"
@@ -63,20 +64,17 @@
                     app:autoSizeTextType="uniform"
                     tools:text="Winter Weather Advisory" />
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/expand_icon"
-                    style="@style/MaterialIcon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:background="@android:color/transparent"
                     android:paddingEnd="4dp"
                     android:paddingStart="4dp"
-                    android:text="@string/materialicon_expand_more"
-                    android:textColor="@android:color/white"
-                    android:textSize="16sp"
-                    app:fontFamily="@font/materialicons_regular"
-                    tools:fontFamily="@font/materialicons_regular" />
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:button="@drawable/expand_toggle"
+                    app:buttonTint="@android:color/white" />
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>

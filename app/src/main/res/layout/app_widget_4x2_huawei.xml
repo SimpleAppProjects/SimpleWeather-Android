@@ -32,13 +32,15 @@
             android:gravity="end"
             android:orientation="vertical">
 
-            <TextView
+            <TextClock
                 android:id="@+id/clock_panel"
                 style="@style/ShadowTextHeavy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="end"
-                android:fontFamily="sans-serif-light"
+                android:fontFamily="sans-serif-thin"
+                android:format12Hour="@string/clock_12_hours_format"
+                android:format24Hour="@string/clock_24_hours_format"
                 android:maxLines="1"
                 android:shadowColor="#DD000000"
                 android:textColor="@android:color/white"
@@ -46,17 +48,19 @@
                 tools:text="11:00"
                 tools:visibility="visible" />
 
-            <TextView
+            <TextClock
                 android:id="@+id/date_panel"
                 style="@style/ShadowText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="end"
                 android:fontFamily="sans-serif-light"
+                android:format12Hour="@string/widget_4x1_date_format"
+                android:format24Hour="@string/widget_4x1_date_format"
                 android:shadowColor="#DD000000"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 tools:text="Sun, Oct 08" />
 
             <TextView
@@ -71,7 +75,7 @@
                 android:shadowColor="#000000"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 tools:text="New York, NY"
                 tools:visibility="visible" />
 
@@ -115,7 +119,7 @@
                     android:maxWidth="48dp"
                     android:scaleType="fitCenter"
                     tools:tint="@android:color/white"
-                    tools:src="@drawable/day_sunny_overcast" />
+                    tools:src="@drawable/wi_day_sunny_overcast" />
 
                 <TextView
                     android:id="@+id/condition_temp"
@@ -141,9 +145,8 @@
                     android:shadowColor="#000000"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="@android:color/white"
-                    android:textSize="16sp"
-                    tools:text="70° | 60°"
-                    tools:visibility="visible" />
+                    android:textSize="15sp"
+                    tools:text="70° | 60°" />
 
             </LinearLayout>
 

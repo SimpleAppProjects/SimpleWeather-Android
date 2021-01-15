@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/search_view_container"
@@ -23,27 +22,22 @@
             android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingLeft="8dp"
             android:paddingStart="8dp">
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/search_magnifying_glass"
-                style="@style/MaterialIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:importantForAccessibility="no"
                 android:padding="4dp"
-                android:text="@string/materialicon_search"
-                android:textColor="@color/invButtonColorText"
-                app:fontFamily="@font/materialicons_regular"
-                tools:fontFamily="@font/materialicons_regular" />
+                app:srcCompat="@drawable/ic_search_white_24dp"
+                app:tint="@color/invButtonColorText" />
 
             <TextView
                 android:id="@+id/search_box_start_search"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="22dp"
-                android:layout_marginLeft="22dp"
                 android:layout_weight="1"
                 android:fontFamily="sans-serif"
                 android:gravity="center_vertical"

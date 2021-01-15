@@ -43,7 +43,7 @@
             android:layout_gravity="bottom|center_horizontal"
             android:adjustViewBounds="true"
             android:maxWidth="36dp"
-            tools:src="@drawable/day_sunny" />
+            tools:src="@drawable/wi_day_sunny" />
 
         <TextView
             android:id="@+id/condition_temp"

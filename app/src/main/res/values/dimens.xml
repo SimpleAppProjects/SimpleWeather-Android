@@ -16,6 +16,7 @@
     <dimen name="design_bottom_navigation_height" tools:override="true">60dp</dimen>
     <!-- Preferences -->
     <dimen name="preference_category_padding_start" tools:override="true">56dp</dimen>
+    <dimen name="preference_no_icon_padding_start" tools:override="true">72dp</dimen>
     <dimen name="preference_seekbar_padding_end" tools:override="true">22dp</dimen>
     <dimen name="preference_seekbar_padding_start" tools:override="true">0dp</dimen>
     <dimen name="preference_seekbar_value_width" tools:override="true">36dp</dimen>
@@ -33,12 +34,6 @@
     <dimen name="location_panel_minwidth">480dp</dimen>
     <dimen name="delete_icon_margin">12dp</dimen>
 
-    <!--
-Refer to App Widget Documentation for margin information
-http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
-    -->
-    <dimen name="widget_margin">8dp</dimen>
-
     <!-- Widget -->
     <dimen name="clock_text_size">36sp</dimen>
     <dimen name="date_text_size">16sp</dimen>
@@ -46,6 +41,9 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <!-- Notification -->
     <dimen name="not_horiz_padding">4dp</dimen>
     <dimen name="not_vert_padding">4dp</dimen>
-    <dimen name="not_layout_height">64dp</dimen>
+    <dimen name="not_layout_height">72dp</dimen>
+    <dimen name="not_weather_icon_size">48dp</dimen>
+    <dimen name="not_weather_icon_marginStart">4dp</dimen>
+    <dimen name="not_primary_textSize">14sp</dimen>
 
 </resources>

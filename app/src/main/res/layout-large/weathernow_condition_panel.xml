@@ -47,16 +47,13 @@
                 app:invisibleIfEmpty="@{alertsView.alerts}"
                 tools:visibility="visible">
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/MaterialIcon"
+                <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:padding="4dp"
-                    android:text="@string/materialicon_error"
-                    android:textColor="@android:color/white"
-                    app:fontFamily="@font/materialicons_regular"
-                    tools:fontFamily="@font/materialicons_regular" />
+                    app:srcCompat="@drawable/ic_error_white"
+                    app:tint="@android:color/white" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="0dp"
@@ -64,20 +61,16 @@
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
                     android:paddingStart="4dp"
-                    android:paddingLeft="4dp"
                     android:text="@string/title_fragment_alerts"
                     android:textColor="@android:color/white" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/MaterialIcon"
+                <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:padding="4dp"
-                    android:text="@string/materialicon_chevron_right"
-                    android:textColor="@android:color/white"
-                    app:fontFamily="@font/materialicons_regular"
-                    tools:fontFamily="@font/materialicons_regular" />
+                    app:srcCompat="@drawable/ic_chevron_right"
+                    app:tint="@android:color/white" />
 
             </LinearLayout>
 

@@ -58,19 +58,16 @@
             app:layout_constraintTop_toBottomOf="@id/location_name"
             tools:text="USA" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/pin"
-            style="@style/MaterialIcon"
             android:layout_width="wrap_content"
             android:layout_height="24dp"
-            android:text="@string/materialicon_place"
-            android:textColor="@color/colorPrimary"
+            app:srcCompat="@drawable/ic_place_white_24dp"
+            app:tint="@color/colorPrimary"
             android:visibility="@{StringUtils.isNullOrWhitespace(viewModel.locationQuery) &amp;&amp; StringUtils.isNullOrWhitespace(viewModel.locationCountry) ? View.GONE : View.VISIBLE}"
-            app:fontFamily="@font/materialicons_regular"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:fontFamily="@font/materialicons_regular" />
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

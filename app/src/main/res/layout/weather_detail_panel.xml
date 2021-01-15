@@ -25,22 +25,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/forecast_icon"
                     android:layout_width="72dp"
                     android:layout_height="0dp"
                     android:gravity="center"
-                    android:includeFontPadding="false"
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp"
                     android:scrollbars="none"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
-                    android:textColor="@color/colorTextPrimary"
                     android:textSize="36sp"
-                    app:autoSizeMaxTextSize="36sp"
-                    app:autoSizeMinTextSize="6sp"
-                    app:autoSizeTextType="uniform"
-                    app:fontFamily="@font/weathericons"
+                    app:tint="@color/colorTextPrimary"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/forecast_date"
                     app:layout_constraintHorizontal_bias="0.0"
@@ -48,8 +42,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_weight="1"
-                    tools:fontFamily="@font/weathericons"
-                    tools:text="@string/wi_day_rain" />
+                    tools:srcCompat="@drawable/day_rain" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/forecast_date"

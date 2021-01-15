@@ -89,7 +89,7 @@
                     android:layout_alignBottom="@id/condition_hi"
                     android:layout_toEndOf="@id/condition_hi"
                     android:layout_toRightOf="@id/condition_hi"
-                    android:src="@drawable/direction_up"
+                    android:src="@drawable/wi_direction_up"
                     android:tint="@color/not_secondary_text_color"
                     android:tintMode="src_in" />
 
@@ -127,7 +127,7 @@
                     android:layout_alignBottom="@id/condition_lo"
                     android:layout_toEndOf="@id/condition_lo"
                     android:layout_toRightOf="@id/condition_lo"
-                    android:src="@drawable/direction_down"
+                    android:src="@drawable/wi_direction_down"
                     android:tint="@color/not_secondary_text_color"
                     android:tintMode="src_in" />
 
@@ -156,7 +156,7 @@
                     android:layout_height="24dp"
                     android:layout_gravity="end"
                     android:padding="2dp"
-                    android:src="@drawable/cloudy"
+                    android:src="@drawable/wi_cloudy"
                     android:tint="@color/not_icon_tint" />
 
                 <TextView
@@ -186,7 +186,7 @@
                     android:layout_height="24dp"
                     android:layout_gravity="end"
                     android:padding="2dp"
-                    android:src="@drawable/direction_up"
+                    android:src="@drawable/wi_direction_up"
                     android:tint="@color/not_icon_tint" />
 
                 <TextView
@@ -279,7 +279,7 @@
                 android:layout_height="24dp"
                 android:paddingEnd="4dp"
                 android:paddingRight="4dp"
-                android:src="@drawable/day_rain"
+                android:src="@drawable/wi_day_rain"
                 android:tint="@color/not_icon_tint" />
 
             <TextView
@@ -314,7 +314,7 @@
                 android:layout_height="24dp"
                 android:paddingEnd="4dp"
                 android:paddingRight="4dp"
-                android:src="@drawable/sprinkle"
+                android:src="@drawable/wi_sprinkle"
                 android:tint="@color/not_icon_tint" />
 
             <TextView
@@ -349,7 +349,7 @@
                 android:layout_height="24dp"
                 android:paddingEnd="4dp"
                 android:paddingRight="4dp"
-                android:src="@drawable/snowflake_cold"
+                android:src="@drawable/wi_snowflake_cold"
                 android:tint="@color/not_icon_tint" />
 
             <TextView

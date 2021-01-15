@@ -6,6 +6,10 @@
 
     <color name="design_snackbar_background_color" tools:override="true">#242424</color>
 
+    <!-- Notification -->
+    <color name="not_icon_tint">@android:color/white</color>
+    <color name="not_secondary_text_color">#b2ffffff</color>
+
     <color name="sun_color">#FFFFFF00</color>
     <color name="beaufort_color">#FF1E90FF</color>
 

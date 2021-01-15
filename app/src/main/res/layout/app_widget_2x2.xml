@@ -34,32 +34,37 @@
         android:orientation="vertical"
         android:padding="4dp">
 
-        <TextView
+        <TextClock
             android:id="@+id/clock_panel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:baselineAligned="true"
             android:fontFamily="sans-serif-light"
+            android:format12Hour="@string/clock_12_hours_ampm_format"
+            android:format24Hour="@string/clock_24_hours_format"
             android:gravity="center_horizontal"
             android:maxLines="1"
             android:shadowColor="#DD000000"
             android:shadowDy="2.0"
             android:shadowRadius="2.75"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/clock_text_size"
-            tools:text="4:00 PM" />
+            android:textSize="@dimen/clock_text_size" />
 
-        <TextView
+        <TextClock
             android:id="@+id/date_panel"
             style="@style/ShadowText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:format12Hour="@string/widget_long_date_format"
+            android:format24Hour="@string/widget_long_date_format"
             android:gravity="center_horizontal"
+            android:maxLines="1"
             android:shadowColor="#DD000000"
+            android:shadowDy="2.0"
+            android:shadowRadius="2.75"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/date_text_size"
-            tools:text="Sun, Oct 08" />
+            android:textSize="@dimen/date_text_size" />
 
     </LinearLayout>
 
