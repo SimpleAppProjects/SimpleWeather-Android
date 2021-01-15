@@ -302,8 +302,6 @@ public class LocationsFragment extends ToolbarFragment
                 try {
                     Navigation.findNavController(binding.getRoot()).navigate(args);
                 } catch (IllegalArgumentException ex) {
-                    Logger.writeLine(Log.ERROR, ex);
-
                     Bundle props = new Bundle();
                     props.putString("method", "onRecyclerClickListener.onClick");
                     props.putBoolean("isAlive", isAlive());
@@ -311,7 +309,9 @@ public class LocationsFragment extends ToolbarFragment
                     props.putBoolean("isDetached", isDetached());
                     props.putBoolean("isResumed", isResumed());
                     props.putBoolean("isRemoving", isRemoving());
-                    AnalyticsLogger.logEvent(String.format("%s: navigation failed", TAG), props);
+                    AnalyticsLogger.logEvent(TAG + ": navigation failed", props);
+
+                    Logger.writeLine(Log.ERROR, ex);
                 }
             }
         }

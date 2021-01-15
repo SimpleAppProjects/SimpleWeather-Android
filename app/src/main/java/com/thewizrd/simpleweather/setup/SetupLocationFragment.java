@@ -479,8 +479,6 @@ public class SetupLocationFragment extends CustomFragment {
                                                 Navigation.findNavController(binding.getRoot())
                                                         .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment());
                                             } catch (IllegalStateException ex) {
-                                                Logger.writeLine(Log.ERROR, ex);
-
                                                 Bundle args = new Bundle();
                                                 args.putString("method", "fetchGeoLocation");
                                                 args.putBoolean("isActive", isActive());
@@ -489,7 +487,9 @@ public class SetupLocationFragment extends CustomFragment {
                                                 args.putBoolean("isDetached", isDetached());
                                                 args.putBoolean("isResumed", isResumed());
                                                 args.putBoolean("isRemoving", isRemoving());
-                                                AnalyticsLogger.logEvent(String.format("%s: navigation failed", TAG), args);
+                                                AnalyticsLogger.logEvent(TAG + ": navigation failed", args);
+
+                                                Logger.writeLine(Log.ERROR, ex);
                                             }
                                         } else {
                                             enableControls(true);

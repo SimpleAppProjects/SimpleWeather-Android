@@ -211,8 +211,6 @@ public class SetupFragment extends CustomFragment {
                 try {
                     Navigation.findNavController(v).navigate(SetupFragmentDirections.actionSetupFragmentToLocationSearchFragment());
                 } catch (IllegalArgumentException ex) {
-                    Logger.writeLine(Log.ERROR, ex);
-
                     Bundle props = new Bundle();
                     props.putString("method", "searchButton.setOnClickListener");
                     props.putBoolean("isAlive", isAlive());
@@ -220,7 +218,9 @@ public class SetupFragment extends CustomFragment {
                     props.putBoolean("isDetached", isDetached());
                     props.putBoolean("isResumed", isResumed());
                     props.putBoolean("isRemoving", isRemoving());
-                    AnalyticsLogger.logEvent(String.format("%s: navigation failed", TAG), props);
+                    AnalyticsLogger.logEvent(TAG + ": navigation failed", props);
+
+                    Logger.writeLine(Log.ERROR, ex);
                 }
             }
         });
