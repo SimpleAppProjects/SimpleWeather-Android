@@ -14,7 +14,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.multidex.MultiDex;
 import androidx.work.Configuration;
 
 import com.google.android.play.core.splitcompat.SplitCompat;
@@ -165,7 +164,6 @@ public class App extends Application implements ApplicationLib, Application.Acti
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        MultiDex.install(this);
         SplitCompat.install(this);
     }
 

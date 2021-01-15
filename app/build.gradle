@@ -10,13 +10,12 @@ android {
         testApplicationId "com.thewizrd.simpleweather.test"
         // Specifies the fully-qualified class name of the test instrumentation runner.
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 29
         // NOTE: Version Code Format (TargetSDK, Version Name, Build Number, Variant Code (Android: 00, WearOS: 01)
         versionCode 294320200
         versionName "4.3.2"
 
-        multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
 
         // Read the API key from ./secure.properties into R.string.maps_api_key
@@ -101,8 +100,6 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment:2.3.2'
     implementation 'androidx.navigation:navigation-ui:2.3.2'
 
-    implementation 'androidx.multidex:multidex:2.0.1'
-
     implementation 'com.google.android.gms:play-services-base:17.5.0'
     implementation 'com.google.android.gms:play-services-location:17.1.0'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
@@ -130,7 +127,7 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.7.1'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.google.guava:guava:30.1-android'
-    implementation 'com.ibm.icu:icu4j:62.1' // Keep @ 62.1 - 63.1 requires Java 7 (API 21+)
+    implementation 'com.ibm.icu:icu4j:68.2'
     implementation "com.github.skydoves:colorpickerview:2.2.1"
 
     implementation("com.vimeo.stag:stag-library:2.6.0") {

@@ -104,8 +104,6 @@ dependencies {
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
-    implementation 'androidx.multidex:multidex:2.0.1'
-
     implementation 'androidx.navigation:navigation-fragment:2.3.2'
     implementation 'androidx.navigation:navigation-ui:2.3.2'
 
@@ -126,7 +124,7 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.7.1'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.google.guava:guava:30.1-android'
-    implementation 'com.ibm.icu:icu4j:62.1' // Keep @ 62.1 - 63.1 requires Java 7 (API 21+)
+    implementation 'com.ibm.icu:icu4j:68.2'
 
     implementation("com.vimeo.stag:stag-library:2.6.0") {
         exclude group: "org.jetbrains", module: "annotations-java5"
