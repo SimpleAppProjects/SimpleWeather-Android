@@ -89,17 +89,15 @@ public class MainActivity extends UserLocaleActivity
             }
         });
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            binding.bottomNavBar.setOutlineProvider(new ViewOutlineProvider() {
-                @Override
-                public void getOutline(View view, Outline outline) {
-                    outline.setRect(view.getPaddingLeft(),
-                            0,
-                            view.getWidth() - view.getPaddingRight(),
-                            view.getHeight());
-                }
-            });
-        }
+        binding.bottomNavBar.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, Outline outline) {
+                outline.setRect(view.getPaddingLeft(),
+                        0,
+                        view.getWidth() - view.getPaddingRight(),
+                        view.getHeight());
+            }
+        });
 
         // Back stack listener
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
@@ -132,11 +130,9 @@ public class MainActivity extends UserLocaleActivity
             }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            appUpdateManager = InAppUpdateManager.create(getApplicationContext());
-        }
+        appUpdateManager = InAppUpdateManager.create(getApplicationContext());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && FeatureSettings.isUpdateAvailable()) {
+        if (FeatureSettings.isUpdateAvailable()) {
             // Update is available; double check if mandatory
             appUpdateManager.shouldStartImmediateUpdateFlow()
                     .addOnCompleteListener(this, new OnCompleteListener<Boolean>() {
@@ -172,7 +168,7 @@ public class MainActivity extends UserLocaleActivity
     protected void onStart() {
         super.onStart();
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP || !FeatureSettings.isUpdateAvailable()) {
+        if (!FeatureSettings.isUpdateAvailable()) {
             initializeNavController();
         }
 
@@ -279,7 +275,7 @@ public class MainActivity extends UserLocaleActivity
 
         // Checks that the update is not stalled during 'onResume()'.
         // However, you should execute this check at all entry points into the app.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && FeatureSettings.isUpdateAvailable()) {
+        if (FeatureSettings.isUpdateAvailable()) {
             appUpdateManager.resumeUpdateIfStarted(this, INSTALL_REQUESTCODE);
         }
 
@@ -363,7 +359,7 @@ public class MainActivity extends UserLocaleActivity
             color = Colors.BLACK;
         }
 
-        ActivityUtils.setTransparentWindow(getWindow(), color, Colors.TRANSPARENT, color, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+        ActivityUtils.setTransparentWindow(getWindow(), color, Colors.TRANSPARENT, color);
         binding.getRoot().setBackgroundColor(color);
         binding.bottomNavBar.setBackgroundColor(color);
     }

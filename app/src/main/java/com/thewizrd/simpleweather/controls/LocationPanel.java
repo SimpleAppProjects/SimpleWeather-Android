@@ -5,7 +5,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -69,17 +68,11 @@ public class LocationPanel extends MaterialCardView {
         colorDrawable = new ColorDrawable(ContextCompat.getColor(context, R.color.colorSurface));
         overlayDrawable = ContextCompat.getDrawable(context, R.drawable.background_overlay);
 
-        // Remove extra (compat) padding on pre-Lollipop devices
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            setPreventCornerOverlap(false);
-        }
         setCardElevation(0f);
         setMaxCardElevation(0f);
         setStrokeWidth((int) ActivityUtils.dpToPx(context, 1f));
         setStrokeColor(AppCompatResources.getColorStateList(context, FeatureSettings.isLocationPanelImageEnabled() ? R.color.location_panel_card_stroke_imageon : R.color.location_panel_card_stroke_imageoff));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setStateListAnimator(null);
-        }
+        setStateListAnimator(null);
         setCheckedIconTint(FeatureSettings.isLocationPanelImageEnabled() ? ColorStateList.valueOf(Colors.WHITE) : ActivityUtils.getColorStateList(context, R.attr.colorPrimary));
         setRippleColorResource(FeatureSettings.isLocationPanelImageEnabled() ? R.color.location_panel_ripple_imageon : R.color.location_panel_ripple_imageoff);
         setCardForegroundColor(AppCompatResources.getColorStateList(context, FeatureSettings.isLocationPanelImageEnabled() ? R.color.location_panel_foreground_imageon : R.color.location_panel_foreground_imageoff));

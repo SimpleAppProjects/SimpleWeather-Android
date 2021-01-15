@@ -2,7 +2,6 @@ package com.thewizrd.simpleweather.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -17,7 +16,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewGroupCompat;
@@ -465,11 +463,6 @@ public class LocationSearchFragment extends WindowColorFragment {
                 return false;
             }
         });
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            searchBarBinding.searchProgressBar.setIndeterminateDrawable(
-                    ContextCompat.getDrawable(getAppCompatActivity(), R.drawable.progressring));
-        }
 
         /*
            Capture touch events on RecyclerView

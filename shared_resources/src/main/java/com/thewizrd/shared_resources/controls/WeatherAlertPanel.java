@@ -3,16 +3,13 @@ package com.thewizrd.shared_resources.controls;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
-import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.databinding.WeatherAlertPanelBinding;
 
 public class WeatherAlertPanel extends RelativeLayout {
     private WeatherAlertPanelBinding binding;
-    private boolean expanded = false;
 
     public WeatherAlertPanel(Context context) {
         super(context);
@@ -36,16 +33,11 @@ public class WeatherAlertPanel extends RelativeLayout {
         this.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         binding.bodyCard.setVisibility(GONE);
-        binding.headerCard.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                expanded = !expanded;
-
-                binding.expandIcon.setText(expanded ?
-                        R.string.materialicon_expand_less :
-                        R.string.materialicon_expand_more);
-                binding.bodyCard.setVisibility(expanded ? VISIBLE : GONE);
-            }
+        binding.expandIcon.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            binding.bodyCard.setVisibility(isChecked ? VISIBLE : GONE);
+        });
+        binding.headerCard.setOnClickListener(v -> {
+            binding.expandIcon.setChecked(!binding.expandIcon.isChecked());
         });
     }
 
@@ -53,9 +45,7 @@ public class WeatherAlertPanel extends RelativeLayout {
         binding.setViewModel(model);
 
         // Reset expanded state
-        expanded = false;
-        binding.expandIcon.setText(R.string.materialicon_expand_more);
-        binding.bodyCard.setVisibility(GONE);
+        binding.expandIcon.setChecked(false);
 
         binding.executePendingBindings();
     }

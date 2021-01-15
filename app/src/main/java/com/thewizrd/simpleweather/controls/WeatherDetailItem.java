@@ -57,7 +57,7 @@ public class WeatherDetailItem extends ConstraintLayout {
         binding.headerCard.setOnClickListener(onClickListener);
     }
 
-    private View.OnClickListener onClickListener = new OnClickListener() {
+    private final View.OnClickListener onClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             expanded = !expanded;

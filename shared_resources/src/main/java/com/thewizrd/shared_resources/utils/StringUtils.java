@@ -1,6 +1,5 @@
 package com.thewizrd.shared_resources.utils;
 
-import android.os.Build;
 import android.text.TextUtils;
 
 import java.util.regex.Pattern;
@@ -93,11 +92,7 @@ public class StringUtils {
     }
 
     public static String lineSeparator() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            return System.lineSeparator();
-        } else {
-            return System.getProperty("line.separator");
-        }
+        return System.lineSeparator();
     }
 
     public static String unescapeUnicode(String s) {

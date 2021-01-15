@@ -2,7 +2,6 @@ package com.thewizrd.simpleweather.setup;
 
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,9 +88,6 @@ public class SetupActivity extends UserLocaleActivity {
                 return insets;
             }
         });
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-            binding.getRoot().setFitsSystemWindows(true);
 
         int color = ContextCompat.getColor(this, R.color.colorPrimaryBackground);
         ActivityUtils.setTransparentWindow(getWindow(), color);

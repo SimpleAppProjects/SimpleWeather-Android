@@ -1,7 +1,6 @@
 package com.thewizrd.simpleweather.preferences;
 
 import android.content.SharedPreferences;
-import android.os.Build;
 
 import com.thewizrd.shared_resources.SimpleLibrary;
 
@@ -61,11 +60,7 @@ public class FeatureSettings {
     }
 
     public static boolean isRadarEnabled() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return preferences.getBoolean(KEY_FEATURE_RADAR, true);
-        } else {
-            return false;
-        }
+        return preferences.getBoolean(KEY_FEATURE_RADAR, true);
     }
 
     public static boolean isLocationPanelImageEnabled() {

@@ -3,7 +3,6 @@ package com.thewizrd.simpleweather.main;
 import android.content.Context;
 import android.graphics.Outline;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -153,17 +152,15 @@ public class WeatherListFragment extends ToolbarFragment {
             }
         });
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            binding.locationHeader.setClipToOutline(false);
-            binding.locationHeader.setOutlineProvider(new ViewOutlineProvider() {
-                int elevation = context.getResources().getDimensionPixelSize(R.dimen.appbar_elevation);
+        binding.locationHeader.setClipToOutline(false);
+        binding.locationHeader.setOutlineProvider(new ViewOutlineProvider() {
+            int elevation = context.getResources().getDimensionPixelSize(R.dimen.appbar_elevation);
 
-                @Override
-                public void getOutline(View view, Outline outline) {
-                    outline.setRect(0, view.getHeight() - elevation, view.getWidth(), view.getHeight());
-                }
-            });
-        }
+            @Override
+            public void getOutline(View view, Outline outline) {
+                outline.setRect(0, view.getHeight() - elevation, view.getWidth(), view.getHeight());
+            }
+        });
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the binding.recyclerView
@@ -188,18 +185,16 @@ public class WeatherListFragment extends ToolbarFragment {
     }
 
     private void updateHeaderElevation() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            binding.recyclerView.post(new CheckAliveRunnable(getViewLifecycleOwner().getLifecycle(), new Runnable() {
-                @Override
-                public void run() {
-                    if (binding.recyclerView.computeVerticalScrollOffset() > 0) {
-                        binding.locationHeader.setElevation(ActivityUtils.dpToPx(requireContext(), 4f));
-                    } else {
-                        binding.locationHeader.setElevation(0);
-                    }
+        binding.recyclerView.post(new CheckAliveRunnable(getViewLifecycleOwner().getLifecycle(), new Runnable() {
+            @Override
+            public void run() {
+                if (binding.recyclerView.computeVerticalScrollOffset() > 0) {
+                    binding.locationHeader.setElevation(ActivityUtils.dpToPx(requireContext(), 4f));
+                } else {
+                    binding.locationHeader.setElevation(0);
                 }
-            }));
-        }
+            }
+        }));
     }
 
     @Override

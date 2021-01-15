@@ -35,7 +35,7 @@ public class LaunchActivity extends UserLocaleActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && FeatureSettings.isUpdateAvailable()) {
+        if (FeatureSettings.isUpdateAvailable()) {
             // Update is available; double check if mandatory
             appUpdateManager = InAppUpdateManager.create(getApplicationContext());
 
@@ -65,7 +65,7 @@ public class LaunchActivity extends UserLocaleActivity {
 
         // Checks that the update is not stalled during 'onResume()'.
         // However, you should execute this check at all entry points into the app.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && FeatureSettings.isUpdateAvailable()) {
+        if (FeatureSettings.isUpdateAvailable()) {
             appUpdateManager.resumeUpdateIfStarted(this, INSTALL_REQUESTCODE);
         }
     }

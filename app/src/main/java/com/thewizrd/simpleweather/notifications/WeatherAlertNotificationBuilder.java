@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.SystemClock;
 import android.service.notification.StatusBarNotification;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -90,18 +89,14 @@ public class WeatherAlertNotificationBuilder {
                             .setColor(WeatherUtils.getColorFromAlertSeverity(alert.getSeverity()))
                             .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                mBuilder.setContent(view);
-            } else {
-                mBuilder.setStyle(new NotificationCompat.DecoratedCustomViewStyle())
-                        .setContentTitle(title)
-                        .setContentText(alertVM.getExpireDate());
+            mBuilder.setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                    .setContentTitle(title)
+                    .setContentText(alertVM.getExpireDate());
 
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                    mBuilder.setCustomBigContentView(view);
-                } else {
-                    mBuilder.setCustomContentView(view);
-                }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                mBuilder.setCustomBigContentView(view);
+            } else {
+                mBuilder.setCustomContentView(view);
             }
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
@@ -169,15 +164,8 @@ public class WeatherAlertNotificationBuilder {
             Bitmap iconBmp = AsyncTask.await(new Callable<Bitmap>() {
                 @Override
                 public Bitmap call() {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        return ImageUtils.tintedBitmapFromDrawable(context, R.drawable.ic_error_white,
-                                Colors.BLACK);
-                    } else {
-                        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-                        Bitmap tintedBmp = ImageUtils.tintedBitmapFromDrawable(context, R.drawable.ic_error_white,
-                                Colors.WHITE);
-                        return Bitmap.createScaledBitmap(tintedBmp, (int) (24 * metrics.density), (int) (24 * metrics.density), false);
-                    }
+                    return ImageUtils.tintedBitmapFromDrawable(context, R.drawable.ic_error_white,
+                            Colors.BLACK);
                 }
             });
 

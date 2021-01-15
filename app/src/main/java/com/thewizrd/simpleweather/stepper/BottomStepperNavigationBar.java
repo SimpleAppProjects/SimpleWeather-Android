@@ -17,7 +17,6 @@ import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -148,12 +147,7 @@ public class BottomStepperNavigationBar extends RelativeLayout {
             binding.navStepslayout.removeAllViews();
             for (int i = 0; i < count; i++) {
                 View dot = LayoutInflater.from(getContext()).inflate(R.layout.nav_dot, binding.navStepslayout, false);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    ViewCompat.setBackgroundTintList(dot, mForegroundColor);
-                } else {
-                    Drawable drawable = DrawableCompat.wrap(dot.getBackground());
-                    DrawableCompat.setTintList(drawable, mForegroundColor);
-                }
+                ViewCompat.setBackgroundTintList(dot, mForegroundColor);
                 binding.navStepslayout.addView(dot);
             }
             setSelectedItem(0);

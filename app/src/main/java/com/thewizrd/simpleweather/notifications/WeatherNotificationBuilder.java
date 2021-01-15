@@ -94,10 +94,10 @@ public class WeatherNotificationBuilder {
         if (windModel != null) {
             if (windModel.getIconRotation() != 0) {
                 updateViews.setImageViewBitmap(R.id.weather_windicon,
-                        ImageUtils.rotateBitmap(ImageUtils.bitmapFromDrawable(context, R.drawable.direction_up), windModel.getIconRotation())
+                        ImageUtils.rotateBitmap(ImageUtils.bitmapFromDrawable(context, R.drawable.wi_direction_up), windModel.getIconRotation())
                 );
             } else {
-                updateViews.setImageViewResource(R.id.weather_windicon, R.drawable.direction_up);
+                updateViews.setImageViewResource(R.id.weather_windicon, R.drawable.wi_direction_up);
             }
             String speed = TextUtils.isEmpty(windModel.getValue()) ? "" : windModel.getValue().toString();
             speed = speed.split(",")[0];

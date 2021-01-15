@@ -35,7 +35,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -694,14 +693,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 final String requestedLang = newValue.toString();
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    splitInstallRequest = SplitLocaleInstaller.installLocale(requireActivity(), requestedLang);
-                    return false;
-                } else {
-                    LocaleUtils.setLocaleCode(newValue.toString());
-                    ActivityCompat.recreate(requireActivity());
-                }
-                return true;
+                splitInstallRequest = SplitLocaleInstaller.installLocale(requireActivity(), requestedLang);
+                return false;
             }
         });
 
@@ -710,17 +703,15 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (requestCode == SplitLocaleInstaller.CONFIRMATION_REQUEST_CODE) {
-                // Handle the user's decision. For example, if the user selects "Cancel",
-                // you may want to disable certain functionality that depends on the module.
-                if (resultCode == Activity.RESULT_CANCELED) {
-                    if (splitInstallRequest != null) {
-                        splitInstallRequest.cancelRequest();
-                        splitInstallRequest = null;
-                    }
-                    return;
+        if (requestCode == SplitLocaleInstaller.CONFIRMATION_REQUEST_CODE) {
+            // Handle the user's decision. For example, if the user selects "Cancel",
+            // you may want to disable certain functionality that depends on the module.
+            if (resultCode == Activity.RESULT_CANCELED) {
+                if (splitInstallRequest != null) {
+                    splitInstallRequest.cancelRequest();
+                    splitInstallRequest = null;
                 }
+                return;
             }
         }
 

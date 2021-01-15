@@ -1110,9 +1110,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             minHeight *= 2f;
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            TransitionManager.beginDelayedTransition(binding.scrollView, new AutoTransition());
-        }
+        TransitionManager.beginDelayedTransition(binding.scrollView, new AutoTransition());
 
         if (getAppCompatActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             widgetFrameContainer.setMinimumHeight(preferredHeight);

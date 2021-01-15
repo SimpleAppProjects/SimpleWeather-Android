@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.AlarmClock;
@@ -990,9 +989,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(componentName.getPackageName());
             return PendingIntent.getActivity(context, 0, launchIntent, 0);
         } else {
-            String clockAction = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ?
-                    AlarmClock.ACTION_SHOW_ALARMS : AlarmClock.ACTION_SET_ALARM;
-            Intent onClickIntent = new Intent(clockAction);
+            Intent onClickIntent = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
             return PendingIntent.getActivity(context, 0, onClickIntent, 0);
         }
     }

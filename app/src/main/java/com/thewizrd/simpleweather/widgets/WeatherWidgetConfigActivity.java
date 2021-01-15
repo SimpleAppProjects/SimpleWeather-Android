@@ -2,7 +2,6 @@ package com.thewizrd.simpleweather.widgets;
 
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
@@ -50,11 +49,9 @@ public class WeatherWidgetConfigActivity extends UserLocaleActivity {
             color = Colors.BLACK;
         }
 
-        ActivityUtils.setTransparentWindow(getWindow(), color, Colors.TRANSPARENT, Colors.TRANSPARENT, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+        ActivityUtils.setTransparentWindow(getWindow(), color, Colors.TRANSPARENT, Colors.TRANSPARENT);
 
         View mRootView = (View) findViewById(R.id.fragment_container).getParent();
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-            mRootView.setFitsSystemWindows(true);
 
         Bundle args = new Bundle();
         args.putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);

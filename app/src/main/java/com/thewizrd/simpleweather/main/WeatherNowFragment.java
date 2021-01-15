@@ -245,7 +245,7 @@ public class WeatherNowFragment extends WindowColorFragment
                                     binding.scrollView.setVisibility(View.VISIBLE);
                                 }
 
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && radarViewProvider != null) {
+                                if (radarViewProvider != null) {
                                     radarViewProvider.updateCoordinates(weatherView.getLocationCoord(), true);
                                 }
                             }
@@ -629,15 +629,10 @@ public class WeatherNowFragment extends WindowColorFragment
             // Alerts
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 conditionPanelBinding.alertButton.setBackgroundTintList(ColorStateList.valueOf(Colors.ORANGERED));
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            } else {
                 Drawable drawable = conditionPanelBinding.alertButton.getBackground().mutate();
                 drawable.setColorFilter(Colors.ORANGERED, PorterDuff.Mode.SRC_IN);
                 conditionPanelBinding.alertButton.setBackground(drawable);
-            } else {
-                Drawable origDrawable = ContextCompat.getDrawable(getAppCompatActivity(), R.drawable.light_round_corner_bg);
-                Drawable compatDrawable = DrawableCompat.wrap(origDrawable);
-                DrawableCompat.setTint(compatDrawable, Colors.ORANGERED);
-                conditionPanelBinding.alertButton.setBackground(compatDrawable);
             }
 
             conditionPanelBinding.alertButton.setOnClickListener(new View.OnClickListener() {
@@ -780,7 +775,7 @@ public class WeatherNowFragment extends WindowColorFragment
         }
 
         // Radar
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && FeatureSettings.isRadarEnabled()) {
+        if (FeatureSettings.isRadarEnabled()) {
             radarControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_radarcontrol, binding.listLayout, false, dataBindingComponent);
 
             radarControlBinding.radarWebviewCover.setOnClickListener(new View.OnClickListener() {
@@ -842,7 +837,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     });
                 } else if (propertyId == BR.locationCoord) {
                     // Restrict control to Kitkat+ for Chromium WebView
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && FeatureSettings.isRadarEnabled()) {
+                    if (FeatureSettings.isRadarEnabled()) {
                         if (radarViewProvider != null) {
                             radarViewProvider.updateCoordinates(weatherView.getLocationCoord(), true);
                         }
@@ -869,21 +864,17 @@ public class WeatherNowFragment extends WindowColorFragment
             }
         });
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (radarViewProvider != null) {
-                radarViewProvider.onViewCreated(weatherView.getLocationCoord());
-                updateRadarView();
-            }
+        if (radarViewProvider != null) {
+            radarViewProvider.onViewCreated(weatherView.getLocationCoord());
+            updateRadarView();
         }
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (radarViewProvider != null) {
-                radarViewProvider.onStart();
-            }
+        if (radarViewProvider != null) {
+            radarViewProvider.onStart();
         }
     }
 
@@ -892,10 +883,8 @@ public class WeatherNowFragment extends WindowColorFragment
         super.onResume();
         AnalyticsLogger.logEvent("WeatherNowFragment: onResume");
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (radarViewProvider != null) {
-                radarViewProvider.onResume();
-            }
+        if (radarViewProvider != null) {
+            radarViewProvider.onResume();
         }
     }
 
@@ -903,11 +892,10 @@ public class WeatherNowFragment extends WindowColorFragment
     public void onPause() {
         AnalyticsLogger.logEvent("WeatherNowFragment: onPause");
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (radarViewProvider != null) {
-                radarViewProvider.onPause();
-            }
+        if (radarViewProvider != null) {
+            radarViewProvider.onPause();
         }
+
         // Remove location updates to save battery.
         stopLocationUpdates();
         super.onPause();
@@ -915,10 +903,8 @@ public class WeatherNowFragment extends WindowColorFragment
 
     @Override
     public void onStop() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (radarViewProvider != null) {
-                radarViewProvider.onStop();
-            }
+        if (radarViewProvider != null) {
+            radarViewProvider.onStop();
         }
         super.onStop();
     }
@@ -928,10 +914,8 @@ public class WeatherNowFragment extends WindowColorFragment
         if (locationData != null) {
             outState.putString(Constants.KEY_DATA, JSONParser.serializer(locationData, LocationData.class));
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (radarViewProvider != null) {
-                radarViewProvider.onSaveInstanceState(outState);
-            }
+        if (radarViewProvider != null) {
+            radarViewProvider.onSaveInstanceState(outState);
         }
         super.onSaveInstanceState(outState);
     }
@@ -939,11 +923,9 @@ public class WeatherNowFragment extends WindowColorFragment
     @SuppressLint("RestrictedApi")
     @Override
     public void onDestroyView() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (radarViewProvider != null) {
-                radarViewProvider.onDestroyView();
-                radarViewProvider = null;
-            }
+        if (radarViewProvider != null) {
+            radarViewProvider.onDestroyView();
+            radarViewProvider = null;
         }
         wNowViewModel.setScrollViewPosition(binding.scrollView.computeVerticalScrollOffset());
         wNowViewModel.setImageAlpha(binding.imageView.getAlpha());
@@ -979,10 +961,8 @@ public class WeatherNowFragment extends WindowColorFragment
     public void onLowMemory() {
         super.onLowMemory();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (radarViewProvider != null) {
-                radarViewProvider.onLowMemory();
-            }
+        if (radarViewProvider != null) {
+            radarViewProvider.onLowMemory();
         }
     }
 
@@ -1013,10 +993,8 @@ public class WeatherNowFragment extends WindowColorFragment
         loadBackgroundImage(backgroundUri, true);
 
         // Reload Webview
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (radarViewProvider != null) {
-                radarViewProvider.onConfigurationChanged();
-            }
+        if (radarViewProvider != null) {
+            radarViewProvider.onConfigurationChanged();
         }
     }
 
@@ -1666,15 +1644,10 @@ public class WeatherNowFragment extends WindowColorFragment
         public void updateProgressColor(ProgressBar progressBar, @ColorInt int progressColor) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 progressBar.setProgressTintList(ColorStateList.valueOf(progressColor));
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            } else {
                 Drawable drawable = progressBar.getProgressDrawable().mutate();
                 drawable.setColorFilter(progressColor, PorterDuff.Mode.SRC_IN);
                 progressBar.setProgressDrawable(drawable);
-            } else {
-                Drawable origDrawable = progressBar.getProgressDrawable().mutate();
-                Drawable compatDrawable = DrawableCompat.wrap(origDrawable);
-                DrawableCompat.setTint(compatDrawable, progressColor);
-                progressBar.setProgressDrawable(compatDrawable);
             }
         }
 
