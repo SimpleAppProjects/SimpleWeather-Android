@@ -18,7 +18,6 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.SuperscriptSpan;
 import android.util.DisplayMetrics;
@@ -68,15 +67,12 @@ import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
 import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
-import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.GlideApp;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.main.MainActivity;
 import com.thewizrd.simpleweather.utils.ArrayUtils;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -274,9 +270,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             } else if (ACTION_REFRESHWIDGETS.equals(intent.getAction())) {
                 refreshWidgets(intent.getStringExtra(EXTRA_LOCATIONQUERY));
             } else if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()) || Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 && clockWidgetsExist(mContext)) {
-                    startTickReceiver(mContext);
-                }
+                // no-op
             }
 
             Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent.getAction());
@@ -831,54 +825,23 @@ public class WeatherWidgetService extends SafeJobIntentService {
                     }
 
                     // Update clock widgets
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                        // TextClock
-                        boolean useAmPm = !(widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei);
-                        SpannableString timeStr12hr = new SpannableString(mContext.getText(useAmPm ? R.string.clock_12_hours_ampm_format : R.string.clock_12_hours_format));
-                        if (useAmPm) {
-                            int start12hr = timeStr12hr.length() - 2;
-                            timeStr12hr.setSpan(new RelativeSizeSpan(0.875f), start12hr, timeStr12hr.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        }
+                    boolean useAmPm = !(widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei);
+                    SpannableString timeStr12hr = new SpannableString(mContext.getText(useAmPm ? R.string.clock_12_hours_ampm_format : R.string.clock_12_hours_format));
+                    if (useAmPm) {
+                        int start12hr = timeStr12hr.length() - 2;
+                        timeStr12hr.setSpan(new RelativeSizeSpan(0.875f), start12hr, timeStr12hr.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
 
-                        views.setCharSequence(R.id.clock_panel, "setFormat12Hour",
-                                timeStr12hr);
+                    views.setCharSequence(R.id.clock_panel, "setFormat12Hour",
+                            timeStr12hr);
 
-                        views.setCharSequence(R.id.clock_panel, "setFormat24Hour",
-                                mContext.getText(R.string.clock_24_hours_format));
+                    views.setCharSequence(R.id.clock_panel, "setFormat24Hour",
+                            mContext.getText(R.string.clock_24_hours_format));
 
-                        if (WidgetUtils.useTimeZone(appWidgetId) && locationData != null) {
-                            views.setString(R.id.clock_panel, "setTimeZone", locationData.getTzLong());
-                        } else {
-                            views.setString(R.id.clock_panel, "setTimeZone", null);
-                        }
+                    if (WidgetUtils.useTimeZone(appWidgetId) && locationData != null) {
+                        views.setString(R.id.clock_panel, "setTimeZone", locationData.getTzLong());
                     } else {
-                        // TextView
-                        boolean useAmPm = !(widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei);
-                        String timeFormat12hr = mContext.getString(useAmPm ? R.string.clock_12_hours_ampm_format : R.string.clock_12_hours_format);
-                        String timeFormat24Hr = mContext.getString(R.string.clock_24_hours_format);
-                        LocalDateTime now;
-
-                        if (WidgetUtils.useTimeZone(appWidgetId) && locationData != null && locationData.getTzOffset() != null) {
-                            now = LocalDateTime.now(locationData.getTzOffset());
-                        } else {
-                            now = LocalDateTime.now();
-                        }
-
-                        SpannableString timeStr;
-                        String timeformat = now.format(DateTimeUtils.ofPatternForUserLocale(timeFormat12hr));
-
-                        if (DateFormat.is24HourFormat(App.getInstance().getAppContext())) {
-                            timeformat = now.format(DateTimeUtils.ofPatternForUserLocale(timeFormat24Hr));
-                            timeStr = new SpannableString(timeformat);
-                        } else {
-                            timeStr = new SpannableString(timeformat);
-                            if (useAmPm) {
-                                int start12hr = timeStr.length() - 2;
-                                timeStr.setSpan(new RelativeSizeSpan(0.5f), start12hr, timeStr.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-                            }
-                        }
-
-                        views.setTextViewText(R.id.clock_panel, timeStr);
+                        views.setString(R.id.clock_panel, "setTimeZone", null);
                     }
 
                     if (!(!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId))) {
@@ -983,27 +946,13 @@ public class WeatherWidgetService extends SafeJobIntentService {
                         datePattern = DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_SHORT_DATE_FORMAT);
                     }
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                        views.setCharSequence(R.id.date_panel, "setFormat12Hour", datePattern);
-                        views.setCharSequence(R.id.date_panel, "setFormat24Hour", datePattern);
+                    views.setCharSequence(R.id.date_panel, "setFormat12Hour", datePattern);
+                    views.setCharSequence(R.id.date_panel, "setFormat24Hour", datePattern);
 
-                        if (WidgetUtils.useTimeZone(appWidgetId) && locationData != null) {
-                            views.setString(R.id.date_panel, "setTimeZone", locationData.getTzLong());
-                        } else {
-                            views.setString(R.id.date_panel, "setTimeZone", null);
-                        }
+                    if (WidgetUtils.useTimeZone(appWidgetId) && locationData != null) {
+                        views.setString(R.id.date_panel, "setTimeZone", locationData.getTzLong());
                     } else {
-                        // Update date
-                        DateTimeFormatter dtfm = DateTimeUtils.ofPatternForUserLocale(datePattern);
-                        LocalDateTime now;
-
-                        if (WidgetUtils.useTimeZone(appWidgetId) && locationData != null && locationData.getTzOffset() != null) {
-                            now = LocalDateTime.now(locationData.getTzOffset());
-                        } else {
-                            now = LocalDateTime.now();
-                        }
-
-                        views.setTextViewText(R.id.date_panel, now.format(dtfm));
+                        views.setString(R.id.date_panel, "setTimeZone", null);
                     }
 
                     if (!(!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)))

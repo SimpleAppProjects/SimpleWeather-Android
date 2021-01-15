@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather.snackbar;
 
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
@@ -181,9 +180,7 @@ public final class SnackbarManager {
 
             mMainHandler.removeCallbacks(mHideRunnable);
             int durationMs = snackPair.snackbar.getDuration();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                durationMs *= Settings.getAnimatorScale();
-            }
+            durationMs *= Settings.getAnimatorScale();
             mMainHandler.postDelayed(mHideRunnable, durationMs);
         }
     }

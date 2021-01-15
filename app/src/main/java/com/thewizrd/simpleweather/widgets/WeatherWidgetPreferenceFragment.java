@@ -19,10 +19,8 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.format.DateFormat;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.SuperscriptSpan;
 import android.util.Log;
@@ -100,7 +98,6 @@ import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
-import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.GlideApp;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentWidgetSetupBinding;
@@ -112,7 +109,6 @@ import com.thewizrd.simpleweather.snackbar.Snackbar;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Callable;
@@ -910,31 +906,10 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             } else {
                 datePattern = DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_SHORT_DATE_FORMAT);
             }
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                DateTimeFormatter dtfm = DateTimeUtils.ofPatternForUserLocale(datePattern);
 
-                TextView dateText = binding.widgetContainer.findViewById(R.id.date_panel);
-                dateText.setText(now.format(dtfm));
-            } else {
-                TextClock dateClock = binding.widgetContainer.findViewById(R.id.date_panel);
-                dateClock.setFormat12Hour(datePattern);
-                dateClock.setFormat24Hour(datePattern);
-            }
-        }
-
-        if (WidgetUtils.isClockWidget(mWidgetType)) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                SpannableString timeStr;
-
-                if (DateFormat.is24HourFormat(App.getInstance().getAppContext())) {
-                    timeStr = new SpannableString(now.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_24HR)));
-                } else {
-                    timeStr = new SpannableString(now.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR)));
-                }
-
-                TextView clockView = binding.widgetContainer.findViewById(R.id.clock_panel);
-                clockView.setText(timeStr);
-            }
+            TextClock dateClock = binding.widgetContainer.findViewById(R.id.date_panel);
+            dateClock.setFormat12Hour(datePattern);
+            dateClock.setFormat24Hour(datePattern);
         }
     }
 

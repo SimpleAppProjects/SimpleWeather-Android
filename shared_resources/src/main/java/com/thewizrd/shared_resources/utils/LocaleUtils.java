@@ -3,7 +3,6 @@ package com.thewizrd.shared_resources.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.preference.PreferenceManager;
 
 import androidx.annotation.NonNull;
@@ -23,18 +22,9 @@ public class LocaleUtils {
 
         Locale locale = getLocale(context);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            newConfig.setLocale(locale);
-        } else {
-            newConfig.locale = locale;
-        }
+        newConfig.setLocale(locale);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            return context.createConfigurationContext(newConfig);
-        } else {
-            context.getResources().updateConfiguration(newConfig, context.getResources().getDisplayMetrics());
-            return context;
-        }
+        return context.createConfigurationContext(newConfig);
     }
 
     private static void updateAppContextLocale() {
@@ -44,11 +34,7 @@ public class LocaleUtils {
 
         Locale locale = getLocale();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            newConfig.setLocale(locale);
-        } else {
-            newConfig.locale = locale;
-        }
+        newConfig.setLocale(locale);
 
         context.getResources().updateConfiguration(newConfig, context.getResources().getDisplayMetrics());
     }

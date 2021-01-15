@@ -4,7 +4,6 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.widget.RemoteViews;
 
 import com.thewizrd.simpleweather.App;
@@ -45,23 +44,11 @@ public class WeatherWidgetProvider4x2 extends WeatherWidgetProvider {
 
     @Override
     public void onEnabled(Context context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            // Register tick receiver
-            WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                    .setAction(WeatherWidgetService.ACTION_STARTCLOCK));
-        }
-
         super.onEnabled(context);
     }
 
     @Override
     public void onDisabled(Context context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            // Unregister tick receiver
-            WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                    .setAction(WeatherWidgetService.ACTION_CANCELCLOCK));
-        }
-
         super.onDisabled(context);
     }
 
