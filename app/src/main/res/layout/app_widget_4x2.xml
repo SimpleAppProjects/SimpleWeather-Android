@@ -148,7 +148,7 @@
 
                 <ImageView
                     android:id="@+id/weather_icon"
-                    android:layout_width="wrap_content"
+                    android:layout_width="48dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
@@ -161,9 +161,6 @@
                     android:layout_marginBottom="4dp"
                     android:adjustViewBounds="true"
                     android:gravity="center_vertical"
-                    android:maxWidth="60dp"
-                    android:maxHeight="45dp"
-                    android:scaleType="fitCenter"
                     tools:src="@drawable/ic_weather_icon" />
 
                 <TextView

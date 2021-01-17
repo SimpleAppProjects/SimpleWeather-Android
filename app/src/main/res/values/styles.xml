@@ -152,7 +152,9 @@
     <style name="PagerTabTitleStyle" parent="ShadowText">
         <item name="android:fontFamily">@font/open_sans</item>
         <item name="fontFamily">@font/open_sans</item>
+        <item name="android:textColor">@android:color/white</item>
         <item name="android:textStyle">normal</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="ThemeOverlay.App.MaterialAlertDialog" parent="@style/ThemeOverlay.MaterialComponents.MaterialAlertDialog">

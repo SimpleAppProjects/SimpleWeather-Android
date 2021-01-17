@@ -481,7 +481,7 @@ public class WeatherUpdaterWorker extends ListenableWorker {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context, NOT_CHANNEL_ID)
-                        .setSmallIcon(R.drawable.day_cloudy)
+                        .setSmallIcon(R.drawable.wi_day_cloudy)
                         .setContentTitle(context.getString(R.string.not_title_weather_update))
                         .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
                         .setOnlyAlertOnce(true)

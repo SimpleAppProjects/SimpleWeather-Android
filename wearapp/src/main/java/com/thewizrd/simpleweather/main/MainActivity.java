@@ -310,7 +310,7 @@ public class MainActivity extends WearableListenerActivity implements MenuItem.O
     private class NavDrawerAdapter extends WearableNavigationDrawerView.WearableNavigationDrawerAdapter {
         private Context mContext;
         private final List<NavDrawerItem> navDrawerItems = Arrays.asList(
-                new NavDrawerItem(R.id.weatherNowFragment, R.string.label_nav_weathernow, R.drawable.day_cloudy),
+                new NavDrawerItem(R.id.weatherNowFragment, R.string.label_nav_weathernow, R.drawable.wi_day_cloudy),
                 new NavDrawerItem(R.id.weatherAlertsFragment, R.string.title_fragment_alerts, R.drawable.ic_error_white),
                 new NavDrawerItem(R.id.weatherForecastFragment, R.string.label_forecast, R.drawable.ic_date_range_black_24dp),
                 new NavDrawerItem(R.id.weatherHrForecastFragment, R.string.label_hourlyforecast, R.drawable.ic_access_time_black_24dp),

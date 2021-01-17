@@ -1,7 +1,10 @@
 package com.thewizrd.shared_resources.databinding;
 
+import android.content.res.ColorStateList;
 import android.view.View;
+import android.widget.TextView;
 
+import androidx.core.widget.TextViewCompat;
 import androidx.databinding.BindingAdapter;
 
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -37,5 +40,10 @@ public class ViewBindingAdapter {
     @BindingAdapter(value = {"showIfTrue", "showIfNotEmpty"}, requireAll = true)
     public static <T extends Object> void showIfTrue(View view, boolean show, Collection<T> c) {
         view.setVisibility(show && c != null && !c.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    @BindingAdapter("drawableTint")
+    public static void setDrawableTint(TextView view, int color) {
+        TextViewCompat.setCompoundDrawableTintList(view, ColorStateList.valueOf(color));
     }
 }

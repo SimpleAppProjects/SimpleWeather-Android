@@ -6,8 +6,8 @@
     <data>
 
         <import type="android.text.TextUtils" />
-
         <import type="android.view.View" />
+        <import type="com.thewizrd.shared_resources.utils.WeatherUtils" />
 
         <variable
             name="weatherView"
@@ -54,14 +54,13 @@
                     app:watchHideIfEmpty="@{alertsView.alerts}"
                     tools:visibility="visible">
 
-                    <androidx.appcompat.widget.AppCompatTextView
-                        style="@style/MaterialIcon"
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:padding="4dp"
-                        android:text="@string/materialicon_error"
-                        android:textColor="#FFFF4500" />
+                        app:srcCompat="@drawable/ic_error_white"
+                        app:tint="#FFFF4500" />
 
                 </LinearLayout>
 
@@ -89,23 +88,21 @@
                     android:orientation="horizontal"
                     android:layout_marginTop="8dp">
 
-                    <androidx.appcompat.widget.AppCompatTextView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/weather_icon"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="end"
+                        android:adjustViewBounds="true"
+                        android:maxHeight="48dp"
+                        android:scaleType="fitEnd"
                         android:layout_gravity="end|center_vertical"
-                        android:includeFontPadding="false"
                         android:paddingStart="0dp"
                         android:paddingEnd="8dp"
-                        android:text="@{weatherView.weatherIcon}"
-                        android:textAppearance="?android:textAppearanceMediumInverse"
-                        android:textColor="@android:color/white"
-                        android:textSize="42sp"
-                        app:fontFamily="@font/weathericons"
-                        tools:fontFamily="@font/weathericons"
-                        tools:text="@string/wi_day_sunny" />
+                        app:srcCompat="@{weatherView.weatherIcon}"
+                        app:tint="@android:color/white"
+                        tools:srcCompat="@drawable/wi_day_sunny" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/weather_temp"
@@ -147,21 +144,64 @@
                     android:textSize="16sp"
                     tools:text="Mostly Cloudy. Breezy. Cool" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/weather_hilo"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/weather_hilo_layout"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="horizontal"
                     android:layout_gravity="center"
-                    android:fontFamily="sans-serif-light"
-                    android:includeFontPadding="false"
+                    android:gravity="center"
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp"
-                    android:text="@{weatherView.hiLoTemp}"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:visibility="@{!TextUtils.isEmpty(weatherView.hiLoTemp) ? View.VISIBLE : View.GONE}"
-                    tools:text="75° &#xf058; | 60° &#xf044;" />
+                    android:visibility="@{weatherView.showHiLo ? View.VISIBLE : View.GONE}">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/weather_hi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:fontFamily="sans-serif-light"
+                        android:includeFontPadding="false"
+                        android:text="@{weatherView.hiTemp}"
+                        android:textColor="@android:color/white"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginEnd="-8dp"
+                        android:drawablePadding="0dp"
+                        app:drawableEndCompat="@drawable/wi_direction_up"
+                        app:drawableTint="@android:color/white"
+                        tools:text="75°" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif-light"
+                        android:includeFontPadding="false"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="|"
+                        android:textColor="@android:color/white"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/weather_lo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:fontFamily="sans-serif-light"
+                        android:includeFontPadding="false"
+                        android:text="@{weatherView.loTemp}"
+                        android:textColor="@android:color/white"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:drawablePadding="0dp"
+                        app:drawableEndCompat="@drawable/wi_direction_down"
+                        app:drawableTint="@android:color/white"
+                        tools:text="60°" />
+
+                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/condition_details"
@@ -182,19 +222,15 @@
                         android:gravity="center"
                         app:popData="@{weatherView.weatherDetails}">
 
-                        <androidx.appcompat.widget.AppCompatTextView
+                        <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/condition_popicon"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_margin="4dp"
-                            android:fontFamily="@font/weathericons"
-                            android:includeFontPadding="false"
                             android:layout_centerVertical="true"
-                            android:textColor="@color/colorPrimaryLight"
-                            android:textSize="18sp"
-                            app:fontFamily="@font/weathericons"
-                            tools:text="@string/wi_umbrella" />
+                            app:tint="@color/colorPrimaryLight"
+                            tools:srcCompat="@drawable/wi_umbrella" />
 
                         <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/condition_pop"
@@ -209,7 +245,6 @@
                             android:maxLines="1"
                             android:textColor="@color/colorPrimaryLight"
                             android:textSize="16sp"
-                            android:visibility="@{!TextUtils.isEmpty(weatherView.hiLoTemp) ? View.VISIBLE : View.GONE}"
                             app:autoSizeMaxTextSize="16sp"
                             app:autoSizeTextType="uniform"
                             tools:text="50%" />
@@ -225,19 +260,15 @@
                         android:gravity="center"
                         app:windData="@{weatherView.weatherDetails}">
 
-                        <androidx.appcompat.widget.AppCompatTextView
+                        <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/condition_windicon"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_margin="4dp"
-                            android:fontFamily="@font/weathericons"
                             android:layout_centerVertical="true"
-                            android:includeFontPadding="false"
-                            android:textColor="@color/colorPrimaryLight"
-                            android:textSize="18sp"
-                            app:fontFamily="@font/weathericons"
-                            tools:text="@string/wi_wind_direction" />
+                            app:tint="@color/colorPrimaryLight"
+                            tools:srcCompat="@drawable/wi_wind_direction" />
 
                         <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/condition_windspeed"

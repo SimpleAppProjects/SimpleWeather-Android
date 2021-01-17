@@ -47,14 +47,13 @@
                 app:hideIfEmpty="@{alertsView.alerts}"
                 tools:visibility="visible">
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/MaterialIcon"
+                <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:padding="4dp"
-                    android:text="@string/materialicon_error"
-                    android:textColor="@android:color/white" />
+                    app:srcCompat="@drawable/ic_error_white"
+                    app:tint="@android:color/white" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="0dp"
@@ -62,18 +61,16 @@
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
                     android:paddingStart="4dp"
-                    android:paddingLeft="4dp"
                     android:text="@string/title_fragment_alerts"
                     android:textColor="@android:color/white" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/MaterialIcon"
+                <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:padding="4dp"
-                    android:text="@string/materialicon_chevron_right"
-                    android:textColor="@android:color/white" />
+                    app:srcCompat="@drawable/ic_chevron_right"
+                    app:tint="@android:color/white" />
 
             </LinearLayout>
 
@@ -91,9 +88,8 @@
                     android:layout_height="wrap_content"
                     android:gravity="start|center_vertical"
                     android:layout_alignParentStart="true"
-                    android:layout_alignParentLeft="true"
                     android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
+                    android:layout_marginEnd="16dp"
                     android:padding="4dp"
                     android:scrollbars="none"
                     android:shadowColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/black : @android:color/transparent}"
@@ -114,7 +110,6 @@
                     android:paddingEnd="6dp"
                     android:gravity="center_vertical"
                     android:layout_toEndOf="@id/weather_temp"
-                    android:layout_toRightOf="@id/weather_temp"
                     android:layout_alignTop="@id/weather_temp"
                     android:layout_alignBottom="@id/weather_temp"
                     app:showIfTrue="@{weatherView.showHiLo}"
@@ -135,7 +130,9 @@
                         android:textSize="20sp"
                         android:textStyle="bold"
                         app:fontFamily="@font/open_sans_light"
-                        tools:text="75°F &#xf058;"
+                        app:drawableEndCompat="@drawable/wi_direction_up"
+                        app:drawableTint="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
+                        tools:text="75°"
                         tools:visibility="visible" />
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -153,32 +150,28 @@
                         android:textSize="20sp"
                         android:textStyle="bold"
                         app:fontFamily="@font/open_sans_light"
-                        tools:text="65°F &#xf044;"
+                        app:drawableEndCompat="@drawable/wi_direction_down"
+                        app:drawableTint="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
+                        tools:drawableTint="@color/colorTextPrimary"
+                        tools:text="65°"
                         tools:visibility="visible" />
 
                 </LinearLayout>
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/weather_icon"
-                    style="@style/ShadowTextHeavy"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="88dp"
                     android:gravity="end|center_vertical"
                     android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
                     android:padding="4dp"
-                    android:scrollbars="none"
-                    android:shadowColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/black : @android:color/transparent}"
-                    android:text="@{weatherView.weatherIcon}"
-                    android:textAppearance="?android:textAppearanceLargeInverse"
-                    android:textColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
-                    android:textSize="60sp"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitEnd"
+                    app:srcCompat="@{weatherView.weatherIcon}"
+                    app:tint="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
                     android:layout_toEndOf="@id/weather_hilo_layout"
-                    android:layout_toRightOf="@id/weather_hilo_layout"
                     android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    app:fontFamily="@font/weathericons"
-                    tools:text="@string/wi_wu_sunny" />
+                    tools:srcCompat="@drawable/wi_day_sunny" />
 
             </RelativeLayout>
 
@@ -188,8 +181,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
                 android:layout_marginLeft="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
                 android:ellipsize="end"
                 android:gravity="start|bottom"

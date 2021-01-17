@@ -33,27 +33,20 @@
             style="@style/ShadowText"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentLeft="true" />
+            android:layout_alignParentEnd="true" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/uv_icon"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:gravity="center_vertical"
-            android:paddingLeft="12dp"
-            android:paddingRight="12dp"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
-            android:text="@string/wi_day_sunny"
-            android:textAppearance="?android:textAppearanceMedium"
-            android:textColor="@color/sun_color"
-            android:textSize="36sp"
-            style="@style/ShadowText"
-            app:fontFamily="@font/weathericons"
+            android:adjustViewBounds="true"
+            android:cropToPadding="false"
+            app:srcCompat="@drawable/wi_day_sunny"
+            app:tint="@color/sun_color"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_below="@id/uv_label" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -70,8 +63,6 @@
             android:layout_alignBottom="@id/uv_icon"
             android:layout_alignParentEnd="true"
             android:layout_toEndOf="@id/uv_icon"
-            android:layout_toRightOf="@id/uv_icon"
-            android:layout_alignParentRight="true"
             tools:text="11, Extreme" />
 
         <ProgressBar
@@ -92,8 +83,6 @@
             app:progressColor="@{weatherView.uvIndex != null ? weatherView.uvIndex.progressColor : 0}"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
             android:layout_below="@id/uv_icon"
             tools:progress="7"
             tools:max="11" />
@@ -106,9 +95,7 @@
             android:background="@color/colorOnSurface"
             android:layout_below="@id/uv_progressBar"
             android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true" />
+            android:layout_alignParentEnd="true" />
 
     </RelativeLayout>
 </layout>

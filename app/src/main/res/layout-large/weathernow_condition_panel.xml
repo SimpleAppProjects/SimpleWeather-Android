@@ -79,23 +79,15 @@
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/weather_icon"
-                style="@style/ShadowTextHeavy"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="120dp"
                 android:gravity="center_horizontal"
-                android:scrollbars="none"
-                android:shadowColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/black : @android:color/transparent}"
-                android:text="@{weatherView.weatherIcon}"
-                android:textAppearance="?android:textAppearanceLargeInverse"
-                android:textColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
-                android:textSize="108sp"
-                app:autoSizeMaxTextSize="108sp"
-                app:autoSizeMinTextSize="12sp"
-                app:autoSizeTextType="uniform"
-                app:fontFamily="@font/weathericons"
-                tools:text="@string/wi_wu_sunny" />
+                app:srcCompat="@{weatherView.weatherIcon}"
+                app:tint="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
+                tools:srcCompat="@drawable/wi_day_sunny"
+                tools:tint="@android:color/white" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_condition"
@@ -119,9 +111,10 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_temp"
                 style="@style/ShadowTextHeavy"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
+                android:layout_gravity="center"
                 android:padding="4dp"
                 android:scrollbars="none"
                 android:shadowColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/black : @android:color/transparent}"
@@ -132,28 +125,81 @@
                 app:autoSizeMinTextSize="12sp"
                 app:autoSizeTextType="uniform"
                 app:fontFamily="@font/open_sans_semibold"
-                tools:text="70&#xF045;" />
+                tools:text="70°F" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/weather_hilo"
-                style="@style/ShadowTextHeavy"
+            <LinearLayout
+                android:id="@+id/weather_hilo_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:padding="4dp"
-                android:scrollbars="none"
-                android:shadowColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/black : @android:color/transparent}"
-                android:text="@{weatherView.hiLoTemp}"
-                android:textColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
-                android:textSize="32sp"
-                app:fontFamily="@font/open_sans_semibold"
-                app:autoSizeMaxTextSize="32sp"
-                app:autoSizeMinTextSize="12sp"
-                app:autoSizeTextType="uniform"
-                app:showIfTrue="@{weatherView.showHiLo}"
-                tools:fontFamily="@font/weathericons"
-                tools:text="75°F &#xf058; | 65°F &#xf044;"
-                tools:visibility="visible" />
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                app:showIfTrue="@{weatherView.showHiLo}">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/weather_hi"
+                    style="@style/ShadowTextHeavy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:layout_marginEnd="-12dp"
+                    android:padding="4dp"
+                    android:scrollbars="none"
+                    android:shadowColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/black : @android:color/transparent}"
+                    android:text="@{weatherView.hiTemp}"
+                    android:textColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
+                    android:textSize="32sp"
+                    app:fontFamily="@font/open_sans_semibold"
+                    app:autoSizeMaxTextSize="32sp"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeTextType="uniform"
+                    app:drawableEndCompat="@drawable/wi_direction_up"
+                    app:drawableTint="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
+                    tools:drawableTint="@android:color/white"
+                    tools:text="75°"
+                    tools:visibility="visible" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/ShadowTextHeavy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:padding="4dp"
+                    android:scrollbars="none"
+                    android:shadowColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/black : @android:color/transparent}"
+                    android:text="|"
+                    android:textColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
+                    android:textSize="32sp"
+                    app:fontFamily="@font/open_sans_semibold"
+                    app:autoSizeMaxTextSize="32sp"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeTextType="uniform"
+                    tools:visibility="visible" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/weather_lo"
+                    style="@style/ShadowTextHeavy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:padding="4dp"
+                    android:scrollbars="none"
+                    android:shadowColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/black : @android:color/transparent}"
+                    android:text="@{weatherView.loTemp}"
+                    android:textColor="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
+                    android:textSize="32sp"
+                    app:fontFamily="@font/open_sans_semibold"
+                    app:autoSizeMaxTextSize="32sp"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeTextType="uniform"
+                    app:drawableEndCompat="@drawable/wi_direction_down"
+                    app:drawableTint="@{FeatureSettings.backgroundImageEnabled ? @android:color/white : @color/colorTextPrimary}"
+                    tools:drawableTint="@android:color/white"
+                    tools:text="65°"
+                    tools:visibility="visible" />
+
+            </LinearLayout>
 
             <Space
                 android:layout_width="wrap_content"

@@ -1,12 +1,9 @@
 package com.thewizrd.shared_resources.controls;
 
 import android.content.Context;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.format.DateFormat;
-import android.text.style.TypefaceSpan;
-import android.util.Log;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.WorkerThread;
 import androidx.core.util.ObjectsCompat;
 import androidx.databinding.Bindable;
@@ -15,19 +12,16 @@ import com.thewizrd.shared_resources.BR;
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
-import com.thewizrd.shared_resources.helpers.WeatherIconTextSpan;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
-import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
-import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 
@@ -40,12 +34,12 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private String updateDate;
 
     // Current Condition
-    private CharSequence curTemp;
+    private String curTemp;
     private String curCondition;
-    private String weatherIcon;
-    private CharSequence hiTemp;
-    private CharSequence loTemp;
-    private CharSequence hiLoTemp;
+    private @DrawableRes
+    int weatherIcon;
+    private String hiTemp;
+    private String loTemp;
     private boolean showHiLo;
 
     // Weather Details
@@ -80,7 +74,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
     }
 
     @Bindable
-    public CharSequence getCurTemp() {
+    public String getCurTemp() {
         return curTemp;
     }
 
@@ -90,23 +84,19 @@ public class WeatherNowViewModel extends ObservableViewModel {
     }
 
     @Bindable
-    public String getWeatherIcon() {
+    @DrawableRes
+    public int getWeatherIcon() {
         return weatherIcon;
     }
 
     @Bindable
-    public CharSequence getHiTemp() {
+    public String getHiTemp() {
         return hiTemp;
     }
 
     @Bindable
-    public CharSequence getLoTemp() {
+    public String getLoTemp() {
         return loTemp;
-    }
-
-    @Bindable
-    public CharSequence getHiLoTemp() {
-        return hiLoTemp;
     }
 
     @Bindable
@@ -281,75 +271,66 @@ public class WeatherNowViewModel extends ObservableViewModel {
         }
 
         // Update current condition
-        SpannableStringBuilder curTempSSBuilder = new SpannableStringBuilder();
+        String newCurTemp;
         if (weather.getCondition().getTempF() != null &&
                 !ObjectsCompat.equals(weather.getCondition().getTempF(), weather.getCondition().getTempC())) {
             int temp = isFahrenheit ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC());
-            curTempSSBuilder.append(String.format(LocaleUtils.getLocale(), "%d", temp));
+            newCurTemp = String.format(LocaleUtils.getLocale(), "%d°%s", temp, tempUnit);
         } else {
-            curTempSSBuilder.append("--");
+            newCurTemp = "--";
         }
-        String unitTemp = isFahrenheit ? WeatherIcons.FAHRENHEIT : WeatherIcons.CELSIUS;
-        curTempSSBuilder.append(unitTemp)
-                .setSpan(new WeatherIconTextSpan(context), curTempSSBuilder.length() - unitTemp.length(), curTempSSBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-        if (!ObjectsCompat.equals(curTemp, curTempSSBuilder)) {
-            curTemp = curTempSSBuilder;
+        if (!ObjectsCompat.equals(curTemp, newCurTemp)) {
+            curTemp = newCurTemp;
             notifyPropertyChanged(BR.curTemp);
         }
+
         final String weatherCondition = provider.supportsWeatherLocale() ? weather.getCondition().getWeather() : provider.getWeatherCondition(weather.getCondition().getIcon());
         String newCondition = (StringUtils.isNullOrWhitespace(weatherCondition) ? "--" : weatherCondition);
         if (!ObjectsCompat.equals(curCondition, newCondition)) {
             curCondition = newCondition;
             notifyPropertyChanged(BR.curCondition);
         }
-        if (!ObjectsCompat.equals(weatherIcon, weather.getCondition().getIcon())) {
-            weatherIcon = weather.getCondition().getIcon();
+        final @DrawableRes int newIcon = WeatherUtils.getWeatherIconResource(weather.getCondition().getIcon());
+        if (weatherIcon != newIcon) {
+            weatherIcon = newIcon;
             notifyPropertyChanged(BR.weatherIcon);
         }
 
         {
             boolean shouldHideHi = false, shouldHideLo = false;
-            SpannableStringBuilder hiTempBuilder = new SpannableStringBuilder();
+
+            String newHiTemp;
             if (weather.getCondition().getHighF() != null &&
                     !ObjectsCompat.equals(weather.getCondition().getHighF(), weather.getCondition().getHighC())) {
-                hiTempBuilder.append(String.valueOf(isFahrenheit ? Math.round(weather.getCondition().getHighF()) : Math.round(weather.getCondition().getHighC())))
-                        .append("°");
+                newHiTemp = (isFahrenheit ? Math.round(weather.getCondition().getHighF()) : Math.round(weather.getCondition().getHighC())) + "°";
             } else {
-                hiTempBuilder.append("--");
+                newHiTemp = "--";
                 shouldHideHi = true;
             }
 
-            int idx = hiTempBuilder.length();
+            if (!ObjectsCompat.equals(hiTemp, newHiTemp)) {
+                hiTemp = newHiTemp;
+                notifyPropertyChanged(BR.hiTemp);
+            }
 
-            hiTempBuilder.append(" \uf058");
-            hiTempBuilder.setSpan(new WeatherIconTextSpan(context), idx, idx + 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            hiTemp = hiTempBuilder;
-            notifyPropertyChanged(BR.hiTemp);
-
-            SpannableStringBuilder loTempBuilder = new SpannableStringBuilder();
+            String newLoTemp;
             if (weather.getCondition().getLowF() != null &&
                     !ObjectsCompat.equals(weather.getCondition().getLowF(), weather.getCondition().getLowC())) {
-                loTempBuilder.append(String.valueOf(isFahrenheit ? Math.round(weather.getCondition().getLowF()) : Math.round(weather.getCondition().getLowC())))
-                        .append("°");
+                newLoTemp = (isFahrenheit ? Math.round(weather.getCondition().getLowF()) : Math.round(weather.getCondition().getLowC())) + "°";
             } else {
-                loTempBuilder.append("--");
+                newLoTemp = "--";
                 shouldHideLo = true;
             }
 
-            idx = loTempBuilder.length();
-
-            loTempBuilder.append(" \uf044");
-            loTempBuilder.setSpan(new WeatherIconTextSpan(context), idx, idx + 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            loTemp = loTempBuilder;
-            notifyPropertyChanged(BR.loTemp);
+            if (!ObjectsCompat.equals(loTemp, newLoTemp)) {
+                loTemp = newLoTemp;
+                notifyPropertyChanged(BR.loTemp);
+            }
 
             showHiLo = !shouldHideHi || !shouldHideLo;
             notifyPropertyChanged(BR.showHiLo);
         }
-
-        hiLoTemp = new SpannableStringBuilder().append(hiTemp).append("  |  ").append(loTemp);
-        notifyPropertyChanged(BR.hiLoTemp);
 
         // WeatherDetails
         weatherDetails.clear();
@@ -425,23 +406,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
                     break;
             }
 
-            try {
-                CharSequence pressureStateIcon = getPressureStateIcon(weather.getAtmosphere().getPressureTrend());
-
-                SpannableStringBuilder ssBuilder = new SpannableStringBuilder();
-                ssBuilder.append(pressureStateIcon)
-                        .append(" ")
-                        .append(String.format(LocaleUtils.getLocale(), "%s %s", df.format(pressureVal), pressureUnit));
-
-                if (pressureStateIcon.length() > 0) {
-                    TypefaceSpan span = new WeatherIconTextSpan(context);
-                    ssBuilder.setSpan(span, 0, pressureStateIcon.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                }
-
-                weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.PRESSURE, ssBuilder));
-            } catch (Exception e) {
-                Logger.writeLine(Log.DEBUG, e);
-            }
+            weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.PRESSURE,
+                    String.format(LocaleUtils.getLocale(), "%s %s", df.format(pressureVal), pressureUnit)));
         }
 
         if (weather.getAtmosphere().getHumidity() != null) {
@@ -643,7 +609,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         updateDate = null;
         curTemp = null;
         curCondition = null;
-        weatherIcon = null;
+        weatherIcon = R.drawable.wi_na;
         sunPhase = null;
         weatherDetails.clear();
         imageData = null;

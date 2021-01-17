@@ -19,7 +19,6 @@ import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -145,10 +144,8 @@ public class WeatherTileProviderService extends TileProviderService {
 
         updateViews.setOnClickPendingIntent(R.id.tile, getTapIntent(mContext));
 
-        updateViews.setImageViewBitmap(R.id.condition_temp,
-                ImageUtils.weatherIconToBitmap(mContext, viewModel.getCurTemp(), 72, Colors.WHITE));
-        updateViews.setImageViewBitmap(R.id.weather_icon,
-                ImageUtils.weatherIconToBitmap(mContext, viewModel.getWeatherIcon(), 72, Colors.WHITE));
+        updateViews.setTextViewText(R.id.condition_temp, viewModel.getCurTemp());
+        updateViews.setImageViewResource(R.id.weather_icon, viewModel.getWeatherIcon());
         updateViews.setTextViewText(R.id.weather_condition, viewModel.getCurCondition());
 
         // Details
@@ -168,9 +165,7 @@ public class WeatherTileProviderService extends TileProviderService {
         }
 
         if (chanceModel != null) {
-            updateViews.setImageViewBitmap(R.id.weather_popicon,
-                    ImageUtils.weatherIconToBitmap(this, chanceModel.getIcon(), 72, false)
-            );
+            updateViews.setImageViewResource(R.id.weather_popicon, chanceModel.getIcon());
             updateViews.setTextViewText(R.id.weather_pop, chanceModel.getValue());
             updateViews.setViewVisibility(R.id.weather_pop_layout, View.VISIBLE);
         } else {
@@ -180,10 +175,10 @@ public class WeatherTileProviderService extends TileProviderService {
         if (windModel != null) {
             if (windModel.getIconRotation() != 0) {
                 updateViews.setImageViewBitmap(R.id.weather_windicon,
-                        ImageUtils.rotateBitmap(ImageUtils.bitmapFromDrawable(this, R.drawable.direction_up), windModel.getIconRotation())
+                        ImageUtils.rotateBitmap(ImageUtils.bitmapFromDrawable(this, R.drawable.wi_direction_up), windModel.getIconRotation())
                 );
             } else {
-                updateViews.setImageViewResource(R.id.weather_windicon, R.drawable.direction_up);
+                updateViews.setImageViewResource(R.id.weather_windicon, R.drawable.wi_direction_up);
             }
             String speed = TextUtils.isEmpty(windModel.getValue()) ? "" : windModel.getValue().toString();
             speed = speed.split(",")[0];
@@ -282,8 +277,7 @@ public class WeatherTileProviderService extends TileProviderService {
             forecastItem.setTextViewText(R.id.forecast_lo, ((ForecastItemViewModel) forecast).getLoTemp());
         }
 
-        forecastItem.setImageViewBitmap(R.id.forecast_icon,
-                ImageUtils.weatherIconToBitmap(this, forecast.getWeatherIcon(), 72, Colors.WHITE));
+        forecastItem.setImageViewResource(R.id.forecast_icon, forecast.getWeatherIcon());
 
         if (forecast instanceof HourlyForecastItemViewModel) {
             forecastItem.setViewVisibility(R.id.forecast_lo, View.GONE);

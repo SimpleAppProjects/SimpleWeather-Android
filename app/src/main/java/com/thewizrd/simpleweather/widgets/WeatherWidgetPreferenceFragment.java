@@ -837,7 +837,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
         if (mWidgetType != WidgetType.Widget4x1) {
             ImageView iconView = widgetView.findViewById(R.id.weather_icon);
-            iconView.setImageResource(R.drawable.day_sunny);
+            iconView.setImageResource(R.drawable.wi_day_sunny);
         }
 
         if (isForecastWidget(mWidgetType)) {
@@ -871,7 +871,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                 forecastLo.setText(65 - i + "°");
 
                 ImageView forecastIcon = forecastPanel.findViewById(R.id.forecast_icon);
-                forecastIcon.setImageResource(R.drawable.day_sunny);
+                forecastIcon.setImageResource(R.drawable.wi_day_sunny);
 
                 container.addView(forecastPanel);
             }

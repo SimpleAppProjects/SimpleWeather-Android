@@ -2,15 +2,15 @@ package com.thewizrd.simpleweather.controls;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,7 +19,6 @@ import androidx.core.graphics.ColorUtils;
 import androidx.core.view.ViewGroupCompat;
 
 import com.google.android.material.tabs.TabLayout;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -30,6 +29,7 @@ import com.thewizrd.simpleweather.controls.graphs.LineView;
 import com.thewizrd.simpleweather.controls.graphs.RangeBarGraphView;
 import com.thewizrd.simpleweather.controls.graphs.XLabelData;
 import com.thewizrd.simpleweather.controls.graphs.YEntryData;
+import com.thewizrd.simpleweather.databinding.ForecastGraphPanelTablayoutBinding;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,7 +105,7 @@ public class ForecastGraphPanel extends LinearLayout {
         frameLayout = new FrameLayout(context);
         lineView = new LineView(context);
         barChartView = new RangeBarGraphView(context);
-        tabLayout = new TabLayout(context);
+        tabLayout = ForecastGraphPanelTablayoutBinding.inflate(LayoutInflater.from(context), this, false).getRoot();
 
         int lineViewHeight = context.getResources().getDimensionPixelSize(R.dimen.forecast_panel_height);
         frameLayout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, lineViewHeight));
@@ -127,15 +127,6 @@ public class ForecastGraphPanel extends LinearLayout {
         barChartView.setLayoutParams(layoutParams);
         barChartView.setOnTouchListener(onTouchListener);
 
-        int tabHeight = (int) ActivityUtils.dpToPx(context, 48.f);
-        int tabLayoutPadding = (int) ActivityUtils.dpToPx(context, 12.f);
-        tabLayout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, tabHeight));
-        tabLayout.setBackgroundColor(Colors.TRANSPARENT);
-        tabLayout.setTabMode(TabLayout.MODE_AUTO);
-        tabLayout.setTabIndicatorFullWidth(true);
-        tabLayout.setSelectedTabIndicatorColor(Color.WHITE);
-        tabLayout.setInlineLabel(true);
-        ((MarginLayoutParams) tabLayout.getLayoutParams()).topMargin = tabLayoutPadding;
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -183,26 +174,20 @@ public class ForecastGraphPanel extends LinearLayout {
 
         if (tabLayout.getTabCount() == 0) {
             TabLayout.Tab forecastTab = tabLayout.newTab();
-            forecastTab.setCustomView(R.layout.forecast_graph_panel_tablayout);
             forecastTab.setText(R.string.notificationicon_temperature);
-            TextView forecastIconView = forecastTab.view.findViewById(R.id.icon);
-            forecastIconView.setText(R.string.wi_thermometer);
+            forecastTab.setIcon(R.drawable.wi_thermometer);
             forecastTab.setTag(GraphType.FORECASTS);
             tabLayout.addTab(forecastTab, 0, false);
 
             TabLayout.Tab windTab = tabLayout.newTab();
-            windTab.setCustomView(R.layout.forecast_graph_panel_tablayout);
             windTab.setText(R.string.label_wind);
-            TextView windIconView = windTab.view.findViewById(R.id.icon);
-            windIconView.setText(R.string.wi_strong_wind);
+            windTab.setIcon(R.drawable.wi_strong_wind);
             windTab.setTag(GraphType.WIND);
             tabLayout.addTab(windTab, 1, false);
 
             TabLayout.Tab precipTab = tabLayout.newTab();
-            precipTab.setCustomView(R.layout.forecast_graph_panel_tablayout);
             precipTab.setText(R.string.label_precipitation);
-            TextView precipIconView = precipTab.view.findViewById(R.id.icon);
-            precipIconView.setText(R.string.wi_raindrop);
+            precipTab.setIcon(R.drawable.wi_raindrop);
             precipTab.setTag(GraphType.PRECIPITATION);
             tabLayout.addTab(precipTab, 2, false);
         }
@@ -265,18 +250,8 @@ public class ForecastGraphPanel extends LinearLayout {
         final int systemNightMode = currentConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
         final boolean isNightMode = systemNightMode == Configuration.UI_MODE_NIGHT_YES;
 
-        TabLayout.Tab forecastTab = tabLayout.getTabAt(0);
-        ((TextView) forecastTab.view.findViewById(R.id.icon)).setTextColor(isNightMode ? Colors.WHITE : Colors.BLACK);
-        ((TextView) forecastTab.view.findViewById(android.R.id.text1)).setTextColor(isNightMode ? Colors.WHITE : Colors.BLACK);
-
-        TabLayout.Tab windTab = tabLayout.getTabAt(1);
-        ((TextView) windTab.view.findViewById(R.id.icon)).setTextColor(isNightMode ? Colors.WHITE : Colors.BLACK);
-        ((TextView) windTab.view.findViewById(android.R.id.text1)).setTextColor(isNightMode ? Colors.WHITE : Colors.BLACK);
-
-        TabLayout.Tab precipTab = tabLayout.getTabAt(2);
-        ((TextView) precipTab.view.findViewById(R.id.icon)).setTextColor(isNightMode ? Colors.WHITE : Colors.BLACK);
-        ((TextView) precipTab.view.findViewById(android.R.id.text1)).setTextColor(isNightMode ? Colors.WHITE : Colors.BLACK);
-
+        tabLayout.setTabTextColors(ColorStateList.valueOf(isNightMode ? Colors.WHITE : Colors.BLACK));
+        tabLayout.setTabIconTint(ColorStateList.valueOf(isNightMode ? Colors.WHITE : Colors.BLACK));
         tabLayout.setSelectedTabIndicatorColor(isNightMode ? Colors.WHITE : Colors.BLACK);
     }
 

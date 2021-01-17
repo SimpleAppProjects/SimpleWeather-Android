@@ -31,17 +31,16 @@
             android:tint="@android:color/white"
             tools:srcCompat="@drawable/wi_day_sunny" />
 
-        <ImageView
+        <TextView
             android:id="@+id/condition_temp"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:adjustViewBounds="true"
-            android:maxHeight="72dp"
-            android:paddingStart="8dp"
-            android:scaleType="fitCenter"
-            android:tint="@android:color/white"
-            tools:srcCompat="@drawable/wi_na" />
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:minWidth="56dp"
+            android:textSize="28sp"
+            android:textColor="@android:color/white"
+            tools:text="77°" />
 
     </LinearLayout>
 

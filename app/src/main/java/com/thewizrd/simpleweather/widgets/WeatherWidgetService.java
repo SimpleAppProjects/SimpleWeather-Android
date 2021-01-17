@@ -64,7 +64,6 @@ import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
-import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.GlideApp;
 import com.thewizrd.simpleweather.R;
@@ -1299,7 +1298,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
         if (provider.getWidgetType() != WidgetType.Widget4x1) {
             // WeatherIcon
             updateViews.setImageViewBitmap(R.id.weather_icon,
-                    ImageUtils.weatherIconToBitmap(mContext, weather.getWeatherIcon(), tempTextSize, is4x2 ? textColor : panelTextColor, shadowRadius));
+                    ImageUtils.tintedBitmapFromDrawable(mContext, weather.getWeatherIcon(), is4x2 ? textColor : panelTextColor));
         }
 
         if (provider.getWidgetType() == WidgetType.Widget2x2) {
@@ -1324,10 +1323,10 @@ public class WeatherWidgetService extends SafeJobIntentService {
             int textSize = (int) ActivityUtils.dpToPx(mContext, 24f);
 
             updateViews.setImageViewBitmap(R.id.hi_icon,
-                    ImageUtils.weatherIconToBitmap(mContext, WeatherIcons.DIRECTION_UP, textSize, Colors.WHITE, shadowRadius * 4f)
+                    ImageUtils.tintedBitmapFromDrawable(mContext, R.drawable.wi_direction_up, Colors.WHITE)
             );
             updateViews.setImageViewBitmap(R.id.lo_icon,
-                    ImageUtils.weatherIconToBitmap(mContext, WeatherIcons.DIRECTION_DOWN, textSize, Colors.WHITE, shadowRadius * 4f)
+                    ImageUtils.tintedBitmapFromDrawable(mContext, R.drawable.wi_direction_down, Colors.WHITE)
             );
 
             if (style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
@@ -1361,14 +1360,14 @@ public class WeatherWidgetService extends SafeJobIntentService {
 
             if (chanceModel != null) {
                 updateViews.setImageViewBitmap(R.id.weather_popicon,
-                        ImageUtils.weatherIconToBitmap(mContext, chanceModel.getIcon(), textSize, panelTextColor, shadowRadius * 4f)
+                        ImageUtils.tintedBitmapFromDrawable(mContext, chanceModel.getIcon(), panelTextColor)
                 );
             }
 
             if (windModel != null) {
                 updateViews.setImageViewBitmap(R.id.weather_windicon,
                         ImageUtils.rotateBitmap(
-                                ImageUtils.weatherIconToBitmap(mContext, WeatherIcons.DIRECTION_UP, textSize, panelTextColor, shadowRadius * 4f),
+                                ImageUtils.tintedBitmapFromDrawable(mContext, R.drawable.wi_direction_up, panelTextColor),
                                 windModel.getIconRotation()
                         )
                 );
@@ -1809,7 +1808,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             shadowRadius = 1.75f;
 
         forecastItem.setImageViewBitmap(R.id.forecast_icon,
-                ImageUtils.weatherIconToBitmap(mContext, forecast.getWeatherIcon(), tempTextSize, textColor, shadowRadius));
+                ImageUtils.tintedBitmapFromDrawable(mContext, forecast.getWeatherIcon(), textColor));
 
         if (provider.getWidgetType() == WidgetType.Widget4x1) {
             if (forceSmallHeight) {

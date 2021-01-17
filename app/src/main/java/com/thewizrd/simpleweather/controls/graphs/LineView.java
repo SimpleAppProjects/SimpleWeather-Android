@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.controls.graphs;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
@@ -10,11 +11,8 @@ import android.graphics.Path;
 import android.graphics.PathEffect;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.text.Layout;
-import android.text.StaticLayout;
-import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -25,8 +23,9 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.content.res.ResourcesCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -171,7 +170,6 @@ public class LineView extends HorizontalScrollView implements IGraph {
         this.graph.BOTTOM_TEXT_COLOR = color;
         if (this.graph.bottomTextPaint != null) {
             this.graph.bottomTextPaint.setColor(this.graph.BOTTOM_TEXT_COLOR);
-            this.graph.iconPaint.setColor(this.graph.BOTTOM_TEXT_COLOR);
         }
     }
 
@@ -255,7 +253,6 @@ public class LineView extends HorizontalScrollView implements IGraph {
         private final Paint bottomTextPaint;
         private int bottomTextDescent;
 
-        private final TextPaint iconPaint;
         private final float iconHeight;
 
         private final float iconBottomMargin = ActivityUtils.dpToPx(getContext(), 2);
@@ -315,23 +312,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
             bottomTextPaint.setColor(BOTTOM_TEXT_COLOR);
             bottomTextPaint.setShadowLayer(1, 1, 1, ColorsUtils.isSuperLight(BOTTOM_TEXT_COLOR) ? Colors.BLACK : Colors.GRAY);
 
-            iconPaint = new TextPaint();
-            iconPaint.setAntiAlias(true);
-            iconPaint.setTextSize(ActivityUtils.dpToPx(getContext(), 24));
-            iconPaint.setTextAlign(Paint.Align.CENTER);
-            iconPaint.setStyle(Paint.Style.FILL);
-            iconPaint.setColor(BOTTOM_TEXT_COLOR);
-            Typeface weathericons = ResourcesCompat.getFont(getContext(), R.font.weathericons);
-            iconPaint.setSubpixelText(true);
-            iconPaint.setTypeface(weathericons);
-            iconPaint.setShadowLayer(1, 1, 1, ColorsUtils.isSuperLight(BOTTOM_TEXT_COLOR) ? Colors.BLACK : Colors.GRAY);
-
-            // Calculate icon height
-            Rect r = new Rect();
-            iconPaint.getTextBounds("'", 0, 1, r);
-            StaticLayout mTextLayout = new StaticLayout(
-                    "'", iconPaint, r.width(), Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
-            iconHeight = mTextLayout.getHeight();
+            iconHeight = ActivityUtils.dpToPx(getContext(), 30);
 
             bigCirPaint.setAntiAlias(true);
             smallCirPaint = new Paint(bigCirPaint);
@@ -834,22 +815,20 @@ public class LineView extends HorizontalScrollView implements IGraph {
                             canvas.drawText(xData.getLabel().toString(), x, y, bottomTextPaint);
                     }
 
-                    if (drawIconsLabels && !TextUtils.isEmpty(xData.getIcon())) {
+                    if (drawIconsLabels && xData.getIcon() != Resources.ID_NULL) {
                         int rotation = xData.getIconRotation();
-                        String icon = xData.getIcon().toString();
-                        Rect r = new Rect();
-                        iconPaint.getTextBounds(icon, 0, icon.length(), r);
+                        Drawable iconDrawable = ContextCompat.getDrawable(getContext(), xData.getIcon());
+                        DrawableCompat.setTint(iconDrawable, BOTTOM_TEXT_COLOR);
 
-                        drawingRect.set(x, y, x + r.width(), y + r.height());
+                        Rect bounds = new Rect(0, 0, (int) iconHeight, (int) iconHeight);
+                        iconDrawable.setBounds(bounds);
+                        drawingRect.set(x, y, x + bounds.width(), y + bounds.height());
 
                         if (RectF.intersects(drawingRect, visibleRect)) {
-                            StaticLayout mTextLayout = new StaticLayout(
-                                    icon, iconPaint, r.width(), Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
-
                             canvas.save();
-                            canvas.translate(x, y - mTextLayout.getHeight() - bottomTextHeight - iconBottomMargin);
-                            canvas.rotate(rotation, 0, mTextLayout.getHeight() / 2f);
-                            mTextLayout.draw(canvas);
+                            canvas.translate(x - bounds.width() / 2f, y - bounds.height() - bottomTextHeight - iconBottomMargin);
+                            canvas.rotate(rotation, bounds.width() / 2f, bounds.height() / 2f);
+                            iconDrawable.draw(canvas);
                             canvas.restore();
                         }
                     }

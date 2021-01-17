@@ -9,20 +9,21 @@ import android.graphics.Path;
 import android.graphics.PathEffect;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
-import androidx.core.content.res.ResourcesCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.util.ObjectsCompat;
 
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
-import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.simpleweather.R;
 
 import java.time.LocalTime;
@@ -282,19 +283,15 @@ public class SunPhaseView extends View {
         canvas.drawArc(oval, -180, 180, true, arcPaint);
 
         if (isDay) {
-            Paint iconPaint = new Paint();
-            iconPaint.setAntiAlias(true);
-            iconPaint.setTextSize(ActivityUtils.dpToPx(getContext(), 14));
-            iconPaint.setTextAlign(Paint.Align.LEFT);
-            iconPaint.setStyle(Paint.Style.FILL);
-            iconPaint.setColor(PAINT_COLOR);
-            iconPaint.setSubpixelText(true);
-            iconPaint.setTypeface(ResourcesCompat.getFont(getContext(), R.font.weathericons));
+            final float iconSize = ActivityUtils.dpToPx(getContext(), 28); // old: 24dp
+            Drawable iconDrawable = ContextCompat.getDrawable(getContext(), R.drawable.wi_day_sunny);
+            DrawableCompat.setTint(iconDrawable, PAINT_COLOR);
+            iconDrawable.setBounds(0, 0, (int) iconSize, (int) iconSize);
 
-            final Rect bounds = new Rect();
-            iconPaint.getTextBounds(WeatherIcons.DAY_SUNNY, 0, 1, bounds);
-
-            canvas.drawText(WeatherIcons.DAY_SUNNY, x - bounds.exactCenterX(), y - bounds.exactCenterY(), iconPaint);
+            canvas.save();
+            canvas.translate(x - iconSize / 2f, y - iconSize / 2f);
+            iconDrawable.draw(canvas);
+            canvas.restore();
         }
     }
 

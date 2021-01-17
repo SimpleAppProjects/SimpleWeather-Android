@@ -11,6 +11,7 @@ import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.Units;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.BaseForecast;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
@@ -47,7 +48,7 @@ public class GraphItemViewModel {
         }
 
         // Temp Data
-        XLabelData xTemp = new XLabelData(date, forecast.getIcon(), 0);
+        XLabelData xTemp = new XLabelData(date, WeatherUtils.getWeatherIconResource(forecast.getIcon()), 0);
         if (forecast.getHighF() != null && forecast.getHighC() != null) {
             int value = isFahrenheit ? Math.round(forecast.getHighF()) : Math.round(forecast.getHighC());
             String hiTemp = String.format(LocaleUtils.getLocale(), "%d°", value);
@@ -91,14 +92,14 @@ public class GraphItemViewModel {
                 int windDirection = forecast.getExtras().getWindDegrees();
 
                 YEntryData y = new YEntryData(speedVal, windSpeed);
-                XLabelData x = new XLabelData(date, context.getString(R.string.wi_wind_direction), windDirection + 180);
+                XLabelData x = new XLabelData(date, R.drawable.wi_wind_direction, windDirection + 180);
                 windEntryData = new EntryData<>(x, y);
             }
 
             // PoP Chance Data
             if (forecast.getExtras().getPop() != null && forecast.getExtras().getPop() >= 0) {
                 YEntryData y = new YEntryData(forecast.getExtras().getPop(), forecast.getExtras().getPop() + "%");
-                XLabelData x = new XLabelData(date, context.getString(R.string.wi_raindrop), 0);
+                XLabelData x = new XLabelData(date, R.drawable.wi_raindrop, 0);
                 chanceEntryData = new EntryData<>(x, y);
             }
         }

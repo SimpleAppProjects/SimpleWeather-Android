@@ -17,25 +17,17 @@
         android:paddingStart="@dimen/item_padding"
         android:paddingEnd="@dimen/list_item_padding">
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/detail_icon"
             android:layout_width="@dimen/details_icon_size"
             android:layout_height="@dimen/details_icon_size"
             android:layout_gravity="center"
-            android:includeFontPadding="false"
             android:gravity="center"
             android:padding="4dp"
             android:rotation="@{viewModel.iconRotation}"
-            android:text="@{viewModel.icon}"
-            android:textAlignment="center"
-            android:textAppearance="?android:textAppearanceLargeInverse"
-            android:textColor="@android:color/white"
-            android:textSize="32sp"
-            app:autoSizeTextType="uniform"
-            app:autoSizeMaxTextSize="32sp"
-            app:fontFamily="@font/weathericons"
-            tools:fontFamily="@font/weathericons"
-            tools:text="@string/wi_fog" />
+            app:srcCompat="@{viewModel.icon}"
+            app:tint="@android:color/white"
+            tools:srcCompat="@drawable/wi_moon_waxing_crescent_3" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/detail_label"
@@ -63,8 +55,6 @@
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white"
             android:textSize="@dimen/details_text_size"
-            app:fontFamily="@font/weathericons"
-            tools:fontFamily="@font/weathericons"
             tools:text="Waxing Cresent" />
 
     </LinearLayout>

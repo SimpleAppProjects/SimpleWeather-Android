@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.databinding;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
@@ -52,11 +53,11 @@ public class BindingAdapters {
                 }
             }, null);
 
-            TextView popIcon = view.findViewById(R.id.condition_popicon);
+            ImageView popIcon = view.findViewById(R.id.condition_popicon);
             TextView pop = view.findViewById(R.id.condition_pop);
 
             if (chanceModel != null) {
-                popIcon.setText(chanceModel.getIcon());
+                popIcon.setImageResource(chanceModel.getIcon());
                 pop.setText(chanceModel.getValue());
                 view.setVisibility(View.VISIBLE);
             } else {
@@ -77,11 +78,11 @@ public class BindingAdapters {
                 }
             }, null);
 
-            TextView windIcon = view.findViewById(R.id.condition_windicon);
+            ImageView windIcon = view.findViewById(R.id.condition_windicon);
             TextView windSpeed = view.findViewById(R.id.condition_windspeed);
 
             if (windModel != null) {
-                windIcon.setText(windModel.getIcon());
+                windIcon.setImageResource(windModel.getIcon());
                 windIcon.setRotation(windModel.getIconRotation());
 
                 String speed = TextUtils.isEmpty(windModel.getValue()) ? "" : windModel.getValue().toString();

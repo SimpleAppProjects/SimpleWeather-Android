@@ -40,6 +40,7 @@
             android:shadowColor="#DD000000"
             android:textColor="@android:color/white"
             android:textSize="24sp"
+            tools:text="Sunday, Jan 17"
             tools:visibility="visible" />
 
         <TextView

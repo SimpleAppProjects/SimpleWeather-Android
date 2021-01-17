@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.ColorInt;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.widget.ImageViewCompat;
 
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
@@ -106,7 +107,7 @@ public class DetailCard extends LinearLayout {
 
         setBackgroundColor(isNightMode ? Colors.BLACK : Colors.WHITE);
         setTextColor(isNightMode ? Colors.WHITE : Colors.BLACK);
-        binding.detailIcon.setTextColor(isNightMode ? Colors.SIMPLEBLUELIGHT : Colors.SIMPLEBLUEDARK);
+        ImageViewCompat.setImageTintList(binding.detailIcon, ColorStateList.valueOf(isNightMode ? Colors.SIMPLEBLUELIGHT : Colors.SIMPLEBLUEDARK));
         setStrokeColor(ColorUtils.setAlphaComponent(isNightMode ? Colors.LIGHTGRAY : Colors.BLACK, 0x40));
         setShadowColor(isNightMode ? Colors.BLACK : Colors.GRAY);
     }
@@ -138,13 +139,11 @@ public class DetailCard extends LinearLayout {
 
     public void setTextColor(@ColorInt int color) {
         binding.detailLabel.setTextColor(color);
-        binding.detailIcon.setTextColor(color);
         binding.detailValue.setTextColor(color);
     }
 
     public void setShadowColor(@ColorInt int color) {
         binding.detailLabel.setShadowLayer(mShadowRadius, mShadowDx, mShadowDy, color);
-        binding.detailIcon.setShadowLayer(mShadowRadius, mShadowDx, mShadowDy, color);
         binding.detailValue.setShadowLayer(mShadowRadius, mShadowDx, mShadowDy, color);
     }
 
@@ -155,7 +154,6 @@ public class DetailCard extends LinearLayout {
         mShadowColor = color;
 
         binding.detailLabel.setShadowLayer(radius, dx, dy, color);
-        binding.detailIcon.setShadowLayer(radius, dx, dy, color);
         binding.detailValue.setShadowLayer(radius, dx, dy, color);
     }
 }

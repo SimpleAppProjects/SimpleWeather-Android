@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.controls;
 
 import android.content.Context;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.WorkerThread;
 import androidx.core.util.ObjectsCompat;
 
@@ -15,10 +16,10 @@ import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
-import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import com.thewizrd.simpleweather.App;
+import com.thewizrd.simpleweather.R;
 
 public class LocationPanelViewModel {
     private Weather weather;
@@ -33,7 +34,8 @@ public class LocationPanelViewModel {
     private String loTemp;
     private boolean showHiLo;
     private String pop;
-    private String popIcon;
+    private @DrawableRes
+    int popIcon;
     private int windDir;
     private String windSpeed;
     private ImageDataViewModel imageData;
@@ -76,7 +78,8 @@ public class LocationPanelViewModel {
         return pop;
     }
 
-    public String getPopIcon() {
+    @DrawableRes
+    public int getPopIcon() {
         return popIcon;
     }
 
@@ -138,10 +141,10 @@ public class LocationPanelViewModel {
                 if (weather.getPrecipitation() != null) {
                     if (weather.getPrecipitation().getPop() != null) {
                         pop = weather.getPrecipitation().getPop() + "%";
-                        popIcon = WeatherIcons.UMBRELLA;
+                        popIcon = R.drawable.wi_umbrella;
                     } else if (weather.getPrecipitation().getCloudiness() != null) {
                         pop = weather.getPrecipitation().getCloudiness() + "%";
-                        popIcon = WeatherIcons.CLOUDY;
+                        popIcon = R.drawable.wi_cloudy;
                     }
                 } else {
                     pop = null;
@@ -177,9 +180,9 @@ public class LocationPanelViewModel {
 
         if (weather.getCondition().getTempF() != null && !ObjectsCompat.equals(weather.getCondition().getTempF(), weather.getCondition().getTempC())) {
             int temp = isFahrenheit ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC());
-            String unitTemp = isFahrenheit ? WeatherIcons.FAHRENHEIT : WeatherIcons.CELSIUS;
+            String unitTemp = isFahrenheit ? Units.FAHRENHEIT : Units.CELSIUS;
 
-            currTemp = String.format(LocaleUtils.getLocale(), "%d%s", temp, unitTemp);
+            currTemp = String.format(LocaleUtils.getLocale(), "%d°%s", temp, unitTemp);
         } else {
             currTemp = "--";
         }

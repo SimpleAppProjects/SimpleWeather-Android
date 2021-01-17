@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="com.thewizrd.shared_resources.utils.WeatherUtils" />
 
         <variable
             name="viewModel"
@@ -30,7 +31,7 @@
             android:textSize="16sp"
             tools:text="10PM" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/hrforecast_icon"
             android:layout_width="36dp"
             android:layout_height="36dp"
@@ -38,15 +39,9 @@
             android:includeFontPadding="false"
             android:gravity="center"
             android:padding="4dp"
-            android:text="@{viewModel.weatherIcon}"
-            android:textAlignment="center"
-            android:textAppearance="?android:textAppearanceLargeInverse"
-            android:textColor="@android:color/white"
-            android:textSize="32sp"
-            app:autoSizeTextType="uniform"
-            app:fontFamily="@font/weathericons"
-            tools:fontFamily="@font/weathericons"
-            tools:text="@string/wi_wu_sunny" />
+            app:srcCompat="@{viewModel.weatherIcon}"
+            app:tint="@android:color/white"
+            tools:srcCompat="@drawable/wi_day_sunny" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/hrforecast_temphi"

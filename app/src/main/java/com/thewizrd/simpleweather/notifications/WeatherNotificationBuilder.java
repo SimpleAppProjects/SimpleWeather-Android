@@ -40,11 +40,10 @@ public class WeatherNotificationBuilder {
         String hiTemp = StringUtils.removeNonDigitChars(viewModel.getHiTemp());
         String loTemp = StringUtils.removeNonDigitChars(viewModel.getLoTemp());
         String temp = viewModel.getCurTemp() != null ?
-                StringUtils.removeNonDigitChars(viewModel.getCurTemp().toString()) : "--";
+                StringUtils.removeNonDigitChars(viewModel.getCurTemp()) : "--";
 
         // Weather icon
-        updateViews.setImageViewResource(R.id.weather_icon,
-                WeatherUtils.getWeatherIconResource(viewModel.getWeatherIcon()));
+        updateViews.setImageViewResource(R.id.weather_icon, viewModel.getWeatherIcon());
 
         // Location Name
         updateViews.setTextViewText(R.id.location_name, viewModel.getLocation());
@@ -83,9 +82,7 @@ public class WeatherNotificationBuilder {
         // Extras
         int textSize = (int) ActivityUtils.dpToPx(context, 24f);
         if (chanceModel != null) {
-            updateViews.setImageViewBitmap(R.id.weather_popicon,
-                    ImageUtils.weatherIconToBitmap(context, chanceModel.getIcon(), textSize, false)
-            );
+            updateViews.setImageViewResource(R.id.weather_popicon, chanceModel.getIcon());
             updateViews.setTextViewText(R.id.weather_pop, chanceModel.getValue());
             updateViews.setViewVisibility(R.id.weather_pop_layout, View.VISIBLE);
         } else {
@@ -121,16 +118,12 @@ public class WeatherNotificationBuilder {
             bigUpdateViews.setViewVisibility(R.id.feelslike_layout, View.VISIBLE);
         }
         if (humidityModel != null) {
-            bigUpdateViews.setImageViewBitmap(R.id.humidity_icon,
-                    ImageUtils.weatherIconToBitmap(context, humidityModel.getIcon(), textSize, false)
-            );
+            bigUpdateViews.setImageViewResource(R.id.humidity_icon, humidityModel.getIcon());
             bigUpdateViews.setTextViewText(R.id.humidity, humidityModel.getValue());
             bigUpdateViews.setViewVisibility(R.id.humidity_layout, View.VISIBLE);
         }
         if (popRainModel != null) {
-            bigUpdateViews.setImageViewBitmap(R.id.precip_rain_icon,
-                    ImageUtils.weatherIconToBitmap(context, popRainModel.getIcon(), textSize, false)
-            );
+            bigUpdateViews.setImageViewResource(R.id.precip_rain_icon, popRainModel.getIcon());
             bigUpdateViews.setTextViewText(R.id.precip_rain, popRainModel.getValue());
             bigUpdateViews.setViewVisibility(R.id.precip_rain_layout, View.VISIBLE);
         }
@@ -156,7 +149,7 @@ public class WeatherNotificationBuilder {
                 mBuilder.setSmallIcon(WeatherNotificationTemp.getTempDrawable(tempLevel));
             }
         } else if (Settings.getNotificationIcon().equals(Settings.CONDITION_ICON)) {
-            mBuilder.setSmallIcon(WeatherUtils.getWeatherIconResource(viewModel.getWeatherIcon()));
+            mBuilder.setSmallIcon(viewModel.getWeatherIcon());
         }
 
         Intent onClickIntent = new Intent(context, MainActivity.class)

@@ -64,7 +64,7 @@
                     app:autoSizeTextType="uniform"
                     tools:text="Winter Weather Advisory" />
 
-                <com.google.android.material.checkbox.MaterialCheckBox
+                <CheckBox
                     android:id="@+id/expand_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

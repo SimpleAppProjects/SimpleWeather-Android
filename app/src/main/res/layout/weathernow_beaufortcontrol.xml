@@ -8,6 +8,7 @@
         <import type="android.view.View" />
 
         <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
+        <import type="com.thewizrd.simpleweather.R" />
 
         <variable
             name="weatherView"
@@ -33,34 +34,27 @@
             style="@style/ShadowText"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentLeft="true" />
+            android:layout_alignParentEnd="true" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/beaufort_icon"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:gravity="center_vertical"
-            android:paddingLeft="12dp"
-            android:paddingRight="12dp"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
-            android:text="@{weatherView.beaufort != null ? weatherView.beaufort.beaufort.icon : null}"
-            android:textAppearance="?android:textAppearanceMedium"
-            android:textColor="@color/beaufort_color"
-            android:textSize="36sp"
-            style="@style/ShadowText"
-            app:fontFamily="@font/weathericons"
+            android:adjustViewBounds="true"
+            android:cropToPadding="false"
+            app:srcCompat="@{weatherView.beaufort != null ? weatherView.beaufort.beaufort.icon : R.drawable.wi_na}"
+            app:tint="@color/beaufort_color"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_below="@id/beaufort_label"
-            tools:text="@string/wi_wind_beaufort_11" />
+            tools:srcCompat="@drawable/wi_wind_beaufort_11" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/beaufort_description"
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:padding="12dp"
             android:text="@{weatherView.beaufort != null ? weatherView.beaufort.beaufort.value : null}"
@@ -68,11 +62,8 @@
             android:textColor="@color/colorTextPrimary"
             style="@style/ShadowText"
             android:layout_below="@id/beaufort_label"
-            android:layout_alignBottom="@id/beaufort_icon"
             android:layout_alignParentEnd="true"
             android:layout_toEndOf="@id/beaufort_icon"
-            android:layout_toRightOf="@id/beaufort_icon"
-            android:layout_alignParentRight="true"
             tools:text="11, Extreme" />
 
         <ProgressBar
@@ -93,9 +84,8 @@
             app:progressColor="@{weatherView.beaufort != null ? weatherView.beaufort.progressColor : 0}"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
             android:layout_below="@id/beaufort_icon"
+            tools:progressTint="#FFFF4500"
             tools:progress="11"
             tools:max="12" />
 
@@ -107,9 +97,7 @@
             android:background="@color/colorOnSurface"
             android:layout_below="@id/beaufort_progressBar"
             android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true" />
+            android:layout_alignParentEnd="true" />
 
     </RelativeLayout>
 </layout>

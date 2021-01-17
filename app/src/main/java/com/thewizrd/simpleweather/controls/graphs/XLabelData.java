@@ -1,20 +1,23 @@
 package com.thewizrd.simpleweather.controls.graphs;
 
+import androidx.annotation.DrawableRes;
+
 public class XLabelData {
     private CharSequence xLabel;
-    private CharSequence xIcon;
+    private @DrawableRes
+    int xIcon;
     private int xIconRotation;
 
     public XLabelData(CharSequence label) {
         this.xLabel = label;
     }
 
-    public XLabelData(CharSequence label, CharSequence icon) {
+    public XLabelData(CharSequence label, @DrawableRes int icon) {
         this(label);
         this.xIcon = icon;
     }
 
-    public XLabelData(CharSequence label, CharSequence icon, int iconRotation) {
+    public XLabelData(CharSequence label, @DrawableRes int icon, int iconRotation) {
         this(label, icon);
         xIconRotation = iconRotation;
     }
@@ -27,11 +30,12 @@ public class XLabelData {
         this.xLabel = label;
     }
 
-    public CharSequence getIcon() {
+    public @DrawableRes
+    int getIcon() {
         return xIcon;
     }
 
-    public void setIcon(CharSequence icon) {
+    public void setIcon(@DrawableRes int icon) {
         this.xIcon = icon;
     }
 

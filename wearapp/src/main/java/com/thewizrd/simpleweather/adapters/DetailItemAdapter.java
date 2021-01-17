@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.adapters;
 
 import android.annotation.SuppressLint;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.ObjectsCompat;
+import androidx.core.widget.ImageViewCompat;
 import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,13 +28,13 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class DetailItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private AsyncListDiffer<DetailItemViewModel> mDiffer;
+    private final AsyncListDiffer<DetailItemViewModel> mDiffer;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
     static class ViewHolder extends RecyclerView.ViewHolder {
-        private DetailItemPanelBinding binding;
+        private final DetailItemPanelBinding binding;
 
         public ViewHolder(DetailItemPanelBinding binding) {
             super(binding.getRoot());
@@ -41,7 +43,7 @@ public class DetailItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         public void bind(DetailItemViewModel model) {
             binding.setViewModel(model);
-            binding.detailIcon.setTextColor(Colors.SIMPLEBLUELIGHT);
+            ImageViewCompat.setImageTintList(binding.detailIcon, ColorStateList.valueOf(Colors.SIMPLEBLUELIGHT));
             binding.executePendingBindings();
         }
     }
@@ -51,7 +53,7 @@ public class DetailItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         mDiffer = new AsyncListDiffer<>(this, diffCallback);
     }
 
-    private DiffUtil.ItemCallback<DetailItemViewModel> diffCallback = new DiffUtil.ItemCallback<DetailItemViewModel>() {
+    private final DiffUtil.ItemCallback<DetailItemViewModel> diffCallback = new DiffUtil.ItemCallback<DetailItemViewModel>() {
         @Override
         public boolean areItemsTheSame(@NonNull DetailItemViewModel oldItem, @NonNull DetailItemViewModel newItem) {
             return oldItem.getDetailsType() == newItem.getDetailsType();

@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <import type="com.thewizrd.shared_resources.utils.StringUtils" />
+        <import type="com.thewizrd.shared_resources.utils.WeatherUtils" />
 
         <variable
             name="viewModel"
@@ -31,22 +31,15 @@
             android:textSize="16sp"
             tools:text="Mon" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/forecast_icon"
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:layout_gravity="center"
             android:gravity="center"
-            android:includeFontPadding="false"
-            android:fontFamily="@font/weathericons"
-            android:maxLines="1"
-            android:text="@{viewModel.weatherIcon}"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-            android:textColor="@android:color/white"
-            android:textSize="36sp"
-            app:autoSizeTextType="uniform"
-            app:fontFamily="@font/weathericons"
-            tools:text="@string/wi_day_sunny" />
+            app:srcCompat="@{viewModel.weatherIcon}"
+            app:tint="@android:color/white"
+            tools:srcCompat="@drawable/wi_day_sunny" />
 
         <TextView
             android:id="@+id/forecast_hi"

@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources.controls;
 
 import android.content.Context;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 
 import com.thewizrd.shared_resources.R;
@@ -16,7 +17,8 @@ public class DetailItemViewModel {
     @NonNull
     private WeatherDetailsType detailsType;
     private CharSequence label;
-    private CharSequence icon;
+    private @DrawableRes
+    int icon;
     private CharSequence value;
     private int iconRotation;
 
@@ -31,79 +33,79 @@ public class DetailItemViewModel {
         switch (detailsType) {
             case SUNRISE:
                 this.label = context.getString(R.string.label_sunrise);
-                this.icon = context.getString(R.string.wi_sunrise);
+                this.icon = R.drawable.wi_sunrise;
                 break;
             case SUNSET:
                 this.label = context.getString(R.string.label_sunset);
-                this.icon = context.getString(R.string.wi_sunset);
+                this.icon = R.drawable.wi_sunset;
                 break;
             case FEELSLIKE:
                 this.label = context.getString(R.string.label_feelslike);
-                this.icon = context.getString(R.string.wi_thermometer);
+                this.icon = R.drawable.wi_thermometer;
                 break;
             case WINDSPEED:
                 this.label = context.getString(R.string.label_wind);
-                this.icon = context.getString(R.string.wi_wind_direction);
+                this.icon = R.drawable.wi_wind_direction;
                 break;
             case WINDGUST:
                 this.label = context.getString(R.string.label_windgust);
-                this.icon = context.getString(R.string.wi_cloudy_gusts);
+                this.icon = R.drawable.wi_cloudy_gusts;
                 break;
             case HUMIDITY:
                 this.label = context.getString(R.string.label_humidity);
-                this.icon = context.getString(R.string.wi_humidity);
+                this.icon = R.drawable.wi_humidity;
                 break;
             case PRESSURE:
                 this.label = context.getString(R.string.label_pressure);
-                this.icon = context.getString(R.string.wi_barometer);
+                this.icon = R.drawable.wi_barometer;
                 break;
             case VISIBILITY:
                 this.label = context.getString(R.string.label_visibility);
-                this.icon = context.getString(R.string.wi_fog);
+                this.icon = R.drawable.wi_fog;
                 break;
             case POPCHANCE:
                 this.label = context.getString(R.string.label_chance);
-                this.icon = context.getString(R.string.wi_umbrella);
+                this.icon = R.drawable.wi_umbrella;
                 break;
             case POPCLOUDINESS:
                 this.label = context.getString(R.string.label_cloudiness);
-                this.icon = context.getString(R.string.wi_cloudy);
+                this.icon = R.drawable.wi_cloudy;
                 break;
             case POPRAIN:
                 this.label = context.getString(R.string.label_qpf_rain);
-                this.icon = context.getString(R.string.wi_raindrops);
+                this.icon = R.drawable.wi_raindrops;
                 break;
             case POPSNOW:
                 this.label = context.getString(R.string.label_qpf_snow);
-                this.icon = context.getString(R.string.wi_snowflake_cold);
+                this.icon = R.drawable.wi_snowflake_cold;
                 break;
             case DEWPOINT:
                 this.label = context.getString(R.string.label_dewpoint);
-                this.icon = context.getString(R.string.wi_thermometer);
+                this.icon = R.drawable.wi_thermometer;
                 break;
             case MOONRISE:
                 this.label = context.getString(R.string.label_moonrise);
-                this.icon = context.getString(R.string.wi_moonrise);
+                this.icon = R.drawable.wi_moonrise;
                 break;
             case MOONSET:
                 this.label = context.getString(R.string.label_moonset);
-                this.icon = context.getString(R.string.wi_moonset);
+                this.icon = R.drawable.wi_moonset;
                 break;
             case MOONPHASE:
                 this.label = context.getString(R.string.label_moonphase);
-                this.icon = context.getString(R.string.wi_moon_alt_new);
+                this.icon = R.drawable.wi_moon_alt_new;
                 break;
             case BEAUFORT:
                 this.label = context.getString(R.string.label_beaufort);
-                this.icon = context.getString(R.string.wi_wind_beaufort_0);
+                this.icon = R.drawable.wi_wind_beaufort_0;
                 break;
             case UV:
                 this.label = context.getString(R.string.label_uv);
-                this.icon = context.getString(R.string.wi_day_sunny);
+                this.icon = R.drawable.wi_day_sunny;
                 break;
             case AIRQUALITY:
                 this.label = context.getString(R.string.label_airquality);
-                this.icon = context.getString(R.string.wi_cloudy_gusts);
+                this.icon = R.drawable.wi_cloudy_gusts;
                 break;
         }
 
@@ -120,35 +122,35 @@ public class DetailItemViewModel {
 
         switch (moonPhaseType) {
             case NEWMOON:
-                this.icon = context.getString(R.string.wi_moon_alt_new);
+                this.icon = R.drawable.wi_moon_alt_new;
                 this.value = context.getString(R.string.moonphase_new);
                 break;
             case WAXING_CRESCENT:
-                this.icon = context.getString(R.string.wi_moon_alt_waxing_crescent_3);
+                this.icon = R.drawable.wi_moon_alt_waxing_crescent_3;
                 this.value = context.getString(R.string.moonphase_waxcrescent);
                 break;
             case FIRST_QTR:
-                this.icon = context.getString(R.string.wi_moon_alt_first_quarter);
+                this.icon = R.drawable.wi_moon_alt_first_quarter;
                 this.value = context.getString(R.string.moonphase_firstqtr);
                 break;
             case WAXING_GIBBOUS:
-                this.icon = context.getString(R.string.wi_moon_alt_waxing_gibbous_3);
+                this.icon = R.drawable.wi_moon_alt_waxing_gibbous_3;
                 this.value = context.getString(R.string.moonphase_waxgibbous);
                 break;
             case FULL_MOON:
-                this.icon = context.getString(R.string.wi_moon_alt_full);
+                this.icon = R.drawable.wi_moon_alt_full;
                 this.value = context.getString(R.string.moonphase_full);
                 break;
             case WANING_GIBBOUS:
-                this.icon = context.getString(R.string.wi_moon_alt_waning_gibbous_3);
+                this.icon = R.drawable.wi_moon_alt_waning_gibbous_3;
                 this.value = context.getString(R.string.moonphase_wangibbous);
                 break;
             case LAST_QTR:
-                this.icon = context.getString(R.string.wi_moon_alt_third_quarter);
+                this.icon = R.drawable.wi_moon_alt_third_quarter;
                 this.value = context.getString(R.string.moonphase_lastqtr);
                 break;
             case WANING_CRESCENT:
-                this.icon = context.getString(R.string.wi_moon_alt_waning_crescent_3);
+                this.icon = R.drawable.wi_moon_alt_waning_crescent_3;
                 this.value = context.getString(R.string.moonphase_wancrescent);
                 break;
         }
@@ -163,55 +165,55 @@ public class DetailItemViewModel {
 
         switch (beaufortScale) {
             case B0:
-                this.icon = context.getString(R.string.wi_wind_beaufort_0);
+                this.icon = R.drawable.wi_wind_beaufort_0;
                 this.value = context.getString(R.string.beaufort_0);
                 break;
             case B1:
-                this.icon = context.getString(R.string.wi_wind_beaufort_1);
+                this.icon = R.drawable.wi_wind_beaufort_1;
                 this.value = context.getString(R.string.beaufort_1);
                 break;
             case B2:
-                this.icon = context.getString(R.string.wi_wind_beaufort_2);
+                this.icon = R.drawable.wi_wind_beaufort_2;
                 this.value = context.getString(R.string.beaufort_2);
                 break;
             case B3:
-                this.icon = context.getString(R.string.wi_wind_beaufort_3);
+                this.icon = R.drawable.wi_wind_beaufort_3;
                 this.value = context.getString(R.string.beaufort_3);
                 break;
             case B4:
-                this.icon = context.getString(R.string.wi_wind_beaufort_4);
+                this.icon = R.drawable.wi_wind_beaufort_4;
                 this.value = context.getString(R.string.beaufort_4);
                 break;
             case B5:
-                this.icon = context.getString(R.string.wi_wind_beaufort_5);
+                this.icon = R.drawable.wi_wind_beaufort_5;
                 this.value = context.getString(R.string.beaufort_5);
                 break;
             case B6:
-                this.icon = context.getString(R.string.wi_wind_beaufort_6);
+                this.icon = R.drawable.wi_wind_beaufort_6;
                 this.value = context.getString(R.string.beaufort_6);
                 break;
             case B7:
-                this.icon = context.getString(R.string.wi_wind_beaufort_7);
+                this.icon = R.drawable.wi_wind_beaufort_7;
                 this.value = context.getString(R.string.beaufort_7);
                 break;
             case B8:
-                this.icon = context.getString(R.string.wi_wind_beaufort_8);
+                this.icon = R.drawable.wi_wind_beaufort_8;
                 this.value = context.getString(R.string.beaufort_8);
                 break;
             case B9:
-                this.icon = context.getString(R.string.wi_wind_beaufort_9);
+                this.icon = R.drawable.wi_wind_beaufort_9;
                 this.value = context.getString(R.string.beaufort_9);
                 break;
             case B10:
-                this.icon = context.getString(R.string.wi_wind_beaufort_10);
+                this.icon = R.drawable.wi_wind_beaufort_10;
                 this.value = context.getString(R.string.beaufort_10);
                 break;
             case B11:
-                this.icon = context.getString(R.string.wi_wind_beaufort_11);
+                this.icon = R.drawable.wi_wind_beaufort_11;
                 this.value = context.getString(R.string.beaufort_11);
                 break;
             case B12:
-                this.icon = context.getString(R.string.wi_wind_beaufort_12);
+                this.icon = R.drawable.wi_wind_beaufort_12;
                 this.value = context.getString(R.string.beaufort_12);
                 break;
         }
@@ -221,7 +223,7 @@ public class DetailItemViewModel {
         Context context = SimpleLibrary.getInstance().getAppContext();
         this.detailsType = WeatherDetailsType.AIRQUALITY;
         this.label = context.getString(R.string.label_airquality_short);
-        this.icon = context.getString(R.string.wi_cloudy_gusts);
+        this.icon = R.drawable.wi_cloudy_gusts;
         this.iconRotation = 0;
 
         if (aqi.getIndex() < 51) {
@@ -243,7 +245,7 @@ public class DetailItemViewModel {
         Context context = SimpleLibrary.getInstance().getAppContext();
         this.detailsType = WeatherDetailsType.UV;
         this.label = context.getString(R.string.label_uv);
-        this.icon = context.getString(R.string.wi_day_sunny);
+        this.icon = R.drawable.wi_day_sunny;
         this.iconRotation = 0;
 
         if (uv.getIndex() < 3) {
@@ -276,11 +278,12 @@ public class DetailItemViewModel {
         this.label = label;
     }
 
-    public CharSequence getIcon() {
+    public @DrawableRes
+    int getIcon() {
         return icon;
     }
 
-    public void setIcon(CharSequence icon) {
+    public void setIcon(@DrawableRes int icon) {
         this.icon = icon;
     }
 
@@ -311,8 +314,7 @@ public class DetailItemViewModel {
         if (getDetailsType() != that.getDetailsType()) return false;
         if (getLabel() != null ? !getLabel().equals(that.getLabel()) : that.getLabel() != null)
             return false;
-        if (getIcon() != null ? !getIcon().equals(that.getIcon()) : that.getIcon() != null)
-            return false;
+        if (getIcon() != that.getIcon()) return false;
         return getValue() != null ? getValue().equals(that.getValue()) : that.getValue() == null;
     }
 
@@ -320,7 +322,7 @@ public class DetailItemViewModel {
     public int hashCode() {
         int result = getDetailsType() != null ? getDetailsType().hashCode() : 0;
         result = 31 * result + (getLabel() != null ? getLabel().hashCode() : 0);
-        result = 31 * result + (getIcon() != null ? getIcon().hashCode() : 0);
+        result = 31 * result + getIcon();
         result = 31 * result + (getValue() != null ? getValue().hashCode() : 0);
         result = 31 * result + getIconRotation();
         return result;

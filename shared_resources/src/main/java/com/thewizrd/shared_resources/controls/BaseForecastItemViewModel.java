@@ -1,5 +1,7 @@
 package com.thewizrd.shared_resources.controls;
 
+import androidx.annotation.DrawableRes;
+
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 import java.util.ArrayList;
@@ -8,7 +10,8 @@ import java.util.List;
 public abstract class BaseForecastItemViewModel {
     protected WeatherManager wm;
 
-    protected String weatherIcon;
+    protected @DrawableRes
+    int weatherIcon;
     protected String date;
     protected String shortDate;
     protected String condition;
@@ -25,11 +28,12 @@ public abstract class BaseForecastItemViewModel {
         detailExtras = new ArrayList<>(capacity);
     }
 
-    public String getWeatherIcon() {
+    @DrawableRes
+    public int getWeatherIcon() {
         return weatherIcon;
     }
 
-    public void setWeatherIcon(String weatherIcon) {
+    public void setWeatherIcon(@DrawableRes int weatherIcon) {
         this.weatherIcon = weatherIcon;
     }
 
@@ -105,8 +109,7 @@ public abstract class BaseForecastItemViewModel {
         BaseForecastItemViewModel that = (BaseForecastItemViewModel) o;
 
         if (getWindDirection() != that.getWindDirection()) return false;
-        if (getWeatherIcon() != null ? !getWeatherIcon().equals(that.getWeatherIcon()) : that.getWeatherIcon() != null)
-            return false;
+        if (getWeatherIcon() != that.getWeatherIcon()) return false;
         if (getDate() != null ? !getDate().equals(that.getDate()) : that.getDate() != null)
             return false;
         if (getCondition() != null ? !getCondition().equals(that.getCondition()) : that.getCondition() != null)

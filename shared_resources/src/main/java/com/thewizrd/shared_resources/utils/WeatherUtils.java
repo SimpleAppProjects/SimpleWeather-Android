@@ -198,60 +198,60 @@ public class WeatherUtils {
 
         switch (type) {
             case DENSEFOG:
-                drawable = R.drawable.fog;
+                drawable = R.drawable.wi_fog;
                 break;
             case FIRE:
-                drawable = R.drawable.fire;
+                drawable = R.drawable.wi_fire;
                 break;
             case FLOODWARNING:
             case FLOODWATCH:
-                drawable = R.drawable.flood;
+                drawable = R.drawable.wi_flood;
                 break;
             case HEAT:
-                drawable = R.drawable.hot;
+                drawable = R.drawable.wi_hot;
                 break;
             case HIGHWIND:
-                drawable = R.drawable.strong_wind;
+                drawable = R.drawable.wi_strong_wind;
                 break;
             case HURRICANELOCALSTATEMENT:
             case HURRICANEWINDWARNING:
-                drawable = R.drawable.hurricane;
+                drawable = R.drawable.wi_hurricane;
                 break;
             case SEVERETHUNDERSTORMWARNING:
             case SEVERETHUNDERSTORMWATCH:
-                drawable = R.drawable.thunderstorm;
+                drawable = R.drawable.wi_thunderstorm;
                 break;
             case TORNADOWARNING:
             case TORNADOWATCH:
-                drawable = R.drawable.tornado;
+                drawable = R.drawable.wi_tornado;
                 break;
             case VOLCANO:
-                drawable = R.drawable.volcano;
+                drawable = R.drawable.wi_volcano;
                 break;
             case WINTERWEATHER:
-                drawable = R.drawable.snowflake_cold;
+                drawable = R.drawable.wi_snowflake_cold;
                 break;
             case DENSESMOKE:
-                drawable = R.drawable.smoke;
+                drawable = R.drawable.wi_smoke;
                 break;
             case DUSTADVISORY:
-                drawable = R.drawable.dust;
+                drawable = R.drawable.wi_dust;
                 break;
             case EARTHQUAKEWARNING:
-                drawable = R.drawable.earthquake;
+                drawable = R.drawable.wi_earthquake;
                 break;
             case GALEWARNING:
-                drawable = R.drawable.gale_warning;
+                drawable = R.drawable.wi_gale_warning;
                 break;
             case SMALLCRAFT:
-                drawable = R.drawable.small_craft_advisory;
+                drawable = R.drawable.wi_small_craft_advisory;
                 break;
             case STORMWARNING:
-                drawable = R.drawable.storm_warning;
+                drawable = R.drawable.wi_storm_warning;
                 break;
             case TSUNAMIWARNING:
             case TSUNAMIWATCH:
-                drawable = R.drawable.tsunami;
+                drawable = R.drawable.wi_tsunami;
                 break;
             case SEVEREWEATHER:
             case SPECIALWEATHERALERT:
@@ -308,227 +308,386 @@ public class WeatherUtils {
         int weatherIcon = -1;
 
         switch (icon) {
+            // Day
             case WeatherIcons.DAY_SUNNY:
-                weatherIcon = R.drawable.day_sunny;
+                weatherIcon = R.drawable.wi_day_sunny;
                 break;
             case WeatherIcons.DAY_CLOUDY:
-                weatherIcon = R.drawable.day_cloudy;
+                weatherIcon = R.drawable.wi_day_cloudy;
                 break;
             case WeatherIcons.DAY_CLOUDY_GUSTS:
-                weatherIcon = R.drawable.day_cloudy_gusts;
+                weatherIcon = R.drawable.wi_day_cloudy_gusts;
                 break;
             case WeatherIcons.DAY_CLOUDY_WINDY:
-                weatherIcon = R.drawable.day_cloudy_windy;
+                weatherIcon = R.drawable.wi_day_cloudy_windy;
                 break;
             case WeatherIcons.DAY_FOG:
-                weatherIcon = R.drawable.day_fog;
+                weatherIcon = R.drawable.wi_day_fog;
                 break;
             case WeatherIcons.DAY_HAIL:
-                weatherIcon = R.drawable.day_hail;
+                weatherIcon = R.drawable.wi_day_hail;
                 break;
             case WeatherIcons.DAY_HAZE:
-                weatherIcon = R.drawable.day_haze;
+                weatherIcon = R.drawable.wi_day_haze;
                 break;
             case WeatherIcons.DAY_LIGHTNING:
-                weatherIcon = R.drawable.day_lightning;
+                weatherIcon = R.drawable.wi_day_lightning;
                 break;
             case WeatherIcons.DAY_RAIN:
-                weatherIcon = R.drawable.day_rain;
+                weatherIcon = R.drawable.wi_day_rain;
                 break;
             case WeatherIcons.DAY_RAIN_MIX:
-                weatherIcon = R.drawable.day_rain_mix;
+                weatherIcon = R.drawable.wi_day_rain_mix;
                 break;
             case WeatherIcons.DAY_RAIN_WIND:
-                weatherIcon = R.drawable.day_rain_wind;
+                weatherIcon = R.drawable.wi_day_rain_wind;
                 break;
             case WeatherIcons.DAY_SHOWERS:
-                weatherIcon = R.drawable.day_showers;
+                weatherIcon = R.drawable.wi_day_showers;
                 break;
             case WeatherIcons.DAY_SLEET:
-                weatherIcon = R.drawable.day_sleet;
+                weatherIcon = R.drawable.wi_day_sleet;
                 break;
             case WeatherIcons.DAY_SLEET_STORM:
-                weatherIcon = R.drawable.day_sleet_storm;
+                weatherIcon = R.drawable.wi_day_sleet_storm;
                 break;
             case WeatherIcons.DAY_SNOW:
-                weatherIcon = R.drawable.day_snow;
+                weatherIcon = R.drawable.wi_day_snow;
                 break;
             case WeatherIcons.DAY_SNOW_THUNDERSTORM:
-                weatherIcon = R.drawable.day_snow_thunderstorm;
+                weatherIcon = R.drawable.wi_day_snow_thunderstorm;
                 break;
             case WeatherIcons.DAY_SNOW_WIND:
-                weatherIcon = R.drawable.day_snow_wind;
+                weatherIcon = R.drawable.wi_day_snow_wind;
                 break;
             case WeatherIcons.DAY_SPRINKLE:
-                weatherIcon = R.drawable.day_sprinkle;
+                weatherIcon = R.drawable.wi_day_sprinkle;
                 break;
             case WeatherIcons.DAY_STORM_SHOWERS:
-                weatherIcon = R.drawable.day_storm_showers;
+                weatherIcon = R.drawable.wi_day_storm_showers;
                 break;
             case WeatherIcons.DAY_SUNNY_OVERCAST:
-                weatherIcon = R.drawable.day_sunny_overcast;
+                weatherIcon = R.drawable.wi_day_sunny_overcast;
                 break;
             case WeatherIcons.DAY_THUNDERSTORM:
-                weatherIcon = R.drawable.day_thunderstorm;
+                weatherIcon = R.drawable.wi_day_thunderstorm;
                 break;
             case WeatherIcons.DAY_WINDY:
-                weatherIcon = R.drawable.day_windy;
+                weatherIcon = R.drawable.wi_day_windy;
                 break;
             case WeatherIcons.DAY_HOT:
-                weatherIcon = R.drawable.hot;
+                weatherIcon = R.drawable.wi_hot;
                 break;
             case WeatherIcons.DAY_CLOUDY_HIGH:
-                weatherIcon = R.drawable.day_cloudy_high;
+                weatherIcon = R.drawable.wi_day_cloudy_high;
                 break;
             case WeatherIcons.DAY_LIGHT_WIND:
-                weatherIcon = R.drawable.day_light_wind;
+                weatherIcon = R.drawable.wi_day_light_wind;
                 break;
+
+            // Night
             case WeatherIcons.NIGHT_CLEAR:
-                weatherIcon = R.drawable.night_clear;
+                weatherIcon = R.drawable.wi_night_clear;
                 break;
             case WeatherIcons.NIGHT_ALT_CLOUDY:
-                weatherIcon = R.drawable.night_alt_cloudy;
+                weatherIcon = R.drawable.wi_night_alt_cloudy;
                 break;
             case WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS:
-                weatherIcon = R.drawable.night_alt_cloudy_gusts;
+                weatherIcon = R.drawable.wi_night_alt_cloudy_gusts;
                 break;
             case WeatherIcons.NIGHT_ALT_CLOUDY_WINDY:
-                weatherIcon = R.drawable.night_alt_cloudy_windy;
+                weatherIcon = R.drawable.wi_night_alt_cloudy_windy;
                 break;
             case WeatherIcons.NIGHT_ALT_HAIL:
-                weatherIcon = R.drawable.night_alt_hail;
+                weatherIcon = R.drawable.wi_night_alt_hail;
                 break;
             case WeatherIcons.NIGHT_ALT_LIGHTNING:
-                weatherIcon = R.drawable.night_alt_lightning;
+                weatherIcon = R.drawable.wi_night_alt_lightning;
                 break;
             case WeatherIcons.NIGHT_ALT_RAIN:
-                weatherIcon = R.drawable.night_alt_rain;
+                weatherIcon = R.drawable.wi_night_alt_rain;
                 break;
             case WeatherIcons.NIGHT_ALT_RAIN_MIX:
-                weatherIcon = R.drawable.night_alt_rain_mix;
+                weatherIcon = R.drawable.wi_night_alt_rain_mix;
                 break;
             case WeatherIcons.NIGHT_ALT_RAIN_WIND:
-                weatherIcon = R.drawable.night_alt_rain_wind;
+                weatherIcon = R.drawable.wi_night_alt_rain_wind;
                 break;
             case WeatherIcons.NIGHT_ALT_SHOWERS:
-                weatherIcon = R.drawable.night_alt_showers;
+                weatherIcon = R.drawable.wi_night_alt_showers;
                 break;
             case WeatherIcons.NIGHT_ALT_SLEET:
-                weatherIcon = R.drawable.night_alt_sleet;
+                weatherIcon = R.drawable.wi_night_alt_sleet;
                 break;
             case WeatherIcons.NIGHT_ALT_SLEET_STORM:
-                weatherIcon = R.drawable.night_alt_sleet_storm;
+                weatherIcon = R.drawable.wi_night_alt_sleet_storm;
                 break;
             case WeatherIcons.NIGHT_ALT_SNOW:
-                weatherIcon = R.drawable.night_alt_snow;
+                weatherIcon = R.drawable.wi_night_alt_snow;
                 break;
             case WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM:
-                weatherIcon = R.drawable.night_alt_snow_thunderstorm;
+                weatherIcon = R.drawable.wi_night_alt_snow_thunderstorm;
                 break;
             case WeatherIcons.NIGHT_ALT_SNOW_WIND:
-                weatherIcon = R.drawable.night_alt_snow_wind;
+                weatherIcon = R.drawable.wi_night_alt_snow_wind;
                 break;
             case WeatherIcons.NIGHT_ALT_SPRINKLE:
-                weatherIcon = R.drawable.night_alt_sprinkle;
+                weatherIcon = R.drawable.wi_night_alt_sprinkle;
                 break;
             case WeatherIcons.NIGHT_ALT_STORM_SHOWERS:
-                weatherIcon = R.drawable.night_alt_storm_showers;
+                weatherIcon = R.drawable.wi_night_alt_storm_showers;
                 break;
             case WeatherIcons.NIGHT_ALT_THUNDERSTORM:
-                weatherIcon = R.drawable.night_alt_thunderstorm;
+                weatherIcon = R.drawable.wi_night_alt_thunderstorm;
                 break;
             case WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY:
-                weatherIcon = R.drawable.night_alt_partly_cloudy;
+                weatherIcon = R.drawable.wi_night_alt_partly_cloudy;
                 break;
             case WeatherIcons.NIGHT_ALT_CLOUDY_HIGH:
-                weatherIcon = R.drawable.night_alt_cloudy_high;
+                weatherIcon = R.drawable.wi_night_alt_cloudy_high;
                 break;
+
             case WeatherIcons.NIGHT_FOG:
-                weatherIcon = R.drawable.night_fog;
+                weatherIcon = R.drawable.wi_night_fog;
                 break;
+
+            // Neutral
             case WeatherIcons.CLOUD:
-                weatherIcon = R.drawable.cloud;
+                weatherIcon = R.drawable.wi_cloud;
                 break;
             case WeatherIcons.CLOUDY:
-                weatherIcon = R.drawable.cloudy;
+                weatherIcon = R.drawable.wi_cloudy;
                 break;
             case WeatherIcons.CLOUDY_GUSTS:
-                weatherIcon = R.drawable.cloudy_gusts;
+                weatherIcon = R.drawable.wi_cloudy_gusts;
                 break;
             case WeatherIcons.CLOUDY_WINDY:
-                weatherIcon = R.drawable.cloudy_windy;
+                weatherIcon = R.drawable.wi_cloudy_windy;
                 break;
             case WeatherIcons.FOG:
-                weatherIcon = R.drawable.fog;
+                weatherIcon = R.drawable.wi_fog;
                 break;
             case WeatherIcons.HAIL:
-                weatherIcon = R.drawable.hail;
+                weatherIcon = R.drawable.wi_hail;
                 break;
             case WeatherIcons.RAIN:
-                weatherIcon = R.drawable.rain;
+                weatherIcon = R.drawable.wi_rain;
                 break;
             case WeatherIcons.RAIN_MIX:
-                weatherIcon = R.drawable.rain_mix;
+                weatherIcon = R.drawable.wi_rain_mix;
                 break;
             case WeatherIcons.RAIN_WIND:
-                weatherIcon = R.drawable.rain_wind;
+                weatherIcon = R.drawable.wi_rain_wind;
                 break;
             case WeatherIcons.SHOWERS:
-                weatherIcon = R.drawable.showers;
+                weatherIcon = R.drawable.wi_showers;
                 break;
             case WeatherIcons.SLEET:
-                weatherIcon = R.drawable.sleet;
+                weatherIcon = R.drawable.wi_sleet;
                 break;
             case WeatherIcons.SNOW:
-                weatherIcon = R.drawable.snow;
+                weatherIcon = R.drawable.wi_snow;
                 break;
             case WeatherIcons.SPRINKLE:
-                weatherIcon = R.drawable.sprinkle;
+                weatherIcon = R.drawable.wi_sprinkle;
                 break;
             case WeatherIcons.STORM_SHOWERS:
-                weatherIcon = R.drawable.storm_showers;
+                weatherIcon = R.drawable.wi_storm_showers;
                 break;
             case WeatherIcons.THUNDERSTORM:
-                weatherIcon = R.drawable.thunderstorm;
+                weatherIcon = R.drawable.wi_thunderstorm;
                 break;
             case WeatherIcons.SNOW_WIND:
-                weatherIcon = R.drawable.snow_wind;
+                weatherIcon = R.drawable.wi_snow_wind;
                 break;
             case WeatherIcons.SMOG:
-                weatherIcon = R.drawable.smog;
+                weatherIcon = R.drawable.wi_smog;
                 break;
             case WeatherIcons.SMOKE:
-                weatherIcon = R.drawable.smoke;
+                weatherIcon = R.drawable.wi_smoke;
                 break;
             case WeatherIcons.LIGHTNING:
-                weatherIcon = R.drawable.lightning;
+                weatherIcon = R.drawable.wi_lightning;
                 break;
             case WeatherIcons.DUST:
-                weatherIcon = R.drawable.dust;
+                weatherIcon = R.drawable.wi_dust;
                 break;
             case WeatherIcons.SNOWFLAKE_COLD:
-                weatherIcon = R.drawable.snowflake_cold;
+                weatherIcon = R.drawable.wi_snowflake_cold;
                 break;
             case WeatherIcons.WINDY:
-                weatherIcon = R.drawable.windy;
+                weatherIcon = R.drawable.wi_windy;
                 break;
             case WeatherIcons.STRONG_WIND:
-                weatherIcon = R.drawable.strong_wind;
+                weatherIcon = R.drawable.wi_strong_wind;
                 break;
             case WeatherIcons.SANDSTORM:
-                weatherIcon = R.drawable.sandstorm;
+                weatherIcon = R.drawable.wi_sandstorm;
                 break;
             case WeatherIcons.HURRICANE:
-                weatherIcon = R.drawable.hurricane;
+                weatherIcon = R.drawable.wi_hurricane;
                 break;
             case WeatherIcons.TORNADO:
-                weatherIcon = R.drawable.tornado;
+                weatherIcon = R.drawable.wi_tornado;
+                break;
+
+            case WeatherIcons.FIRE:
+                weatherIcon = R.drawable.wi_fire;
+                break;
+            case WeatherIcons.FLOOD:
+                weatherIcon = R.drawable.wi_flood;
+                break;
+            case WeatherIcons.VOLCANO:
+                weatherIcon = R.drawable.wi_volcano;
+                break;
+
+            case WeatherIcons.BAROMETER:
+                weatherIcon = R.drawable.wi_barometer;
+                break;
+            case WeatherIcons.HUMIDITY:
+                weatherIcon = R.drawable.wi_humidity;
+                break;
+            case WeatherIcons.MOONRISE:
+                weatherIcon = R.drawable.wi_moonrise;
+                break;
+            case WeatherIcons.MOONSET:
+                weatherIcon = R.drawable.wi_moonset;
+                break;
+            case WeatherIcons.RAINDROP:
+                weatherIcon = R.drawable.wi_raindrop;
+                break;
+            case WeatherIcons.RAINDROPS:
+                weatherIcon = R.drawable.wi_raindrops;
+                break;
+            case WeatherIcons.SUNRISE:
+                weatherIcon = R.drawable.wi_sunrise;
+                break;
+            case WeatherIcons.SUNSET:
+                weatherIcon = R.drawable.wi_sunset;
+                break;
+            case WeatherIcons.THERMOMETER:
+                weatherIcon = R.drawable.wi_thermometer;
+                break;
+            case WeatherIcons.UMBRELLA:
+                weatherIcon = R.drawable.wi_umbrella;
+                break;
+            case WeatherIcons.WIND_DIRECTION:
+                weatherIcon = R.drawable.wi_wind_direction;
+                break;
+            case WeatherIcons.DIRECTION_UP:
+                weatherIcon = R.drawable.wi_direction_up;
+                break;
+            case WeatherIcons.DIRECTION_DOWN:
+                weatherIcon = R.drawable.wi_direction_down;
+                break;
+
+            // Beaufort
+            case WeatherIcons.WIND_BEAUFORT_0:
+                weatherIcon = R.drawable.wi_wind_beaufort_0;
+                break;
+            case WeatherIcons.WIND_BEAUFORT_1:
+                weatherIcon = R.drawable.wi_wind_beaufort_1;
+                break;
+            case WeatherIcons.WIND_BEAUFORT_2:
+                weatherIcon = R.drawable.wi_wind_beaufort_2;
+                break;
+            case WeatherIcons.WIND_BEAUFORT_3:
+                weatherIcon = R.drawable.wi_wind_beaufort_3;
+                break;
+            case WeatherIcons.WIND_BEAUFORT_4:
+                weatherIcon = R.drawable.wi_wind_beaufort_4;
+                break;
+            case WeatherIcons.WIND_BEAUFORT_5:
+                weatherIcon = R.drawable.wi_wind_beaufort_5;
+                break;
+            case WeatherIcons.WIND_BEAUFORT_6:
+                weatherIcon = R.drawable.wi_wind_beaufort_6;
+                break;
+            case WeatherIcons.WIND_BEAUFORT_7:
+                weatherIcon = R.drawable.wi_wind_beaufort_7;
+                break;
+            case WeatherIcons.WIND_BEAUFORT_8:
+                weatherIcon = R.drawable.wi_wind_beaufort_8;
+                break;
+            case WeatherIcons.WIND_BEAUFORT_9:
+                weatherIcon = R.drawable.wi_wind_beaufort_9;
+                break;
+            case WeatherIcons.WIND_BEAUFORT_10:
+                weatherIcon = R.drawable.wi_wind_beaufort_10;
+                break;
+            case WeatherIcons.WIND_BEAUFORT_11:
+                weatherIcon = R.drawable.wi_wind_beaufort_11;
+                break;
+            case WeatherIcons.WIND_BEAUFORT_12:
+                weatherIcon = R.drawable.wi_wind_beaufort_12;
+                break;
+
+            // Moon Phase
+            case WeatherIcons.MOON_NEW:
+                weatherIcon = R.drawable.wi_moon_new;
+                break;
+            case WeatherIcons.MOON_WAXING_CRESCENT_3:
+                weatherIcon = R.drawable.wi_moon_waxing_crescent_3;
+                break;
+            case WeatherIcons.MOON_FIRST_QUARTER:
+                weatherIcon = R.drawable.wi_moon_first_quarter;
+                break;
+            case WeatherIcons.MOON_WAXING_GIBBOUS_3:
+                weatherIcon = R.drawable.wi_moon_waxing_gibbous_3;
+                break;
+            case WeatherIcons.MOON_FULL:
+                weatherIcon = R.drawable.wi_moon_full;
+                break;
+            case WeatherIcons.MOON_WANING_GIBBOUS_3:
+                weatherIcon = R.drawable.wi_moon_waning_gibbous_3;
+                break;
+            case WeatherIcons.MOON_THIRD_QUARTER:
+                weatherIcon = R.drawable.wi_moon_third_quarter;
+                break;
+            case WeatherIcons.MOON_WANING_CRESCENT_3:
+                weatherIcon = R.drawable.wi_moon_waning_crescent_3;
+                break;
+
+            case WeatherIcons.MOON_ALT_NEW:
+                weatherIcon = R.drawable.wi_moon_alt_new;
+                break;
+            case WeatherIcons.MOON_ALT_WAXING_CRESCENT_3:
+                weatherIcon = R.drawable.wi_moon_alt_waxing_crescent_3;
+                break;
+            case WeatherIcons.MOON_ALT_FIRST_QUARTER:
+                weatherIcon = R.drawable.wi_moon_alt_first_quarter;
+                break;
+            case WeatherIcons.MOON_ALT_WAXING_GIBBOUS_3:
+                weatherIcon = R.drawable.wi_moon_alt_waxing_gibbous_3;
+                break;
+            case WeatherIcons.MOON_ALT_FULL:
+                weatherIcon = R.drawable.wi_moon_alt_full;
+                break;
+            case WeatherIcons.MOON_ALT_WANING_GIBBOUS_3:
+                weatherIcon = R.drawable.wi_moon_alt_waning_gibbous_3;
+                break;
+            case WeatherIcons.MOON_ALT_THIRD_QUARTER:
+                weatherIcon = R.drawable.wi_moon_alt_third_quarter;
+                break;
+            case WeatherIcons.MOON_ALT_WANING_CRESCENT_3:
+                weatherIcon = R.drawable.wi_moon_alt_waning_crescent_3;
+                break;
+
+            case WeatherIcons.FAHRENHEIT:
+                weatherIcon = R.drawable.wi_fahrenheit;
+                break;
+            case WeatherIcons.CELSIUS:
+                weatherIcon = R.drawable.wi_celsius;
+                break;
+
+            case WeatherIcons.NA:
+                weatherIcon = R.drawable.wi_na;
                 break;
         }
 
         if (weatherIcon == -1) {
             // Not Available
-            weatherIcon = R.drawable.na;
+            weatherIcon = R.drawable.wi_na;
         }
 
         return weatherIcon;

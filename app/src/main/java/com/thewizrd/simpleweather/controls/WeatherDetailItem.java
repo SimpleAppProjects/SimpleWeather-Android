@@ -22,7 +22,6 @@ import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
-import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.WeatherDetailPanelBinding;
 
@@ -72,10 +71,9 @@ public class WeatherDetailItem extends ConstraintLayout {
             bindModel((HourlyForecastItemViewModel) model);
         } else {
             binding.forecastDate.setText(R.string.placeholder_text);
-            binding.forecastIcon.setText(WeatherIcons.NA);
+            binding.forecastIcon.setImageResource(R.drawable.wi_na);
             binding.forecastCondition.setText(R.string.placeholder_text);
-            binding.forecastExtra.setVisibility(GONE);
-            binding.forecastExtra.setText(R.string.placeholder_text);
+            clearForecastExtras();
             binding.bodyCard.setVisibility(GONE);
             binding.headerCard.setOnClickListener(null);
             binding.bodyTextview.setText("");
@@ -88,12 +86,21 @@ public class WeatherDetailItem extends ConstraintLayout {
         binding.executePendingBindings();
     }
 
+    private void clearForecastExtras() {
+        binding.forecastExtraPop.setVisibility(GONE);
+        binding.forecastExtraPop.setText("");
+        binding.forecastExtraClouds.setVisibility(GONE);
+        binding.forecastExtraClouds.setText("");
+        binding.forecastExtraWindspeed.setVisibility(GONE);
+        binding.forecastExtraWindspeed.setText("");
+    }
+
     private void bindModel(ForecastItemViewModel forecastView) {
         binding.forecastDate.setText(forecastView.getDate());
-        binding.forecastIcon.setText(forecastView.getWeatherIcon());
+        binding.forecastIcon.setImageResource(forecastView.getWeatherIcon());
         binding.forecastCondition.setText(String.format(Locale.ROOT, "%s / %s - %s",
                 forecastView.getHiTemp(), forecastView.getLoTemp(), forecastView.getCondition()));
-        binding.forecastExtra.setVisibility(GONE);
+        clearForecastExtras();
 
         binding.bodyCard.setVisibility(GONE);
 
@@ -108,8 +115,6 @@ public class WeatherDetailItem extends ConstraintLayout {
         if (forecastView.getExtras() != null && forecastView.getExtras().size() > 0) {
             Context context = getContext();
             binding.headerCard.setOnClickListener(onClickListener);
-
-            StringBuilder sbExtra = new StringBuilder();
 
             if (StringUtils.isNullOrWhitespace(forecastView.getConditionLongDesc())) {
                 TextPaint paint = binding.forecastCondition.getPaint();
@@ -126,16 +131,17 @@ public class WeatherDetailItem extends ConstraintLayout {
             for (int i = 0; i < forecastView.getExtras().size(); i++) {
                 DetailItemViewModel detailItem = forecastView.getExtras().get(i);
 
-                if (detailItem.getDetailsType() == WeatherDetailsType.POPCHANCE
-                        || detailItem.getDetailsType() == WeatherDetailsType.POPCLOUDINESS
-                        || detailItem.getDetailsType() == WeatherDetailsType.WINDSPEED) {
-                    if (sbExtra.length() > 0)
-                        sbExtra.append("\u2003");
-
-                    if (detailItem.getDetailsType() == WeatherDetailsType.WINDSPEED)
-                        sbExtra.append(String.format(Locale.ROOT, "%s %s", WeatherIcons.STRONG_WIND, detailItem.getValue()));
-                    else
-                        sbExtra.append(String.format(Locale.ROOT, "%s %s", detailItem.getIcon(), detailItem.getValue()));
+                if (detailItem.getDetailsType() == WeatherDetailsType.POPCHANCE) {
+                    binding.forecastExtraPop.setText(detailItem.getValue());
+                    binding.forecastExtraPop.setVisibility(VISIBLE);
+                    continue;
+                } else if (detailItem.getDetailsType() == WeatherDetailsType.POPCLOUDINESS) {
+                    binding.forecastExtraClouds.setText(detailItem.getValue());
+                    binding.forecastExtraClouds.setVisibility(VISIBLE);
+                    continue;
+                } else if (detailItem.getDetailsType() == WeatherDetailsType.WINDSPEED) {
+                    binding.forecastExtraWindspeed.setText(detailItem.getValue());
+                    binding.forecastExtraWindspeed.setVisibility(VISIBLE);
                     continue;
                 }
 
@@ -152,11 +158,6 @@ public class WeatherDetailItem extends ConstraintLayout {
                     sb.append(StringUtils.lineSeparator());
                 int colorPrimary = ActivityUtils.getColor(context, android.R.attr.textColorPrimary);
                 sb.setSpan(new ForegroundColorSpan(colorPrimary), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-
-            if (sbExtra.length() > 0) {
-                binding.forecastExtra.setVisibility(VISIBLE);
-                binding.forecastExtra.setText(sbExtra);
             }
 
             binding.bodyTextview.setText(sb, TextView.BufferType.SPANNABLE);
@@ -170,32 +171,32 @@ public class WeatherDetailItem extends ConstraintLayout {
 
     private void bindModel(final HourlyForecastItemViewModel forecastView) {
         binding.forecastDate.setText(forecastView.getDate());
-        binding.forecastIcon.setText(forecastView.getWeatherIcon());
+        binding.forecastIcon.setImageResource(forecastView.getWeatherIcon());
         binding.forecastCondition.setText(String.format(Locale.ROOT, "%s - %s",
                 forecastView.getHiTemp(), forecastView.getCondition()));
-        binding.forecastExtra.setVisibility(GONE);
+        clearForecastExtras();
 
         binding.bodyCard.setVisibility(GONE);
         if (forecastView.getExtras() != null && forecastView.getExtras().size() > 0) {
             Context context = getContext();
             binding.headerCard.setOnClickListener(onClickListener);
 
-            final SpannableStringBuilder sbExtra = new SpannableStringBuilder();
             final SpannableStringBuilder sb = new SpannableStringBuilder();
 
             for (int i = 0; i < forecastView.getExtras().size(); i++) {
                 DetailItemViewModel detailItem = forecastView.getExtras().get(i);
 
-                if (detailItem.getDetailsType() == WeatherDetailsType.POPCHANCE
-                        || detailItem.getDetailsType() == WeatherDetailsType.POPCLOUDINESS
-                        || detailItem.getDetailsType() == WeatherDetailsType.WINDSPEED) {
-                    if (sbExtra.length() > 0)
-                        sbExtra.append("\u2003");
-
-                    if (detailItem.getDetailsType() == WeatherDetailsType.WINDSPEED)
-                        sbExtra.append(String.format(Locale.ROOT, "%s %s", WeatherIcons.STRONG_WIND, detailItem.getValue()));
-                    else
-                        sbExtra.append(String.format(Locale.ROOT, "%s %s", detailItem.getIcon(), detailItem.getValue()));
+                if (detailItem.getDetailsType() == WeatherDetailsType.POPCHANCE) {
+                    binding.forecastExtraPop.setText(detailItem.getValue());
+                    binding.forecastExtraPop.setVisibility(VISIBLE);
+                    continue;
+                } else if (detailItem.getDetailsType() == WeatherDetailsType.POPCLOUDINESS) {
+                    binding.forecastExtraClouds.setText(detailItem.getValue());
+                    binding.forecastExtraClouds.setVisibility(VISIBLE);
+                    continue;
+                } else if (detailItem.getDetailsType() == WeatherDetailsType.WINDSPEED) {
+                    binding.forecastExtraWindspeed.setText(detailItem.getValue());
+                    binding.forecastExtraWindspeed.setVisibility(VISIBLE);
                     continue;
                 }
 
@@ -212,11 +213,6 @@ public class WeatherDetailItem extends ConstraintLayout {
                     sb.append(StringUtils.lineSeparator());
                 int colorPrimary = ActivityUtils.getColor(context, android.R.attr.textColorPrimary);
                 sb.setSpan(new ForegroundColorSpan(colorPrimary), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-
-            if (sbExtra.length() > 0) {
-                binding.forecastExtra.setVisibility(VISIBLE);
-                binding.forecastExtra.setText(sbExtra);
             }
 
             binding.forecastCondition.post(new Runnable() {

@@ -13,7 +13,9 @@
     <merge
         tools:context=".controls.DetailCard"
         tools:parentTag="android.widget.LinearLayout"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:layout_height="@dimen/detail_card_height"
+        tools:layout_width="@dimen/detail_card_height">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/detail_label"
@@ -35,23 +37,19 @@
             app:layout_constraintVertical_weight="1"
             tools:text="Label" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/detail_icon"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:includeFontPadding="false"
             android:scrollbars="none"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             android:rotation="@{viewModel.iconRotation}"
-            android:text="@{viewModel.icon}"
-            android:textAppearance="@style/ShadowText"
-            android:textColor="@android:color/white"
-            android:textSize="24sp"
-            app:fontFamily="@font/weathericons"
-            tools:text="@string/wi_barometer" />
+            app:srcCompat="@{viewModel.icon}"
+            app:tint="@android:color/white"
+            tools:srcCompat="@drawable/wi_barometer" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/detail_value"
@@ -65,8 +63,7 @@
             android:textAppearance="@style/ShadowText"
             android:textColor="@android:color/white"
             android:textSize="@dimen/forecast_condition_size"
-            tools:fontFamily="@font/weathericons"
-            tools:text=" 50.00 in" />
+            tools:text="50.00 in" />
 
     </merge>
 </layout>

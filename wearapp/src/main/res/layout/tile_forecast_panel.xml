@@ -28,7 +28,8 @@
         android:maxWidth="30dp"
         android:padding="4dp"
         android:scaleType="fitCenter"
-        android:src="@drawable/wi_day_sunny" />
+        android:tint="@android:color/white"
+        tools:src="@drawable/wi_day_sunny" />
 
     <TextView
         android:id="@+id/forecast_hi"
