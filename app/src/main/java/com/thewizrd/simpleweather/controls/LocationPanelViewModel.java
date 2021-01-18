@@ -16,6 +16,7 @@ import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import com.thewizrd.simpleweather.App;
@@ -184,7 +185,7 @@ public class LocationPanelViewModel {
 
             currTemp = String.format(LocaleUtils.getLocale(), "%d°%s", temp, unitTemp);
         } else {
-            currTemp = "--";
+            currTemp = WeatherIcons.PLACEHOLDER;
         }
 
         currWeather = provider.supportsWeatherLocale() ? weather.getCondition().getWeather() : provider.getWeatherCondition(weather.getCondition().getIcon());
@@ -193,14 +194,14 @@ public class LocationPanelViewModel {
             int temp = isFahrenheit ? Math.round(weather.getCondition().getHighF()) : Math.round(weather.getCondition().getHighC());
             hiTemp = String.format(LocaleUtils.getLocale(), "%d°", temp);
         } else {
-            hiTemp = "--";
+            hiTemp = WeatherIcons.PLACEHOLDER;
         }
 
         if (weather.getCondition().getLowF() != null && !ObjectsCompat.equals(weather.getCondition().getLowF(), weather.getCondition().getLowC())) {
             int temp = isFahrenheit ? Math.round(weather.getCondition().getLowF()) : Math.round(weather.getCondition().getLowC());
             loTemp = String.format(LocaleUtils.getLocale(), "%d°", temp);
         } else {
-            loTemp = "--";
+            loTemp = WeatherIcons.PLACEHOLDER;
         }
 
         showHiLo = !ObjectsCompat.equals(hiTemp, loTemp);

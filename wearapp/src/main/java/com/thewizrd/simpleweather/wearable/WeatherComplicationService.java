@@ -22,6 +22,7 @@ import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
+import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.LaunchActivity;
 
@@ -116,7 +117,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
                 int temp = isFahrenheit ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC());
                 currTemp = String.format(LocaleUtils.getLocale(), "%d", temp);
             } else {
-                currTemp = "--";
+                currTemp = WeatherIcons.PLACEHOLDER;
             }
 
             String tempUnit = isFahrenheit ? Units.FAHRENHEIT : Units.CELSIUS;

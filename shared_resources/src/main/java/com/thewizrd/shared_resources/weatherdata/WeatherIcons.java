@@ -138,4 +138,7 @@ public class WeatherIcons {
 
     // N/A
     public static final String NA = "\uf07b";
+
+    public static final String PLACEHOLDER = "\u2022";
+    public static final String EM_DASH = "\u2014";
 }

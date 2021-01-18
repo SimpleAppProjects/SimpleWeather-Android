@@ -22,6 +22,7 @@ import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
+import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 
@@ -277,7 +278,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
             int temp = isFahrenheit ? Math.round(weather.getCondition().getTempF()) : Math.round(weather.getCondition().getTempC());
             newCurTemp = String.format(LocaleUtils.getLocale(), "%d°%s", temp, tempUnit);
         } else {
-            newCurTemp = "--";
+            newCurTemp = WeatherIcons.PLACEHOLDER;
         }
 
         if (!ObjectsCompat.equals(curTemp, newCurTemp)) {
@@ -286,7 +287,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         }
 
         final String weatherCondition = provider.supportsWeatherLocale() ? weather.getCondition().getWeather() : provider.getWeatherCondition(weather.getCondition().getIcon());
-        String newCondition = (StringUtils.isNullOrWhitespace(weatherCondition) ? "--" : weatherCondition);
+        String newCondition = StringUtils.isNullOrWhitespace(weatherCondition) ? WeatherIcons.EM_DASH : weatherCondition;
         if (!ObjectsCompat.equals(curCondition, newCondition)) {
             curCondition = newCondition;
             notifyPropertyChanged(BR.curCondition);
@@ -305,7 +306,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                     !ObjectsCompat.equals(weather.getCondition().getHighF(), weather.getCondition().getHighC())) {
                 newHiTemp = (isFahrenheit ? Math.round(weather.getCondition().getHighF()) : Math.round(weather.getCondition().getHighC())) + "°";
             } else {
-                newHiTemp = "--";
+                newHiTemp = WeatherIcons.PLACEHOLDER;
                 shouldHideHi = true;
             }
 
@@ -319,7 +320,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                     !ObjectsCompat.equals(weather.getCondition().getLowF(), weather.getCondition().getLowC())) {
                 newLoTemp = (isFahrenheit ? Math.round(weather.getCondition().getLowF()) : Math.round(weather.getCondition().getLowC())) + "°";
             } else {
-                newLoTemp = "--";
+                newLoTemp = WeatherIcons.PLACEHOLDER;
                 shouldHideLo = true;
             }
 

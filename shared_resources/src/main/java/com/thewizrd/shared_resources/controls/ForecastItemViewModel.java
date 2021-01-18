@@ -18,6 +18,7 @@ import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.TextForecast;
 import com.thewizrd.shared_resources.weatherdata.UV;
+import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 import java.text.DecimalFormat;
@@ -45,10 +46,10 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
                 int value = isFahrenheit ? Math.round(forecast.getHighF()) : Math.round(forecast.getHighC());
                 hiTemp = String.format(LocaleUtils.getLocale(), "%d°", value);
             } else {
-                hiTemp = "--";
+                hiTemp = WeatherIcons.PLACEHOLDER;
             }
         } catch (NumberFormatException nFe) {
-            hiTemp = "--";
+            hiTemp = WeatherIcons.PLACEHOLDER;
             Logger.writeLine(Log.ERROR, nFe);
         }
         try {
@@ -56,10 +57,10 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
                 int value = isFahrenheit ? Math.round(forecast.getLowF()) : Math.round(forecast.getLowC());
                 loTemp = String.format(LocaleUtils.getLocale(), "%d°", value);
             } else {
-                loTemp = "--";
+                loTemp = WeatherIcons.PLACEHOLDER;
             }
         } catch (NumberFormatException nFe) {
-            loTemp = "--";
+            loTemp = WeatherIcons.PLACEHOLDER;
             Logger.writeLine(Log.ERROR, nFe);
         }
 

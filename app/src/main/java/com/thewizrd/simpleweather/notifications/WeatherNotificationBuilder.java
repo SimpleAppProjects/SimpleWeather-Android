@@ -23,6 +23,7 @@ import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.main.MainActivity;
@@ -40,7 +41,7 @@ public class WeatherNotificationBuilder {
         String hiTemp = StringUtils.removeNonDigitChars(viewModel.getHiTemp());
         String loTemp = StringUtils.removeNonDigitChars(viewModel.getLoTemp());
         String temp = viewModel.getCurTemp() != null ?
-                StringUtils.removeNonDigitChars(viewModel.getCurTemp()) : "--";
+                StringUtils.removeNonDigitChars(viewModel.getCurTemp()) : WeatherIcons.PLACEHOLDER;
 
         // Weather icon
         updateViews.setImageViewResource(R.id.weather_icon, viewModel.getWeatherIcon());
@@ -50,11 +51,11 @@ public class WeatherNotificationBuilder {
 
         // Condition text
         updateViews.setTextViewText(R.id.condition_weather,
-                String.format("%s°%s - %s", !StringUtils.isNullOrWhitespace(temp) ? temp : "--", viewModel.getTempUnit(), condition));
+                String.format("%s°%s - %s", !StringUtils.isNullOrWhitespace(temp) ? temp : WeatherIcons.PLACEHOLDER, viewModel.getTempUnit(), condition));
 
         // Details
-        updateViews.setTextViewText(R.id.condition_hi, StringUtils.containsDigits(hiTemp) ? (hiTemp + "°") : "--");
-        updateViews.setTextViewText(R.id.condition_lo, StringUtils.containsDigits(loTemp) ? (loTemp + "°") : "--");
+        updateViews.setTextViewText(R.id.condition_hi, StringUtils.containsDigits(hiTemp) ? (hiTemp + "°") : WeatherIcons.PLACEHOLDER);
+        updateViews.setTextViewText(R.id.condition_lo, StringUtils.containsDigits(loTemp) ? (loTemp + "°") : WeatherIcons.PLACEHOLDER);
         updateViews.setViewVisibility(R.id.condition_hilo_layout, viewModel.isShowHiLo() ? View.VISIBLE : View.GONE);
 
         // Get extras

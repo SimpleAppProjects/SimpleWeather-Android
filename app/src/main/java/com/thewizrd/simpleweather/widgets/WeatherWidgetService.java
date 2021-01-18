@@ -64,6 +64,7 @@ import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
+import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.GlideApp;
 import com.thewizrd.simpleweather.R;
@@ -1079,12 +1080,12 @@ public class WeatherWidgetService extends SafeJobIntentService {
             // Condition text
             updateViews.setTextViewText(R.id.condition_weather,
                     String.format(Locale.ROOT, "%s°%s - %s",
-                            !StringUtils.isNullOrWhitespace(curTemp) ? curTemp : "--",
+                            !StringUtils.isNullOrWhitespace(curTemp) ? curTemp : WeatherIcons.PLACEHOLDER,
                             weather.getTempUnit(),
                             weather.getCurCondition()));
 
-            updateViews.setTextViewText(R.id.condition_hi, StringUtils.containsDigits(hiTemp) ? (hiTemp + "°") : "--");
-            updateViews.setTextViewText(R.id.condition_lo, StringUtils.containsDigits(loTemp) ? (loTemp + "°") : "--");
+            updateViews.setTextViewText(R.id.condition_hi, StringUtils.containsDigits(hiTemp) ? (hiTemp + "°") : WeatherIcons.PLACEHOLDER);
+            updateViews.setTextViewText(R.id.condition_lo, StringUtils.containsDigits(loTemp) ? (loTemp + "°") : WeatherIcons.PLACEHOLDER);
             updateViews.setViewVisibility(R.id.condition_hilo_layout, weather.isShowHiLo() ? View.VISIBLE : View.GONE);
 
             DetailItemViewModel chanceModel = null;
@@ -1129,8 +1130,8 @@ public class WeatherWidgetService extends SafeJobIntentService {
             // Condition text
             updateViews.setTextViewText(R.id.condition_hilo,
                     String.format(Locale.ROOT, "%s | %s",
-                            StringUtils.containsDigits(hiTemp) ? (hiTemp + "°") : "--",
-                            StringUtils.containsDigits(loTemp) ? (loTemp + "°") : "--"));
+                            StringUtils.containsDigits(hiTemp) ? (hiTemp + "°") : WeatherIcons.PLACEHOLDER,
+                            StringUtils.containsDigits(loTemp) ? (loTemp + "°") : WeatherIcons.PLACEHOLDER));
             updateViews.setViewVisibility(R.id.condition_hilo, weather.isShowHiLo() ? View.VISIBLE : View.GONE);
         }
 

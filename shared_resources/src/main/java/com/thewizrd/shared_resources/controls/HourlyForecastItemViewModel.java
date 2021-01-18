@@ -22,6 +22,7 @@ import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.UV;
+import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 import java.text.DecimalFormat;
@@ -63,10 +64,10 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                 int value = isFahrenheit ? Math.round(forecast.getHighF()) : Math.round(forecast.getHighC());
                 hiTemp = String.format(LocaleUtils.getLocale(), "%d°", value);
             } else {
-                hiTemp = "--";
+                hiTemp = WeatherIcons.PLACEHOLDER;
             }
         } catch (NumberFormatException nFe) {
-            hiTemp = "--";
+            hiTemp = WeatherIcons.PLACEHOLDER;
             Logger.writeLine(Log.ERROR, nFe);
         }
 
