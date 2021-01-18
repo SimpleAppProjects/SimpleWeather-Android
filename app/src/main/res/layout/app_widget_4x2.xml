@@ -157,6 +157,7 @@
                     android:layout_gravity="center_vertical"
                     android:adjustViewBounds="true"
                     android:gravity="center_vertical"
+                    android:layout_marginTop="4dp"
                     tools:src="@drawable/wi_day_sunny" />
 
                 <TextView
@@ -170,7 +171,6 @@
                     android:fontFamily="sans-serif-light"
                     android:gravity="center_vertical"
                     android:layout_marginStart="2dp"
-                    android:layout_marginBottom="2dp"
                     android:layout_toEndOf="@id/weather_icon"
                     android:shadowColor="#000000"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"

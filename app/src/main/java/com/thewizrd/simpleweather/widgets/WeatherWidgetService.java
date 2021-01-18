@@ -14,11 +14,9 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.AlarmClock;
 import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.RelativeSizeSpan;
-import android.text.style.SuperscriptSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -28,7 +26,6 @@ import android.widget.RemoteViews;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.SafeJobIntentService;
-import androidx.core.util.ObjectsCompat;
 
 import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.request.FutureTarget;
@@ -57,7 +54,6 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.TransparentOverlay;
-import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
@@ -1065,27 +1061,19 @@ public class WeatherWidgetService extends SafeJobIntentService {
         // Colors
         setTextColorDependents(updateViews, provider, appWidgetId, weather, background, style);
 
-        // Temperature
-        CharSequence temp = weather.getCurTemp();
-
         // Location Name
         updateViews.setTextViewText(R.id.location_name, weather.getLocation());
 
         // Set specific data for widgets
         if (provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x1Notification) {
-            String curTemp = StringUtils.removeNonDigitChars(temp.toString());
-            String hiTemp = StringUtils.removeNonDigitChars(weather.getHiTemp());
-            String loTemp = StringUtils.removeNonDigitChars(weather.getLoTemp());
-
             // Condition text
             updateViews.setTextViewText(R.id.condition_weather,
-                    String.format(Locale.ROOT, "%s°%s - %s",
-                            !StringUtils.isNullOrWhitespace(curTemp) ? curTemp : WeatherIcons.PLACEHOLDER,
-                            weather.getTempUnit(),
+                    String.format(Locale.ROOT, "%s - %s",
+                            !StringUtils.isNullOrWhitespace(weather.getCurTemp()) ? weather.getCurTemp() : WeatherIcons.PLACEHOLDER,
                             weather.getCurCondition()));
 
-            updateViews.setTextViewText(R.id.condition_hi, StringUtils.containsDigits(hiTemp) ? (hiTemp + "°") : WeatherIcons.PLACEHOLDER);
-            updateViews.setTextViewText(R.id.condition_lo, StringUtils.containsDigits(loTemp) ? (loTemp + "°") : WeatherIcons.PLACEHOLDER);
+            updateViews.setTextViewText(R.id.condition_hi, !StringUtils.isNullOrWhitespace(weather.getHiTemp()) ? weather.getHiTemp() : WeatherIcons.PLACEHOLDER);
+            updateViews.setTextViewText(R.id.condition_lo, !StringUtils.isNullOrWhitespace(weather.getLoTemp()) ? weather.getLoTemp() : WeatherIcons.PLACEHOLDER);
             updateViews.setViewVisibility(R.id.condition_hilo_layout, weather.isShowHiLo() ? View.VISIBLE : View.GONE);
 
             DetailItemViewModel chanceModel = null;
@@ -1124,28 +1112,16 @@ public class WeatherWidgetService extends SafeJobIntentService {
             // Condition text
             updateViews.setTextViewText(R.id.condition_weather, weather.getCurCondition());
         } else if (provider.getWidgetType() == WidgetType.Widget4x2Huawei) {
-            String hiTemp = StringUtils.removeNonDigitChars(weather.getHiTemp());
-            String loTemp = StringUtils.removeNonDigitChars(weather.getLoTemp());
-
             // Condition text
             updateViews.setTextViewText(R.id.condition_hilo,
                     String.format(Locale.ROOT, "%s | %s",
-                            StringUtils.containsDigits(hiTemp) ? (hiTemp + "°") : WeatherIcons.PLACEHOLDER,
-                            StringUtils.containsDigits(loTemp) ? (loTemp + "°") : WeatherIcons.PLACEHOLDER));
+                            !StringUtils.isNullOrWhitespace(weather.getHiTemp()) ? weather.getHiTemp() : WeatherIcons.PLACEHOLDER,
+                            !StringUtils.isNullOrWhitespace(weather.getLoTemp()) ? weather.getLoTemp() : WeatherIcons.PLACEHOLDER));
             updateViews.setViewVisibility(R.id.condition_hilo, weather.isShowHiLo() ? View.VISIBLE : View.GONE);
         }
 
         if (provider.getWidgetType() != WidgetType.Widget2x2 && provider.getWidgetType() != WidgetType.Widget4x1Notification) {
-            SpannableStringBuilder str = new SpannableStringBuilder()
-                    .append(StringUtils.removeNonDigitChars(temp));
-            int idx = str.length();
-            str.append(ObjectsCompat.equals(weather.getTempUnit(), Units.FAHRENHEIT) ? "°F" : "°C");
-            if (provider.getWidgetType() != WidgetType.Widget4x1Google && provider.getWidgetType() != WidgetType.Widget4x1) {
-                str.setSpan(new RelativeSizeSpan(0.60f), idx, str.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                str.setSpan(new SuperscriptSpan(), idx, str.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-
-            updateViews.setTextViewText(R.id.condition_temp, str);
+            updateViews.setTextViewText(R.id.condition_temp, weather.getCurTemp());
         }
 
         // Set sizes for views

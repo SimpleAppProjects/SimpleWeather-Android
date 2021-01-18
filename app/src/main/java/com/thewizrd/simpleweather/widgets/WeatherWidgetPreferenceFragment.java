@@ -20,9 +20,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.SuperscriptSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -828,10 +825,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                     .append("70");
             int idx = str.length();
             str.append("°F");
-            if (mWidgetType != WidgetType.Widget4x1Google) {
-                str.setSpan(new RelativeSizeSpan(0.60f), idx, str.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                str.setSpan(new SuperscriptSpan(), idx, str.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
 
             tempView.setText(str);
         }
