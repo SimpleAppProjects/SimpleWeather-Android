@@ -30,7 +30,7 @@
             android:adjustViewBounds="true"
             android:gravity="center"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_weather_icon"
+            android:src="@drawable/wi_day_sunny"
             android:tint="@color/not_icon_tint" />
 
         <LinearLayout

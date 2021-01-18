@@ -157,7 +157,7 @@
                     android:layout_gravity="center_vertical"
                     android:adjustViewBounds="true"
                     android:gravity="center_vertical"
-                    tools:src="@drawable/ic_weather_icon" />
+                    tools:src="@drawable/wi_day_sunny" />
 
                 <TextView
                     android:id="@+id/condition_temp"

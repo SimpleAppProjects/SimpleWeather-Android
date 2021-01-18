@@ -18,7 +18,7 @@
         android:layout_marginEnd="6dp"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
-        tools:src="@drawable/ic_weather_icon" />
+        tools:src="@drawable/wi_day_sunny" />
 
     <LinearLayout
         android:id="@+id/condition_layout"

@@ -19,7 +19,7 @@
         android:padding="4dp"
         android:scaleType="fitCenter"
         android:tint="@color/colorOnSurface"
-        tools:src="@drawable/ic_weather_icon" />
+        tools:src="@drawable/wi_day_sunny" />
 
     <LinearLayout
         android:id="@+id/condition_layout"
