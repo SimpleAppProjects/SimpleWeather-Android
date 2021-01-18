@@ -6,7 +6,8 @@
     android:background="@drawable/widget_background"
     android:backgroundTint="#40121212"
     tools:layout_height="144dp"
-    tools:layout_width="144dp">
+    tools:layout_width="144dp"
+    tools:viewBindingIgnore="true">
 
     <TextView
         android:id="@+id/location_name"

@@ -808,7 +808,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
                     if (widgetType == WidgetType.Widget4x2Huawei) {
                         views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_SP, cellWidth <= 3 ? 48 : 60);
                     } else if (widgetType == WidgetType.Widget4x2Clock) {
-                        views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_SP, isSmallHeight && cellHeight <= 2 ? 54 : 60);
+                        views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_SP, isSmallHeight && cellHeight <= 2 ? 60 : 66);
                     } else {
                         float clockTextSize = mContext.getResources().getDimensionPixelSize(R.dimen.clock_text_size); // 36sp
 
@@ -914,7 +914,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
                     boolean isSmallHeight = ((float) maxCellHeight / cellHeight) <= 1.5f;
                     boolean isSmallWidth = ((float) maxCellWidth / cellWidth) <= 1.5f;
 
-                    if (widgetType != WidgetType.Widget4x1Google && widgetType != WidgetType.Widget4x2Clock && widgetType != WidgetType.Widget4x2Huawei) {
+                    if (widgetType == WidgetType.Widget2x2) {
                         float dateTextSize = mContext.getResources().getDimensionPixelSize(R.dimen.date_text_size); // 16sp
 
                         if ((isSmallHeight && cellHeight <= 2) || cellWidth < 4)
@@ -1764,29 +1764,23 @@ public class WeatherWidgetService extends SafeJobIntentService {
         WidgetUtils.WidgetBackgroundStyle style = WidgetUtils.getBackgroundStyle(appWidgetId);
 
         RemoteViews forecastItem;
-        if (provider.getWidgetType() == WidgetType.Widget4x1) {
-            forecastItem = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_panel_4x1);
-
-            int size = (int) ActivityUtils.dpToPx(mContext, 32);
-            if ((!isSmallWidth || cellWidth > 4) && maxCellHeight > 0 && (maxHeight / maxCellHeight) >= 72) {
-                size *= (8 / 7f); // 40dp
-            }
-            forecastItem.setInt(R.id.forecast_icon, "setMaxWidth", size);
-            forecastItem.setInt(R.id.forecast_icon, "setMaxHeight", size);
+        if (provider.getWidgetType() == WidgetType.Widget4x1 || style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
+            forecastItem = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_item);
         } else {
-            if (style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
-                forecastItem = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_panel_4x2);
-            } else {
-                forecastItem = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_panel_4x2_themed);
-            }
-
-            int size = (int) ActivityUtils.dpToPx(mContext, 30);
-            if ((maxCellHeight > 0 && (maxHeight / maxCellHeight) >= 72) && (!isSmallWidth || cellWidth > 4)) {
-                size *= (4f / 3); // 40dp
-            }
-            forecastItem.setInt(R.id.forecast_icon, "setMaxWidth", size);
-            forecastItem.setInt(R.id.forecast_icon, "setMaxHeight", size);
+            forecastItem = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_forecast_item_themed);
         }
+
+        int maxIconSize;
+        if (provider.getWidgetType() == WidgetType.Widget4x1) {
+            maxIconSize = (int) ActivityUtils.dpToPx(mContext, 30);
+            if ((!isSmallWidth || cellWidth > 4) && maxCellHeight > 0 && (maxHeight / maxCellHeight) >= 72) {
+                maxIconSize *= (8 / 5f); // 48dp
+            }
+        } else {
+            maxIconSize = (int) ActivityUtils.dpToPx(mContext, 48);
+        }
+        forecastItem.setInt(R.id.forecast_icon, "setMaxWidth", maxIconSize);
+        forecastItem.setInt(R.id.forecast_icon, "setMaxHeight", maxIconSize);
 
         forecastItem.setTextViewText(R.id.forecast_date, forecast.getShortDate());
         forecastItem.setTextViewText(R.id.forecast_hi, forecast.getHiTemp());
@@ -1803,24 +1797,21 @@ public class WeatherWidgetService extends SafeJobIntentService {
             }
         }
 
-        float shadowRadius = 0f;
-        if (background == WidgetUtils.WidgetBackground.TRANSPARENT || background == WidgetUtils.WidgetBackground.CUSTOM || (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS && style == WidgetUtils.WidgetBackgroundStyle.FULLBACKGROUND))
-            shadowRadius = 1.75f;
-
+        final float iconSize = ActivityUtils.dpToPx(mContext, 72);
         forecastItem.setImageViewBitmap(R.id.forecast_icon,
-                ImageUtils.tintedBitmapFromDrawable(mContext, forecast.getWeatherIcon(), textColor));
+                ImageUtils.tintedBitmapFromDrawable(mContext, forecast.getWeatherIcon(), textColor, iconSize, iconSize));
 
         if (provider.getWidgetType() == WidgetType.Widget4x1) {
-            if (forceSmallHeight) {
+            if (cellHeight <= 1) {
                 forecastItem.setViewPadding(R.id.forecast_date, 0, 0, 0, 0);
             } else {
                 int padding = (int) ActivityUtils.dpToPx(mContext, 2);
                 forecastItem.setViewPadding(R.id.forecast_date, padding, padding, padding, padding);
             }
 
-            int textSize = 14;
+            int textSize = 12;
             if (cellHeight > 1 && (!isSmallWidth || cellWidth > 4))
-                textSize = 16;
+                textSize = 14;
 
             forecastItem.setTextViewTextSize(R.id.forecast_date, TypedValue.COMPLEX_UNIT_SP, textSize);
             forecastItem.setTextViewTextSize(R.id.forecast_hi, TypedValue.COMPLEX_UNIT_SP, textSize);
@@ -1828,11 +1819,9 @@ public class WeatherWidgetService extends SafeJobIntentService {
                 forecastItem.setTextViewTextSize(R.id.forecast_lo, TypedValue.COMPLEX_UNIT_SP, textSize);
             }
         } else {
-            int textSize = 14;
+            int textSize = 12;
             if ((!isSmallHeight && cellHeight > 2) && (!isSmallWidth || (cellWidth > 4)))
-                textSize = 16;
-            else if (forceSmallHeight || isSmallHeight && cellHeight <= 2)
-                textSize = 12;
+                textSize = 14;
 
             forecastItem.setTextViewTextSize(R.id.forecast_date, TypedValue.COMPLEX_UNIT_SP, textSize);
             forecastItem.setTextViewTextSize(R.id.forecast_hi, TypedValue.COMPLEX_UNIT_SP, textSize);

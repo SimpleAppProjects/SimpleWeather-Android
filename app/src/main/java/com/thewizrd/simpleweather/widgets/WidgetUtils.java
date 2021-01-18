@@ -572,7 +572,6 @@ public class WidgetUtils {
         if (widgetType != WidgetType.Widget4x1 && widgetType != WidgetType.Widget4x2)
             return 0;
 
-        boolean is4x2 = widgetType == WidgetType.Widget4x2;
         int forecastLength;
 
         if (cellWidth >= 5) {
@@ -580,7 +579,7 @@ public class WidgetUtils {
         } else if (cellWidth < 2) {
             forecastLength = 1;
         } else {
-            forecastLength = is4x2 ? cellWidth + 1 : cellWidth;
+            forecastLength = cellWidth + 1;
         }
 
         return forecastLength;
@@ -633,9 +632,9 @@ public class WidgetUtils {
     public static WidgetBackgroundStyle getBackgroundStyle(int widgetId) {
         SharedPreferences prefs = getPreferences(widgetId);
 
-        String value = prefs.getString(KEY_WIDGETBACKGROUNDSTYLE, "0");
+        String value = prefs.getString(KEY_WIDGETBACKGROUNDSTYLE, "1");
         if (StringUtils.isNullOrWhitespace(value))
-            value = "0";
+            value = "1";
 
         return WidgetBackgroundStyle.valueOf(Integer.parseInt(value));
     }

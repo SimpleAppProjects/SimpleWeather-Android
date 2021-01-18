@@ -6,12 +6,11 @@
     android:minHeight="@dimen/not_layout_height"
     android:background="@null"
     android:paddingStart="@dimen/not_horiz_padding"
-    android:paddingLeft="@dimen/not_horiz_padding"
     android:paddingTop="@dimen/not_vert_padding"
     android:paddingEnd="@dimen/not_horiz_padding"
-    android:paddingRight="@dimen/not_horiz_padding"
     android:paddingBottom="@dimen/not_vert_padding"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:viewBindingIgnore="true">
 
     <LinearLayout
         android:id="@+id/main_layout"
@@ -27,9 +26,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="@dimen/not_weather_icon_marginStart"
-            android:layout_marginLeft="@dimen/not_weather_icon_marginStart"
             android:layout_marginEnd="12dp"
-            android:layout_marginRight="12dp"
             android:adjustViewBounds="true"
             android:gravity="center"
             android:scaleType="fitCenter"
@@ -81,14 +78,15 @@
 
                 <ImageView
                     android:id="@+id/hi_icon"
-                    android:layout_width="12dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    android:maxWidth="16dp"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginTop="2dp"
                     android:layout_alignTop="@id/condition_hi"
                     android:layout_alignBottom="@id/condition_hi"
                     android:layout_toEndOf="@id/condition_hi"
-                    android:layout_toRightOf="@id/condition_hi"
                     android:src="@drawable/wi_direction_up"
                     android:tint="@color/not_secondary_text_color"
                     android:tintMode="src_in" />
@@ -99,7 +97,6 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:layout_toEndOf="@id/hi_icon"
-                    android:layout_toRightOf="@id/hi_icon"
                     android:layout_marginLeft="2dp"
                     android:layout_marginRight="2dp"
                     android:text="|"
@@ -112,21 +109,20 @@
                     android:ellipsize="end"
                     android:textAppearance="@style/TextAppearance.Compat.Notification.Line2"
                     android:layout_toEndOf="@id/divider"
-                    android:layout_toRightOf="@id/divider"
-                    android:layout_marginLeft="2dp"
                     android:layout_marginStart="2dp"
                     tools:text="65°" />
 
                 <ImageView
                     android:id="@+id/lo_icon"
-                    android:layout_width="12dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    android:maxWidth="16dp"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginTop="2dp"
                     android:layout_alignTop="@id/condition_lo"
                     android:layout_alignBottom="@id/condition_lo"
                     android:layout_toEndOf="@id/condition_lo"
-                    android:layout_toRightOf="@id/condition_lo"
                     android:src="@drawable/wi_direction_down"
                     android:tint="@color/not_secondary_text_color"
                     android:tintMode="src_in" />
@@ -166,11 +162,9 @@
                     android:ellipsize="end"
                     android:gravity="center_vertical"
                     android:paddingStart="4dp"
-                    android:paddingLeft="4dp"
                     android:textAppearance="@style/TextAppearance.Compat.Notification"
                     android:textSize="@dimen/not_primary_textSize"
                     android:layout_toEndOf="@id/weather_popicon"
-                    android:layout_toRightOf="@id/weather_popicon"
                     tools:text="60%" />
 
             </RelativeLayout>
@@ -196,11 +190,9 @@
                     android:ellipsize="end"
                     android:gravity="center_vertical"
                     android:paddingStart="4dp"
-                    android:paddingLeft="4dp"
                     android:textAppearance="@style/TextAppearance.Compat.Notification"
                     android:textSize="@dimen/not_primary_textSize"
                     android:layout_toEndOf="@id/weather_windicon"
-                    android:layout_toRightOf="@id/weather_windicon"
                     tools:text="10 mph" />
 
             </RelativeLayout>
@@ -243,12 +235,10 @@
                 android:layout_height="wrap_content"
                 android:maxLines="1"
                 android:paddingEnd="4dp"
-                android:paddingRight="4dp"
                 android:textAppearance="@style/TextAppearance.Compat.Notification"
                 android:textSize="@dimen/not_primary_textSize"
                 android:text=":"
-                android:layout_toEndOf="@id/feelslike_label"
-                android:layout_toRightOf="@id/feelslike_label" />
+                android:layout_toEndOf="@id/feelslike_label" />
 
             <TextView
                 android:id="@+id/feelslike_temp"
@@ -258,7 +248,6 @@
                 android:textAppearance="@style/TextAppearance.Compat.Notification"
                 android:textSize="@dimen/not_primary_textSize"
                 android:layout_toEndOf="@id/feelslike_label1"
-                android:layout_toRightOf="@id/feelslike_label1"
                 tools:text="70°F" />
 
         </RelativeLayout>
@@ -268,8 +257,8 @@
             android:layout_width="wrap_content"
             android:layout_height="24dp"
             android:gravity="center_vertical"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
             android:visibility="gone"
             tools:visibility="visible">
 
@@ -278,7 +267,6 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:paddingEnd="4dp"
-                android:paddingRight="4dp"
                 android:src="@drawable/wi_day_rain"
                 android:tint="@color/not_icon_tint" />
 
@@ -293,7 +281,6 @@
                 android:textAppearance="@style/TextAppearance.Compat.Notification"
                 android:textSize="@dimen/not_primary_textSize"
                 android:layout_toEndOf="@id/humidity_icon"
-                android:layout_toRightOf="@id/humidity_icon"
                 tools:text="80%" />
 
         </RelativeLayout>
@@ -313,7 +300,6 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:paddingEnd="4dp"
-                android:paddingRight="4dp"
                 android:src="@drawable/wi_sprinkle"
                 android:tint="@color/not_icon_tint" />
 
@@ -328,7 +314,6 @@
                 android:textAppearance="@style/TextAppearance.Compat.Notification"
                 android:textSize="@dimen/not_primary_textSize"
                 android:layout_toEndOf="@id/precip_rain_icon"
-                android:layout_toRightOf="@id/precip_rain_icon"
                 tools:text="0.00 in" />
 
         </RelativeLayout>
@@ -348,7 +333,6 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:paddingEnd="4dp"
-                android:paddingRight="4dp"
                 android:src="@drawable/wi_snowflake_cold"
                 android:tint="@color/not_icon_tint" />
 
@@ -363,7 +347,6 @@
                 android:textAppearance="@style/TextAppearance.Compat.Notification"
                 android:textSize="@dimen/not_primary_textSize"
                 android:layout_toEndOf="@id/precip_snow_icon"
-                android:layout_toRightOf="@id/precip_snow_icon"
                 tools:text="0.00 in" />
 
         </RelativeLayout>

@@ -579,6 +579,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                 case PANDA:
                     styleEntries[i] = requireContext().getString(R.string.label_style_panda);
                     styleEntryValues[i] = Integer.toString(style.getValue());
+                    bgStylePref.setDefaultValue(styleEntryValues[i]);
                     break;
                 case PENDINGCOLOR:
                     styleEntries[i] = requireContext().getText(R.string.label_style_pendingcolor);
@@ -852,12 +853,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             ViewGroup container = (ViewGroup) View.inflate(getAppCompatActivity(), R.layout.app_widget_forecast_layout_container, null);
 
             for (int i = 0; i < forecastLength; i++) {
-                View forecastPanel;
-
-                if (mWidgetType == WidgetType.Widget4x1)
-                    forecastPanel = View.inflate(getAppCompatActivity(), R.layout.app_widget_forecast_panel_4x1, null);
-                else
-                    forecastPanel = View.inflate(getAppCompatActivity(), R.layout.app_widget_forecast_panel_4x2, null);
+                View forecastPanel = View.inflate(getAppCompatActivity(), R.layout.app_widget_forecast_item, null);
 
                 forecastPanel.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
 

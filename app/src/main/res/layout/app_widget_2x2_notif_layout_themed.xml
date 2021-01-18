@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    tools:layout_height="72dp">
+    tools:layout_height="72dp"
+    tools:viewBindingIgnore="true">
 
     <ImageView
         android:id="@+id/weather_icon"
@@ -76,10 +76,12 @@
 
             <ImageView
                 android:id="@+id/hi_icon"
-                android:layout_width="12dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginTop="2dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:maxWidth="16dp"
                 android:layout_toEndOf="@id/condition_hi"
                 android:layout_alignTop="@id/condition_hi"
                 android:layout_alignBottom="@id/condition_hi"
@@ -113,13 +115,15 @@
 
             <ImageView
                 android:id="@+id/lo_icon"
-                android:layout_width="12dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:maxWidth="16dp"
                 android:layout_gravity="center_vertical"
                 android:layout_toEndOf="@id/condition_lo"
                 android:layout_alignTop="@id/condition_hi"
                 android:layout_alignBottom="@id/condition_hi"
-                android:layout_marginTop="2dp"
                 android:src="@drawable/wi_direction_down"
                 android:tint="@color/colorOnSurface" />
 

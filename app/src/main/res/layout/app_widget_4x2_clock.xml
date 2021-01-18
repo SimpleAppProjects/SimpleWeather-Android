@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:layout_width="match_parent"
-    tools:layout_height="288dp">
+    tools:layout_height="288dp"
+    tools:viewBindingIgnore="true">
 
     <ImageView
         android:id="@+id/settings_button"
@@ -38,7 +39,7 @@
             android:maxLines="1"
             android:shadowColor="#DD000000"
             android:textColor="@android:color/white"
-            android:textSize="60sp"
+            android:textSize="66sp"
             tools:text="11:00"
             tools:visibility="visible" />
 
@@ -57,6 +58,23 @@
             android:textColor="@android:color/white"
             android:textSize="12sp"
             tools:text="Sun, Oct 08" />
+
+        <TextView
+            android:id="@+id/location_name"
+            style="@style/ShadowText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-light"
+            android:gravity="bottom|center_horizontal"
+            android:layout_gravity="center_horizontal"
+            android:maxLines="1"
+            android:shadowColor="#000000"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            tools:text="New York, NY"
+            tools:visibility="visible" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -78,10 +96,8 @@
                     android:layout_width="60dp"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="2dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
                     android:adjustViewBounds="true"
                     android:padding="4dp"
                     android:scaleType="fitCenter"
@@ -136,23 +152,6 @@
                 android:layout_height="match_parent" />
 
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/location_name"
-            style="@style/ShadowText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:fontFamily="sans-serif-light"
-            android:gravity="top|center_horizontal"
-            android:maxLines="1"
-            android:shadowColor="#000000"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            tools:text="New York, NY"
-            tools:visibility="visible" />
 
     </LinearLayout>
 

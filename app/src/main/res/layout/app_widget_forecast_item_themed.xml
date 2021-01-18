@@ -1,12 +1,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="0dp"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:layout_weight="1"
     android:background="@null"
     android:orientation="vertical"
-    tools:layout_height="144dp"
-    tools:layout_width="144dp">
+    tools:layout_height="wrap_content"
+    tools:layout_width="144dp"
+    tools:viewBindingIgnore="true">
 
     <TextView
         android:id="@+id/forecast_date"
@@ -26,12 +27,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginBottom="-4dp"
         android:adjustViewBounds="true"
-        android:maxHeight="35dp"
-        android:maxWidth="35dp"
+        android:maxHeight="48dp"
+        android:maxWidth="48dp"
         android:padding="4dp"
         android:scaleType="fitCenter"
-        android:src="@drawable/ic_weather_icon"
+        android:src="@drawable/wi_day_thunderstorm"
         android:tint="@color/colorOnSurface" />
 
     <LinearLayout

@@ -6,7 +6,8 @@
     android:orientation="vertical"
     tools:layout_height="180dp"
     tools:layout_width="match_parent"
-    tools:targetApi="JELLY_BEAN_MR1">
+    tools:targetApi="JELLY_BEAN_MR1"
+    tools:viewBindingIgnore="true">
 
     <ImageView
         android:id="@+id/widgetBackground"
@@ -87,7 +88,7 @@
             android:shadowColor="#000000"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
-            android:textSize="14sp"
+            android:textSize="12sp"
             style="@style/ShadowText"
             tools:text="Mostly Sunny. Refreshingly cool." />
 
@@ -137,7 +138,7 @@
                     android:shadowRadius="2.75"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="@android:color/white"
-                    android:textSize="@dimen/date_text_size" />
+                    android:textSize="12sp" />
 
             </LinearLayout>
 
@@ -154,11 +155,6 @@
                     android:layout_alignParentTop="true"
                     android:layout_alignParentBottom="true"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginRight="4dp"
-                    android:layout_marginBottom="4dp"
                     android:adjustViewBounds="true"
                     android:gravity="center_vertical"
                     tools:src="@drawable/ic_weather_icon" />
@@ -195,12 +191,6 @@
         android:layout_alignParentBottom="true"
         android:autoStart="true"
         android:flipInterval="10000"
-        android:loopViews="true"
-        android:paddingStart="4dp"
-        android:paddingLeft="4dp"
-        android:paddingTop="2dp"
-        android:paddingEnd="4dp"
-        android:paddingRight="4dp"
-        android:paddingBottom="4dp" />
+        android:loopViews="true" />
 
 </RelativeLayout>

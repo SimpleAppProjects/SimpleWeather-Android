@@ -72,8 +72,7 @@
         android:id="@+id/weather_notif_layout"
         android:layout_width="match_parent"
         android:layout_height="66dp"
-        android:layout_alignParentBottom="true"
-        android:gravity="center">
+        android:layout_alignParentBottom="true">
 
     </FrameLayout>
 

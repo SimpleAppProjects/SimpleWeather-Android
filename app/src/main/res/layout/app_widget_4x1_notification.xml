@@ -4,22 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:layout_height="72dp"
-    tools:layout_width="288dp">
+    tools:layout_width="288dp"
+    tools:viewBindingIgnore="true">
 
     <ImageView
         android:id="@+id/weather_icon"
         android:layout_width="@dimen/not_weather_icon_size"
         android:layout_height="@dimen/not_weather_icon_size"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
         android:layout_marginStart="@dimen/not_weather_icon_marginStart"
-        android:layout_marginLeft="@dimen/not_weather_icon_marginStart"
         android:layout_marginEnd="6dp"
-        android:layout_marginRight="6dp"
         android:adjustViewBounds="true"
-        android:padding="4dp"
         android:scaleType="fitCenter"
         tools:src="@drawable/ic_weather_icon" />
 
@@ -28,9 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
-        android:layout_toRightOf="@id/weather_icon"
         android:layout_toEndOf="@id/weather_icon"
-        android:layout_toLeftOf="@id/extra_layout"
         android:layout_toStartOf="@id/extra_layout"
         android:orientation="vertical">
 
@@ -44,7 +39,6 @@
             android:gravity="center_vertical"
             android:maxLines="1"
             android:paddingStart="4dp"
-            android:paddingLeft="4dp"
             android:paddingTop="4dp"
             android:shadowColor="#000000"
             android:textColor="@android:color/white"
@@ -59,7 +53,6 @@
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:paddingStart="4dp"
-            android:paddingLeft="4dp"
             android:singleLine="true"
             android:shadowColor="#000000"
             android:textColor="@android:color/white"
@@ -79,7 +72,6 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:paddingStart="4dp"
-                android:paddingLeft="4dp"
                 android:shadowColor="#000000"
                 android:textColor="@android:color/white"
                 android:textSize="13sp"
@@ -87,14 +79,15 @@
 
             <ImageView
                 android:id="@+id/hi_icon"
-                android:layout_width="12dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginTop="2dp"
                 android:layout_toEndOf="@id/condition_hi"
-                android:layout_toRightOf="@id/condition_hi"
                 android:layout_alignTop="@id/condition_hi"
                 android:layout_alignBottom="@id/condition_hi"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:maxWidth="16dp"
                 android:src="@drawable/wi_direction_up" />
 
             <TextView
@@ -104,7 +97,6 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:layout_toEndOf="@id/hi_icon"
-                android:layout_toRightOf="@id/hi_icon"
                 android:layout_marginLeft="2dp"
                 android:layout_marginRight="2dp"
                 android:shadowColor="#000000"
@@ -119,8 +111,6 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:layout_toEndOf="@id/divider"
-                android:layout_toRightOf="@id/divider"
-                android:layout_marginLeft="2dp"
                 android:layout_marginStart="2dp"
                 android:shadowColor="#000000"
                 android:textColor="@android:color/white"
@@ -129,14 +119,15 @@
 
             <ImageView
                 android:id="@+id/lo_icon"
-                android:layout_width="12dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_toEndOf="@id/condition_lo"
-                android:layout_toRightOf="@id/condition_lo"
                 android:layout_alignTop="@id/condition_hi"
                 android:layout_alignBottom="@id/condition_hi"
-                android:layout_marginTop="2dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:maxWidth="16dp"
                 android:src="@drawable/wi_direction_down" />
 
         </RelativeLayout>
@@ -148,11 +139,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_alignTop="@id/weather_icon"
         android:layout_alignBottom="@id/weather_icon"
         android:layout_marginEnd="@dimen/not_weather_icon_marginStart"
-        android:layout_marginRight="@dimen/not_weather_icon_marginStart"
         android:gravity="center_vertical"
         android:orientation="vertical"
         android:visibility="gone"
@@ -181,9 +170,7 @@
                 android:minHeight="24dp"
                 android:gravity="center_vertical"
                 android:paddingStart="4dp"
-                android:paddingLeft="4dp"
                 android:layout_toEndOf="@id/weather_popicon"
-                android:layout_toRightOf="@id/weather_popicon"
                 android:shadowColor="#000000"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
@@ -215,9 +202,7 @@
                 android:gravity="center_vertical"
                 android:ellipsize="end"
                 android:paddingStart="4dp"
-                android:paddingLeft="4dp"
                 android:layout_toEndOf="@id/weather_windicon"
-                android:layout_toRightOf="@id/weather_windicon"
                 android:shadowColor="#000000"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
@@ -232,7 +217,6 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:layout_gravity="center_vertical"
         android:alpha="0.7"

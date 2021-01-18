@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:layout_width="match_parent"
-    tools:layout_height="288dp">
+    tools:layout_height="288dp"
+    tools:viewBindingIgnore="true">
 
     <ImageView
         android:id="@+id/settings_button"
@@ -75,7 +76,7 @@
                 android:shadowColor="#000000"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
-                android:textSize="15sp"
+                android:textSize="13sp"
                 tools:text="New York, NY"
                 tools:visibility="visible" />
 
@@ -100,9 +101,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1.25"
             android:layout_gravity="center_vertical"
-            android:gravity="center_vertical"
+            android:gravity="bottom"
             android:orientation="vertical"
-            android:paddingLeft="4dp"
             android:paddingStart="4dp">
 
             <LinearLayout
@@ -113,12 +113,12 @@
 
                 <ImageView
                     android:id="@+id/weather_icon"
-                    android:layout_width="48dp"
+                    android:layout_width="66dp"
                     android:layout_height="wrap_content"
                     android:adjustViewBounds="true"
                     android:scaleType="fitCenter"
                     tools:tint="@android:color/white"
-                    tools:src="@drawable/wi_day_sunny_overcast" />
+                    tools:src="@drawable/wi_night_alt_snow_thunderstorm" />
 
                 <TextView
                     android:id="@+id/condition_temp"
@@ -128,6 +128,7 @@
                     android:fontFamily="sans-serif-light"
                     android:includeFontPadding="false"
                     android:gravity="start|center_vertical"
+                    android:layout_marginTop="-4dp"
                     android:shadowColor="#000000"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="@android:color/white"

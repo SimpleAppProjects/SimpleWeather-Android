@@ -21,8 +21,8 @@ import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
-import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.main.MainActivity;
@@ -160,7 +160,7 @@ public class WeatherNotificationBuilder {
         // Builds the notification and issues it.
         Float temp_float = NumberUtils.tryParseFloat(temp);
         if (temp_float != null) {
-            float temp_f = viewModel.getCurTemp().toString().endsWith(WeatherIcons.FAHRENHEIT) ?
+            float temp_f = viewModel.getCurTemp().endsWith(Units.FAHRENHEIT) ?
                     temp_float : ConversionMethods.CtoF(temp_float);
             mBuilder.setColor(WeatherUtils.getColorFromTempF(temp_f));
         } else {
