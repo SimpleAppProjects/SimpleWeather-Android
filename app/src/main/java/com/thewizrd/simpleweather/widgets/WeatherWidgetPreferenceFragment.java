@@ -107,6 +107,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -569,10 +570,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         for (int i = 0; i < styles.length; i++) {
             WidgetUtils.WidgetBackgroundStyle style = styles[i];
             switch (style) {
-                case FULLBACKGROUND:
-                    styleEntries[i] = requireContext().getString(R.string.label_style_fullbg);
-                    styleEntryValues[i] = Integer.toString(style.getValue());
-                    break;
                 case PANDA:
                     styleEntries[i] = requireContext().getString(R.string.label_style_panda);
                     styleEntryValues[i] = Integer.toString(style.getValue());
@@ -604,7 +601,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             bgChoicePref.setValueIndex(mWidgetBackground.getValue());
             bgChoicePref.callChangeListener(bgChoicePref.getValue());
 
-            bgStylePref.setValueIndex(mWidgetBGStyle.getValue());
+            bgStylePref.setValueIndex(Arrays.asList(WidgetUtils.WidgetBackgroundStyle.values()).indexOf(mWidgetBGStyle));
             bgStylePref.callChangeListener(bgStylePref.getValue());
 
             bgColorPref.setColor(mWidgetBackgroundColor);

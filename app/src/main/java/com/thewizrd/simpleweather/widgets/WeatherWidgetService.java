@@ -1256,7 +1256,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             tempTextSize = 24;
 
         float shadowRadius = 1.75f;
-        if (background != WidgetUtils.WidgetBackground.TRANSPARENT && background != WidgetUtils.WidgetBackground.CUSTOM && style != WidgetUtils.WidgetBackgroundStyle.FULLBACKGROUND &&
+        if (background != WidgetUtils.WidgetBackground.TRANSPARENT && background != WidgetUtils.WidgetBackground.CUSTOM &&
                 (provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x2 && background != WidgetUtils.WidgetBackground.CURRENT_CONDITIONS)) {
             shadowRadius = 0f;
         }

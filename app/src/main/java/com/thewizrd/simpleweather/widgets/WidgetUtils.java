@@ -98,7 +98,6 @@ public class WidgetUtils {
     }
 
     enum WidgetBackgroundStyle {
-        FULLBACKGROUND(0),
         PANDA(1),
         PENDINGCOLOR(2),
         DARK(3),
@@ -123,7 +122,8 @@ public class WidgetUtils {
         }
 
         public static WidgetBackgroundStyle valueOf(int value) {
-            return map.get(value);
+            // NOTE: set default since we removed a style here
+            return map.get(value, PANDA);
         }
     }
 
@@ -659,7 +659,7 @@ public class WidgetUtils {
     }
 
     public static boolean isBackgroundOptionalWidget(WidgetType widgetType) {
-        return widgetType != WidgetType.Unknown && widgetType != WidgetType.Widget4x1Google && widgetType != WidgetType.Widget4x1Notification && widgetType != WidgetType.Widget4x2Clock && widgetType != WidgetType.Widget4x2Huawei;
+        return widgetType != WidgetType.Unknown && widgetType != WidgetType.Widget4x1Google && widgetType != WidgetType.Widget4x1Notification && widgetType != WidgetType.Widget4x2Clock && widgetType != WidgetType.Widget4x2Huawei && widgetType != WidgetType.Widget4x1;
     }
 
     public static boolean isLocationNameOptionalWidget(WidgetType widgetType) {
