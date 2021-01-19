@@ -337,7 +337,7 @@ public class LocationQueryViewModel {
         }
         String region = result.getAdminArea();
 
-        if (!ObjectsCompat.equals(town, region)) {
+        if (region != null && !ObjectsCompat.equals(town, region)) {
             locationName = String.format("%s, %s", town, region);
         } else {
             locationName = String.format("%s, %s", town, result.getCountryName());
