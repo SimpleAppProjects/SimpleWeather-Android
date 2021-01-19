@@ -123,7 +123,6 @@ import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
-import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.shared_resources.weatherdata.WeatherResult;
@@ -1297,16 +1296,20 @@ public class WeatherNowFragment extends WindowColorFragment
 
                         final int height = binding.refreshLayout.getMeasuredHeight();
 
-                        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) conditionPanelBinding.imageViewContainer.getLayoutParams();
+                        ViewGroup.MarginLayoutParams containerLP = (ViewGroup.MarginLayoutParams) conditionPanelBinding.imageViewContainer.getLayoutParams();
+                        ViewGroup.MarginLayoutParams conditionPLP = (ViewGroup.MarginLayoutParams) conditionPanelBinding.conditionPanel.getLayoutParams();
                         if (ActivityUtils.getOrientation(context) == Configuration.ORIENTATION_LANDSCAPE && height < imageLandSize) {
-                            lp.height = imageLandSize;
+                            containerLP.height = imageLandSize;
                         } else if (FeatureSettings.isBackgroundImageEnabled() && height > 0) {
-                            lp.height = height - conditionPanelBinding.conditionPanel.getMeasuredHeight() - lp.bottomMargin - Math.abs(lp.topMargin) - conditionPanelBinding.alertButton.getMeasuredHeight();
+                            containerLP.height = height - conditionPanelBinding.conditionPanel.getMeasuredHeight() - containerLP.bottomMargin - containerLP.topMargin - conditionPanelBinding.alertButton.getMeasuredHeight();
+                            if (conditionPLP.topMargin < 0) {
+                                containerLP.height += -conditionPLP.topMargin;
+                            }
                         } else {
-                            lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                            containerLP.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                         }
 
-                        conditionPanelBinding.imageViewContainer.setLayoutParams(lp);
+                        conditionPanelBinding.imageViewContainer.setLayoutParams(containerLP);
                     }
                 }
             });
@@ -1662,7 +1665,7 @@ public class WeatherNowFragment extends WindowColorFragment
             String temp_str = StringUtils.removeNonDigitChars(temp);
             Float temp_f = NumberUtils.tryParseFloat(temp_str);
             if (temp_f != null) {
-                if (ObjectsCompat.equals(tempUnit, Units.CELSIUS) || temp.toString().endsWith(WeatherIcons.CELSIUS)) {
+                if (ObjectsCompat.equals(tempUnit, Units.CELSIUS) || temp.toString().endsWith(Units.CELSIUS)) {
                     temp_f = ConversionMethods.CtoF(temp_f);
                 }
 

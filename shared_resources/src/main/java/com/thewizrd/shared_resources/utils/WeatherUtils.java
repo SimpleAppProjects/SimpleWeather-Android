@@ -291,7 +291,7 @@ public class WeatherUtils {
         int color;
 
         if (temp_f <= 47.5) {
-            color = Colors.LIGHTBLUE;
+            color = Colors.LIGHTSKYBLUE;
         } else if (temp_f >= 85) {
             color = Colors.RED;
         } else if (temp_f >= 70) {

@@ -22,7 +22,6 @@ import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
-import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.ForecastPanel;
 import com.thewizrd.simpleweather.controls.HourlyForecastPanel;
@@ -103,7 +102,7 @@ public class BindingAdapters {
         String temp_str = StringUtils.removeNonDigitChars(temp);
         Float temp_f = NumberUtils.tryParseFloat(temp_str);
         if (temp_f != null) {
-            if (ObjectsCompat.equals(tempUnit, Units.CELSIUS) || temp.toString().endsWith(WeatherIcons.CELSIUS)) {
+            if (ObjectsCompat.equals(tempUnit, Units.CELSIUS) || temp.toString().endsWith(Units.CELSIUS)) {
                 temp_f = ConversionMethods.CtoF(temp_f);
             }
 
