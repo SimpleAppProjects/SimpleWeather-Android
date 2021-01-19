@@ -237,7 +237,7 @@ public class WeatherNowFragment extends WindowColorFragment
                             @Override
                             public void run() {
                                 String backgroundUri = weatherView.getImageData() != null ? weatherView.getImageData().getImageURI() : null;
-                                if (FeatureSettings.isBackgroundImageEnabled() && (!ObjectsCompat.equals(binding.imageView.getTag(), backgroundUri) || binding.imageView.getTag(R.id.glide_custom_view_target_tag) == null)) {
+                                if (FeatureSettings.isBackgroundImageEnabled() && (!ObjectsCompat.equals(conditionPanelBinding.imageView.getTag(), backgroundUri) || conditionPanelBinding.imageView.getTag(R.id.glide_custom_view_target_tag) == null)) {
                                     loadBackgroundImage(backgroundUri, false);
                                 } else {
                                     binding.refreshLayout.setRefreshing(false);
@@ -482,12 +482,6 @@ public class WeatherNowFragment extends WindowColorFragment
             public void onScrollChange(final NestedScrollView v, int scrollX, final int scrollY, int oldScrollX, final int oldScrollY) {
                 if (!isViewAlive()) return;
 
-                // Default adj = 1.25
-                float adj = 1.25f;
-                float alpha = 1.0f - (1.0f * adj * scrollY / (binding.refreshLayout.getHeight()));
-                binding.imageView.setAlpha(Math.max(alpha, 37 / 255f));
-                binding.gradientView.setAlpha(Math.max(alpha, 0));
-
                 int offset = v.computeVerticalScrollOffset();
                 if (offset > 0) {
                     ViewCompat.setElevation(binding.toolbar, ActivityUtils.dpToPx(getAppCompatActivity(), 4));
@@ -535,7 +529,8 @@ public class WeatherNowFragment extends WindowColorFragment
             @SuppressLint("RestrictedApi")
             @Override
             public void onFlingStopped(int scrollY) {
-                if (!FeatureSettings.isBackgroundImageEnabled() || !isViewAlive()) return;
+                if (ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled() || !isViewAlive())
+                    return;
 
                 int condPnlHeight = binding.refreshLayout.getHeight();
                 int THRESHOLD = condPnlHeight / 2;
@@ -578,7 +573,8 @@ public class WeatherNowFragment extends WindowColorFragment
             @SuppressLint("RestrictedApi")
             @Override
             public void onTouchScrollChange(int scrollY, int oldScrollY) {
-                if (!FeatureSettings.isBackgroundImageEnabled() || !isViewAlive()) return;
+                if (ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled() || !isViewAlive())
+                    return;
 
                 int condPnlHeight = binding.refreshLayout.getHeight();
                 int THRESHOLD = condPnlHeight / 2;
@@ -851,8 +847,6 @@ public class WeatherNowFragment extends WindowColorFragment
             public boolean onPreDraw() {
                 if (isViewAlive()) {
                     binding.scrollView.getViewTreeObserver().removeOnPreDrawListener(this);
-                    binding.imageView.setAlpha(wNowViewModel.getImageAlpha());
-                    binding.gradientView.setAlpha(wNowViewModel.getGradientAlpha());
                     binding.scrollView.postOnAnimationDelayed(new CheckAliveRunnable(getViewLifecycleOwner().getLifecycle(), new Runnable() {
                         @Override
                         public void run() {
@@ -928,8 +922,6 @@ public class WeatherNowFragment extends WindowColorFragment
             radarViewProvider = null;
         }
         wNowViewModel.setScrollViewPosition(binding.scrollView.computeVerticalScrollOffset());
-        wNowViewModel.setImageAlpha(binding.imageView.getAlpha());
-        wNowViewModel.setGradientAlpha(binding.gradientView.getAlpha());
         super.onDestroyView();
         // Remove references to view binding
         radarControlBinding = null;
@@ -1002,15 +994,15 @@ public class WeatherNowFragment extends WindowColorFragment
         runWithView(new LifecycleRunnable(getViewLifecycleOwner().getLifecycle()) {
             @Override
             public void run() {
-                binding.imageView.postOnAnimation(new Runnable() {
+                conditionPanelBinding.imageView.postOnAnimation(new Runnable() {
                     @Override
                     public void run() {
                         if (!isActive() || !isViewAlive()) return;
 
                         // Reload background image
                         if (FeatureSettings.isBackgroundImageEnabled()) {
-                            if (!ObjectsCompat.equals(binding.imageView.getTag(), imageURI)) {
-                                binding.imageView.setTag(imageURI);
+                            if (!ObjectsCompat.equals(conditionPanelBinding.imageView.getTag(), imageURI)) {
+                                conditionPanelBinding.imageView.setTag(imageURI);
                                 if (!StringUtils.isNullOrWhitespace(imageURI)) {
                                     Glide.with(WeatherNowFragment.this)
                                             .load(imageURI)
@@ -1042,10 +1034,10 @@ public class WeatherNowFragment extends WindowColorFragment
                                                     return false;
                                                 }
                                             })
-                                            .into(binding.imageView);
+                                            .into(conditionPanelBinding.imageView);
                                 } else {
-                                    Glide.with(WeatherNowFragment.this).clear(binding.imageView);
-                                    binding.imageView.setTag(null);
+                                    Glide.with(WeatherNowFragment.this).clear(conditionPanelBinding.imageView);
+                                    conditionPanelBinding.imageView.setTag(null);
                                     if (weatherView.isValid()) {
                                         binding.refreshLayout.setRefreshing(false);
                                         binding.progressBar.hide();
@@ -1054,8 +1046,8 @@ public class WeatherNowFragment extends WindowColorFragment
                                 }
                             }
                         } else {
-                            Glide.with(WeatherNowFragment.this).clear(binding.imageView);
-                            binding.imageView.setTag(null);
+                            Glide.with(WeatherNowFragment.this).clear(conditionPanelBinding.imageView);
+                            conditionPanelBinding.imageView.setTag(null);
                             if (weatherView.isValid()) {
                                 binding.refreshLayout.setRefreshing(false);
                                 binding.progressBar.hide();
@@ -1260,7 +1252,10 @@ public class WeatherNowFragment extends WindowColorFragment
                                             if (task.isSuccessful()) {
                                                 final Collection<WeatherAlert> weatherAlerts = task.getResult();
                                                 if (weatherAlerts != null && !weatherAlerts.isEmpty()) {
-                                                    conditionPanelBinding.alertButton.setVisibility(View.VISIBLE);
+                                                    if (conditionPanelBinding.alertButton.getVisibility() != View.VISIBLE) {
+                                                        conditionPanelBinding.alertButton.setVisibility(View.VISIBLE);
+                                                        adjustConditionPanelLayout();
+                                                    }
                                                 }
 
                                                 if (wm.supportsAlerts() && locationData != null) {
@@ -1292,64 +1287,32 @@ public class WeatherNowFragment extends WindowColorFragment
 
         if (conditionPanelBinding != null) {
             conditionPanelBinding.conditionPanel.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                final int imageLandSize = (int) ActivityUtils.dpToPx(conditionPanelBinding.conditionPanel.getContext(), 560);
                 @Override
                 public void onGlobalLayout() {
                     if (isViewAlive()) {
                         conditionPanelBinding.conditionPanel.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-                        int height = binding.refreshLayout.getMeasuredHeight();
-                        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) conditionPanelBinding.conditionPanel.getLayoutParams();
-                        if (FeatureSettings.isBackgroundImageEnabled() && height > 0) {
-                            lp.height = height;
+                        final Context context = conditionPanelBinding.conditionPanel.getContext();
+
+                        final int height = binding.refreshLayout.getMeasuredHeight();
+
+                        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) conditionPanelBinding.imageViewContainer.getLayoutParams();
+                        if (ActivityUtils.getOrientation(context) == Configuration.ORIENTATION_LANDSCAPE && height < imageLandSize) {
+                            lp.height = imageLandSize;
+                        } else if (FeatureSettings.isBackgroundImageEnabled() && height > 0) {
+                            lp.height = height - conditionPanelBinding.conditionPanel.getMeasuredHeight() - lp.bottomMargin - Math.abs(lp.topMargin) - conditionPanelBinding.alertButton.getMeasuredHeight();
                         } else {
                             lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                         }
 
-                        if (ActivityUtils.isLargeTablet(getAppCompatActivity())) {
-                            int viewWidth = conditionPanelBinding.conditionPanel.getMeasuredWidth();
-                            int maxWidth = (int) ActivityUtils.dpToPx(getAppCompatActivity(), 640f);
-
-                            boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
-
-                            if (isLandscape && viewWidth > maxWidth)
-                                lp.width = maxWidth;
-                            else
-                                lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
-                        }
-
-                        conditionPanelBinding.conditionPanel.setLayoutParams(lp);
+                        conditionPanelBinding.imageViewContainer.setLayoutParams(lp);
                     }
                 }
             });
-
-            conditionPanelBinding.weatherIcon.setLayoutParams(conditionPanelBinding.weatherIcon.getLayoutParams());
         }
 
-        binding.scrollView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if (isViewAlive()) {
-                    binding.scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
-                    if (ActivityUtils.isLargeTablet(getAppCompatActivity())) {
-                        if (binding.scrollView.getChildCount() == 1) {
-                            int viewWidth = binding.scrollView.getMeasuredWidth();
-                            int maxWidth = (int) ActivityUtils.dpToPx(getAppCompatActivity(), 1080f);
-
-                            ViewGroup.LayoutParams lp = binding.scrollView.getChildAt(0).getLayoutParams();
-                            boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
-
-                            if (isLandscape && viewWidth > maxWidth)
-                                lp.width = maxWidth;
-                            else
-                                lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
-                        }
-                    }
-
-                    adjustDetailsLayout();
-                }
-            }
-        });
+        adjustDetailsLayout();
     }
 
     private void adjustDetailsLayout() {

@@ -39,6 +39,8 @@
             android:layout_width="0dp"
             android:layout_height="@dimen/sun_phase_view_height"
             android:layout_marginBottom="20dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
             app:hideIfNull="@{weatherView.sunPhase}"
             app:sunPhase="@{weatherView.sunPhase}"
             app:layout_constraintWidth_max="720dp"
