@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.locationdata.weatherapi.WeatherApiLocationP
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -43,6 +44,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -196,7 +198,26 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
             forecastData.getLocation().setLongitude(location.getAsJsonPrimitive("longitude").getAsDouble());
 
             JsonObject periodNameList = fcastRoot.getAsJsonObject("PeriodNameList");
-            SortedSet<String> sortedKeys = new TreeSet<>(periodNameList.keySet());
+            SortedSet<String> sortedKeys = new TreeSet<>(new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    Integer x = NumberUtils.tryParseInt(o1);
+                    Integer y = NumberUtils.tryParseInt(o2);
+
+                    if (x != null && y != null) {
+                        return Integer.compare(x, y);
+                    } else {
+                        if (o1 == null) {
+                            return -1;
+                        }
+                        if (o2 == null) {
+                            return 1;
+                        }
+                        return o1.compareTo(o2);
+                    }
+                }
+            });
+            sortedKeys.addAll(periodNameList.keySet());
 
             forecastData.setPeriodsItems(new ArrayList<>(sortedKeys.size()));
 

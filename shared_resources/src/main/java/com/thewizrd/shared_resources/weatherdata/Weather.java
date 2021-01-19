@@ -419,7 +419,7 @@ public class Weather extends CustomJsonObject {
                     // BUG: NWS MapClick API
                     // The epoch time sometimes is a day ahead
                     // If this is the case, adjust all dates accordingly
-                    if (i == 0 && "Tonight".equals(period.getPeriodName()) && "6 pm".equals(period.getTime().get(i))) {
+                    if (i == 0 && period.getPeriodName() != null && period.getPeriodName().contains("night") && "6 pm".equals(period.getTime().get(i))) {
                         ZonedDateTime hrDate = instant.atZone(creationDate.getZone());
                         if (creationDate.plusDays(1).truncatedTo(ChronoUnit.DAYS).isEqual(hrDate.truncatedTo(ChronoUnit.DAYS))) {
                             adjustDate = true;
