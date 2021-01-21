@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.icons.WeatherIcons;
 import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.weatherapi.WeatherApiLocationProvider;
@@ -19,7 +20,6 @@ import com.thewizrd.shared_resources.weatherdata.AstroDataProviderInterface;
 import com.thewizrd.shared_resources.weatherdata.Astronomy;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
-import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider;
 

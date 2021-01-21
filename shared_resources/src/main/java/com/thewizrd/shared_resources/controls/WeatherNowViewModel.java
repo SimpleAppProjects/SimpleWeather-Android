@@ -12,6 +12,8 @@ import com.thewizrd.shared_resources.BR;
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.icons.WeatherIcons;
+import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
@@ -22,7 +24,6 @@ import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
-import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 
@@ -253,7 +254,10 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private void refreshView() {
         final Context context = SimpleLibrary.getInstance().getApp().getAppContext();
         final boolean isPhone = SimpleLibrary.getInstance().getApp().isPhone();
+
         final WeatherProviderImpl provider = WeatherManager.getProvider(weather.getSource());
+        final WeatherIconsManager wim = WeatherIconsManager.getInstance();
+
         final boolean isFahrenheit = Units.FAHRENHEIT.equals(Settings.getTemperatureUnit());
 
         final DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(LocaleUtils.getLocale());
@@ -292,7 +296,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
             curCondition = newCondition;
             notifyPropertyChanged(BR.curCondition);
         }
-        final @DrawableRes int newIcon = WeatherUtils.getWeatherIconResource(weather.getCondition().getIcon());
+        final @DrawableRes int newIcon = wim.getWeatherIconResource(weather.getCondition().getIcon());
         if (weatherIcon != newIcon) {
             weatherIcon = newIcon;
             notifyPropertyChanged(BR.weatherIcon);

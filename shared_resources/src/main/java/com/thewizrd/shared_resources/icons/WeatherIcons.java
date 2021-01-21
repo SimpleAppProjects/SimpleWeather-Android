@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.weatherdata;
+package com.thewizrd.shared_resources.icons;
 
 public class WeatherIcons {
     // DAY

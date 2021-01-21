@@ -2,13 +2,15 @@ package com.thewizrd.shared_resources.controls;
 
 import androidx.annotation.DrawableRes;
 
+import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BaseForecastItemViewModel {
-    protected WeatherManager wm;
+    protected final WeatherManager wm;
+    protected final WeatherIconsManager wim;
 
     protected @DrawableRes
     int weatherIcon;
@@ -24,6 +26,8 @@ public abstract class BaseForecastItemViewModel {
 
     public BaseForecastItemViewModel() {
         wm = WeatherManager.getInstance();
+        wim = WeatherIconsManager.getInstance();
+
         int capacity = WeatherDetailsType.values().length;
         detailExtras = new ArrayList<>(capacity);
     }

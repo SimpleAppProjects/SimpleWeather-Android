@@ -7,6 +7,7 @@ import androidx.core.util.ObjectsCompat;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.icons.WeatherIcons;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
@@ -18,8 +19,6 @@ import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.TextForecast;
 import com.thewizrd.shared_resources.weatherdata.UV;
-import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
-import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -30,14 +29,13 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
 
     public ForecastItemViewModel(Forecast forecast, TextForecast... txtForecasts) {
         final Context context = SimpleLibrary.getInstance().getAppContext();
-        wm = WeatherManager.getInstance();
         final boolean isFahrenheit = Units.FAHRENHEIT.equals(Settings.getTemperatureUnit());
         final DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(LocaleUtils.getLocale());
         df.applyPattern("0.##");
 
         detailExtras = new ArrayList<>(WeatherDetailsType.values().length);
 
-        weatherIcon = WeatherUtils.getWeatherIconResource(forecast.getIcon());
+        weatherIcon = wim.getWeatherIconResource(forecast.getIcon());
         date = forecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(context.getString(R.string.forecast_date_format)));
         shortDate = date;
         condition = wm.supportsWeatherLocale() ? forecast.getCondition() : wm.getWeatherCondition(forecast.getIcon());

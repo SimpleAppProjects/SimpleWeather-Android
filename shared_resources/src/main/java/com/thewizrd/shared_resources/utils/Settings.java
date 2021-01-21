@@ -22,6 +22,7 @@ import com.thewizrd.shared_resources.database.LocationsDAO;
 import com.thewizrd.shared_resources.database.LocationsDatabase;
 import com.thewizrd.shared_resources.database.WeatherDAO;
 import com.thewizrd.shared_resources.database.WeatherDatabase;
+import com.thewizrd.shared_resources.icons.WeatherIconsSource;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
@@ -96,6 +97,7 @@ public class Settings {
     public static final String KEY_DISTANCEUNIT = "key_distanceunit";
     public static final String KEY_PRECIPITATIONUNIT = "key_precipitationunit";
     public static final String KEY_PRESSUREUNIT = "key_pressureunit";
+    public static final String KEY_ICONSSOURCE = "key_iconssource";
     // !ANDROID_WEAR
     public static final String KEY_ONGOINGNOTIFICATION = "key_ongoingnotification";
     public static final String KEY_NOTIFICATIONICON = "key_notificationicon";
@@ -1065,5 +1067,15 @@ public class Settings {
                 SimpleLibrary.getInstance().getAppContext().getContentResolver(),
                 android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,
                 1.0f);
+    }
+
+    @WeatherIconsSource.WeatherIconSource
+    public static String getIconsProvider() {
+        return preferences.getString(KEY_ICONSSOURCE, WeatherIconsSource.WeatherIconsEF);
+    }
+
+    public static void setIconsProvider(@WeatherIconsSource.WeatherIconSource String iconsSource) {
+        editor.putString(KEY_ICONSSOURCE, iconsSource);
+        editor.commit();
     }
 }

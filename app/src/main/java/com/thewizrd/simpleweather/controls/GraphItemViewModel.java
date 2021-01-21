@@ -6,12 +6,12 @@ import android.text.format.DateFormat;
 import androidx.annotation.NonNull;
 
 import com.thewizrd.shared_resources.DateTimeConstants;
+import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.Units;
-import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.BaseForecast;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
@@ -28,6 +28,8 @@ public class GraphItemViewModel {
     public GraphItemViewModel(BaseForecast forecast) {
         Context context = App.getInstance().getAppContext();
         final boolean isFahrenheit = Units.FAHRENHEIT.equals(Settings.getTemperatureUnit());
+
+        final WeatherIconsManager wim = WeatherIconsManager.getInstance();
 
         String date;
         GraphTemperature tempData = new GraphTemperature();
@@ -48,7 +50,7 @@ public class GraphItemViewModel {
         }
 
         // Temp Data
-        XLabelData xTemp = new XLabelData(date, WeatherUtils.getWeatherIconResource(forecast.getIcon()), 0);
+        XLabelData xTemp = new XLabelData(date, wim.getWeatherIconResource(forecast.getIcon()), 0);
         if (forecast.getHighF() != null && forecast.getHighC() != null) {
             int value = isFahrenheit ? Math.round(forecast.getHighF()) : Math.round(forecast.getHighC());
             String hiTemp = String.format(LocaleUtils.getLocale(), "%d°", value);

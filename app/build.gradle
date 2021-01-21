@@ -66,6 +66,7 @@ android {
 
 dependencies {
     implementation project(":shared_resources")
+    implementation project(":extrafeatures")
 
     // Core library
     androidTestImplementation 'androidx.test:core:1.3.0'

@@ -18,13 +18,13 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.thewizrd.shared_resources.Constants;
+import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
-import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
@@ -75,6 +75,8 @@ public class ShortcutCreatorWorker extends Worker {
     @Override
     @TargetApi(Build.VERSION_CODES.N_MR1)
     public Result doWork() {
+        final WeatherIconsManager wim = WeatherIconsManager.getInstance();
+
         List<LocationData> locations = new ArrayList<>(Settings.getLocationData());
         if (Settings.useFollowGPS())
             locations.add(0, Settings.getHomeData());
@@ -117,13 +119,20 @@ public class ShortcutCreatorWorker extends Worker {
             Bitmap bmp = AsyncTask.await(new Callable<Bitmap>() {
                 @Override
                 public Bitmap call() {
-                    return ImageUtils.tintedBitmapFromDrawable(mContext, WeatherUtils.getWeatherIconResource(weather.getCondition().getIcon()),
+                    return ImageUtils.tintedBitmapFromDrawable(mContext, wim.getWeatherIconResource(weather.getCondition().getIcon()),
                             mContext.getColor(R.color.colorPrimaryDark));
                 }
             });
+            Icon shortCutIco;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                shortCutIco = Icon.createWithAdaptiveBitmap(bmp);
+            } else {
+                shortCutIco = Icon.createWithBitmap(bmp);
+            }
+
             ShortcutInfo shortcut = new ShortcutInfo.Builder(mContext, location.getQuery())
                     .setShortLabel(weather.getLocation().getName())
-                    .setIcon(Icon.createWithBitmap(bmp))
+                    .setIcon(shortCutIco)
                     .setIntent(intent)
                     .build();
 

@@ -13,16 +13,16 @@ import android.util.Log;
 import androidx.core.util.ObjectsCompat;
 
 import com.google.android.gms.tasks.Tasks;
+import com.thewizrd.shared_resources.icons.WeatherIcons;
+import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.Units;
-import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader;
-import com.thewizrd.shared_resources.weatherdata.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest;
 import com.thewizrd.simpleweather.LaunchActivity;
 
@@ -109,6 +109,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
         if ((weather == null || !weather.isValid()) || (dataType != ComplicationData.TYPE_SHORT_TEXT && dataType != ComplicationData.TYPE_LONG_TEXT)) {
             return null;
         } else {
+            final WeatherIconsManager wim = WeatherIconsManager.getInstance();
             final boolean isFahrenheit = Units.FAHRENHEIT.equals(Settings.getTemperatureUnit());
 
             // Temperature
@@ -123,7 +124,7 @@ public class WeatherComplicationService extends ComplicationProviderService {
             String tempUnit = isFahrenheit ? Units.FAHRENHEIT : Units.CELSIUS;
             String temp = String.format(LocaleUtils.getLocale(), "%s°%s", currTemp, tempUnit);
             // Weather Icon
-            int weatherIcon = WeatherUtils.getWeatherIconResource(weather.getCondition().getIcon());
+            final int weatherIcon = wim.getWeatherIconResource(weather.getCondition().getIcon());
             // Condition text
             String condition = weather.getCondition().getWeather();
 
