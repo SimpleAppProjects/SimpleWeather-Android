@@ -37,18 +37,6 @@
 # -keep class com.crashlytics.** { *; }
 # -dontwarn com.crashlytics.**
 
-# R8 Compatibility Rules
--keepclassmembers,allowobfuscation class * {
-  @com.google.gson.annotations.SerializedName <fields>;
-}
-
-# Firebase
--keepattributes Signature
--keepattributes *Annotation*
--keepattributes EnclosingMethod
--keepattributes InnerClasses
-# Keep custom model classes
--keep class com.thewizrd.shared_resources.weatherdata.images.model.** { *; }
 # Navigation
 -keep public enum com.thewizrd.simpleweather.main.WeatherListType {
   public *;

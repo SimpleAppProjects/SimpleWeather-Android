@@ -23,11 +23,6 @@
 -keep class com.google.android.gms.** { *; }
 -dontwarn com.google.android.gms.**
 
--keepclassmembers class com.thewizrd.shared_resources.R$* {
-    public static <fields>;
-}
--dontwarn com.thewizrd.shared_resources.R$*
-
 # Crashlytics
 -keepattributes SourceFile,LineNumberTable        # Keep file names/line numbers
 -keep public class * extends java.lang.Exception  # Keep custom exceptions (opt)
@@ -39,18 +34,6 @@
 # -keep class com.crashlytics.** { *; }
 # -dontwarn com.crashlytics.**
 
-# R8 Compatibility Rules
--keepclassmembers,allowobfuscation class * {
-  @com.google.gson.annotations.SerializedName <fields>;
-}
-
-# Firebase
--keepattributes Signature
--keepattributes *Annotation*
--keepattributes EnclosingMethod
--keepattributes InnerClasses
-# Keep custom model classes
--keep class com.thewizrd.shared_resources.weatherdata.images.model.** { *; }
 # Navigation
 -keep public enum com.thewizrd.simpleweather.main.WeatherListType {
   public *;

@@ -1,1 +1,2 @@
-include ':app', ':wearapp', ':shared_resources', ':unofficialtileapi', ':simpleastronomy'
+include ':extrafeatures'
+include ':app', ':wearapp', ':shared_resources', ':unofficialtileapi'
