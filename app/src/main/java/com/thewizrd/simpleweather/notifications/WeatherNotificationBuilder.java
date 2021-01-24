@@ -14,7 +14,6 @@ import androidx.core.app.NotificationCompat;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
@@ -81,7 +80,6 @@ public class WeatherNotificationBuilder {
         }
 
         // Extras
-        int textSize = (int) ActivityUtils.dpToPx(context, 24f);
         if (chanceModel != null) {
             updateViews.setImageViewResource(R.id.weather_popicon, chanceModel.getIcon());
             updateViews.setTextViewText(R.id.weather_pop, chanceModel.getValue());

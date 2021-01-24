@@ -27,6 +27,8 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 
+import com.thewizrd.shared_resources.helpers.ContextUtils;
+
 import java.io.InputStream;
 
 public class ImageUtils {
@@ -75,22 +77,43 @@ public class ImageUtils {
         return bmp;
     }
 
+    public static Bitmap adaptiveBitmapFromDrawable(@NonNull Context context, @DrawableRes int resDrawable) {
+        Drawable drawable = ContextCompat.getDrawable(ContextUtils.getThemeContextOverride(context, true), resDrawable);
+
+        final int canvasSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, context.getResources().getDisplayMetrics());
+        final int iconSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 72, context.getResources().getDisplayMetrics());
+        final int point = canvasSize - iconSize;
+
+        Bitmap bitmap = Bitmap.createBitmap(canvasSize, canvasSize, Bitmap.Config.ARGB_8888);
+        bitmap.eraseColor(Colors.WHITESMOKE);
+
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(point, point, iconSize, iconSize);
+        drawable.draw(canvas);
+        return bitmap;
+    }
+
     public static Bitmap bitmapFromDrawable(@NonNull Context context, @DrawableRes int resDrawable) {
         Drawable drawable = ContextCompat.getDrawable(context, resDrawable);
         return bitmapFromDrawable(drawable);
     }
 
-    public static Bitmap tintedBitmapFromDrawable(@NonNull Context context, int resDrawable, int color) {
+    public static Bitmap bitmapFromDrawable(@NonNull Context context, @DrawableRes int resDrawable, float destWidth, float destHeight) {
+        Drawable drawable = ContextCompat.getDrawable(context, resDrawable);
+        return bitmapFromDrawable(drawable, destWidth, destHeight);
+    }
+
+    public static Bitmap tintedBitmapFromDrawable(@NonNull Context context, @DrawableRes int resDrawable, int color) {
         Drawable wrapped = tintedDrawable(context, resDrawable, color);
         return bitmapFromDrawable(wrapped);
     }
 
-    public static Bitmap tintedBitmapFromDrawable(@NonNull Context context, int resDrawable, int color, float destWidth, float destHeight) {
+    public static Bitmap tintedBitmapFromDrawable(@NonNull Context context, @DrawableRes int resDrawable, int color, float destWidth, float destHeight) {
         Drawable wrapped = tintedDrawable(context, resDrawable, color);
         return bitmapFromDrawable(wrapped, destWidth, destHeight);
     }
 
-    private static Drawable tintedDrawable(@NonNull Context context, int resDrawable, int color) {
+    private static Drawable tintedDrawable(@NonNull Context context, @DrawableRes int resDrawable, int color) {
         Drawable drawable = ContextCompat.getDrawable(context, resDrawable);
         Drawable wrapped = DrawableCompat.wrap(drawable);
         DrawableCompat.setTint(wrapped, color);

@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources.icons;
 
 import androidx.annotation.NonNull;
 
+import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.Settings;
 
 public final class WeatherIconsManager implements WeatherIconsProviderInterface {
@@ -25,16 +26,9 @@ public final class WeatherIconsManager implements WeatherIconsProviderInterface 
         iconsProvider = getProvider(iconsSource);
     }
 
-    private static WeatherIconsProviderInterface getProvider(String iconsSource) {
-        WeatherIconsProviderInterface iconsProvider = null;
-
-        switch (iconsSource) {
-            default:
-                iconsProvider = new WeatherIconsProvider();
-                break;
-        }
-
-        return iconsProvider;
+    @NonNull
+    public static WeatherIconProvider getProvider(String iconsSource) {
+        return SimpleLibrary.getInstance().getIconProvider(iconsSource);
     }
 
     @Override

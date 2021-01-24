@@ -148,17 +148,26 @@
                 android:layout_gravity="center_vertical">
 
                 <ImageView
-                    android:id="@+id/weather_icon"
-                    android:layout_width="48dp"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/weather_icon_overlay"
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
                     android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentBottom="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/dot"
+                    android:tint="#50000000"
+                    android:tintMode="src_in" />
+
+                <ImageView
+                    android:id="@+id/weather_icon"
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
                     android:layout_gravity="center_vertical"
                     android:adjustViewBounds="true"
                     android:gravity="center_vertical"
-                    android:layout_marginTop="4dp"
-                    tools:src="@drawable/wi_day_sunny" />
+                    android:padding="8dp"
+                    tools:src="@drawable/wi_thunderstorm" />
 
                 <TextView
                     android:id="@+id/condition_temp"

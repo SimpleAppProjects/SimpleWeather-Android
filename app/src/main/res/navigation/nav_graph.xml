@@ -93,6 +93,9 @@
         <action
             android:id="@+id/action_settingsFragment_to_aboutAppFragment2"
             app:destination="@id/aboutAppFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_iconsFragment"
+            app:destination="@id/iconsFragment" />
     </fragment>
     <fragment
         android:id="@+id/aboutAppFragment"
@@ -126,4 +129,8 @@
         android:id="@+id/unitsFragment"
         android:name="com.thewizrd.simpleweather.preferences.SettingsFragment$UnitsFragment"
         android:label="UnitsFragment" />
+    <fragment
+        android:id="@+id/iconsFragment"
+        android:name="com.thewizrd.simpleweather.preferences.SettingsFragment$IconsFragment"
+        android:label="IconsFragment" />
 </navigation>

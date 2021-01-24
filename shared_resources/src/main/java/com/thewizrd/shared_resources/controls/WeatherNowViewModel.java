@@ -184,6 +184,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private String tempUnit;
     private String unitCode;
     private String localeCode;
+    private String iconProvider;
 
     public WeatherNowViewModel() {
         weatherDetails = new ArrayList<>(WeatherDetailsType.values().length);
@@ -245,7 +246,9 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
                 // Refresh locale/unit dependent values
                 refreshView();
-            } else if (!ObjectsCompat.equals(unitCode, Settings.getUnitString()) || !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode())) {
+            } else if (!ObjectsCompat.equals(unitCode, Settings.getUnitString()) ||
+                    !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode()) ||
+                    !ObjectsCompat.equals(iconProvider, Settings.getIconsProvider())) {
                 refreshView();
             }
         }
@@ -268,6 +271,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         notifyPropertyChanged(BR.tempUnit);
 
         localeCode = LocaleUtils.getLocaleCode();
+        iconProvider = Settings.getIconsProvider();
 
         // Date Updated
         if (!ObjectsCompat.equals(updateDate, WeatherUtils.getLastBuildDate(weather))) {

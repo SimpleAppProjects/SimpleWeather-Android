@@ -32,15 +32,12 @@
                     android:gravity="center"
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp"
-                    android:scrollbars="none"
-                    android:textSize="36sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/forecast_date"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_weight="1"
-                    app:tint="@color/colorTextPrimary"
                     tools:srcCompat="@drawable/wi_day_rain" />
 
                 <androidx.appcompat.widget.AppCompatTextView

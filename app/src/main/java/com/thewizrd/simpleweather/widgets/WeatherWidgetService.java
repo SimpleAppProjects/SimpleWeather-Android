@@ -42,6 +42,7 @@ import com.thewizrd.shared_resources.controls.ImageDataViewModel;
 import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
@@ -1124,6 +1125,14 @@ public class WeatherWidgetService extends SafeJobIntentService {
             updateViews.setTextViewText(R.id.condition_temp, weather.getCurTemp());
         }
 
+        if (provider.getWidgetType() == WidgetType.Widget4x2) {
+            if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
+                updateViews.setViewVisibility(R.id.weather_icon_overlay, View.VISIBLE);
+            } else {
+                updateViews.setViewVisibility(R.id.weather_icon_overlay, View.GONE);
+            }
+        }
+
         // Set sizes for views
         updateViewSizes(updateViews, provider, newOptions);
 
@@ -1274,8 +1283,15 @@ public class WeatherWidgetService extends SafeJobIntentService {
 
         if (provider.getWidgetType() != WidgetType.Widget4x1) {
             // WeatherIcon
-            updateViews.setImageViewBitmap(R.id.weather_icon,
-                    ImageUtils.tintedBitmapFromDrawable(mContext, weather.getWeatherIcon(), is4x2 ? textColor : panelTextColor));
+            if (!WidgetUtils.isBackgroundOptionalWidget(provider.getWidgetType()) || is4x2) {
+                updateViews.setImageViewBitmap(R.id.weather_icon,
+                        ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(mContext, false), weather.getWeatherIcon()));
+            } else if (style == WidgetUtils.WidgetBackgroundStyle.PANDA) {
+                updateViews.setImageViewResource(R.id.weather_icon, weather.getWeatherIcon());
+            } else {
+                updateViews.setImageViewBitmap(R.id.weather_icon,
+                        ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(mContext, style == WidgetUtils.WidgetBackgroundStyle.LIGHT), weather.getWeatherIcon()));
+            }
         }
 
         if (provider.getWidgetType() == WidgetType.Widget2x2) {
@@ -1297,8 +1313,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
         }
 
         if (provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x1Notification) {
-            int textSize = (int) ActivityUtils.dpToPx(mContext, 24f);
-
             updateViews.setImageViewBitmap(R.id.hi_icon,
                     ImageUtils.tintedBitmapFromDrawable(mContext, R.drawable.wi_direction_up, Colors.WHITE)
             );
@@ -1621,11 +1635,11 @@ public class WeatherWidgetService extends SafeJobIntentService {
 
             for (int i = 0; i < Math.min(forecastLength, forecasts.size()); i++) {
                 if (forecastPanel != null) {
-                    addForecastItem(forecastPanel, provider, appWidgetId, forecasts.get(i), newOptions, textColor, tempTextSize);
+                    addForecastItem(forecastPanel, provider, appWidgetId, forecasts.get(i), newOptions, textColor);
                 }
 
                 if (hrForecastPanel != null && i < hourlyForecasts.size()) {
-                    addForecastItem(hrForecastPanel, provider, appWidgetId, hourlyForecasts.get(i), newOptions, textColor, tempTextSize);
+                    addForecastItem(hrForecastPanel, provider, appWidgetId, hourlyForecasts.get(i), newOptions, textColor);
                 }
             }
 
@@ -1723,7 +1737,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
         return PendingIntent.getBroadcast(context, appWidgetId, showNext, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    private void addForecastItem(RemoteViews forecastPanel, WeatherWidgetProvider provider, int appWidgetId, BaseForecastItemViewModel forecast, Bundle newOptions, int textColor, int tempTextSize) {
+    private void addForecastItem(RemoteViews forecastPanel, WeatherWidgetProvider provider, int appWidgetId, BaseForecastItemViewModel forecast, Bundle newOptions, int textColor) {
         // Widget dimensions
         int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
         int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
@@ -1765,7 +1779,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             forecastItem.setTextViewText(R.id.forecast_lo, ((ForecastItemViewModel) forecast).getLoTemp());
         }
 
-        if (style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
+        if (background != WidgetUtils.WidgetBackground.CURRENT_CONDITIONS || style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
             forecastItem.setTextColor(R.id.forecast_date, textColor);
             forecastItem.setTextColor(R.id.forecast_hi, textColor);
             if (forecast instanceof ForecastItemViewModel) {
@@ -1774,9 +1788,16 @@ public class WeatherWidgetService extends SafeJobIntentService {
             }
         }
 
-        final float iconSize = ActivityUtils.dpToPx(mContext, 72);
-        forecastItem.setImageViewBitmap(R.id.forecast_icon,
-                ImageUtils.tintedBitmapFromDrawable(mContext, forecast.getWeatherIcon(), textColor, iconSize, iconSize));
+        // WeatherIcon
+        if (!WidgetUtils.isBackgroundOptionalWidget(provider.getWidgetType())) {
+            forecastItem.setImageViewBitmap(R.id.forecast_icon,
+                    ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(mContext, false), forecast.getWeatherIcon()));
+        } else if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS && style == WidgetUtils.WidgetBackgroundStyle.PANDA) {
+            forecastItem.setImageViewResource(R.id.forecast_icon, forecast.getWeatherIcon());
+        } else {
+            forecastItem.setImageViewBitmap(R.id.forecast_icon,
+                    ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(mContext, style == WidgetUtils.WidgetBackgroundStyle.LIGHT), forecast.getWeatherIcon()));
+        }
 
         if (provider.getWidgetType() == WidgetType.Widget4x1) {
             if (cellHeight <= 1) {

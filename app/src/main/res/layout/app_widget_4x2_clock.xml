@@ -101,7 +101,6 @@
                     android:adjustViewBounds="true"
                     android:padding="4dp"
                     android:scaleType="fitCenter"
-                    tools:tint="@android:color/white"
                     tools:src="@drawable/wi_day_sunny_overcast" />
 
                 <TextView

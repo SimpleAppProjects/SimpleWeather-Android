@@ -5,7 +5,18 @@ import androidx.annotation.NonNull;
 
 import com.thewizrd.shared_resources.R;
 
-public class WeatherIconsProvider implements WeatherIconsProviderInterface {
+public final class WeatherIconsProvider extends WeatherIconProvider {
+    public static final String KEY = "wi-erik-flowers";
+
+    @Override
+    public String getKey() {
+        return KEY;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Weather Icons";
+    }
 
     @Override
     @DrawableRes

@@ -23,7 +23,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -486,7 +485,6 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
                     if (drawIconsLabels && xData.getIcon() != Resources.ID_NULL) {
                         int rotation = xData.getIconRotation();
                         Drawable iconDrawable = ContextCompat.getDrawable(getContext(), xData.getIcon());
-                        DrawableCompat.setTint(iconDrawable, BOTTOM_TEXT_COLOR);
 
                         Rect bounds = new Rect(0, 0, (int) iconHeight, (int) iconHeight);
                         iconDrawable.setBounds(bounds);

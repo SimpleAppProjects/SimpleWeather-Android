@@ -117,7 +117,6 @@
                     android:layout_height="wrap_content"
                     android:adjustViewBounds="true"
                     android:scaleType="fitCenter"
-                    tools:tint="@android:color/white"
                     tools:src="@drawable/wi_night_alt_snow_thunderstorm" />
 
                 <TextView

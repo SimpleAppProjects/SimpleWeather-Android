@@ -27,7 +27,6 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.simpleweather.App;
-import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.main.MainActivity;
 
 import java.util.ArrayList;
@@ -119,8 +118,7 @@ public class ShortcutCreatorWorker extends Worker {
             Bitmap bmp = AsyncTask.await(new Callable<Bitmap>() {
                 @Override
                 public Bitmap call() {
-                    return ImageUtils.tintedBitmapFromDrawable(mContext, wim.getWeatherIconResource(weather.getCondition().getIcon()),
-                            mContext.getColor(R.color.colorPrimaryDark));
+                    return ImageUtils.adaptiveBitmapFromDrawable(mContext, wim.getWeatherIconResource(weather.getCondition().getIcon()));
                 }
             });
             Icon shortCutIco;

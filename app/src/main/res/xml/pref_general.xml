@@ -29,6 +29,10 @@
             android:title="@string/pref_title_features"
             android:summary="@string/pref_summary_features" />
 
+        <Preference
+            android:key="key_icons"
+            android:title="@string/pref_title_icons" />
+
         <ListPreference
             android:defaultValue="0"
             android:entries="@array/userthememode_entries"

@@ -659,7 +659,7 @@ public class WidgetUtils {
     }
 
     public static boolean isBackgroundOptionalWidget(WidgetType widgetType) {
-        return widgetType != WidgetType.Unknown && widgetType != WidgetType.Widget4x1Google && widgetType != WidgetType.Widget4x1Notification && widgetType != WidgetType.Widget4x2Clock && widgetType != WidgetType.Widget4x2Huawei && widgetType != WidgetType.Widget4x1;
+        return widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2;
     }
 
     public static boolean isLocationNameOptionalWidget(WidgetType widgetType) {

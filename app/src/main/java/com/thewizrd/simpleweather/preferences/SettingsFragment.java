@@ -66,13 +66,17 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.notifications.WeatherNotificationBroadcastReceiver;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker;
+import com.thewizrd.simpleweather.preferences.iconpreference.IconProviderPickerFragment;
 import com.thewizrd.simpleweather.radar.RadarProvider;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
+import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.splits.InstallRequest;
 import com.thewizrd.simpleweather.splits.SplitLocaleInstaller;
 import com.thewizrd.simpleweather.wearable.WearableWorker;
+import com.thewizrd.simpleweather.widgets.WeatherWidgetBroadcastReceiver;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import java.util.ArrayList;
@@ -103,6 +107,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
     // Preference Keys
     private static final String KEY_UNITS = "key_units";
+    private static final String KEY_ICONS = "key_icons";
     private static final String KEY_FEATURES = "key_features";
     private static final String KEY_ABOUTAPP = "key_aboutapp";
     private static final String KEY_APIREGISTER = "key_apiregister";
@@ -650,6 +655,16 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         });
         updateAlertPreference(WeatherManager.getInstance().supportsAlerts());
 
+        findPreference(KEY_ICONS).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                // Display the fragment as the main content.
+                Navigation.findNavController(getAppCompatActivity(), R.id.fragment_container)
+                        .navigate(SettingsFragmentDirections.actionSettingsFragmentToIconsFragment());
+                return true;
+            }
+        });
+
         findPreference(KEY_FEATURES).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -1058,6 +1073,31 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                     return true;
                 }
             });
+        }
+    }
+
+    public static class IconsFragment extends IconProviderPickerFragment {
+        @Override
+        protected int getTitle() {
+            return R.string.pref_title_icons;
+        }
+
+        @Override
+        protected void onSelectionPerformed(boolean success) {
+            super.onSelectionPerformed(success);
+
+            final Context context = getPrefContext().getApplicationContext();
+            if (WeatherWidgetService.widgetsExist(context)) {
+                context.sendBroadcast(new Intent(context, WeatherWidgetBroadcastReceiver.class)
+                        .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET));
+            }
+
+            if (Settings.showOngoingNotification()) {
+                context.sendBroadcast(new Intent(context, WeatherNotificationBroadcastReceiver.class)
+                        .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION));
+            }
+
+            ShortcutCreatorWorker.requestUpdateShortcuts(context);
         }
     }
 

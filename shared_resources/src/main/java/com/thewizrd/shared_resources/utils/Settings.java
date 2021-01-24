@@ -22,7 +22,8 @@ import com.thewizrd.shared_resources.database.LocationsDAO;
 import com.thewizrd.shared_resources.database.LocationsDatabase;
 import com.thewizrd.shared_resources.database.WeatherDAO;
 import com.thewizrd.shared_resources.database.WeatherDatabase;
-import com.thewizrd.shared_resources.icons.WeatherIconsSource;
+import com.thewizrd.shared_resources.icons.WeatherIconsManager;
+import com.thewizrd.shared_resources.icons.WeatherIconsProvider;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
@@ -120,12 +121,10 @@ public class Settings {
     // Shared Preferences listener
     public static class SettingsListener implements SharedPreferences.OnSharedPreferenceChangeListener {
         private final LocalBroadcastManager mLocalBroadcastManager;
-        private Context mContext;
 
-        public SettingsListener(Context context) {
-            mContext = context.getApplicationContext();
+        public SettingsListener(@NonNull Context context) {
             mLocalBroadcastManager = LocalBroadcastManager
-                    .getInstance(mContext);
+                    .getInstance(context.getApplicationContext());
         }
 
         @Override
@@ -161,6 +160,9 @@ public class Settings {
                     setUpdateTime(DateTimeUtils.getLocalDateTimeMIN());
                     // Reset interval if setting is off
                     if (dataSync == WearableDataSync.OFF) setRefreshInterval(DEFAULTINTERVAL);
+                    break;
+                case KEY_ICONSSOURCE:
+                    WeatherIconsManager.getInstance().updateIconProvider();
                     break;
                 default:
                     break;
@@ -1069,12 +1071,11 @@ public class Settings {
                 1.0f);
     }
 
-    @WeatherIconsSource.WeatherIconSource
     public static String getIconsProvider() {
-        return preferences.getString(KEY_ICONSSOURCE, WeatherIconsSource.WeatherIconsEF);
+        return preferences.getString(KEY_ICONSSOURCE, WeatherIconsProvider.KEY);
     }
 
-    public static void setIconsProvider(@WeatherIconsSource.WeatherIconSource String iconsSource) {
+    public static void setIconsProvider(String iconsSource) {
         editor.putString(KEY_ICONSSOURCE, iconsSource);
         editor.commit();
     }

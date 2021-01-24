@@ -1,2 +1,2 @@
-include ':extrafeatures'
+include ':weathericons'
 include ':app', ':wearapp', ':shared_resources', ':unofficialtileapi'

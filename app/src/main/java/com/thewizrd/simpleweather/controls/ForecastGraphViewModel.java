@@ -29,6 +29,7 @@ public class ForecastGraphViewModel extends ViewModel {
     private LocationData locationData;
     private String unitCode;
     private String localeCode;
+    private String iconProvider;
 
     private MutableLiveData<List<GraphItemViewModel>> forecasts;
     private MutableLiveData<List<GraphItemViewModel>> hourlyForecasts;
@@ -57,6 +58,7 @@ public class ForecastGraphViewModel extends ViewModel {
 
             unitCode = Settings.getUnitString();
             localeCode = LocaleUtils.getLocaleCode();
+            iconProvider = Settings.getIconsProvider();
 
             if (currentForecastsData != null) {
                 currentForecastsData.removeObserver(forecastObserver);
@@ -84,9 +86,12 @@ public class ForecastGraphViewModel extends ViewModel {
             currentHrForecastsData.observeForever(hrforecastObserver);
             if (hourlyForecasts != null)
                 hourlyForecasts.postValue(hrForecastMapper.apply(currentHrForecastsData.getValue()));
-        } else if (!ObjectsCompat.equals(unitCode, Settings.getUnitString()) || !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode())) {
+        } else if (!ObjectsCompat.equals(unitCode, Settings.getUnitString()) ||
+                !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode()) ||
+                !ObjectsCompat.equals(iconProvider, Settings.getIconsProvider())) {
             unitCode = Settings.getUnitString();
             localeCode = LocaleUtils.getLocaleCode();
+            iconProvider = Settings.getIconsProvider();
 
             if (currentForecastsData != null && currentForecastsData.getValue() != null) {
                 forecasts.postValue(forecastMapper.apply(currentForecastsData.getValue()));

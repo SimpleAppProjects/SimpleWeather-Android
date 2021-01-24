@@ -16,6 +16,7 @@
             <option value="$PROJECT_DIR$/shared_resources" />
             <option value="$PROJECT_DIR$/unofficialtileapi" />
             <option value="$PROJECT_DIR$/wearapp" />
+            <option value="$PROJECT_DIR$/weathericons" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

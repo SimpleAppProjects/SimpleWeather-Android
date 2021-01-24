@@ -111,7 +111,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="-8dp"
             android:orientation="vertical"
             app:hideIfNullOrWhitespace="@{weatherView.location}"
             tools:layout_height="wrap_content">
@@ -203,7 +202,6 @@
                     android:adjustViewBounds="true"
                     android:scaleType="fitEnd"
                     app:srcCompat="@{weatherView.weatherIcon}"
-                    app:tint="@color/colorTextPrimary"
                     android:layout_toEndOf="@id/weather_hilo_layout"
                     android:layout_alignParentEnd="true"
                     tools:srcCompat="@drawable/wi_day_sunny" />

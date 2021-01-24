@@ -36,7 +36,6 @@ android {
         }
         release {
             minifyEnabled true
-            shrinkResources true
             crunchPngs true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             manifestPlaceholders = [allowBackup: true]
@@ -62,11 +61,12 @@ android {
             java.srcDirs += 'build/generated/data_binding_base_class_source_out/debug/out'
         }
     }
+
+    dynamicFeatures = [':weathericons']
 }
 
 dependencies {
     implementation project(":shared_resources")
-    implementation project(":extrafeatures")
 
     // Core library
     androidTestImplementation 'androidx.test:core:1.3.0'
