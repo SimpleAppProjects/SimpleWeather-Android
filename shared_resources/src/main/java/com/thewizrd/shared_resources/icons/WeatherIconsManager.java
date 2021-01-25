@@ -32,6 +32,11 @@ public final class WeatherIconsManager implements WeatherIconsProviderInterface 
     }
 
     @Override
+    public boolean isFontIcon() {
+        return iconsProvider.isFontIcon();
+    }
+
+    @Override
     public int getWeatherIconResource(@NonNull String icon) {
         return iconsProvider.getWeatherIconResource(icon);
     }

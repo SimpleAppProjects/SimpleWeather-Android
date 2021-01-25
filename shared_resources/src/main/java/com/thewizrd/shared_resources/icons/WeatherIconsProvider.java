@@ -19,6 +19,11 @@ public final class WeatherIconsProvider extends WeatherIconProvider {
     }
 
     @Override
+    public boolean isFontIcon() {
+        return true;
+    }
+
+    @Override
     @DrawableRes
     public int getWeatherIconResource(@NonNull String icon) {
         int weatherIcon = -1;

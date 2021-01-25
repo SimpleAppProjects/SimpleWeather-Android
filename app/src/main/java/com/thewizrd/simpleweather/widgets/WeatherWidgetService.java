@@ -44,6 +44,7 @@ import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
+import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.tasks.CallableEx;
@@ -1126,7 +1127,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
         }
 
         if (provider.getWidgetType() == WidgetType.Widget4x2) {
-            if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
+            if (!WeatherIconsManager.getInstance().isFontIcon() && background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
                 updateViews.setViewVisibility(R.id.weather_icon_overlay, View.VISIBLE);
             } else {
                 updateViews.setViewVisibility(R.id.weather_icon_overlay, View.GONE);

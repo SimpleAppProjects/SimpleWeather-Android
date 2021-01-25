@@ -10,4 +10,6 @@ public abstract class WeatherIconProvider implements WeatherIconsProviderInterfa
 
     @DrawableRes
     public abstract int getWeatherIconResource(@NonNull String icon);
+
+    public abstract boolean isFontIcon();
 }
