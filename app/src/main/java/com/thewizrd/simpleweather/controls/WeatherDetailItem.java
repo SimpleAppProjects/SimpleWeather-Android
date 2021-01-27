@@ -1,6 +1,8 @@
 package com.thewizrd.simpleweather.controls;
 
 import android.content.Context;
+import android.graphics.drawable.AnimatedVectorDrawable;
+import android.graphics.drawable.Drawable;
 import android.text.Layout;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -14,6 +16,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
@@ -82,6 +86,21 @@ public class WeatherDetailItem extends ConstraintLayout {
         // Reset expanded state
         expanded = false;
         binding.bodyCard.setVisibility(GONE);
+
+        // Animate weather icon if possible
+        final Drawable drwbl = binding.forecastIcon.getDrawable();
+        if (drwbl instanceof AnimatedVectorDrawable) {
+            AnimatedVectorDrawableCompat.clearAnimationCallbacks(drwbl);
+            AnimatedVectorDrawableCompat.registerAnimationCallback(drwbl, new Animatable2Compat.AnimationCallback() {
+                @Override
+                public void onAnimationEnd(Drawable drawable) {
+                    if (drawable instanceof AnimatedVectorDrawable) {
+                        ((AnimatedVectorDrawable) drawable).start();
+                    }
+                }
+            });
+            ((AnimatedVectorDrawable) drwbl).start();
+        }
 
         binding.executePendingBindings();
     }

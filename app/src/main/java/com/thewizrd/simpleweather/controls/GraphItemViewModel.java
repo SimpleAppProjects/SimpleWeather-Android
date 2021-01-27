@@ -6,6 +6,7 @@ import android.text.format.DateFormat;
 import androidx.annotation.NonNull;
 
 import com.thewizrd.shared_resources.DateTimeConstants;
+import com.thewizrd.shared_resources.icons.WeatherIcons;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
@@ -94,14 +95,14 @@ public class GraphItemViewModel {
                 int windDirection = forecast.getExtras().getWindDegrees();
 
                 YEntryData y = new YEntryData(speedVal, windSpeed);
-                XLabelData x = new XLabelData(date, R.drawable.wi_wind_direction, windDirection + 180);
+                XLabelData x = new XLabelData(date, wim.getWeatherIconResource(WeatherIcons.WIND_DIRECTION), windDirection + 180);
                 windEntryData = new EntryData<>(x, y);
             }
 
             // PoP Chance Data
             if (forecast.getExtras().getPop() != null && forecast.getExtras().getPop() >= 0) {
                 YEntryData y = new YEntryData(forecast.getExtras().getPop(), forecast.getExtras().getPop() + "%");
-                XLabelData x = new XLabelData(date, R.drawable.wi_raindrop, 0);
+                XLabelData x = new XLabelData(date, wim.getWeatherIconResource(WeatherIcons.RAINDROP), 0);
                 chanceEntryData = new EntryData<>(x, y);
             }
         }

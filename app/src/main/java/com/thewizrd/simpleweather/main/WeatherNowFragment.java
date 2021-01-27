@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
@@ -32,10 +33,12 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -66,6 +69,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -98,6 +103,7 @@ import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
+import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.lifecycle.CheckAliveRunnable;
 import com.thewizrd.shared_resources.lifecycle.LifecycleRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -1673,6 +1679,30 @@ public class WeatherNowFragment extends WindowColorFragment
             } else {
                 view.setTextColor(ContextCompat.getColor(view.getContext(), R.color.colorTextPrimary));
             }
+        }
+
+        @BindingAdapter("weatherIcon")
+        public void animateIconIfAvailable(final ImageView view, @DrawableRes final int resId) {
+            view.setImageResource(resId);
+
+            final Drawable drwbl = view.getDrawable();
+            if (drwbl instanceof AnimatedVectorDrawable) {
+                AnimatedVectorDrawableCompat.clearAnimationCallbacks(drwbl);
+                AnimatedVectorDrawableCompat.registerAnimationCallback(drwbl, new Animatable2Compat.AnimationCallback() {
+                    @Override
+                    public void onAnimationEnd(Drawable drawable) {
+                        if (drawable instanceof AnimatedVectorDrawable) {
+                            ((AnimatedVectorDrawable) drawable).start();
+                        }
+                    }
+                });
+                ((AnimatedVectorDrawable) drwbl).start();
+            }
+        }
+
+        @BindingAdapter("weatherIcon")
+        public void animateIconIfAvailable(final ImageView view, String icon) {
+            animateIconIfAvailable(view, WeatherIconsManager.getInstance().getWeatherIconResource(icon));
         }
     }
 }

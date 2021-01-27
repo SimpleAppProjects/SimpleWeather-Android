@@ -201,7 +201,7 @@
                     android:padding="4dp"
                     android:adjustViewBounds="true"
                     android:scaleType="fitEnd"
-                    app:srcCompat="@{weatherView.weatherIcon}"
+                    app:weatherIcon="@{weatherView.weatherIcon}"
                     android:layout_toEndOf="@id/weather_hilo_layout"
                     android:layout_alignParentEnd="true"
                     tools:srcCompat="@drawable/wi_day_sunny" />

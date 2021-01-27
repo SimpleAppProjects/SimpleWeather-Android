@@ -11,6 +11,7 @@ import android.graphics.Path;
 import android.graphics.PathEffect;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.TextUtils;
@@ -25,6 +26,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -40,6 +43,7 @@ import com.thewizrd.simpleweather.R;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 public class LineView extends HorizontalScrollView implements IGraph {
 
@@ -283,6 +287,8 @@ public class LineView extends HorizontalScrollView implements IGraph {
         private final Paint bgLinesPaint;
         private final PathEffect dashEffects;
         private final Paint seriesRectPaint;
+
+        private final Stack<AnimatedVectorDrawable> animatedDrawables = new Stack<>();
 
         LineViewGraph(Context context) {
             this(context, null);
@@ -640,6 +646,14 @@ public class LineView extends HorizontalScrollView implements IGraph {
                         mScrollViewer.getScrollY() + mScrollViewer.getHeight());
             }
 
+            // Stop running animations
+            while (!animatedDrawables.empty()) {
+                AnimatedVectorDrawable drw = animatedDrawables.pop();
+                AnimatedVectorDrawableCompat.clearAnimationCallbacks(drw);
+                drw.stop();
+                drw = null;
+            }
+
             drawBackgroundLines(canvas);
             drawLines(canvas);
             drawDots(canvas);
@@ -823,6 +837,21 @@ public class LineView extends HorizontalScrollView implements IGraph {
                         drawingRect.set(x, y, x + bounds.width(), y + bounds.height());
 
                         if (RectF.intersects(drawingRect, visibleRect)) {
+                            if (iconDrawable instanceof AnimatedVectorDrawable) {
+                                AnimatedVectorDrawableCompat.clearAnimationCallbacks(iconDrawable);
+                                AnimatedVectorDrawableCompat.registerAnimationCallback(iconDrawable, new Animatable2Compat.AnimationCallback() {
+                                    @Override
+                                    public void onAnimationEnd(Drawable drawable) {
+                                        if (drawable instanceof AnimatedVectorDrawable) {
+                                            ((AnimatedVectorDrawable) drawable).start();
+                                        }
+                                    }
+                                });
+                                ((AnimatedVectorDrawable) iconDrawable).start();
+
+                                animatedDrawables.push((AnimatedVectorDrawable) iconDrawable);
+                            }
+
                             canvas.save();
                             canvas.translate(x - bounds.width() / 2f, y - bounds.height() - bottomTextHeight - iconBottomMargin);
                             canvas.rotate(rotation, bounds.width() / 2f, bounds.height() / 2f);
