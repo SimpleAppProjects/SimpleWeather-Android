@@ -99,6 +99,7 @@ import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ImageDataViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.controls.SunPhaseViewModel;
+import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -282,6 +283,18 @@ public class WeatherNowFragment extends WindowColorFragment
         }
     };
 
+    private final Observer<List<WeatherAlertViewModel>> alertsObserver = new Observer<List<WeatherAlertViewModel>>() {
+        @Override
+        public void onChanged(List<WeatherAlertViewModel> data) {
+            if (data != null && !data.isEmpty()) {
+                if (conditionPanelBinding.alertButton.getVisibility() != View.VISIBLE) {
+                    conditionPanelBinding.alertButton.setVisibility(View.VISIBLE);
+                }
+            }
+            adjustConditionPanelLayout();
+        }
+    };
+
     public void onWeatherError(final WeatherException wEx) {
         runWithView(new Runnable() {
             @Override
@@ -408,6 +421,8 @@ public class WeatherNowFragment extends WindowColorFragment
         // Live Data
         weatherLiveData = new MutableLiveData<>();
         weatherLiveData.observe(this, weatherObserver);
+
+        alertsView.getAlerts().observe(this, alertsObserver);
 
         getLifecycle().addObserver(new LifecycleObserver() {
             private boolean wasStarted = false;
@@ -824,6 +839,7 @@ public class WeatherNowFragment extends WindowColorFragment
         args = WeatherNowFragmentArgs.fromBundle(requireArguments());
 
         adjustConditionPanelLayout();
+        adjustDetailsLayout();
 
         // Set property change listeners
         weatherView.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
@@ -834,6 +850,7 @@ public class WeatherNowFragment extends WindowColorFragment
                         @Override
                         public void run() {
                             adjustConditionPanelLayout();
+                            adjustDetailsLayout();
                         }
                     });
                 } else if (propertyId == BR.locationCoord) {
@@ -980,6 +997,19 @@ public class WeatherNowFragment extends WindowColorFragment
                     if (isViewAlive()) {
                         conditionPanelBinding.conditionPanel.getViewTreeObserver().removeOnPreDrawListener(this);
                         adjustConditionPanelLayout();
+                    }
+                    return true;
+                }
+            });
+        }
+
+        if (detailsContainerBinding != null) {
+            detailsContainerBinding.detailsContainer.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    if (isViewAlive()) {
+                        detailsContainerBinding.detailsContainer.getViewTreeObserver().removeOnPreDrawListener(this);
+                        adjustDetailsLayout();
                     }
                     return true;
                 }
@@ -1235,7 +1265,10 @@ public class WeatherNowFragment extends WindowColorFragment
                                         runWithView(new Runnable() {
                                             @Override
                                             public void run() {
-                                                conditionPanelBinding.alertButton.setVisibility(View.GONE);
+                                                if (conditionPanelBinding.alertButton.getVisibility() != View.GONE) {
+                                                    conditionPanelBinding.alertButton.setVisibility(View.GONE);
+                                                    adjustConditionPanelLayout();
+                                                }
                                             }
                                         });
                                         return wLoader.loadWeatherAlerts(task.getResult().isSavedData());
@@ -1255,15 +1288,9 @@ public class WeatherNowFragment extends WindowColorFragment
                                             }
 
                                             if (task.isSuccessful()) {
-                                                final Collection<WeatherAlert> weatherAlerts = task.getResult();
-                                                if (weatherAlerts != null && !weatherAlerts.isEmpty()) {
-                                                    if (conditionPanelBinding.alertButton.getVisibility() != View.VISIBLE) {
-                                                        conditionPanelBinding.alertButton.setVisibility(View.VISIBLE);
-                                                        adjustConditionPanelLayout();
-                                                    }
-                                                }
-
                                                 if (wm.supportsAlerts() && locationData != null) {
+                                                    final Collection<WeatherAlert> weatherAlerts = task.getResult();
+
                                                     if (weatherAlerts != null && !weatherAlerts.isEmpty()) {
                                                         // Alerts are posted to the user here. Set them as notified.
                                                         AsyncTask.run(new Runnable() {
@@ -1307,7 +1334,10 @@ public class WeatherNowFragment extends WindowColorFragment
                         if (ActivityUtils.getOrientation(context) == Configuration.ORIENTATION_LANDSCAPE && height < imageLandSize) {
                             containerLP.height = imageLandSize;
                         } else if (FeatureSettings.isBackgroundImageEnabled() && height > 0) {
-                            containerLP.height = height - conditionPanelBinding.conditionPanel.getMeasuredHeight() - containerLP.bottomMargin - containerLP.topMargin - conditionPanelBinding.alertButton.getMeasuredHeight();
+                            containerLP.height = height - conditionPanelBinding.conditionPanel.getMeasuredHeight() - containerLP.bottomMargin - containerLP.topMargin;
+                            if (conditionPanelBinding.alertButton.getVisibility() != View.GONE) {
+                                containerLP.height -= conditionPanelBinding.alertButton.getMeasuredHeight();
+                            }
                             if (conditionPLP.topMargin < 0) {
                                 containerLP.height += -conditionPLP.topMargin;
                             }
@@ -1320,8 +1350,6 @@ public class WeatherNowFragment extends WindowColorFragment
                 }
             });
         }
-
-        adjustDetailsLayout();
     }
 
     private void adjustDetailsLayout() {

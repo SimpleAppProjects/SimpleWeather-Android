@@ -56,6 +56,7 @@ import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.ForecastsViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
@@ -95,6 +96,7 @@ import java.time.Duration;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
@@ -170,6 +172,15 @@ public class WeatherNowFragment extends CustomFragment
                     // Update tile if it hasn't been already
                     WeatherTileWorker.enqueueAction(context, new Intent(WeatherTileWorker.ACTION_UPDATETILES));
                 }
+            }
+        }
+    };
+
+    private final Observer<List<WeatherAlertViewModel>> alertsObserver = new Observer<List<WeatherAlertViewModel>>() {
+        @Override
+        public void onChanged(List<WeatherAlertViewModel> data) {
+            if (data != null && !data.isEmpty()) {
+                binding.alertButton.setVisibility(View.VISIBLE);
             }
         }
     };
@@ -355,6 +366,7 @@ public class WeatherNowFragment extends CustomFragment
         // Live Data
         weatherLiveData = new MutableLiveData<>();
         weatherLiveData.observe(this, weatherObserver);
+        alertsView.getAlerts().observe(this, alertsObserver);
 
         getLifecycle().addObserver(new LifecycleObserver() {
             private boolean wasStarted = false;
@@ -703,13 +715,6 @@ public class WeatherNowFragment extends CustomFragment
                                         public void run() {
                                             if (locationData != null) {
                                                 alertsView.updateAlerts(locationData);
-                                            }
-
-                                            if (task.isSuccessful()) {
-                                                final Collection<WeatherAlert> weatherAlerts = task.getResult();
-                                                if (weatherAlerts != null && !weatherAlerts.isEmpty()) {
-                                                    binding.alertButton.setVisibility(View.VISIBLE);
-                                                }
                                             }
                                         }
                                     });

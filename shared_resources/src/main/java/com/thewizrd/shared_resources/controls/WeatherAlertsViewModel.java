@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class WeatherAlertsViewModel extends ObservableViewModel {
-    private String locationKey;
+    private LocationData locationData;
 
     private MutableLiveData<List<WeatherAlertViewModel>> alerts;
 
@@ -38,8 +38,9 @@ public class WeatherAlertsViewModel extends ObservableViewModel {
 
     @MainThread
     public void updateAlerts(@NonNull LocationData location) {
-        if (!ObjectsCompat.equals(this.locationKey, location.getQuery())) {
-            this.locationKey = location.getQuery();
+        if (this.locationData == null || !ObjectsCompat.equals(this.locationData.getQuery(), location.getQuery())) {
+            // Clone location data
+            this.locationData = new LocationData(new LocationQueryViewModel(location));
 
             if (currentAlertsData != null) {
                 currentAlertsData.removeObserver(alertObserver);
@@ -48,7 +49,7 @@ public class WeatherAlertsViewModel extends ObservableViewModel {
             LiveData<WeatherAlerts> weatherAlertsLiveData = AsyncTask.await(new Callable<LiveData<WeatherAlerts>>() {
                 @Override
                 public LiveData<WeatherAlerts> call() {
-                    return Settings.getWeatherDAO().getLiveWeatherAlertData(locationKey);
+                    return Settings.getWeatherDAO().getLiveWeatherAlertData(location.getQuery());
                 }
             });
             currentAlertsData = Transformations.map(weatherAlertsLiveData,
@@ -98,7 +99,7 @@ public class WeatherAlertsViewModel extends ObservableViewModel {
     protected void onCleared() {
         super.onCleared();
 
-        locationKey = null;
+        locationData = null;
 
         if (currentAlertsData != null)
             currentAlertsData.removeObserver(alertObserver);
