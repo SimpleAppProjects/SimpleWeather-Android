@@ -1,6 +1,9 @@
 package com.thewizrd.shared_resources.icons;
 
 public class WeatherIcons {
+    private WeatherIcons() {
+    }
+
     // DAY
     public static final String DAY_SUNNY = "\uf00d";
     public static final String DAY_CLOUDY = "\uf002";
