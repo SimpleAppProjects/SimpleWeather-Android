@@ -59,7 +59,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.helpers.ListChangedAction;
 import com.thewizrd.shared_resources.helpers.ListChangedArgs;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
@@ -510,7 +510,7 @@ public class LocationsFragment extends ToolbarFragment
         // in content do not change the layout size of the RecyclerView
         binding.recyclerView.setHasFixedSize(true);
 
-        if (ActivityUtils.isLargeTablet(getAppCompatActivity())) {
+        if (ContextUtils.isLargeTablet(getAppCompatActivity())) {
             // use a linear layout manager
             final GridLayoutManager gridLayoutManager = new GridLayoutManager(getAppCompatActivity(), 2, GridLayoutManager.VERTICAL, false) {
                 @Override
@@ -613,7 +613,7 @@ public class LocationsFragment extends ToolbarFragment
                 }
             };
         });
-        if (!ActivityUtils.isLargeTablet(getAppCompatActivity())) {
+        if (!ContextUtils.isLargeTablet(getAppCompatActivity())) {
             SwipeToDeleteOffSetItemDecoration swipeDecor =
                     new SwipeToDeleteOffSetItemDecoration(binding.recyclerView.getContext(), 2f,
                             OffsetMargin.TOP | OffsetMargin.BOTTOM);
@@ -645,14 +645,14 @@ public class LocationsFragment extends ToolbarFragment
     }
 
     private void adjustPanelContainer() {
-        if (ActivityUtils.isLargeTablet(getAppCompatActivity())) {
+        if (ContextUtils.isLargeTablet(getAppCompatActivity())) {
             binding.recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                 @Override
                 public boolean onPreDraw() {
                     if (isViewAlive()) {
                         binding.recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
 
-                        boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
+                        boolean isLandscape = ContextUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
                         int viewWidth = binding.recyclerView.getMeasuredWidth();
                         int minColumns = isLandscape ? 2 : 1;
 

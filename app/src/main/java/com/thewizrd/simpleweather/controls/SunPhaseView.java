@@ -21,7 +21,7 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.util.ObjectsCompat;
 
 import com.thewizrd.shared_resources.DateTimeConstants;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.simpleweather.R;
@@ -48,11 +48,11 @@ public class SunPhaseView extends View {
     private float sunriseX;
     private float sunsetX;
 
-    private final float bottomTextTopMargin = ActivityUtils.dpToPx(getContext(), 6);
-    private final float DOT_RADIUS = ActivityUtils.dpToPx(getContext(), 4);
+    private final float bottomTextTopMargin = ContextUtils.dpToPx(getContext(), 6);
+    private final float DOT_RADIUS = ContextUtils.dpToPx(getContext(), 4);
 
-    private float sideLineLength = ActivityUtils.dpToPx(getContext(), 45) / 3 * 2;
-    private float backgroundGridWidth = ActivityUtils.dpToPx(getContext(), 45);
+    private float sideLineLength = ContextUtils.dpToPx(getContext(), 45) / 3 * 2;
+    private float backgroundGridWidth = ContextUtils.dpToPx(getContext(), 45);
 
     private int BOTTOM_TEXT_COLOR = Colors.WHITE;
     private int PHASE_ARC_COLOR = Colors.WHITE;
@@ -283,7 +283,7 @@ public class SunPhaseView extends View {
         canvas.drawArc(oval, -180, 180, true, arcPaint);
 
         if (isDay) {
-            final float iconSize = ActivityUtils.dpToPx(getContext(), 28); // old: 24dp
+            final float iconSize = ContextUtils.dpToPx(getContext(), 28); // old: 24dp
             Drawable iconDrawable = ContextCompat.getDrawable(getContext(), R.drawable.wi_day_sunny);
             DrawableCompat.setTint(iconDrawable, PAINT_COLOR);
             iconDrawable.setBounds(0, 0, (int) iconSize, (int) iconSize);

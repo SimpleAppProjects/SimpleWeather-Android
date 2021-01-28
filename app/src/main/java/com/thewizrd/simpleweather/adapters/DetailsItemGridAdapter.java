@@ -6,7 +6,7 @@ import android.widget.BaseAdapter;
 
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.simpleweather.controls.DetailCard;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class DetailsItemGridAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         DetailCard view = convertView != null ? (DetailCard) convertView : new DetailCard(parent.getContext());
-        view.setStrokeWidth((int) ActivityUtils.dpToPx(parent.getContext(), 1));
+        view.setStrokeWidth((int) ContextUtils.dpToPx(parent.getContext(), 1));
 
         view.bindModel(mDataset.get(position));
 

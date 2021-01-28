@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.simpleweather.controls.DetailCard;
 
@@ -62,7 +62,7 @@ public class DetailItemAdapter extends RecyclerView.Adapter<DetailItemAdapter.Vi
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // create a new view
         DetailCard v = new DetailCard(parent.getContext());
-        v.setStrokeWidth((int) ActivityUtils.dpToPx(parent.getContext(), 1));
+        v.setStrokeWidth((int) ContextUtils.dpToPx(parent.getContext(), 1));
         return new ViewHolder(v);
     }
 

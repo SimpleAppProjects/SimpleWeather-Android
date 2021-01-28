@@ -38,7 +38,7 @@ import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
@@ -331,7 +331,7 @@ public class MainActivity extends WearableListenerActivity implements MenuItem.O
         @Override
         public Drawable getItemDrawable(int pos) {
             Drawable drawable = ContextCompat.getDrawable(mContext, navItems.get(pos).drawableIcon);
-            drawable.setTint(ActivityUtils.getColor(mContext, R.attr.colorOnSurface));
+            drawable.setTint(ContextUtils.getColor(mContext, R.attr.colorOnSurface));
             return drawable;
         }
 

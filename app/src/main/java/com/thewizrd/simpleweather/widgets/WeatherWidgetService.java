@@ -41,7 +41,6 @@ import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.ImageDataViewModel;
 import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
@@ -1198,28 +1197,28 @@ public class WeatherWidgetService extends SafeJobIntentService {
                 textSize *= 0.75f; // 18sp
             }
 
-            int layoutPadding = (int) ActivityUtils.dpToPx(mContext, forceSmall ? 0 : 12);
+            int layoutPadding = (int) ContextUtils.dpToPx(mContext, forceSmall ? 0 : 12);
             updateViews.setViewPadding(R.id.layout_container, layoutPadding, layoutPadding, layoutPadding, layoutPadding);
 
             updateViews.setTextViewTextSize(R.id.date_panel, TypedValue.COMPLEX_UNIT_PX, textSize);
             updateViews.setTextViewTextSize(R.id.condition_temp, TypedValue.COMPLEX_UNIT_PX, textSize);
             updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, forceSmall ? 12 : 14);
         } else if (provider.getWidgetType() == WidgetType.Widget4x2) {
-            int maxHeightSize = (int) ActivityUtils.dpToPx(mContext, 60);
+            int maxHeightSize = (int) ContextUtils.dpToPx(mContext, 60);
             if (isSmallHeight && cellHeight <= 2 || cellWidth < 4) {
-                int iconWidth = (int) ActivityUtils.dpToPx(mContext, 45);
+                int iconWidth = (int) ContextUtils.dpToPx(mContext, 45);
                 updateViews.setInt(R.id.weather_icon, "setMaxWidth", iconWidth);
                 updateViews.setInt(R.id.weather_icon, "setMaxHeight", maxHeightSize);
             } else {
-                int iconWidth = (int) ActivityUtils.dpToPx(mContext, 55);
+                int iconWidth = (int) ContextUtils.dpToPx(mContext, 55);
                 updateViews.setInt(R.id.weather_icon, "setMaxWidth", iconWidth);
                 updateViews.setInt(R.id.weather_icon, "setMaxHeight", (int) (maxHeightSize * 7f / 6)); // 70dp
             }
 
-            float textSize = ActivityUtils.dpToPx(mContext, 36f);
+            float textSize = ContextUtils.dpToPx(mContext, 36f);
 
             if ((isSmallHeight && cellHeight <= 2) || cellWidth < 4)
-                textSize = ActivityUtils.dpToPx(mContext, 28f);
+                textSize = ContextUtils.dpToPx(mContext, 28f);
 
             updateViews.setTextViewTextSize(R.id.condition_temp, TypedValue.COMPLEX_UNIT_PX, textSize);
             updateViews.setViewVisibility(R.id.condition_weather, forceSmallHeight && cellHeight <= 2 ? View.GONE : View.VISIBLE);
@@ -1232,10 +1231,10 @@ public class WeatherWidgetService extends SafeJobIntentService {
             updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, locTextSize);
 
             if (isSmallHeight && cellHeight == 1) {
-                int padding = (int) ActivityUtils.dpToPx(mContext, 0);
+                int padding = (int) ContextUtils.dpToPx(mContext, 0);
                 updateViews.setViewPadding(R.id.layout_container, padding, padding, padding, padding);
             } else {
-                int padding = (int) ActivityUtils.dpToPx(mContext, 8);
+                int padding = (int) ContextUtils.dpToPx(mContext, 8);
                 updateViews.setViewPadding(R.id.layout_container, padding, padding, padding, padding);
             }
         } else if (provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x1Notification) {
@@ -1764,12 +1763,12 @@ public class WeatherWidgetService extends SafeJobIntentService {
 
         int maxIconSize;
         if (provider.getWidgetType() == WidgetType.Widget4x1) {
-            maxIconSize = (int) ActivityUtils.dpToPx(mContext, 30);
+            maxIconSize = (int) ContextUtils.dpToPx(mContext, 30);
             if ((!isSmallWidth || cellWidth > 4) && maxCellHeight > 0 && (maxHeight / maxCellHeight) >= 72) {
                 maxIconSize *= (8 / 5f); // 48dp
             }
         } else {
-            maxIconSize = (int) ActivityUtils.dpToPx(mContext, 48);
+            maxIconSize = (int) ContextUtils.dpToPx(mContext, 48);
         }
         forecastItem.setInt(R.id.forecast_icon, "setMaxWidth", maxIconSize);
         forecastItem.setInt(R.id.forecast_icon, "setMaxHeight", maxIconSize);
@@ -1804,7 +1803,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             if (cellHeight <= 1) {
                 forecastItem.setViewPadding(R.id.forecast_date, 0, 0, 0, 0);
             } else {
-                int padding = (int) ActivityUtils.dpToPx(mContext, 2);
+                int padding = (int) ContextUtils.dpToPx(mContext, 2);
                 forecastItem.setViewPadding(R.id.forecast_date, padding, padding, padding, padding);
             }
 

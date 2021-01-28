@@ -18,7 +18,7 @@ import androidx.navigation.Navigation;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.transition.MaterialFadeThrough;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -102,7 +102,7 @@ public abstract class ToolbarFragment extends WindowColorFragment
 
     @CallSuper
     public void updateWindowColors() {
-        int color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
+        int color = ContextUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
         if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK;
         }

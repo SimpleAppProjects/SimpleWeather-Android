@@ -35,7 +35,7 @@ import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver;
 import com.thewizrd.shared_resources.lifecycle.CheckAliveRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -189,7 +189,7 @@ public class WeatherListFragment extends ToolbarFragment {
             @Override
             public void run() {
                 if (binding.recyclerView.computeVerticalScrollOffset() > 0) {
-                    binding.locationHeader.setElevation(ActivityUtils.dpToPx(requireContext(), 4f));
+                    binding.locationHeader.setElevation(ContextUtils.dpToPx(requireContext(), 4f));
                 } else {
                     binding.locationHeader.setElevation(0);
                 }
@@ -404,7 +404,7 @@ public class WeatherListFragment extends ToolbarFragment {
     public void updateWindowColors() {
         super.updateWindowColors();
 
-        int color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
+        int color = ContextUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
         if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK;
         }

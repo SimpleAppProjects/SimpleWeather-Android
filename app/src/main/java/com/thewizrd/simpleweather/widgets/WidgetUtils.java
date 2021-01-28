@@ -16,7 +16,7 @@ import androidx.annotation.Nullable;
 
 import com.google.gson.reflect.TypeToken;
 import com.thewizrd.shared_resources.Constants;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -790,7 +790,7 @@ public class WidgetUtils {
 
                 if (!StringUtils.isNullOrWhitespace(pkgName) && !StringUtils.isNullOrWhitespace(activityName)) {
                     ComponentName componentName = new ComponentName(pkgName, activityName);
-                    if (ActivityUtils.verifyActivityInfo(context, componentName)) {
+                    if (ContextUtils.verifyActivityInfo(context, componentName)) {
                         return componentName;
                     }
                 }
@@ -815,7 +815,7 @@ public class WidgetUtils {
 
                 if (!StringUtils.isNullOrWhitespace(pkgName) && !StringUtils.isNullOrWhitespace(activityName)) {
                     ComponentName componentName = new ComponentName(pkgName, activityName);
-                    if (ActivityUtils.verifyActivityInfo(context, componentName)) {
+                    if (ContextUtils.verifyActivityInfo(context, componentName)) {
                         return componentName;
                     }
                 }

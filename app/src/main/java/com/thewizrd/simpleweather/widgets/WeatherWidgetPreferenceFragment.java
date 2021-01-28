@@ -76,7 +76,7 @@ import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.controls.ComboBoxItem;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.tasks.CallableEx;
@@ -736,7 +736,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         int widgetLayoutRes = 0;
         float viewWidth = 0;
         float viewHeight = 0;
-        float widgetBlockSize = ActivityUtils.dpToPx(getAppCompatActivity(), 96);
+        float widgetBlockSize = ContextUtils.dpToPx(getAppCompatActivity(), 96);
 
         switch (mWidgetType) {
             case Widget1x1:
@@ -1089,8 +1089,8 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
         int width = binding.scrollView.getMeasuredWidth();
 
-        int preferredHeight = (int) ActivityUtils.dpToPx(getAppCompatActivity(), 225);
-        int minHeight = (int) (ActivityUtils.dpToPx(getAppCompatActivity(), 96));
+        int preferredHeight = (int) ContextUtils.dpToPx(getAppCompatActivity(), 225);
+        int minHeight = (int) (ContextUtils.dpToPx(getAppCompatActivity(), 96));
 
         if (mWidgetType == WidgetType.Widget2x2 || mWidgetType == WidgetType.Widget4x2) {
             minHeight *= 2f;

@@ -33,6 +33,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.preferences.FeatureSettings;
@@ -354,7 +355,7 @@ public class MainActivity extends UserLocaleActivity
     }
 
     private void updateWindowColors(UserThemeMode mode) {
-        int color = ActivityUtils.getColor(this, android.R.attr.colorBackground);
+        int color = ContextUtils.getColor(this, android.R.attr.colorBackground);
         if (mode == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK;
         }

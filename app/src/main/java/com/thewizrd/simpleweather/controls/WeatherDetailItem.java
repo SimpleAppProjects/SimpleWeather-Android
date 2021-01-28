@@ -24,7 +24,7 @@ import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherDetailsType;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.WeatherDetailPanelBinding;
@@ -167,15 +167,15 @@ public class WeatherDetailItem extends ConstraintLayout {
                 int start = sb.length();
                 sb.append(detailItem.getLabel());
                 sb.append("\t");
-                int colorSecondary = ActivityUtils.getColor(context, android.R.attr.textColorSecondary);
+                int colorSecondary = ContextUtils.getColor(context, android.R.attr.textColorSecondary);
                 sb.setSpan(new ForegroundColorSpan(colorSecondary), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                sb.setSpan(new TabStopSpan.Standard((int) ActivityUtils.dpToPx(context, 150)), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                sb.setSpan(new TabStopSpan.Standard((int) ContextUtils.dpToPx(context, 150)), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
                 start = sb.length();
                 sb.append(detailItem.getValue());
                 if (i < forecastView.getExtras().size())
                     sb.append(StringUtils.lineSeparator());
-                int colorPrimary = ActivityUtils.getColor(context, android.R.attr.textColorPrimary);
+                int colorPrimary = ContextUtils.getColor(context, android.R.attr.textColorPrimary);
                 sb.setSpan(new ForegroundColorSpan(colorPrimary), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
 
@@ -222,15 +222,15 @@ public class WeatherDetailItem extends ConstraintLayout {
                 int start = sb.length();
                 sb.append(detailItem.getLabel());
                 sb.append("\t");
-                int colorSecondary = ActivityUtils.getColor(context, android.R.attr.textColorSecondary);
+                int colorSecondary = ContextUtils.getColor(context, android.R.attr.textColorSecondary);
                 sb.setSpan(new ForegroundColorSpan(colorSecondary), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                sb.setSpan(new TabStopSpan.Standard((int) ActivityUtils.dpToPx(context, 150)), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                sb.setSpan(new TabStopSpan.Standard((int) ContextUtils.dpToPx(context, 150)), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
                 start = sb.length();
                 sb.append(detailItem.getValue());
                 if (i < forecastView.getExtras().size())
                     sb.append(StringUtils.lineSeparator());
-                int colorPrimary = ActivityUtils.getColor(context, android.R.attr.textColorPrimary);
+                int colorPrimary = ContextUtils.getColor(context, android.R.attr.textColorPrimary);
                 sb.setSpan(new ForegroundColorSpan(colorPrimary), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
 

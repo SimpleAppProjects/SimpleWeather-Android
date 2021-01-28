@@ -102,7 +102,7 @@ import com.thewizrd.shared_resources.controls.SunPhaseViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.lifecycle.CheckAliveRunnable;
@@ -504,7 +504,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
                 int offset = v.computeVerticalScrollOffset();
                 if (offset > 0) {
-                    ViewCompat.setElevation(binding.toolbar, ActivityUtils.dpToPx(getAppCompatActivity(), 4));
+                    ViewCompat.setElevation(binding.toolbar, ContextUtils.dpToPx(getAppCompatActivity(), 4));
                 } else {
                     ViewCompat.setElevation(binding.toolbar, 0);
                 }
@@ -549,7 +549,7 @@ public class WeatherNowFragment extends WindowColorFragment
             @SuppressLint("RestrictedApi")
             @Override
             public void onFlingStopped(int scrollY) {
-                if (ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled() || !isViewAlive())
+                if (ContextUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled() || !isViewAlive())
                     return;
 
                 int condPnlHeight = binding.refreshLayout.getHeight();
@@ -593,7 +593,7 @@ public class WeatherNowFragment extends WindowColorFragment
             @SuppressLint("RestrictedApi")
             @Override
             public void onTouchScrollChange(int scrollY, int oldScrollY) {
-                if (ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled() || !isViewAlive())
+                if (ContextUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled() || !isViewAlive())
                     return;
 
                 int condPnlHeight = binding.refreshLayout.getHeight();
@@ -619,7 +619,7 @@ public class WeatherNowFragment extends WindowColorFragment
         // SwipeRefresh
         binding.progressBar.show();
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(getAppCompatActivity(), R.color.invButtonColor));
-        binding.refreshLayout.setColorSchemeColors(ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
+        binding.refreshLayout.setColorSchemeColors(ContextUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
         binding.refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -987,7 +987,7 @@ public class WeatherNowFragment extends WindowColorFragment
         weatherView.notifyChange();
 
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(getAppCompatActivity(), R.color.invButtonColor));
-        binding.refreshLayout.setColorSchemeColors(ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
+        binding.refreshLayout.setColorSchemeColors(ContextUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
 
         // Resize necessary views
         if (conditionPanelBinding != null) {
@@ -1319,7 +1319,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
         if (conditionPanelBinding != null) {
             conditionPanelBinding.conditionPanel.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                final int imageLandSize = (int) ActivityUtils.dpToPx(conditionPanelBinding.conditionPanel.getContext(), 560);
+                final int imageLandSize = (int) ContextUtils.dpToPx(conditionPanelBinding.conditionPanel.getContext(), 560);
                 @Override
                 public void onGlobalLayout() {
                     if (isViewAlive()) {
@@ -1331,7 +1331,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
                         ViewGroup.MarginLayoutParams containerLP = (ViewGroup.MarginLayoutParams) conditionPanelBinding.imageViewContainer.getLayoutParams();
                         ViewGroup.MarginLayoutParams conditionPLP = (ViewGroup.MarginLayoutParams) conditionPanelBinding.conditionPanel.getLayoutParams();
-                        if (ActivityUtils.getOrientation(context) == Configuration.ORIENTATION_LANDSCAPE && height < imageLandSize) {
+                        if (ContextUtils.getOrientation(context) == Configuration.ORIENTATION_LANDSCAPE && height < imageLandSize) {
                             containerLP.height = imageLandSize;
                         } else if (FeatureSettings.isBackgroundImageEnabled() && height > 0) {
                             containerLP.height = height - conditionPanelBinding.conditionPanel.getMeasuredHeight() - containerLP.bottomMargin - containerLP.topMargin;
@@ -1364,7 +1364,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
                     int pxWidth = binding.scrollView.getChildAt(0).getMeasuredWidth();
 
-                    int minColumns = ActivityUtils.isLargeTablet(getAppCompatActivity()) ? 3 : 2;
+                    int minColumns = ContextUtils.isLargeTablet(getAppCompatActivity()) ? 3 : 2;
 
                     // Minimum width for ea. card
                     int minWidth = getAppCompatActivity().getResources().getDimensionPixelSize(R.dimen.detail_grid_column_width);
@@ -1373,7 +1373,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
                     detailsContainerBinding.detailsContainer.setNumColumns(availColumns);
 
-                    boolean isLandscape = ActivityUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
+                    boolean isLandscape = ContextUtils.getOrientation(getAppCompatActivity()) == Configuration.ORIENTATION_LANDSCAPE;
 
                     int horizMargin = 16;
                     int marginMultiplier = isLandscape ? 2 : 3;
@@ -1387,7 +1387,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
     @Override
     public void updateWindowColors() {
-        int color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
+        int color = ContextUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
         if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK;
         }

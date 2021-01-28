@@ -19,7 +19,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.helpers.ObservableArrayList;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
@@ -561,7 +561,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         @Override
         public void setHeaderTextColor() {
-            header.setTextColor(ActivityUtils.getColor(header.getContext(), android.R.attr.textColorPrimary));
+            header.setTextColor(ContextUtils.getColor(header.getContext(), android.R.attr.textColorPrimary));
         }
     }
 
@@ -580,7 +580,7 @@ public class LocationPanelAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         @Override
         public void setHeaderTextColor() {
-            header.setTextColor(ActivityUtils.getColor(header.getContext(), android.R.attr.textColorPrimary));
+            header.setTextColor(ContextUtils.getColor(header.getContext(), android.R.attr.textColorPrimary));
         }
     }
 

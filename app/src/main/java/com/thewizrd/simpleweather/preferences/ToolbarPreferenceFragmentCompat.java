@@ -21,7 +21,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.transition.MaterialFadeThrough;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
@@ -125,7 +125,7 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
     }
 
     protected final void updateWindowColors(UserThemeMode mode) {
-        int color = ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
+        int color = ContextUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
         if (mode == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK;
         }

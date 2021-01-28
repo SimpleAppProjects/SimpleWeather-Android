@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -44,7 +45,7 @@ public class WeatherWidgetConfigActivity extends UserLocaleActivity {
 
         setContentView(R.layout.activity_widget_setup);
 
-        int color = ActivityUtils.getColor(this, android.R.attr.colorBackground);
+        int color = ContextUtils.getColor(this, android.R.attr.colorBackground);
         if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK;
         }

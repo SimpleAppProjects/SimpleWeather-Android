@@ -50,7 +50,7 @@ import androidx.preference.SwitchPreferenceCompat;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
@@ -713,7 +713,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             }
         });
 
-        tintIcons(getPreferenceScreen(), ActivityUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
+        tintIcons(getPreferenceScreen(), ContextUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
     }
 
     @Override

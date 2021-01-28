@@ -39,7 +39,7 @@ import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
 import com.thewizrd.shared_resources.lifecycle.LifecycleRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -508,7 +508,7 @@ public class LocationSearchFragment extends WindowColorFragment {
                 super.onScrolled(recyclerView, dx, dy);
 
                 if (recyclerView.computeVerticalScrollOffset() > 0) {
-                    ViewCompat.setElevation(searchBarBinding.getRoot(), ActivityUtils.dpToPx(getAppCompatActivity(), 4f));
+                    ViewCompat.setElevation(searchBarBinding.getRoot(), ContextUtils.dpToPx(getAppCompatActivity(), 4f));
                 } else {
                     ViewCompat.setElevation(searchBarBinding.getRoot(), 0f);
                 }
@@ -547,7 +547,7 @@ public class LocationSearchFragment extends WindowColorFragment {
     @Override
     public void updateWindowColors() {
         int bg_color = Settings.getUserThemeMode() != UserThemeMode.AMOLED_DARK ?
-                ActivityUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground) : Colors.BLACK;
+                ContextUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground) : Colors.BLACK;
 
         binding.rootView.setBackgroundColor(bg_color);
         binding.rootView.setStatusBarBackgroundColor(bg_color);

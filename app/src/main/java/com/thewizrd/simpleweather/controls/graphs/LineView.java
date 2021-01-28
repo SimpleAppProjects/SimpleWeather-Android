@@ -30,8 +30,8 @@ import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.google.common.collect.Iterables;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.helpers.ListChangedArgs;
 import com.thewizrd.shared_resources.helpers.ObservableArrayList;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
@@ -258,17 +258,17 @@ public class LineView extends HorizontalScrollView implements IGraph {
 
         private final float iconHeight;
 
-        private final float iconBottomMargin = ActivityUtils.dpToPx(getContext(), 2);
-        private final float bottomTextTopMargin = ActivityUtils.dpToPx(getContext(), 6);
-        private final float DOT_INNER_CIR_RADIUS = ActivityUtils.dpToPx(getContext(), 2);
-        private final float DOT_OUTER_CIR_RADIUS = ActivityUtils.dpToPx(getContext(), 5);
+        private final float iconBottomMargin = ContextUtils.dpToPx(getContext(), 2);
+        private final float bottomTextTopMargin = ContextUtils.dpToPx(getContext(), 6);
+        private final float DOT_INNER_CIR_RADIUS = ContextUtils.dpToPx(getContext(), 2);
+        private final float DOT_OUTER_CIR_RADIUS = ContextUtils.dpToPx(getContext(), 5);
         private final int MIN_VERTICAL_GRID_NUM = 4;
         private final int MIN_HORIZONTAL_GRID_NUM = 1;
         private int BACKGROUND_LINE_COLOR = Colors.WHITESMOKE;
         private int BOTTOM_TEXT_COLOR = Colors.WHITE;
 
         private float sideLineLength = 0;
-        private float backgroundGridWidth = ActivityUtils.dpToPx(getContext(), 45);
+        private float backgroundGridWidth = ContextUtils.dpToPx(getContext(), 45);
         private float longestTextWidth;
 
         private boolean drawGridLines = false;
@@ -311,27 +311,27 @@ public class LineView extends HorizontalScrollView implements IGraph {
             dataLists.addOnListChangedCallback(onLineDataSeriesChangedListener);
 
             bottomTextPaint.setAntiAlias(true);
-            bottomTextPaint.setTextSize(ActivityUtils.dpToPx(getContext(), 12));
+            bottomTextPaint.setTextSize(ContextUtils.dpToPx(getContext(), 12));
             bottomTextPaint.setTextAlign(Paint.Align.CENTER);
             bottomTextPaint.setStyle(Paint.Style.FILL);
             bottomTextPaint.setColor(BOTTOM_TEXT_COLOR);
             bottomTextPaint.setShadowLayer(1, 1, 1, ColorsUtils.isSuperLight(BOTTOM_TEXT_COLOR) ? Colors.BLACK : Colors.GRAY);
 
-            iconHeight = ActivityUtils.dpToPx(getContext(), 30);
+            iconHeight = ContextUtils.dpToPx(getContext(), 30);
 
             bigCirPaint.setAntiAlias(true);
             smallCirPaint = new Paint(bigCirPaint);
 
             linePaint = new Paint();
             linePaint.setAntiAlias(true);
-            linePaint.setStrokeWidth(ActivityUtils.dpToPx(getContext(), 2));
+            linePaint.setStrokeWidth(ContextUtils.dpToPx(getContext(), 2));
 
             mPathBackground = new Path();
             mPaintBackground = new Paint();
 
             bgLinesPaint = new Paint();
             bgLinesPaint.setStyle(Paint.Style.STROKE);
-            bgLinesPaint.setStrokeWidth(ActivityUtils.dpToPx(getContext(), 1f));
+            bgLinesPaint.setStrokeWidth(ContextUtils.dpToPx(getContext(), 1f));
             bgLinesPaint.setColor(BACKGROUND_LINE_COLOR);
             dashEffects = new DashPathEffect(new float[]{10, 5, 10, 5}, 1);
 
@@ -899,10 +899,10 @@ public class LineView extends HorizontalScrollView implements IGraph {
                 if (paddingLength < longestWidth / 2f) {
                     paddingLength = longestWidth / 2f;
                 }
-                textWidth += ActivityUtils.dpToPx(getContext(), 4);
+                textWidth += ContextUtils.dpToPx(getContext(), 4);
 
                 float rectSize = textHeight;
-                float rect2textPadding = ActivityUtils.dpToPx(getContext(), 8);
+                float rect2textPadding = ContextUtils.dpToPx(getContext(), 8);
 
                 for (int i = 0; i < seriesSize; i++) {
                     LineDataSeries series = dataLists.get(i);

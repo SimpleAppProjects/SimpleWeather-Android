@@ -9,7 +9,7 @@ import androidx.core.text.HtmlCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -45,7 +45,7 @@ public class OSSCreditsPreference extends Preference {
         final Context context = getContext();
 
         int bg_color = Settings.getUserThemeMode() != UserThemeMode.AMOLED_DARK ?
-                ActivityUtils.getColor(context, android.R.attr.colorBackground) : Colors.BLACK;
+                ContextUtils.getColor(context, android.R.attr.colorBackground) : Colors.BLACK;
         holder.itemView.setBackgroundColor(bg_color);
 
         TextView webView = holder.itemView.findViewById(R.id.textview);

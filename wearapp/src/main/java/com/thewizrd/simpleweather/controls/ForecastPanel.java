@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.simpleweather.databinding.ForecastItemBinding;
 
 import java.util.List;
@@ -53,7 +53,7 @@ public class ForecastPanel extends LinearLayout {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         int containerWidth = getMeasuredWidth();
-        maxItemCount = (int) Math.max(4, containerWidth / ActivityUtils.dpToPx(getContext(), 50f));
+        maxItemCount = (int) Math.max(4, containerWidth / ContextUtils.dpToPx(getContext(), 50f));
     }
 
     public void bindModel(List<ForecastItemViewModel> forecasts) {

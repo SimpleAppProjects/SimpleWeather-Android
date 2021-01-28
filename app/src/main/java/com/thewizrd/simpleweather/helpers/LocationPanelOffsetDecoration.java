@@ -8,19 +8,19 @@ import androidx.annotation.DimenRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 
 public class LocationPanelOffsetDecoration extends RecyclerView.ItemDecoration {
     protected int mItemOffset;
     protected int offsetFlags;
 
     public LocationPanelOffsetDecoration(@NonNull Context context, float itemOffsetDp) {
-        mItemOffset = (int) ActivityUtils.dpToPx(context, itemOffsetDp);
+        mItemOffset = (int) ContextUtils.dpToPx(context, itemOffsetDp);
         this.offsetFlags = OffsetMargin.ALL;
     }
 
     public LocationPanelOffsetDecoration(@NonNull Context context, float itemOffsetDp, int offsetFlags) {
-        mItemOffset = (int) ActivityUtils.dpToPx(context, itemOffsetDp);
+        mItemOffset = (int) ContextUtils.dpToPx(context, itemOffsetDp);
         this.offsetFlags = offsetFlags;
     }
 

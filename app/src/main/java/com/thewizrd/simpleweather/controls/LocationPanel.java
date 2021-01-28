@@ -24,7 +24,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.card.MaterialCardView;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.R;
@@ -70,10 +70,10 @@ public class LocationPanel extends MaterialCardView {
 
         setCardElevation(0f);
         setMaxCardElevation(0f);
-        setStrokeWidth((int) ActivityUtils.dpToPx(context, 1f));
+        setStrokeWidth((int) ContextUtils.dpToPx(context, 1f));
         setStrokeColor(AppCompatResources.getColorStateList(context, FeatureSettings.isLocationPanelImageEnabled() ? R.color.location_panel_card_stroke_imageon : R.color.location_panel_card_stroke_imageoff));
         setStateListAnimator(null);
-        setCheckedIconTint(FeatureSettings.isLocationPanelImageEnabled() ? ColorStateList.valueOf(Colors.WHITE) : ActivityUtils.getColorStateList(context, R.attr.colorPrimary));
+        setCheckedIconTint(FeatureSettings.isLocationPanelImageEnabled() ? ColorStateList.valueOf(Colors.WHITE) : ContextUtils.getColorStateList(context, R.attr.colorPrimary));
         setRippleColorResource(FeatureSettings.isLocationPanelImageEnabled() ? R.color.location_panel_ripple_imageon : R.color.location_panel_ripple_imageoff);
         setCardForegroundColor(AppCompatResources.getColorStateList(context, FeatureSettings.isLocationPanelImageEnabled() ? R.color.location_panel_foreground_imageon : R.color.location_panel_foreground_imageoff));
 
@@ -196,6 +196,6 @@ public class LocationPanel extends MaterialCardView {
         } else {
             strokeDp = isDragged() ? 2f : 1f;
         }
-        setStrokeWidth((int) ActivityUtils.dpToPx(getContext(), strokeDp));
+        setStrokeWidth((int) ContextUtils.dpToPx(getContext(), strokeDp));
     }
 }

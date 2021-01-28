@@ -18,7 +18,7 @@ import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.transition.MaterialSharedAxis;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentSetupSettingsBinding;
@@ -58,8 +58,8 @@ public class SetupSettingsFragment extends CustomPreferenceFragmentCompat {
 
         binding.fragmentContainer.addView(inflatedView);
 
-        setDivider(new ColorDrawable(ActivityUtils.getColor(root.getContext(), R.attr.colorPrimary)));
-        setDividerHeight((int) ActivityUtils.dpToPx(root.getContext(), 1f));
+        setDivider(new ColorDrawable(ContextUtils.getColor(root.getContext(), R.attr.colorPrimary)));
+        setDividerHeight((int) ContextUtils.dpToPx(root.getContext(), 1f));
 
         return root;
     }

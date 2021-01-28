@@ -59,7 +59,7 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
-import com.thewizrd.shared_resources.helpers.ActivityUtils;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.tzdb.TZDBCache;
@@ -411,7 +411,7 @@ public class WeatherNowFragment extends CustomFragment
         mDrawerView = getFragmentActivity().findViewById(R.id.bottom_action_drawer);
 
         // SwipeRefresh
-        binding.swipeRefreshLayout.setColorSchemeColors(ActivityUtils.getColor(getFragmentActivity(), R.attr.colorPrimary));
+        binding.swipeRefreshLayout.setColorSchemeColors(ContextUtils.getColor(getFragmentActivity(), R.attr.colorPrimary));
         binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
