@@ -427,8 +427,13 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
             weatherIcon = WeatherIcons.SMOKE;
         } else if (icon.contains("dust")) {
             weatherIcon = WeatherIcons.DUST;
-        } else if (icon.contains("tropical_storm") || icon.contains("tsra") || icon.contains("hurricane")) {
+        } else if (icon.contains("tropical_storm") || icon.contains("hurricane")) {
             weatherIcon = WeatherIcons.HURRICANE;
+        } else if (icon.contains("tsra")) {
+            if (isNight)
+                weatherIcon = WeatherIcons.NIGHT_ALT_THUNDERSTORM;
+            else
+                weatherIcon = WeatherIcons.DAY_THUNDERSTORM;
         } else if (icon.contains("tornado")) {
             weatherIcon = WeatherIcons.TORNADO;
         } else if (icon.contains("rain_showers")) {
@@ -512,8 +517,10 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
             return context.getString(R.string.weather_smoky);
         } else if (icon.contains("dust")) {
             return context.getString(R.string.weather_dust);
-        } else if (icon.contains("tropical_storm") || icon.contains("tsra")) {
+        } else if (icon.contains("tropical_storm")) {
             return context.getString(R.string.weather_tropicalstorm);
+        } else if (icon.contains("tsra")) {
+            return context.getString(R.string.weather_tstorms);
         } else if (icon.contains("hurricane")) {
             return context.getString(R.string.weather_hurricane);
         } else if (icon.contains("tornado")) {
@@ -526,6 +533,8 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
             return context.getString(R.string.weather_rainandsleet);
         } else if (icon.contains("rain_snow")) {
             return context.getString(R.string.weather_rainandsnow);
+        } else if (icon.contains("snow_sleet")) {
+            return context.getString(R.string.weather_snowandsleet);
         } else if (icon.contains("sleet")) {
             return context.getString(R.string.weather_sleet);
         } else if (icon.contains("rain")) {
