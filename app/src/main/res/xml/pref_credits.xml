@@ -49,6 +49,12 @@
                 android:action="android.intent.action.VIEW"
                 android:data="https://aqicn.org" />
         </Preference>
+        <Preference android:title="@string/api_wunlocked" />
+        <Preference android:layout="@layout/credit_wunlocked">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://developer.weatherunlocked.com/" />
+        </Preference>
 
     </PreferenceCategory>
 

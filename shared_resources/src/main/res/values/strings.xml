@@ -11,7 +11,8 @@
     <string name="api_yahoo" translatable="false">Yahoo Weather</string>
     <string name="api_lociq" translatable="false">LocationIQ</string>
     <string name="api_nws" translatable="false">U.S. National Weather Service</string>
-    <string name="api_waqi" translatable="false"> World Air Quality Index Project</string>
+    <string name="api_waqi" translatable="false">World Air Quality Index Project</string>
+    <string name="api_wunlocked" translatable="false">WeatherUnlocked</string>
     <string name="radar_earthnullschool" translatable="false">EarthWindMap Project</string>
     <string name="radar_rainviewer" translatable="false">RainViewer</string>
     <string name="label_gpsfollow">Current Location</string>

@@ -36,6 +36,10 @@
         <Preference android:layout="@layout/credit_waqi">
             <intent android:data="https://aqicn.org" />
         </Preference>
+        <Preference android:title="@string/api_wunlocked" />
+        <Preference android:layout="@layout/credit_wunlocked">
+            <intent android:data="https://developer.weatherunlocked.com/" />
+        </Preference>
 
     </PreferenceCategory>
 
