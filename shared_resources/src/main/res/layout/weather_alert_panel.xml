@@ -44,7 +44,8 @@
                     android:paddingLeft="24dp"
                     android:paddingRight="8dp"
                     android:paddingStart="24dp"
-                    android:src="@{ContextCompat.getDrawable(context, WeatherUtils.getDrawableFromAlertType(viewModel.alertType))}"
+                    app:srcCompat="@{WeatherUtils.getDrawableFromAlertType(viewModel.alertType)}"
+                    app:tint="@android:color/white"
                     tools:src="@drawable/ic_error_white" />
 
                 <androidx.appcompat.widget.AppCompatTextView

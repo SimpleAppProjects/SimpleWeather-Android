@@ -41,7 +41,8 @@
                     android:adjustViewBounds="true"
                     android:paddingEnd="4dp"
                     android:paddingStart="4dp"
-                    android:src="@{ContextCompat.getDrawable(context, WeatherUtils.getDrawableFromAlertType(viewModel.alertType))}"
+                    app:srcCompat="@{WeatherUtils.getDrawableFromAlertType(viewModel.alertType)}"
+                    app:tint="@android:color/white"
                     tools:srcCompat="@drawable/wi_snowflake_cold" />
 
                 <androidx.appcompat.widget.AppCompatTextView
