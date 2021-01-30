@@ -1,6 +1,8 @@
 package com.thewizrd.simpleweather.preferences.iconpreference;
 
 import android.content.Context;
+import android.graphics.drawable.AnimatedVectorDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +11,8 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceViewHolder;
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
@@ -17,11 +21,15 @@ import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.PreferenceIconViewBinding;
 import com.thewizrd.simpleweather.preferences.radiopreference.RadioButtonPreference;
 
+import java.util.Stack;
+
 public class IconProviderPreference extends RadioButtonPreference {
     private final String[] PREVIEW_ICONS = {WeatherIcons.DAY_SUNNY, WeatherIcons.NIGHT_CLEAR, WeatherIcons.DAY_SUNNY_OVERCAST, WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY, WeatherIcons.RAIN};
 
     private View mIconFrame;
     private int mIconVisibility = View.GONE;
+
+    private final Stack<AnimatedVectorDrawable> animatedDrawables = new Stack<>();
 
     public IconProviderPreference(Context context) {
         this(context, null);
@@ -63,10 +71,32 @@ public class IconProviderPreference extends RadioButtonPreference {
         ViewGroup iconsContainer = (ViewGroup) holder.findViewById(R.id.icons_container);
         if (iconsContainer != null) {
             iconsContainer.removeAllViews();
+            // Stop running animations
+            while (!animatedDrawables.empty()) {
+                AnimatedVectorDrawable drw = animatedDrawables.pop();
+                AnimatedVectorDrawableCompat.clearAnimationCallbacks(drw);
+                drw.stop();
+                drw = null;
+            }
 
             for (String icon : PREVIEW_ICONS) {
                 ImageView v = PreferenceIconViewBinding.inflate(LayoutInflater.from(holder.itemView.getContext()), iconsContainer, true).getRoot();
                 v.setImageResource(getIconProvider().getWeatherIconResource(icon));
+
+                final Drawable drwbl = v.getDrawable();
+                if (drwbl instanceof AnimatedVectorDrawable) {
+                    AnimatedVectorDrawableCompat.clearAnimationCallbacks(drwbl);
+                    AnimatedVectorDrawableCompat.registerAnimationCallback(drwbl, new Animatable2Compat.AnimationCallback() {
+                        @Override
+                        public void onAnimationEnd(Drawable drawable) {
+                            if (drawable instanceof AnimatedVectorDrawable) {
+                                ((AnimatedVectorDrawable) drawable).start();
+                            }
+                        }
+                    });
+                    ((AnimatedVectorDrawable) drwbl).start();
+                    animatedDrawables.push((AnimatedVectorDrawable) drwbl);
+                }
             }
         }
     }
