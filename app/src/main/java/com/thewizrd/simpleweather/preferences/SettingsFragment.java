@@ -49,8 +49,10 @@ import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.thewizrd.shared_resources.ApplicationLib;
+import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
+import com.thewizrd.shared_resources.icons.WeatherIconProvider;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
@@ -83,6 +85,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static com.thewizrd.shared_resources.utils.Settings.KEY_API;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_APIKEY;
@@ -1194,6 +1197,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
     }
 
     public static class CreditsFragment extends ToolbarPreferenceFragmentCompat {
+        private final String CATEGORY_ICONS = "key_caticons";
+
         @Override
         protected int getTitle() {
             return R.string.pref_title_credits;
@@ -1202,6 +1207,23 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.pref_credits, null);
+
+            PreferenceCategory iconsCategory = findPreference(CATEGORY_ICONS);
+            iconsCategory.removeAll();
+
+            final Map<String, WeatherIconProvider> providers = SimpleLibrary.getInstance().getIconProviders();
+            providers.forEach((s, wiProvider) -> {
+                Preference pref = new Preference(requireContext());
+                pref.setTitle(wiProvider.getDisplayName());
+                pref.setSummary(wiProvider.getAuthorName());
+                if (wiProvider.getAttributionLink() != null) {
+                    pref.setIntent(new Intent(Intent.ACTION_VIEW)
+                            .addCategory(Intent.CATEGORY_BROWSABLE)
+                            .setData(Uri.parse(wiProvider.getAttributionLink())));
+                }
+
+                iconsCategory.addPreference(pref);
+            });
         }
     }
 

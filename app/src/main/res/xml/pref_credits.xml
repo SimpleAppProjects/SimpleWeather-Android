@@ -52,4 +52,8 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="@string/pref_title_icons"
+        android:key="key_caticons" />
+
 </PreferenceScreen>

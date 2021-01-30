@@ -8,6 +8,10 @@ public abstract class WeatherIconProvider implements WeatherIconsProviderInterfa
 
     public abstract String getDisplayName();
 
+    public abstract String getAuthorName();
+
+    public abstract String getAttributionLink();
+
     @DrawableRes
     public abstract int getWeatherIconResource(@NonNull String icon);
 

@@ -19,6 +19,16 @@ public final class WeatherIconsProvider extends WeatherIconProvider {
     }
 
     @Override
+    public String getAuthorName() {
+        return "Erik Flowers";
+    }
+
+    @Override
+    public String getAttributionLink() {
+        return "https://erikflowers.github.io/weather-icons/";
+    }
+
+    @Override
     public boolean isFontIcon() {
         return true;
     }
