@@ -16,8 +16,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
@@ -90,15 +88,6 @@ public class WeatherDetailItem extends ConstraintLayout {
         // Animate weather icon if possible
         final Drawable drwbl = binding.forecastIcon.getDrawable();
         if (drwbl instanceof AnimatedVectorDrawable) {
-            AnimatedVectorDrawableCompat.clearAnimationCallbacks(drwbl);
-            AnimatedVectorDrawableCompat.registerAnimationCallback(drwbl, new Animatable2Compat.AnimationCallback() {
-                @Override
-                public void onAnimationEnd(Drawable drawable) {
-                    if (drawable instanceof AnimatedVectorDrawable) {
-                        ((AnimatedVectorDrawable) drawable).start();
-                    }
-                }
-            });
             ((AnimatedVectorDrawable) drwbl).start();
         }
 

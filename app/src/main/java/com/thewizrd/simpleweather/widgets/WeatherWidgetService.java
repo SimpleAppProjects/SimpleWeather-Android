@@ -1286,14 +1286,16 @@ public class WeatherWidgetService extends SafeJobIntentService {
 
         if (provider.getWidgetType() != WidgetType.Widget4x1) {
             // WeatherIcon
+            final int weatherIconResId = WeatherIconsManager.getInstance().getWeatherIconResource(weather.getWeatherIcon());
+
             if (!WidgetUtils.isBackgroundOptionalWidget(provider.getWidgetType()) || is4x2) {
                 updateViews.setImageViewBitmap(R.id.weather_icon,
-                        ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(mContext, false), weather.getWeatherIcon()));
+                        ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(mContext, false), weatherIconResId));
             } else if (style == WidgetUtils.WidgetBackgroundStyle.PANDA) {
-                updateViews.setImageViewResource(R.id.weather_icon, weather.getWeatherIcon());
+                updateViews.setImageViewResource(R.id.weather_icon, weatherIconResId);
             } else {
                 updateViews.setImageViewBitmap(R.id.weather_icon,
-                        ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(mContext, style == WidgetUtils.WidgetBackgroundStyle.LIGHT), weather.getWeatherIcon()));
+                        ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(mContext, style == WidgetUtils.WidgetBackgroundStyle.LIGHT), weatherIconResId));
             }
         }
 

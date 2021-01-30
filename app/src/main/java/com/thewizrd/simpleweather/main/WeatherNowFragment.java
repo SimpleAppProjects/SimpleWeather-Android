@@ -69,8 +69,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -1710,27 +1708,18 @@ public class WeatherNowFragment extends WindowColorFragment
         }
 
         @BindingAdapter("weatherIcon")
-        public void animateIconIfAvailable(final ImageView view, @DrawableRes final int resId) {
+        public void animateIconIfAvailable(@NonNull final ImageView view, @DrawableRes final int resId) {
             view.setImageResource(resId);
 
             final Drawable drwbl = view.getDrawable();
             if (drwbl instanceof AnimatedVectorDrawable) {
-                AnimatedVectorDrawableCompat.clearAnimationCallbacks(drwbl);
-                AnimatedVectorDrawableCompat.registerAnimationCallback(drwbl, new Animatable2Compat.AnimationCallback() {
-                    @Override
-                    public void onAnimationEnd(Drawable drawable) {
-                        if (drawable instanceof AnimatedVectorDrawable) {
-                            ((AnimatedVectorDrawable) drawable).start();
-                        }
-                    }
-                });
                 ((AnimatedVectorDrawable) drwbl).start();
             }
         }
 
         @BindingAdapter("weatherIcon")
-        public void animateIconIfAvailable(final ImageView view, String icon) {
-            animateIconIfAvailable(view, WeatherIconsManager.getInstance().getWeatherIconResource(icon));
+        public void animateIconIfAvailable(@NonNull final ImageView view, String icon) {
+            animateIconIfAvailable(view, icon != null ? WeatherIconsManager.getInstance().getWeatherIconResource(icon) : 0);
         }
     }
 }

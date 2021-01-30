@@ -3,7 +3,6 @@ package com.thewizrd.shared_resources.controls;
 import android.content.Context;
 import android.text.format.DateFormat;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.WorkerThread;
 import androidx.core.util.ObjectsCompat;
 import androidx.databinding.Bindable;
@@ -13,7 +12,6 @@ import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
-import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
@@ -38,8 +36,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
     // Current Condition
     private String curTemp;
     private String curCondition;
-    private @DrawableRes
-    int weatherIcon;
+    private String weatherIcon;
     private String hiTemp;
     private String loTemp;
     private boolean showHiLo;
@@ -86,8 +83,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
     }
 
     @Bindable
-    @DrawableRes
-    public int getWeatherIcon() {
+    public String getWeatherIcon() {
         return weatherIcon;
     }
 
@@ -259,7 +255,6 @@ public class WeatherNowViewModel extends ObservableViewModel {
         final boolean isPhone = SimpleLibrary.getInstance().getApp().isPhone();
 
         final WeatherProviderImpl provider = WeatherManager.getProvider(weather.getSource());
-        final WeatherIconsManager wim = WeatherIconsManager.getInstance();
 
         final boolean isFahrenheit = Units.FAHRENHEIT.equals(Settings.getTemperatureUnit());
 
@@ -300,9 +295,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
             curCondition = newCondition;
             notifyPropertyChanged(BR.curCondition);
         }
-        final @DrawableRes int newIcon = wim.getWeatherIconResource(weather.getCondition().getIcon());
-        if (weatherIcon != newIcon) {
-            weatherIcon = newIcon;
+        if (!ObjectsCompat.equals(weatherIcon, weather.getCondition().getIcon())) {
+            weatherIcon = weather.getCondition().getIcon();
             notifyPropertyChanged(BR.weatherIcon);
         }
 
@@ -618,7 +612,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         updateDate = null;
         curTemp = null;
         curCondition = null;
-        weatherIcon = R.drawable.wi_na;
+        weatherIcon = WeatherIcons.NA;
         sunPhase = null;
         weatherDetails.clear();
         imageData = null;

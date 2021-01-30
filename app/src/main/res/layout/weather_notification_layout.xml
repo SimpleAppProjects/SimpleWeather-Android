@@ -151,8 +151,7 @@
                     android:layout_height="24dp"
                     android:layout_gravity="end"
                     android:padding="2dp"
-                    android:src="@drawable/wi_cloudy"
-                    android:tint="@color/not_icon_tint" />
+                    android:src="@drawable/wi_cloudy" />
 
                 <TextView
                     android:id="@+id/weather_pop"

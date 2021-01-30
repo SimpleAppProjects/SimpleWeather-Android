@@ -11,8 +11,6 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceViewHolder;
-import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
@@ -74,7 +72,6 @@ public class IconProviderPreference extends RadioButtonPreference {
             // Stop running animations
             while (!animatedDrawables.empty()) {
                 AnimatedVectorDrawable drw = animatedDrawables.pop();
-                AnimatedVectorDrawableCompat.clearAnimationCallbacks(drw);
                 drw.stop();
                 drw = null;
             }
@@ -85,15 +82,6 @@ public class IconProviderPreference extends RadioButtonPreference {
 
                 final Drawable drwbl = v.getDrawable();
                 if (drwbl instanceof AnimatedVectorDrawable) {
-                    AnimatedVectorDrawableCompat.clearAnimationCallbacks(drwbl);
-                    AnimatedVectorDrawableCompat.registerAnimationCallback(drwbl, new Animatable2Compat.AnimationCallback() {
-                        @Override
-                        public void onAnimationEnd(Drawable drawable) {
-                            if (drawable instanceof AnimatedVectorDrawable) {
-                                ((AnimatedVectorDrawable) drawable).start();
-                            }
-                        }
-                    });
                     ((AnimatedVectorDrawable) drwbl).start();
                     animatedDrawables.push((AnimatedVectorDrawable) drwbl);
                 }

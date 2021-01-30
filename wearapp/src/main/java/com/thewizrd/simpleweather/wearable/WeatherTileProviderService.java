@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.ImageUtils;
@@ -139,13 +140,14 @@ public class WeatherTileProviderService extends TileProviderService {
         if (weather == null || !weather.isValid())
             return null;
 
+        WeatherIconsManager wim = WeatherIconsManager.getInstance();
         RemoteViews updateViews = new RemoteViews(mContext.getPackageName(), R.layout.tile_layout_weather);
         WeatherNowViewModel viewModel = new WeatherNowViewModel(weather);
 
         updateViews.setOnClickPendingIntent(R.id.tile, getTapIntent(mContext));
 
         updateViews.setTextViewText(R.id.condition_temp, viewModel.getCurTemp());
-        updateViews.setImageViewResource(R.id.weather_icon, viewModel.getWeatherIcon());
+        updateViews.setImageViewResource(R.id.weather_icon, wim.getWeatherIconResource(viewModel.getWeatherIcon()));
         updateViews.setTextViewText(R.id.weather_condition, viewModel.getCurCondition());
 
         // Details

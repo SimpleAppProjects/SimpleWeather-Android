@@ -100,7 +100,7 @@
                         android:layout_gravity="end|center_vertical"
                         android:paddingStart="0dp"
                         android:paddingEnd="8dp"
-                        app:srcCompat="@{weatherView.weatherIcon}"
+                        app:weatherIcon="@{weatherView.weatherIcon}"
                         app:tint="@android:color/white"
                         tools:srcCompat="@drawable/wi_day_sunny" />
 

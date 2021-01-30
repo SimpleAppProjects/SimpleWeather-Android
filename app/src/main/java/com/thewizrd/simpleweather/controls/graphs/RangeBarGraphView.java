@@ -3,7 +3,6 @@ package com.thewizrd.simpleweather.controls.graphs;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
@@ -24,8 +23,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
-import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
@@ -471,7 +468,6 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
             // Stop running animations
             while (!animatedDrawables.empty()) {
                 AnimatedVectorDrawable drw = animatedDrawables.pop();
-                AnimatedVectorDrawableCompat.clearAnimationCallbacks(drw);
                 drw.stop();
                 drw = null;
             }
@@ -496,7 +492,7 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
                             canvas.drawText(xData.getLabel().toString(), x, y, bottomTextPaint);
                     }
 
-                    if (drawIconsLabels && xData.getIcon() != Resources.ID_NULL) {
+                    if (drawIconsLabels && xData.getIcon() != 0) {
                         int rotation = xData.getIconRotation();
                         Drawable iconDrawable = ContextCompat.getDrawable(getContext(), xData.getIcon());
 
@@ -506,15 +502,6 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
 
                         if (RectF.intersects(drawingRect, visibleRect)) {
                             if (iconDrawable instanceof AnimatedVectorDrawable) {
-                                AnimatedVectorDrawableCompat.clearAnimationCallbacks(iconDrawable);
-                                AnimatedVectorDrawableCompat.registerAnimationCallback(iconDrawable, new Animatable2Compat.AnimationCallback() {
-                                    @Override
-                                    public void onAnimationEnd(Drawable drawable) {
-                                        if (drawable instanceof AnimatedVectorDrawable) {
-                                            ((AnimatedVectorDrawable) drawable).start();
-                                        }
-                                    }
-                                });
                                 ((AnimatedVectorDrawable) iconDrawable).start();
 
                                 animatedDrawables.push((AnimatedVectorDrawable) iconDrawable);

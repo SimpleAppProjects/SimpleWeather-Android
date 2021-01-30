@@ -9,12 +9,16 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.icons.WeatherIconProvider;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
+import com.thewizrd.shared_resources.icons.WeatherIconsManager;
+import com.thewizrd.shared_resources.icons.WeatherIconsProvider;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.ImageUtils;
@@ -30,8 +34,9 @@ import com.thewizrd.simpleweather.main.MainActivity;
 public class WeatherNotificationBuilder {
     private static final String TAG = "WeatherNotificationBuilder";
 
-    static Notification updateNotification(String notificationID, final WeatherNowViewModel viewModel) {
-        Context context = App.getInstance().getAppContext();
+    static Notification updateNotification(String notificationID, @NonNull final WeatherNowViewModel viewModel) {
+        final Context context = App.getInstance().getAppContext();
+        final WeatherIconsManager wim = WeatherIconsManager.getInstance();
 
         // Build update
         RemoteViews updateViews = new RemoteViews(context.getPackageName(), R.layout.weather_notification_layout);
@@ -43,7 +48,7 @@ public class WeatherNotificationBuilder {
                 StringUtils.removeNonDigitChars(viewModel.getCurTemp()) : WeatherIcons.PLACEHOLDER;
 
         // Weather icon
-        updateViews.setImageViewResource(R.id.weather_icon, viewModel.getWeatherIcon());
+        updateViews.setImageViewResource(R.id.weather_icon, wim.getWeatherIconResource(viewModel.getWeatherIcon()));
 
         // Location Name
         updateViews.setTextViewText(R.id.location_name, viewModel.getLocation());
@@ -88,12 +93,13 @@ public class WeatherNotificationBuilder {
             updateViews.setViewVisibility(R.id.weather_pop_layout, View.GONE);
         }
         if (windModel != null) {
+            final int windIconResId = wim.getWeatherIconResource(WeatherIcons.WIND_DIRECTION);
             if (windModel.getIconRotation() != 0) {
                 updateViews.setImageViewBitmap(R.id.weather_windicon,
-                        ImageUtils.rotateBitmap(ImageUtils.bitmapFromDrawable(context, R.drawable.wi_direction_up), windModel.getIconRotation())
+                        ImageUtils.rotateBitmap(ImageUtils.bitmapFromDrawable(context, windIconResId), windModel.getIconRotation())
                 );
             } else {
-                updateViews.setImageViewResource(R.id.weather_windicon, R.drawable.wi_direction_up);
+                updateViews.setImageViewResource(R.id.weather_windicon, windIconResId);
             }
             String speed = TextUtils.isEmpty(windModel.getValue()) ? "" : windModel.getValue().toString();
             speed = speed.split(",")[0];
@@ -148,7 +154,13 @@ public class WeatherNotificationBuilder {
                 mBuilder.setSmallIcon(WeatherNotificationTemp.getTempDrawable(tempLevel));
             }
         } else if (Settings.getNotificationIcon().equals(Settings.CONDITION_ICON)) {
-            mBuilder.setSmallIcon(viewModel.getWeatherIcon());
+            if (wim.isFontIcon()) {
+                mBuilder.setSmallIcon(wim.getWeatherIconResource(viewModel.getWeatherIcon()));
+            } else {
+                // Use default icon pack here; animated icons are not supported here
+                WeatherIconProvider wip = WeatherIconsManager.getProvider(WeatherIconsProvider.KEY);
+                mBuilder.setSmallIcon(wip.getWeatherIconResource(viewModel.getWeatherIcon()));
+            }
         }
 
         Intent onClickIntent = new Intent(context, MainActivity.class)
