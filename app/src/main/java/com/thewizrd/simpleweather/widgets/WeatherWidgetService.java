@@ -26,6 +26,7 @@ import android.widget.RemoteViews;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.SafeJobIntentService;
+import androidx.palette.graphics.Palette;
 
 import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.request.FutureTarget;
@@ -41,6 +42,7 @@ import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.ImageDataViewModel;
 import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
@@ -78,6 +80,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.getBackgroundColor;
+import static com.thewizrd.simpleweather.widgets.WidgetUtils.getBackgroundStyle;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.getCellsForSize;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.getForecastLength;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.getPanelTextColor;
@@ -1265,7 +1268,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
             tempTextSize = 24;
 
         float shadowRadius = 1.75f;
-        if (background != WidgetUtils.WidgetBackground.TRANSPARENT && background != WidgetUtils.WidgetBackground.CUSTOM &&
+        if (background != WidgetUtils.WidgetBackground.TRANSPARENT && background != WidgetUtils.WidgetBackground.CUSTOM && style != WidgetUtils.WidgetBackgroundStyle.FULLBACKGROUND &&
                 (provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x2 && background != WidgetUtils.WidgetBackground.CURRENT_CONDITIONS)) {
             shadowRadius = 0f;
         }
@@ -1350,18 +1353,41 @@ public class WeatherWidgetService extends SafeJobIntentService {
             }
 
             if (chanceModel != null) {
-                updateViews.setImageViewBitmap(R.id.weather_popicon,
-                        ImageUtils.tintedBitmapFromDrawable(mContext, chanceModel.getIcon(), panelTextColor)
-                );
+                if (!WidgetUtils.isBackgroundOptionalWidget(provider.getWidgetType())) {
+                    updateViews.setImageViewBitmap(R.id.weather_popicon,
+                            ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(mContext, false), chanceModel.getIcon())
+                    );
+                } else if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS && style == WidgetUtils.WidgetBackgroundStyle.PANDA) {
+                    updateViews.setImageViewResource(R.id.weather_popicon, chanceModel.getIcon());
+                } else {
+                    updateViews.setImageViewBitmap(R.id.weather_popicon,
+                            ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(mContext, style == WidgetUtils.WidgetBackgroundStyle.LIGHT), chanceModel.getIcon())
+                    );
+                }
             }
 
             if (windModel != null) {
-                updateViews.setImageViewBitmap(R.id.weather_windicon,
-                        ImageUtils.rotateBitmap(
-                                ImageUtils.tintedBitmapFromDrawable(mContext, R.drawable.wi_direction_up, panelTextColor),
-                                windModel.getIconRotation()
-                        )
-                );
+                if (!WidgetUtils.isBackgroundOptionalWidget(provider.getWidgetType())) {
+                    updateViews.setImageViewBitmap(R.id.weather_windicon,
+                            ImageUtils.rotateBitmap(
+                                    ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(mContext, false), windModel.getIcon()),
+                                    windModel.getIconRotation()
+                            )
+                    );
+                } else if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS && style == WidgetUtils.WidgetBackgroundStyle.PANDA) {
+                    updateViews.setImageViewBitmap(R.id.weather_popicon,
+                            ImageUtils.rotateBitmap(
+                                    ImageUtils.bitmapFromDrawable(mContext, windModel.getIcon()),
+                                    windModel.getIconRotation()
+                            ));
+                } else {
+                    updateViews.setImageViewBitmap(R.id.weather_windicon,
+                            ImageUtils.rotateBitmap(
+                                    ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(mContext, style == WidgetUtils.WidgetBackgroundStyle.LIGHT), windModel.getIcon()),
+                                    windModel.getIconRotation()
+                            )
+                    );
+                }
             }
         }
 
@@ -1444,6 +1470,14 @@ public class WeatherWidgetService extends SafeJobIntentService {
                     .submit(imgWidth, imgHeight);
 
             Bitmap bmp = imgTask.get();
+
+            // Add overlay if background is a light overall color
+            Palette p = Palette.from(bmp).generate();
+            boolean isLight = ColorsUtils.isSuperLight(p);
+
+            if (getBackgroundStyle(appWidgetId) == WidgetUtils.WidgetBackgroundStyle.FULLBACKGROUND && isLight) {
+                updateViews.setInt(R.id.panda_container, "setBackgroundColor", 0x50000000);
+            }
 
             updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.TRANSPARENT);
             updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);

@@ -570,6 +570,10 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         for (int i = 0; i < styles.length; i++) {
             WidgetUtils.WidgetBackgroundStyle style = styles[i];
             switch (style) {
+                case FULLBACKGROUND:
+                    styleEntries[i] = requireContext().getString(R.string.label_style_fullbg);
+                    styleEntryValues[i] = Integer.toString(style.getValue());
+                    break;
                 case PANDA:
                     styleEntries[i] = requireContext().getString(R.string.label_style_panda);
                     styleEntryValues[i] = Integer.toString(style.getValue());

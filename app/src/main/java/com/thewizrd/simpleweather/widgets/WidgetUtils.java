@@ -39,11 +39,11 @@ import java.util.Map;
 
 public class WidgetUtils {
     // Shared Settings
-    private static SharedPreferences widgetPrefs = App.getInstance().getAppContext().getSharedPreferences("appwidgets", Context.MODE_PRIVATE);
-    private static SharedPreferences.Editor editor = widgetPrefs.edit();
+    private static final SharedPreferences widgetPrefs = App.getInstance().getAppContext().getSharedPreferences("appwidgets", Context.MODE_PRIVATE);
+    private static final SharedPreferences.Editor editor = widgetPrefs.edit();
 
     // Widget Prefs
-    private static final int CurrentPrefsVersion = 4;
+    private static final int CurrentPrefsVersion = 5;
 
     // Keys
     private static final String KEY_VERSION = "key_version";
@@ -98,6 +98,7 @@ public class WidgetUtils {
     }
 
     enum WidgetBackgroundStyle {
+        FULLBACKGROUND(0),
         PANDA(1),
         PENDINGCOLOR(2),
         DARK(3),
@@ -242,6 +243,13 @@ public class WidgetUtils {
                         }
                     }
                     break;
+                case 4:
+                    // Migrate color options
+                    int[] widgetIds4x1 = getWidgetIds(WidgetType.Widget4x1);
+                    for (int appWidgetId : widgetIds4x1) {
+                        setWidgetBackground(appWidgetId, WidgetBackground.TRANSPARENT.getValue());
+                    }
+                    break;
                 default:
                     break;
             }
@@ -281,6 +289,40 @@ public class WidgetUtils {
                 mAppWidgetManager.getAppWidgetIds(mAppWidget4x2C.getComponentName()),
                 mAppWidgetManager.getAppWidgetIds(mAppWidget4x2BC.getComponentName())
         );
+    }
+
+    private static int[] getWidgetIds(WidgetType widgetType) {
+        AppWidgetManager mAppWidgetManager = AppWidgetManager.getInstance(App.getInstance().getAppContext());
+        WeatherWidgetProvider1x1 mAppWidget1x1 = WeatherWidgetProvider1x1.getInstance();
+        WeatherWidgetProvider2x2 mAppWidget2x2 = WeatherWidgetProvider2x2.getInstance();
+        WeatherWidgetProvider4x1 mAppWidget4x1 = WeatherWidgetProvider4x1.getInstance();
+        WeatherWidgetProvider4x2 mAppWidget4x2 = WeatherWidgetProvider4x2.getInstance();
+        WeatherWidgetProvider4x1Google mAppWidget4x1G = WeatherWidgetProvider4x1Google.getInstance();
+        WeatherWidgetProvider4x1Notification mAppWidget4x1N = WeatherWidgetProvider4x1Notification.getInstance();
+        WeatherWidgetProvider4x2Clock mAppWidget4x2C = WeatherWidgetProvider4x2Clock.getInstance();
+        WeatherWidgetProvider4x2Huawei mAppWidget4x2BC = WeatherWidgetProvider4x2Huawei.getInstance();
+
+        switch (widgetType) {
+            default:
+            case Unknown:
+                return new int[0];
+            case Widget1x1:
+                return mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.getComponentName());
+            case Widget2x2:
+                return mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName());
+            case Widget4x1:
+                return mAppWidgetManager.getAppWidgetIds(mAppWidget4x1.getComponentName());
+            case Widget4x2:
+                return mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName());
+            case Widget4x1Google:
+                return mAppWidgetManager.getAppWidgetIds(mAppWidget4x1G.getComponentName());
+            case Widget4x1Notification:
+                return mAppWidgetManager.getAppWidgetIds(mAppWidget4x1N.getComponentName());
+            case Widget4x2Clock:
+                return mAppWidgetManager.getAppWidgetIds(mAppWidget4x2C.getComponentName());
+            case Widget4x2Huawei:
+                return mAppWidgetManager.getAppWidgetIds(mAppWidget4x2BC.getComponentName());
+        }
     }
 
     public static void addWidgetId(String location_query, int widgetId) {
