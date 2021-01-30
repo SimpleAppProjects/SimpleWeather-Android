@@ -1128,14 +1128,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
             updateViews.setTextViewText(R.id.condition_temp, weather.getCurTemp());
         }
 
-        if (provider.getWidgetType() == WidgetType.Widget4x2) {
-            if (!WeatherIconsManager.getInstance().isFontIcon() && background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
-                updateViews.setViewVisibility(R.id.weather_icon_overlay, View.VISIBLE);
-            } else {
-                updateViews.setViewVisibility(R.id.weather_icon_overlay, View.GONE);
-            }
-        }
-
         // Set sizes for views
         updateViewSizes(updateViews, provider, newOptions);
 
@@ -1479,6 +1471,14 @@ public class WeatherWidgetService extends SafeJobIntentService {
 
             if (getBackgroundStyle(appWidgetId) == WidgetUtils.WidgetBackgroundStyle.FULLBACKGROUND && isLight) {
                 updateViews.setInt(R.id.panda_container, "setBackgroundColor", 0x50000000);
+
+                if (provider.getWidgetType() == WidgetType.Widget4x2) {
+                    updateViews.setViewVisibility(R.id.weather_icon_overlay, View.VISIBLE);
+                }
+            } else {
+                if (provider.getWidgetType() == WidgetType.Widget4x2) {
+                    updateViews.setViewVisibility(R.id.weather_icon_overlay, View.GONE);
+                }
             }
 
             updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.TRANSPARENT);
