@@ -401,7 +401,7 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
         if (icon == null)
             return WeatherIcons.NA;
 
-        if (icon.contains("fog")) {
+        if (icon.contains("fog") || icon.equals("fg.png") || icon.equals("nfg.png") || icon.contains("nfg") || icon.matches(".*([/]?)([n]?)fg([0-9]{0,3})((.png)?).*")) {
             if (isNight)
                 weatherIcon = WeatherIcons.NIGHT_FOG;
             else
@@ -423,50 +423,60 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
                 weatherIcon = WeatherIcons.NIGHT_FOG;
             else
                 weatherIcon = WeatherIcons.DAY_HAZE;
-        } else if (icon.contains("smoke")) {
+        } else if (icon.contains("smoke") || icon.equals("fu.png") || icon.equals("nfu.png") || icon.contains("nfu") || icon.matches(".*([/]?)([n]?)fu([0-9]{0,3})((.png)?).*")) {
             weatherIcon = WeatherIcons.SMOKE;
-        } else if (icon.contains("dust")) {
+        } else if (icon.contains("dust") || icon.equals("du.png") || icon.equals("ndu.png") || icon.contains("ndu") || icon.matches(".*([/]?)([n]?)du([0-9]{0,3})((.png)?).*")) {
             weatherIcon = WeatherIcons.DUST;
-        } else if (icon.contains("tropical_storm") || icon.contains("hurricane")) {
+        } else if (icon.contains("tropical_storm") || icon.contains("hurricane") || icon.contains("hur_warn") || icon.contains("hur_watch") || icon.contains("ts_warn") || icon.contains("ts_watch") || icon.contains("ts_nowarn")) {
             weatherIcon = WeatherIcons.HURRICANE;
         } else if (icon.contains("tsra")) {
             if (isNight)
                 weatherIcon = WeatherIcons.NIGHT_ALT_THUNDERSTORM;
             else
                 weatherIcon = WeatherIcons.DAY_THUNDERSTORM;
-        } else if (icon.contains("tornado")) {
+        } else if (icon.contains("tornado") || icon.contains("tor") || icon.equals("tor.png") || icon.equals("fc.png") || icon.equals("nfc.png") || icon.contains("nfc") || icon.matches(".*([/]?)([n]?)fc([0-9]{0,3})((.png)?).*")) {
             weatherIcon = WeatherIcons.TORNADO;
-        } else if (icon.contains("rain_showers")) {
+        } else if (icon.contains("rain_showers") || icon.contains("shra") || icon.contains("shwrs")) {
             if (isNight)
                 weatherIcon = WeatherIcons.NIGHT_ALT_SHOWERS;
             else
                 weatherIcon = WeatherIcons.DAY_SHOWERS;
-        } else if (icon.contains("fzra") || icon.contains("rain_sleet") || icon.contains("rain_snow")) {
+        } else if (icon.contains("fzra") || icon.contains("rain_sleet") || icon.contains("rain_snow") || icon.contains("ra_sn")) {
             if (isNight)
                 weatherIcon = WeatherIcons.NIGHT_ALT_RAIN_MIX;
             else
                 weatherIcon = WeatherIcons.DAY_RAIN_MIX;
-        } else if (icon.contains("sleet")) {
+        } else if (icon.contains("sleet") || icon.contains("raip")) {
             if (isNight)
                 weatherIcon = WeatherIcons.NIGHT_ALT_SLEET;
             else
                 weatherIcon = WeatherIcons.DAY_SLEET;
-        } else if (icon.contains("rain")) {
+        } else if (icon.contains("minus_ra")) {
+            if (isNight)
+                weatherIcon = WeatherIcons.NIGHT_ALT_SPRINKLE;
+            else
+                weatherIcon = WeatherIcons.DAY_SPRINKLE;
+        } else if (icon.contains("rain") || icon.equals("ra.png") || icon.equals("nra.png") || icon.contains("nra") || icon.matches(".*([/]?)([n]?)ra([0-9]{0,3})((.png)?).*")) {
             if (isNight)
                 weatherIcon = WeatherIcons.NIGHT_ALT_RAIN;
             else
                 weatherIcon = WeatherIcons.DAY_RAIN;
-        } else if (icon.contains("snow")) {
+        } else if (icon.contains("snow") || icon.equals("sn.png") || icon.equals("nsn.png") || icon.contains("nsn") || icon.matches(".*([/]?)([n]?)sn([0-9]{0,3})((.png)?).*")) {
             if (isNight)
                 weatherIcon = WeatherIcons.NIGHT_ALT_SNOW;
             else
                 weatherIcon = WeatherIcons.DAY_SNOW;
+        } else if (icon.contains("snip") || icon.equals("ip.png") || icon.equals("nip.png") || icon.contains("nip") || icon.matches(".*([/]?)([n]?)ip([0-9]{0,3})((.png)?).*")) {
+            if (isNight)
+                weatherIcon = WeatherIcons.NIGHT_ALT_HAIL;
+            else
+                weatherIcon = WeatherIcons.DAY_HAIL;
         } else if (icon.contains("wind_bkn") || icon.contains("wind_ovc") || icon.contains("wind_sct")) {
             if (isNight)
                 weatherIcon = WeatherIcons.NIGHT_ALT_CLOUDY_WINDY;
             else
                 weatherIcon = WeatherIcons.DAY_CLOUDY_WINDY;
-        } else if (icon.contains("wind")) {
+        } else if (icon.contains("wind_skc") || icon.contains("wind_few") || icon.contains("wind")) {
             if (isNight)
                 weatherIcon = WeatherIcons.WINDY;
             else
@@ -481,6 +491,11 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
                 weatherIcon = WeatherIcons.NIGHT_ALT_CLOUDY;
             else
                 weatherIcon = WeatherIcons.DAY_CLOUDY;
+        } else if (icon.contains("skc")) {
+            if (isNight)
+                weatherIcon = WeatherIcons.NIGHT_CLEAR;
+            else
+                weatherIcon = WeatherIcons.DAY_SUNNY;
         } else {
             if (isNight)
                 weatherIcon = WeatherIcons.NIGHT_CLEAR;
@@ -503,7 +518,7 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
         if (icon == null)
             return context.getString(R.string.weather_notavailable);
 
-        if (icon.contains("fog")) {
+        if (icon.contains("fog") || icon.equals("fg.png") || icon.equals("nfg.png") || icon.contains("nfg") || icon.matches(".*([/]?)([n]?)fg([0-9]{0,3})((.png)?).*")) {
             return context.getString(R.string.weather_fog);
         } else if (icon.contains("blizzard")) {
             return context.getString(R.string.weather_blizzard);
@@ -511,36 +526,38 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
             return context.getString(R.string.weather_cold);
         } else if (icon.contains("hot")) {
             return context.getString(R.string.weather_hot);
-        } else if (icon.contains("haze")) {
+        } else if (icon.contains("haze") || icon.equals("hz.png") || icon.matches(".*([/]?)hz([0-9]{0,3})((.png)?).*")) {
             return context.getString(R.string.weather_haze);
-        } else if (icon.contains("smoke")) {
+        } else if (icon.contains("smoke") || icon.equals("fu.png") || icon.equals("nfu.png") || icon.contains("nfu") || icon.matches(".*([/]?)([n]?)fu([0-9]{0,3})((.png)?).*")) {
             return context.getString(R.string.weather_smoky);
-        } else if (icon.contains("dust")) {
+        } else if (icon.contains("dust") || icon.equals("du.png") || icon.equals("ndu.png") || icon.contains("ndu") || icon.matches(".*([/]?)([n]?)du([0-9]{0,3})((.png)?).*")) {
             return context.getString(R.string.weather_dust);
-        } else if (icon.contains("tropical_storm")) {
+        } else if (icon.contains("tropical_storm") || icon.contains("ts_warn") || icon.contains("ts_watch") || icon.contains("ts_nowarn")) {
             return context.getString(R.string.weather_tropicalstorm);
         } else if (icon.contains("tsra")) {
             return context.getString(R.string.weather_tstorms);
-        } else if (icon.contains("hurricane")) {
+        } else if (icon.contains("hurricane") || icon.contains("hur_warn") || icon.contains("hur_watch")) {
             return context.getString(R.string.weather_hurricane);
-        } else if (icon.contains("tornado")) {
+        } else if (icon.contains("tornado") || icon.contains("tor") || icon.equals("tor.png") || icon.equals("fc.png") || icon.equals("nfc.png") || icon.contains("nfc") || icon.matches(".*([/]?)([n]?)fc([0-9]{0,3})((.png)?).*")) {
             return context.getString(R.string.weather_tornado);
-        } else if (icon.contains("rain_showers")) {
+        } else if (icon.contains("rain_showers") || icon.contains("shra") || icon.contains("shwrs")) {
             return context.getString(R.string.weather_rainshowers);
+        } else if (icon.contains("rain_sleet") || icon.contains("raip")) {
+            return context.getString(R.string.weather_rainandsleet);
+        } else if (icon.contains("rain_snow") || icon.contains("ra_sn")) {
+            return context.getString(R.string.weather_rainandsnow);
         } else if (icon.contains("fzra")) {
             return context.getString(R.string.weather_freezingrain);
-        } else if (icon.contains("rain_sleet")) {
-            return context.getString(R.string.weather_rainandsleet);
-        } else if (icon.contains("rain_snow")) {
-            return context.getString(R.string.weather_rainandsnow);
         } else if (icon.contains("snow_sleet")) {
             return context.getString(R.string.weather_snowandsleet);
         } else if (icon.contains("sleet")) {
             return context.getString(R.string.weather_sleet);
-        } else if (icon.contains("rain")) {
+        } else if (icon.contains("rain") || icon.equals("ra.png") || icon.equals("nra.png") || icon.contains("nra") || icon.matches(".*([/]?)([n]?)ra([0-9]{0,3})((.png)?).*")) {
             return context.getString(R.string.weather_rain);
-        } else if (icon.contains("snow")) {
+        } else if (icon.contains("snow") || icon.equals("sn.png") || icon.equals("nsn.png") || icon.contains("nsn") || icon.matches(".*([/]?)([n]?)sn([0-9]{0,3})((.png)?).*")) {
             return context.getString(R.string.weather_snow);
+        } else if (icon.contains("snip") || icon.equals("ip.png") || icon.equals("nip.png") || icon.contains("nip") || icon.matches(".*([/]?)([n]?)ip([0-9]{0,3})((.png)?).*")) {
+            return context.getString(R.string.weather_hail);
         } else if (icon.contains("wind_bkn") || icon.contains("wind_ovc") || icon.contains("wind_sct") || icon.contains("wind")) {
             return context.getString(R.string.weather_windy);
         } else if (icon.contains("ovc")) {
@@ -548,7 +565,9 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
         } else if (icon.contains("sct") || icon.contains("few")) {
             return context.getString(R.string.weather_partlycloudy);
         } else if (icon.contains("bkn")) {
-            return context.getString(R.string.weather_cloudy);
+            return context.getString(R.string.weather_partlycloudy);
+        } else if (icon.contains("skc")) {
+            return context.getString(R.string.weather_clearsky);
         } else {
             return super.getWeatherCondition(icon);
         }
