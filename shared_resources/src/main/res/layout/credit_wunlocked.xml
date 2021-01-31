@@ -19,6 +19,7 @@
         android:paddingTop="8dp"
         android:paddingRight="4dp"
         android:paddingBottom="8dp"
-        app:srcCompat="@drawable/wunlocked" />
+        app:srcCompat="@drawable/wunlocked"
+        app:tint="@color/colorOnSurface" />
 
 </LinearLayout>
