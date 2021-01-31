@@ -28,19 +28,23 @@ import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.material.slider.Slider;
 import com.google.common.collect.Collections2;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonReader;
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
-import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.RadarAnimateContainerBinding;
 import com.thewizrd.simpleweather.radar.CachingUrlTileProvider;
 import com.thewizrd.simpleweather.radar.MapTileRadarViewProvider;
+import com.thewizrd.simpleweather.stag.generated.Stag;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -70,11 +74,17 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
     private int animationPosition = 0;
     private final Handler mMainHandler;
 
+    private final Gson gson;
+
     public RainViewerViewProvider(@NonNull Context context, @NonNull ViewGroup rootView) {
         super(context, rootView);
         availableRadarFrames = new ArrayList<>();
         radarLayers = new HashMap<>();
         mMainHandler = new Handler(Looper.getMainLooper());
+
+        gson = new GsonBuilder()
+                .registerTypeAdapterFactory(new Stag.Factory())
+                .create();
     }
 
     @Override
@@ -198,7 +208,7 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
                     final InputStream stream = response.body().byteStream();
 
                     // Load data
-                    WeatherMapsResponse root = JSONParser.deserializer(stream, WeatherMapsResponse.class);
+                    WeatherMapsResponse root = gson.fromJson(new JsonReader(new InputStreamReader(stream)), WeatherMapsResponse.class);
 
                     availableRadarFrames.clear();
 

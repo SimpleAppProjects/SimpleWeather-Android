@@ -10,6 +10,7 @@ import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.locationdata.LocationData;
+import com.thewizrd.shared_resources.stag.generated.Stag;
 import com.thewizrd.shared_resources.weatherdata.Astronomy;
 import com.thewizrd.shared_resources.weatherdata.Atmosphere;
 import com.thewizrd.shared_resources.weatherdata.Condition;
@@ -20,7 +21,6 @@ import com.thewizrd.shared_resources.weatherdata.Precipitation;
 import com.thewizrd.shared_resources.weatherdata.TextForecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
-import com.vimeo.stag.generated.Stag;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,7 +37,7 @@ import java.time.ZonedDateTime;
 
 public class JSONParser {
 
-    private static Gson gson;
+    private static final Gson gson;
 
     static {
         gson = new GsonBuilder()

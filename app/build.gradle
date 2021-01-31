@@ -18,6 +18,14 @@ android {
 
         vectorDrawables.useSupportLibrary = true
 
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += [
+                        "stagGeneratedPackageName": "com.thewizrd.simpleweather.stag.generated"
+                ]
+            }
+        }
+
         // Read the API key from ./secure.properties into R.string.maps_api_key
         def secureProps = new Properties()
         if (file("../secure.properties").exists()) {

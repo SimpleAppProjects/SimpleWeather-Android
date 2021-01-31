@@ -19,7 +19,8 @@ android {
                 arguments += [
                         "room.schemaLocation": "$projectDir/schemas".toString(),
                         "room.incremental": "true",
-                        "room.expandProjection": "true"
+                        "room.expandProjection": "true",
+                        "stagGeneratedPackageName": "com.thewizrd.shared_resources.stag.generated"
                 ]
             }
         }
