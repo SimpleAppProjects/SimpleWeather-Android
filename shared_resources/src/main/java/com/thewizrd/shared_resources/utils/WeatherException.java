@@ -7,7 +7,7 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 
 public class WeatherException extends Exception {
     private final WeatherUtils.ErrorStatus errorStatus;
-    private Context context;
+    private final Context context;
 
     public WeatherException(WeatherUtils.ErrorStatus errorStatus) {
         this.errorStatus = errorStatus;

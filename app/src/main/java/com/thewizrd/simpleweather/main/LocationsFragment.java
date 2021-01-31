@@ -239,32 +239,32 @@ public class LocationsFragment extends ToolbarFragment
                     case NOWEATHER:
                         // Show error message and prompt to refresh
                         // Only warn once
-                        if (!mErrorCounter[wEx.getErrorStatus().getValue()]) {
+                        if (!mErrorCounter[wEx.getErrorStatus().ordinal()]) {
                             Snackbar snackbar = Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG);
                             snackbar.setAction(R.string.action_retry, new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     // Reset counter to allow retry
-                                    mErrorCounter[wEx.getErrorStatus().getValue()] = false;
+                                    mErrorCounter[wEx.getErrorStatus().ordinal()] = false;
                                     refreshLocations();
                                 }
                             });
                             showSnackbar(snackbar, null);
-                            mErrorCounter[wEx.getErrorStatus().getValue()] = true;
+                            mErrorCounter[wEx.getErrorStatus().ordinal()] = true;
                         }
                         break;
                     case QUERYNOTFOUND:
-                        if (!mErrorCounter[wEx.getErrorStatus().getValue()] && WeatherAPI.NWS.equals(Settings.getAPI())) {
+                        if (!mErrorCounter[wEx.getErrorStatus().ordinal()] && WeatherAPI.NWS.equals(Settings.getAPI())) {
                             showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.LONG), null);
-                            mErrorCounter[wEx.getErrorStatus().getValue()] = true;
+                            mErrorCounter[wEx.getErrorStatus().ordinal()] = true;
                             break;
                         }
                     default:
                         // Show error message
                         // Only warn once
-                        if (!mErrorCounter[wEx.getErrorStatus().getValue()]) {
+                        if (!mErrorCounter[wEx.getErrorStatus().ordinal()]) {
                             showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG), null);
-                            mErrorCounter[wEx.getErrorStatus().getValue()] = true;
+                            mErrorCounter[wEx.getErrorStatus().ordinal()] = true;
                         }
                         break;
                 }

@@ -3,7 +3,6 @@ package com.thewizrd.shared_resources.utils;
 import android.content.Context;
 import android.location.Location;
 import android.text.format.DateFormat;
-import android.util.SparseArray;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
@@ -715,33 +714,11 @@ public class WeatherUtils {
     }
 
     public enum ErrorStatus {
-        UNKNOWN(-1),
-        SUCCESS(0),
-        NOWEATHER(1),
-        NETWORKERROR(2),
-        INVALIDAPIKEY(3),
-        QUERYNOTFOUND(4);
-
-        private final int value;
-
-        public int getValue() {
-            return value;
-        }
-
-        private ErrorStatus(int value) {
-            this.value = value;
-        }
-
-        private static SparseArray<ErrorStatus> map = new SparseArray<>();
-
-        static {
-            for (ErrorStatus errorStatus : values()) {
-                map.put(errorStatus.value, errorStatus);
-            }
-        }
-
-        public static ErrorStatus valueOf(int value) {
-            return map.get(value);
-        }
+        UNKNOWN,
+        SUCCESS,
+        NOWEATHER,
+        NETWORKERROR,
+        INVALIDAPIKEY,
+        QUERYNOTFOUND;
     }
 }
