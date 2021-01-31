@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.radar;
+package com.thewizrd.simpleweather.radar.openweather;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -22,6 +22,8 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.radar.CachingUrlTileProvider;
+import com.thewizrd.simpleweather.radar.MapTileRadarViewProvider;
 
 import java.util.Locale;
 

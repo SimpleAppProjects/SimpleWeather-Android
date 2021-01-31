@@ -12,6 +12,9 @@ import androidx.core.util.ObjectsCompat;
 
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.simpleweather.App;
+import com.thewizrd.simpleweather.radar.nullschool.EarthWindMapViewProvider;
+import com.thewizrd.simpleweather.radar.openweather.OWMRadarViewProvider;
+import com.thewizrd.simpleweather.radar.rainviewer.RainViewerViewProvider;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -32,9 +35,6 @@ public final class RadarProvider {
     @Retention(RetentionPolicy.CLASS)
     public @interface RadarProviders {
     }
-
-    public static final String EARTHWINDMAP_DEFAULT_URL = "https://earth.nullschool.net/#current/wind/surface/level/overlay=precip_3hr";
-    public static final String EARTHWINDMAP_URL_FORMAT = EARTHWINDMAP_DEFAULT_URL + "/orthographic=%s,%s,3000";
 
     public static List<ProviderEntry> RadarProviders = asList(
             new ProviderEntry("EarthWindMap Project", EARTHWINDMAP,

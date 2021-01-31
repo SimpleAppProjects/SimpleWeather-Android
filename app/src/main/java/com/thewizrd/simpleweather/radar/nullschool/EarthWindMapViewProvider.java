@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.radar;
+package com.thewizrd.simpleweather.radar.nullschool;
 
 import android.content.Context;
 import android.os.Build;
@@ -18,11 +18,15 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.simpleweather.helpers.RadarWebClient;
 import com.thewizrd.simpleweather.helpers.WebViewHelper;
+import com.thewizrd.simpleweather.radar.RadarViewProvider;
 
 import java.util.Locale;
 
 @RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
 public class EarthWindMapViewProvider extends RadarViewProvider {
+    private static final String EARTHWINDMAP_DEFAULT_URL = "https://earth.nullschool.net/#current/wind/surface/level/overlay=precip_3hr";
+    private static final String EARTHWINDMAP_URL_FORMAT = EARTHWINDMAP_DEFAULT_URL + "/orthographic=%s,%s,3000";
+
     private String radarURL;
 
     public EarthWindMapViewProvider(@NonNull Context context, @NonNull ViewGroup rootView) {
@@ -31,7 +35,7 @@ public class EarthWindMapViewProvider extends RadarViewProvider {
 
     @Override
     public void updateCoordinates(@NonNull WeatherUtils.Coordinate coordinates, boolean updateView) {
-        radarURL = String.format(Locale.ROOT, RadarProvider.EARTHWINDMAP_URL_FORMAT, coordinates.getLongitude(), coordinates.getLatitude());
+        radarURL = String.format(Locale.ROOT, EARTHWINDMAP_URL_FORMAT, coordinates.getLongitude(), coordinates.getLatitude());
         if (updateView) updateRadarView();
     }
 
@@ -58,7 +62,7 @@ public class EarthWindMapViewProvider extends RadarViewProvider {
         if (!StringUtils.isNullOrWhitespace(radarURL)) {
             WebViewHelper.loadUrl(webView, radarURL);
         } else {
-            WebViewHelper.loadUrl(webView, RadarProvider.EARTHWINDMAP_DEFAULT_URL);
+            WebViewHelper.loadUrl(webView, EARTHWINDMAP_DEFAULT_URL);
         }
     }
 
@@ -102,7 +106,7 @@ public class EarthWindMapViewProvider extends RadarViewProvider {
                 if (radarURL != null) {
                     WebViewHelper.forceReload(webView, radarURL);
                 } else {
-                    WebViewHelper.forceReload(webView, RadarProvider.EARTHWINDMAP_DEFAULT_URL);
+                    WebViewHelper.forceReload(webView, EARTHWINDMAP_DEFAULT_URL);
                 }
             }
         }

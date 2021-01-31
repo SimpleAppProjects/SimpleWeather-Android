@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.radar;
+package com.thewizrd.simpleweather.radar.rainviewer;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -36,6 +36,8 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.RadarAnimateContainerBinding;
+import com.thewizrd.simpleweather.radar.CachingUrlTileProvider;
+import com.thewizrd.simpleweather.radar.MapTileRadarViewProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
