@@ -27,7 +27,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.material.slider.Slider;
-import com.google.gson.reflect.TypeToken;
+import com.google.common.collect.Collections2;
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
@@ -41,7 +41,6 @@ import com.thewizrd.simpleweather.radar.MapTileRadarViewProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -62,7 +61,7 @@ import okhttp3.Response;
 
 @RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
 public class RainViewerViewProvider extends MapTileRadarViewProvider {
-    private final List<Long> availableTimestamps;
+    private final List<RadarFrame> availableRadarFrames;
     private final Map<Long, TileOverlay> radarLayers;
 
     private GoogleMap googleMap;
@@ -73,7 +72,7 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
 
     public RainViewerViewProvider(@NonNull Context context, @NonNull ViewGroup rootView) {
         super(context, rootView);
-        availableTimestamps = new ArrayList<>();
+        availableRadarFrames = new ArrayList<>();
         radarLayers = new HashMap<>();
         mMainHandler = new Handler(Looper.getMainLooper());
     }
@@ -113,13 +112,20 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        // Remove animation callbacks
+        radarContainerBinding.playButton.setChecked(false);
+    }
+
+    @Override
     public void onViewCreated(WeatherUtils.Coordinate coordinates) {
         super.onViewCreated(coordinates);
     }
 
     @Override
     public void updateRadarView() {
-        radarContainerBinding.radarToolbar.setVisibility(/*interactionsEnabled() ? View.VISIBLE : */View.GONE);
+        radarContainerBinding.radarToolbar.setVisibility(interactionsEnabled() ? View.VISIBLE : View.GONE);
         getMapView().getMapAsync(this);
     }
 
@@ -168,15 +174,15 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
         UiSettings mapUISettings = googleMap.getUiSettings();
         mapUISettings.setScrollGesturesEnabled(interactionsEnabled());
 
-        getTimeStamps();
+        getRadarFrames();
     }
 
-    private void getTimeStamps() {
+    private void getRadarFrames() {
         OkHttpClient httpClient = SimpleLibrary.getInstance().getHttpClient();
 
         Request request = new Request.Builder()
                 .get()
-                .url(HttpUrl.get("https://api.rainviewer.com/public/maps.json"))
+                .url(HttpUrl.get("https://api.rainviewer.com/public/weather-maps.json"))
                 .build();
 
         // Connect to webstream
@@ -192,23 +198,31 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
                     final InputStream stream = response.body().byteStream();
 
                     // Load data
-                    Type arrListType = new TypeToken<ArrayList<Long>>() {
-                    }.getType();
-                    List<Long> root = JSONParser.deserializer(stream, arrListType);
+                    WeatherMapsResponse root = JSONParser.deserializer(stream, WeatherMapsResponse.class);
 
-                    availableTimestamps.clear();
+                    availableRadarFrames.clear();
 
-                    if (root != null && !root.isEmpty()) {
-                        root.removeAll(Collections.singleton(null));
-                        availableTimestamps.addAll(root);
+                    if (root != null && root.getRadar() != null) {
+                        if (root.getRadar().getPast() != null && !root.getRadar().getPast().isEmpty()) {
+                            root.getRadar().getPast().removeAll(Collections.singleton(null));
+                            availableRadarFrames.addAll(Collections2.transform(root.getRadar().getPast(), input ->
+                                    new RadarFrame(input.getTime(), root.getHost(), input.getPath()))
+                            );
+                        }
+
+                        if (root.getRadar().getNowcast() != null && !root.getRadar().getNowcast().isEmpty()) {
+                            root.getRadar().getNowcast().removeAll(Collections.singleton(null));
+                            availableRadarFrames.addAll(Collections2.transform(root.getRadar().getNowcast(), input ->
+                                    new RadarFrame(input.getTime(), root.getHost(), input.getPath()))
+                            );
+                        }
                     }
 
+                    // Remove already added tile overlays
                     for (Long key : radarLayers.keySet()) {
-                        if (!availableTimestamps.contains(key)) {
-                            TileOverlay overlay = radarLayers.remove(key);
-                            if (overlay != null) {
-                                overlay.remove();
-                            }
+                        TileOverlay overlay = radarLayers.remove(key);
+                        if (overlay != null) {
+                            overlay.remove();
                         }
                     }
 
@@ -232,17 +246,17 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
         });
     }
 
-    private void addLayer(long ts) {
-        if (!radarLayers.containsKey(ts)) {
+    private void addLayer(@NonNull RadarFrame mapFrame) {
+        if (!radarLayers.containsKey(mapFrame.getTimeStamp())) {
             TileOverlay overlay = googleMap.addTileOverlay(
-                    new TileOverlayOptions().tileProvider(new RainViewTileProvider(getContext(), ts))
+                    new TileOverlayOptions().tileProvider(new RainViewTileProvider(getContext(), mapFrame))
                             .transparency(1f));
-            radarLayers.put(ts, overlay);
+            radarLayers.put(mapFrame.getTimeStamp(), overlay);
         }
 
         radarContainerBinding.animationSeekbar.setStepSize(1);
         radarContainerBinding.animationSeekbar.setValueFrom(0);
-        radarContainerBinding.animationSeekbar.setValueTo(availableTimestamps.size() - 1);
+        radarContainerBinding.animationSeekbar.setValueTo(availableRadarFrames.size() - 1);
     }
 
     private void changeRadarPosition(int position) {
@@ -250,21 +264,24 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
     }
 
     private void changeRadarPosition(int position, boolean preloadOnly) {
-        while (position >= availableTimestamps.size()) {
-            position -= availableTimestamps.size();
+        while (position >= availableRadarFrames.size()) {
+            position -= availableRadarFrames.size();
         }
         while (position < 0) {
-            position += availableTimestamps.size();
+            position += availableRadarFrames.size();
         }
 
-        if (availableTimestamps.isEmpty() || animationPosition >= availableTimestamps.size() || position >= availableTimestamps.size()) {
+        if (availableRadarFrames.isEmpty() || animationPosition >= availableRadarFrames.size() || position >= availableRadarFrames.size()) {
             return;
         }
 
-        long currentTimeStamp = availableTimestamps.get(animationPosition);
-        long nextTimeStamp = availableTimestamps.get(position);
+        final RadarFrame currentFrame = availableRadarFrames.get(animationPosition);
+        long currentTimeStamp = currentFrame.getTimeStamp();
 
-        addLayer(nextTimeStamp);
+        final RadarFrame nextFrame = availableRadarFrames.get(position);
+        long nextTimeStamp = nextFrame.getTimeStamp();
+
+        addLayer(nextFrame);
 
         if (preloadOnly) {
             return;
@@ -284,17 +301,17 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
             nextOverlay.setTransparency(0);
         }
 
-        updateToolbar(position, nextTimeStamp);
+        updateToolbar(position, nextFrame);
     }
 
     private void updateToolbar(int position) {
-        updateToolbar(position, availableTimestamps.get(position));
+        updateToolbar(position, availableRadarFrames.get(position));
     }
 
-    private void updateToolbar(int position, long timeStamp) {
+    private void updateToolbar(int position, @NonNull RadarFrame mapFrame) {
         radarContainerBinding.animationSeekbar.setValue(position);
 
-        ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(timeStamp), ZoneOffset.systemDefault());
+        ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(mapFrame.getTimeStamp()), ZoneOffset.systemDefault());
         DateTimeFormatter fmt;
         if (DateFormat.is24HourFormat(getContext())) {
             fmt = DateTimeUtils.ofPatternForUserLocale(DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_DAYOFWEEK_AND_24HR));
@@ -330,11 +347,11 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
     };
 
     private static class RainViewTileProvider extends CachingUrlTileProvider {
-        private final long timestamp;
+        private final RadarFrame mapFrame;
 
-        public RainViewTileProvider(@NonNull Context context, long ts) {
+        public RainViewTileProvider(@NonNull Context context, @NonNull RadarFrame mapFrame) {
             super(context, 256, 256);
-            this.timestamp = ts;
+            this.mapFrame = mapFrame;
         }
 
         @Override
@@ -343,10 +360,9 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
                 return null;
             }
 
-            if (timestamp > 0) {
+            if (mapFrame != null) {
                 /* Define the URL pattern for the tile images */
-                String s = String.format(Locale.ROOT, "https://tilecache.rainviewer.com/v2/radar/%d/256/%d/%d/%d/1/1_0.png", timestamp, zoom, x, y);
-                return s;
+                return String.format(Locale.ROOT, "%s%s/256/%d/%d/%d/1/1_1.png", mapFrame.getHost(), mapFrame.getPath(), zoom, x, y);
             }
 
             return null;
