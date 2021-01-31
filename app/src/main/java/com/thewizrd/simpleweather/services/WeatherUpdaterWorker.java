@@ -46,6 +46,7 @@ import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
@@ -192,7 +193,8 @@ public class WeatherUpdaterWorker extends ListenableWorker {
                 ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
         // Request work to be in foreground (only for Oreo+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        AppState appState = App.getInstance().getAppState();
+        if (appState != AppState.FOREGROUND && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     int foregroundServiceTypeFlags = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC;

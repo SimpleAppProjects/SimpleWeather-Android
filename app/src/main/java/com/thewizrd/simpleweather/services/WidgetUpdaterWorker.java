@@ -24,8 +24,10 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationBroadcastReceiver;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker;
@@ -141,7 +143,8 @@ public class WidgetUpdaterWorker extends Worker {
     @Override
     public Result doWork() {
         // Request work to be in foreground (only for Oreo+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        AppState appState = App.getInstance().getAppState();
+        if (appState != AppState.FOREGROUND && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     setForegroundAsync(new ForegroundInfo(JOB_ID, getForegroundNotification(mContext), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)).get();
