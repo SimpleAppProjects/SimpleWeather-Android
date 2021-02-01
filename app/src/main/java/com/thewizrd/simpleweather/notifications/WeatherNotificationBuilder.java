@@ -65,7 +65,9 @@ public class WeatherNotificationBuilder {
         // Get extras
         DetailItemViewModel chanceModel = null, windModel = null, feelsLikeModel = null, humidityModel = null, popRainModel = null, popSnowModel = null;
         for (DetailItemViewModel input : viewModel.getWeatherDetails()) {
-            if (input.getDetailsType() == WeatherDetailsType.POPCHANCE || input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS) {
+            if (input.getDetailsType() == WeatherDetailsType.POPCHANCE) {
+                chanceModel = input;
+            } else if (chanceModel == null && input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS) {
                 chanceModel = input;
             } else if (input.getDetailsType() == WeatherDetailsType.WINDSPEED) {
                 windModel = input;
