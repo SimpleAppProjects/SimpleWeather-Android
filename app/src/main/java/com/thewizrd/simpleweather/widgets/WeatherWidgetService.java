@@ -1084,7 +1084,9 @@ public class WeatherWidgetService extends SafeJobIntentService {
             DetailItemViewModel windModel = null;
 
             for (DetailItemViewModel input : weather.getWeatherDetails()) {
-                if (input != null && (input.getDetailsType() == WeatherDetailsType.POPCHANCE || input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS)) {
+                if (input != null && input.getDetailsType() == WeatherDetailsType.POPCHANCE) {
+                    chanceModel = input;
+                } else if (chanceModel == null && input != null && input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS) {
                     chanceModel = input;
                 } else if (input != null && input.getDetailsType() == WeatherDetailsType.WINDSPEED) {
                     windModel = input;
@@ -1335,7 +1337,9 @@ public class WeatherWidgetService extends SafeJobIntentService {
             DetailItemViewModel windModel = null;
 
             for (DetailItemViewModel input : weather.getWeatherDetails()) {
-                if (input != null && (input.getDetailsType() == WeatherDetailsType.POPCHANCE || input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS)) {
+                if (input != null && input.getDetailsType() == WeatherDetailsType.POPCHANCE) {
+                    chanceModel = input;
+                } else if (chanceModel == null && input != null && input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS) {
                     chanceModel = input;
                 } else if (input != null && input.getDetailsType() == WeatherDetailsType.WINDSPEED) {
                     windModel = input;
