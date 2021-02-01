@@ -133,4 +133,7 @@
         android:id="@+id/iconsFragment"
         android:name="com.thewizrd.simpleweather.preferences.SettingsFragment$IconsFragment"
         android:label="IconsFragment" />
+    <action
+        android:id="@+id/action_global_weatherListFragment"
+        app:destination="@id/weatherListFragment" />
 </navigation>

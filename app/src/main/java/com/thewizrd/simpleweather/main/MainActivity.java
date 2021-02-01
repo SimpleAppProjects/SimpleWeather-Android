@@ -207,8 +207,8 @@ public class MainActivity extends UserLocaleActivity
             NavDestination destination = mNavController.getCurrentDestination();
             if (destination != null && destination.getId() != R.id.weatherListFragment) {
                 LocationData locationData = Settings.getHomeData();
-                WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
-                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                NavGraphDirections.ActionGlobalWeatherListFragment args =
+                        WeatherListFragmentDirections.actionGlobalWeatherListFragment()
                                 .setData(JSONParser.serializer(locationData, LocationData.class))
                                 .setWeatherListType(WeatherListType.ALERTS);
                 mNavController.navigate(args);
