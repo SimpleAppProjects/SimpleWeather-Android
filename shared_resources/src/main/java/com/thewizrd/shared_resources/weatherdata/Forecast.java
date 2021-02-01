@@ -41,6 +41,24 @@ public class Forecast extends BaseForecast {
         // Needed for deserialization
     }
 
+    public Forecast(com.thewizrd.shared_resources.weatherdata.weatheryahoo.ForecastsItem forecast) {
+        WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.YAHOO);
+        Locale locale = LocaleUtils.getLocale();
+
+        if (locale.toString().equals("en") || locale.toString().startsWith("en_") || locale.equals(Locale.ROOT)) {
+            condition = forecast.getText();
+        } else {
+            condition = provider.getWeatherCondition(Integer.toString(forecast.getCode()));
+        }
+        icon = provider.getWeatherIcon(Integer.toString(forecast.getCode()));
+
+        date = LocalDateTime.ofEpochSecond(forecast.getDate(), 0, ZoneOffset.UTC);
+        highF = (float) forecast.getHigh();
+        highC = ConversionMethods.FtoC(highF);
+        lowF = (float) forecast.getLow();
+        lowC = ConversionMethods.FtoC(lowF);
+    }
+
     public Forecast(com.thewizrd.shared_resources.weatherdata.openweather.ListItem forecast) {
         date = LocalDateTime.ofEpochSecond(forecast.getDt(), 0, ZoneOffset.UTC);
         highF = ConversionMethods.KtoF(forecast.getMain().getTempMax());

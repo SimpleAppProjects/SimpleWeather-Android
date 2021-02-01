@@ -47,6 +47,15 @@ public class Atmosphere extends CustomJsonObject {
         // Needed for deserialization
     }
 
+    public Atmosphere(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Atmosphere atmosphere) {
+        humidity = atmosphere.getHumidity();
+        pressureIn = atmosphere.getPressure();
+        pressureMb = ConversionMethods.inHgToMB(pressureIn);
+        pressureTrend = Integer.toString(atmosphere.getRising());
+        visibilityMi = atmosphere.getVisibility();
+        visibilityKm = ConversionMethods.miToKm(visibilityMi);
+    }
+
     public Atmosphere(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
         humidity = root.getMain().getHumidity();
         // 1hPa = 1mbar

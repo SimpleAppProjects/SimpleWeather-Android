@@ -45,6 +45,35 @@ public class Astronomy extends CustomJsonObject {
         // Needed for deserialization
     }
 
+    public Astronomy(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Astronomy astronomy) {
+        LocalDate now = LocalDate.now();
+
+        try {
+            sunrise = LocalTime.parse(astronomy.getSunrise().toUpperCase(), DateTimeFormatter.ofPattern("h:m a", Locale.ROOT)).atDate(now);
+        } catch (Exception e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
+        try {
+            sunset = LocalTime.parse(astronomy.getSunset().toUpperCase(), DateTimeFormatter.ofPattern("h:m a", Locale.ROOT)).atDate(now);
+        } catch (Exception e) {
+            Logger.writeLine(Log.ERROR, e);
+        }
+
+        // If the sun won't set/rise, set time to the future
+        if (sunrise == null) {
+            sunrise = LocalDateTime.now().plusYears(1).minusNanos(1);
+        }
+        if (sunset == null) {
+            sunset = LocalDateTime.now().plusYears(1).minusNanos(1);
+        }
+        if (moonrise == null) {
+            moonrise = DateTimeUtils.getLocalDateTimeMIN();
+        }
+        if (moonset == null) {
+            moonset = DateTimeUtils.getLocalDateTimeMIN();
+        }
+    }
+
     public Astronomy(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
         try {
             sunrise = LocalDateTime.ofEpochSecond(root.getSys().getSunrise(), 0, ZoneOffset.UTC);

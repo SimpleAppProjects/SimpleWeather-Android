@@ -72,6 +72,42 @@ public class Weather extends CustomJsonObject {
         // Needed for deserialization
     }
 
+    public Weather(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Rootobject root) {
+        location = new Location(root.getLocation());
+        updateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(root.getCurrentObservation().getPubDate()), ZoneOffset.UTC);
+        forecast = new ArrayList<>(root.getForecasts().size());
+        for (int i = 0; i < root.getForecasts().size(); i++) {
+            forecast.add(new Forecast(root.getForecasts().get(i)));
+        }
+        condition = new Condition(root.getCurrentObservation());
+        atmosphere = new Atmosphere(root.getCurrentObservation().getAtmosphere());
+        astronomy = new Astronomy(root.getCurrentObservation().getAstronomy());
+        ttl = 120;
+
+        // Set feelslike temp
+        if (condition.getTempF() != null && condition.getTempF() > 80 && atmosphere.getHumidity() != null) {
+            condition.setFeelslikeF(WeatherUtils.calculateHeatIndex(condition.getTempF(), atmosphere.getHumidity()));
+            condition.setFeelslikeC(ConversionMethods.FtoC(condition.getFeelslikeF()));
+        }
+
+        if ((condition.getHighF() == null || condition.getHighC() == null) && forecast.size() > 0) {
+            condition.setHighF(forecast.get(0).getHighF());
+            condition.setHighC(forecast.get(0).getHighC());
+            condition.setLowF(forecast.get(0).getLowF());
+            condition.setLowC(forecast.get(0).getLowC());
+        }
+
+        if (atmosphere.getDewpointC() == null && condition.getTempC() != null && atmosphere.getHumidity() != null &&
+                condition.getTempC() > 0 && condition.getTempC() < 60 && atmosphere.getHumidity() > 1) {
+            atmosphere.setDewpointC((float) Math.round(WeatherUtils.calculateDewpointC(condition.getTempC(), atmosphere.getHumidity())));
+            atmosphere.setDewpointF((float) Math.round(ConversionMethods.CtoF(atmosphere.getDewpointC())));
+        }
+
+        condition.setObservationTime(updateTime);
+
+        source = WeatherAPI.YAHOO;
+    }
+
     public Weather(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject currRoot,
                    com.thewizrd.shared_resources.weatherdata.openweather.ForecastRootobject foreRoot) {
         location = new Location(foreRoot);

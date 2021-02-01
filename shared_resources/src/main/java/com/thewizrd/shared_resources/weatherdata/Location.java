@@ -39,6 +39,14 @@ public class Location extends CustomJsonObject {
         tzLong = "UTC";
     }
 
+    public Location(com.thewizrd.shared_resources.weatherdata.weatheryahoo.Location location) {
+        // Use location name from location provider
+        name = null;
+        latitude = (float) location.getLat();
+        longitude = (float) location.getJsonMemberLong();
+        tzLong = location.getTimezoneId();
+    }
+
     public Location(com.thewizrd.shared_resources.weatherdata.openweather.ForecastRootobject root) {
         // Use location name from location provider
         name = null;

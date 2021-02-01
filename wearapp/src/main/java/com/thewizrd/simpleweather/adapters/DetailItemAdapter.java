@@ -144,7 +144,9 @@ public class DetailItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             String creditPrefix = SimpleLibrary.getInstance().getAppContext().getString(R.string.credit_prefix);
             String weatherAPI = WeatherManager.getInstance().getWeatherAPI();
 
-            if (WeatherAPI.OPENWEATHERMAP.equals(weatherAPI))
+            if (WeatherAPI.YAHOO.equals(weatherAPI))
+                header.setText(String.format("%s Yahoo!", creditPrefix));
+            else if (WeatherAPI.OPENWEATHERMAP.equals(weatherAPI))
                 header.setText(String.format("%s OpenWeatherMap", creditPrefix));
             else if (WeatherAPI.METNO.equals(weatherAPI))
                 header.setText(String.format("%s MET Norway", creditPrefix));

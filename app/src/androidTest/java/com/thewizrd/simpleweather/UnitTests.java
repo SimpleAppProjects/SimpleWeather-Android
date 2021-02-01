@@ -116,6 +116,13 @@ public class UnitTests {
     }
 
     @Test
+    public void getYahooWeather() throws WeatherException {
+        WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.YAHOO);
+        Weather weather = getWeather(provider);
+        Assert.assertTrue(weather != null && weather.isValid());
+    }
+
+    @Test
     public void getMetNoWeather() throws WeatherException {
         WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.METNO);
         Weather weather = getWeather(provider);
