@@ -235,19 +235,6 @@ public class SetupLocationFragment extends CustomFragment {
         // Reset focus
         binding.getRoot().requestFocus();
 
-        // Verify provider key
-        if (wm.isKeyRequired() && StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
-            // If (internal) key doesn't exist, fallback to WeatherUnlocked
-            Settings.setAPI(WeatherAPI.WEATHERUNLOCKED);
-            wm.updateAPI();
-            Settings.setPersonalKey(true);
-            Settings.setKeyVerified(false);
-        } else {
-            // If key exists, go ahead
-            Settings.setPersonalKey(false);
-            Settings.setKeyVerified(true);
-        }
-
         return binding.getRoot();
     }
 

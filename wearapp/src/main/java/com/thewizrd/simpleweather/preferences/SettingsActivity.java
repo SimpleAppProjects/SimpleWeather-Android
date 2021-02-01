@@ -38,6 +38,7 @@ import androidx.wear.widget.SwipeDismissFrameLayout;
 import com.google.android.wearable.intent.RemoteIntent;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
+import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
@@ -206,27 +207,15 @@ public class SettingsActivity extends WearableListenerActivity {
 
             if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && WeatherManager.isKeyRequired(providerPref.getValue())) {
                 // Fallback to supported weather provider
-                WeatherManager wm = WeatherManager.getInstance();
-                providerPref.setValue(WeatherAPI.WEATHERUNLOCKED);
+                final String API = RemoteConfig.getDefaultWeatherProvider();
+                providerPref.setValue(API);
                 providerPref.getOnPreferenceChangeListener()
-                        .onPreferenceChange(providerPref, WeatherAPI.WEATHERUNLOCKED);
-                Settings.setAPI(WeatherAPI.WEATHERUNLOCKED);
-                wm.updateAPI();
+                        .onPreferenceChange(providerPref, API);
+                Settings.setAPI(API);
+                WeatherManager.getInstance().updateAPI();
 
-                if (wm.isKeyRequired() && StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
-                    // If (internal) key doesn't exist, fallback to WeatherUnlocked
-                    providerPref.setValue(WeatherAPI.WEATHERUNLOCKED);
-                    providerPref.getOnPreferenceChangeListener()
-                            .onPreferenceChange(providerPref, WeatherAPI.WEATHERUNLOCKED);
-                    Settings.setAPI(WeatherAPI.WEATHERUNLOCKED);
-                    wm.updateAPI();
-                    Settings.setPersonalKey(true);
-                    Settings.setKeyVerified(false);
-                } else {
-                    // If key exists, go ahead
-                    Settings.setPersonalKey(false);
-                    Settings.setKeyVerified(true);
-                }
+                Settings.setPersonalKey(false);
+                Settings.setKeyVerified(true);
             }
 
             // Unregister listener

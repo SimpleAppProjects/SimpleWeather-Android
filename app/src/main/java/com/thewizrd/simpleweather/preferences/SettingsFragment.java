@@ -53,6 +53,7 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;
+import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
@@ -219,25 +220,14 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
         if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && WeatherManager.isKeyRequired(providerPref.getValue())) {
             // Fallback to supported weather provider
-            WeatherManager wm = WeatherManager.getInstance();
-            providerPref.setValue(WeatherAPI.WEATHERUNLOCKED);
-            providerPref.callChangeListener(WeatherAPI.WEATHERUNLOCKED);
-            Settings.setAPI(WeatherAPI.WEATHERUNLOCKED);
-            wm.updateAPI();
+            final String API = RemoteConfig.getDefaultWeatherProvider();
+            providerPref.setValue(API);
+            providerPref.callChangeListener(API);
+            Settings.setAPI(API);
+            WeatherManager.getInstance().updateAPI();
 
-            if (wm.isKeyRequired() && StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
-                // If (internal) key doesn't exist, fallback to WeatherUnlocked
-                providerPref.setValue(WeatherAPI.WEATHERUNLOCKED);
-                providerPref.callChangeListener(WeatherAPI.WEATHERUNLOCKED);
-                Settings.setAPI(WeatherAPI.WEATHERUNLOCKED);
-                wm.updateAPI();
-                Settings.setPersonalKey(true);
-                Settings.setKeyVerified(false);
-            } else {
-                // If key exists, go ahead
-                Settings.setPersonalKey(false);
-                Settings.setKeyVerified(true);
-            }
+            Settings.setPersonalKey(false);
+            Settings.setKeyVerified(true);
         }
 
         // Unregister listener

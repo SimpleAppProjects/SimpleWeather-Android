@@ -74,6 +74,7 @@ public final class RemoteConfig {
         return false;
     }
 
+    @WeatherAPI.WeatherAPIs
     public static String getDefaultWeatherProvider() {
         return FirebaseRemoteConfig.getInstance().getString(DEFAULT_WEATHERPROVIDER_KEY);
     }

@@ -105,21 +105,6 @@ public class SetupFragment extends CustomFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (!Settings.isWeatherLoaded()) {
-            // Verify provider key
-            if (wm.isKeyRequired() && StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
-                // If (internal) key doesn't exist, fallback to Yahoo
-                Settings.setAPI(WeatherAPI.WEATHERUNLOCKED);
-                wm.updateAPI();
-                Settings.setPersonalKey(true);
-                Settings.setKeyVerified(false);
-            } else {
-                // If key exists, go ahead
-                Settings.setPersonalKey(false);
-                Settings.setKeyVerified(true);
-            }
-        }
-
         if (WearableHelper.isGooglePlayServicesInstalled()) {
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
             mLocCallback = new LocationCallback() {
