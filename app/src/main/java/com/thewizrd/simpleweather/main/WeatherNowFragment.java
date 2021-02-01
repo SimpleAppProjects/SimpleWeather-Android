@@ -988,31 +988,8 @@ public class WeatherNowFragment extends WindowColorFragment
         binding.refreshLayout.setColorSchemeColors(ContextUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
 
         // Resize necessary views
-        if (conditionPanelBinding != null) {
-            conditionPanelBinding.conditionPanel.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    if (isViewAlive()) {
-                        conditionPanelBinding.conditionPanel.getViewTreeObserver().removeOnPreDrawListener(this);
-                        adjustConditionPanelLayout();
-                    }
-                    return true;
-                }
-            });
-        }
-
-        if (detailsContainerBinding != null) {
-            detailsContainerBinding.detailsContainer.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    if (isViewAlive()) {
-                        detailsContainerBinding.detailsContainer.getViewTreeObserver().removeOnPreDrawListener(this);
-                        adjustDetailsLayout();
-                    }
-                    return true;
-                }
-            });
-        }
+        adjustConditionPanelLayout();
+        adjustDetailsLayout();
 
         String backgroundUri = weatherView.getImageData() != null ? weatherView.getImageData().getImageURI() : null;
         loadBackgroundImage(backgroundUri, true);
@@ -1316,12 +1293,13 @@ public class WeatherNowFragment extends WindowColorFragment
         if (!isViewAlive()) return;
 
         if (conditionPanelBinding != null) {
-            conditionPanelBinding.conditionPanel.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            conditionPanelBinding.conditionPanel.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                 final int imageLandSize = (int) ContextUtils.dpToPx(conditionPanelBinding.conditionPanel.getContext(), 560);
+
                 @Override
-                public void onGlobalLayout() {
+                public boolean onPreDraw() {
                     if (isViewAlive()) {
-                        conditionPanelBinding.conditionPanel.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        conditionPanelBinding.conditionPanel.getViewTreeObserver().removeOnPreDrawListener(this);
 
                         final Context context = conditionPanelBinding.conditionPanel.getContext();
 
@@ -1345,6 +1323,7 @@ public class WeatherNowFragment extends WindowColorFragment
 
                         conditionPanelBinding.imageViewContainer.setLayoutParams(containerLP);
                     }
+                    return true;
                 }
             });
         }
@@ -1354,11 +1333,11 @@ public class WeatherNowFragment extends WindowColorFragment
         if (!isViewAlive() || detailsContainerBinding == null || binding.scrollView.getChildCount() != 1)
             return;
 
-        detailsContainerBinding.detailsContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        detailsContainerBinding.detailsContainer.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
-            public void onGlobalLayout() {
+            public boolean onPreDraw() {
                 if (isViewAlive()) {
-                    detailsContainerBinding.detailsContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    detailsContainerBinding.detailsContainer.getViewTreeObserver().removeOnPreDrawListener(this);
 
                     int pxWidth = binding.scrollView.getChildAt(0).getMeasuredWidth();
 
@@ -1379,6 +1358,7 @@ public class WeatherNowFragment extends WindowColorFragment
                     detailsContainerBinding.detailsContainer.setHorizontalSpacing(itemSpacing);
                     detailsContainerBinding.detailsContainer.setVerticalSpacing(itemSpacing);
                 }
+                return true;
             }
         });
     }
