@@ -46,7 +46,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
-import com.thewizrd.shared_resources.lifecycle.LifecycleRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.tasks.CallableEx;
@@ -193,7 +192,12 @@ public class SetupLocationFragment extends CustomFragment {
                 @Override
                 public void onLocationChanged(Location location) {
                     mLocation = location;
-                    fetchGeoLocation();
+                    runWithView(new Runnable() {
+                        @Override
+                        public void run() {
+                            fetchGeoLocation();
+                        }
+                    });
                 }
 
                 @Override
@@ -329,7 +333,7 @@ public class SetupLocationFragment extends CustomFragment {
     }
 
     private void fetchGeoLocation() {
-        runWithView(new LifecycleRunnable(getViewLifecycleOwner().getLifecycle()) {
+        runWithView(new Runnable() {
             @Override
             public void run() {
                 // Show loading bar
@@ -468,67 +472,62 @@ public class SetupLocationFragment extends CustomFragment {
                     }).addOnSuccessListener(new OnSuccessListener<LocationData>() {
                         @Override
                         public void onSuccess(final LocationData data) {
-                            if (isActive()) {
-                                runWithView(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (data != null && data.isValid()) {
-                                            // Setup complete
-                                            viewModel.setLocationData(data);
-                                            try {
-                                                Navigation.findNavController(binding.getRoot())
-                                                        .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment());
-                                            } catch (IllegalStateException ex) {
-                                                Bundle args = new Bundle();
-                                                args.putString("method", "fetchGeoLocation");
-                                                args.putBoolean("isActive", isActive());
-                                                args.putBoolean("isAlive", isAlive());
-                                                args.putBoolean("isViewAlive", isViewAlive());
-                                                args.putBoolean("isDetached", isDetached());
-                                                args.putBoolean("isResumed", isResumed());
-                                                args.putBoolean("isRemoving", isRemoving());
-                                                AnalyticsLogger.logEvent(TAG + ": navigation failed", args);
+                            runWithView(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (data != null && data.isValid()) {
+                                        // Setup complete
+                                        viewModel.setLocationData(data);
+                                        try {
+                                            Navigation.findNavController(binding.getRoot())
+                                                    .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment());
+                                        } catch (IllegalStateException ex) {
+                                            Bundle args = new Bundle();
+                                            args.putString("method", "fetchGeoLocation");
+                                            args.putBoolean("isAlive", isAlive());
+                                            args.putBoolean("isViewAlive", isViewAlive());
+                                            args.putBoolean("isDetached", isDetached());
+                                            args.putBoolean("isResumed", isResumed());
+                                            args.putBoolean("isRemoving", isRemoving());
+                                            AnalyticsLogger.logEvent(TAG + ": navigation failed", args);
 
-                                                Logger.writeLine(Log.ERROR, ex);
-                                            }
-                                        } else {
-                                            enableControls(true);
-                                            Settings.setFollowGPS(false);
-
-                                            LocationManager locMan = null;
-                                            if (getAppCompatActivity() != null)
-                                                locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
-
-                                            if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                                                showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
-                                            } else {
-                                                showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
-                                            }
+                                            Logger.writeLine(Log.ERROR, ex);
                                         }
-                                    }
-                                });
-                            }
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull final Exception e) {
-                            if (isActive()) {
-                                runWithView(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        // Restore controls
+                                    } else {
                                         enableControls(true);
                                         Settings.setFollowGPS(false);
-                                        Settings.setWeatherLoaded(false);
 
-                                        if (e instanceof WeatherException || e instanceof CustomException) {
-                                            showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT), null);
+                                        LocationManager locMan = null;
+                                        if (getAppCompatActivity() != null)
+                                            locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
+
+                                        if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                                            showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null);
                                         } else {
                                             showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
                                         }
                                     }
-                                });
-                            }
+                                }
+                            });
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull final Exception e) {
+                            runWithView(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // Restore controls
+                                    enableControls(true);
+                                    Settings.setFollowGPS(false);
+                                    Settings.setWeatherLoaded(false);
+
+                                    if (e instanceof WeatherException || e instanceof CustomException) {
+                                        showSnackbar(Snackbar.make(e.getMessage(), Snackbar.Duration.SHORT), null);
+                                    } else {
+                                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
+                                    }
+                                }
+                            });
                         }
                     });
                 }
