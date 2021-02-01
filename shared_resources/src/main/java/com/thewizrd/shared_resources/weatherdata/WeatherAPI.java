@@ -44,8 +44,6 @@ public class WeatherAPI {
             new ProviderEntry("HERE Weather", HERE,
                     "https://www.here.com/en", "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"),
              */
-            new ProviderEntry("Yahoo Weather", YAHOO,
-                    "https://www.yahoo.com/weather?ilc=401", "https://www.yahoo.com/weather?ilc=401"),
             new ProviderEntry("MET Norway", METNO,
                     "https://www.met.no/en", "https://www.met.no/en"),
             new ProviderEntry("U.S. National Weather Service (NOAA - U.S. Only)", NWS,
@@ -57,8 +55,10 @@ public class WeatherAPI {
     );
 
     public static List<ProviderEntry> LocationAPIs = asList(
+            /*
             new ProviderEntry("HERE Maps", HERE,
                     "https://www.here.com/en", "https://developer.here.com/"),
+             */
             new ProviderEntry("LocationIQ", LOCATIONIQ,
                     "https://locationiq.com", "https://locationiq.com"),
             new ProviderEntry("Google", GOOGLE,

@@ -109,7 +109,7 @@ public class SetupFragment extends CustomFragment {
             // Verify provider key
             if (wm.isKeyRequired() && StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
                 // If (internal) key doesn't exist, fallback to Yahoo
-                Settings.setAPI(WeatherAPI.YAHOO);
+                Settings.setAPI(WeatherAPI.WEATHERUNLOCKED);
                 wm.updateAPI();
                 Settings.setPersonalKey(true);
                 Settings.setKeyVerified(false);
@@ -376,8 +376,8 @@ public class SetupFragment extends CustomFragment {
                                     Settings.setAPI(WeatherAPI.NWS);
                                     view.updateWeatherSource(WeatherAPI.NWS);
                                 } else {
-                                    Settings.setAPI(WeatherAPI.YAHOO);
-                                    view.updateWeatherSource(WeatherAPI.YAHOO);
+                                    Settings.setAPI(WeatherAPI.WEATHERUNLOCKED);
+                                    view.updateWeatherSource(WeatherAPI.WEATHERUNLOCKED);
                                 }
                                 wm.updateAPI();
                             }

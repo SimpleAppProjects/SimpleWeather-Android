@@ -134,6 +134,19 @@ class VersionMigrations {
                 Settings.saveLastGPSLocData(new LocationData());
             }
 
+            if (Settings.getVersionCode() < 295000000) {
+                if (WeatherAPI.YAHOO.equals(Settings.getAPI())) {
+                    // Yahoo Weather API is no longer in service
+                    // Set default API to WeatherUnlocked
+                    Settings.setAPI(WeatherAPI.WEATHERUNLOCKED);
+                    WeatherManager wm = WeatherManager.getInstance();
+                    wm.updateAPI();
+
+                    Settings.setPersonalKey(false);
+                    Settings.setKeyVerified(true);
+                }
+            }
+
             Bundle bundle = new Bundle();
             bundle.putString("API", Settings.getAPI());
             bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));

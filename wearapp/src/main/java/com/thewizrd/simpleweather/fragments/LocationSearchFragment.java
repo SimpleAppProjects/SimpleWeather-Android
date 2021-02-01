@@ -199,8 +199,8 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                                     Settings.setAPI(WeatherAPI.NWS);
                                     queryResult.updateWeatherSource(WeatherAPI.NWS);
                                 } else {
-                                    Settings.setAPI(WeatherAPI.YAHOO);
-                                    queryResult.updateWeatherSource(WeatherAPI.YAHOO);
+                                    Settings.setAPI(WeatherAPI.WEATHERUNLOCKED);
+                                    queryResult.updateWeatherSource(WeatherAPI.WEATHERUNLOCKED);
                                 }
                                 wm.updateAPI();
                             }

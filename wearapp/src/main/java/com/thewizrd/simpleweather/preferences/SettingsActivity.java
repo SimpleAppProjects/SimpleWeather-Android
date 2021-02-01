@@ -207,18 +207,18 @@ public class SettingsActivity extends WearableListenerActivity {
             if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && WeatherManager.isKeyRequired(providerPref.getValue())) {
                 // Fallback to supported weather provider
                 WeatherManager wm = WeatherManager.getInstance();
-                providerPref.setValue(WeatherAPI.YAHOO);
+                providerPref.setValue(WeatherAPI.WEATHERUNLOCKED);
                 providerPref.getOnPreferenceChangeListener()
-                        .onPreferenceChange(providerPref, WeatherAPI.YAHOO);
-                Settings.setAPI(WeatherAPI.YAHOO);
+                        .onPreferenceChange(providerPref, WeatherAPI.WEATHERUNLOCKED);
+                Settings.setAPI(WeatherAPI.WEATHERUNLOCKED);
                 wm.updateAPI();
 
                 if (wm.isKeyRequired() && StringUtils.isNullOrWhitespace(wm.getAPIKey())) {
-                    // If (internal) key doesn't exist, fallback to Yahoo
-                    providerPref.setValue(WeatherAPI.YAHOO);
+                    // If (internal) key doesn't exist, fallback to WeatherUnlocked
+                    providerPref.setValue(WeatherAPI.WEATHERUNLOCKED);
                     providerPref.getOnPreferenceChangeListener()
-                            .onPreferenceChange(providerPref, WeatherAPI.YAHOO);
-                    Settings.setAPI(WeatherAPI.YAHOO);
+                            .onPreferenceChange(providerPref, WeatherAPI.WEATHERUNLOCKED);
+                    Settings.setAPI(WeatherAPI.WEATHERUNLOCKED);
                     wm.updateAPI();
                     Settings.setPersonalKey(true);
                     Settings.setKeyVerified(false);
