@@ -97,7 +97,7 @@ public class ExampleInstrumentedTest {
     @Test
     public void updateLocationQueryTest() throws WeatherException {
         WeatherManager wm = WeatherManager.getInstance();
-        Settings.setAPI(WeatherAPI.HERE);
+        Settings.setAPI(WeatherAPI.METNO);
         wm.updateAPI();
 
         Collection<LocationQueryViewModel> collection = wm.getLocations("Houston, Texas");
@@ -107,7 +107,7 @@ public class ExampleInstrumentedTest {
         LocationData locationData = new LocationData(loc);
         Weather weather = wm.getWeather(locationData);
 
-        Settings.setAPI(WeatherAPI.YAHOO);
+        Settings.setAPI(WeatherAPI.NWS);
         wm.updateAPI();
 
         if ((weather != null && !weather.getSource().equals(Settings.getAPI()))

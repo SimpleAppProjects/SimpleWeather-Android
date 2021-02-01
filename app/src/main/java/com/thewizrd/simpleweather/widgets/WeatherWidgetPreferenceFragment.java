@@ -93,7 +93,6 @@ import com.thewizrd.shared_resources.utils.TransparentOverlay;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.GlideApp;
 import com.thewizrd.simpleweather.R;
@@ -629,7 +628,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             }
         });
 
-        if (!WeatherAPI.YAHOO.equals(wm.getWeatherAPI()) && isForecastWidget(mWidgetType)) {
+        if (isForecastWidget(mWidgetType)) {
             fcastOptPref.setValueIndex(WidgetUtils.getForecastOption(mAppWidgetId).getValue());
             fcastOptPref.callChangeListener(fcastOptPref.getValue());
             findPreference(KEY_FORECAST).setVisible(true);

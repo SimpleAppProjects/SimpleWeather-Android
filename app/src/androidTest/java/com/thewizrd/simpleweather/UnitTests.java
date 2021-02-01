@@ -116,13 +116,6 @@ public class UnitTests {
     }
 
     @Test
-    public void getYahooWeather() throws WeatherException {
-        WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.YAHOO);
-        Weather weather = getWeather(provider);
-        Assert.assertTrue(weather != null && weather.isValid());
-    }
-
-    @Test
     public void getMetNoWeather() throws WeatherException {
         WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.METNO);
         Weather weather = getWeather(provider);
@@ -192,7 +185,7 @@ public class UnitTests {
 
     @Test
     public void serializationTest() throws WeatherException, IOException {
-        WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.YAHOO);
+        WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.NWS);
 
         Stopwatch s = Stopwatch.createStarted();
         Weather weather = getWeather(provider);

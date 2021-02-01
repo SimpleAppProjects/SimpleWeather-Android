@@ -704,14 +704,12 @@ public class WeatherNowFragment extends WindowColorFragment
                     AnalyticsLogger.logEvent("WeatherNowFragment: hrf graph click");
                     view.setEnabled(false);
 
-                    if (!WeatherAPI.YAHOO.equals(weatherView.getWeatherSource())) {
-                        WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
-                                WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                                        .setData(JSONParser.serializer(locationData, LocationData.class))
-                                        .setWeatherListType(WeatherListType.HOURLYFORECAST)
-                                        .setPosition(position);
-                        Navigation.findNavController(view).navigate(args);
-                    }
+                    WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
+                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                                    .setData(JSONParser.serializer(locationData, LocationData.class))
+                                    .setWeatherListType(WeatherListType.HOURLYFORECAST)
+                                    .setPosition(position);
+                    Navigation.findNavController(view).navigate(args);
                 }
             });
 
