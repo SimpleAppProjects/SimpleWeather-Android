@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -52,6 +53,7 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CustomException;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.LocationUtils;
+import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
@@ -81,7 +83,7 @@ import java.util.TimerTask;
 import java.util.concurrent.Callable;
 
 public class LocationSearchFragment extends WindowColorFragment {
-    private static final String TAG = "LocationSearchFragment";
+    private static final String TAG = "LocSearchFragment";
 
     private FragmentLocationSearchBinding binding;
     private SearchActionBarBinding searchBarBinding;
@@ -140,10 +142,6 @@ public class LocationSearchFragment extends WindowColorFragment {
         return mSnackMgr;
     }
 
-    public LocationQueryAdapter getAdapter() {
-        return mAdapter;
-    }
-
     private final RecyclerOnClickListenerInterface recyclerClickListener = new RecyclerOnClickListenerInterface() {
         @Override
         public void onClick(final View view, final int position) {
@@ -152,8 +150,30 @@ public class LocationSearchFragment extends WindowColorFragment {
             AnalyticsLogger.logEvent(TAG + ": onClick", props);
 
             final NavController navController = Navigation.findNavController(binding.getRoot());
-            final SavedStateHandle savedStateHandle = navController.getPreviousBackStackEntry()
-                    .getSavedStateHandle();
+            final SavedStateHandle savedStateHandle;
+            if (navController.getPreviousBackStackEntry() != null) {
+                savedStateHandle = navController.getPreviousBackStackEntry()
+                        .getSavedStateHandle();
+            } else {
+                // NOTE: This shouldn't happen btw
+                Bundle args = new Bundle();
+                args.putString("method", "recyclerClickListener.onClick");
+                args.putBoolean("isAlive", isAlive());
+                args.putBoolean("isViewAlive", isViewAlive());
+                args.putBoolean("isDetached", isDetached());
+                args.putBoolean("isResumed", isResumed());
+                args.putBoolean("isRemoving", isRemoving());
+                if (navController.getCurrentBackStackEntry() != null) {
+                    args.putString("currentBackStackEntry", navController.getCurrentBackStackEntry().getDestination().toString());
+                }
+                if (navController.getCurrentDestination() != null) {
+                    args.putString("currentDestination", navController.getCurrentDestination().toString());
+                }
+
+                AnalyticsLogger.logEvent(TAG + ": prevBackStack null", args);
+                Logger.writeLine(Log.ERROR, TAG + ": prevBackStack null");
+                return;
+            }
 
             runWithView(new LifecycleRunnable(getViewLifecycleOwner().getLifecycle()) {
                 @Override

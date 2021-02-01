@@ -15,7 +15,7 @@ public class CrashlyticsLoggingTree extends Timber.Tree {
 
     private static final String TAG = CrashlyticsLoggingTree.class.getSimpleName();
 
-    private FirebaseCrashlytics crashlytics;
+    private final FirebaseCrashlytics crashlytics;
 
     public CrashlyticsLoggingTree() {
         super();

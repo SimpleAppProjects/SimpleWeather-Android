@@ -1629,7 +1629,8 @@ public class WeatherNowFragment extends WindowColorFragment
 
         @BindingAdapter("sunPhase")
         public void updateSunPhasePanel(SunPhaseView view, SunPhaseViewModel sunPhase) {
-            if (sunPhase != null && !StringUtils.isNullOrWhitespace(sunPhase.getSunrise()) && !StringUtils.isNullOrWhitespace(sunPhase.getSunset()) && fragment.locationData != null) {
+            if (sunPhase != null && !StringUtils.isNullOrWhitespace(sunPhase.getSunrise()) && !StringUtils.isNullOrWhitespace(sunPhase.getSunset()) &&
+                    fragment != null && fragment.locationData != null) {
                 DateTimeFormatter fmt = sunPhase.getFormatter();
 
                 view.setSunriseSetTimes(LocalTime.parse(sunPhase.getSunrise(), fmt),

@@ -144,12 +144,25 @@ public class SetupLocationFragment extends CustomFragment {
                 View bottomNavBar = getAppCompatActivity().findViewById(R.id.bottom_nav_bar);
                 bottomNavBar.setVisibility(View.GONE);
 
-                Navigation.findNavController(v)
-                        .navigate(
-                                SetupLocationFragmentDirections.actionSetupLocationFragmentToLocationSearchFragment3(),
-                                new FragmentNavigator.Extras.Builder().addSharedElement(v, Constants.SHARED_ELEMENT)
-                                        .build()
-                        );
+                try {
+                    Navigation.findNavController(v)
+                            .navigate(
+                                    SetupLocationFragmentDirections.actionSetupLocationFragmentToLocationSearchFragment3(),
+                                    new FragmentNavigator.Extras.Builder().addSharedElement(v, Constants.SHARED_ELEMENT)
+                                            .build()
+                            );
+                } catch (IllegalArgumentException ex) {
+                    Bundle props = new Bundle();
+                    props.putString("method", "searchViewContainer.onClick");
+                    props.putBoolean("isAlive", isAlive());
+                    props.putBoolean("isViewAlive", isViewAlive());
+                    props.putBoolean("isDetached", isDetached());
+                    props.putBoolean("isResumed", isResumed());
+                    props.putBoolean("isRemoving", isRemoving());
+                    AnalyticsLogger.logEvent(TAG + ": navigation failed", props);
+
+                    Logger.writeLine(Log.ERROR, ex);
+                }
             }
         });
         ViewCompat.setTransitionName(binding.searchBar.searchViewContainer, Constants.SHARED_ELEMENT);

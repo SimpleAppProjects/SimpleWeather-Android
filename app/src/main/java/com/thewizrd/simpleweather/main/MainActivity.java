@@ -20,6 +20,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Lifecycle;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
@@ -42,6 +43,7 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
+import com.thewizrd.simpleweather.NavGraphDirections;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.activity.UserLocaleActivity;
 import com.thewizrd.simpleweather.databinding.ActivityMainBinding;
@@ -53,6 +55,7 @@ import com.thewizrd.simpleweather.updates.InAppUpdateManager;
 public class MainActivity extends UserLocaleActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener,
         UserThemeMode.OnThemeChangeListener {
+    private static final String TAG = "MainActivity";
 
     private ActivityMainBinding binding;
     private NavController mNavController;
@@ -143,7 +146,11 @@ public class MainActivity extends UserLocaleActivity
                                 appUpdateManager.startImmediateUpdateFlow(MainActivity.this, INSTALL_REQUESTCODE);
                             } else {
                                 initializeNavFragment(args);
-                                initializeNavController();
+                                // Don't initialize the controller to early
+                                // The fragment may not have called onCreate yet; which is where the NavController gets assigned
+                                if (getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+                                    initializeNavController();
+                                }
                             }
                         }
                     });
@@ -169,7 +176,8 @@ public class MainActivity extends UserLocaleActivity
     protected void onStart() {
         super.onStart();
 
-        if (!FeatureSettings.isUpdateAvailable()) {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (fragment != null) {
             initializeNavController();
         }
 
@@ -255,9 +263,8 @@ public class MainActivity extends UserLocaleActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         final int id = item.getItemId();
-        final int currentId = mNavController.getCurrentDestination().getId();
 
-        if (id != currentId) {
+        if (mNavController.getCurrentDestination() != null && id != mNavController.getCurrentDestination().getId()) {
             NavigationUI.onNavDestinationSelected(item, mNavController);
         }
 

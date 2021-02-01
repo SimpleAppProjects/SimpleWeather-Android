@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +45,7 @@ import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.CustomException;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.LocationUtils;
+import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -68,6 +70,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class LocationSearchFragment extends SwipeDismissFragment {
+    private static final String TAG = "LocationSearchFragment";
+
     private FragmentLocationSearchBinding binding;
     private LocationQueryAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -270,7 +274,20 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                                                             }
                                                         }));
 
-                                        Navigation.findNavController(view).navigate(args);
+                                        try {
+                                            Navigation.findNavController(view).navigate(args);
+                                        } catch (IllegalArgumentException ex) {
+                                            Bundle props = new Bundle();
+                                            props.putString("method", "recyclerClickListener.success");
+                                            props.putBoolean("isAlive", isAlive());
+                                            props.putBoolean("isViewAlive", isViewAlive());
+                                            props.putBoolean("isDetached", isDetached());
+                                            props.putBoolean("isResumed", isResumed());
+                                            props.putBoolean("isRemoving", isRemoving());
+                                            AnalyticsLogger.logEvent(TAG + ": navigation failed", props);
+
+                                            Logger.writeLine(Log.ERROR, ex);
+                                        }
                                         getFragmentActivity().finishAffinity();
                                     } else {
                                         showLoading(false);

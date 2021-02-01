@@ -160,7 +160,9 @@ public class WeatherListFragment extends SwipeDismissFragment {
                     public void onChanged() {
                         super.onChanged();
                         detailsAdapter.unregisterAdapterDataObserver(this);
-                        binding.progressBar.setVisibility(View.GONE);
+                        if (binding != null) {
+                            binding.progressBar.setVisibility(View.GONE);
+                        }
                     }
                 });
 
