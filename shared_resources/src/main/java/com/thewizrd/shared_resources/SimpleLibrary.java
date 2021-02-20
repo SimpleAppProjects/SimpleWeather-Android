@@ -7,6 +7,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.security.ProviderInstaller;
+import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;
 import com.thewizrd.shared_resources.icons.WeatherIconsProvider;
 import com.thewizrd.shared_resources.okhttp3.CacheInterceptor;
@@ -27,7 +28,7 @@ public final class SimpleLibrary {
     private Context mContext;
     private OkHttpClient client;
 
-    private LinkedHashMap<String, WeatherIconProvider> mIconProviders;
+    private final LinkedHashMap<String, WeatherIconProvider> mIconProviders;
 
     @SuppressLint("StaticFieldLeak")
     private static SimpleLibrary sSimpleLib;
@@ -102,7 +103,12 @@ public final class SimpleLibrary {
     public WeatherIconProvider getIconProvider(@NonNull String key) {
         WeatherIconProvider provider = mIconProviders.get(key);
         if (provider == null) {
-            registerIconProvider(provider = new WeatherIconsProvider());
+            // Can't find the provider for this key; fallback to default/first available
+            if (mIconProviders.size() > 0) {
+                provider = Iterables.getFirst(mIconProviders.values(), null);
+            } else {
+                registerIconProvider(provider = new WeatherIconsProvider());
+            }
         }
         return provider;
     }
