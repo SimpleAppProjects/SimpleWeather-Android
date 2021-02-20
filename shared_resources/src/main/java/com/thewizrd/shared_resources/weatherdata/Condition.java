@@ -89,28 +89,6 @@ public class Condition extends CustomJsonObject {
         // Needed for deserialization
     }
 
-    public Condition(com.thewizrd.shared_resources.weatherdata.weatheryahoo.CurrentObservation observation) {
-        WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.YAHOO);
-        Locale locale = LocaleUtils.getLocale();
-
-        if (locale.toString().equals("en") || locale.toString().startsWith("en_") || locale.equals(Locale.ROOT)) {
-            weather = observation.getCondition().getText();
-        } else {
-            weather = provider.getWeatherCondition(Integer.toString(observation.getCondition().getCode()));
-        }
-        icon = provider.getWeatherIcon(Integer.toString(observation.getCondition().getCode()));
-
-        tempF = (float) observation.getCondition().getTemperature();
-        tempC = ConversionMethods.FtoC(tempF);
-        windDegrees = observation.getWind().getDirection();
-        windMph = observation.getWind().getSpeed();
-        windKph = ConversionMethods.mphTokph(windMph);
-        feelslikeF = (float) observation.getWind().getChill();
-        feelslikeC = ConversionMethods.FtoC(feelslikeF);
-
-        beaufort = new Beaufort(WeatherUtils.getBeaufortScale((int) Math.round(windMph)).getValue());
-    }
-
     public Condition(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject current) {
         weather = StringUtils.toUpperCase(current.getWeather().get(0).getDescription());
         tempF = ConversionMethods.KtoF(current.getMain().getTemp());

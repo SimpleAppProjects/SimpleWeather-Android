@@ -592,9 +592,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         notifyPropertyChanged(BR.weatherDetails);
 
         String creditPrefix = context.getString(R.string.credit_prefix);
-        if (WeatherAPI.YAHOO.equals(weather.getSource()))
-            weatherCredit = String.format("%s Yahoo!", creditPrefix);
-        else if (WeatherAPI.OPENWEATHERMAP.equals(weather.getSource()))
+        if (WeatherAPI.OPENWEATHERMAP.equals(weather.getSource()))
             weatherCredit = String.format("%s OpenWeatherMap", creditPrefix);
         else if (WeatherAPI.METNO.equals(weather.getSource()))
             weatherCredit = String.format("%s MET Norway", creditPrefix);
