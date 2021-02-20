@@ -10,12 +10,6 @@
         <Preference android:layout="@layout/credit_here">
             <intent android:data="https://here.com/en" />
         </Preference>
-        <Preference
-            android:summary="@string/copyright_yahoo"
-            android:title="@string/api_yahoo" />
-        <Preference android:layout="@layout/credit_yahoo">
-            <intent android:data="https://www.yahoo.com/?ilc=401" />
-        </Preference>
         <Preference android:title="@string/api_metno" />
         <Preference android:layout="@layout/credit_metno">
             <intent android:data="https://www.met.no/en" />

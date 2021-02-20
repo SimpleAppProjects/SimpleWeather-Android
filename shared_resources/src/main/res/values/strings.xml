@@ -8,7 +8,6 @@
     <string name="api_here" translatable="false">HERE Weather</string>
     <string name="api_metno" translatable="false">MET Norway</string>
     <string name="api_owm" translatable="false">OpenWeatherMap</string>
-    <string name="api_yahoo" translatable="false">Yahoo Weather</string>
     <string name="api_lociq" translatable="false">LocationIQ</string>
     <string name="api_nws" translatable="false">U.S. National Weather Service</string>
     <string name="api_waqi" translatable="false">World Air Quality Index Project</string>
@@ -94,9 +93,6 @@
     <string name="summary_default">Default</string>
     <string name="copyright_here" translatable="false">
         The HERE Logo is a trademark or registered trademark of HERE Global B.V.
-    </string>
-    <string name="copyright_yahoo" translatable="false">
-        YAHOO! is a registered trademark of Yahoo! Inc. both in the United States and internationally.
     </string>
     <string name="pref_summary_currentlocation">Allow access to current location via GPS</string>
     <string name="pref_summary_apikey">Enter Provider Key required for %1$s</string>
