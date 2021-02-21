@@ -20,17 +20,33 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/precip_label"
-            style="@style/ShadowText"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:text="@string/label_precipitation"
-            android:textAppearance="?android:textAppearanceMediumInverse"
-            android:textColor="@color/colorTextPrimary"
-            android:textStyle="bold"
-            app:showIfTrue="@{FeatureSettings.chartsEnabled &amp;&amp; forecastsView.precipitationGraphData != null}" />
+            android:orientation="horizontal"
+            app:showIfTrue="@{FeatureSettings.chartsEnabled &amp;&amp; forecastsView.precipitationGraphData != null}">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/precip_label"
+                style="@style/ShadowText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="12dp"
+                android:text="@string/label_precipitation"
+                android:textAppearance="?android:textAppearanceMediumInverse"
+                android:textColor="@color/colorTextPrimary"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/chevron_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:src="@drawable/ic_chevron_right"
+                app:tint="@color/colorTextPrimary" />
+
+        </LinearLayout>
 
         <com.thewizrd.simpleweather.controls.graphs.ForecastGraphPanel
             android:id="@+id/precip_graph_panel"

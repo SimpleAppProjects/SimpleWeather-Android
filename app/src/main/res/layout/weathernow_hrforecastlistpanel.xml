@@ -20,18 +20,34 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/hourly_forecast_label"
-            style="@style/ShadowText"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:text="@string/label_hourlyforecast"
-            android:textAppearance="?android:textAppearanceMediumInverse"
-            android:textColor="@color/colorTextPrimary"
-            android:textStyle="bold"
+            android:orientation="horizontal"
             app:showIfNotEmpty="@{forecastsView.hourlyForecastData}"
-            app:showIfTrue="@{FeatureSettings.hourlyForecastEnabled}" />
+            app:showIfTrue="@{FeatureSettings.hourlyForecastEnabled}">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/hourly_forecast_label"
+                style="@style/ShadowText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="12dp"
+                android:text="@string/label_hourlyforecast"
+                android:textAppearance="?android:textAppearanceMediumInverse"
+                android:textColor="@color/colorTextPrimary"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/chevron_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:src="@drawable/ic_chevron_right"
+                app:tint="@color/colorTextPrimary" />
+
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/hourly_forecast_list"
