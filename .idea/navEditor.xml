@@ -46,6 +46,11 @@
                       </LayoutPositions>
                     </value>
                   </entry>
+                  <entry key="action_global_weatherListFragment">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
                   <entry key="creditsFragment">
                     <value>
                       <LayoutPositions>
@@ -168,6 +173,18 @@
                           <Point>
                             <option name="x" value="1080" />
                             <option name="y" value="12" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="weatherChartsFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="182" />
+                            <option name="y" value="76" />
                           </Point>
                         </option>
                       </LayoutPositions>

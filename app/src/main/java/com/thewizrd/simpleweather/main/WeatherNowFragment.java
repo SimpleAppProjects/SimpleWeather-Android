@@ -8,10 +8,7 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
 import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.location.Location;
@@ -33,19 +30,13 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.core.graphics.drawable.WrappedDrawable;
 import androidx.core.location.LocationManagerCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
@@ -68,6 +59,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
@@ -102,7 +95,6 @@ import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
-import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.lifecycle.CheckAliveRunnable;
 import com.thewizrd.shared_resources.lifecycle.LifecycleRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -135,19 +127,20 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.BuildConfig;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.DetailsItemGridAdapter;
-import com.thewizrd.simpleweather.controls.ForecastGraphPanel;
-import com.thewizrd.simpleweather.controls.ForecastGraphViewModel;
-import com.thewizrd.simpleweather.controls.GraphItemViewModel;
+import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter;
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView;
 import com.thewizrd.simpleweather.controls.SunPhaseView;
+import com.thewizrd.simpleweather.controls.viewmodels.ForecastsNowViewModel;
+import com.thewizrd.simpleweather.controls.viewmodels.HourlyForecastNowViewModel;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowAqicontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowBeaufortcontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowConditionPanelBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowDetailscontainerBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowForecastgraphpanelBinding;
-import com.thewizrd.simpleweather.databinding.WeathernowHrforecastgraphpanelBinding;
+import com.thewizrd.simpleweather.databinding.WeathernowHrforecastlistpanelBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowMoonphasecontrolBinding;
+import com.thewizrd.simpleweather.databinding.WeathernowPrecipitationgraphpanelBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowRadarcontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowSunphasecontrolBinding;
 import com.thewizrd.simpleweather.databinding.WeathernowUvcontrolBinding;
@@ -184,7 +177,8 @@ public class WeatherNowFragment extends WindowColorFragment
     private FragmentWeatherNowBinding binding;
     private WeathernowConditionPanelBinding conditionPanelBinding;
     private WeathernowForecastgraphpanelBinding forecastPanelBinding;
-    private WeathernowHrforecastgraphpanelBinding hrForecastPanelBinding;
+    private WeathernowHrforecastlistpanelBinding hrForecastPanelBinding;
+    private WeathernowPrecipitationgraphpanelBinding precipPanelBinding;
     private WeathernowDetailscontainerBinding detailsContainerBinding;
     private WeathernowUvcontrolBinding uvControlBinding;
     private WeathernowBeaufortcontrolBinding beaufortControlBinding;
@@ -202,7 +196,7 @@ public class WeatherNowFragment extends WindowColorFragment
     // View Models
     private WeatherNowFragmentStateModel wNowViewModel;
     private WeatherNowViewModel weatherView;
-    private ForecastGraphViewModel forecastsView;
+    private ForecastsNowViewModel forecastsView;
     private WeatherAlertsViewModel alertsView;
 
     // GPS location
@@ -412,7 +406,7 @@ public class WeatherNowFragment extends WindowColorFragment
         // Setup ViewModel
         ViewModelProvider vmProvider = new ViewModelProvider(getAppCompatActivity());
         weatherView = vmProvider.get(WeatherNowViewModel.class);
-        forecastsView = vmProvider.get(ForecastGraphViewModel.class);
+        forecastsView = vmProvider.get(ForecastsNowViewModel.class);
         alertsView = vmProvider.get(WeatherAlertsViewModel.class);
         wNowViewModel = new ViewModelProvider(this).get(WeatherNowFragmentStateModel.class);
 
@@ -674,7 +668,7 @@ public class WeatherNowFragment extends WindowColorFragment
             forecastPanelBinding.setForecastsView(forecastsView);
             forecastPanelBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-            forecastPanelBinding.forecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
+            forecastPanelBinding.rangebarGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
                 @Override
                 public void onClick(View view, int position) {
                     AnalyticsLogger.logEvent("WeatherNowFragment: fcast graph click");
@@ -694,14 +688,27 @@ public class WeatherNowFragment extends WindowColorFragment
 
         if (FeatureSettings.isHourlyForecastEnabled()) {
             // Hourly Forecast
-            hrForecastPanelBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_hrforecastgraphpanel, binding.listLayout, false, dataBindingComponent);
+            hrForecastPanelBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_hrforecastlistpanel, binding.listLayout, false, dataBindingComponent);
             hrForecastPanelBinding.setForecastsView(forecastsView);
             hrForecastPanelBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-            hrForecastPanelBinding.hourlyForecastGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
+            // Setup RecyclerView
+            HourlyForecastItemAdapter hourlyForecastItemAdapter = new HourlyForecastItemAdapter(new DiffUtil.ItemCallback<HourlyForecastNowViewModel>() {
+                @Override
+                public boolean areItemsTheSame(@NonNull HourlyForecastNowViewModel oldItem, @NonNull HourlyForecastNowViewModel newItem) {
+                    return ObjectsCompat.equals(oldItem.getDate(), newItem.getDate());
+                }
+
+                @Override
+                public boolean areContentsTheSame(@NonNull HourlyForecastNowViewModel oldItem, @NonNull HourlyForecastNowViewModel newItem) {
+                    return ObjectsCompat.equals(oldItem, newItem);
+                }
+            });
+
+            hourlyForecastItemAdapter.setOnClickListener(new RecyclerOnClickListenerInterface() {
                 @Override
                 public void onClick(View view, int position) {
-                    AnalyticsLogger.logEvent("WeatherNowFragment: hrf graph click");
+                    AnalyticsLogger.logEvent("WeatherNowFragment: hrf panel click");
                     view.setEnabled(false);
 
                     WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherListFragment args =
@@ -713,7 +720,31 @@ public class WeatherNowFragment extends WindowColorFragment
                 }
             });
 
+            hrForecastPanelBinding.hourlyForecastList.setAdapter(hourlyForecastItemAdapter);
+
             binding.listLayout.addView(hrForecastPanelBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 2));
+        }
+
+        if (FeatureSettings.isHourlyForecastEnabled()) {
+            // Precipitation graph
+            precipPanelBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_precipitationgraphpanel, binding.listLayout, false, dataBindingComponent);
+            precipPanelBinding.setForecastsView(forecastsView);
+            precipPanelBinding.setLifecycleOwner(getViewLifecycleOwner());
+
+            precipPanelBinding.precipGraphPanel.setOnClickPositionListener(new RecyclerOnClickListenerInterface() {
+                @Override
+                public void onClick(View view, int position) {
+                    AnalyticsLogger.logEvent("WeatherNowFragment: precip graph click");
+                    view.setEnabled(false);
+
+                    WeatherNowFragmentDirections.ActionWeatherNowFragmentToWeatherChartsFragment args =
+                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherChartsFragment()
+                                    .setData(JSONParser.serializer(locationData, LocationData.class));
+                    Navigation.findNavController(view).navigate(args);
+                }
+            });
+
+            binding.listLayout.addView(precipPanelBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 3));
         }
 
         if (FeatureSettings.isDetailsEnabled()) {
@@ -736,7 +767,7 @@ public class WeatherNowFragment extends WindowColorFragment
                 }
             });
 
-            binding.listLayout.addView(detailsContainerBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 3));
+            binding.listLayout.addView(detailsContainerBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 4));
 
             adjustDetailsLayout();
         }
@@ -747,7 +778,7 @@ public class WeatherNowFragment extends WindowColorFragment
             uvControlBinding.setWeatherView(weatherView);
             uvControlBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-            binding.listLayout.addView(uvControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 4));
+            binding.listLayout.addView(uvControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 5));
         }
 
         if (FeatureSettings.isBeaufortEnabled()) {
@@ -756,7 +787,7 @@ public class WeatherNowFragment extends WindowColorFragment
             beaufortControlBinding.setWeatherView(weatherView);
             beaufortControlBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-            binding.listLayout.addView(beaufortControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 5));
+            binding.listLayout.addView(beaufortControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 6));
         }
 
         if (FeatureSettings.isAQIndexEnabled()) {
@@ -765,7 +796,7 @@ public class WeatherNowFragment extends WindowColorFragment
             aqiControlBinding.setWeatherView(weatherView);
             aqiControlBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-            binding.listLayout.addView(aqiControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 6));
+            binding.listLayout.addView(aqiControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 7));
         }
 
         if (FeatureSettings.isMoonPhaseEnabled()) {
@@ -774,7 +805,7 @@ public class WeatherNowFragment extends WindowColorFragment
             moonphaseControlBinding.setWeatherView(weatherView);
             moonphaseControlBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-            binding.listLayout.addView(moonphaseControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 7));
+            binding.listLayout.addView(moonphaseControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 8));
         }
 
         if (FeatureSettings.isSunPhaseEnabled()) {
@@ -783,7 +814,7 @@ public class WeatherNowFragment extends WindowColorFragment
             sunphaseControlBinding.setWeatherView(weatherView);
             sunphaseControlBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-            binding.listLayout.addView(sunphaseControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 8));
+            binding.listLayout.addView(sunphaseControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 9));
         }
 
         // Radar
@@ -818,7 +849,7 @@ public class WeatherNowFragment extends WindowColorFragment
             radarControlBinding.setWeatherView(weatherView);
             radarControlBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-            binding.listLayout.addView(radarControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 9));
+            binding.listLayout.addView(radarControlBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 10));
 
             radarViewProvider = RadarProvider.getRadarViewProvider(requireContext(), radarControlBinding.radarWebviewContainer);
             radarViewProvider.enableInteractions(false);
@@ -1587,7 +1618,7 @@ public class WeatherNowFragment extends WindowColorFragment
     }
 
     public static class WeatherNowFragmentBindingAdapter {
-        private WeatherNowFragment fragment;
+        private final WeatherNowFragment fragment;
 
         public WeatherNowFragmentBindingAdapter(WeatherNowFragment fragment) {
             this.fragment = fragment;
@@ -1601,8 +1632,10 @@ public class WeatherNowFragment extends WindowColorFragment
         }
 
         @BindingAdapter("forecast_data")
-        public void updateForecastGraph(final ForecastGraphPanel view, final List<GraphItemViewModel> graphItems) {
-            view.updateForecasts(graphItems);
+        public void updateHrForecastView(final RecyclerView view, final List<HourlyForecastNowViewModel> forecasts) {
+            if (view.getAdapter() instanceof HourlyForecastItemAdapter) {
+                ((HourlyForecastItemAdapter) view.getAdapter()).submitList(forecasts);
+            }
         }
 
         @BindingAdapter("sunPhase")
@@ -1614,38 +1647,6 @@ public class WeatherNowFragment extends WindowColorFragment
                 view.setSunriseSetTimes(LocalTime.parse(sunPhase.getSunrise(), fmt),
                         LocalTime.parse(sunPhase.getSunset(), fmt),
                         fragment.locationData.getTzOffset());
-            }
-        }
-
-        @BindingAdapter("progressColor")
-        public void updateProgressColor(ProgressBar progressBar, @ColorInt int progressColor) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                progressBar.setProgressTintList(ColorStateList.valueOf(progressColor));
-            } else {
-                Drawable drawable = progressBar.getProgressDrawable().mutate();
-                drawable.setColorFilter(progressColor, PorterDuff.Mode.SRC_IN);
-                progressBar.setProgressDrawable(drawable);
-            }
-        }
-
-        @BindingAdapter("progressBackgroundColor")
-        public void updateProgressBackgroundColor(ProgressBar progressBar, @ColorInt int progressBackgroundColor) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                progressBar.setProgressBackgroundTintList(ColorStateList.valueOf(progressBackgroundColor));
-            } else {
-                LayerDrawable drawable = null;
-                if (progressBar.getProgressDrawable() instanceof LayerDrawable) {
-                    drawable = (LayerDrawable) progressBar.getProgressDrawable();
-                } else if (progressBar.getProgressDrawable() instanceof WrappedDrawable) {
-                    Drawable unwrapped = DrawableCompat.unwrap(progressBar.getProgressDrawable());
-                    if (unwrapped instanceof LayerDrawable) {
-                        drawable = (LayerDrawable) unwrapped;
-                    }
-                }
-                if (drawable != null) {
-                    GradientDrawable background = (GradientDrawable) drawable.findDrawableByLayerId(android.R.id.background);
-                    background.setColorFilter(progressBackgroundColor, PorterDuff.Mode.SRC_IN);
-                }
             }
         }
 
@@ -1684,21 +1685,6 @@ public class WeatherNowFragment extends WindowColorFragment
             } else {
                 view.setTextColor(ContextCompat.getColor(view.getContext(), R.color.colorTextPrimary));
             }
-        }
-
-        @BindingAdapter("weatherIcon")
-        public void animateIconIfAvailable(@NonNull final ImageView view, @DrawableRes final int resId) {
-            view.setImageResource(resId);
-
-            final Drawable drwbl = view.getDrawable();
-            if (drwbl instanceof AnimatedVectorDrawable) {
-                ((AnimatedVectorDrawable) drwbl).start();
-            }
-        }
-
-        @BindingAdapter("weatherIcon")
-        public void animateIconIfAvailable(@NonNull final ImageView view, String icon) {
-            animateIconIfAvailable(view, icon != null ? WeatherIconsManager.getInstance().getWeatherIconResource(icon) : 0);
         }
     }
 }

@@ -11,7 +11,7 @@
 
         <variable
             name="forecastsView"
-            type="com.thewizrd.simpleweather.controls.ForecastGraphViewModel" />
+            type="com.thewizrd.simpleweather.controls.viewmodels.ForecastsNowViewModel" />
 
     </data>
 
@@ -30,17 +30,19 @@
             android:textAppearance="?android:textAppearanceMediumInverse"
             android:textColor="@color/colorTextPrimary"
             android:textStyle="bold"
-            app:showIfNotEmpty="@{forecastsView.hourlyForecasts}"
+            app:showIfNotEmpty="@{forecastsView.hourlyForecastData}"
             app:showIfTrue="@{FeatureSettings.hourlyForecastEnabled}" />
 
-        <com.thewizrd.simpleweather.controls.ForecastGraphPanel
-            android:id="@+id/hourly_forecast_graph_panel"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/hourly_forecast_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:forecast_data="@{forecastsView.hourlyForecasts}"
-            app:hideIfEmpty="@{forecastsView.hourlyForecasts}"
-            android:visibility="@{!FeatureSettings.hourlyForecastEnabled || forecastsView.hourlyForecasts == null || forecastsView.hourlyForecasts.empty ? View.GONE : View.VISIBLE}"
-            tools:layout_height="@dimen/forecast_panel_height" />
+            app:forecast_data="@{forecastsView.hourlyForecastData}"
+            app:showIfNotEmpty="@{forecastsView.hourlyForecastData}"
+            app:showIfTrue="@{FeatureSettings.hourlyForecastEnabled}"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/hourly_forecast_item" />
 
         <View
             android:id="@+id/hourly_forecast_border"
@@ -48,7 +50,7 @@
             android:layout_height="1dp"
             android:alpha="0.2"
             android:background="@color/colorOnSurface"
-            app:showIfNotEmpty="@{forecastsView.hourlyForecasts}"
+            app:showIfNotEmpty="@{forecastsView.hourlyForecastData}"
             app:showIfTrue="@{FeatureSettings.hourlyForecastEnabled}" />
 
     </LinearLayout>
