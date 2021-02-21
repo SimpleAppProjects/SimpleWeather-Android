@@ -15,6 +15,8 @@ public class LineDataSeries {
     private List<YEntryData> seriesData;
     private List<Integer> seriesColors;
 
+    private Float seriesMin = null, seriesMax = null;
+
     public LineDataSeries(List<YEntryData> seriesData) {
         if (seriesData == null || seriesData.size() <= 0) {
             throw new IllegalArgumentException("Series data cannot be empty or null");
@@ -69,5 +71,26 @@ public class LineDataSeries {
         for (int color : colors) {
             this.seriesColors.add(color);
         }
+    }
+
+    public Float getSeriesMin() {
+        return seriesMin;
+    }
+
+    public void setSeriesMin(Float seriesMin) {
+        this.seriesMin = seriesMin;
+    }
+
+    public Float getSeriesMax() {
+        return seriesMax;
+    }
+
+    public void setSeriesMax(Float seriesMax) {
+        this.seriesMax = seriesMax;
+    }
+
+    public void setSeriesMinMax(Float seriesMin, Float seriesMax) {
+        setSeriesMin(seriesMin);
+        setSeriesMax(seriesMax);
     }
 }

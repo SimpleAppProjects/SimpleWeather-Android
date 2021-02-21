@@ -241,6 +241,7 @@ public class ForecastGraphViewModel extends ViewModel {
                 graphLabel = context.getString(R.string.label_precipitation);
                 series = new LineDataSeries(yData);
                 series.setSeriesColors(ContextCompat.getColor(context, R.color.colorPrimary));
+                series.setSeriesMinMax(0f, 100f);
                 break;
             case WIND:
                 graphLabel = context.getString(R.string.label_wind);
@@ -261,11 +262,13 @@ public class ForecastGraphViewModel extends ViewModel {
                 graphLabel = context.getString(R.string.label_uv);
                 series = new LineDataSeries(yData);
                 series.setSeriesColors(Colors.ORANGE);
+                series.setSeriesMinMax(0f, 12f);
                 break;
             case HUMIDITY:
                 graphLabel = context.getString(R.string.label_humidity);
                 series = new LineDataSeries(yData);
                 series.setSeriesColors(Colors.MEDIUMPURPLE);
+                series.setSeriesMinMax(0f, 100f);
                 break;
         }
 

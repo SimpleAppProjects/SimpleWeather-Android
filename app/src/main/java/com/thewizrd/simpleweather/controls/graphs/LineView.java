@@ -560,7 +560,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
                 if (drawDotLists.size() == 0 || drawDotLists.size() != dataLists.size()) {
                     drawDotLists.clear();
                     for (int k = 0; k < dataLists.size(); k++) {
-                        drawDotLists.add(new ArrayList<LineViewGraph.Dot>());
+                        drawDotLists.add(new ArrayList<>());
                     }
                 }
                 float maxValue = 0;
@@ -568,11 +568,17 @@ public class LineView extends HorizontalScrollView implements IGraph {
                 for (int k = 0; k < dataLists.size(); k++) {
                     float kMax = 0;
                     float kMin = 0;
-                    for (YEntryData seriesData : dataLists.get(k).getSeriesData()) {
-                        if (kMax < seriesData.getY())
-                            kMax = seriesData.getY();
-                        if (kMin > seriesData.getY())
-                            kMin = seriesData.getY();
+
+                    if (dataLists.get(k).getSeriesMin() == null && dataLists.get(k).getSeriesMax() == null) {
+                        for (YEntryData seriesData : dataLists.get(k).getSeriesData()) {
+                            if (kMax < seriesData.getY())
+                                kMax = seriesData.getY();
+                            if (kMin > seriesData.getY())
+                                kMin = seriesData.getY();
+                        }
+                    } else {
+                        kMax = dataLists.get(k).getSeriesMax();
+                        kMin = dataLists.get(k).getSeriesMin();
                     }
 
                     if (maxValue < kMax)
