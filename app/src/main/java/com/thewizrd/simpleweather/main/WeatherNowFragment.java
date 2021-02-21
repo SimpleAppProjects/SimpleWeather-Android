@@ -725,7 +725,7 @@ public class WeatherNowFragment extends WindowColorFragment
             binding.listLayout.addView(hrForecastPanelBinding.getRoot(), Math.min(binding.listLayout.getChildCount() - 1, 2));
         }
 
-        if (FeatureSettings.isHourlyForecastEnabled()) {
+        if (FeatureSettings.isChartsEnabled()) {
             // Precipitation graph
             precipPanelBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_precipitationgraphpanel, binding.listLayout, false, dataBindingComponent);
             precipPanelBinding.setForecastsView(forecastsView);
@@ -980,6 +980,7 @@ public class WeatherNowFragment extends WindowColorFragment
         beaufortControlBinding = null;
         uvControlBinding = null;
         detailsContainerBinding = null;
+        precipPanelBinding = null;
         hrForecastPanelBinding = null;
         forecastPanelBinding = null;
         conditionPanelBinding = null;

@@ -30,7 +30,7 @@
             android:textAppearance="?android:textAppearanceMediumInverse"
             android:textColor="@color/colorTextPrimary"
             android:textStyle="bold"
-            app:showIfTrue="@{FeatureSettings.hourlyForecastEnabled &amp;&amp; forecastsView.precipitationGraphData != null}" />
+            app:showIfTrue="@{FeatureSettings.chartsEnabled &amp;&amp; forecastsView.precipitationGraphData != null}" />
 
         <com.thewizrd.simpleweather.controls.graphs.ForecastGraphPanel
             android:id="@+id/precip_graph_panel"
@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             app:forecast_data="@{forecastsView.precipitationGraphData}"
-            app:showIfTrue="@{FeatureSettings.hourlyForecastEnabled &amp;&amp; forecastsView.precipitationGraphData != null}"
+            app:showIfTrue="@{FeatureSettings.chartsEnabled &amp;&amp; forecastsView.precipitationGraphData != null}"
             tools:layout_height="@dimen/forecast_panel_height" />
 
         <View
@@ -47,7 +47,7 @@
             android:layout_height="1dp"
             android:alpha="0.2"
             android:background="@color/colorOnSurface"
-            app:showIfTrue="@{FeatureSettings.hourlyForecastEnabled &amp;&amp; forecastsView.precipitationGraphData != null}" />
+            app:showIfTrue="@{FeatureSettings.chartsEnabled &amp;&amp; forecastsView.precipitationGraphData != null}" />
 
     </LinearLayout>
 
