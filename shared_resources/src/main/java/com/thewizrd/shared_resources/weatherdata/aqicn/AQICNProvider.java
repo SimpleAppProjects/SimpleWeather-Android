@@ -10,9 +10,6 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
-import com.thewizrd.shared_resources.utils.WeatherException;
-import com.thewizrd.shared_resources.weatherdata.AirQuality;
-import com.thewizrd.shared_resources.weatherdata.AirQualityProviderInterface;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -25,13 +22,12 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class AQICNProvider implements AirQualityProviderInterface {
+public final class AQICNProvider {
     private static final String QUERY_URL = "https://api.waqi.info/feed/geo:%s;%s/?token=%s";
     private static final int MAX_ATTEMPTS = 2;
 
-    @Override
-    public AirQuality getAirQualityData(LocationData location) throws WeatherException {
-        AirQuality aqiData = null;
+    public AQICNData getAirQualityData(LocationData location) {
+        AQICNData aqiData = null;
 
         String key = Keys.getAQICNKey();
         if (StringUtils.isNullOrWhitespace(key))
@@ -69,7 +65,7 @@ public class AQICNProvider implements AirQualityProviderInterface {
                         // Load data
                         Rootobject root = JSONParser.deserializer(stream, Rootobject.class);
 
-                        aqiData = new AirQuality(root);
+                        aqiData = new AQICNData(root);
 
                         // End Stream
                         stream.close();

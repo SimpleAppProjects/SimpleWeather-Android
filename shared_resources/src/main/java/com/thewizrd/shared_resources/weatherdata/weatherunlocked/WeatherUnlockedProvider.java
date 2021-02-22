@@ -165,9 +165,7 @@ public final class WeatherUnlockedProvider extends WeatherProviderImpl {
     }
 
     @Override
-    public Weather getWeather(LocationData location) throws WeatherException {
-        Weather weather = super.getWeather(location);
-
+    protected void updateWeatherData(LocationData location, Weather weather) throws WeatherException {
         ZoneOffset offset = location.getTzOffset();
         weather.setUpdateTime(weather.getUpdateTime().withZoneSameInstant(offset));
         weather.getCondition().setObservationTime(weather.getCondition().getObservationTime().withZoneSameInstant(offset));
@@ -188,8 +186,6 @@ public final class WeatherUnlockedProvider extends WeatherProviderImpl {
             LocalTime hrf_localTime = hrf_date.toLocalTime();
             hr_forecast.setIcon(getWeatherIcon(hrf_localTime.isBefore(sunrise) || hrf_localTime.isAfter(sunset), hr_forecast.getIcon()));
         }
-
-        return weather;
     }
 
     @Override

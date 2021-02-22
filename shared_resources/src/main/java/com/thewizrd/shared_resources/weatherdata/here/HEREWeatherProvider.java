@@ -208,9 +208,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl implements We
     }
 
     @Override
-    public Weather getWeather(LocationData location) throws WeatherException {
-        Weather weather = super.getWeather(location);
-
+    protected void updateWeatherData(LocationData location, Weather weather) {
         ZoneOffset offset = location.getTzOffset();
 
         if (weather.getWeatherAlerts() != null && weather.getWeatherAlerts().size() > 0) {
@@ -232,8 +230,6 @@ public final class HEREWeatherProvider extends WeatherProviderImpl implements We
         for (Forecast forecast : weather.getForecast()) {
             forecast.setDate(forecast.getDate().plusSeconds(offset.getTotalSeconds()));
         }
-
-        return weather;
     }
 
     @Override

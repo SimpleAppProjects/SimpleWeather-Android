@@ -1,9 +1,11 @@
 package com.thewizrd.shared_resources.weatherdata;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.google.common.collect.Iterables;
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
@@ -13,14 +15,20 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.tzdb.TZDBCache;
 import com.thewizrd.shared_resources.utils.LocationUtils;
+import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNData;
 import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNProvider;
+import com.thewizrd.shared_resources.weatherdata.aqicn.UviItem;
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.Locale;
 
 public abstract class WeatherProviderImpl implements WeatherProviderImplInterface {
     protected LocationProviderImpl locationProvider;
@@ -121,10 +129,55 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
         weather.getLocation().setLatitude((float) location.getLatitude());
         weather.getLocation().setLongitude((float) location.getLongitude());
 
+        // Provider-specifc updates/fixes
+        updateWeatherData(location, weather);
+
         // Additional external data
-        weather.getCondition().setAirQuality(new AQICNProvider().getAirQualityData(location));
+        updateAQIData(location, weather);
 
         return weather;
+    }
+
+    /**
+     * Providers weather provider specific updates to the weather object; For example,
+     * location tz offset fixes, etc.
+     *
+     * @param location Location data object
+     * @param weather  The weather data to update
+     */
+    protected abstract void updateWeatherData(LocationData location, Weather weather) throws WeatherException;
+
+    private void updateAQIData(LocationData location, Weather weather) {
+        AQICNData aqicnData = new AQICNProvider().getAirQualityData(location);
+        weather.getCondition().setAirQuality(aqicnData);
+
+        try {
+            if (aqicnData.getUviForecast() != null && aqicnData.getUviForecast().size() > 0) {
+                for (int i = 0; i < aqicnData.getUviForecast().size(); i++) {
+                    UviItem uviData = aqicnData.getUviForecast().get(i);
+                    LocalDate date = LocalDate.parse(uviData.getDay(), DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT));
+
+                    if (i == 0 && weather.getCondition().getUv() == null) {
+                        if (date.isEqual(weather.getCondition().getObservationTime().toLocalDate())) {
+                            weather.getCondition().setUv(new UV(uviData.getAvg()));
+                        }
+                    }
+
+                    Forecast forecastObj = Iterables.find(weather.getForecast(), input -> {
+                        return input != null && input.getDate().toLocalDate().isEqual(date);
+                    }, null);
+                    if (forecastObj != null && (forecastObj.getExtras() == null || forecastObj.getExtras().getUvIndex() == null)) {
+                        if (forecastObj.extras == null) {
+                            forecastObj.setExtras(new ForecastExtras());
+                        }
+
+                        forecastObj.getExtras().setUvIndex((float) uviData.getMax());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Logger.writeLine(Log.ERROR, e, "Error parsing AQI data");
+        }
     }
 
     /**

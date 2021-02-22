@@ -3,7 +3,6 @@ package com.thewizrd.shared_resources.weatherdata.nws;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
-import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.AstroDataProviderDateInterface;
 import com.thewizrd.shared_resources.weatherdata.AstroDataProviderInterface;
 import com.thewizrd.shared_resources.weatherdata.Astronomy;
@@ -16,12 +15,12 @@ public class SolCalcAstroProvider implements AstroDataProviderInterface, AstroDa
 
     // Calculations from NOAA Solar Calculator: https://www.esrl.noaa.gov/gmd/grad/solcalc/
     @Override
-    public Astronomy getAstronomyData(LocationData location) throws WeatherException {
+    public Astronomy getAstronomyData(LocationData location) {
         return getAstronomyData(location, ZonedDateTime.now());
     }
 
     @Override
-    public Astronomy getAstronomyData(LocationData location, ZonedDateTime date) throws WeatherException {
+    public Astronomy getAstronomyData(LocationData location, ZonedDateTime date) {
         AstroData astroData = getSunriseSetTimeUTC(date, location.getLatitude(), location.getLongitude());
 
         Astronomy astronomy = new Astronomy();

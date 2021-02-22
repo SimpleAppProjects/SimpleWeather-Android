@@ -7,11 +7,14 @@ public class Time {
     @SerializedName("s")
     private String S;
 
-    @SerializedName("v")
-    private int V;
+    @SerializedName("iso")
+    private String iso;
 
     @SerializedName("tz")
     private String tz;
+
+    @SerializedName("v")
+    private int V;
 
     public void setS(String S) {
         this.S = S;
@@ -21,12 +24,12 @@ public class Time {
         return S;
     }
 
-    public void setV(int V) {
-        this.V = V;
+    public void setIso(String iso) {
+        this.iso = iso;
     }
 
-    public int getV() {
-        return V;
+    public String getIso() {
+        return iso;
     }
 
     public void setTz(String tz) {
@@ -35,5 +38,13 @@ public class Time {
 
     public String getTz() {
         return tz;
+    }
+
+    public void setV(int V) {
+        this.V = V;
+    }
+
+    public int getV() {
+        return V;
     }
 }

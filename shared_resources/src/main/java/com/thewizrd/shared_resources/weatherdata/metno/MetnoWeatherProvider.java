@@ -157,9 +157,7 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
     }
 
     @Override
-    public Weather getWeather(LocationData location) throws WeatherException {
-        Weather weather = super.getWeather(location);
-
+    protected void updateWeatherData(LocationData location, Weather weather) {
         // OWM reports datetime in UTC; add location tz_offset
         ZoneOffset offset = location.getTzOffset();
         weather.setUpdateTime(weather.getUpdateTime().withZoneSameInstant(offset));
@@ -203,8 +201,6 @@ public final class MetnoWeatherProvider extends WeatherProviderImpl {
             hr_forecast.setCondition(getWeatherCondition(hr_forecast.getIcon()));
             hr_forecast.setIcon(getWeatherIcon(hrf_localTime.isBefore(sunrise) || hrf_localTime.isAfter(sunset), hr_forecast.getIcon()));
         }
-
-        return weather;
     }
 
     private static String getNeutralIconName(String icon_variant) {

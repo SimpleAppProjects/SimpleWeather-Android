@@ -218,9 +218,7 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
     }
 
     @Override
-    public Weather getWeather(LocationData location) throws WeatherException {
-        Weather weather = super.getWeather(location);
-
+    protected void updateWeatherData(LocationData location, Weather weather) throws WeatherException {
         // OWM reports datetime in UTC; add location tz_offset
         ZoneOffset offset = location.getTzOffset();
         weather.setUpdateTime(weather.getUpdateTime().withZoneSameInstant(offset));
@@ -239,8 +237,6 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
         newAstro.setSunrise(old.getSunrise());
         newAstro.setSunset(old.getSunset());
         weather.setAstronomy(newAstro);
-
-        return weather;
     }
 
     @Override
