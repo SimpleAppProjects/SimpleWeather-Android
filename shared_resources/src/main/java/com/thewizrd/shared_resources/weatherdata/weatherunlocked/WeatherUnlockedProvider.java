@@ -295,6 +295,7 @@ public final class WeatherUnlockedProvider extends WeatherProviderImpl {
                 case 21: // Patchy rain possible
                 case 50: // Patchy light drizzle
                 case 51: // Light drizzle
+                case 60: // Patchy light rain
                 case 61: // Light rain
                     if (isNight)
                         weatherIcon = WeatherIcons.NIGHT_ALT_SPRINKLE;
@@ -317,6 +318,8 @@ public final class WeatherUnlockedProvider extends WeatherProviderImpl {
                 case 24: // Patchy freezing drizzle possible
                 case 56: // Freezing drizzle
                 case 57: // Heavy freezing drizzle
+                case 68: // Light sleet
+                case 69: // Moderate or heavy sleet
                 case 79: // Ice pellets
                 case 83: // Light sleet showers
                 case 84: // Moderate or heavy sleet showers
