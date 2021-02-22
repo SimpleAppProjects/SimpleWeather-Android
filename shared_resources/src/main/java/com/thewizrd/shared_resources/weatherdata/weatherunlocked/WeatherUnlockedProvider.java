@@ -72,6 +72,11 @@ public final class WeatherUnlockedProvider extends WeatherProviderImpl {
     }
 
     @Override
+    public int getHourlyForecastInterval() {
+        return 3;
+    }
+
+    @Override
     public boolean isKeyValid(String key) {
         return false;
     }

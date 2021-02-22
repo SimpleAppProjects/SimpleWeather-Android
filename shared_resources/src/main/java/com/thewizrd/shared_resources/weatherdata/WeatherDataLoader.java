@@ -361,7 +361,15 @@ public final class WeatherDataLoader {
             final ZonedDateTime now = ZonedDateTime.now().withZoneSameInstant(location.getTzOffset());
             long duraMins = weather.getCondition().getObservationTime() == null ? 61 : Duration.between(weather.getCondition().getObservationTime(), now).toMinutes();
             if (duraMins > 60) {
-                HourlyForecast hrf = Settings.getFirstHourlyForecastDataByDate(location.getQuery(), now.truncatedTo(ChronoUnit.HOURS));
+                int interval = WeatherManager.getProvider(weather.getSource()).getHourlyForecastInterval();
+
+                ZonedDateTime nowHour = now.truncatedTo(ChronoUnit.HOURS);
+                HourlyForecast hrf = Settings.getFirstHourlyForecastDataByDate(location.getQuery(), nowHour);
+                if (hrf == null || Duration.between(now, hrf.getDate()).toHours() > (interval * 0.5)) {
+                    HourlyForecast prevHrf = Settings.getFirstHourlyForecastDataByDate(location.getQuery(), nowHour.minusHours(interval));
+                    if (prevHrf != null) hrf = prevHrf;
+                }
+
                 if (hrf != null) {
                     weather.getCondition().setWeather(hrf.getCondition());
                     weather.getCondition().setIcon(hrf.getIcon());

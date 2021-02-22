@@ -21,6 +21,7 @@ import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
+import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -29,7 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class ForecastsViewModel extends ViewModel {
+public class ForecastsListViewModel extends ViewModel {
     private LocationData locationData;
     private String unitCode;
     private String localeCode;
@@ -40,7 +41,7 @@ public class ForecastsViewModel extends ViewModel {
     private LiveData<PagedList<ForecastItemViewModel>> currentForecastsData;
     private LiveData<PagedList<HourlyForecastItemViewModel>> currentHrForecastsData;
 
-    public ForecastsViewModel() {
+    public ForecastsListViewModel() {
         forecasts = new MutableLiveData<>();
         hourlyForecasts = new MutableLiveData<>();
     }
@@ -78,7 +79,8 @@ public class ForecastsViewModel extends ViewModel {
             if (forecasts != null)
                 forecasts.postValue(currentForecastsData.getValue());
 
-            DataSource.Factory<Integer, HourlyForecastItemViewModel> hrFactory = Settings.getWeatherDAO().loadHourlyForecastsByQueryOrderByDateFilterByDate(location.getQuery(), ZonedDateTime.now(location.getTzOffset()).truncatedTo(ChronoUnit.HOURS))
+            int hrInterval = WeatherManager.getInstance().getHourlyForecastInterval();
+            DataSource.Factory<Integer, HourlyForecastItemViewModel> hrFactory = Settings.getWeatherDAO().loadHourlyForecastsByQueryOrderByDateFilterByDate(location.getQuery(), ZonedDateTime.now(location.getTzOffset()).minusHours((long) (hrInterval * 0.5d)).truncatedTo(ChronoUnit.HOURS))
                     .map(new Function<HourlyForecast, HourlyForecastItemViewModel>() {
                         @Override
                         public HourlyForecastItemViewModel apply(HourlyForecast input) {

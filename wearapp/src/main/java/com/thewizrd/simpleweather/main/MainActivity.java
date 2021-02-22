@@ -33,7 +33,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
-import com.thewizrd.shared_resources.controls.ForecastsViewModel;
+import com.thewizrd.shared_resources.controls.ForecastsListViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
@@ -64,7 +64,7 @@ public class MainActivity extends WearableListenerActivity implements MenuItem.O
     private Runnable mItemSelectedRunnable;
 
     private WeatherNowViewModel weatherNowView;
-    private ForecastsViewModel forecastsView;
+    private ForecastsListViewModel forecastsView;
     private WeatherAlertsViewModel alertsView;
 
     private BroadcastReceiver mBroadcastReceiver;
@@ -176,7 +176,7 @@ public class MainActivity extends WearableListenerActivity implements MenuItem.O
         // Create your application here
         final ViewModelProvider vmProvider = new ViewModelProvider(this);
         this.weatherNowView = vmProvider.get(WeatherNowViewModel.class);
-        this.forecastsView = vmProvider.get(ForecastsViewModel.class);
+        this.forecastsView = vmProvider.get(ForecastsListViewModel.class);
         this.alertsView = vmProvider.get(WeatherAlertsViewModel.class);
 
         forecastsView.getForecasts().observe(this, new Observer<PagedList<ForecastItemViewModel>>() {

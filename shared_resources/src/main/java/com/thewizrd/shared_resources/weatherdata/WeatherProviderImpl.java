@@ -39,6 +39,11 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
 
     public abstract boolean needsExternalAlertData();
 
+    @Override
+    public int getHourlyForecastInterval() {
+        return 1;
+    }
+
     /**
      * Retrieve a list of locations from the location provider
      *

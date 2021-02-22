@@ -19,6 +19,8 @@ public interface WeatherProviderImplInterface {
 
     boolean needsExternalAlertData();
 
+    int getHourlyForecastInterval();
+
     Collection<LocationQueryViewModel> getLocations(String ac_query) throws WeatherException;
 
     LocationQueryViewModel getLocation(WeatherUtils.Coordinate coordinate) throws WeatherException;

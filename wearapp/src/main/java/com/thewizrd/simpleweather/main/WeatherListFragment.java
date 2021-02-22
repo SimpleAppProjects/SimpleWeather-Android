@@ -20,7 +20,7 @@ import androidx.wear.widget.WearableLinearLayoutManager;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
-import com.thewizrd.shared_resources.controls.ForecastsViewModel;
+import com.thewizrd.shared_resources.controls.ForecastsListViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
@@ -38,7 +38,7 @@ import java.util.List;
 
 public class WeatherListFragment extends SwipeDismissFragment {
     private WeatherNowViewModel weatherView;
-    private ForecastsViewModel forecastsView;
+    private ForecastsListViewModel forecastsView;
     private WeatherAlertsViewModel alertsView;
     private LocationData locationData;
 
@@ -112,7 +112,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
         final ViewModelProvider vmProvider = new ViewModelProvider(getFragmentActivity());
         weatherView = vmProvider.get(WeatherNowViewModel.class);
         alertsView = vmProvider.get(WeatherAlertsViewModel.class);
-        forecastsView = vmProvider.get(ForecastsViewModel.class);
+        forecastsView = vmProvider.get(ForecastsListViewModel.class);
 
         binding.progressBar.setVisibility(View.VISIBLE);
     }

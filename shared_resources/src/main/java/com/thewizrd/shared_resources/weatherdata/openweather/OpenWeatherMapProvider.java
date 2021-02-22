@@ -78,6 +78,11 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
     }
 
     @Override
+    public int getHourlyForecastInterval() {
+        return 3;
+    }
+
+    @Override
     public boolean isKeyValid(String key) throws WeatherException {
         if (StringUtils.isNullOrWhitespace(key)) {
             throw new WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY);

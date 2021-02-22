@@ -15,10 +15,12 @@ import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Settings
 import com.thewizrd.shared_resources.weatherdata.Forecasts
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
 import java.util.concurrent.Callable
+import kotlin.math.roundToLong
 
 class ForecastsNowViewModel : ViewModel() {
     var locationData: LocationData? = null
@@ -65,7 +67,8 @@ class ForecastsNowViewModel : ViewModel() {
 
             currentHrForecastsData?.removeObserver(hrforecastObserver)
             currentHrForecastsData = AsyncTask.await(Callable<LiveData<List<HourlyForecast>>?> {
-                Settings.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.query, 12, ZonedDateTime.now(location.tzOffset).truncatedTo(ChronoUnit.HOURS))
+                val hrInterval = WeatherManager.getInstance().hourlyForecastInterval
+                Settings.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.query, 12, ZonedDateTime.now(location.tzOffset).minusHours((hrInterval * 0.5).roundToLong()).truncatedTo(ChronoUnit.HOURS))
             })
             currentHrForecastsData!!.observeForever(hrforecastObserver)
             hourlyForecastsData.postValue(hrForecastMapper.apply(currentHrForecastsData!!.value))

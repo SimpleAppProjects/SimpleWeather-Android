@@ -54,7 +54,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.Constants;
-import com.thewizrd.shared_resources.controls.ForecastsViewModel;
+import com.thewizrd.shared_resources.controls.ForecastsListViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
@@ -119,7 +119,7 @@ public class WeatherNowFragment extends CustomFragment
 
     // View Models
     private WeatherNowViewModel weatherView;
-    private ForecastsViewModel forecastsView;
+    private ForecastsListViewModel forecastsView;
     private ForecastPanelsViewModel forecastPanelsView;
     private WeatherAlertsViewModel alertsView;
 
@@ -359,7 +359,7 @@ public class WeatherNowFragment extends CustomFragment
         // Setup ViewModel
         ViewModelProvider vmProvider = new ViewModelProvider(getFragmentActivity());
         weatherView = vmProvider.get(WeatherNowViewModel.class);
-        forecastsView = vmProvider.get(ForecastsViewModel.class);
+        forecastsView = vmProvider.get(ForecastsListViewModel.class);
         forecastPanelsView = vmProvider.get(ForecastPanelsViewModel.class);
         alertsView = vmProvider.get(WeatherAlertsViewModel.class);
 

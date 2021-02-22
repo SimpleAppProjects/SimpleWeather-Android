@@ -30,7 +30,7 @@ import com.google.android.material.transition.MaterialSharedAxis;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
-import com.thewizrd.shared_resources.controls.ForecastsViewModel;
+import com.thewizrd.shared_resources.controls.ForecastsListViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel;
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
@@ -60,7 +60,7 @@ import java.util.List;
 
 public class WeatherListFragment extends ToolbarFragment {
     private WeatherNowViewModel weatherView;
-    private ForecastsViewModel forecastsView;
+    private ForecastsListViewModel forecastsView;
     private WeatherAlertsViewModel alertsView;
     private LocationData location;
 
@@ -203,7 +203,7 @@ public class WeatherListFragment extends ToolbarFragment {
         final ViewModelProvider vmProvider = new ViewModelProvider(getAppCompatActivity());
         weatherView = vmProvider.get(WeatherNowViewModel.class);
         alertsView = vmProvider.get(WeatherAlertsViewModel.class);
-        forecastsView = new ViewModelProvider(this).get(ForecastsViewModel.class);
+        forecastsView = new ViewModelProvider(this).get(ForecastsListViewModel.class);
 
         args = WeatherListFragmentArgs.fromBundle(requireArguments());
 

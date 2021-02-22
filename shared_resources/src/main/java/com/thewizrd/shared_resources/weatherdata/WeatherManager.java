@@ -118,6 +118,11 @@ public final class WeatherManager implements WeatherProviderImplInterface {
     }
 
     @Override
+    public int getHourlyForecastInterval() {
+        return weatherProvider.getHourlyForecastInterval();
+    }
+
+    @Override
     public void updateLocationData(LocationData location) {
         weatherProvider.updateLocationData(location);
     }
