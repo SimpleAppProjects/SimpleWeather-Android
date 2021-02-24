@@ -117,4 +117,19 @@ public final class SimpleLibrary {
     public Map<String, WeatherIconProvider> getIconProviders() {
         return Collections.unmodifiableMap(mIconProviders);
     }
+
+    public void resetIconProviders() {
+        WeatherIconProvider defaultProvider = null;
+        if (mIconProviders.containsKey(WeatherIconsProvider.KEY)) {
+            defaultProvider = mIconProviders.get(WeatherIconsProvider.KEY);
+        }
+
+        mIconProviders.clear();
+
+        if (defaultProvider != null) {
+            mIconProviders.put(defaultProvider.getKey(), defaultProvider);
+        } else {
+            registerIconProvider(new WeatherIconsProvider());
+        }
+    }
 }

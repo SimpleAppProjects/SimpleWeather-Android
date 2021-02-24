@@ -48,6 +48,7 @@ import androidx.preference.PreferenceGroup;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.common.collect.Iterables;
 import com.thewizrd.extras.ExtrasLibrary;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.SimpleLibrary;
@@ -133,9 +134,11 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
     private Preference registerPref;
     private ListPreference themePref;
     private ListPreference languagePref;
+    private Preference premiumPref;
 
     private PreferenceCategory notCategory;
     private PreferenceCategory apiCategory;
+    private PreferenceCategory aboutCategory;
 
     // Intent queue
     private HashSet<Intent.FilterComparison> intentQueue;
@@ -420,6 +423,17 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
         final List<ProviderEntry> providers = WeatherAPI.APIs;
         providerPref = findPreference(KEY_API);
+
+        // Remove if subs are not supported
+        if (!ExtrasLibrary.Companion.getAreSubscriptionsSupported()) {
+            ProviderEntry hereAPIEntry = Iterables.find(providers, input -> {
+                return input != null && Objects.equals(input.getValue(), WeatherAPI.HERE);
+            }, null);
+
+            if (hereAPIEntry != null) {
+                providers.remove(hereAPIEntry);
+            }
+        }
 
         String[] entries = new String[providers.size()];
         String[] entryValues = new String[providers.size()];
@@ -715,13 +729,21 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             }
         });
 
-        findPreference(KEY_PREMIUM).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        premiumPref = findPreference(KEY_PREMIUM);
+        premiumPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 Navigation.findNavController(getRootView()).navigate(R.id.action_settingsFragment_to_premiumFragment);
                 return true;
             }
         });
+
+        aboutCategory = (PreferenceCategory) findPreference(KEY_ABOUTAPP).getParent();
+
+        // Remove if subs are not supported
+        if (!ExtrasLibrary.Companion.getAreSubscriptionsSupported()) {
+            aboutCategory.removePreference(premiumPref);
+        }
 
         tintIcons(getPreferenceScreen(), ContextUtils.getColor(getAppCompatActivity(), R.attr.colorPrimary));
     }
