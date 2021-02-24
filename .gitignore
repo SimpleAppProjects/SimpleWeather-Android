@@ -29,3 +29,4 @@ wearapp/src/*/google-services.json
 /secure.properties
 weathericons
 extras
+*.7z
