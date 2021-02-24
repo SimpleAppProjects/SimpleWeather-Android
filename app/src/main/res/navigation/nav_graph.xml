@@ -99,6 +99,9 @@
         <action
             android:id="@+id/action_settingsFragment_to_iconsFragment"
             app:destination="@id/iconsFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_premiumFragment"
+            app:destination="@id/premiumFragment" />
     </fragment>
     <fragment
         android:id="@+id/aboutAppFragment"
@@ -135,7 +138,11 @@
     <fragment
         android:id="@+id/iconsFragment"
         android:name="com.thewizrd.simpleweather.preferences.SettingsFragment$IconsFragment"
-        android:label="IconsFragment" />
+        android:label="IconsFragment">
+        <action
+            android:id="@+id/action_iconsFragment_to_premiumFragment"
+            app:destination="@id/premiumFragment" />
+    </fragment>
     <action
         android:id="@+id/action_global_weatherListFragment"
         app:destination="@id/weatherListFragment" />
@@ -149,4 +156,8 @@
             app:nullable="true"
             android:defaultValue="@null" />
     </fragment>
+    <fragment
+        android:id="@+id/premiumFragment"
+        android:name="com.thewizrd.extras.premium.PremiumFragment"
+        android:label="PremiumFragment" />
 </navigation>

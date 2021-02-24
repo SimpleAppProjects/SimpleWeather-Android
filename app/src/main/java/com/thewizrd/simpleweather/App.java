@@ -21,6 +21,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.thewizrd.extras.ExtrasLibrary;
 import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.SimpleLibrary;
@@ -38,6 +39,7 @@ public class App extends Application implements ApplicationLib, Application.Acti
     private static ApplicationLib sInstance = null;
 
     private Context context;
+    private Bundle appProperties;
     private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
     private AppState applicationState;
     private int mActivitiesStarted;
@@ -73,9 +75,15 @@ public class App extends Application implements ApplicationLib, Application.Acti
         return true;
     }
 
+    @Override
+    public Bundle getProperties() {
+        return appProperties;
+    }
+
     public void onCreate() {
         super.onCreate();
         context = LocaleUtils.attachBaseContext(getApplicationContext());
+        appProperties = new Bundle();
         sInstance = this;
 
         registerActivityLifecycleCallbacks(this);
@@ -84,6 +92,7 @@ public class App extends Application implements ApplicationLib, Application.Acti
 
         // Init shared library
         SimpleLibrary.init(this);
+        ExtrasLibrary.Companion.initialize(this);
 
         // Start logger
         Logger.init(context);

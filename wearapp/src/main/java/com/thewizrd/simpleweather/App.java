@@ -29,6 +29,7 @@ public class App extends Application implements ApplicationLib, Application.Acti
     private static ApplicationLib sInstance = null;
 
     private Context context;
+    private Bundle appProperties;
     private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
     private AppState applicationState;
     private int mActivitiesStarted;
@@ -64,9 +65,15 @@ public class App extends Application implements ApplicationLib, Application.Acti
         return false;
     }
 
+    @Override
+    public Bundle getProperties() {
+        return appProperties;
+    }
+
     public void onCreate() {
         super.onCreate();
         context = LocaleUtils.attachBaseContext(getApplicationContext());
+        appProperties = new Bundle();
         sInstance = this;
 
         registerActivityLifecycleCallbacks(this);

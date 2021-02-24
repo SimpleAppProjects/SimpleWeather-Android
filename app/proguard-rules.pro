@@ -41,3 +41,6 @@
 -keep public enum com.thewizrd.simpleweather.main.WeatherListType {
   public *;
 }
+
+# RevenueCat
+-keep class com.revenuecat.purchases.** { *; }

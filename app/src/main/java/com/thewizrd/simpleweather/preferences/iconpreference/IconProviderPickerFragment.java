@@ -4,10 +4,13 @@ import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
 import androidx.annotation.LayoutRes;
+import androidx.navigation.Navigation;
 import androidx.preference.PreferenceScreen;
 
+import com.thewizrd.extras.ExtrasLibrary;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;
+import com.thewizrd.shared_resources.icons.WeatherIconsProvider;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.preferences.radiopreference.CandidateInfo;
@@ -17,6 +20,7 @@ import com.thewizrd.simpleweather.preferences.radiopreference.RadioButtonPrefere
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public abstract class IconProviderPickerFragment extends RadioButtonPickerFragment {
 
@@ -104,5 +108,16 @@ public abstract class IconProviderPickerFragment extends RadioButtonPickerFragme
             screen.addPreference(pref);
         }
         mayCheckOnlyRadioButton();
+        updateCheckedState(defaultKey);
+    }
+
+    @Override
+    protected void onRadioButtonConfirmed(String selectedKey) {
+        if (!Objects.equals(selectedKey, WeatherIconsProvider.KEY) && !ExtrasLibrary.Companion.isEnabled()) {
+            // Navigate to premium page
+            Navigation.findNavController(getRootView()).navigate(R.id.action_iconsFragment_to_premiumFragment);
+            return;
+        }
+        super.onRadioButtonConfirmed(selectedKey);
     }
 }

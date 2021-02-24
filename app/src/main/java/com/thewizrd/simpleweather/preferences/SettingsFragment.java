@@ -48,6 +48,7 @@ import androidx.preference.PreferenceGroup;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.thewizrd.extras.ExtrasLibrary;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
@@ -87,6 +88,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.thewizrd.shared_resources.utils.Settings.KEY_API;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_APIKEY;
@@ -113,6 +115,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
     private static final String KEY_UNITS = "key_units";
     private static final String KEY_ICONS = "key_icons";
     private static final String KEY_FEATURES = "key_features";
+    private static final String KEY_PREMIUM = "key_premium";
     private static final String KEY_ABOUTAPP = "key_aboutapp";
     private static final String KEY_APIREGISTER = "key_apiregister";
     private static final String CATEGORY_NOTIFICATION = "category_notification";
@@ -432,6 +435,12 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         providerPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (Objects.equals(newValue.toString(), WeatherAPI.HERE) && !ExtrasLibrary.Companion.isEnabled()) {
+                    // Navigate to premium page
+                    Navigation.findNavController(getRootView()).navigate(R.id.action_settingsFragment_to_premiumFragment);
+                    return false;
+                }
+
                 ListPreference pref = (ListPreference) preference;
                 WeatherProviderImpl selectedWProv = WeatherManager.getProvider(newValue.toString());
 
@@ -703,6 +712,14 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 final String requestedLang = newValue.toString();
                 splitInstallRequest = SplitLocaleInstaller.installLocale(requireActivity(), requestedLang);
                 return false;
+            }
+        });
+
+        findPreference(KEY_PREMIUM).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Navigation.findNavController(getRootView()).navigate(R.id.action_settingsFragment_to_premiumFragment);
+                return true;
             }
         });
 

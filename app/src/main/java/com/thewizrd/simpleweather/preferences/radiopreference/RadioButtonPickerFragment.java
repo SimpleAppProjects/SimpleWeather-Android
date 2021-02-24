@@ -11,6 +11,7 @@ import androidx.preference.PreferenceScreen;
 import com.thewizrd.simpleweather.preferences.ToolbarPreferenceFragmentCompat;
 
 import java.util.List;
+import java.util.Objects;
 
 public abstract class RadioButtonPickerFragment extends ToolbarPreferenceFragmentCompat
         implements RadioButtonPreference.OnClickListener {
@@ -88,9 +89,7 @@ public abstract class RadioButtonPickerFragment extends ToolbarPreferenceFragmen
         pref.setTitle(info.loadLabel());
         pref.setIcon(info.loadIcon());
         pref.setKey(key);
-        if (TextUtils.equals(defaultKey, key)) {
-            pref.setChecked(true);
-        }
+        pref.setChecked(Objects.equals(defaultKey, key));
         pref.setEnabled(info.enabled);
         pref.setOnClickListener(this);
         return pref;

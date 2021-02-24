@@ -31,6 +31,7 @@ import com.google.common.collect.Collections2;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
+import com.thewizrd.extras.ExtrasLibrary;
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
@@ -135,7 +136,7 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
 
     @Override
     public void updateRadarView() {
-        radarContainerBinding.radarToolbar.setVisibility(interactionsEnabled() ? View.VISIBLE : View.GONE);
+        radarContainerBinding.radarToolbar.setVisibility(interactionsEnabled() && ExtrasLibrary.Companion.isEnabled() ? View.VISIBLE : View.GONE);
         getMapView().getMapAsync(this);
     }
 

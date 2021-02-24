@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 
 public interface ApplicationLib {
     Context getAppContext();
@@ -13,4 +14,6 @@ public interface ApplicationLib {
     AppState getAppState();
 
     boolean isPhone();
+
+    Bundle getProperties();
 }
