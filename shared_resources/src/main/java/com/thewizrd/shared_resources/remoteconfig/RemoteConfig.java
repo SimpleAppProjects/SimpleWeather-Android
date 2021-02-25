@@ -5,7 +5,6 @@ import androidx.annotation.NonNull;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.locationdata.google.GoogleLocationProvider;
-import com.thewizrd.shared_resources.locationdata.here.HERELocationProvider;
 import com.thewizrd.shared_resources.locationdata.locationiq.LocationIQProvider;
 import com.thewizrd.shared_resources.locationdata.weatherapi.WeatherApiLocationProvider;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -24,8 +23,10 @@ public final class RemoteConfig {
 
         if (config != null) {
             switch (config.getLocSource()) {
+                /*
                 case WeatherAPI.HERE:
                     return new HERELocationProvider();
+                 */
                 case WeatherAPI.LOCATIONIQ:
                     return new LocationIQProvider();
                 case WeatherAPI.GOOGLE:

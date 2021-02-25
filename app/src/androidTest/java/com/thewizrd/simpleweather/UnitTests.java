@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -92,6 +93,11 @@ public class UnitTests {
             @Override
             public boolean isPhone() {
                 return true;
+            }
+
+            @Override
+            public Bundle getProperties() {
+                return new Bundle();
             }
         };
 

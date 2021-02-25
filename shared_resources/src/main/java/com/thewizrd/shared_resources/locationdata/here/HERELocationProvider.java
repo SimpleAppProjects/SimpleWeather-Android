@@ -3,6 +3,7 @@ package com.thewizrd.shared_resources.locationdata.here;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.SimpleLibrary;
@@ -60,6 +61,11 @@ public final class HERELocationProvider extends LocationProviderImpl {
     @Override
     public boolean needsLocationFromID() {
         return true;
+    }
+
+    // Keep hidden for now
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    private HERELocationProvider() {
     }
 
     @Override

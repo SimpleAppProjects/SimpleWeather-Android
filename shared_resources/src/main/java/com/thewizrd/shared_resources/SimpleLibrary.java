@@ -96,7 +96,9 @@ public final class SimpleLibrary {
     }
 
     public void registerIconProvider(@NonNull WeatherIconProvider provider) {
-        mIconProviders.put(provider.getKey(), provider);
+        if (!mIconProviders.containsKey(provider.getKey())) {
+            mIconProviders.put(provider.getKey(), provider);
+        }
     }
 
     @NonNull
