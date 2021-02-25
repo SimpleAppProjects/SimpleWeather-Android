@@ -94,5 +94,8 @@
     <string name="splitlang_installing">"Sprachpaket installieren..."</string>
     <string name="splitlang_downloading">"Herunterladen des Sprachpakets..."</string>
     <string name="splitlang_failure">"Sprachpaket konnte nicht installiert werden"</string>
+
+    <!-- Icons -->
     <string name="pref_title_icons">"Symbole"</string>
+    <string name="pref_title_feature_charts">"Diagramme"</string>
 </resources>
