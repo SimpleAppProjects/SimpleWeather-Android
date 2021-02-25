@@ -1,15 +1,11 @@
 package com.thewizrd.simpleweather.databinding;
 
-import android.graphics.drawable.AnimatedVectorDrawable;
-import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.databinding.BindingAdapter;
@@ -20,7 +16,6 @@ import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherDetailsType;
-import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.NumberUtils;
@@ -121,20 +116,5 @@ public class BindingAdapters {
     public static <T extends Object> void invisibleIfEmpty(View view, Collection<T> c) {
         boolean isRound = view.getContext().getResources().getConfiguration().isScreenRound();
         view.setVisibility(c == null || c.isEmpty() ? (isRound ? View.INVISIBLE : View.GONE) : View.VISIBLE);
-    }
-
-    @BindingAdapter("weatherIcon")
-    public static void animateIconIfAvailable(@NonNull final ImageView view, @DrawableRes final int resId) {
-        view.setImageResource(resId);
-
-        final Drawable drwbl = view.getDrawable();
-        if (drwbl instanceof AnimatedVectorDrawable) {
-            ((AnimatedVectorDrawable) drwbl).start();
-        }
-    }
-
-    @BindingAdapter("weatherIcon")
-    public static void animateIconIfAvailable(@NonNull final ImageView view, String icon) {
-        animateIconIfAvailable(view, icon != null ? WeatherIconsManager.getInstance().getWeatherIconResource(icon) : 0);
     }
 }
