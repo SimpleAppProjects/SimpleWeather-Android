@@ -7,6 +7,7 @@ import androidx.annotation.WorkerThread;
 import androidx.core.util.ObjectsCompat;
 import androidx.databinding.Bindable;
 
+import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.BR;
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.R;
@@ -28,6 +29,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class WeatherNowViewModel extends ObservableViewModel {
     private String location;
@@ -591,17 +593,10 @@ public class WeatherNowViewModel extends ObservableViewModel {
         notifyPropertyChanged(BR.moonPhase);
         notifyPropertyChanged(BR.weatherDetails);
 
-        String creditPrefix = context.getString(R.string.credit_prefix);
-        if (WeatherAPI.OPENWEATHERMAP.equals(weather.getSource()))
-            weatherCredit = String.format("%s OpenWeatherMap", creditPrefix);
-        else if (WeatherAPI.METNO.equals(weather.getSource()))
-            weatherCredit = String.format("%s MET Norway", creditPrefix);
-        else if (WeatherAPI.HERE.equals(weather.getSource()))
-            weatherCredit = String.format("%s HERE Weather", creditPrefix);
-        else if (WeatherAPI.NWS.equals(weather.getSource()))
-            weatherCredit = String.format("%s U.S. National Weather Service", creditPrefix);
-        else if (WeatherAPI.WEATHERUNLOCKED.equals(weather.getSource()))
-            weatherCredit = String.format("%s WeatherUnlocked", creditPrefix);
+        ProviderEntry entry = Iterables.find(WeatherAPI.APIs, wapi -> wapi != null && Objects.equals(weatherSource, wapi.getValue()), null);
+        weatherCredit = String.format("%s %s",
+                context.getString(R.string.credit_prefix),
+                entry != null ? entry.toString() : WeatherIcons.EM_DASH);
         notifyPropertyChanged(BR.weatherCredit);
     }
 

@@ -47,7 +47,7 @@ public class WeatherAPI {
                             "https://www.here.com/en", "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"),
                     new ProviderEntry("MET Norway", METNO,
                             "https://www.met.no/en", "https://www.met.no/en"),
-                    new ProviderEntry("U.S. National Weather Service (NOAA - U.S. Only)", NWS,
+                    new ProviderEntry("National Weather Service (United States)", NWS,
                             "https://www.weather.gov", "https://www.weather.gov"),
                     new ProviderEntry("OpenWeatherMap", OPENWEATHERMAP,
                             "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"),
@@ -76,7 +76,7 @@ public class WeatherAPI {
                     "https://locationiq.com", "https://locationiq.com"),
             new ProviderEntry("Google", GOOGLE,
                     "https://google.com/maps", "https://google.com/maps"),
-            new ProviderEntry("WeatherAPI", WEATHERAPI,
+            new ProviderEntry("WeatherAPI.com", WEATHERAPI,
                     "https://weatherapi.com", "https://weatherapi.com/api")
     );
 }

@@ -1,25 +1,28 @@
 package com.thewizrd.shared_resources.adapters;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.util.ObjectsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.R;
-import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
+import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.databinding.LocationQueryViewBinding;
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface;
+import com.thewizrd.shared_resources.icons.WeatherIcons;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class LocationQueryAdapter extends RecyclerView.Adapter {
     private List<LocationQueryViewModel> mDataset;
@@ -132,19 +135,15 @@ public class LocationQueryAdapter extends RecyclerView.Adapter {
         }
 
         public void setHeader() {
-            String creditPrefix = SimpleLibrary.getInstance().getAppContext().getString(R.string.credit_prefix);
-            @WeatherAPI.LocationAPIs
-            String locationAPI = WeatherManager.getInstance().getLocationProvider().getLocationAPI();
+            final Context context = header.getContext();
+            @WeatherAPI.LocationAPIs final String locationAPI = WeatherManager.getInstance().getLocationProvider().getLocationAPI();
 
-            if (ObjectsCompat.equals(locationAPI, WeatherAPI.HERE)) {
-                header.setText(String.format("%s HERE Maps", creditPrefix));
-            } else if (ObjectsCompat.equals(locationAPI, WeatherAPI.LOCATIONIQ)) {
-                header.setText(String.format("%s LocationIQ", creditPrefix));
-            } else if (ObjectsCompat.equals(locationAPI, WeatherAPI.GOOGLE)) {
-                header.setText(String.format("%s Google", creditPrefix));
-            } else if (ObjectsCompat.equals(locationAPI, WeatherAPI.WEATHERAPI)) {
-                header.setText(String.format("%s WeatherAPI.com", creditPrefix));
-            }
+            ProviderEntry entry = Iterables.find(WeatherAPI.LocationAPIs, lapi -> lapi != null && Objects.equals(locationAPI, lapi.getValue()), null);
+            String credit = String.format("%s %s",
+                    context.getString(R.string.credit_prefix),
+                    entry != null ? entry.toString() : WeatherIcons.EM_DASH);
+
+            header.setText(credit);
         }
     }
 }
