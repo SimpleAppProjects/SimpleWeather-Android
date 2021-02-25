@@ -61,7 +61,7 @@ class VersionMigrations {
             }
 
             if (Settings.getVersionCode() < 295000000) {
-                if (WeatherAPI.YAHOO.equals(Settings.getAPI())) {
+                if (WeatherAPI.YAHOO.equals(Settings.getAPI()) || WeatherAPI.HERE.equals(Settings.getAPI())) {
                     // Yahoo Weather API is no longer in service
                     // Set default API to WeatherUnlocked
                     Settings.setAPI(WeatherAPI.WEATHERUNLOCKED);
