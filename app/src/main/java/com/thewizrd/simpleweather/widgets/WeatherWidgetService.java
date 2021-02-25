@@ -1044,12 +1044,20 @@ public class WeatherWidgetService extends SafeJobIntentService {
                 updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0x00);
                 updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.TRANSPARENT);
                 updateViews.setImageViewBitmap(R.id.panda_background, null);
+
+                if (provider.getWidgetType() == WidgetType.Widget4x2) {
+                    updateViews.setViewVisibility(R.id.weather_icon_overlay, View.GONE);
+                }
             } else {
                 updateViews.setImageViewBitmap(R.id.widgetBackground, ImageUtils.createColorBitmap(backgroundColor));
                 updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.TRANSPARENT);
                 updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF);
                 updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.TRANSPARENT);
                 updateViews.setImageViewBitmap(R.id.panda_background, null);
+
+                if (provider.getWidgetType() == WidgetType.Widget4x2) {
+                    updateViews.setViewVisibility(R.id.weather_icon_overlay, View.GONE);
+                }
             }
         }
 
@@ -1601,6 +1609,10 @@ public class WeatherWidgetService extends SafeJobIntentService {
                         final ImageDataViewModel imageData = WeatherUtils.getImageData(weather);
                         String backgroundUri = imageData != null ? imageData.getImageURI() : null;
                         loadBackgroundImage(updateViews, provider, appWidgetId, backgroundUri, cellWidth, cellHeight);
+                    }
+                } else {
+                    if (provider.getWidgetType() == WidgetType.Widget4x2) {
+                        updateViews.setViewVisibility(R.id.weather_icon_overlay, View.GONE);
                     }
                 }
 
