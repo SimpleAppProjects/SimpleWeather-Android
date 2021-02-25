@@ -73,11 +73,11 @@ public class DataSyncManager {
                 DataMap unitMap = dataMap.getDataMap(WearableSettings.KEY_UNITS);
                 final String oldUnits = Settings.getUnitString();
                 if (unitMap != null) {
-                    Settings.setTemperatureUnit(dataMap.getString(WearableSettings.KEY_TEMPUNIT, Units.FAHRENHEIT));
-                    Settings.setSpeedUnit(dataMap.getString(WearableSettings.KEY_SPEEDUNIT, Units.MILES_PER_HOUR));
-                    Settings.setDistanceUnit(dataMap.getString(WearableSettings.KEY_DISTANCEUNIT, Units.MILES));
-                    Settings.setPressureUnit(dataMap.getString(WearableSettings.KEY_PRESSUREUNIT, Units.INHG));
-                    Settings.setPrecipitationUnit(dataMap.getString(WearableSettings.KEY_PRECIPITATIONUNIT, Units.INCHES));
+                    Settings.setTemperatureUnit(unitMap.getString(WearableSettings.KEY_TEMPUNIT, Units.FAHRENHEIT));
+                    Settings.setSpeedUnit(unitMap.getString(WearableSettings.KEY_SPEEDUNIT, Units.MILES_PER_HOUR));
+                    Settings.setDistanceUnit(unitMap.getString(WearableSettings.KEY_DISTANCEUNIT, Units.MILES));
+                    Settings.setPressureUnit(unitMap.getString(WearableSettings.KEY_PRESSUREUNIT, Units.INHG));
+                    Settings.setPrecipitationUnit(unitMap.getString(WearableSettings.KEY_PRECIPITATIONUNIT, Units.INCHES));
                 } else {
                     Settings.setDefaultUnits(dataMap.getString(WearableSettings.KEY_TEMPUNIT, Units.FAHRENHEIT));
                 }
