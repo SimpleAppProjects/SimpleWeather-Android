@@ -18,21 +18,19 @@ public class LineDataSeries {
     private Float seriesMin = null, seriesMax = null;
 
     public LineDataSeries(List<YEntryData> seriesData) {
-        if (seriesData == null || seriesData.size() <= 0) {
-            throw new IllegalArgumentException("Series data cannot be empty or null");
-        }
         this.seriesData = seriesData;
+
+        if (this.seriesData == null) {
+            this.seriesData = new ArrayList<>();
+        }
+
         this.seriesLabel = null;
         this.seriesColors = Ints.asList(DEFAULT_COLORS);
     }
 
     public LineDataSeries(String seriesLabel, List<YEntryData> seriesData) {
-        if (seriesData == null || seriesData.size() <= 0) {
-            throw new IllegalArgumentException("Series data cannot be empty or null");
-        }
-        this.seriesData = seriesData;
+        this(seriesData);
         this.seriesLabel = seriesLabel;
-        this.seriesColors = Ints.asList(DEFAULT_COLORS);
     }
 
     public String getSeriesLabel() {

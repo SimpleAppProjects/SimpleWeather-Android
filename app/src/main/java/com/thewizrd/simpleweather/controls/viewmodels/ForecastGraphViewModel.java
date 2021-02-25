@@ -228,9 +228,6 @@ public class ForecastGraphViewModel extends ViewModel {
 
         LineDataSeries series;
 
-        if (yData == null || yData.size() <= 0)
-            return null;
-
         switch (graphType) {
             /*
             case TEMPERATURE:

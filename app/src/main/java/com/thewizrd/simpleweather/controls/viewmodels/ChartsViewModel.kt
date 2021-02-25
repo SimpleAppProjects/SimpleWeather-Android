@@ -110,59 +110,59 @@ class ChartsViewModel : ViewModel() {
 
             //tempData?.addForecastData(hrfcast, ForecastGraphViewModel.ForecastGraphType.TEMPERATURE)
             if (popData != null) {
-                if (hrfcast.extras?.pop ?: -1 >= 0) {
+                if (hrfcast.extras?.pop != null) {
                     popData.addForecastData(hrfcast, ForecastGraphViewModel.ForecastGraphType.PRECIPITATION)
                 }
             }
             if (windData != null) {
-                if (hrfcast.windMph ?: -1f >= 0) {
+                if (hrfcast.windMph != null && hrfcast.windKph != null) {
                     windData.addForecastData(hrfcast, ForecastGraphViewModel.ForecastGraphType.WIND)
                 }
             }
             if (rainData != null) {
-                if (hrfcast.extras?.qpfRainIn ?: -1f >= 0 && hrfcast.extras?.qpfRainMm ?: -1f >= 0) {
+                if (hrfcast.extras?.qpfRainIn != null && hrfcast.extras?.qpfRainMm != null) {
                     rainData.addForecastData(hrfcast, ForecastGraphViewModel.ForecastGraphType.RAIN)
                 }
             }
             if (snowData != null) {
-                if (hrfcast.extras?.qpfSnowIn ?: -1f >= 0 && hrfcast.extras?.qpfSnowCm ?: -1f >= 0) {
+                if (hrfcast.extras?.qpfSnowIn != null && hrfcast.extras?.qpfSnowCm != null) {
                     snowData.addForecastData(hrfcast, ForecastGraphViewModel.ForecastGraphType.SNOW)
                 }
             }
             if (uviData != null) {
-                if (hrfcast.extras?.uvIndex ?: -1f >= 0) {
+                if (hrfcast.extras?.uvIndex != null) {
                     uviData.addForecastData(hrfcast, ForecastGraphViewModel.ForecastGraphType.UVINDEX)
                 }
             }
             if (humidityData != null) {
-                if (hrfcast.extras?.humidity ?: -1 >= 0) {
+                if (hrfcast.extras?.humidity != null) {
                     humidityData.addForecastData(hrfcast, ForecastGraphViewModel.ForecastGraphType.HUMIDITY)
                 }
             }
         }
 
         /*
-        if (tempData != null) {
-            data.add(tempData)
+        if (tempData?.seriesData?.size ?: 0 > 0) {
+            data.add(tempData!!)
         }
          */
-        if (popData != null) {
-            data.add(popData)
+        if (popData?.seriesData?.size ?: 0 > 0) {
+            data.add(popData!!)
         }
-        if (windData != null) {
-            data.add(windData)
+        if (windData?.seriesData?.size ?: 0 > 0) {
+            data.add(windData!!)
         }
-        if (humidityData != null) {
-            data.add(humidityData)
+        if (humidityData?.seriesData?.size ?: 0 > 0) {
+            data.add(humidityData!!)
         }
-        if (uviData != null) {
-            data.add(uviData)
+        if (uviData?.seriesData?.size ?: 0 > 0) {
+            data.add(uviData!!)
         }
-        if (rainData != null) {
-            data.add(rainData)
+        if (rainData?.seriesData?.size ?: 0 > 0) {
+            data.add(rainData!!)
         }
-        if (snowData != null) {
-            data.add(snowData)
+        if (snowData?.seriesData?.size ?: 0 > 0) {
+            data.add(snowData!!)
         }
 
         return data

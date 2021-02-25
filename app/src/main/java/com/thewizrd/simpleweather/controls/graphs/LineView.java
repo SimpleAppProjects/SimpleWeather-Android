@@ -435,11 +435,6 @@ public class LineView extends HorizontalScrollView implements IGraph {
                         String longestStr = "";
 
                         for (LineDataSeries series : args.newItems) {
-                            if (series.getSeriesData().size() > dataLabels.size()) {
-                                throw new RuntimeException("LineView error:" +
-                                        " seriesData.size() > dataLabels.size() !!!");
-                            }
-
                             for (YEntryData i : series.getSeriesData()) {
                                 if (biggestData < i.getY()) {
                                     biggestData = i.getY();
