@@ -421,7 +421,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             }
         });
 
-        final List<ProviderEntry> providers = WeatherAPI.APIs;
+        final List<ProviderEntry> providers = new ArrayList<>(WeatherAPI.APIs);
         providerPref = findPreference(KEY_API);
 
         // Remove if subs are not supported

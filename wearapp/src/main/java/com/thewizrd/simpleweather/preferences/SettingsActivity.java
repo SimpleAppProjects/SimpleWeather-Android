@@ -36,6 +36,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.wear.widget.SwipeDismissFrameLayout;
 
 import com.google.android.wearable.intent.RemoteIntent;
+import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
@@ -60,9 +61,11 @@ import com.thewizrd.simpleweather.fragments.SwipeDismissPreferenceFragment;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import static com.thewizrd.shared_resources.utils.Settings.KEY_API;
 import static com.thewizrd.shared_resources.utils.Settings.KEY_APIKEY;
@@ -393,8 +396,19 @@ public class SettingsActivity extends WearableListenerActivity {
                 }
             });
 
-            final List<ProviderEntry> providers = WeatherAPI.APIs;
+            final List<ProviderEntry> providers = new ArrayList<>(WeatherAPI.APIs);
             providerPref = (ListPreference) findPreference(KEY_API);
+
+            // Remove HERE for Wear
+            if (Settings.getDataSync() == WearableDataSync.OFF) {
+                ProviderEntry hereAPIEntry = Iterables.find(providers, input -> {
+                    return input != null && Objects.equals(input.getValue(), WeatherAPI.HERE);
+                }, null);
+
+                if (hereAPIEntry != null) {
+                    providers.remove(hereAPIEntry);
+                }
+            }
 
             String[] entries = new String[providers.size()];
             String[] entryValues = new String[providers.size()];
@@ -410,6 +424,11 @@ public class SettingsActivity extends WearableListenerActivity {
             providerPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    // Disable for now
+                    if (Objects.equals(WeatherAPI.HERE, newValue.toString())) {
+                        return false;
+                    }
+
                     ListPreference pref = (ListPreference) preference;
                     WeatherProviderImpl selectedWProv = WeatherManager.getProvider(newValue.toString());
 
