@@ -1056,6 +1056,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         private ListPreference precipationUnitPref;
         private ListPreference pressureUnitPref;
 
+        private boolean unitsChanged = false;
         private LocalBroadcastManager localBroadcastMgr;
 
         @Override
@@ -1067,13 +1068,17 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.pref_units, null);
 
-            localBroadcastMgr = LocalBroadcastManager.getInstance(getAppCompatActivity());
-
             tempUnitPref = findPreference(KEY_TEMPUNIT);
             speedUnitPref = findPreference(KEY_SPEEDUNIT);
             distanceUnitPref = findPreference(KEY_DISTANCEUNIT);
             precipationUnitPref = findPreference(KEY_PRECIPITATIONUNIT);
             pressureUnitPref = findPreference(KEY_PRESSUREUNIT);
+
+            tempUnitPref.setOnPreferenceChangeListener(onUnitChangeListener);
+            speedUnitPref.setOnPreferenceChangeListener(onUnitChangeListener);
+            distanceUnitPref.setOnPreferenceChangeListener(onUnitChangeListener);
+            precipationUnitPref.setOnPreferenceChangeListener(onUnitChangeListener);
+            pressureUnitPref.setOnPreferenceChangeListener(onUnitChangeListener);
 
             findPreference(KEY_RESETUNITS).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -1105,6 +1110,27 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                     return true;
                 }
             });
+        }
+
+        private final Preference.OnPreferenceChangeListener onUnitChangeListener = (preference, newValue) -> {
+            unitsChanged = true;
+            return true;
+        };
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            localBroadcastMgr = LocalBroadcastManager.getInstance(getAppCompatActivity());
+        }
+
+        @Override
+        public void onPause() {
+            if (unitsChanged) {
+                localBroadcastMgr.sendBroadcast(new Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT));
+                unitsChanged = false;
+            }
+            localBroadcastMgr = null;
+            super.onPause();
         }
     }
 
