@@ -44,31 +44,41 @@ public class BindingAdapters {
 
     @BindingAdapter("popData")
     public static void updatePopLayout(ViewGroup view, List<DetailItemViewModel> details) {
+        ImageView popIcon = view.findViewWithTag("popicon");
+        TextView pop = view.findViewWithTag("pop");
+
+        if (popIcon == null || pop == null) return;
+
         if (details != null) {
             DetailItemViewModel chanceModel = Iterables.find(details, new Predicate<DetailItemViewModel>() {
                 @Override
                 public boolean apply(@NullableDecl DetailItemViewModel input) {
-                    return input != null && (input.getDetailsType() == WeatherDetailsType.POPCLOUDINESS || input.getDetailsType() == WeatherDetailsType.POPCHANCE);
+                    return input != null && input.getDetailsType() == WeatherDetailsType.POPCHANCE;
                 }
             }, null);
-
-            ImageView popIcon = view.findViewById(R.id.condition_popicon);
-            TextView pop = view.findViewById(R.id.condition_pop);
 
             if (chanceModel != null) {
                 popIcon.setImageResource(chanceModel.getIcon());
                 pop.setText(chanceModel.getValue());
-                view.setVisibility(View.VISIBLE);
+                popIcon.setVisibility(View.VISIBLE);
+                pop.setVisibility(View.VISIBLE);
             } else {
-                view.setVisibility(View.GONE);
+                popIcon.setVisibility(View.GONE);
+                pop.setVisibility(View.GONE);
             }
         } else {
-            view.setVisibility(View.GONE);
+            popIcon.setVisibility(View.GONE);
+            pop.setVisibility(View.GONE);
         }
     }
 
     @BindingAdapter("windData")
     public static void updateWindLayout(ViewGroup view, List<DetailItemViewModel> details) {
+        ImageView windIcon = view.findViewWithTag("windicon");
+        TextView windSpeed = view.findViewWithTag("windspeed");
+
+        if (windIcon == null || windSpeed == null) return;
+
         if (details != null) {
             DetailItemViewModel windModel = Iterables.find(details, new Predicate<DetailItemViewModel>() {
                 @Override
@@ -77,23 +87,26 @@ public class BindingAdapters {
                 }
             }, null);
 
-            ImageView windIcon = view.findViewById(R.id.condition_windicon);
-            TextView windSpeed = view.findViewById(R.id.condition_windspeed);
-
             if (windModel != null) {
-                windIcon.setImageResource(windModel.getIcon());
+                if (windIcon.getDrawable() == null) {
+                    windIcon.setImageResource(windModel.getIcon());
+                }
                 windIcon.setRotation(windModel.getIconRotation());
 
                 String speed = TextUtils.isEmpty(windModel.getValue()) ? "" : windModel.getValue().toString();
                 speed = speed.split(",")[0];
 
                 windSpeed.setText(speed);
-                view.setVisibility(View.VISIBLE);
+
+                windIcon.setVisibility(View.VISIBLE);
+                windSpeed.setVisibility(View.VISIBLE);
             } else {
-                view.setVisibility(View.GONE);
+                windIcon.setVisibility(View.GONE);
+                windSpeed.setVisibility(View.GONE);
             }
         } else {
-            view.setVisibility(View.GONE);
+            windIcon.setVisibility(View.GONE);
+            windSpeed.setVisibility(View.GONE);
         }
     }
 

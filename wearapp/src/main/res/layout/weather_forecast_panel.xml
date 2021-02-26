@@ -5,11 +5,7 @@
 
     <data>
 
-        <import type="android.view.View" />
-
-        <import type="com.thewizrd.shared_resources.utils.StringUtils" />
-
-        <import type="com.thewizrd.shared_resources.utils.WeatherUtils" />
+        <import type="com.thewizrd.shared_resources.icons.WeatherIcons" />
 
         <import type="com.thewizrd.shared_resources.R" />
 
@@ -18,80 +14,183 @@
             type="com.thewizrd.shared_resources.controls.ForecastItemViewModel" />
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingStart="@dimen/item_padding"
-        android:paddingEnd="@dimen/list_item_padding">
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:paddingStart="@dimen/list_item_padding"
+        android:paddingEnd="@dimen/list_item_padding"
+        app:popData="@{viewModel.extras}"
+        app:windData="@{viewModel.extras}">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/forecast_date"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
+            android:layout_height="0dp"
+            android:gravity="center_vertical"
             android:padding="4dp"
-            android:text="@{viewModel != null ? viewModel.date : @string/placeholder_text}"
-            android:textAppearance="?android:textAppearanceSmallInverse"
+            android:text="@{viewModel != null ? viewModel.date : WeatherIcons.EM_DASH}"
+            android:textAppearance="?android:textAppearanceSmall"
             android:textColor="@android:color/white"
-            android:textSize="16sp"
-            app:autoSizeMaxTextSize="16sp"
-            app:autoSizeTextType="uniform"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/forecast_icon"
+            app:layout_constraintBottom_toTopOf="@id/extra_layout"
+            app:layout_constraintHorizontal_bias="0.0"
             tools:text="Thu 08" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/forecast_icon"
-            android:layout_width="36dp"
+            android:layout_width="32dp"
             android:layout_height="36dp"
-            android:layout_gravity="center"
             android:gravity="center"
-            android:padding="4dp"
             app:srcCompat="@{viewModel != null ? viewModel.weatherIcon : R.drawable.wi_na}"
             app:tint="@android:color/white"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/extra_layout"
+            app:layout_constraintEnd_toStartOf="@id/temp_barrier"
+            app:layout_constraintStart_toEndOf="@id/forecast_date"
             tools:srcCompat="@drawable/wi_day_sunny" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/forecast_temphi"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:padding="2dp"
-            android:text="@{viewModel != null ? viewModel.hiTemp : @string/placeholder_text}"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="end|center_vertical"
+            android:text="@{viewModel != null ? viewModel.hiTemp : WeatherIcons.PLACEHOLDER}"
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white"
-            android:textSize="16sp"
-            app:autoSizeMaxTextSize="16sp"
+            android:textSize="24sp"
+            app:autoSizeMaxTextSize="24sp"
+            app:autoSizeMinTextSize="12sp"
             app:autoSizeTextType="uniform"
-            tools:text="77°" />
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintVertical_bias="1.0"
+            app:layout_constraintEnd_toStartOf="@id/forecast_temphi_icon"
+            app:layout_constraintStart_toEndOf="@id/forecast_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/forecast_templo"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:layout_constraintWidth_min="30dp"
+            tools:text="0°" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text=" | "
-            android:textAppearance="?android:textAppearanceSmallInverse"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
-            app:autoSizeMaxTextSize="16sp"
-            app:autoSizeTextType="uniform"
-            android:visibility="@{viewModel != null &amp;&amp; !StringUtils.isNullOrWhitespace(viewModel.loTemp) ? View.VISIBLE : View.GONE}"
-            tools:ignore="HardcodedText" />
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/forecast_temphi_icon"
+            android:layout_width="12dp"
+            android:layout_height="0dp"
+            android:scaleType="center"
+            android:adjustViewBounds="true"
+            app:layout_constraintTop_toTopOf="@id/forecast_temphi"
+            app:layout_constraintBottom_toBottomOf="@id/forecast_temphi"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/forecast_temphi"
+            app:srcCompat="@drawable/wi_direction_up"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintVertical_bias="1.0"
+            app:tint="#FFFF4500" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/forecast_templo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:alpha="0.7"
-            android:padding="2dp"
-            android:text="@{viewModel.loTemp}"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="end|center_vertical"
+            android:text="@{viewModel != null ? viewModel.loTemp : WeatherIcons.PLACEHOLDER}"
             android:textAppearance="?android:textAppearanceSmallInverse"
             android:textColor="@android:color/white"
-            android:textSize="16sp"
-            app:autoSizeMaxTextSize="16sp"
+            android:textSize="24sp"
+            app:autoSizeMaxTextSize="24sp"
+            app:autoSizeMinTextSize="12sp"
             app:autoSizeTextType="uniform"
-            tools:text="66°" />
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintVertical_bias="1.0"
+            app:layout_constraintEnd_toStartOf="@id/forecast_templo_icon"
+            app:layout_constraintStart_toEndOf="@id/forecast_icon"
+            app:layout_constraintTop_toBottomOf="@id/forecast_temphi"
+            app:layout_constraintBottom_toTopOf="@id/extra_layout"
+            app:layout_constraintWidth_min="30dp"
+            tools:text="770°" />
 
-    </LinearLayout>
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/forecast_templo_icon"
+            android:layout_width="12dp"
+            android:layout_height="0dp"
+            android:scaleType="center"
+            android:adjustViewBounds="true"
+            app:layout_constraintTop_toTopOf="@id/forecast_templo"
+            app:layout_constraintBottom_toBottomOf="@id/forecast_templo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/forecast_templo"
+            app:srcCompat="@drawable/wi_direction_down"
+            app:layout_constraintVertical_bias="0.0"
+            app:tint="#FF87CEFA" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/forecast_popicon"
+            android:layout_width="24dp"
+            android:layout_height="20dp"
+            android:tag="popicon"
+            app:tint="@color/colorPrimaryLight"
+            tools:srcCompat="@drawable/wi_umbrella" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/forecast_pop"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:includeFontPadding="true"
+            android:maxLines="1"
+            android:tag="pop"
+            android:textColor="@color/colorPrimaryLight"
+            android:textSize="14sp"
+            tools:text="50%" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/forecast_windicon"
+            android:layout_width="24dp"
+            android:layout_height="20dp"
+            android:tag="windicon"
+            app:tint="#FF20B2AA"
+            app:srcCompat="@drawable/wi_wind_direction" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/forecast_windspeed"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:includeFontPadding="true"
+            android:maxLines="2"
+            android:tag="windspeed"
+            android:textColor="#FF20B2AA"
+            android:textSize="14sp"
+            tools:text="100 mph" />
+
+        <androidx.constraintlayout.helper.widget.Flow
+            android:id="@+id/extra_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:flow_horizontalGap="2dp"
+            app:flow_wrapMode="chain"
+            app:flow_verticalAlign="center"
+            app:flow_horizontalBias="0.5"
+            app:flow_horizontalStyle="packed"
+            app:layout_constraintTop_toBottomOf="@id/forecast_icon"
+            app:constraint_referenced_ids="forecast_popicon,forecast_pop,forecast_windicon,forecast_windspeed" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/temp_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:barrierDirection="start"
+            app:barrierAllowsGoneWidgets="true"
+            app:constraint_referenced_ids="forecast_temphi,forecast_templo" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

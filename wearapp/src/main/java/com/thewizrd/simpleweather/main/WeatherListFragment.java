@@ -13,9 +13,9 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.paging.PagedList;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.wear.widget.CurvingLayoutCallback;
-import androidx.wear.widget.WearableLinearLayoutManager;
 
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter;
@@ -43,7 +43,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
     private LocationData locationData;
 
     private FragmentWeatherListBinding binding;
-    private WearableLinearLayoutManager mLayoutManager;
+    private DividerItemDecoration itemDecoration;
 
     private WeatherListType weatherType;
     private WeatherListFragmentArgs args;
@@ -97,10 +97,9 @@ public class WeatherListFragment extends SwipeDismissFragment {
         binding.recyclerView.setHasFixedSize(true);
         binding.recyclerView.setEdgeItemsCenteringEnabled(true);
 
-        mLayoutManager = new WearableLinearLayoutManager(getFragmentActivity());
-        binding.recyclerView.setLayoutManager(mLayoutManager);
-
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getFragmentActivity()));
         binding.recyclerView.requestFocus();
+        itemDecoration = new DividerItemDecoration(getFragmentActivity(), DividerItemDecoration.VERTICAL);
 
         return outerView;
     }
@@ -143,10 +142,9 @@ public class WeatherListFragment extends SwipeDismissFragment {
         switch (weatherType) {
             case FORECAST:
             case HOURLYFORECAST:
-                if (!(mLayoutManager.getLayoutCallback() instanceof CurvingLayoutCallback)) {
-                    mLayoutManager.setLayoutCallback(new CurvingLayoutCallback(getFragmentActivity()));
+                if (binding.recyclerView.getItemDecorationCount() == 0) {
+                    binding.recyclerView.addItemDecoration(itemDecoration);
                 }
-
                 final ForecastItemAdapter detailsAdapter;
                 if (!(adapter instanceof ForecastItemAdapter)) {
                     detailsAdapter = new ForecastItemAdapter();
@@ -186,8 +184,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
                 forecastsView.updateForecasts(locationData);
                 break;
             case ALERTS:
-                mLayoutManager.setLayoutCallback(null);
-
+                binding.recyclerView.removeItemDecoration(itemDecoration);
                 final WeatherAlertPanelAdapter alertAdapter;
                 if (!(adapter instanceof WeatherAlertPanelAdapter)) {
                     alertAdapter = new WeatherAlertPanelAdapter();

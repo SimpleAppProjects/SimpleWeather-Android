@@ -144,38 +144,53 @@
                     android:textSize="16sp"
                     tools:text="Mostly Cloudy. Breezy. Cool" />
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/weather_hilo_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_gravity="center"
-                    android:gravity="center"
+                    android:orientation="horizontal"
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp"
                     android:visibility="@{weatherView.showHiLo ? View.VISIBLE : View.GONE}">
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/weather_hi"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
+                        android:gravity="center_vertical|end"
                         android:fontFamily="sans-serif-light"
                         android:includeFontPadding="false"
                         android:text="@{weatherView.hiTemp}"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        android:layout_marginEnd="-8dp"
-                        android:drawablePadding="0dp"
-                        app:drawableEndCompat="@drawable/wi_direction_up"
-                        app:drawableTint="#FFFF4500"
-                        tools:text="75°" />
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/weather_hi_icon"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintHorizontal_chainStyle="packed"
+                        tools:text="x75°" />
 
-                    <androidx.appcompat.widget.AppCompatTextView
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/weather_hi_icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
+                        android:paddingEnd="-12dp"
+                        android:paddingStart="-4dp"
+                        app:layout_constraintStart_toEndOf="@id/weather_hi"
+                        app:layout_constraintEnd_toStartOf="@id/hilo_divider"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:srcCompat="@drawable/wi_direction_up"
+                        app:layout_constraintHorizontal_bias="1.0"
+                        app:tint="#FFFF4500" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/hilo_divider"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
                         android:fontFamily="sans-serif-light"
                         android:includeFontPadding="false"
                         android:paddingStart="8dp"
@@ -183,25 +198,46 @@
                         android:text="|"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/weather_lo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
+                        android:gravity="center_vertical|start"
                         android:fontFamily="sans-serif-light"
                         android:includeFontPadding="false"
                         android:text="@{weatherView.loTemp}"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        android:drawablePadding="0dp"
-                        app:drawableEndCompat="@drawable/wi_direction_down"
-                        app:drawableTint="#FF87CEFA"
-                        tools:text="60°" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/hilo_divider"
+                        app:layout_constraintEnd_toStartOf="@id/weather_lo_icon"
+                        app:layout_constraintHorizontal_bias="0"
+                        tools:text="x60°" />
 
-                </LinearLayout>
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/weather_lo_icon"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:paddingEnd="-12dp"
+                        android:paddingStart="-4dp"
+                        android:scaleType="fitStart"
+                        app:layout_constraintStart_toEndOf="@id/weather_lo"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:srcCompat="@drawable/wi_direction_down"
+                        app:tint="#FF87CEFA" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <LinearLayout
                     android:id="@+id/condition_details"
@@ -224,11 +260,12 @@
 
                         <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/condition_popicon"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:layout_gravity="center"
                             android:layout_margin="4dp"
                             android:layout_centerVertical="true"
+                            android:tag="popicon"
                             app:tint="@color/colorPrimaryLight"
                             tools:srcCompat="@drawable/wi_umbrella" />
 
@@ -245,6 +282,7 @@
                             android:maxLines="1"
                             android:textColor="@color/colorPrimaryLight"
                             android:textSize="16sp"
+                            android:tag="pop"
                             app:autoSizeMaxTextSize="16sp"
                             app:autoSizeTextType="uniform"
                             tools:text="50%" />
@@ -262,12 +300,13 @@
 
                         <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/condition_windicon"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:layout_gravity="center"
                             android:layout_margin="4dp"
                             android:layout_centerVertical="true"
-                            app:tint="@color/colorPrimaryLight"
+                            android:tag="windicon"
+                            app:tint="#FF20B2AA"
                             tools:srcCompat="@drawable/wi_wind_direction" />
 
                         <androidx.appcompat.widget.AppCompatTextView
@@ -281,8 +320,9 @@
                             android:fontFamily="sans-serif-medium"
                             android:includeFontPadding="false"
                             android:maxLines="2"
-                            android:textColor="@color/colorPrimaryLight"
+                            android:textColor="#FF20B2AA"
                             android:textSize="16sp"
+                            android:tag="windspeed"
                             app:autoSizeMaxTextSize="16sp"
                             app:autoSizeTextType="uniform"
                             tools:text="10 mph" />
