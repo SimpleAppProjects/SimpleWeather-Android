@@ -4,9 +4,9 @@
         <key>Here</key>
         <value>
             {
-            "enabled": false,
-            "locSource": "Here",
-            "newWeatherSource": "Yahoo"
+            "enabled": true,
+            "locSource": "LocIQ",
+            "newWeatherSource": ""
             }
         </value>
     </entry>
@@ -14,9 +14,9 @@
         <key>Yahoo</key>
         <value>
             {
-            "enabled": true,
+            "enabled": false,
             "locSource": "weatherapi",
-            "newWeatherSource": ""
+            "newWeatherSource": "wunlocked"
             }
         </value>
     </entry>
