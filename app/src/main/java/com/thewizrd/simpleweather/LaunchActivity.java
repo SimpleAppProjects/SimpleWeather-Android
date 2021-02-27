@@ -11,6 +11,7 @@ import androidx.annotation.RequiresApi;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.thewizrd.extras.ExtrasLibrary;
 import com.thewizrd.shared_resources.Constants;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.preferences.FeatureSettings;
@@ -55,6 +56,9 @@ public class LaunchActivity extends UserLocaleActivity {
 
         // Update configuration
         RemoteConfig.checkConfig();
+
+        // Check premium status
+        ExtrasLibrary.Companion.checkPremiumStatus();
 
         startMainActivity();
     }

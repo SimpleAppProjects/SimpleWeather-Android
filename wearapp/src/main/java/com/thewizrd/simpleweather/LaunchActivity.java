@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.thewizrd.extras.ExtrasLibrary;
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -31,6 +32,9 @@ public class LaunchActivity extends UserLocaleActivity {
 
             // Update configuration
             RemoteConfig.checkConfig();
+
+            // Check premium status
+            ExtrasLibrary.Companion.checkPremiumStatus();
         } catch (Exception e) {
             Logger.writeLine(Log.ERROR, e, "SimpleWeather: %s: error loading", TAG);
         } finally {
