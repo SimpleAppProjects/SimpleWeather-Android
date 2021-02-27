@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.adapters;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +15,10 @@ import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.thewizrd.shared_resources.SimpleLibrary;
+import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
+import com.thewizrd.shared_resources.controls.ProviderEntry;
+import com.thewizrd.shared_resources.icons.WeatherIcons;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
@@ -25,6 +28,7 @@ import com.thewizrd.simpleweather.databinding.DetailItemPanelBinding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 
 public class DetailItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -141,19 +145,16 @@ public class DetailItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         public void setHeader() {
-            String creditPrefix = SimpleLibrary.getInstance().getAppContext().getString(R.string.credit_prefix);
-            String weatherAPI = WeatherManager.getInstance().getWeatherAPI();
+            final Context context = header.getContext();
+            final String creditPrefix = context.getString(R.string.credit_prefix);
+            final String weatherAPI = WeatherManager.getInstance().getWeatherAPI();
 
-            if (WeatherAPI.OPENWEATHERMAP.equals(weatherAPI))
-                header.setText(String.format("%s OpenWeatherMap", creditPrefix));
-            else if (WeatherAPI.METNO.equals(weatherAPI))
-                header.setText(String.format("%s MET Norway", creditPrefix));
-            else if (WeatherAPI.HERE.equals(weatherAPI))
-                header.setText(String.format("%s HERE Weather", creditPrefix));
-            else if (WeatherAPI.NWS.equals(weatherAPI))
-                header.setText(String.format("%s U.S. National Weather Service", creditPrefix));
-            else if (WeatherAPI.WEATHERUNLOCKED.equals(weatherAPI))
-                header.setText(String.format("%s WeatherUnlocked", creditPrefix));
+            ProviderEntry entry = Iterables.find(WeatherAPI.APIs, wapi -> wapi != null && Objects.equals(weatherAPI, wapi.getValue()), null);
+            String credit = String.format("%s %s",
+                    creditPrefix,
+                    entry != null ? entry.toString() : WeatherIcons.EM_DASH);
+
+            header.setText(credit);
         }
     }
 }
