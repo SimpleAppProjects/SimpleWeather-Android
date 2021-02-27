@@ -40,7 +40,6 @@
             android:gravity="center"
             android:padding="4dp"
             app:srcCompat="@{viewModel.weatherIcon}"
-            app:tint="@android:color/white"
             tools:srcCompat="@drawable/wi_day_sunny" />
 
         <androidx.appcompat.widget.AppCompatTextView

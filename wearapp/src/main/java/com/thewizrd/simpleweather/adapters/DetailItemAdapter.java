@@ -2,7 +2,6 @@ package com.thewizrd.simpleweather.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.ObjectsCompat;
-import androidx.core.widget.ImageViewCompat;
 import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
@@ -47,7 +45,6 @@ public class DetailItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         public void bind(DetailItemViewModel model) {
             binding.setViewModel(model);
-            ImageViewCompat.setImageTintList(binding.detailIcon, ColorStateList.valueOf(Colors.SIMPLEBLUELIGHT));
             binding.executePendingBindings();
         }
     }

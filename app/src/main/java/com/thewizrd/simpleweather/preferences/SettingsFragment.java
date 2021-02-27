@@ -48,7 +48,6 @@ import androidx.preference.PreferenceGroup;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.common.collect.Iterables;
 import com.thewizrd.extras.ExtrasLibrary;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.SimpleLibrary;
@@ -421,19 +420,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             }
         });
 
-        final List<ProviderEntry> providers = new ArrayList<>(WeatherAPI.APIs);
+        final List<ProviderEntry> providers = WeatherAPI.APIs;
         providerPref = findPreference(KEY_API);
-
-        // Remove if subs are not supported
-        if (!ExtrasLibrary.Companion.getAreSubscriptionsSupported()) {
-            ProviderEntry hereAPIEntry = Iterables.find(providers, input -> {
-                return input != null && Objects.equals(input.getValue(), WeatherAPI.HERE);
-            }, null);
-
-            if (hereAPIEntry != null) {
-                providers.remove(hereAPIEntry);
-            }
-        }
 
         String[] entries = new String[providers.size()];
         String[] entryValues = new String[providers.size()];
@@ -451,7 +439,11 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 if (Objects.equals(newValue.toString(), WeatherAPI.HERE) && !ExtrasLibrary.Companion.isEnabled()) {
                     // Navigate to premium page
-                    Navigation.findNavController(getRootView()).navigate(R.id.action_settingsFragment_to_premiumFragment);
+                    if (ExtrasLibrary.Companion.getAreSubscriptionsSupported()) {
+                        Navigation.findNavController(getRootView()).navigate(SettingsFragmentDirections.actionSettingsFragmentToPremiumFragment());
+                    } else {
+                        showSnackbar(Snackbar.make(R.string.message_premium_required, Snackbar.Duration.SHORT), null);
+                    }
                     return false;
                 }
 
@@ -733,7 +725,12 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         premiumPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                Navigation.findNavController(getRootView()).navigate(R.id.action_settingsFragment_to_premiumFragment);
+                if (ExtrasLibrary.Companion.getAreSubscriptionsSupported()) {
+                    Navigation.findNavController(getRootView()).navigate(
+                            SettingsFragmentDirections.actionSettingsFragmentToPremiumFragment());
+                } else {
+                    showSnackbar(Snackbar.make(R.string.message_premium_required, Snackbar.Duration.SHORT), null);
+                }
                 return true;
             }
         });
@@ -1154,6 +1151,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 context.sendBroadcast(new Intent(context, WeatherNotificationBroadcastReceiver.class)
                         .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION));
             }
+
+            WearableWorker.enqueueAction(context, WearableWorker.ACTION_SENDSETTINGSUPDATE);
 
             ShortcutCreatorWorker.requestUpdateShortcuts(context);
         }

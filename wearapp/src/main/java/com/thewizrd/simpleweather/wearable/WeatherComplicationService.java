@@ -13,9 +13,13 @@ import android.util.Log;
 import androidx.core.util.ObjectsCompat;
 
 import com.google.android.gms.tasks.Tasks;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
+import com.thewizrd.shared_resources.icons.WeatherIconProvider;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
+import com.thewizrd.shared_resources.icons.WeatherIconsProvider;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
@@ -109,7 +113,6 @@ public class WeatherComplicationService extends ComplicationProviderService {
         if ((weather == null || !weather.isValid()) || (dataType != ComplicationData.TYPE_SHORT_TEXT && dataType != ComplicationData.TYPE_LONG_TEXT)) {
             return null;
         } else {
-            final WeatherIconsManager wim = WeatherIconsManager.getInstance();
             final boolean isFahrenheit = Units.FAHRENHEIT.equals(Settings.getTemperatureUnit());
 
             // Temperature
@@ -123,20 +126,29 @@ public class WeatherComplicationService extends ComplicationProviderService {
 
             String tempUnit = isFahrenheit ? Units.FAHRENHEIT : Units.CELSIUS;
             String temp = String.format(LocaleUtils.getLocale(), "%s°%s", currTemp, tempUnit);
-            // Weather Icon
-            final int weatherIcon = wim.getWeatherIconResource(weather.getCondition().getIcon());
             // Condition text
             String condition = weather.getCondition().getWeather();
 
             ComplicationData.Builder builder = new ComplicationData.Builder(dataType);
             if (dataType == ComplicationData.TYPE_SHORT_TEXT) {
                 builder.setShortText(ComplicationText.plainText(temp));
+
+                // Weather Icon
+                final WeatherIconProvider wip = WeatherIconsManager.getProvider(WeatherIconsProvider.KEY);
+                final int weatherIcon = wip.getWeatherIconResource(weather.getCondition().getIcon());
+                builder.setIcon(Icon.createWithResource(mContext, weatherIcon));
             } else if (dataType == ComplicationData.TYPE_LONG_TEXT) {
-                builder.setLongText(ComplicationText.plainText(String.format("%s - %s", condition, temp)));
+                builder.setLongText(ComplicationText.plainText(String.format("%s - %s", temp, condition)));
+
+                // Weather Icon
+                final int weatherIcon = WeatherIconsManager.getInstance().getWeatherIconResource(weather.getCondition().getIcon());
+                builder.setImageStyle(ComplicationData.IMAGE_STYLE_ICON)
+                        .setSmallImage(Icon.createWithBitmap(
+                                ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(mContext, false), weatherIcon))
+                        );
             }
 
-            builder.setIcon(Icon.createWithResource(this, weatherIcon))
-                    .setTapAction(getTapIntent(this));
+            builder.setTapAction(getTapIntent(this));
 
             return builder.build();
         }

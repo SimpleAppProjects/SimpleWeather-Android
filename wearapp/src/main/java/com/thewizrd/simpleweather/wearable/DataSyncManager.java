@@ -16,6 +16,7 @@ import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.Wearable;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
+import com.thewizrd.shared_resources.icons.WeatherIconsProvider;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.CommonActions;
@@ -42,6 +43,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+
+import timber.log.Timber;
 
 public class DataSyncManager {
     @WorkerThread
@@ -89,9 +92,18 @@ public class DataSyncManager {
 
                 LocaleUtils.setLocaleCode(dataMap.getString(WearableSettings.KEY_LANGUAGE, ""));
 
+                final String oldIcons = Settings.getIconsProvider();
+                Settings.setIconsProvider(dataMap.getString(WearableSettings.KEY_ICONPROVIDER, WeatherIconsProvider.KEY));
+                final String newIcons = Settings.getIconsProvider();
+                if (!ObjectsCompat.equals(oldIcons, newIcons)) {
+                    // Update tiles and complications
+                    WeatherComplicationWorker.enqueueAction(context, new Intent(WeatherComplicationWorker.ACTION_UPDATECOMPLICATIONS));
+                    WeatherTileWorker.enqueueAction(context, new Intent(WeatherTileWorker.ACTION_UPDATETILES));
+                }
+
                 setSettingsUpdateTime(context, updateTimeMillis);
 
-                Log.d("DataSyncManager", "Updated settings");
+                Timber.tag("DataSyncManager").d("Updated settings");
             }
 
             // Send callback to receiver
@@ -118,7 +130,7 @@ public class DataSyncManager {
 
                     setLocationDataUpdateTime(context, updateTimeMillis);
 
-                    Log.d("DataSyncManager", "Updated location data");
+                    Timber.tag("DataSyncManager").d("Updated location data");
 
                     // Send callback to receiver
                     LocalBroadcastManager.getInstance(context).sendBroadcast(
@@ -167,7 +179,7 @@ public class DataSyncManager {
                             Settings.setUpdateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(updateTimeMillis), ZoneOffset.UTC));
                             setWeatherUpdateTime(context, updateTimeMillis);
 
-                            Log.d("DataSyncManager", "Updated weather data");
+                            Timber.tag("DataSyncManager").d("Updated weather data");
 
                             // Update complications
                             WeatherComplicationWorker.enqueueAction(context, new Intent(WeatherComplicationWorker.ACTION_UPDATECOMPLICATIONS));

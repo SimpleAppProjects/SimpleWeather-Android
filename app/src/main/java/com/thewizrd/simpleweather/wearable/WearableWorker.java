@@ -174,6 +174,7 @@ public class WearableWorker extends Worker {
         mapRequest.getDataMap().putDataMap(WearableSettings.KEY_UNITS, unitMap);
 
         mapRequest.getDataMap().putString(WearableSettings.KEY_LANGUAGE, LocaleUtils.getLocaleCode());
+        mapRequest.getDataMap().putString(WearableSettings.KEY_ICONPROVIDER, Settings.getIconsProvider());
         mapRequest.getDataMap().putLong(WearableSettings.KEY_UPDATETIME, Instant.now(Clock.systemUTC()).toEpochMilli());
         PutDataRequest request = mapRequest.asPutDataRequest();
         if (urgent) request.setUrgent();

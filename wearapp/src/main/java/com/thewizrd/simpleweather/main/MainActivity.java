@@ -81,6 +81,12 @@ public class MainActivity extends WearableListenerActivity implements MenuItem.O
     }
 
     @Override
+    protected void attachBaseContext(Context newBase) {
+        // Use night mode resources (needed for external weather icons)
+        super.attachBaseContext(ContextUtils.getThemeContextOverride(newBase, false));
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AnalyticsLogger.logEvent("MainActivity: onCreate");

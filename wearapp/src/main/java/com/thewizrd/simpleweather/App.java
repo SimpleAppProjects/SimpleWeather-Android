@@ -15,6 +15,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.thewizrd.extras.ExtrasLibrary;
 import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.SimpleLibrary;
@@ -83,6 +84,7 @@ public class App extends Application implements ApplicationLib, Application.Acti
 
         // Init shared library
         SimpleLibrary.init(this);
+        ExtrasLibrary.Companion.initialize(this);
 
         // Start logger
         Logger.init(context);

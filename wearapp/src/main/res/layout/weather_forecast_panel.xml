@@ -48,7 +48,6 @@
             android:layout_height="36dp"
             android:gravity="center"
             app:srcCompat="@{viewModel != null ? viewModel.weatherIcon : R.drawable.wi_na}"
-            app:tint="@android:color/white"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/extra_layout"
@@ -154,7 +153,7 @@
             android:layout_height="20dp"
             android:tag="windicon"
             app:tint="#FF20B2AA"
-            app:srcCompat="@drawable/wi_wind_direction" />
+            app:weatherIcon="@{WeatherIcons.WIND_DIRECTION}" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/forecast_windspeed"

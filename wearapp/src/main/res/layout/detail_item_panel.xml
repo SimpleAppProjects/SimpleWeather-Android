@@ -26,7 +26,7 @@
             android:padding="4dp"
             android:rotation="@{viewModel.iconRotation}"
             app:srcCompat="@{viewModel.icon}"
-            app:tint="@android:color/white"
+            app:tint="@color/colorPrimaryLight"
             tools:srcCompat="@drawable/wi_moon_waxing_crescent_3" />
 
         <androidx.appcompat.widget.AppCompatTextView

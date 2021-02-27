@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherDetailsType;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
@@ -143,11 +144,13 @@ public class WeatherTileProviderService extends TileProviderService {
         WeatherIconsManager wim = WeatherIconsManager.getInstance();
         RemoteViews updateViews = new RemoteViews(mContext.getPackageName(), R.layout.tile_layout_weather);
         WeatherNowViewModel viewModel = new WeatherNowViewModel(weather);
+        final Context mDarkIconContext = ContextUtils.getThemeContextOverride(mContext, false);
 
         updateViews.setOnClickPendingIntent(R.id.tile, getTapIntent(mContext));
 
         updateViews.setTextViewText(R.id.condition_temp, viewModel.getCurTemp());
-        updateViews.setImageViewResource(R.id.weather_icon, wim.getWeatherIconResource(viewModel.getWeatherIcon()));
+        updateViews.setImageViewBitmap(R.id.weather_icon, ImageUtils.bitmapFromDrawable(mDarkIconContext,
+                wim.getWeatherIconResource(viewModel.getWeatherIcon())));
         updateViews.setTextViewText(R.id.weather_condition, viewModel.getCurCondition());
 
         // Details
@@ -177,10 +180,10 @@ public class WeatherTileProviderService extends TileProviderService {
         if (windModel != null) {
             if (windModel.getIconRotation() != 0) {
                 updateViews.setImageViewBitmap(R.id.weather_windicon,
-                        ImageUtils.rotateBitmap(ImageUtils.bitmapFromDrawable(this, R.drawable.wi_direction_up), windModel.getIconRotation())
+                        ImageUtils.rotateBitmap(ImageUtils.bitmapFromDrawable(this, windModel.getIcon()), windModel.getIconRotation())
                 );
             } else {
-                updateViews.setImageViewResource(R.id.weather_windicon, R.drawable.wi_direction_up);
+                updateViews.setImageViewResource(R.id.weather_windicon, windModel.getIcon());
             }
             String speed = TextUtils.isEmpty(windModel.getValue()) ? "" : windModel.getValue().toString();
             speed = speed.split(",")[0];
@@ -207,10 +210,10 @@ public class WeatherTileProviderService extends TileProviderService {
 
         for (int i = 0; i < Math.min(FORECAST_LENGTH, forecasts.size()); i++) {
             ForecastItemViewModel forecast = forecasts.get(i);
-            addForecastItem(forecastPanel, forecast);
+            addForecastItem(mDarkIconContext, forecastPanel, forecast);
 
             if (hrForecastPanel != null && i < hrforecasts.size()) {
-                addForecastItem(hrForecastPanel, hrforecasts.get(i));
+                addForecastItem(mDarkIconContext, hrForecastPanel, hrforecasts.get(i));
             }
         }
 
@@ -266,7 +269,7 @@ public class WeatherTileProviderService extends TileProviderService {
         return Collections.emptyList();
     }
 
-    private void addForecastItem(RemoteViews forecastPanel, BaseForecastItemViewModel forecast) {
+    private void addForecastItem(Context context, RemoteViews forecastPanel, BaseForecastItemViewModel forecast) {
         RemoteViews forecastItem = new RemoteViews(mContext.getPackageName(), R.layout.tile_forecast_panel);
 
         if (forecast instanceof ForecastItemViewModel) {
@@ -279,7 +282,7 @@ public class WeatherTileProviderService extends TileProviderService {
             forecastItem.setTextViewText(R.id.forecast_lo, ((ForecastItemViewModel) forecast).getLoTemp());
         }
 
-        forecastItem.setImageViewResource(R.id.forecast_icon, forecast.getWeatherIcon());
+        forecastItem.setImageViewBitmap(R.id.forecast_icon, ImageUtils.bitmapFromDrawable(context, forecast.getWeatherIcon()));
 
         if (forecast instanceof HourlyForecastItemViewModel) {
             forecastItem.setViewVisibility(R.id.forecast_lo, View.GONE);

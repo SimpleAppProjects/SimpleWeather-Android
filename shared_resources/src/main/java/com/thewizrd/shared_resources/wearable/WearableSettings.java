@@ -10,6 +10,7 @@ public class WearableSettings {
     public static final String KEY_UNITS = "units";
     public static final String KEY_REFRESHINTERVAL = "refresh_interval";
     public static final String KEY_LANGUAGE = "language";
+    public static final String KEY_ICONPROVIDER = "icon_provider";
 
     public static final String KEY_LOCATIONDATA = "locationData";
     public static final String KEY_WEATHERDATA = "weatherData";

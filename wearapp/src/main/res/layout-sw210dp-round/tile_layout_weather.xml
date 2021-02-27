@@ -28,7 +28,6 @@
             android:maxHeight="72dp"
             android:paddingEnd="8dp"
             android:scaleType="fitCenter"
-            android:tint="@android:color/white"
             tools:srcCompat="@drawable/wi_day_sunny" />
 
         <TextView
@@ -101,7 +100,7 @@
                 android:layout_height="24dp"
                 android:layout_gravity="end"
                 android:padding="2dp"
-                android:src="@drawable/wi_direction_up"
+                android:src="@drawable/wi_wind_direction"
                 android:tint="@color/colorPrimaryLight" />
 
             <TextView
