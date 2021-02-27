@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -70,6 +71,11 @@ public class ExampleInstrumentedTest {
             @Override
             public boolean isPhone() {
                 return true;
+            }
+
+            @Override
+            public Bundle getProperties() {
+                return new Bundle();
             }
         };
 

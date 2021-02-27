@@ -243,16 +243,17 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 notifyPropertyChanged(BR.weatherLocale);
 
                 // Refresh locale/unit dependent values
-                refreshView();
+                refreshView(false);
             } else if (!ObjectsCompat.equals(unitCode, Settings.getUnitString()) ||
                     !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode()) ||
                     !ObjectsCompat.equals(iconProvider, Settings.getIconsProvider())) {
-                refreshView();
+                boolean iconChanged = !ObjectsCompat.equals(iconProvider, Settings.getIconsProvider());
+                refreshView(iconChanged);
             }
         }
     }
 
-    private void refreshView() {
+    private void refreshView(boolean iconChanged) {
         final Context context = SimpleLibrary.getInstance().getApp().getAppContext();
         final boolean isPhone = SimpleLibrary.getInstance().getApp().isPhone();
 
@@ -297,7 +298,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
             curCondition = newCondition;
             notifyPropertyChanged(BR.curCondition);
         }
-        if (!ObjectsCompat.equals(weatherIcon, weather.getCondition().getIcon())) {
+        if (iconChanged || !ObjectsCompat.equals(weatherIcon, weather.getCondition().getIcon())) {
             weatherIcon = weather.getCondition().getIcon();
             notifyPropertyChanged(BR.weatherIcon);
         }

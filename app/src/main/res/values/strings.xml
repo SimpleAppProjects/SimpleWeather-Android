@@ -79,7 +79,4 @@
     <string name="splitlang_downloading">Downloading language pack…</string>
     <string name="splitlang_failure">Failed to install language pack</string>
 
-    <!-- Icons -->
-    <string name="pref_title_icons">Icons</string>
-
 </resources>

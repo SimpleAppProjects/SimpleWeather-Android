@@ -14,6 +14,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -29,16 +30,17 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.arch.core.util.Function;
+import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.wear.widget.SwipeDismissFrameLayout;
 
 import com.google.android.wearable.intent.RemoteIntent;
 import com.thewizrd.extras.ExtrasLibrary;
 import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.controls.ProviderEntry;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
+import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
@@ -58,8 +60,12 @@ import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.fragments.SwipeDismissPreferenceFragment;
+import com.thewizrd.simpleweather.helpers.AcceptDenyDialogBuilder;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
+import com.thewizrd.simpleweather.preferences.iconpreference.iconpreference.IconProviderPickerFragment;
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity;
+import com.thewizrd.simpleweather.wearable.WeatherComplicationWorker;
+import com.thewizrd.simpleweather.wearable.WeatherTileWorker;
 
 import java.util.HashSet;
 import java.util.List;
@@ -89,6 +95,12 @@ public class SettingsActivity extends WearableListenerActivity {
     @Override
     protected IntentFilter getIntentFilter() {
         return mIntentFilter;
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        // Use night mode resources (needed for external weather icons)
+        super.attachBaseContext(ContextUtils.getThemeContextOverride(newBase, false));
     }
 
     @Override
@@ -126,31 +138,31 @@ public class SettingsActivity extends WearableListenerActivity {
 
     @Override
     public void onBackPressed() {
-        if (getFragmentManager().findFragmentById(android.R.id.content) instanceof SettingsFragment) {
-            SettingsFragment fragment = (SettingsFragment) getFragmentManager().findFragmentById(android.R.id.content);
-            ListPreference keyPref = (ListPreference) fragment.findPreference(KEY_API);
-            if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && WeatherManager.isKeyRequired(keyPref.getValue())) {
-                // Set keyentrypref color to red
-                Toast.makeText(this, R.string.message_enter_apikey, Toast.LENGTH_LONG).show();
-                if (fragment.getView() instanceof SwipeDismissFrameLayout) {
-                    //dismissLayout.reset();
-                }
-                return;
-            }
+        Fragment current = getFragmentManager().findFragmentById(android.R.id.content);
+        OnBackPressedFragmentListener fragBackPressedListener = null;
+        if (current instanceof OnBackPressedFragmentListener)
+            fragBackPressedListener = (OnBackPressedFragmentListener) current;
+
+        // If fragment doesn't handle onBackPressed event fallback to this impl
+        if (fragBackPressedListener == null || !fragBackPressedListener.onBackPressed()) {
+            super.onBackPressed();
         }
-        super.onBackPressed();
     }
 
     public static class SettingsFragment extends SwipeDismissPreferenceFragment
-            implements SharedPreferences.OnSharedPreferenceChangeListener {
+            implements SharedPreferences.OnSharedPreferenceChangeListener, OnBackPressedFragmentListener {
+
         private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
+        private static final int PERMISSION_BGLOCATION_REQUEST_CODE = 1;
 
         // Preference Keys
         private static final String KEY_ABOUTAPP = "key_aboutapp";
         private static final String KEY_CONNSTATUS = "key_connectionstatus";
         private static final String KEY_APIREGISTER = "key_apiregister";
         private static final String KEY_UNITS = "key_units";
+        private static final String KEY_ICONS = "key_icons";
 
+        private static final String CATEGORY_GENERAL = "category_general";
         private static final String CATEGORY_API = "category_api";
 
         // Preferences
@@ -160,9 +172,12 @@ public class SettingsActivity extends WearableListenerActivity {
         private SwitchPreference personalKeyPref;
         private KeyEntryPreference keyEntry;
         private ListPreference syncPreference;
+        private Preference unitsPref;
+        private Preference iconsPref;
         private Preference connStatusPref;
         private Preference registerPref;
 
+        private PreferenceCategory generalCategory;
         private PreferenceCategory apiCategory;
 
         // Intent queue
@@ -171,6 +186,19 @@ public class SettingsActivity extends WearableListenerActivity {
         // Wearable status
         private WearConnectionStatus mConnectionStatus = WearConnectionStatus.DISCONNECTED;
         private BroadcastReceiver statusReceiver;
+
+        @Override
+        public boolean onBackPressed() {
+            if (Settings.usePersonalKey() &&
+                    StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) &&
+                    WeatherManager.isKeyRequired(providerPref.getValue())) {
+                // Set keyentrypref color to red
+                Toast.makeText(getContext(), R.string.message_enter_apikey, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
+            return false;
+        }
 
         @Override
         public void onResume() {
@@ -189,7 +217,7 @@ public class SettingsActivity extends WearableListenerActivity {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     if (WearableListenerActivity.ACTION_UPDATECONNECTIONSTATUS.equals(intent.getAction())) {
-                        mConnectionStatus = WearConnectionStatus.valueOf(intent.getIntExtra(EXTRA_CONNECTIONSTATUS, 0));
+                        mConnectionStatus = WearConnectionStatus.valueOf(intent.getIntExtra(WearableListenerActivity.EXTRA_CONNECTIONSTATUS, 0));
                         updateConnectionPref();
                     }
                 }
@@ -257,10 +285,10 @@ public class SettingsActivity extends WearableListenerActivity {
         }
 
         @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
+        public void onCreatePreferences(Bundle savedInstanceState) {
             addPreferencesFromResource(R.xml.pref_general);
 
+            generalCategory = (PreferenceCategory) findPreference(CATEGORY_GENERAL);
             apiCategory = (PreferenceCategory) findPreference(CATEGORY_API);
 
             findPreference(KEY_ABOUTAPP).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -280,20 +308,37 @@ public class SettingsActivity extends WearableListenerActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     AnalyticsLogger.logEvent("Settings: followGps toggled");
-                    SwitchPreference pref = (SwitchPreference) preference;
                     if ((boolean) newValue) {
-                        if (getParentActivity() != null && getParentActivity().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                                getParentActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                                    PERMISSION_LOCATION_REQUEST_CODE);
-                            return false;
-                        } else if (getParentActivity() != null) {
-                            LocationManager locMan = (LocationManager) getParentActivity().getSystemService(Context.LOCATION_SERVICE);
-                            if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                                Toast.makeText(getParentActivity(), R.string.error_enable_location_services, Toast.LENGTH_LONG).show();
-                                Settings.setFollowGPS(false);
+                        if (ContextCompat.checkSelfPermission(getParentActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                                ContextCompat.checkSelfPermission(getParentActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                                        PERMISSION_LOCATION_REQUEST_CODE);
+                            } else {
+                                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                                        PERMISSION_LOCATION_REQUEST_CODE);
                             }
                             return false;
+                        } else {
+                            LocationManager locMan = (LocationManager) getParentActivity().getSystemService(Context.LOCATION_SERVICE);
+                            if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                                Toast.makeText(getParentActivity(), R.string.error_enable_location_services, Toast.LENGTH_SHORT).show();
+
+                                Settings.setFollowGPS(false);
+                                return false;
+                            } else {
+                                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !Settings.requestedBGAccess() &&
+                                        ContextCompat.checkSelfPermission(getParentActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                    new AcceptDenyDialogBuilder(getParentActivity(), (d, which) -> {
+                                        if (which == DialogInterface.BUTTON_POSITIVE) {
+                                            requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                                                    PERMISSION_BGLOCATION_REQUEST_CODE);
+                                        }
+                                    }).show();
+
+                                    Settings.setRequestBGAccess(true);
+                                }
+                            }
                         }
                     }
 
@@ -301,7 +346,21 @@ public class SettingsActivity extends WearableListenerActivity {
                 }
             });
 
-            findPreference(KEY_UNITS).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            iconsPref = findPreference(KEY_ICONS);
+            iconsPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    // Display the fragment as the main content.
+                    getFragmentManager().beginTransaction()
+                            .replace(android.R.id.content, new IconsFragment())
+                            .addToBackStack(null)
+                            .commit();
+                    return true;
+                }
+            });
+
+            unitsPref = findPreference(KEY_UNITS);
+            unitsPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     // Display the fragment as the main content.
@@ -414,6 +473,9 @@ public class SettingsActivity extends WearableListenerActivity {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if (Objects.equals(WeatherAPI.HERE, newValue.toString()) && !ExtrasLibrary.Companion.isEnabled()) {
                         Toast.makeText(getContext(), R.string.message_premium_required, Toast.LENGTH_SHORT).show();
+                        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(
+                                new Intent(WearableListenerActivity.ACTION_OPENONPHONE)
+                                        .putExtra(WearableListenerActivity.EXTRA_SHOWANIMATION, true));
                         return false;
                     }
 
@@ -579,13 +641,11 @@ public class SettingsActivity extends WearableListenerActivity {
         };
 
         private void enableSyncedSettings(boolean enable) {
-            findPreference(KEY_UNITS).setEnabled(enable);
-            followGps.setEnabled(enable);
-            languagePref.setEnabled(enable);
+            generalCategory.setEnabled(enable);
             apiCategory.setEnabled(enable);
         }
 
-        private Preference.OnPreferenceClickListener connStatusPrefClickListener = new Preference.OnPreferenceClickListener() {
+        private final Preference.OnPreferenceClickListener connStatusPrefClickListener = new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 Intent intentAndroid = new Intent(Intent.ACTION_VIEW)
@@ -599,7 +659,7 @@ public class SettingsActivity extends WearableListenerActivity {
             }
         };
 
-        private Preference.OnPreferenceClickListener registerPrefClickListener = new Preference.OnPreferenceClickListener() {
+        private final Preference.OnPreferenceClickListener registerPrefClickListener = new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 Intent intentAndroid = new Intent(preference.getIntent())
@@ -740,8 +800,7 @@ public class SettingsActivity extends WearableListenerActivity {
         private LocalBroadcastManager localBroadcastMgr;
 
         @Override
-        public void onCreate(@Nullable Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
+        public void onCreatePreferences(Bundle savedInstanceState) {
             addPreferencesFromResource(R.xml.pref_units);
 
             getPreferenceScreen().setTitle(R.string.pref_title_units);
@@ -787,6 +846,17 @@ public class SettingsActivity extends WearableListenerActivity {
         }
     }
 
+    public static class IconsFragment extends IconProviderPickerFragment {
+        @Override
+        protected void onSelectionPerformed(boolean success) {
+            super.onSelectionPerformed(success);
+
+            // Update tiles and complications
+            WeatherComplicationWorker.enqueueAction(getContext(), new Intent(WeatherComplicationWorker.ACTION_UPDATECOMPLICATIONS));
+            WeatherTileWorker.enqueueAction(getContext(), new Intent(WeatherTileWorker.ACTION_UPDATETILES));
+        }
+    }
+
     public static class AboutAppFragment extends SwipeDismissPreferenceFragment {
         // Preference Keys
         private static final String KEY_ABOUTCREDITS = "key_aboutcredits";
@@ -794,8 +864,7 @@ public class SettingsActivity extends WearableListenerActivity {
         private static final String KEY_ABOUTVERSION = "key_aboutversion";
 
         @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
+        public void onCreatePreferences(Bundle savedInstanceState) {
             addPreferencesFromResource(R.xml.pref_aboutapp);
 
             findPreference(KEY_ABOUTCREDITS).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -835,8 +904,7 @@ public class SettingsActivity extends WearableListenerActivity {
 
     public static class CreditsFragment extends SwipeDismissPreferenceFragment {
         @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
+        public void onCreatePreferences(Bundle savedInstanceState) {
             addPreferencesFromResource(R.xml.pref_credits);
         }
 
@@ -861,8 +929,7 @@ public class SettingsActivity extends WearableListenerActivity {
 
     public static class OSSCreditsFragment extends SwipeDismissPreferenceFragment {
         @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
+        public void onCreatePreferences(Bundle savedInstanceState) {
             addPreferencesFromResource(R.xml.pref_oslibs);
         }
     }

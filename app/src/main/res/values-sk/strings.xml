@@ -82,7 +82,5 @@
     <string name="splitlang_downloading">"Sťahuje sa jazykový balík ..."</string>
     <string name="splitlang_failure">"Nepodarilo sa nainštalovať jazykový balík"</string>
 
-    <!-- Icons -->
-    <string name="pref_title_icons">"Ikony"</string>
     <string name="pref_title_feature_charts">"Grafy"</string>
 </resources>

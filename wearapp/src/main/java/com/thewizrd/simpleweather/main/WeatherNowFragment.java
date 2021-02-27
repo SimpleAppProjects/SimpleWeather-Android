@@ -106,7 +106,7 @@ public class WeatherNowFragment extends CustomFragment
         implements SharedPreferences.OnSharedPreferenceChangeListener, WeatherRequest.WeatherErrorListener {
     private WeatherNowFragmentArgs args;
 
-    private WeatherManager wm;
+    private final WeatherManager wm;
     private WeatherDataLoader wLoader = null;
 
     // Views
@@ -698,7 +698,8 @@ public class WeatherNowFragment extends CustomFragment
                                         runWithView(new Runnable() {
                                             @Override
                                             public void run() {
-                                                binding.alertButton.setVisibility(View.GONE);
+                                                boolean isRound = getResources().getConfiguration().isScreenRound();
+                                                binding.alertButton.setVisibility(isRound ? View.INVISIBLE : View.GONE);
                                             }
                                         });
                                         return wLoader.loadWeatherAlerts(task.getResult().isSavedData());
@@ -900,6 +901,16 @@ public class WeatherNowFragment extends CustomFragment
                 // reset so we can properly reload
                 wLoader = null;
                 locationData = null;
+                break;
+            case Settings.KEY_TEMPUNIT:
+            case Settings.KEY_DISTANCEUNIT:
+            case Settings.KEY_PRECIPITATIONUNIT:
+            case Settings.KEY_PRESSUREUNIT:
+            case Settings.KEY_SPEEDUNIT:
+            case Settings.KEY_ICONSSOURCE:
+                if (getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+                    refreshWeather(false);
+                }
                 break;
             default:
                 break;

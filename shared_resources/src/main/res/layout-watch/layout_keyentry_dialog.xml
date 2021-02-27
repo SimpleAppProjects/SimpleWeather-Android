@@ -15,7 +15,6 @@
   -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -41,21 +40,16 @@
             android:layout_marginTop="12dp"
             android:textColor="?android:attr/textColorSecondary" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        <EditText
+            android:id="@android:id/edit"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:boxStrokeColor="@color/colorPrimaryLight"
-            app:hintTextColor="@color/colorTextHint">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@android:id/edit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textCursorDrawable="@drawable/color_cursor" />
-
-        </com.google.android.material.textfield.TextInputLayout>
+            android:importantForAutofill="no"
+            android:inputType="textPassword" />
 
     </LinearLayout>
 

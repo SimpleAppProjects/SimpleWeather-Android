@@ -160,4 +160,7 @@
     <string name="label_distance">"Vzdialenosť"</string>
     <string name="pref_title_resetunits">"Obnovte pôvodné hodnoty jednotiek"</string>
     <string name="not_title_weather_update">"Aktualizuje sa počasie…"</string>
+
+    <!-- Icons -->
+    <string name="pref_title_icons">"Ikony"</string>
 </resources>

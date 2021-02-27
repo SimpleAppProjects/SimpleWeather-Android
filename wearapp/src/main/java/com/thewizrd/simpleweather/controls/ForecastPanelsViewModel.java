@@ -28,6 +28,7 @@ public class ForecastPanelsViewModel extends ViewModel {
     private LocationData locationData;
     private String unitCode;
     private String localeCode;
+    private String iconProvider;
 
     private MutableLiveData<List<ForecastItemViewModel>> forecasts;
     private MutableLiveData<List<HourlyForecastItemViewModel>> hourlyForecasts;
@@ -56,6 +57,7 @@ public class ForecastPanelsViewModel extends ViewModel {
 
             unitCode = Settings.getUnitString();
             localeCode = LocaleUtils.getLocaleCode();
+            iconProvider = Settings.getIconsProvider();
 
             if (currentForecastsData != null) {
                 currentForecastsData.removeObserver(forecastObserver);
@@ -73,9 +75,12 @@ public class ForecastPanelsViewModel extends ViewModel {
             currentHrForecastsData.observeForever(hrforecastObserver);
             if (hourlyForecasts != null)
                 hourlyForecasts.postValue(hrForecastMapper.apply(currentHrForecastsData.getValue()));
-        } else if (!ObjectsCompat.equals(unitCode, Settings.getUnitString()) || !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode())) {
+        } else if (!ObjectsCompat.equals(unitCode, Settings.getUnitString()) ||
+                !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode()) ||
+                !ObjectsCompat.equals(iconProvider, Settings.getIconsProvider())) {
             unitCode = Settings.getUnitString();
             localeCode = LocaleUtils.getLocaleCode();
+            iconProvider = Settings.getIconsProvider();
 
             if (currentForecastsData != null && currentForecastsData.getValue() != null) {
                 forecasts.postValue(forecastMapper.apply(currentForecastsData.getValue()));
@@ -86,7 +91,7 @@ public class ForecastPanelsViewModel extends ViewModel {
         }
     }
 
-    private Function<Forecasts, List<ForecastItemViewModel>> forecastMapper = new Function<Forecasts, List<ForecastItemViewModel>>() {
+    private final Function<Forecasts, List<ForecastItemViewModel>> forecastMapper = new Function<Forecasts, List<ForecastItemViewModel>>() {
         @Override
         public List<ForecastItemViewModel> apply(Forecasts input) {
             if (input != null && input.getForecast() != null) {
@@ -104,7 +109,7 @@ public class ForecastPanelsViewModel extends ViewModel {
         }
     };
 
-    private Function<List<HourlyForecast>, List<HourlyForecastItemViewModel>> hrForecastMapper = new Function<List<HourlyForecast>, List<HourlyForecastItemViewModel>>() {
+    private final Function<List<HourlyForecast>, List<HourlyForecastItemViewModel>> hrForecastMapper = new Function<List<HourlyForecast>, List<HourlyForecastItemViewModel>>() {
         @Override
         public List<HourlyForecastItemViewModel> apply(List<HourlyForecast> input) {
             if (input != null) {
@@ -121,7 +126,7 @@ public class ForecastPanelsViewModel extends ViewModel {
         }
     };
 
-    private Observer<Forecasts> forecastObserver = new Observer<Forecasts>() {
+    private final Observer<Forecasts> forecastObserver = new Observer<Forecasts>() {
         @Override
         public void onChanged(Forecasts forecastData) {
             if (forecasts != null) {
@@ -130,7 +135,7 @@ public class ForecastPanelsViewModel extends ViewModel {
         }
     };
 
-    private Observer<List<HourlyForecast>> hrforecastObserver = new Observer<List<HourlyForecast>>() {
+    private final Observer<List<HourlyForecast>> hrforecastObserver = new Observer<List<HourlyForecast>>() {
         @Override
         public void onChanged(List<HourlyForecast> forecastData) {
             if (hourlyForecasts != null) {

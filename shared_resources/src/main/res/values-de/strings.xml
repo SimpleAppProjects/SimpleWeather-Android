@@ -201,4 +201,7 @@
     <string name="label_distance">"Entfernung"</string>
     <string name="pref_title_resetunits">"Einheiten auf Standardwerte zurücksetzen"</string>
     <string name="not_title_weather_update">"Aktualisierung des Wetters…"</string>
+
+    <!-- Icons -->
+    <string name="pref_title_icons">"Symbole"</string>
 </resources>

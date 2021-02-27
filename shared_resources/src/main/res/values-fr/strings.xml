@@ -160,4 +160,7 @@
     <string name="label_distance">"Distance"</string>
     <string name="pref_title_resetunits">"Réinitialisation des unités aux valeurs par défaut"</string>
     <string name="not_title_weather_update">"Mise à jour de la météo…"</string>
+
+    <!-- Icons -->
+    <string name="pref_title_icons">"Icônes"</string>
 </resources>

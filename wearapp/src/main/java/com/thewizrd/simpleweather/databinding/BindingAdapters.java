@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.databinding.BindingAdapter;
@@ -42,8 +43,8 @@ public class BindingAdapters {
         view.bindModel(models);
     }
 
-    @BindingAdapter("popData")
-    public static void updatePopLayout(ViewGroup view, List<DetailItemViewModel> details) {
+    @BindingAdapter(value = {"popData", "hideIfTrue"}, requireAll = false)
+    public static void updatePopLayout(@NonNull ViewGroup view, List<DetailItemViewModel> details, boolean hideIfTrue) {
         ImageView popIcon = view.findViewWithTag("popicon");
         TextView pop = view.findViewWithTag("pop");
 
@@ -62,18 +63,25 @@ public class BindingAdapters {
                 pop.setText(chanceModel.getValue());
                 popIcon.setVisibility(View.VISIBLE);
                 pop.setVisibility(View.VISIBLE);
+                view.setVisibility(View.VISIBLE);
             } else {
                 popIcon.setVisibility(View.GONE);
                 pop.setVisibility(View.GONE);
+                if (hideIfTrue) {
+                    view.setVisibility(View.GONE);
+                }
             }
         } else {
             popIcon.setVisibility(View.GONE);
             pop.setVisibility(View.GONE);
+            if (hideIfTrue) {
+                view.setVisibility(View.GONE);
+            }
         }
     }
 
-    @BindingAdapter("windData")
-    public static void updateWindLayout(ViewGroup view, List<DetailItemViewModel> details) {
+    @BindingAdapter(value = {"windData", "hideIfTrue"}, requireAll = false)
+    public static void updateWindLayout(@NonNull ViewGroup view, List<DetailItemViewModel> details, boolean hideIfTrue) {
         ImageView windIcon = view.findViewWithTag("windicon");
         TextView windSpeed = view.findViewWithTag("windspeed");
 
@@ -100,13 +108,20 @@ public class BindingAdapters {
 
                 windIcon.setVisibility(View.VISIBLE);
                 windSpeed.setVisibility(View.VISIBLE);
+                view.setVisibility(View.VISIBLE);
             } else {
                 windIcon.setVisibility(View.GONE);
                 windSpeed.setVisibility(View.GONE);
+                if (hideIfTrue) {
+                    view.setVisibility(View.GONE);
+                }
             }
         } else {
             windIcon.setVisibility(View.GONE);
             windSpeed.setVisibility(View.GONE);
+            if (hideIfTrue) {
+                view.setVisibility(View.GONE);
+            }
         }
     }
 

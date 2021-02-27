@@ -188,4 +188,7 @@
     <!-- Forecast pattern: Day and date (ex. Mon 14) -->
     <string name="forecast_date_format" translatable="false">EEE dd</string>
 
+    <!-- Icons -->
+    <string name="pref_title_icons">Icons</string>
+
 </resources>

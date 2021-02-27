@@ -1,7 +1,9 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/title_activity_settings">
 
-    <PreferenceCategory android:title="@string/pref_title_general">
+    <PreferenceCategory
+        android:title="@string/pref_title_general"
+        android:key="category_general">
 
         <SwitchPreference
             android:defaultValue="false"
@@ -10,9 +12,12 @@
             android:title="@string/label_currentlocation" />
 
         <Preference
-            android:defaultValue="false"
             android:key="key_units"
             android:title="@string/pref_title_units" />
+
+        <Preference
+            android:key="key_icons"
+            android:title="@string/pref_title_icons" />
 
         <ListPreference
             android:key="key_language"

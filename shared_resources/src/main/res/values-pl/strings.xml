@@ -162,4 +162,7 @@
     <!-- Fuzzy -->
     <string name="pref_title_resetunits">"Zresetuj jednostki do wartości domyślnych"</string>
     <string name="not_title_weather_update">"Aktualizacja pogody…"</string>
+
+    <!-- Icons -->
+    <string name="pref_title_icons">"Ikony"</string>
 </resources>

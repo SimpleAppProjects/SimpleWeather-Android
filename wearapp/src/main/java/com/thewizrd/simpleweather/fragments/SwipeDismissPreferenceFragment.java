@@ -14,7 +14,7 @@ import androidx.wear.widget.SwipeDismissFrameLayout;
 
 import com.thewizrd.simpleweather.databinding.ActivitySettingsBinding;
 
-public class SwipeDismissPreferenceFragment extends PreferenceFragment {
+public abstract class SwipeDismissPreferenceFragment extends PreferenceFragment {
     private Activity mActivity;
     private ActivitySettingsBinding binding;
     private SwipeDismissFrameLayout.Callback swipeCallback;
@@ -39,6 +39,12 @@ public class SwipeDismissPreferenceFragment extends PreferenceFragment {
     public void onDestroy() {
         mActivity = null;
         super.onDestroy();
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        onCreatePreferences(savedInstanceState);
     }
 
     @SuppressLint("RestrictedApi")
@@ -68,4 +74,6 @@ public class SwipeDismissPreferenceFragment extends PreferenceFragment {
         super.onDestroyView();
         binding = null;
     }
+
+    public abstract void onCreatePreferences(@Nullable Bundle savedInstanceState);
 }

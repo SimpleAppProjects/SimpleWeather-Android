@@ -64,7 +64,7 @@ public class KeyEntryPreference extends EditTextPreference {
         keyEntry.addTextChangedListener(editTextWatcher);
     }
 
-    private TextWatcher editTextWatcher = new TextWatcher() {
+    private final TextWatcher editTextWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 

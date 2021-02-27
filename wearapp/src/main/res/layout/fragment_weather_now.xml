@@ -50,7 +50,7 @@
                     android:background="?selectableItemBackground"
                     android:gravity="center"
                     android:layout_gravity="center"
-                    android:visibility="gone"
+                    android:visibility="invisible"
                     app:watchHideIfEmpty="@{alertsView.alerts}"
                     tools:visibility="visible">
 
@@ -255,7 +255,8 @@
                         android:layout_weight="1"
                         android:layout_gravity="center"
                         android:gravity="center"
-                        app:popData="@{weatherView.weatherDetails}">
+                        app:popData="@{weatherView.weatherDetails}"
+                        app:hideIfTrue="@{true}">
 
                         <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/condition_popicon"
@@ -295,7 +296,8 @@
                         android:layout_weight="1"
                         android:layout_gravity="center"
                         android:gravity="center"
-                        app:windData="@{weatherView.weatherDetails}">
+                        app:windData="@{weatherView.weatherDetails}"
+                        app:hideIfTrue="@{true}">
 
                         <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/condition_windicon"

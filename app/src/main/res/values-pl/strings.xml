@@ -82,7 +82,5 @@
     <string name="splitlang_downloading">"Pobieranie pakietu językowego..."</string>
     <string name="splitlang_failure">"Nie udało się zainstalować pakietu językowego"</string>
 
-    <!-- Icons -->
-    <string name="pref_title_icons">"Ikony"</string>
     <string name="pref_title_feature_charts">"Wykresy"</string>
 </resources>
