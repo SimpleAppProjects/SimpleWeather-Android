@@ -260,7 +260,7 @@ public class UnitTests {
     public void androidAutoCompleteLocTest() throws IOException {
         Assert.assertTrue(Geocoder.isPresent());
         Geocoder geocoder = new Geocoder(App.getInstance().getAppContext(), Locale.getDefault());
-        List<Address> addressList = geocoder.getFromLocationName("Redmon", 5); // Redmond
+        List<Address> addressList = geocoder.getFromLocationName("Redmond", 5); // Redmond
         Assert.assertTrue(addressList != null && !addressList.isEmpty());
     }
 
