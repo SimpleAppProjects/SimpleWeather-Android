@@ -21,7 +21,6 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
     private static final String TAG = "WeatherWidgetProvider";
 
     // Actions
-    public static final String ACTION_REFRESHWIDGETS = "SimpleWeather.Droid.action.UPDATEWIDGETS";
     public static final String ACTION_SHOWNEXTFORECAST = "SimpleWeather.Droid.action.SHOW_NEXT_FORECAST";
 
     // Extras
@@ -63,15 +62,7 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
                 // Restart update alarm
                 WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_UPDATEALARM);
             } else if (Intent.ACTION_LOCALE_CHANGED.equals(intent.getAction())) {
-                updateWidgets(context, null);
-            } else if (ACTION_REFRESHWIDGETS.equals(intent.getAction())) {
-                // Update widgets
-                int[] appWidgetIds = intent.getIntArrayExtra(EXTRA_WIDGET_IDS);
-                updateWidgets(context, appWidgetIds);
-            } else if (AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction())) {
-                // Update widgets
-                int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-                updateWidgets(context, appWidgetIds);
+                updateWidgets(context, AppWidgetManager.getInstance(context).getAppWidgetIds(getComponentName()));
             } else {
                 super.onReceive(context, intent);
             }
@@ -81,6 +72,11 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
     }
 
     protected void updateWidgets(Context context, final int[] appWidgetIds) {
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+
+        RemoteViews updateViews = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
+        appWidgetManager.partiallyUpdateAppWidget(appWidgetIds, updateViews);
+
         AsyncTask.run(new Runnable() {
             @Override
             public void run() {
@@ -88,7 +84,6 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
 
                 if (appWidgetIds != null && appWidgetIds.length > 0) {
                     for (int appWidgetId : appWidgetIds) {
-                        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
                         LocationData location = WidgetUtils.getLocationData(appWidgetId);
 
                         RemoteViews updateViews = new RemoteViews(context.getPackageName(), getWidgetLayoutId());

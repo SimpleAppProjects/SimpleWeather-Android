@@ -1,13 +1,11 @@
 package com.thewizrd.simpleweather.widgets;
 
-import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -98,9 +96,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
     public static final String ACTION_RESIZEWIDGET = "SimpleWeather.Droid.action.RESIZE_WIDGET";
     public static final String ACTION_UPDATECLOCK = "SimpleWeather.Droid.action.UPDATE_CLOCK";
     public static final String ACTION_UPDATEDATE = "SimpleWeather.Droid.action.UPDATE_DATE";
-
-    public static final String ACTION_STARTCLOCK = "SimpleWeather.Droid.action.START_CLOCKALARM";
-    public static final String ACTION_CANCELCLOCK = "SimpleWeather.Droid.action.CANCEL_CLOCKALARM";
 
     public static final String ACTION_RESETGPSWIDGETS = "SimpleWeather.Droid.action.RESET_GPSWIDGETS";
     public static final String ACTION_REFRESHGPSWIDGETS = "SimpleWeather.Droid.action.REFRESH_GPSWIDGETS";
@@ -245,14 +240,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
                         resizeWidget(mAppWidget4x2Huawei, appWidgetId, newOptions);
                         break;
                 }
-            } else if (ACTION_STARTCLOCK.equals(intent.getAction())) {
-                // Schedule clock updates
-                startTickReceiver(mContext);
-            } else if (ACTION_CANCELCLOCK.equals(intent.getAction())) {
-                if (!clockWidgetsExist(mContext)) {
-                    // Cancel clock alarm
-                    cancelClockAlarm(mContext);
-                }
             } else if (ACTION_UPDATECLOCK.equals(intent.getAction())) {
                 // Update clock widget instances
                 int[] appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS);
@@ -283,54 +270,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
                 .setAction(ACTION_UPDATECLOCK);
 
         return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-    private static void startTickReceiver(Context context) {
-        stopTickReceiver(context);
-
-        mTickReceiver = new TickReceiver();
-        context.registerReceiver(mTickReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
-
-        Logger.writeLine(Log.INFO, "%s: Started tick receiver", TAG);
-    }
-
-    private static void stopTickReceiver(Context context) {
-        if (mTickReceiver != null) {
-            context.unregisterReceiver(mTickReceiver);
-            mTickReceiver = null;
-
-            Logger.writeLine(Log.INFO, "%s: Unregistered tick receiver", TAG);
-        }
-    }
-
-    private static void cancelClockAlarm(Context context) {
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        am.cancel(getClockRefreshIntent(context));
-
-        Logger.writeLine(Log.INFO, "%s: Canceled clock alarm", TAG);
-    }
-
-    static class TickReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent != null && Intent.ACTION_TIME_TICK.equals(intent.getAction())) {
-                AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                PendingIntent pendingIntent = getClockRefreshIntent(context);
-                am.cancel(pendingIntent);
-
-                long nowMillis = System.currentTimeMillis();
-                long dueTime = nowMillis - (nowMillis % 60000) + 60000;
-                am.setRepeating(AlarmManager.RTC, dueTime, 60000, pendingIntent);
-
-                // Request an update
-                context.sendBroadcast(new Intent(context, WeatherWidgetBroadcastReceiver.class)
-                        .setAction(ACTION_UPDATECLOCK));
-
-                stopTickReceiver(context);
-
-                Logger.writeLine(Log.INFO, "%s: Receieved tick in receiver", TAG);
-            }
-        }
     }
 
     public static boolean widgetsExist(Context context) {
@@ -618,34 +557,18 @@ public class WeatherWidgetService extends SafeJobIntentService {
     }
 
     private void resetGPSWidgets(final List<Integer> appWidgetIds) {
-        List<Task<Void>> tasks = new ArrayList<>(appWidgetIds.size());
-
         for (final int appWidgetId : appWidgetIds) {
-            Task<Void> task = AsyncTask.create(new Callable<Void>() {
-                @Override
-                public Void call() {
-                    RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_configure_layout);
+            RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_configure_layout);
 
-                    Intent configureIntent = new Intent(mContext, WeatherWidgetConfigActivity.class)
-                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    configureIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+            Intent configureIntent = new Intent(mContext, WeatherWidgetConfigActivity.class)
+                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            configureIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
 
-                    PendingIntent clickPendingIntent =
-                            PendingIntent.getActivity(mContext, appWidgetId, configureIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    views.setOnClickPendingIntent(R.id.widget, clickPendingIntent);
+            PendingIntent clickPendingIntent =
+                    PendingIntent.getActivity(mContext, appWidgetId, configureIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            views.setOnClickPendingIntent(R.id.widget, clickPendingIntent);
 
-                    mAppWidgetManager.updateAppWidget(appWidgetId, views);
-                    return null;
-                }
-            });
-
-            tasks.add(task);
-        }
-
-        try {
-            Tasks.await(Tasks.whenAll(tasks));
-        } catch (ExecutionException | InterruptedException e) {
-            Logger.writeLine(Log.ERROR, e);
+            mAppWidgetManager.updateAppWidget(appWidgetId, views);
         }
     }
 
