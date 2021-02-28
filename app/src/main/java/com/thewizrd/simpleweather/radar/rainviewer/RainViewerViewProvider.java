@@ -53,6 +53,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -230,11 +231,18 @@ public class RainViewerViewProvider extends MapTileRadarViewProvider {
                     }
 
                     // Remove already added tile overlays
-                    for (Long key : radarLayers.keySet()) {
-                        TileOverlay overlay = radarLayers.remove(key);
+                    Iterator<Map.Entry<Long, TileOverlay>> it = radarLayers.entrySet().iterator();
+                    while (it.hasNext()) {
+                        TileOverlay overlay = it.next().getValue();
                         if (overlay != null) {
-                            overlay.remove();
+                            mMainHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    overlay.remove();
+                                }
+                            });
                         }
+                        it.remove();
                     }
 
                     mMainHandler.post(new Runnable() {
