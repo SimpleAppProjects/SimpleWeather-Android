@@ -105,7 +105,7 @@
     <string name="message_keyinvalid">"Schlüssel ungültig"</string>
 
     <!-- Or "Laufende Benachrichtigung" in a less formal way. -->
-    <string name="pref_title_onnotification">"Dauerhafte Benachrichtigung"</string>
+    <string name="pref_title_onnotification">"Wetter-Benachrichtigung"</string>
 
     <!-- Or dismiss the trailing "anzeigen" -->
     <string name="pref_summary_notification">"Dauerhafte Benachrichtigung der aktuellen Wetterbedingungen anzeigen"</string>
@@ -163,7 +163,7 @@
     <string name="not_channel_desc_weather">"Wetterbenachrichtigungen"</string>
     <string name="not_channel_name_alerts">"Wetterwarnungen"</string>
     <string name="not_channel_desc_alerts">"Benachrichtigungen für Wetterwarnungen"</string>
-    <string name="not_channel_name_general">"Allgemeine Benachrichtigungen"</string>
+    <string name="not_channel_name_general">"Service-Meldungen"</string>
 
     <!-- Alerts -->
     <!-- Fuzzy -->

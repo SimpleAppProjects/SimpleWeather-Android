@@ -82,4 +82,11 @@
     <string name="splitlang_downloading">"Pobieranie pakietu językowego..."</string>
     <string name="splitlang_failure">"Nie udało się zainstalować pakietu językowego"</string>
     <string name="pref_title_feature_charts">"Wykresy"</string>
+
+    <!-- Widget Service -->
+    <string name="message_widgetservice_running">"Usługa aktualizacji widgetów jest uruchomiona"</string>
+    <string name="pref_title_foreground_service">"Usługa aktualizatora widgetów"</string>
+    <string name="pref_summary_foreground_service">"Włącz usługę aktualizacji widgetów pogodowych i powiadomień"</string>
+    <string name="pref_title_ignore_batt_opts">"Ignoruj optymalizacje baterii"</string>
+    <string name="pref_summary_ignore_batt_opts">"Wyłączenie ograniczenia usług w tle, jeśli widżety i powiadomienia nie są aktualizowane"</string>
 </resources>

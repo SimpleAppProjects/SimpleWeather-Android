@@ -79,7 +79,7 @@
     <string name="message_enter_apikey">"Wprowadź klucz"</string>
     <string name="message_keyverified">"Klucz zweryfikowany"</string>
     <string name="message_keyinvalid">"Klucz niepoprawny"</string>
-    <string name="pref_title_onnotification">"Stałe powiadomienie"</string>
+    <string name="pref_title_onnotification">"Powiadomienie o pogodzie"</string>
     <string name="pref_summary_notification">"Pokaż stałe powiadomienie wyświetlające aktualną pogodę"</string>
     <string name="pref_title_api">"Dostawca pogody"</string>
     <string name="pref_category_notification">"Powiadomienia"</string>
@@ -131,7 +131,7 @@
     <string name="not_channel_desc_weather">"Powiadomienia pogodowe"</string>
     <string name="not_channel_name_alerts">"Alarmy pogodowe"</string>
     <string name="not_channel_desc_alerts">"Powiadomienia dla alarmów pogodowych"</string>
-    <string name="not_channel_name_general">"Ogólne powiadomienia"</string>
+    <string name="not_channel_name_general">"Powiadomienia serwisowe"</string>
 
     <!-- Alerts -->
     <string name="datetime_day_ago">"%1$d dn. temu"</string>

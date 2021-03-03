@@ -95,4 +95,11 @@
     <string name="splitlang_downloading">"Herunterladen des Sprachpakets..."</string>
     <string name="splitlang_failure">"Sprachpaket konnte nicht installiert werden"</string>
     <string name="pref_title_feature_charts">"Diagramme"</string>
+
+    <!-- Widget Service -->
+    <string name="message_widgetservice_running">"Der Widget-Update-Dienst läuft"</string>
+    <string name="pref_title_foreground_service">"Widget-Updater-Dienst"</string>
+    <string name="pref_summary_foreground_service">"Dienst zur Aktualisierung von Wetter-Widgets und -Benachrichtigungen aktivieren"</string>
+    <string name="pref_title_ignore_batt_opts">"Optimierungen der Akkuleistung ignorieren"</string>
+    <string name="pref_summary_ignore_batt_opts">"Einschränkung des Hintergrunddienstes deaktivieren, wenn Widgets und Benachrichtigungen nicht aktualisiert werden"</string>
 </resources>

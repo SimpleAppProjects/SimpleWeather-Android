@@ -79,7 +79,7 @@
     <string name="message_enter_apikey">"Vložte prosím kľúč poskytovateľa"</string>
     <string name="message_keyverified">"Kľúč overený"</string>
     <string name="message_keyinvalid">"Neplatný kľúč"</string>
-    <string name="pref_title_onnotification">"Priebežné oznámenia"</string>
+    <string name="pref_title_onnotification">"Oznámenie o počasí"</string>
     <string name="pref_summary_notification">"Zobraziť trvalé oznámenie o aktuálnom počasí"</string>
     <string name="pref_title_api">"Poskytovateľ počasia"</string>
     <string name="pref_category_notification">"Oznámenia"</string>
@@ -131,7 +131,7 @@
     <string name="not_channel_desc_weather">"Oznámenia o počasí"</string>
     <string name="not_channel_name_alerts">"Meteovýstrahy"</string>
     <string name="not_channel_desc_alerts">"Oznámenia meteovýstrah"</string>
-    <string name="not_channel_name_general">"Oznámenia všeobecne"</string>
+    <string name="not_channel_name_general">"Servisné oznámenia"</string>
 
     <!-- Alerts -->
     <string name="datetime_day_ago">"%1$dd dozadu"</string>

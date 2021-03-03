@@ -86,4 +86,11 @@
     <string name="splitlang_downloading">"Téléchargement du module linguistique…"</string>
     <string name="splitlang_failure">"Échec de l'installation du module linguistique"</string>
     <string name="pref_title_feature_charts">"Graphiques"</string>
+
+    <!-- Widget Service -->
+    <string name="message_widgetservice_running">"Le service de mise à jour des widgets fonctionne"</string>
+    <string name="pref_title_foreground_service">"Service de mise à jour des widgets"</string>
+    <string name="pref_summary_foreground_service">"Permettre au service de mettre à jour les widgets et les notifications météorologiques"</string>
+    <string name="pref_title_ignore_batt_opts">"Ignorer les optimisations de batterie"</string>
+    <string name="pref_summary_ignore_batt_opts">"Désactiver la restriction de service en arrière-plan si les widgets et les notifications ne sont pas mis à jour"</string>
 </resources>

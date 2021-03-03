@@ -79,7 +79,7 @@
     <string name="message_enter_apikey">"Veuillez entrer une clé de fournisseur"</string>
     <string name="message_keyverified">"Clé vérifiée"</string>
     <string name="message_keyinvalid">"Clé invalide"</string>
-    <string name="pref_title_onnotification">"Notification permanente"</string>
+    <string name="pref_title_onnotification">"Notification de météo"</string>
     <string name="pref_summary_notification">"Afficher une notification permanente qui indique les conditions météo actuelles"</string>
     <string name="pref_title_api">"Fournisseur de météo"</string>
     <string name="pref_category_notification">"Notifications"</string>
@@ -131,7 +131,7 @@
     <string name="not_channel_desc_weather">"Notifications météo"</string>
     <string name="not_channel_name_alerts">"Alertes météo"</string>
     <string name="not_channel_desc_alerts">"Notifications pour les alertes météo"</string>
-    <string name="not_channel_name_general">"Notifications générales"</string>
+    <string name="not_channel_name_general">"Notifications de service"</string>
 
     <!-- Alerts -->
     <string name="datetime_day_ago">"il y a %1$dj"</string>

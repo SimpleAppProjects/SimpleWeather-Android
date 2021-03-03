@@ -82,4 +82,11 @@
     <string name="splitlang_downloading">"Sťahuje sa jazykový balík ..."</string>
     <string name="splitlang_failure">"Nepodarilo sa nainštalovať jazykový balík"</string>
     <string name="pref_title_feature_charts">"Grafy"</string>
+
+    <!-- Widget Service -->
+    <string name="message_widgetservice_running">"Služba aktualizácií widgetov je spustená"</string>
+    <string name="pref_title_foreground_service">"Služba aktualizácie widgetov"</string>
+    <string name="pref_summary_foreground_service">"Povoľte službe aktualizáciu widgetov a upozornení na počasie"</string>
+    <string name="pref_title_ignore_batt_opts">"Ignorujte optimalizáciu batérie"</string>
+    <string name="pref_summary_ignore_batt_opts">"Ak sa widgety a upozornenia neaktualizujú, zakážte obmedzenie služby na pozadí"</string>
 </resources>
