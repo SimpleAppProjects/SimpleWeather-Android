@@ -99,7 +99,7 @@
     <string name="message_enter_apikey">"Please enter a Provider Key"</string>
     <string name="message_keyverified">Key Verified</string>
     <string name="message_keyinvalid">Key Invalid</string>
-    <string name="pref_title_onnotification">On-going Notification</string>
+    <string name="pref_title_onnotification">Weather Notification</string>
     <string name="pref_summary_notification">Show persistent notification displaying current weather conditions</string>
     <string name="pref_title_api">Weather Provider</string>
     <string name="pref_category_notification">Notifications</string>
@@ -152,7 +152,7 @@
     <string name="not_channel_desc_weather">Weather notifications</string>
     <string name="not_channel_name_alerts">Weather Alerts</string>
     <string name="not_channel_desc_alerts">Notifications for weather alerts</string>
-    <string name="not_channel_name_general">General notifications</string>
+    <string name="not_channel_name_general">Service notifications</string>
     <string name="not_title_weather_update">Updating weather…</string>
 
     <!-- Alerts -->
