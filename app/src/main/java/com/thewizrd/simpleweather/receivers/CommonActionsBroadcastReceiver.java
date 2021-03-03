@@ -13,6 +13,7 @@ import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.simpleweather.services.ImageDatabaseWorker;
+import com.thewizrd.simpleweather.services.UpdaterUtils;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker;
 import com.thewizrd.simpleweather.wearable.WearableWorker;
@@ -38,7 +39,7 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
                 WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_UPDATEWIDGETS);
             } else if (CommonActions.ACTION_SETTINGS_UPDATEREFRESH.equals(intent.getAction())) {
                 WearableWorker.enqueueAction(context, WearableWorker.ACTION_SENDSETTINGSUPDATE);
-                WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEALARM);
+                UpdaterUtils.updateAlarm(context);
             } else if (CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE.equals(intent.getAction())) {
                 WearableWorker.enqueueAction(context, WearableWorker.ACTION_SENDLOCATIONUPDATE);
                 if (intent.getBooleanExtra(CommonActions.EXTRA_FORCEUPDATE, true)) {

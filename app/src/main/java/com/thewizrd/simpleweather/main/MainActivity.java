@@ -49,6 +49,7 @@ import com.thewizrd.simpleweather.activity.UserLocaleActivity;
 import com.thewizrd.simpleweather.databinding.ActivityMainBinding;
 import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationService;
 import com.thewizrd.simpleweather.preferences.SettingsFragment;
+import com.thewizrd.simpleweather.services.UpdaterUtils;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
 import com.thewizrd.simpleweather.updates.InAppUpdateManager;
 
@@ -133,6 +134,9 @@ public class MainActivity extends UserLocaleActivity
                 args.putBoolean(Constants.FRAGTAG_HOME, ObjectsCompat.equals(locData, Settings.getHomeData()));
             }
         }
+
+        // Start services
+        UpdaterUtils.startAlarm(this);
 
         appUpdateManager = InAppUpdateManager.create(getApplicationContext());
 

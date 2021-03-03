@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="18" />
@@ -64,8 +65,6 @@
             android:label="Weather (1x1)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.LOCALE_CHANGED" />
             </intent-filter>
 
             <meta-data
@@ -77,9 +76,7 @@
             android:label="Weather + Clock (2x2)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.TIME_SET" />
-                <action android:name="android.intent.action.LOCALE_CHANGED" />
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
 
@@ -92,8 +89,6 @@
             android:label="Weather (4x1)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.LOCALE_CHANGED" />
             </intent-filter>
 
             <meta-data
@@ -105,9 +100,7 @@
             android:label="Weather + Clock (4x2)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.TIME_SET" />
-                <action android:name="android.intent.action.LOCALE_CHANGED" />
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
 
@@ -120,9 +113,7 @@
             android:label="Weather + Date (4x1)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.TIME_SET" />
-                <action android:name="android.intent.action.LOCALE_CHANGED" />
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
 
@@ -135,8 +126,6 @@
             android:label="Weather (4x1)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.LOCALE_CHANGED" />
             </intent-filter>
 
             <meta-data
@@ -148,9 +137,7 @@
             android:label="Clock + Weather (4x2)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.TIME_SET" />
-                <action android:name="android.intent.action.LOCALE_CHANGED" />
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
 
@@ -163,9 +150,7 @@
             android:label="Clock + Weather (4x2)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.TIME_SET" />
-                <action android:name="android.intent.action.LOCALE_CHANGED" />
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
 
@@ -182,7 +167,15 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".notifications.WeatherNotificationBroadcastReceiver" />
+        <receiver
+            android:name=".notifications.WeatherNotificationBroadcastReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="SimpleWeather.Droid.action.CANCEL_NOTIFICATION" />
+                <action android:name="SimpleWeather.Droid.action.CANCEL_ALL_NOTIFICATIONS" />
+            </intent-filter>
+        </receiver>
         <receiver
             android:name=".receivers.WeatherUpdateBroadcastReceiver"
             android:enabled="true"
@@ -223,6 +216,11 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <service
+            android:name=".services.WeatherUpdaterService"
+            android:exported="false"
+            android:label="@string/pref_title_foreground_service" />
 
         <uses-library
             android:name="com.google.android.wearable"

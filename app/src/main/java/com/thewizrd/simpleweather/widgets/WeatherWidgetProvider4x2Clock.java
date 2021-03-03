@@ -42,16 +42,6 @@ public class WeatherWidgetProvider4x2Clock extends WeatherWidgetProvider {
     }
 
     @Override
-    public void onEnabled(Context context) {
-        super.onEnabled(context);
-    }
-
-    @Override
-    public void onDisabled(Context context) {
-        super.onDisabled(context);
-    }
-
-    @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent == null ? null : intent.getAction();
 

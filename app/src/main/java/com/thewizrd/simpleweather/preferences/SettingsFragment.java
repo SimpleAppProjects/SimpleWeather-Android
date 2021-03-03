@@ -74,11 +74,13 @@ import com.thewizrd.simpleweather.notifications.WeatherNotificationBroadcastRece
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker;
 import com.thewizrd.simpleweather.preferences.iconpreference.IconProviderPickerFragment;
 import com.thewizrd.simpleweather.radar.RadarProvider;
+import com.thewizrd.simpleweather.services.UpdaterUtils;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.splits.InstallRequest;
 import com.thewizrd.simpleweather.splits.SplitLocaleInstaller;
+import com.thewizrd.simpleweather.utils.PowerUtils;
 import com.thewizrd.simpleweather.wearable.WearableWorker;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetBroadcastReceiver;
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
@@ -134,6 +136,10 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
     private ListPreference themePref;
     private ListPreference languagePref;
     private Preference premiumPref;
+
+    // Background ops
+    private SwitchPreferenceCompat foregroundPref;
+    private Preference batteryOptsPref;
 
     private PreferenceCategory notCategory;
     private PreferenceCategory apiCategory;
@@ -217,6 +223,12 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
         // Initialize queue
         intentQueue = new HashSet<>();
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || PowerUtils.isBackgroundOptimizationDisabled(requireContext())) {
+            batteryOptsPref.setVisible(false);
+        } else {
+            batteryOptsPref.setVisible(true);
+        }
     }
 
     @Override
@@ -250,10 +262,20 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 bundle.putString("API", Settings.getAPI());
                 bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));
                 AnalyticsLogger.logEvent("Update_API", bundle);
+
+                WeatherUpdaterWorker.enqueueAction(getAppCompatActivity(), WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
             } else if (WeatherWidgetService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
                 WeatherWidgetService.enqueueWork(getAppCompatActivity(), filter.getIntent());
             } else if (WeatherUpdaterWorker.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
-                WeatherUpdaterWorker.enqueueAction(getAppCompatActivity(), filter.getIntent().getAction());
+                if (WeatherUpdaterWorker.ACTION_REQUEUEWORK.equals(filter.getIntent().getAction())) {
+                    UpdaterUtils.updateAlarm(getAppCompatActivity());
+                } else if (WeatherUpdaterWorker.ACTION_ENQUEUEWORK.equals(filter.getIntent().getAction())) {
+                    UpdaterUtils.startAlarm(getAppCompatActivity());
+                } else if (WeatherUpdaterWorker.ACTION_CANCELWORK.equals(filter.getIntent().getAction())) {
+                    UpdaterUtils.cancelAlarm(getAppCompatActivity());
+                } else {
+                    WeatherUpdaterWorker.enqueueAction(getAppCompatActivity(), filter.getIntent().getAction());
+                }
             } else if (WearableWorker.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
                 WearableWorker.enqueueAction(getAppCompatActivity(), filter.getIntent().getAction());
             } else {
@@ -653,10 +675,10 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 // Alert notification
                 if ((boolean) newValue) {
                     enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
-                            .setAction(WeatherUpdaterWorker.ACTION_STARTALARM));
+                            .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK));
                 } else {
                     enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
-                            .setAction(WeatherUpdaterWorker.ACTION_CANCELALARM));
+                            .setAction(WeatherUpdaterWorker.ACTION_CANCELWORK));
                 }
                 return true;
             }
@@ -731,6 +753,28 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 } else {
                     showSnackbar(Snackbar.make(R.string.message_premium_required, Snackbar.Duration.SHORT), null);
                 }
+                return true;
+            }
+        });
+
+        foregroundPref = findPreference(PowerUtils.KEY_USE_FOREGROUNDSERVICE);
+        batteryOptsPref = findPreference(PowerUtils.KEY_REQUESTIGNOREBATOPTS);
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M ||
+                !PowerUtils.checkBackgroundOptimizationPermission(requireContext()) ||
+                !PowerUtils.canStartIgnoreBatteryOptActivity(requireContext())) {
+            batteryOptsPref.setVisible(false);
+        } else {
+            batteryOptsPref.setOnPreferenceClickListener(preference -> {
+                PowerUtils.startIgnoreBatteryOptActivity(requireContext());
+                return true;
+            });
+        }
+
+        foregroundPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                UpdaterUtils.enableForegroundService(requireContext(), (boolean) newValue);
                 return true;
             }
         });
@@ -892,18 +936,18 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         if (intent == null)
             return false;
         else {
-            if (WeatherUpdaterWorker.ACTION_UPDATEALARM.equals(intent.getAction()) ||
-                    WeatherUpdaterWorker.ACTION_STARTALARM.equals(intent.getAction())) {
+            if (WeatherUpdaterWorker.ACTION_REQUEUEWORK.equals(intent.getAction()) ||
+                    WeatherUpdaterWorker.ACTION_ENQUEUEWORK.equals(intent.getAction())) {
                 for (Intent.FilterComparison filter : intentQueue) {
-                    if (WeatherUpdaterWorker.ACTION_CANCELALARM.equals(filter.getIntent().getAction())) {
+                    if (WeatherUpdaterWorker.ACTION_CANCELWORK.equals(filter.getIntent().getAction())) {
                         intentQueue.remove(filter);
                         break;
                     }
                 }
-            } else if (WeatherUpdaterWorker.ACTION_CANCELALARM.equals(intent.getAction())) {
+            } else if (WeatherUpdaterWorker.ACTION_CANCELWORK.equals(intent.getAction())) {
                 for (Intent.FilterComparison filter : intentQueue) {
-                    if (WeatherUpdaterWorker.ACTION_UPDATEALARM.equals(filter.getIntent().getAction()) ||
-                            WeatherUpdaterWorker.ACTION_STARTALARM.equals(intent.getAction())) {
+                    if (WeatherUpdaterWorker.ACTION_REQUEUEWORK.equals(filter.getIntent().getAction()) ||
+                            WeatherUpdaterWorker.ACTION_ENQUEUEWORK.equals(intent.getAction())) {
                         intentQueue.remove(filter);
                         break;
                     }
@@ -945,7 +989,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             // Refresh interval changed
             case KEY_REFRESHINTERVAL:
                 enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
-                        .setAction(WeatherUpdaterWorker.ACTION_UPDATEALARM));
+                        .setAction(WeatherUpdaterWorker.ACTION_REQUEUEWORK));
                 break;
             // Language changed
             case LocaleUtils.KEY_LANGUAGE:

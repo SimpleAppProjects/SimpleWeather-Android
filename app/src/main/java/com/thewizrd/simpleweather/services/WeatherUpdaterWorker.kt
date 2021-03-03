@@ -3,8 +3,6 @@ package com.thewizrd.simpleweather.services
 import android.Manifest
 import android.annotation.TargetApi
 import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -37,6 +35,7 @@ import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.notifications.WeatherNotificationBroadcastReceiver
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
+import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler
 import com.thewizrd.simpleweather.widgets.WeatherWidgetBroadcastReceiver
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService
@@ -59,37 +58,44 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         private const val TAG = "WeatherUpdaterWorker"
 
         const val ACTION_UPDATEWEATHER = "SimpleWeather.Droid.action.UPDATE_WEATHER"
-        const val ACTION_STARTALARM = "SimpleWeather.Droid.action.START_ALARM"
-        const val ACTION_CANCELALARM = "SimpleWeather.Droid.action.CANCEL_ALARM"
-        const val ACTION_UPDATEALARM = "SimpleWeather.Droid.action.UPDATE_ALARM"
+        const val ACTION_ENQUEUEWORK = "SimpleWeather.Droid.action.START_ALARM"
+        const val ACTION_CANCELWORK = "SimpleWeather.Droid.action.CANCEL_ALARM"
+        const val ACTION_REQUEUEWORK = "SimpleWeather.Droid.action.UPDATE_ALARM"
 
         private const val JOB_ID = 1004
-        private const val NOT_CHANNEL_ID = "SimpleWeather.generalnotif"
 
         @JvmStatic
         fun enqueueAction(context: Context, intentAction: String) {
             val context = context.applicationContext
             when (intentAction) {
-                ACTION_UPDATEALARM -> enqueueWork(context)
-                ACTION_UPDATEWEATHER, ACTION_STARTALARM ->
+                ACTION_REQUEUEWORK -> enqueueWork(context)
+                ACTION_ENQUEUEWORK ->
+                    if (!isWorkScheduled(context)) {
+                        startWork(context)
+                    }
+                ACTION_UPDATEWEATHER ->
                     // For immediate action
                     startWork(context)
-                ACTION_CANCELALARM -> cancelWork(context)
+                ACTION_CANCELWORK -> cancelWork(context)
             }
         }
 
         private fun startWork(context: Context) {
             val context = context.applicationContext
             Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG)
-            val updateRequest = OneTimeWorkRequest.Builder(WeatherUpdaterWorker::class.java)
-                    .setInitialDelay(60, TimeUnit.SECONDS)
-                    .build()
+            val updateRequest = OneTimeWorkRequest.Builder(WeatherUpdaterWorker::class.java).apply {
+                if (App.getInstance().appState != AppState.FOREGROUND) {
+                    setInitialDelay(60, TimeUnit.SECONDS)
+                }
+            }
             WorkManager.getInstance(context)
-                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest)
+                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.REPLACE, updateRequest.build())
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 
-            // Enqueue periodic task as well
-            enqueueWork(context)
+            if (!PowerUtils.useForegroundService) {
+                // Enqueue periodic task as well
+                enqueueWork(context)
+            }
         }
 
         private fun enqueueWork(context: Context) {
@@ -103,43 +109,37 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     .setConstraints(constraints)
                     .build()
             WorkManager.getInstance(context)
-                    .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.KEEP, updateRequest)
+                    .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest)
             Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG)
         }
 
-        private fun cancelWork(context: Context): Boolean {
-            // Cancel alarm if dependent features are turned off
+        private fun isWorkScheduled(context: Context): Boolean {
             val context = context.applicationContext
-            if (!WeatherWidgetService.widgetsExist(context) && !Settings.showOngoingNotification() && !Settings.useAlerts()) {
-                WorkManager.getInstance(context).cancelUniqueWork(TAG)
-                Logger.writeLine(Log.INFO, "%s: Canceled work", TAG)
-                return true
+            val workMgr = WorkManager.getInstance(context)
+            var statuses: List<WorkInfo>? = null
+            try {
+                statuses = workMgr.getWorkInfosForUniqueWork(TAG).get()
+            } catch (ignored: ExecutionException) {
+            } catch (ignored: InterruptedException) {
             }
-            return false
+            if (statuses == null || statuses.isEmpty()) return false
+            var running = false
+            for (workStatus in statuses) {
+                running = (workStatus.state == WorkInfo.State.RUNNING
+                        || workStatus.state == WorkInfo.State.ENQUEUED)
+            }
+            return running
         }
 
-        @TargetApi(Build.VERSION_CODES.O)
-        private fun initChannel(context: Context) {
-            // Gets an instance of the NotificationManager service
-            val mNotifyMgr = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            var mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID)
-            val notchannel_name = context.resources.getString(R.string.not_channel_name_general)
-            if (mChannel == null) {
-                mChannel = NotificationChannel(NOT_CHANNEL_ID, notchannel_name, NotificationManager.IMPORTANCE_LOW)
-            }
-
-            // Configure the notification channel.
-            mChannel.name = notchannel_name
-            mChannel.setShowBadge(false)
-            mChannel.enableLights(false)
-            mChannel.enableVibration(false)
-            mNotifyMgr.createNotificationChannel(mChannel)
+        private fun cancelWork(context: Context) {
+            WorkManager.getInstance(context).cancelUniqueWork(TAG)
+            Logger.writeLine(Log.INFO, "%s: Canceled work", TAG)
         }
 
         @TargetApi(Build.VERSION_CODES.O)
         private fun getForegroundNotification(context: Context): Notification {
-            initChannel(context)
-            val mBuilder = NotificationCompat.Builder(context, NOT_CHANNEL_ID)
+            WeatherUpdaterService.initChannel(context)
+            val mBuilder = NotificationCompat.Builder(context, WeatherUpdaterService.NOT_CHANNEL_ID)
                     .setSmallIcon(R.drawable.wi_day_cloudy)
                     .setContentTitle(context.getString(R.string.not_title_weather_update))
                     .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
@@ -165,7 +165,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
             // Request work to be in foreground (only for Oreo+)
             val appState = App.getInstance().appState
-            if (appState != AppState.FOREGROUND && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!PowerUtils.useForegroundService && appState != AppState.FOREGROUND && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     var foregroundServiceTypeFlags = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
                     if (hasBackgroundLocationAccess) foregroundServiceTypeFlags = foregroundServiceTypeFlags or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION

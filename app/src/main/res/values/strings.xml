@@ -51,6 +51,14 @@
     <string name="pref_location">Location</string>
     <string name="pref_item_gpslocation">Current GPS Location</string>
     <string name="prompt_setup_app_first">Please setup application first</string>
+
+    <!-- Widget Service -->
+    <string name="message_widgetservice_running">Widget update service is running</string>
+    <string name="pref_title_foreground_service">Widget Updater Service</string>
+    <string name="pref_summary_foreground_service">Enable service to update weather widgets and notifications</string>
+    <string name="pref_title_ignore_batt_opts">Ignore Battery Optimization</string>
+    <string name="pref_summary_ignore_batt_opts">Disable background service restriction if widgets and notifications don\'t update</string>
+
     <!-- LineView -->
     <string name="label_series">Series</string>
 

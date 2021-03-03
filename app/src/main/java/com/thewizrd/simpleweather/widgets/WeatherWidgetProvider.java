@@ -11,11 +11,9 @@ import android.widget.RemoteViews;
 
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
-import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.App;
-import com.thewizrd.simpleweather.services.WidgetUpdaterWorker;
+import com.thewizrd.simpleweather.services.UpdaterUtils;
 
 public abstract class WeatherWidgetProvider extends AppWidgetProvider {
     private static final String TAG = "WeatherWidgetProvider";
@@ -40,10 +38,7 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
 
     // Methods
     public final boolean hasInstances(Context context) {
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
-                new ComponentName(context, getClassName()));
-        return (appWidgetIds.length > 0);
+        return instancesCount(context) > 0;
     }
 
     public final int instancesCount(Context context) {
@@ -56,19 +51,9 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
-            if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-                // Reset weather update time
-                Settings.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN());
-                // Restart update alarm
-                WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_UPDATEALARM);
-            } else if (Intent.ACTION_LOCALE_CHANGED.equals(intent.getAction())) {
-                updateWidgets(context, AppWidgetManager.getInstance(context).getAppWidgetIds(getComponentName()));
-            } else {
-                super.onReceive(context, intent);
-            }
-
             Logger.writeLine(Log.INFO, "%s: WidgetType: %s; onReceive: %s", TAG, getWidgetType().name(), intent.getAction());
         }
+        super.onReceive(context, intent);
     }
 
     protected void updateWidgets(Context context, final int[] appWidgetIds) {
@@ -113,13 +98,13 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
     @Override
     public void onEnabled(Context context) {
         // Schedule alarms/updates
-        WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_UPDATEALARM);
+        UpdaterUtils.startAlarm(context);
     }
 
     @Override
     public void onDisabled(Context context) {
         // Remove alarms/updates
-        WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_CANCELALARM);
+        UpdaterUtils.cancelAlarm(context);
     }
 
     @Override

@@ -145,7 +145,8 @@ public class WeatherNotificationBuilder {
                         .setCustomContentView(updateViews)
                         .setCustomBigContentView(bigUpdateViews)
                         .setPriority(NotificationCompat.PRIORITY_LOW)
-                        .setOngoing(true);
+                        .setOngoing(true)
+                        .setShowWhen(false);
 
         if (Settings.getNotificationIcon().equals(Settings.TEMPERATURE_ICON)) {
             Integer tempLevel = NumberUtils.tryParseInt(temp.replace("°", ""));
