@@ -760,9 +760,10 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         foregroundPref = findPreference(PowerUtils.KEY_USE_FOREGROUNDSERVICE);
         batteryOptsPref = findPreference(PowerUtils.KEY_REQUESTIGNOREBATOPTS);
 
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M ||
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
                 !PowerUtils.checkBackgroundOptimizationPermission(requireContext()) ||
-                !PowerUtils.canStartIgnoreBatteryOptActivity(requireContext())) {
+                !PowerUtils.canStartIgnoreBatteryOptActivity(requireContext()) ||
+                PowerUtils.isBackgroundOptimizationDisabled(requireContext())) {
             batteryOptsPref.setVisible(false);
         } else {
             batteryOptsPref.setOnPreferenceClickListener(preference -> {
