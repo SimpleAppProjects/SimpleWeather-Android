@@ -76,8 +76,8 @@ class WeatherUpdaterService : Service() {
     private fun createForegroundNotification(): Notification {
         val notif = NotificationCompat.Builder(this, NOT_CHANNEL_ID).apply {
             setSmallIcon(R.drawable.ic_wi_cloud_refresh)
-            setContentTitle(getString(R.string.app_name))
-            setContentText(getString(R.string.message_widgetservice_running))
+            setSubText(getString(R.string.app_name))
+            setContentTitle(getString(R.string.message_widgetservice_running))
             setOnlyAlertOnce(true)
             setNotificationSilent()
             setShowWhen(false)

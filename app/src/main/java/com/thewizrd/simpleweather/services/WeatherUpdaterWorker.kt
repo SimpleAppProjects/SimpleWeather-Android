@@ -13,7 +13,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Looper
+import android.os.HandlerThread
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -164,8 +164,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
 
             // Request work to be in foreground (only for Oreo+)
-            val appState = App.getInstance().appState
-            if (!PowerUtils.useForegroundService && appState != AppState.FOREGROUND && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     var foregroundServiceTypeFlags = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
                     if (hasBackgroundLocationAccess) foregroundServiceTypeFlags = foregroundServiceTypeFlags or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
@@ -274,7 +273,8 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                         it.setExpirationDuration(60000)
                     }
 
-                    Looper.prepare()
+                    val handlerThread = HandlerThread("location")
+                    handlerThread.start()
 
                     Timber.tag(TAG).i("Fused: Requesting location updates...")
 
@@ -283,6 +283,8 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                             override fun onLocationResult(locationResult: LocationResult) {
                                 super.onLocationResult(locationResult)
                                 mFusedLocationClient!!.removeLocationUpdates(this)
+                                handlerThread.quitSafely()
+
                                 Timber.tag(TAG).i("Fused: Location update received...")
                                 continuation.resume(locationResult)
                             }
@@ -291,10 +293,13 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                                 super.onLocationAvailability(locationAvailability)
                                 if (!locationAvailability.isLocationAvailable) {
                                     mFusedLocationClient!!.removeLocationUpdates(this)
+                                    handlerThread.quitSafely()
+
+                                    Timber.tag(TAG).i("Fused: Location update unavailable...")
                                     continuation.resume(null)
                                 }
                             }
-                        }, Looper.myLooper())
+                        }, handlerThread.looper)
                     }
 
                     if (locationResult != null) {
@@ -312,11 +317,12 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                         it.powerRequirement = Criteria.POWER_LOW
                     }
 
-                    val provider = locMan.getBestProvider(locCriteria, true)
+                    val provider = locMan.getBestProvider(locCriteria, true)!!
                     location = locMan.getLastKnownLocation(provider)
 
                     if (location == null) {
-                        Looper.prepare()
+                        val handlerThread = HandlerThread("location")
+                        handlerThread.start()
 
                         Timber.tag(TAG).i("LocMan: Requesting location update...")
 
@@ -324,6 +330,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                             val locationListener = object : LocationListener {
                                 override fun onLocationChanged(location: Location) {
                                     locMan.removeUpdates(this)
+                                    handlerThread.quitSafely()
 
                                     Timber.tag(TAG).i("LocMan: Location update received...")
 
@@ -337,9 +344,10 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
 
                             try {
-                                locMan.requestSingleUpdate(provider, locationListener, Looper.myLooper())
+                                locMan.requestSingleUpdate(provider, locationListener, handlerThread.looper)
                             } catch (e: Exception) {
                                 locMan.removeUpdates(locationListener)
+                                handlerThread.quitSafely()
                                 continuation.resumeWithException(e)
                             }
                         }
