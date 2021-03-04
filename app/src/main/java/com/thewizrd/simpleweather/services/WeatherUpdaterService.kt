@@ -1,25 +1,33 @@
 package com.thewizrd.simpleweather.services
 
 import android.app.*
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.Settings
+import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.notifications.NotificationUtils
 import java.time.Duration
 
 class WeatherUpdaterService : Service() {
     private lateinit var mNotificationManager: NotificationManager
-    private lateinit var mAlarmMgr: AlarmManager
+    private lateinit var mTickReceiver: TickReceiver
 
-    private var mAlarmStarted = false
+    private var mReceiverRegistered = false
     private var mLastWeatherUpdateTime: Long = -1
+    private var mLastWidgetUpdateTime: Long = -1
 
     companion object {
+        const val TAG = "WeatherUpdaterService"
+
         const val ACTION_STARTALARM = "SimpleWeather.Droid.action.START_ALARM"
         const val ACTION_CANCELALARM = "SimpleWeather.Droid.action.CANCEL_ALARM"
         const val ACTION_UPDATEALARM = "SimpleWeather.Droid.action.UPDATE_ALARM"
@@ -55,7 +63,7 @@ class WeatherUpdaterService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        mAlarmMgr = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        mTickReceiver = TickReceiver()
         mNotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -97,94 +105,88 @@ class WeatherUpdaterService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent?.action)
+
         when (intent?.action) {
             ACTION_STARTALARM -> {
                 // Start alarm if it hasn't started already
-                startAlarm()
-                requestUpdate()
+                if (!mReceiverRegistered) {
+                    registerReceiver(mTickReceiver, IntentFilter().apply {
+                        addAction(Intent.ACTION_TIME_TICK)
+                        addAction(Intent.ACTION_TIMEZONE_CHANGED)
+                        addAction(Intent.ACTION_TIME_CHANGED)
+                    })
+                    mReceiverRegistered = true
+                }
+                doWork()
             }
             ACTION_UPDATEALARM -> {
                 // Refresh interval was changed
                 // Update alarm
-                updateAlarm()
-                requestUpdate()
+                val nowMillis = System.currentTimeMillis()
+                mLastWeatherUpdateTime = nowMillis
+                mLastWidgetUpdateTime = nowMillis
+                doWork()
             }
             ACTION_CANCELALARM -> {
                 // Cancel clock alarm
-                cancelAlarm()
+                this.unregisterReceiver(mTickReceiver)
+                mReceiverRegistered = false
+                stopSelf()
             }
             ACTION_REQUESTUPDATE -> {
-                requestUpdate()
+                WeatherUpdaterWorker.enqueueAction(this, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
             }
             WidgetUpdaterWorker.ACTION_UPDATEWIDGETS -> {
-                requestWidgetUpdate()
+                WidgetUpdaterWorker.enqueueAction(this, WidgetUpdaterWorker.ACTION_UPDATEWIDGETS)
             }
             WeatherUpdaterWorker.ACTION_UPDATEWEATHER -> {
-                requestWeatherUpdate()
+                WeatherUpdaterWorker.enqueueAction(this, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
             }
         }
 
-        return super.onStartCommand(intent, flags, startId)
+        return START_STICKY
     }
 
-    private fun requestUpdate() {
+    private fun doWork() {
         val nowMillis = System.currentTimeMillis()
 
         if (Duration.ofMillis(nowMillis - mLastWeatherUpdateTime).toMinutes() >= Settings.getRefreshInterval()) {
-            requestWeatherUpdate()
-        } else {
-            requestWidgetUpdate()
-        }
-    }
-
-    private fun requestWeatherUpdate() {
-        WeatherUpdaterWorker.enqueueAction(this, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
-    }
-
-    private fun requestWidgetUpdate() {
-        WidgetUpdaterWorker.enqueueAction(this, WidgetUpdaterWorker.ACTION_UPDATEWIDGETS)
-    }
-
-    private fun startAlarm() {
-        if (!mAlarmStarted) {
-            updateAlarm()
-            mAlarmStarted = true
-        }
-    }
-
-    private fun updateAlarm() {
-        val nowMillis = System.currentTimeMillis()
-        val nextAlarmTime = nowMillis + Duration.ofHours(1).toMillis()
-
-        mAlarmMgr.cancel(getAlarmIntent())
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mAlarmMgr.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextAlarmTime, getAlarmIntent())
-        } else {
-            mAlarmMgr.setExact(AlarmManager.RTC_WAKEUP, nextAlarmTime, getAlarmIntent())
-        }
-
-        mAlarmStarted = true
-    }
-
-    private fun cancelAlarm() {
-        mAlarmMgr.cancel(getAlarmIntent())
-        mAlarmStarted = false
-        stopSelf()
-    }
-
-    private fun getAlarmIntent(): PendingIntent {
-        val intent = Intent(this, this::class.java).setAction(ACTION_REQUESTUPDATE)
-
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            PendingIntent.getForegroundService(this, intent.filterHashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
-        } else {
-            PendingIntent.getService(this, intent.filterHashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            Logger.writeLine(Log.INFO, "${TAG}: updating weather...")
+            WeatherUpdaterWorker.enqueueAction(this, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
+            mLastWeatherUpdateTime = nowMillis
+            mLastWidgetUpdateTime = nowMillis
+        } else if (Duration.ofMillis(nowMillis - mLastWidgetUpdateTime).toMinutes() >= 60) {
+            Logger.writeLine(Log.INFO, "${TAG}: updating widgets...")
+            WidgetUpdaterWorker.enqueueAction(this, WidgetUpdaterWorker.ACTION_UPDATEWIDGETS)
+            mLastWidgetUpdateTime = nowMillis
         }
     }
 
     override fun onDestroy() {
         stopForeground(true)
         super.onDestroy()
+    }
+
+    inner class TickReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                Intent.ACTION_TIME_TICK -> {
+                    if (BuildConfig.DEBUG) {
+                        Logger.writeLine(Log.INFO, "${TAG}.TickReceiver: ${intent.action} received")
+                    }
+                    doWork()
+                }
+                Intent.ACTION_TIME_CHANGED, Intent.ACTION_TIMEZONE_CHANGED -> {
+                    if (BuildConfig.DEBUG) {
+                        Logger.writeLine(Log.INFO, "${TAG}.TickReceiver: ${intent.action} received")
+                    }
+                    val nowMillis = System.currentTimeMillis()
+                    mLastWeatherUpdateTime = nowMillis
+                    mLastWidgetUpdateTime = nowMillis
+                    doWork()
+                }
+            }
+        }
     }
 }
