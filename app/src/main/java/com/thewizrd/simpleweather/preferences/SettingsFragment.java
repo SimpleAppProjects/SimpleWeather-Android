@@ -615,7 +615,6 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         onGoingNotification.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                SwitchPreferenceCompat pref = (SwitchPreferenceCompat) preference;
                 Context context = App.getInstance().getAppContext();
 
                 // On-going notification
@@ -639,11 +638,17 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                         showSnackbar(snackbar, null);
                         Settings.setRequestBGAccess(true);
                     }
+
+                    enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
+                            .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK));
                 } else {
                     WeatherNotificationWorker.enqueueAction(context, new Intent(context, WeatherNotificationWorker.class)
                             .setAction(WeatherNotificationWorker.ACTION_REMOVENOTIFICATION));
 
                     notCategory.removePreference(notificationIcon);
+
+                    enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
+                            .setAction(WeatherUpdaterWorker.ACTION_CANCELWORK));
                 }
 
                 return true;

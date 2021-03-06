@@ -31,12 +31,15 @@ class UpdaterUtils {
 
         @JvmStatic
         fun startAlarm(context: Context) {
-            if (PowerUtils.useForegroundService) {
-                ContextCompat.startForegroundService(context, Intent(context, WeatherUpdaterService::class.java)
-                        .setAction(WeatherUpdaterService.ACTION_STARTALARM))
-            } else {
-                WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_ENQUEUEWORK)
-                WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_ENQUEUEWORK)
+            // Enable alarm if dependent features are enabled
+            if (WeatherWidgetService.widgetsExist(context) || Settings.showOngoingNotification() || Settings.useAlerts()) {
+                if (PowerUtils.useForegroundService) {
+                    ContextCompat.startForegroundService(context, Intent(context, WeatherUpdaterService::class.java)
+                            .setAction(WeatherUpdaterService.ACTION_STARTALARM))
+                } else {
+                    WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_ENQUEUEWORK)
+                    WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_ENQUEUEWORK)
+                }
             }
         }
 

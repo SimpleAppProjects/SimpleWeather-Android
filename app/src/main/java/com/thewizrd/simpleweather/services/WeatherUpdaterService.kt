@@ -110,19 +110,13 @@ class WeatherUpdaterService : Service() {
         when (intent?.action) {
             ACTION_STARTALARM -> {
                 // Start alarm if it hasn't started already
-                if (!mReceiverRegistered) {
-                    registerReceiver(mTickReceiver, IntentFilter().apply {
-                        addAction(Intent.ACTION_TIME_TICK)
-                        addAction(Intent.ACTION_TIMEZONE_CHANGED)
-                        addAction(Intent.ACTION_TIME_CHANGED)
-                    })
-                    mReceiverRegistered = true
-                }
+                checkReceiver()
                 doWork()
             }
             ACTION_UPDATEALARM -> {
                 // Refresh interval was changed
                 // Update alarm
+                checkReceiver()
                 val nowMillis = System.currentTimeMillis()
                 mLastWeatherUpdateTime = nowMillis
                 mLastWidgetUpdateTime = nowMillis
@@ -146,6 +140,17 @@ class WeatherUpdaterService : Service() {
         }
 
         return START_STICKY
+    }
+
+    private fun checkReceiver() {
+        if (!mReceiverRegistered) {
+            registerReceiver(mTickReceiver, IntentFilter().apply {
+                addAction(Intent.ACTION_TIME_TICK)
+                addAction(Intent.ACTION_TIMEZONE_CHANGED)
+                addAction(Intent.ACTION_TIME_CHANGED)
+            })
+            mReceiverRegistered = true
+        }
     }
 
     private fun doWork() {
