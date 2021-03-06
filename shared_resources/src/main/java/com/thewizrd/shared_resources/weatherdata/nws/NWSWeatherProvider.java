@@ -44,6 +44,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.SortedSet;
@@ -257,64 +258,104 @@ public class NWSWeatherProvider extends WeatherProviderImpl {
                     item.getUnixtime().add(time);
                 }
 
-                item.setWindChill(new ArrayList<>(windChillArr.size()));
-                for (JsonElement jsonElement : windChillArr) {
-                    String windChill = jsonElement.getAsString();
-                    item.getWindChill().add(windChill);
+                if (windChillArr != null) {
+                    item.setWindChill(new ArrayList<>(windChillArr.size()));
+                    for (JsonElement jsonElement : windChillArr) {
+                        String windChill = jsonElement.getAsString();
+                        item.getWindChill().add(windChill);
+                    }
+                } else {
+                    item.setWindChill(Collections.nCopies(unixTimeArr.size(), null));
                 }
 
-                item.setWindSpeed(new ArrayList<>(windSpeedArr.size()));
-                for (JsonElement jsonElement : windSpeedArr) {
-                    String windSpeed = jsonElement.getAsString();
-                    item.getWindSpeed().add(windSpeed);
+                if (windSpeedArr != null) {
+                    item.setWindSpeed(new ArrayList<>(windSpeedArr.size()));
+                    for (JsonElement jsonElement : windSpeedArr) {
+                        String windSpeed = jsonElement.getAsString();
+                        item.getWindSpeed().add(windSpeed);
+                    }
+                } else {
+                    item.setWindSpeed(Collections.nCopies(unixTimeArr.size(), null));
                 }
 
-                item.setCloudAmount(new ArrayList<>(cloudAmtArr.size()));
-                for (JsonElement jsonElement : cloudAmtArr) {
-                    String cloudAmt = jsonElement.getAsString();
-                    item.getCloudAmount().add(cloudAmt);
+                if (cloudAmtArr != null) {
+                    item.setCloudAmount(new ArrayList<>(cloudAmtArr.size()));
+                    for (JsonElement jsonElement : cloudAmtArr) {
+                        String cloudAmt = jsonElement.getAsString();
+                        item.getCloudAmount().add(cloudAmt);
+                    }
+                } else {
+                    item.setCloudAmount(Collections.nCopies(unixTimeArr.size(), null));
                 }
 
-                item.setPop(new ArrayList<>(popArr.size()));
-                for (JsonElement jsonElement : popArr) {
-                    String pop = jsonElement.getAsString();
-                    item.getPop().add(pop);
+                if (popArr != null) {
+                    item.setPop(new ArrayList<>(popArr.size()));
+                    for (JsonElement jsonElement : popArr) {
+                        String pop = jsonElement.getAsString();
+                        item.getPop().add(pop);
+                    }
+                } else {
+                    item.setPop(Collections.nCopies(unixTimeArr.size(), null));
                 }
 
-                item.setRelativeHumidity(new ArrayList<>(humidityArr.size()));
-                for (JsonElement jsonElement : humidityArr) {
-                    String humidity = jsonElement.getAsString();
-                    item.getRelativeHumidity().add(humidity);
+                if (humidityArr != null) {
+                    item.setRelativeHumidity(new ArrayList<>(humidityArr.size()));
+                    for (JsonElement jsonElement : humidityArr) {
+                        String humidity = jsonElement.getAsString();
+                        item.getRelativeHumidity().add(humidity);
+                    }
+                } else {
+                    item.setRelativeHumidity(Collections.nCopies(unixTimeArr.size(), null));
                 }
 
-                item.setWindGust(new ArrayList<>(windGustArr.size()));
-                for (JsonElement jsonElement : windGustArr) {
-                    String windGust = jsonElement.getAsString();
-                    item.getWindGust().add(windGust);
+                if (windGustArr != null) {
+                    item.setWindGust(new ArrayList<>(windGustArr.size()));
+                    for (JsonElement jsonElement : windGustArr) {
+                        String windGust = jsonElement.getAsString();
+                        item.getWindGust().add(windGust);
+                    }
+                } else {
+                    item.setWindGust(Collections.nCopies(unixTimeArr.size(), null));
                 }
 
-                item.setTemperature(new ArrayList<>(tempArr.size()));
-                for (JsonElement jsonElement : tempArr) {
-                    String temp = jsonElement.getAsString();
-                    item.getTemperature().add(temp);
+                if (tempArr != null) {
+                    item.setTemperature(new ArrayList<>(tempArr.size()));
+                    for (JsonElement jsonElement : tempArr) {
+                        String temp = jsonElement.getAsString();
+                        item.getTemperature().add(temp);
+                    }
+                } else {
+                    item.setTemperature(Collections.nCopies(unixTimeArr.size(), null));
                 }
 
-                item.setWindDirection(new ArrayList<>(windDirArr.size()));
-                for (JsonElement jsonElement : windDirArr) {
-                    String windDir = jsonElement.getAsString();
-                    item.getWindDirection().add(windDir);
+                if (windDirArr != null) {
+                    item.setWindDirection(new ArrayList<>(windDirArr.size()));
+                    for (JsonElement jsonElement : windDirArr) {
+                        String windDir = jsonElement.getAsString();
+                        item.getWindDirection().add(windDir);
+                    }
+                } else {
+                    item.setWindDirection(Collections.nCopies(unixTimeArr.size(), null));
                 }
 
-                item.setIconLink(new ArrayList<>(iconArr.size()));
-                for (JsonElement jsonElement : iconArr) {
-                    String icon = jsonElement.getAsString();
-                    item.getIconLink().add(icon);
+                if (iconArr != null) {
+                    item.setIconLink(new ArrayList<>(iconArr.size()));
+                    for (JsonElement jsonElement : iconArr) {
+                        String icon = jsonElement.getAsString();
+                        item.getIconLink().add(icon);
+                    }
+                } else {
+                    item.setIconLink(Collections.nCopies(unixTimeArr.size(), null));
                 }
 
-                item.setWeather(new ArrayList<>(conditionTxtArr.size()));
-                for (JsonElement jsonElement : conditionTxtArr) {
-                    String condition = jsonElement.getAsString();
-                    item.getWeather().add(condition);
+                if (conditionTxtArr != null) {
+                    item.setWeather(new ArrayList<>(conditionTxtArr.size()));
+                    for (JsonElement jsonElement : conditionTxtArr) {
+                        String condition = jsonElement.getAsString();
+                        item.getWeather().add(condition);
+                    }
+                } else {
+                    item.setWeather(Collections.nCopies(unixTimeArr.size(), null));
                 }
 
                 forecastData.getPeriodsItems().add(item);

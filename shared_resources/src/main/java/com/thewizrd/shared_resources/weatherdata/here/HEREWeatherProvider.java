@@ -9,6 +9,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.locationiq.LocationIQProvider;
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.LocationUtils;
@@ -17,12 +18,14 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.utils.here.HEREOAuthUtils;
+import com.thewizrd.shared_resources.weatherdata.Astronomy;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertProviderInterface;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
+import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -208,7 +211,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl implements We
     }
 
     @Override
-    protected void updateWeatherData(LocationData location, Weather weather) {
+    protected void updateWeatherData(LocationData location, Weather weather) throws WeatherException {
         ZoneOffset offset = location.getTzOffset();
 
         if (weather.getWeatherAlerts() != null && weather.getWeatherAlerts().size() > 0) {
@@ -226,6 +229,14 @@ public final class HEREWeatherProvider extends WeatherProviderImpl implements We
         // Update tz for weather properties
         weather.setUpdateTime(weather.getUpdateTime().withZoneSameInstant(location.getTzOffset()));
         weather.getCondition().setObservationTime(weather.getCondition().getObservationTime().withZoneSameInstant(location.getTzOffset()));
+
+        Astronomy old = weather.getAstronomy();
+        if (old.getMoonset().isEqual(DateTimeUtils.getLocalDateTimeMIN()) || old.getMoonrise().isEqual(DateTimeUtils.getLocalDateTimeMIN())) {
+            Astronomy newAstro = new SunMoonCalcProvider().getAstronomyData(location, weather.getCondition().getObservationTime());
+            newAstro.setSunrise(old.getSunrise());
+            newAstro.setSunset(old.getSunset());
+            weather.setAstronomy(newAstro);
+        }
 
         for (Forecast forecast : weather.getForecast()) {
             forecast.setDate(forecast.getDate().plusSeconds(offset.getTotalSeconds()));

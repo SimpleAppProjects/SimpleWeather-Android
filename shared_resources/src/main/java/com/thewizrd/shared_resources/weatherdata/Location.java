@@ -76,8 +76,8 @@ public class Location extends CustomJsonObject {
     public Location(com.thewizrd.shared_resources.weatherdata.nws.observation.ForecastResponse forecastResponse) {
         // Use location name from location provider
         name = null;
-        latitude = Float.parseFloat(forecastResponse.getLocation().getLatitude());
-        longitude = Float.parseFloat(forecastResponse.getLocation().getLongitude());
+        latitude = NumberUtils.tryParseFloat(forecastResponse.getLocation().getLatitude());
+        longitude = NumberUtils.tryParseFloat(forecastResponse.getLocation().getLongitude());
         tzLong = null;
     }
 

@@ -129,7 +129,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
             if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
             }
-            Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting locations");
+            Logger.writeLine(Log.ERROR, ex, "HERELocationProvider: error getting locations");
         } finally {
             if (response != null)
                 response.close();
@@ -198,7 +198,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
             if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
             }
-            Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting location");
+            Logger.writeLine(Log.ERROR, ex, "HERELocationProvider: error getting location");
         } finally {
             if (response != null)
                 response.close();
@@ -258,7 +258,7 @@ public final class HERELocationProvider extends LocationProviderImpl {
             if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
             }
-            Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting location");
+            Logger.writeLine(Log.ERROR, ex, "HERELocationProvider: error getting location");
         } finally {
             if (response != null)
                 response.close();

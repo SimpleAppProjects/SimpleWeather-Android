@@ -48,13 +48,11 @@ public class Astronomy extends CustomJsonObject {
     public Astronomy(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
         try {
             sunrise = LocalDateTime.ofEpochSecond(root.getSys().getSunrise(), 0, ZoneOffset.UTC);
-        } catch (Exception e) {
-            Logger.writeLine(Log.ERROR, e);
+        } catch (Exception ignored) {
         }
         try {
             sunset = LocalDateTime.ofEpochSecond(root.getSys().getSunset(), 0, ZoneOffset.UTC);
-        } catch (Exception e) {
-            Logger.writeLine(Log.ERROR, e);
+        } catch (Exception ignored) {
         }
 
         // If the sun won't set/rise, set time to the future
@@ -170,23 +168,19 @@ public class Astronomy extends CustomJsonObject {
 
         try {
             sunrise = LocalTime.parse(astroData.getSunrise(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
-        } catch (Exception e) {
-            Logger.writeLine(Log.ERROR, e);
+        } catch (Exception ignored) {
         }
         try {
             sunset = LocalTime.parse(astroData.getSunset(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
-        } catch (Exception e) {
-            Logger.writeLine(Log.ERROR, e);
+        } catch (Exception ignored) {
         }
         try {
             moonrise = LocalTime.parse(astroData.getMoonrise(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
-        } catch (Exception e) {
-            Logger.writeLine(Log.ERROR, e);
+        } catch (Exception ignored) {
         }
         try {
             moonset = LocalTime.parse(astroData.getMoonset(), DateTimeFormatter.ofPattern("h:mma", Locale.ROOT)).atDate(now);
-        } catch (Exception e) {
-            Logger.writeLine(Log.ERROR, e);
+        } catch (Exception ignored) {
         }
 
         // If the sun won't set/rise, set time to the future
