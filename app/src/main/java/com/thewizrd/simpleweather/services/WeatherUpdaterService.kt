@@ -123,9 +123,11 @@ class WeatherUpdaterService : Service() {
                 doWork()
             }
             ACTION_CANCELALARM -> {
-                // Cancel clock alarm
-                this.unregisterReceiver(mTickReceiver)
-                mReceiverRegistered = false
+                if (mReceiverRegistered) {
+                    // Cancel clock alarm
+                    this.unregisterReceiver(mTickReceiver)
+                    mReceiverRegistered = false
+                }
                 stopSelf()
             }
             ACTION_REQUESTUPDATE -> {
