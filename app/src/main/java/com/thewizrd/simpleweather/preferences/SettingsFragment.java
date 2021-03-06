@@ -1226,6 +1226,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         private static final String KEY_ABOUTOSLIBS = "key_aboutoslibs";
         private static final String KEY_FEEDBACK = "key_feedback";
         private static final String KEY_RATEREVIEW = "key_ratereview";
+        private static final String KEY_TRANSLATE = "key_translate";
         private static final String KEY_ABOUTVERSION = "key_aboutversion";
 
         @Override
@@ -1291,6 +1292,24 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 }
             });
 
+            findPreference(KEY_TRANSLATE).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    if (preference.getIntent() != null) {
+                        try {
+                            startActivity(preference.getIntent());
+                        } catch (ActivityNotFoundException e) {
+                            Intent i = preference.getIntent();
+
+                            if (i.resolveActivity(getAppCompatActivity().getPackageManager()) != null) {
+                                startActivity(i);
+                            }
+                        }
+                    }
+                    return true;
+                }
+            });
+
             try {
                 PackageInfo packageInfo = getAppCompatActivity().getPackageManager().getPackageInfo(getAppCompatActivity().getPackageName(), 0);
                 findPreference(KEY_ABOUTVERSION).setSummary(String.format("v%s", packageInfo.versionName));
@@ -1328,6 +1347,25 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
                 iconsCategory.addPreference(pref);
             });
+        }
+
+        @Override
+        public boolean onPreferenceTreeClick(Preference preference) {
+            if (preference.getIntent() != null) {
+                try {
+                    startActivity(preference.getIntent());
+                } catch (ActivityNotFoundException e) {
+                    Intent i = preference.getIntent();
+
+                    if (i.resolveActivity(getAppCompatActivity().getPackageManager()) != null) {
+                        startActivity(i);
+                    }
+                }
+
+                return true;
+            }
+
+            return false;
         }
     }
 
