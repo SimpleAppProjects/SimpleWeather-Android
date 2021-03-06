@@ -211,7 +211,9 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                         WeatherAlertHandler.postAlerts(Settings.getHomeData(), weather.weatherAlerts)
                     }
 
-                    // Update weather data for Wearables
+                    // Update data for Wearables
+                    LocalBroadcastManager.getInstance(context)
+                            .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
                     LocalBroadcastManager.getInstance(context)
                             .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
                 } else {

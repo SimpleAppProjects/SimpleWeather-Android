@@ -217,8 +217,8 @@ public class SetupSyncActivity extends WearableListenerActivity {
         if (isDeviceSetup) {
             binding.message.setText(R.string.message_retrievingdata);
             WearableWorker.enqueueAction(this, WearableWorker.ACTION_REQUESTSETTINGSUPDATE, true);
-            WearableWorker.enqueueAction(this, WearableWorker.ACTION_REQUESTLOCATIONUPDATE);
-            WearableWorker.enqueueAction(this, WearableWorker.ACTION_REQUESTWEATHERUPDATE);
+            WearableWorker.enqueueAction(this, WearableWorker.ACTION_REQUESTLOCATIONUPDATE, true);
+            WearableWorker.enqueueAction(this, WearableWorker.ACTION_REQUESTWEATHERUPDATE, true);
         } else {
             binding.message.setText(R.string.message_continueondevice);
             if (!openAppOnPhone(true)) {

@@ -10,7 +10,6 @@ import com.thewizrd.simpleweather.notifications.WeatherNotificationBroadcastRece
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
 import com.thewizrd.simpleweather.utils.PowerUtils
-import com.thewizrd.simpleweather.wearable.WearableWorker
 import com.thewizrd.simpleweather.widgets.WeatherWidgetBroadcastReceiver
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService
 import java.util.concurrent.ExecutionException
@@ -107,9 +106,6 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Wo
             }
 
             ShortcutCreatorWorker.requestUpdateShortcuts(mContext)
-
-            // Update weather data for Wearables
-            WearableWorker.enqueueAction(mContext, WearableWorker.ACTION_SENDWEATHERUPDATE, false)
         }
 
         return Result.success()

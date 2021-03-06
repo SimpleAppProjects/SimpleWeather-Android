@@ -19,8 +19,8 @@ public class WeatherUpdateBroadcastReceiver extends BroadcastReceiver {
             if (Settings.getDataSync() != WearableDataSync.OFF) {
                 // Request a full update (force Settings refresh + weather + location)
                 WearableWorker.enqueueAction(context, WearableWorker.ACTION_REQUESTSETTINGSUPDATE, true);
-                WearableWorker.enqueueAction(context, WearableWorker.ACTION_REQUESTLOCATIONUPDATE);
-                WearableWorker.enqueueAction(context, WearableWorker.ACTION_REQUESTWEATHERUPDATE);
+                WearableWorker.enqueueAction(context, WearableWorker.ACTION_REQUESTLOCATIONUPDATE, true);
+                WearableWorker.enqueueAction(context, WearableWorker.ACTION_REQUESTWEATHERUPDATE); // too big to force request for update
             }
         }
     }

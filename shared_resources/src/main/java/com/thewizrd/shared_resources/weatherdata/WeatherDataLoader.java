@@ -113,7 +113,7 @@ public final class WeatherDataLoader {
                 }
 
                 Logger.writeLine(Log.DEBUG, "%s: Weather data for %s is valid = %s", TAG,
-                        location == null ? "null" : location.toString(), weather == null ? "false" : weather.isValid());
+                        location == null ? "null" : location.toString(), weather == null ? "null" : weather.isValid());
 
                 if (result == null) {
                     result = WeatherResult.create(weather, false);
@@ -434,7 +434,7 @@ public final class WeatherDataLoader {
                         weather.getPrecipitation().setQpfSnowCm(hrf.getExtras() != null && hrf.getExtras().getQpfSnowCm() != null && hrf.getExtras().getQpfSnowCm() >= 0 ? hrf.getExtras().getQpfSnowCm() : 0.0f);
                     }
 
-                    Settings.saveWeatherData(weather);
+                    saveWeatherData();
                 }
             }
 

@@ -123,14 +123,14 @@ public class DataSyncManager {
                 if (locationData != null) {
                     long updateTimeMillis = dataMap.getLong(WearableSettings.KEY_UPDATETIME);
 
-                    if (updateTimeMillis > getLocationDataUpdateTime(context) ||
+                    if (updateTimeMillis != getLocationDataUpdateTime(context) ||
                             !locationData.equals(Settings.getHomeData())) {
                         Settings.saveHomeData(locationData);
                     }
 
                     setLocationDataUpdateTime(context, updateTimeMillis);
 
-                    Timber.tag("DataSyncManager").d("Updated location data");
+                    Timber.tag("DataSyncManager").d("updateLocation: Updated location data");
 
                     // Send callback to receiver
                     LocalBroadcastManager.getInstance(context).sendBroadcast(
@@ -186,10 +186,14 @@ public class DataSyncManager {
 
                             // Update tile
                             WeatherTileWorker.enqueueAction(context, new Intent(WeatherTileWorker.ACTION_UPDATETILES));
+                        } else {
+                            Timber.tag("DataSyncManager").d("Weather data invalid");
                         }
                     } catch (ExecutionException | InterruptedException | IOException e) {
                         Logger.writeLine(Log.ERROR, e);
                     }
+                } else {
+                    Timber.tag("DataSyncManager").d("updateWeather: weather data missing");
                 }
             }
 

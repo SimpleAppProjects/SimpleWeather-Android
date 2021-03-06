@@ -81,7 +81,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     .setInitialDelay(60, TimeUnit.SECONDS)
                     .build()
             WorkManager.getInstance(context)
-                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest)
+                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.REPLACE, updateRequest)
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 
             // Enqueue periodic task as well

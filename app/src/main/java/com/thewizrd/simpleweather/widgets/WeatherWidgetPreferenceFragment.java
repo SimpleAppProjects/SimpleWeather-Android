@@ -48,6 +48,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateHandle;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.Navigation;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -83,6 +84,7 @@ import com.thewizrd.shared_resources.tasks.CallableEx;
 import com.thewizrd.shared_resources.tzdb.TZDBCache;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.CustomException;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
@@ -1470,6 +1472,9 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
                     // Save location as last known
                     Settings.saveLastGPSLocData(new LocationData(query_vm, location));
+
+                    LocalBroadcastManager.getInstance(getAppCompatActivity())
+                            .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
 
                     locationChanged = true;
                 }

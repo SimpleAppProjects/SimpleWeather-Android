@@ -106,6 +106,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import timber.log.Timber;
+
 public class LocationsFragment extends ToolbarFragment
         implements WeatherRequest.WeatherErrorListener {
     private static final String TAG = "LocationsFragment";
@@ -830,6 +832,8 @@ public class LocationsFragment extends ToolbarFragment
 
                     if (locData == null || locData.getQuery() == null) {
                         locData = updateLocation();
+                        LocalBroadcastManager.getInstance(getAppCompatActivity())
+                                .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
                     }
 
                     if (locData != null && locData.getQuery() != null) {
@@ -1079,7 +1083,8 @@ public class LocationsFragment extends ToolbarFragment
                         Settings.saveLastGPSLocData(locData);
                         refreshLocations();
 
-                        Log.d("LocationsFragment", "Location changed; sending update");
+                        Timber.tag("LocationsFragment").d("Location changed; sending update");
+
                         LocalBroadcastManager.getInstance(getAppCompatActivity())
                                 .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
                     } else {

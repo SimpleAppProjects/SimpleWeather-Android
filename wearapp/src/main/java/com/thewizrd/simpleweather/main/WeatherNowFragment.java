@@ -102,6 +102,8 @@ import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import timber.log.Timber;
+
 public class WeatherNowFragment extends CustomFragment
         implements SharedPreferences.OnSharedPreferenceChangeListener, WeatherRequest.WeatherErrorListener {
     private WeatherNowFragmentArgs args;
@@ -172,6 +174,9 @@ public class WeatherNowFragment extends CustomFragment
                     // Update tile if it hasn't been already
                     WeatherTileWorker.enqueueAction(context, new Intent(WeatherTileWorker.ACTION_UPDATETILES));
                 }
+            } else {
+                Toast.makeText(getFragmentActivity(), R.string.werror_noweather, Toast.LENGTH_LONG).show();
+                binding.swipeRefreshLayout.setRefreshing(false);
             }
         }
     };
@@ -317,13 +322,13 @@ public class WeatherNowFragment extends CustomFragment
                                 locationDataReceived = true;
                             }
 
-                            Log.d("SyncDataReceiver", "Action: " + intent.getAction());
+                            Timber.tag("SyncDataReceiver").d("Action: %s", intent.getAction());
 
                             if (locationDataReceived && weatherDataReceived || (weatherDataReceived && locationData != null)) {
                                 if (syncTimerEnabled)
                                     cancelTimer();
 
-                                Log.d("SyncDataReceiver", "Loading data...");
+                                Timber.tag("SyncDataReceiver").d("Loading data...");
 
                                 // We got all our data; now load the weather
                                 if (!binding.swipeRefreshLayout.isRefreshing()) {
@@ -337,7 +342,7 @@ public class WeatherNowFragment extends CustomFragment
                                         .build())
                                         .addOnSuccessListener(new OnSuccessListener<Weather>() {
                                             @Override
-                                            public void onSuccess(final Weather weather) {
+                                            public void onSuccess(@NonNull final Weather weather) {
                                                 weatherLiveData.setValue(weather);
                                             }
                                         });
@@ -1031,6 +1036,7 @@ public class WeatherNowFragment extends CustomFragment
                 // We hit the interval
                 // Data syncing is taking a long time to setup
                 // Stop and load saved data
+                Timber.d("WeatherNow: resetTimer: timeout");
                 cancelDataSync();
             }
         }, 35000); // 35sec
