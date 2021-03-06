@@ -25,6 +25,7 @@ import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.main.MainActivity;
@@ -56,7 +57,7 @@ public class ShortcutCreatorWorker extends Worker {
                     .build();
 
             WorkManager.getInstance(context)
-                    .enqueueUniqueWork(TAG, ExistingWorkPolicy.APPEND_OR_REPLACE, workRequest);
+                    .enqueueUniqueWork(TAG, ExistingWorkPolicy.REPLACE, workRequest);
         }
     }
 
@@ -90,18 +91,10 @@ public class ShortcutCreatorWorker extends Worker {
         shortcutMan.removeAllDynamicShortcuts();
 
         for (int i = 0; i < MAX_SHORTCUTS; i++) {
-            LocationData location = locations.get(i);
+            final LocationData location = locations.get(i);
             final Weather weather = Settings.getWeatherData(location.getQuery());
-            boolean any = false;
 
-            for (ShortcutInfo s : shortcuts) {
-                if (s.getId().equals(location.getQuery())) {
-                    any = true;
-                    break;
-                }
-            }
-
-            if (weather == null || !weather.isValid() || any) {
+            if (weather == null || !weather.isValid()) {
                 locations.remove(i);
                 i--;
                 if (locations.size() < MAX_SHORTCUTS)
@@ -121,6 +114,7 @@ public class ShortcutCreatorWorker extends Worker {
                     return ImageUtils.adaptiveBitmapFromDrawable(mContext, wim.getWeatherIconResource(weather.getCondition().getIcon()));
                 }
             });
+
             Icon shortCutIco;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 shortCutIco = Icon.createWithAdaptiveBitmap(bmp);
@@ -128,7 +122,7 @@ public class ShortcutCreatorWorker extends Worker {
                 shortCutIco = Icon.createWithBitmap(bmp);
             }
 
-            ShortcutInfo shortcut = new ShortcutInfo.Builder(mContext, location.getQuery())
+            ShortcutInfo shortcut = new ShortcutInfo.Builder(mContext, location.getLocationType() == LocationType.GPS ? Constants.KEY_GPS : location.getQuery() + "_" + i)
                     .setShortLabel(weather.getLocation().getName())
                     .setIcon(shortCutIco)
                     .setIntent(intent)
