@@ -2,7 +2,6 @@ package com.thewizrd.simpleweather.widgets;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -94,8 +93,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
 
     public static final String ACTION_REFRESHWIDGET = "SimpleWeather.Droid.action.REFRESH_WIDGET";
     public static final String ACTION_RESIZEWIDGET = "SimpleWeather.Droid.action.RESIZE_WIDGET";
-    public static final String ACTION_UPDATECLOCK = "SimpleWeather.Droid.action.UPDATE_CLOCK";
-    public static final String ACTION_UPDATEDATE = "SimpleWeather.Droid.action.UPDATE_DATE";
 
     public static final String ACTION_RESETGPSWIDGETS = "SimpleWeather.Droid.action.RESET_GPSWIDGETS";
     public static final String ACTION_REFRESHGPSWIDGETS = "SimpleWeather.Droid.action.REFRESH_GPSWIDGETS";
@@ -108,7 +105,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
 
     private Context mContext;
     private AppWidgetManager mAppWidgetManager;
-    private static BroadcastReceiver mTickReceiver;
 
     // Weather Widget Providers
     private final WeatherWidgetProvider1x1 mAppWidget1x1 =
@@ -240,14 +236,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
                         resizeWidget(mAppWidget4x2Huawei, appWidgetId, newOptions);
                         break;
                 }
-            } else if (ACTION_UPDATECLOCK.equals(intent.getAction())) {
-                // Update clock widget instances
-                int[] appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS);
-                refreshClock(appWidgetIds);
-            } else if (ACTION_UPDATEDATE.equals(intent.getAction())) {
-                // Update clock widget instances
-                int[] appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS);
-                refreshDate(appWidgetIds);
             } else if (ACTION_RESETGPSWIDGETS.equals(intent.getAction())) {
                 // GPS feature disabled; reset widget
                 resetGPSWidgets();
@@ -263,13 +251,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
         } catch (Exception ex) {
             Logger.writeLine(Log.ERROR, ex, "%s: exception occurred...", TAG);
         }
-    }
-
-    private static PendingIntent getClockRefreshIntent(Context context) {
-        Intent intent = new Intent(context, WeatherWidgetBroadcastReceiver.class)
-                .setAction(ACTION_UPDATECLOCK);
-
-        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     public static boolean widgetsExist(Context context) {
@@ -321,13 +302,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
                 Logger.writeLine(Log.ERROR, e);
             }
         }
-
-        if (isClockWidget(provider.getWidgetType())) {
-            refreshClock(appWidgetIds);
-        }
-        if (isDateWidget(provider.getWidgetType())) {
-            refreshDate(appWidgetIds);
-        }
     }
 
     private void refreshAllWidgets() {
@@ -363,9 +337,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
                         for (int id : appWidgetIds) {
                             refreshWidget(mAppWidget2x2, id);
                         }
-
-                        refreshClock(appWidgetIds);
-                        refreshDate(appWidgetIds);
                         return null;
                     }
                 });
@@ -400,9 +371,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
                         for (int id : appWidgetIds) {
                             refreshWidget(mAppWidget4x2, id);
                         }
-
-                        refreshClock(appWidgetIds);
-                        refreshDate(appWidgetIds);
                         return null;
                     }
                 });
@@ -420,8 +388,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
                         for (int id : appWidgetIds) {
                             refreshWidget(mAppWidget4x1Google, id);
                         }
-
-                        refreshDate(appWidgetIds);
                         return null;
                     }
                 });
@@ -456,9 +422,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
                         for (int id : appWidgetIds) {
                             refreshWidget(mAppWidget4x2Clock, id);
                         }
-
-                        refreshClock(appWidgetIds);
-                        refreshDate(appWidgetIds);
                         return null;
                     }
                 });
@@ -476,9 +439,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
                         for (int id : appWidgetIds) {
                             refreshWidget(mAppWidget4x2Huawei, id);
                         }
-
-                        refreshClock(appWidgetIds);
-                        refreshDate(appWidgetIds);
                         return null;
                     }
                 });
@@ -1188,16 +1148,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
         int textColor = getTextColor(appWidgetId, background);
         int panelTextColor = getPanelTextColor(appWidgetId, background, style, isNightMode);
 
-        int tempTextSize = 36;
-        if (provider.getWidgetType() == WidgetType.Widget4x1Google)
-            tempTextSize = 24;
-
-        float shadowRadius = 1.75f;
-        if (background != WidgetUtils.WidgetBackground.TRANSPARENT && background != WidgetUtils.WidgetBackground.CUSTOM && style != WidgetUtils.WidgetBackgroundStyle.FULLBACKGROUND &&
-                (provider.getWidgetType() == WidgetType.Widget2x2 || provider.getWidgetType() == WidgetType.Widget4x2 && background != WidgetUtils.WidgetBackground.CURRENT_CONDITIONS)) {
-            shadowRadius = 0f;
-        }
-
         if (provider.getWidgetType() != WidgetType.Widget2x2 &&
                 provider.getWidgetType() != WidgetType.Widget4x1Google &&
                 provider.getWidgetType() != WidgetType.Widget4x1Notification &&
@@ -1550,13 +1500,6 @@ public class WeatherWidgetService extends SafeJobIntentService {
 
                     updateViews.removeAllViews(R.id.forecast_layout);
                     buildForecastPanel(updateViews, provider, appWidgetId, forecastLength, newOptions);
-                }
-
-                if (isClockWidget(provider.getWidgetType())) {
-                    refreshClock(new int[]{appWidgetId});
-                }
-                if (isDateWidget(provider.getWidgetType())) {
-                    refreshDate(new int[]{appWidgetId});
                 }
 
                 mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews);

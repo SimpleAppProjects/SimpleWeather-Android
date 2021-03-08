@@ -52,15 +52,8 @@ public class WeatherWidgetProvider4x2Huawei extends WeatherWidgetProvider {
             ComponentName componentname = new ComponentName(context.getPackageName(), getClassName());
             int[] appWidgetIds = appWidgetManager.getAppWidgetIds(componentname);
 
-            WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                    .setAction(WeatherWidgetService.ACTION_UPDATECLOCK)
-                    .putExtra(EXTRA_WIDGET_IDS, appWidgetIds)
-                    .putExtra(EXTRA_WIDGET_TYPE, getWidgetType().getValue()));
-
-            WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                    .setAction(WeatherWidgetService.ACTION_UPDATEDATE)
-                    .putExtra(EXTRA_WIDGET_IDS, appWidgetIds)
-                    .putExtra(EXTRA_WIDGET_TYPE, getWidgetType().getValue()));
+            refreshClock(context, appWidgetIds);
+            refreshDate(context, appWidgetIds);
         } else {
             super.onReceive(context, intent);
         }

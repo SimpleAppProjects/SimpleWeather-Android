@@ -53,15 +53,8 @@ public class WeatherWidgetProvider4x2 extends WeatherWidgetProvider {
             ComponentName componentname = new ComponentName(context.getPackageName(), getClassName());
             int[] appWidgetIds = appWidgetManager.getAppWidgetIds(componentname);
 
-            WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                    .setAction(WeatherWidgetService.ACTION_UPDATECLOCK)
-                    .putExtra(EXTRA_WIDGET_IDS, appWidgetIds)
-                    .putExtra(EXTRA_WIDGET_TYPE, getWidgetType().getValue()));
-
-            WeatherWidgetService.enqueueWork(context, new Intent(context, WeatherWidgetService.class)
-                    .setAction(WeatherWidgetService.ACTION_UPDATEDATE)
-                    .putExtra(EXTRA_WIDGET_IDS, appWidgetIds)
-                    .putExtra(EXTRA_WIDGET_TYPE, getWidgetType().getValue()));
+            refreshClock(context, appWidgetIds);
+            refreshDate(context, appWidgetIds);
         } else if (ACTION_SHOWNEXTFORECAST.equals(action)) {
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             RemoteViews views = new RemoteViews(context.getPackageName(), getWidgetLayoutId());

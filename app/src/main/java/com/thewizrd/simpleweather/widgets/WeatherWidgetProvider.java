@@ -6,14 +6,26 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.RelativeSizeSpan;
 import android.util.Log;
+import android.util.TypedValue;
 import android.widget.RemoteViews;
 
+import androidx.annotation.NonNull;
+
+import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.App;
+import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.services.UpdaterUtils;
+
+import static com.thewizrd.simpleweather.widgets.WidgetUtils.getCellsForSize;
 
 public abstract class WeatherWidgetProvider extends AppWidgetProvider {
     private static final String TAG = "WeatherWidgetProvider";
@@ -133,6 +145,169 @@ public abstract class WeatherWidgetProvider extends AppWidgetProvider {
         for (int i = 0; i < oldWidgetIds.length; i++) {
             // Remap widget ids
             WidgetUtils.remapWidget(oldWidgetIds[i], newWidgetIds[i]);
+        }
+    }
+
+    protected void refreshClock(@NonNull Context context, int[] appWidgetIds) {
+        final AppWidgetManager mAppWidgetManager = AppWidgetManager.getInstance(context);
+        final WidgetType widgetType = getWidgetType();
+        final RemoteViews views;
+
+        if (widgetType == WidgetType.Widget2x2)
+            views = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
+        else if (widgetType == WidgetType.Widget4x2)
+            views = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
+        else if (widgetType == WidgetType.Widget4x2Clock)
+            views = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
+        else if (widgetType == WidgetType.Widget4x2Huawei)
+            views = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
+        else
+            return;
+
+        // Update clock widgets
+        boolean useAmPm = !(widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei);
+        SpannableString timeStr12hr = new SpannableString(context.getText(useAmPm ? R.string.clock_12_hours_ampm_format : R.string.clock_12_hours_format));
+        if (useAmPm) {
+            int start12hr = timeStr12hr.length() - 2;
+            timeStr12hr.setSpan(new RelativeSizeSpan(0.875f), start12hr, timeStr12hr.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+        views.setCharSequence(R.id.clock_panel, "setFormat12Hour",
+                timeStr12hr);
+
+        views.setCharSequence(R.id.clock_panel, "setFormat24Hour",
+                context.getText(R.string.clock_24_hours_format));
+
+        for (int appWidgetId : appWidgetIds) {
+            LocationData locationData;
+            if (WidgetUtils.isGPS(appWidgetId))
+                locationData = Settings.getLastGPSLocData();
+            else
+                locationData = WidgetUtils.getLocationData(appWidgetId);
+
+            // Widget dimensions
+            Bundle newOptions = mAppWidgetManager.getAppWidgetOptions(appWidgetId);
+            int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
+            int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
+            int maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT);
+            int maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
+            int maxCellHeight = getCellsForSize(maxHeight);
+            int maxCellWidth = getCellsForSize(maxWidth);
+            int cellHeight = getCellsForSize(minHeight);
+            int cellWidth = getCellsForSize(minWidth);
+            boolean forceSmallHeight = cellHeight == maxCellHeight;
+            boolean isSmallHeight = ((float) maxCellHeight / cellHeight) <= 1.5f;
+            boolean isSmallWidth = ((float) maxCellWidth / cellWidth) <= 1.5f;
+
+            if (widgetType == WidgetType.Widget4x2Huawei) {
+                views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_SP, cellWidth <= 3 ? 48 : 60);
+            } else if (widgetType == WidgetType.Widget4x2Clock) {
+                views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_SP, isSmallHeight && cellHeight <= 2 ? 60 : 66);
+            } else {
+                float clockTextSize = context.getResources().getDimensionPixelSize(R.dimen.clock_text_size); // 36sp
+
+                if ((isSmallHeight && cellHeight <= 2) || cellWidth < 4) {
+                    clockTextSize *= (8f / 9); // 32sp
+                    if (cellWidth < 4 && widgetType == WidgetType.Widget4x2) {
+                        clockTextSize *= (7f / 8); // 28sp
+                    }
+                }
+
+                views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_PX, clockTextSize);
+            }
+
+            if (WidgetUtils.useTimeZone(appWidgetId) && locationData != null) {
+                views.setString(R.id.clock_panel, "setTimeZone", locationData.getTzLong());
+            } else {
+                views.setString(R.id.clock_panel, "setTimeZone", null);
+            }
+
+            if (!(!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId))) {
+                mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, views);
+            }
+        }
+    }
+
+    protected void refreshDate(@NonNull Context context, int[] appWidgetIds) {
+        final AppWidgetManager mAppWidgetManager = AppWidgetManager.getInstance(context);
+        final WidgetType widgetType = getWidgetType();
+        final RemoteViews views;
+
+        if (widgetType == WidgetType.Widget2x2)
+            views = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
+        else if (widgetType == WidgetType.Widget4x2)
+            views = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
+        else if (widgetType == WidgetType.Widget4x1Google)
+            views = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
+        else if (widgetType == WidgetType.Widget4x2Clock)
+            views = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
+        else if (widgetType == WidgetType.Widget4x2Huawei)
+            views = new RemoteViews(context.getPackageName(), getWidgetLayoutId());
+        else
+            return;
+
+        for (int appWidgetId : appWidgetIds) {
+            LocationData locationData;
+            if (WidgetUtils.isGPS(appWidgetId))
+                locationData = Settings.getLastGPSLocData();
+            else
+                locationData = WidgetUtils.getLocationData(appWidgetId);
+
+            // Widget dimensions
+            Bundle newOptions = mAppWidgetManager.getAppWidgetOptions(appWidgetId);
+            int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
+            int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
+            int maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT);
+            int maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
+            int maxCellHeight = getCellsForSize(maxHeight);
+            int maxCellWidth = getCellsForSize(maxWidth);
+            int cellHeight = getCellsForSize(minHeight);
+            int cellWidth = getCellsForSize(minWidth);
+            boolean forceSmallHeight = cellHeight == maxCellHeight;
+            boolean isSmallHeight = ((float) maxCellHeight / cellHeight) <= 1.5f;
+            boolean isSmallWidth = ((float) maxCellWidth / cellWidth) <= 1.5f;
+
+            if (widgetType == WidgetType.Widget2x2) {
+                float dateTextSize = context.getResources().getDimensionPixelSize(R.dimen.date_text_size); // 16sp
+
+                if ((isSmallHeight && cellHeight <= 2) || cellWidth < 4)
+                    dateTextSize *= 0.875f; // 14sp
+
+                views.setTextViewTextSize(R.id.date_panel, TypedValue.COMPLEX_UNIT_PX, dateTextSize);
+            } else if (widgetType == WidgetType.Widget4x1Google) {
+                float dateTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 24f, context.getResources().getDisplayMetrics());
+
+                if ((isSmallHeight && cellHeight <= 2)) {
+                    dateTextSize *= (5 / 6f); // 20sp
+                }
+
+                views.setTextViewTextSize(R.id.date_panel, TypedValue.COMPLEX_UNIT_PX, dateTextSize);
+            }
+
+            String datePattern;
+            if ((widgetType == WidgetType.Widget2x2 && cellWidth >= 3) ||
+                    (widgetType == WidgetType.Widget4x2Clock && cellWidth >= 4) ||
+                    (widgetType == WidgetType.Widget4x2Huawei && cellWidth >= 4)) {
+                datePattern = DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_LONG_DATE_FORMAT);
+            } else if (widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock) {
+                datePattern = DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_WDAY_ABBR_MONTH_FORMAT);
+            } else if (widgetType == WidgetType.Widget4x2) {
+                datePattern = DateTimeUtils.getBestPatternForSkeleton(cellWidth > 4 ? DateTimeConstants.SKELETON_ABBR_WDAY_MONTH_FORMAT : DateTimeConstants.SKELETON_SHORT_DATE_FORMAT);
+            } else {
+                datePattern = DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_SHORT_DATE_FORMAT);
+            }
+
+            views.setCharSequence(R.id.date_panel, "setFormat12Hour", datePattern);
+            views.setCharSequence(R.id.date_panel, "setFormat24Hour", datePattern);
+
+            if (WidgetUtils.useTimeZone(appWidgetId) && locationData != null) {
+                views.setString(R.id.date_panel, "setTimeZone", locationData.getTzLong());
+            } else {
+                views.setString(R.id.date_panel, "setTimeZone", null);
+            }
+
+            if (!(!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)))
+                mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, views);
         }
     }
 }
