@@ -336,17 +336,11 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 AnalyticsLogger.logEvent("Settings: followGps toggled");
-                SwitchPreferenceCompat pref = (SwitchPreferenceCompat) preference;
                 if ((boolean) newValue) {
                     if (ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                             ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                                    PERMISSION_LOCATION_REQUEST_CODE);
-                        } else {
-                            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                                    PERMISSION_LOCATION_REQUEST_CODE);
-                        }
+                        requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                                PERMISSION_LOCATION_REQUEST_CODE);
                         return false;
                     } else {
                         LocationManager locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
@@ -355,20 +349,6 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
                             Settings.setFollowGPS(false);
                             return false;
-                        } else {
-                            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !Settings.requestedBGAccess() &&
-                                    ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                                Snackbar snackbar = Snackbar.make(R.string.bg_location_permission_rationale, Snackbar.Duration.LONG);
-                                snackbar.setAction(android.R.string.ok, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                                                PERMISSION_BGLOCATION_REQUEST_CODE);
-                                    }
-                                });
-                                showSnackbar(snackbar, null);
-                                Settings.setRequestBGAccess(true);
-                            }
                         }
                     }
                 }
@@ -624,20 +604,6 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
                     if (notCategory.findPreference(KEY_NOTIFICATIONICON) == null)
                         notCategory.addPreference(notificationIcon);
-
-                    if (Settings.useFollowGPS() && Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !Settings.requestedBGAccess() &&
-                            ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        Snackbar snackbar = Snackbar.make(R.string.bg_location_permission_rationale, Snackbar.Duration.LONG);
-                        snackbar.setAction(android.R.string.ok, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                                        PERMISSION_BGLOCATION_REQUEST_CODE);
-                            }
-                        });
-                        showSnackbar(snackbar, null);
-                        Settings.setRequestBGAccess(true);
-                    }
 
                     enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
                             .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK));

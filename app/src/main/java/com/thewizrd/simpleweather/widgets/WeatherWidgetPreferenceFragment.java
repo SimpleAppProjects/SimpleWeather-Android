@@ -16,7 +16,6 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.text.SpannableStringBuilder;
@@ -70,7 +69,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.Constants;
@@ -1209,37 +1207,8 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                         // Changing location to GPS
                         if (ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                                 ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
-                                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                                        PERMISSION_LOCATION_REQUEST_CODE);
-                            } else {
-                                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                                        PERMISSION_LOCATION_REQUEST_CODE);
-                            }
-                            return false;
-                        }
-
-                        if (Settings.useFollowGPS() && Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !Settings.requestedBGAccess() &&
-                                ContextCompat.checkSelfPermission(getAppCompatActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            Snackbar snackbar = Snackbar.make(R.string.bg_location_permission_rationale, Snackbar.Duration.LONG);
-                            snackbar.setAction(android.R.string.ok, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                                            PERMISSION_BGLOCATION_REQUEST_CODE);
-                                }
-                            });
-                            showSnackbar(snackbar, new com.google.android.material.snackbar.Snackbar.Callback() {
-                                @Override
-                                public void onDismissed(com.google.android.material.snackbar.Snackbar transientBottomBar, int event) {
-                                    super.onDismissed(transientBottomBar, event);
-                                    if (event != BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION) {
-                                        prepareWidget();
-                                    }
-                                }
-                            });
-                            Settings.setRequestBGAccess(true);
-                            resetTokenSource();
+                            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                                    PERMISSION_LOCATION_REQUEST_CODE);
                             return false;
                         }
 

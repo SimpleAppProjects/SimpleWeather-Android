@@ -23,7 +23,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.work.*
 import com.google.android.gms.location.*
-import com.thewizrd.shared_resources.AppState
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
@@ -34,7 +33,6 @@ import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import com.thewizrd.simpleweather.wearable.WeatherComplicationWorker
@@ -153,20 +151,12 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         return withContext(Dispatchers.IO) {
             Logger.writeLine(Log.INFO, "%s: Work started", TAG)
             val context = applicationContext
-            val hasBackgroundLocationAccess = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
-                    ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
 
             // Request work to be in foreground (only for Oreo+)
-            val appState = App.getInstance().appState
-            if (appState != AppState.FOREGROUND && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    var foregroundServiceTypeFlags = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-
-                    if (hasBackgroundLocationAccess) {
-                        foregroundServiceTypeFlags = foregroundServiceTypeFlags or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-                    }
-
-                    setForeground(ForegroundInfo(JOB_ID, getForegroundNotification(context), foregroundServiceTypeFlags))
+                    setForeground(ForegroundInfo(JOB_ID, getForegroundNotification(context),
+                            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION))
                 } else {
                     setForeground(ForegroundInfo(JOB_ID, getForegroundNotification(context)))
                 }
@@ -183,14 +173,8 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                         updateLocation()
                     } catch (e: ExecutionException) {
                         Logger.writeLine(Log.ERROR, e)
-                        if (hasBackgroundLocationAccess) {
-                            return@withContext Result.retry()
-                        }
                     } catch (e: InterruptedException) {
                         Logger.writeLine(Log.ERROR, e)
-                        if (hasBackgroundLocationAccess) {
-                            return@withContext Result.retry()
-                        }
                     }
                 }
 

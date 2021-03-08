@@ -1,6 +1,5 @@
 package com.thewizrd.shared_resources.utils;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -982,17 +981,6 @@ public class Settings {
 
     public static void setUserThemeMode(UserThemeMode value) {
         editor.putString(KEY_USERTHEME, Integer.toString(value.getValue()));
-        editor.commit();
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    public static boolean requestedBGAccess() {
-        return preferences.getBoolean(Manifest.permission.ACCESS_BACKGROUND_LOCATION, false);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    public static void setRequestBGAccess(boolean value) {
-        editor.putBoolean(Manifest.permission.ACCESS_BACKGROUND_LOCATION, value);
         editor.commit();
     }
     // END - !ANDROID_WEAR

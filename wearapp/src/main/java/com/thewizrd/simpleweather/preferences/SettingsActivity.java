@@ -14,7 +14,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -60,7 +59,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.fragments.SwipeDismissPreferenceFragment;
-import com.thewizrd.simpleweather.helpers.AcceptDenyDialogBuilder;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
 import com.thewizrd.simpleweather.preferences.iconpreference.iconpreference.IconProviderPickerFragment;
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity;
@@ -308,16 +306,12 @@ public class SettingsActivity extends WearableListenerActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     AnalyticsLogger.logEvent("Settings: followGps toggled");
+
                     if ((boolean) newValue) {
                         if (ContextCompat.checkSelfPermission(getParentActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                                 ContextCompat.checkSelfPermission(getParentActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                                        PERMISSION_LOCATION_REQUEST_CODE);
-                            } else {
-                                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                                        PERMISSION_LOCATION_REQUEST_CODE);
-                            }
+                            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                                    PERMISSION_LOCATION_REQUEST_CODE);
                             return false;
                         } else {
                             LocationManager locMan = (LocationManager) getParentActivity().getSystemService(Context.LOCATION_SERVICE);
@@ -326,18 +320,6 @@ public class SettingsActivity extends WearableListenerActivity {
 
                                 Settings.setFollowGPS(false);
                                 return false;
-                            } else {
-                                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !Settings.requestedBGAccess() &&
-                                        ContextCompat.checkSelfPermission(getParentActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                                    new AcceptDenyDialogBuilder(getParentActivity(), (d, which) -> {
-                                        if (which == DialogInterface.BUTTON_POSITIVE) {
-                                            requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                                                    PERMISSION_BGLOCATION_REQUEST_CODE);
-                                        }
-                                    }).show();
-
-                                    Settings.setRequestBGAccess(true);
-                                }
                             }
                         }
                     }

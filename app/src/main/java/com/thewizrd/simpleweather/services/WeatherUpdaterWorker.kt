@@ -160,15 +160,12 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         return withContext(Dispatchers.IO) {
             Logger.writeLine(Log.INFO, "%s: Work started", TAG)
             val context = applicationContext
-            val hasBackgroundLocationAccess = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
-                    ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
 
             // Request work to be in foreground (only for Oreo+)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    var foregroundServiceTypeFlags = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-                    if (hasBackgroundLocationAccess) foregroundServiceTypeFlags = foregroundServiceTypeFlags or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-                    setForeground(ForegroundInfo(JOB_ID, getForegroundNotification(context), foregroundServiceTypeFlags))
+                    setForeground(ForegroundInfo(JOB_ID, getForegroundNotification(context),
+                            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION))
                 } else {
                     setForeground(ForegroundInfo(JOB_ID, getForegroundNotification(context)))
                 }
@@ -183,14 +180,8 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                         updateLocation()
                     } catch (e: ExecutionException) {
                         Logger.writeLine(Log.ERROR, e)
-                        if (hasBackgroundLocationAccess) {
-                            return@withContext Result.retry()
-                        }
                     } catch (e: InterruptedException) {
                         Logger.writeLine(Log.ERROR, e)
-                        if (hasBackgroundLocationAccess) {
-                            return@withContext Result.retry()
-                        }
                     }
                 }
 
