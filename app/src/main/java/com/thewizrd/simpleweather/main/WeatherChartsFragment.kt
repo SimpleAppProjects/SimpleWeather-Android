@@ -8,7 +8,8 @@ import androidx.annotation.CallSuper
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.util.ObjectsCompat
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -35,8 +36,8 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 class WeatherChartsFragment : ToolbarFragment() {
-    private lateinit var weatherView: WeatherNowViewModel
-    private lateinit var chartsView: ChartsViewModel
+    private val weatherView: WeatherNowViewModel by activityViewModels()
+    private val chartsView: ChartsViewModel by viewModels()
     private var location: LocationData? = null
 
     private lateinit var binding: FragmentWeatherListBinding
@@ -135,9 +136,6 @@ class WeatherChartsFragment : ToolbarFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val vmProvider = ViewModelProvider(appCompatActivity)
-        weatherView = vmProvider.get(WeatherNowViewModel::class.java)
-        chartsView = ViewModelProvider(this).get(ChartsViewModel::class.java)
 
         args = WeatherChartsFragmentArgs.fromBundle(requireArguments())
 
@@ -227,7 +225,7 @@ class WeatherChartsFragment : ToolbarFragment() {
     override fun updateWindowColors() {
         super.updateWindowColors()
 
-        var color = ContextUtils.getColor(appCompatActivity, android.R.attr.colorBackground)
+        var color = ContextUtils.getColor(appCompatActivity!!, android.R.attr.colorBackground)
         if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK
         }

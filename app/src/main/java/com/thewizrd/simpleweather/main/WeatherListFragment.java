@@ -37,7 +37,6 @@ import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver;
-import com.thewizrd.shared_resources.lifecycle.CheckAliveRunnable;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -185,16 +184,15 @@ public class WeatherListFragment extends ToolbarFragment {
     }
 
     private void updateHeaderElevation() {
-        binding.recyclerView.post(new CheckAliveRunnable(getViewLifecycleOwner().getLifecycle(), new Runnable() {
-            @Override
-            public void run() {
+        binding.recyclerView.post(() -> {
+            runWithView(() -> {
                 if (binding.recyclerView.computeVerticalScrollOffset() > 0) {
                     binding.locationHeader.setElevation(ContextUtils.dpToPx(requireContext(), 4f));
                 } else {
                     binding.locationHeader.setElevation(0);
                 }
-            }
-        }));
+            });
+        });
     }
 
     @Override
@@ -220,12 +218,6 @@ public class WeatherListFragment extends ToolbarFragment {
         });
 
         binding.progressBar.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
     }
 
     @Override

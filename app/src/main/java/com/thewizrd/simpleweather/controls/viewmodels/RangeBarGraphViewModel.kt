@@ -18,7 +18,7 @@ class RangeBarGraphViewModel(forecasts: Collection<Forecast>) : ViewModel() {
     val tempData: MutableList<GraphTemperature>
 
     init {
-        val context = App.getInstance().appContext
+        val context = App.instance.appContext
         val isFahrenheit = Units.FAHRENHEIT == Settings.getTemperatureUnit()
 
         val wim = WeatherIconsManager.getInstance()

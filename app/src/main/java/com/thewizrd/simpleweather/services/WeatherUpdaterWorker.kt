@@ -84,12 +84,12 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             val context = context.applicationContext
             Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG)
             val updateRequest = OneTimeWorkRequest.Builder(WeatherUpdaterWorker::class.java).apply {
-                if (App.getInstance().appState != AppState.FOREGROUND) {
+                if (App.instance.appState != AppState.FOREGROUND) {
                     setInitialDelay(60, TimeUnit.SECONDS)
                 }
             }
             WorkManager.getInstance(context)
-                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.REPLACE, updateRequest.build())
+                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.KEEP, updateRequest.build())
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 
             if (!PowerUtils.useForegroundService) {

@@ -434,7 +434,7 @@ public final class WeatherDataLoader {
                         weather.getPrecipitation().setQpfSnowCm(hrf.getExtras() != null && hrf.getExtras().getQpfSnowCm() != null && hrf.getExtras().getQpfSnowCm() >= 0 ? hrf.getExtras().getQpfSnowCm() : 0.0f);
                     }
 
-                    saveWeatherData();
+                    Settings.saveWeatherData(weather);
                 }
             }
 

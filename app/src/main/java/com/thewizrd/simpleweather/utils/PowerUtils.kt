@@ -20,10 +20,10 @@ class PowerUtils {
 
         var useForegroundService: Boolean
             get() {
-                return App.getInstance().preferences.getBoolean(KEY_USE_FOREGROUNDSERVICE, false)
+                return App.instance.preferences.getBoolean(KEY_USE_FOREGROUNDSERVICE, false)
             }
             set(value) {
-                App.getInstance().preferences.edit().also {
+                App.instance.preferences.edit().also {
                     it.putBoolean(KEY_USE_FOREGROUNDSERVICE, value)
                     it.commit()
                 }

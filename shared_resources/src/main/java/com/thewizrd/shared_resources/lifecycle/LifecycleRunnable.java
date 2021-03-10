@@ -8,7 +8,7 @@ import androidx.lifecycle.LifecycleOwner;
 import java.util.concurrent.CancellationException;
 
 public abstract class LifecycleRunnable implements Runnable, LifecycleEventObserver {
-    private Lifecycle lifecycle;
+    private final Lifecycle lifecycle;
     private boolean active = true;
 
     public boolean isActive() {

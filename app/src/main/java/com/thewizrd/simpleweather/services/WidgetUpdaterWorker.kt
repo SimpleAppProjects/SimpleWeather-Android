@@ -50,7 +50,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Wo
             val updateRequest = OneTimeWorkRequest.Builder(WidgetUpdaterWorker::class.java)
                     .build()
             WorkManager.getInstance(context)
-                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.REPLACE, updateRequest)
+                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.KEEP, updateRequest)
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 
             if (!PowerUtils.useForegroundService) {
