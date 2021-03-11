@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.services
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Notification
 import android.content.Context
@@ -233,6 +234,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         weather
     }
 
+    @SuppressLint("MissingPermission")
     private suspend fun updateLocation(): Boolean = withContext(Dispatchers.IO) {
         val context = applicationContext
 
@@ -259,12 +261,11 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 }
 
                 if (location == null) {
-                    val mLocationRequest = LocationRequest.create().also {
-                        it.numUpdates = 1
-                        it.interval = 10000
-                        it.fastestInterval = 1000
-                        it.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-                        it.setExpirationDuration(60000)
+                    val mLocationRequest = LocationRequest.create().apply {
+                        numUpdates = 1
+                        interval = 10000
+                        fastestInterval = 1000
+                        priority = LocationRequest.PRIORITY_HIGH_ACCURACY
                     }
 
                     val handlerThread = HandlerThread("location")
@@ -285,10 +286,10 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
                             override fun onLocationAvailability(locationAvailability: LocationAvailability) {
                                 super.onLocationAvailability(locationAvailability)
-                                if (!locationAvailability.isLocationAvailable) {
-                                    mFusedLocationClient!!.removeLocationUpdates(this)
-                                    handlerThread.quitSafely()
+                                mFusedLocationClient!!.removeLocationUpdates(this)
+                                handlerThread.quitSafely()
 
+                                if (!locationAvailability.isLocationAvailable) {
                                     Timber.tag(TAG).i("Fused: Location update unavailable...")
                                     continuation.resume(null)
                                 }
@@ -335,7 +336,6 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                                 override fun onProviderEnabled(s: String) {}
                                 override fun onProviderDisabled(s: String) {}
                             }
-
 
                             try {
                                 locMan.requestSingleUpdate(provider, locationListener, handlerThread.looper)

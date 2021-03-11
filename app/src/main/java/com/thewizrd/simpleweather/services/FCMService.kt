@@ -3,7 +3,6 @@ package com.thewizrd.simpleweather.services
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.thewizrd.shared_resources.weatherdata.images.ImageDataHelper
-import com.thewizrd.simpleweather.services.FCMWorker.Companion.enqueueAction
 
 class FCMService : FirebaseMessagingService() {
     companion object {
@@ -25,7 +24,7 @@ class FCMService : FirebaseMessagingService() {
                     }
                 }
                 // For long-running tasks (10 seconds or more) use WorkManager.
-                enqueueAction(this.applicationContext, FCMWorker.ACTION_INVALIDATE)
+                FCMWorker.enqueueAction(this.applicationContext, FCMWorker.ACTION_INVALIDATE)
             }
         }
     }

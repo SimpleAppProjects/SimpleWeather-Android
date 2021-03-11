@@ -17,6 +17,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
@@ -111,6 +112,8 @@ import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import timber.log.Timber;
+
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.getWidgetTypeFromID;
 import static com.thewizrd.simpleweather.widgets.WidgetUtils.isForecastWidget;
 
@@ -135,6 +138,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
      * Tracks the status of the location updates request.
      */
     private boolean mRequestingLocationUpdates;
+    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
 
     // Weather
     private final WeatherManager wm = WeatherManager.getInstance();
@@ -284,6 +288,11 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             mLocCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
+                    stopLocationUpdates();
+                    mMainHandler.removeCallbacks(cancelLocRequestRunner);
+
+                    Timber.tag("WidgetPrefFrag").i("Fused: Location update received...");
+
                     Location mLocation = null;
                     if (locationResult != null) {
                         mLocation = locationResult.getLastLocation();
@@ -296,14 +305,16 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                             prepareWidget();
                         }
                     }
-
-                    stopLocationUpdates();
                 }
 
                 @Override
-                public void onLocationAvailability(LocationAvailability locationAvailability) {
+                public void onLocationAvailability(@NonNull LocationAvailability locationAvailability) {
+                    stopLocationUpdates();
+                    mMainHandler.removeCallbacks(cancelLocRequestRunner);
+
                     if (!locationAvailability.isLocationAvailable()) {
-                        stopLocationUpdates();
+                        Timber.tag("WidgetPrefFrag").i("Fused: Location update unavailable...");
+
                         showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
                     }
                 }
@@ -312,6 +323,11 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             mLocListnr = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
+                    mMainHandler.removeCallbacks(cancelLocRequestRunner);
+                    stopLocationUpdates();
+
+                    Timber.tag("WidgetPrefFrag").i("LocMan: Location update received...");
+
                     if (location != null && isAlive()) {
                         prepareWidget();
                     } else if (location == null) {
@@ -353,17 +369,33 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     /**
      * Removes location updates from the FusedLocationApi.
      */
+    @SuppressLint("MissingPermission")
     private void stopLocationUpdates() {
+        if (!mRequestingLocationUpdates) {
+            Logger.writeLine(Log.DEBUG, "LocationsFragment: stopLocationUpdates: updates never requested, no-op.");
+            return;
+        }
+
         // It is a good practice to remove location requests when the activity is in a paused or
         // stopped state. Doing so helps battery performance and is especially
         // recommended in applications that request frequent location updates.
-        mFusedLocationClient.removeLocationUpdates(mLocCallback)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        mRequestingLocationUpdates = false;
-                    }
-                });
+        if (mLocCallback != null && mFusedLocationClient != null) {
+            mFusedLocationClient.removeLocationUpdates(mLocCallback)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            mRequestingLocationUpdates = false;
+                        }
+                    });
+        }
+
+        if (mLocListnr != null && getAppCompatActivity() != null) {
+            LocationManager locMan = (LocationManager) getAppCompatActivity().getSystemService(Context.LOCATION_SERVICE);
+            if (locMan != null) {
+                locMan.removeUpdates(mLocListnr);
+            }
+            mRequestingLocationUpdates = false;
+        }
     }
 
     @Override
@@ -1342,6 +1374,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
     private boolean updateLocation() throws CustomException {
         return AsyncTask.await(new CallableEx<Boolean, CustomException>() {
+            @SuppressLint("MissingPermission")
             @Override
             public Boolean call() throws CustomException {
                 boolean locationChanged = false;
@@ -1388,6 +1421,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
                         mRequestingLocationUpdates = true;
                         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper());
+                        mMainHandler.postDelayed(cancelLocRequestRunner, 30000);
                     }
                 } else {
                     boolean isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -1395,17 +1429,22 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
                     if (isGPSEnabled) {
                         location = locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    }
 
-                        if (location == null)
+                    if (isGPSEnabled || isNetEnabled) {
+                        String provider = isGPSEnabled ? LocationManager.GPS_PROVIDER : LocationManager.NETWORK_PROVIDER;
+
+                        if ((isGPSEnabled && location == null) || (!isGPSEnabled && isNetEnabled)) {
                             location = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        }
 
-                        if (location == null)
-                            locMan.requestSingleUpdate(LocationManager.GPS_PROVIDER, mLocListnr, Looper.getMainLooper());
-                    } else if (isNetEnabled) {
-                        location = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        if (location == null) {
+                            Timber.tag("WidgetPrefFrag").i("LocMan: Requesting location update...");
 
-                        if (location == null)
-                            locMan.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, mLocListnr, null);
+                            mRequestingLocationUpdates = true;
+                            locMan.requestSingleUpdate(provider, mLocListnr, Looper.getMainLooper());
+                            mMainHandler.postDelayed(cancelLocRequestRunner, 30000);
+                        }
                     }
                 }
 
@@ -1452,6 +1491,11 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
             }
         });
     }
+
+    private final Runnable cancelLocRequestRunner = () -> {
+        stopLocationUpdates();
+        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
+    };
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

@@ -17,6 +17,7 @@ import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.os.Looper
 import android.text.SpannableString
 import android.text.Spanned
@@ -105,6 +106,7 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneOffset
+import kotlin.coroutines.coroutineContext
 
 class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
     companion object {
@@ -156,6 +158,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
      * Tracks the status of the location updates request.
      */
     private var mRequestingLocationUpdates = false
+    private val mMainHandler = Handler(Looper.getMainLooper())
 
     private val weatherObserver = Observer<Weather> { weather ->
         if (weather != null && weather.isValid) {
@@ -268,6 +271,9 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(appCompatActivity!!)
             mLocCallback = object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
+                    stopLocationUpdates()
+                    mMainHandler.removeCallbacks(cancelLocRequestRunner)
+
                     runWithView {
                         if (Settings.useFollowGPS() && updateLocation()) {
                             // Setup loader from updated location
@@ -275,14 +281,20 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
 
                             refreshWeather(false)
                         }
-
-                        stopLocationUpdates()
                     }
+                }
+
+                override fun onLocationAvailability(locationAvailability: LocationAvailability) {
+                    stopLocationUpdates()
+                    mMainHandler.removeCallbacks(cancelLocRequestRunner)
                 }
             }
         } else {
             mLocListnr = object : LocationListener {
                 override fun onLocationChanged(location: Location) {
+                    mMainHandler.removeCallbacks(cancelLocRequestRunner)
+                    stopLocationUpdates()
+
                     runWithView {
                         if (Settings.useFollowGPS() && updateLocation()) {
                             // Setup loader from updated location
@@ -888,6 +900,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
     /**
      * Removes location updates from the FusedLocationApi.
      */
+    @SuppressLint("MissingPermission")
     private fun stopLocationUpdates() {
         if (!mRequestingLocationUpdates) {
             Logger.writeLine(Log.DEBUG, "WeatherNow: stopLocationUpdates: updates never requested, no-op.")
@@ -897,9 +910,14 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
         // It is a good practice to remove location requests when the activity is in a paused or
         // stopped state. Doing so helps battery performance and is especially
         // recommended in applications that request frequent location updates.
-        mLocCallback?.apply {
-            mFusedLocationClient?.removeLocationUpdates(this)
+        mLocCallback?.let {
+            mFusedLocationClient?.removeLocationUpdates(it)
                     ?.addOnCompleteListener { mRequestingLocationUpdates = false }
+        }
+        mLocListnr?.let {
+            val locMan = appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+            locMan?.removeUpdates(it)
+            mRequestingLocationUpdates = false
         }
     }
 
@@ -975,39 +993,41 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                 binding.progressBar.show()
             }
 
-            val task = async(Dispatchers.IO) {
-                var forceRefresh = false
+            supervisorScope {
+                val task = async(Dispatchers.IO) {
+                    var forceRefresh = false
 
-                // GPS Follow location
-                if (Settings.useFollowGPS() && (locationData == null || locationData!!.locationType == LocationType.GPS)) {
-                    val locData = Settings.getLastGPSLocData()
-                    if (locData == null) {
-                        // Update location if not setup
-                        updateLocation()
-                        forceRefresh = true
-                    } else {
-                        // Reset locdata if source is different
-                        if (Settings.getAPI() != locData.weatherSource) Settings.saveLastGPSLocData(LocationData())
-                        if (updateLocation()) {
-                            // Setup loader from updated location
+                    // GPS Follow location
+                    if (Settings.useFollowGPS() && (locationData == null || locationData!!.locationType == LocationType.GPS)) {
+                        val locData = Settings.getLastGPSLocData()
+                        if (locData == null) {
+                            // Update location if not setup
+                            updateLocation()
                             forceRefresh = true
                         } else {
-                            // Setup loader saved location data
-                            locationData = locData
+                            // Reset locdata if source is different
+                            if (Settings.getAPI() != locData.weatherSource) Settings.saveLastGPSLocData(LocationData())
+                            if (updateLocation()) {
+                                // Setup loader from updated location
+                                forceRefresh = true
+                            } else {
+                                // Setup loader saved location data
+                                locationData = locData
+                            }
                         }
+                    } else if (locationData == null && wLoader == null) {
+                        // Weather was loaded before. Lets load it up...
+                        locationData = Settings.getHomeData()
                     }
-                } else if (locationData == null && wLoader == null) {
-                    // Weather was loaded before. Lets load it up...
-                    locationData = Settings.getHomeData()
+                    if (locationData != null) wLoader = WeatherDataLoader(locationData!!)
+                    forceRefresh
                 }
-                if (locationData != null) wLoader = WeatherDataLoader(locationData!!)
-                forceRefresh
-            }
 
-            task.invokeOnCompletion {
-                val t = task.getCompletionExceptionOrNull()
-                if (t == null) {
-                    refreshWeather(task.getCompleted())
+                task.invokeOnCompletion {
+                    val t = task.getCompletionExceptionOrNull()
+                    if (t == null) {
+                        refreshWeather(task.getCompleted())
+                    }
                 }
             }
         }
@@ -1019,51 +1039,49 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                 wLoader = WeatherDataLoader(locationData!!)
             }
 
-            if (wLoader != null) {
-                wLoader!!.loadWeatherResult(WeatherRequest.Builder()
-                        .forceRefresh(forceRefresh)
-                        .setErrorListener(this@WeatherNowFragment)
-                        .build())
-                        .addOnSuccessListener { weather ->
-                            weatherLiveData.setValue(weather.weather)
-                        }
-                        .continueWithTask { task ->
-                            if (task.isSuccessful) {
-                                runWithView {
-                                    if (conditionPanelBinding.alertButton.visibility != View.GONE) {
-                                        conditionPanelBinding.alertButton.visibility = View.GONE
-                                        adjustConditionPanelLayout()
-                                    }
-                                }
-                                wLoader!!.loadWeatherAlerts(task.result.isSavedData)
-                            } else {
-                                Tasks.forCanceled()
-                            }
-                        }
-                        .addOnCompleteListener { task ->
+            wLoader?.loadWeatherResult(WeatherRequest.Builder()
+                    .forceRefresh(forceRefresh)
+                    .setErrorListener(this@WeatherNowFragment)
+                    .build())
+                    ?.addOnSuccessListener { weather ->
+                        weatherLiveData.setValue(weather.weather)
+                    }
+                    ?.continueWithTask { task ->
+                        if (task.isSuccessful) {
                             runWithView {
-                                if (locationData != null) {
-                                    alertsView.updateAlerts(locationData!!)
+                                if (conditionPanelBinding.alertButton.visibility != View.GONE) {
+                                    conditionPanelBinding.alertButton.visibility = View.GONE
+                                    adjustConditionPanelLayout()
                                 }
+                            }
+                            wLoader?.loadWeatherAlerts(task.result.isSavedData)
+                        } else {
+                            Tasks.forCanceled()
+                        }
+                    }
+                    ?.addOnCompleteListener { task ->
+                        runWithView {
+                            if (locationData != null) {
+                                alertsView.updateAlerts(locationData!!)
+                            }
 
-                                if (task.isSuccessful) {
-                                    if (wm.supportsAlerts() && locationData != null) {
-                                        val weatherAlerts = task.result
+                            if (task.isSuccessful) {
+                                if (wm.supportsAlerts() && locationData != null) {
+                                    val weatherAlerts = task.result
 
-                                        if (weatherAlerts != null && !weatherAlerts.isEmpty()) {
-                                            // Alerts are posted to the user here. Set them as notified.
-                                            GlobalScope.launch {
-                                                if (BuildConfig.DEBUG) {
-                                                    WeatherAlertHandler.postAlerts(locationData, weatherAlerts)
-                                                }
-                                                WeatherAlertHandler.setAsNotified(locationData, weatherAlerts)
+                                    if (weatherAlerts != null && !weatherAlerts.isEmpty()) {
+                                        // Alerts are posted to the user here. Set them as notified.
+                                        GlobalScope.launch {
+                                            if (BuildConfig.DEBUG) {
+                                                WeatherAlertHandler.postAlerts(locationData, weatherAlerts)
                                             }
+                                            WeatherAlertHandler.setAsNotified(locationData, weatherAlerts)
                                         }
                                     }
                                 }
                             }
                         }
-            }
+                    }
         }
     }
 
@@ -1174,6 +1192,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                     result
                 }
 
+                if (!coroutineContext.isActive) return false
+
                 /*
                  * Request start of location updates. Does nothing if
                  * updates have already been requested.
@@ -1187,10 +1207,13 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                     }
                     mRequestingLocationUpdates = true
                     mFusedLocationClient!!.requestLocationUpdates(mLocationRequest, mLocCallback!!, Looper.getMainLooper())
+                    mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
                 }
             } else {
                 val isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 val isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+
+                if (!coroutineContext.isActive) return false
 
                 if (isGPSEnabled || isNetEnabled) {
                     val locCriteria = Criteria().apply {
@@ -1202,8 +1225,11 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                     val provider = locMan.getBestProvider(locCriteria, true)!!
                     location = locMan.getLastKnownLocation(provider)
 
-                    if (location == null)
+                    if (location == null) {
+                        mRequestingLocationUpdates = true
                         locMan.requestSingleUpdate(provider, mLocListnr!!, Looper.getMainLooper())
+                        mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
+                    }
                 } else {
                     withContext(Dispatchers.Main) {
                         showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.LONG), null)
@@ -1244,6 +1270,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                         view.locationTZLong = tzId
                 }
 
+                if (!coroutineContext.isActive) return false
+
                 // Save location as last known
                 lastGPSLocData?.setData(view, location)
                 Settings.saveLastGPSLocData(lastGPSLocData)
@@ -1260,27 +1288,30 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
         return locationChanged
     }
 
+    private val cancelLocRequestRunner = Runnable {
+        stopLocationUpdates()
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             PERMISSION_LOCATION_REQUEST_CODE -> {
-                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Unconfined) {
-                    // If request is cancelled, the result arrays are empty.
-                    if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                        // permission was granted, yay!
-                        // Do the task you need to do.
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay!
+                    // Do the task you need to do.
+                    runWithView {
                         if (Settings.useFollowGPS() && updateLocation()) {
                             // Setup loader from updated location
                             wLoader = WeatherDataLoader(locationData!!)
-                        }
 
-                        refreshWeather(false)
-                    } else {
-                        // permission denied, boo! Disable the
-                        // functionality that depends on this permission.
-                        Settings.setFollowGPS(false)
-                        showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null)
+                            refreshWeather(false)
+                        }
                     }
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Settings.setFollowGPS(false)
+                    showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null)
                 }
             }
         }

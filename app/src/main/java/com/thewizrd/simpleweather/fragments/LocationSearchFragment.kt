@@ -120,135 +120,138 @@ class LocationSearchFragment : WindowColorFragment() {
 
             // Cancel other tasks
             job?.cancel()
-            val deferredJob = viewLifecycleOwner.lifecycleScope.async(Dispatchers.IO) {
-                var queryResult: LocationQueryViewModel? = LocationQueryViewModel()
 
-                if (!StringUtils.isNullOrEmpty(mAdapter.dataset[position].locationQuery))
-                    queryResult = mAdapter.dataset[position]
+            supervisorScope {
+                val deferredJob = viewLifecycleOwner.lifecycleScope.async(Dispatchers.IO) {
+                    var queryResult: LocationQueryViewModel? = LocationQueryViewModel()
 
-                if (StringUtils.isNullOrWhitespace(queryResult!!.locationQuery)) {
-                    // Stop since there is no valid query
-                    throw CustomException(R.string.error_retrieve_location)
-                }
+                    if (!StringUtils.isNullOrEmpty(mAdapter.dataset[position].locationQuery))
+                        queryResult = mAdapter.dataset[position]
 
-                if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired) {
-                    throw CustomException(R.string.werror_invalidkey)
-                }
-
-                ensureActive()
-
-                // Need to get FULL location data for HERE API
-                // Data provided is incomplete
-                if (queryResult.locationLat == -1.0 && queryResult.locationLong == -1.0 && queryResult.locationTZLong == null && wm.locationProvider.needsLocationFromID()) {
-                    val loc = queryResult
-                    queryResult = withContext(Dispatchers.IO) {
-                        wm.locationProvider.getLocationFromID(loc)
+                    if (StringUtils.isNullOrWhitespace(queryResult!!.locationQuery)) {
+                        // Stop since there is no valid query
+                        throw CustomException(R.string.error_retrieve_location)
                     }
-                } else if (wm.locationProvider.needsLocationFromName()) {
-                    val loc = queryResult
-                    queryResult = withContext(Dispatchers.IO) {
-                        wm.locationProvider.getLocationFromName(loc)
+
+                    if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired) {
+                        throw CustomException(R.string.werror_invalidkey)
                     }
-                } else if (wm.locationProvider.needsLocationFromGeocoder()) {
-                    val loc = queryResult
-                    queryResult = withContext(Dispatchers.IO) {
-                        wm.locationProvider.getLocation(Coordinate(loc.locationLat, loc.locationLong), loc.weatherSource)
-                    }
-                }
 
-                if (queryResult == null) {
-                    throw InterruptedException()
-                } else if (StringUtils.isNullOrWhitespace(queryResult.locationTZLong) && queryResult.locationLat != 0.0 && queryResult.locationLong != 0.0) {
-                    val tzId = TZDBCache.getTimeZone(queryResult.locationLat, queryResult.locationLong)
-                    if ("unknown" != tzId)
-                        queryResult.locationTZLong = tzId
-                }
+                    ensureActive()
 
-                val isUS = LocationUtils.isUS(queryResult.locationCountry)
-
-                if (!Settings.isWeatherLoaded()) {
-                    // Default US provider to NWS
-                    if (isUS) {
-                        Settings.setAPI(WeatherAPI.NWS)
-                        queryResult.updateWeatherSource(WeatherAPI.NWS)
-                    } else {
-                        Settings.setAPI(WeatherAPI.WEATHERUNLOCKED)
-                        queryResult.updateWeatherSource(WeatherAPI.WEATHERUNLOCKED)
-                    }
-                    wm.updateAPI()
-                }
-
-                if (WeatherAPI.NWS == Settings.getAPI() && !isUS) {
-                    throw CustomException(R.string.error_message_weather_us_only)
-                }
-
-                // Check if location already exists
-                val locData = Settings.getLocationData()
-                val finalQueryResult: LocationQueryViewModel = queryResult
-                val loc = locData?.find { input -> input != null && input.query == finalQueryResult.locationQuery }
-
-                if (loc != null) {
-                    // Location exists; return
-                    return@async null
-                }
-
-                ensureActive()
-
-                val location = LocationData(queryResult)
-                if (!location.isValid) {
-                    throw CustomException(R.string.werror_noweather)
-                }
-                var weather = Settings.getWeatherData(location.query)
-                if (weather == null) {
-                    weather = wm.getWeather(location)
-                }
-
-                if (weather == null) {
-                    throw WeatherException(WeatherUtils.ErrorStatus.NOWEATHER)
-                } else if (wm.supportsAlerts() && wm.needsExternalAlertData()) {
-                    weather.weatherAlerts = wm.getAlerts(location)
-                }
-
-                // Save data
-                Settings.addLocation(location)
-                if (wm.supportsAlerts() && weather.weatherAlerts != null)
-                    Settings.saveWeatherAlerts(location, weather.weatherAlerts)
-                Settings.saveWeatherData(weather)
-                Settings.saveWeatherForecasts(Forecasts(weather.query, weather.forecast, weather.txtForecast))
-                Settings.saveWeatherForecasts(location.query, weather.hrForecast?.map { input -> HourlyForecasts(weather.query, input!!) })
-
-                Settings.setWeatherLoaded(true)
-
-                location
-            }.also {
-                job = it
-            }
-
-            deferredJob.invokeOnCompletion callback@{
-                if (it is CancellationException) {
-                    return@callback
-                }
-
-                val t = deferredJob.getCompletionExceptionOrNull()
-                if (t == null) {
-                    val result = deferredJob.getCompleted()
-                    runWithView { // Go back to where we started
-                        if (result != null) {
-                            savedStateHandle.set(Constants.KEY_DATA, JSONParser.serializer(result, LocationData::class.java))
+                    // Need to get FULL location data for HERE API
+                    // Data provided is incomplete
+                    if (queryResult.locationLat == -1.0 && queryResult.locationLong == -1.0 && queryResult.locationTZLong == null && wm.locationProvider.needsLocationFromID()) {
+                        val loc = queryResult
+                        queryResult = withContext(Dispatchers.IO) {
+                            wm.locationProvider.getLocationFromID(loc)
                         }
-                        navController.navigateUp()
+                    } else if (wm.locationProvider.needsLocationFromName()) {
+                        val loc = queryResult
+                        queryResult = withContext(Dispatchers.IO) {
+                            wm.locationProvider.getLocationFromName(loc)
+                        }
+                    } else if (wm.locationProvider.needsLocationFromGeocoder()) {
+                        val loc = queryResult
+                        queryResult = withContext(Dispatchers.IO) {
+                            wm.locationProvider.getLocation(Coordinate(loc.locationLat, loc.locationLong), loc.weatherSource)
+                        }
                     }
-                } else {
-                    runWithView {
-                        if (t is WeatherException || t is CustomException) {
-                            showSnackbar(Snackbar.make(t.message, Snackbar.Duration.SHORT),
-                                    SnackbarWindowAdjustCallback(appCompatActivity!!))
+
+                    if (queryResult == null) {
+                        throw InterruptedException()
+                    } else if (StringUtils.isNullOrWhitespace(queryResult.locationTZLong) && queryResult.locationLat != 0.0 && queryResult.locationLong != 0.0) {
+                        val tzId = TZDBCache.getTimeZone(queryResult.locationLat, queryResult.locationLong)
+                        if ("unknown" != tzId)
+                            queryResult.locationTZLong = tzId
+                    }
+
+                    val isUS = LocationUtils.isUS(queryResult.locationCountry)
+
+                    if (!Settings.isWeatherLoaded()) {
+                        // Default US provider to NWS
+                        if (isUS) {
+                            Settings.setAPI(WeatherAPI.NWS)
+                            queryResult.updateWeatherSource(WeatherAPI.NWS)
                         } else {
-                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
-                                    SnackbarWindowAdjustCallback(appCompatActivity!!))
+                            Settings.setAPI(WeatherAPI.WEATHERUNLOCKED)
+                            queryResult.updateWeatherSource(WeatherAPI.WEATHERUNLOCKED)
                         }
-                        showLoading(false)
-                        enableRecyclerView(true)
+                        wm.updateAPI()
+                    }
+
+                    if (WeatherAPI.NWS == Settings.getAPI() && !isUS) {
+                        throw CustomException(R.string.error_message_weather_us_only)
+                    }
+
+                    // Check if location already exists
+                    val locData = Settings.getLocationData()
+                    val finalQueryResult: LocationQueryViewModel = queryResult
+                    val loc = locData?.find { input -> input != null && input.query == finalQueryResult.locationQuery }
+
+                    if (loc != null) {
+                        // Location exists; return
+                        return@async null
+                    }
+
+                    ensureActive()
+
+                    val location = LocationData(queryResult)
+                    if (!location.isValid) {
+                        throw CustomException(R.string.werror_noweather)
+                    }
+                    var weather = Settings.getWeatherData(location.query)
+                    if (weather == null) {
+                        weather = wm.getWeather(location)
+                    }
+
+                    if (weather == null) {
+                        throw WeatherException(WeatherUtils.ErrorStatus.NOWEATHER)
+                    } else if (wm.supportsAlerts() && wm.needsExternalAlertData()) {
+                        weather.weatherAlerts = wm.getAlerts(location)
+                    }
+
+                    // Save data
+                    Settings.addLocation(location)
+                    if (wm.supportsAlerts() && weather.weatherAlerts != null)
+                        Settings.saveWeatherAlerts(location, weather.weatherAlerts)
+                    Settings.saveWeatherData(weather)
+                    Settings.saveWeatherForecasts(Forecasts(weather.query, weather.forecast, weather.txtForecast))
+                    Settings.saveWeatherForecasts(location.query, weather.hrForecast?.map { input -> HourlyForecasts(weather.query, input!!) })
+
+                    Settings.setWeatherLoaded(true)
+
+                    location
+                }.also {
+                    job = it
+                }
+
+                deferredJob.invokeOnCompletion callback@{
+                    if (it is CancellationException) {
+                        return@callback
+                    }
+
+                    val t = deferredJob.getCompletionExceptionOrNull()
+                    if (t == null) {
+                        val result = deferredJob.getCompleted()
+                        runWithView { // Go back to where we started
+                            if (result != null) {
+                                savedStateHandle.set(Constants.KEY_DATA, JSONParser.serializer(result, LocationData::class.java))
+                            }
+                            navController.navigateUp()
+                        }
+                    } else {
+                        runWithView {
+                            if (t is WeatherException || t is CustomException) {
+                                showSnackbar(Snackbar.make(t.message, Snackbar.Duration.SHORT),
+                                        SnackbarWindowAdjustCallback(appCompatActivity!!))
+                            } else {
+                                showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT),
+                                        SnackbarWindowAdjustCallback(appCompatActivity!!))
+                            }
+                            showLoading(false)
+                            enableRecyclerView(true)
+                        }
                     }
                 }
             }
@@ -437,7 +440,7 @@ class LocationSearchFragment : WindowColorFragment() {
         // Cancel pending searches
         job?.cancel()
         if (!StringUtils.isNullOrWhitespace(queryString)) {
-            job = viewLifecycleOwner.lifecycleScope.launch {
+            job = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Unconfined) {
                 try {
                     val results = withContext(Dispatchers.IO) {
                         wm.getLocations(queryString)

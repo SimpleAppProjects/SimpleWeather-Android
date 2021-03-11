@@ -2,7 +2,10 @@ package com.thewizrd.simpleweather.setup
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
@@ -14,43 +17,38 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
-import androidx.core.view.ViewCompat
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
-import androidx.navigation.Navigation
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.FragmentNavigator
 import com.google.android.gms.location.*
-import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.transition.Hold
-import com.google.android.material.transition.MaterialSharedAxis
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.simpleweather.R
-import com.thewizrd.simpleweather.databinding.FragmentSetupLocationBinding
+import com.thewizrd.simpleweather.databinding.FragmentSetupBinding
 import com.thewizrd.simpleweather.fragments.CustomFragment
-import com.thewizrd.simpleweather.snackbar.Snackbar
-import com.thewizrd.simpleweather.snackbar.SnackbarManager
-import com.thewizrd.simpleweather.wearable.WearableWorker
+import com.thewizrd.simpleweather.helpers.AcceptDenyDialogBuilder
+import com.thewizrd.simpleweather.main.MainActivity
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import kotlin.coroutines.coroutineContext
 
-class SetupLocationFragment : CustomFragment() {
+class SetupFragment : CustomFragment() {
     companion object {
-        private const val TAG = "SetupLocationFragment"
+        private const val TAG = "SetupFragment"
         private const val PERMISSION_LOCATION_REQUEST_CODE = 0
+        private const val REQUEST_CODE_SYNC_ACTIVITY = 10
     }
 
     // Views
-    private lateinit var binding: FragmentSetupLocationBinding
+    private lateinit var binding: FragmentSetupBinding
     private var mFusedLocationClient: FusedLocationProviderClient? = null
     private var mLocation: Location? = null
     private var mLocCallback: LocationCallback? = null
@@ -62,34 +60,15 @@ class SetupLocationFragment : CustomFragment() {
     private var mRequestingLocationUpdates = false
     private val mMainHandler = Handler(Looper.getMainLooper())
 
-    private val viewModel: SetupViewModel by activityViewModels()
-
     private val wm = WeatherManager.getInstance()
 
     private var job: Job? = null
 
-    override fun createSnackManager(): SnackbarManager {
-        val mStepperNavBar = appCompatActivity!!.findViewById<View>(R.id.bottom_nav_bar)
-        val mSnackMgr = SnackbarManager(binding.root)
-        mSnackMgr.setSwipeDismissEnabled(true)
-        mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
-        mSnackMgr.setAnchorView(mStepperNavBar)
-        return mSnackMgr
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AnalyticsLogger.logEvent("SetupLocation: onCreate")
 
-        // Hold fragment in place for MaterialContainerTransform
-        exitTransition = Hold().setDuration(Constants.ANIMATION_DURATION.toLong())
-
-        enterTransition = MaterialSharedAxis(MaterialSharedAxis.X, true)
-        returnTransition = MaterialSharedAxis(MaterialSharedAxis.X, false)
-
-        // Location Listener
         if (WearableHelper.isGooglePlayServicesInstalled()) {
-            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(appCompatActivity!!)
+            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
             mLocCallback = object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
                     stopLocationUpdates()
@@ -101,7 +80,7 @@ class SetupLocationFragment : CustomFragment() {
                     runWithView {
                         if (mLocation == null) {
                             enableControls(true)
-                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
+                            Toast.makeText(fragmentActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show()
                         } else {
                             fetchGeoLocation()
                         }
@@ -116,14 +95,13 @@ class SetupLocationFragment : CustomFragment() {
                         Timber.tag(TAG).i("Fused: Location update unavailable...")
                         runWithView {
                             enableControls(true)
-                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
+                            Toast.makeText(fragmentActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
             }
         } else {
             mLocListnr = object : LocationListener {
-                @SuppressLint("MissingPermission")
                 override fun onLocationChanged(location: Location) {
                     mMainHandler.removeCallbacks(cancelLocRequestRunner)
                     stopLocationUpdates()
@@ -134,7 +112,7 @@ class SetupLocationFragment : CustomFragment() {
                     runWithView {
                         if (mLocation == null) {
                             enableControls(true)
-                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
+                            Toast.makeText(fragmentActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show()
                         } else {
                             fetchGeoLocation()
                         }
@@ -146,92 +124,16 @@ class SetupLocationFragment : CustomFragment() {
                 override fun onProviderDisabled(provider: String) {}
             }
         }
+
         mRequestingLocationUpdates = false
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentSetupLocationBinding.inflate(inflater, container, false)
-
-        binding.progressBar.visibility = View.GONE
-
-        /* Event Listeners */
-        binding.searchBar.searchViewContainer.setOnClickListener { v ->
-            v.isEnabled = false
-            binding.gpsFollow.isEnabled = false
-
-            // Setup search UI
-            val bottomNavBar = appCompatActivity!!.findViewById<View>(R.id.bottom_nav_bar)
-            bottomNavBar.visibility = View.GONE
-
-            try {
-                Navigation.findNavController(v)
-                        .navigate(
-                                SetupLocationFragmentDirections.actionSetupLocationFragmentToLocationSearchFragment3(),
-                                FragmentNavigator.Extras.Builder().addSharedElement(v, Constants.SHARED_ELEMENT)
-                                        .build()
-                        )
-            } catch (ex: IllegalArgumentException) {
-                val props = Bundle().apply {
-                    putString("method", "searchViewContainer.onClick")
-                    putBoolean("isAlive", isAlive)
-                    putBoolean("isViewAlive", isViewAlive)
-                    putBoolean("isDetached", isDetached)
-                    putBoolean("isResumed", isResumed)
-                    putBoolean("isRemoving", isRemoving)
-                }
-                AnalyticsLogger.logEvent("$TAG: navigation failed", props)
-
-                Logger.writeLine(Log.ERROR, ex)
-            }
-        }
-        ViewCompat.setTransitionName(binding.searchBar.searchViewContainer, Constants.SHARED_ELEMENT)
-
-        binding.gpsFollow.setOnClickListener { fetchGeoLocation() }
-
-        // Reset focus
-        binding.root.requestFocus()
-
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val navController = Navigation.findNavController(view)
-        val liveData = navController.currentBackStackEntry!!
-                .savedStateHandle
-                .getLiveData<String>(Constants.KEY_DATA)
-        liveData.observe(viewLifecycleOwner, Observer { result ->
-            // Do something with the result.
-            enableControls(false)
-            if (result != null) {
-                // Save data
-                val data = JSONParser.deserializer(result, LocationData::class.java)
-                if (data != null) {
-                    // Setup complete
-                    viewModel.locationData = data
-                    navController.navigate(
-                            SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment()
-                    )
-                    return@Observer
-                }
-            }
-            enableControls(true)
-        })
-    }
-
-    override fun onDestroyView() {
-        job?.cancel()
-        super.onDestroyView()
     }
 
     /**
      * Removes location updates from the FusedLocationApi.
      */
-    @SuppressLint("MissingPermission")
     private fun stopLocationUpdates() {
         if (!mRequestingLocationUpdates) {
-            Logger.writeLine(Log.DEBUG, "SetupLocationFragment: stopLocationUpdates: updates never requested, no-op.")
+            Logger.writeLine(Log.DEBUG, "SetupActivity: stopLocationUpdates: updates never requested, no-op.")
             return
         }
 
@@ -243,23 +145,85 @@ class SetupLocationFragment : CustomFragment() {
                     ?.addOnCompleteListener { mRequestingLocationUpdates = false }
         }
         mLocListnr?.let {
-            val locMan = appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+            val locMan = fragmentActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
             locMan?.removeUpdates(it)
             mRequestingLocationUpdates = false
         }
     }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = FragmentSetupBinding.inflate(inflater, container, false)
+
+        // Controls
+        binding.searchButton.setOnClickListener { v ->
+            try {
+                v.findNavController().navigate(SetupFragmentDirections.actionSetupFragmentToLocationSearchFragment())
+            } catch (ex: IllegalArgumentException) {
+                val props = Bundle().apply {
+                    putString("method", "searchButton.setOnClickListener")
+                    putBoolean("isAlive", isAlive)
+                    putBoolean("isViewAlive", isViewAlive)
+                    putBoolean("isDetached", isDetached)
+                    putBoolean("isResumed", isResumed)
+                    putBoolean("isRemoving", isRemoving)
+                }
+
+                AnalyticsLogger.logEvent("$TAG: navigation failed", props)
+                Logger.writeLine(Log.ERROR, ex)
+            }
+        }
+
+        binding.locationButton.setOnClickListener { fetchGeoLocation() }
+
+        binding.setupPhoneButton.setOnClickListener {
+            AcceptDenyDialogBuilder(requireActivity()) { dialog, which ->
+                if (which == DialogInterface.BUTTON_POSITIVE) {
+                    startActivityForResult(Intent(requireActivity(), SetupSyncActivity::class.java), REQUEST_CODE_SYNC_ACTIVITY)
+                }
+            }.setMessage(R.string.prompt_confirmsetup)
+                    .show()
+        }
+
+        binding.progressBar.visibility = View.GONE
+
+        return binding.root
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        when (requestCode) {
+            REQUEST_CODE_SYNC_ACTIVITY -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    if (Settings.getHomeData() != null) {
+                        Settings.setDataSync(WearableDataSync.DEVICEONLY)
+                        Settings.setWeatherLoaded(true)
+                        // Start WeatherNow Activity
+                        startActivity(Intent(requireActivity(), MainActivity::class.java))
+                        requireActivity().finishAffinity()
+                    }
+                }
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
-        AnalyticsLogger.logEvent("SetupLocation: onResume")
+        AnalyticsLogger.logEvent("SetupFragment: onResume")
     }
 
     override fun onPause() {
-        AnalyticsLogger.logEvent("SetupLocation: onPause")
+        AnalyticsLogger.logEvent("SetupFragment: onPause")
         job?.cancel()
         // Remove location updates to save battery.
         stopLocationUpdates()
         super.onPause()
+    }
+
+    override fun onDestroyView() {
+        // Cancel pending actions
+        job?.cancel()
+        super.onDestroyView()
     }
 
     override fun onDestroy() {
@@ -269,16 +233,20 @@ class SetupLocationFragment : CustomFragment() {
     }
 
     private fun enableControls(enable: Boolean) {
-        binding.searchBar.searchViewContainer.isEnabled = enable
-        binding.gpsFollow.isEnabled = enable
-        binding.progressBar.visibility = if (enable) View.GONE else View.VISIBLE
+        binding.searchButton.isEnabled = enable
+        binding.locationButton.isEnabled = enable
+        if (enable) {
+            binding.progressBar.visibility = View.GONE
+        } else {
+            binding.progressBar.visibility = View.VISIBLE
+        }
     }
 
     private fun fetchGeoLocation() {
         runWithView(Dispatchers.Main.immediate) {
             // Show loading bar
-            binding.gpsFollow.isEnabled = false
-            binding.progressBar.visibility = View.VISIBLE
+            binding.locationButton.isEnabled = false
+            enableControls(false)
 
             if (mLocation == null) {
                 // Cancel other tasks
@@ -300,10 +268,12 @@ class SetupLocationFragment : CustomFragment() {
                                     enableControls(true)
                                     Settings.setFollowGPS(false)
                                     Settings.setWeatherLoaded(false)
-                                    if (e is WeatherException || e is CustomException) {
-                                        showSnackbar(Snackbar.make(e.message, Snackbar.Duration.SHORT), null)
-                                    } else {
-                                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
+                                    if (fragmentActivity != null) {
+                                        if (e is WeatherException || e is CustomException) {
+                                            Toast.makeText(fragmentActivity, e.message, Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            Toast.makeText(fragmentActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show()
+                                        }
                                     }
                                 }
                             }
@@ -380,22 +350,22 @@ class SetupLocationFragment : CustomFragment() {
                         ensureActive()
 
                         // Save weather data
-                        Settings.saveLastGPSLocData(location)
-                        Settings.deleteLocations()
-                        Settings.addLocation(LocationData(view))
+                        Settings.saveHomeData(location)
                         if (wm.supportsAlerts() && weather.weatherAlerts != null)
                             Settings.saveWeatherAlerts(location, weather.weatherAlerts)
                         Settings.saveWeatherData(weather)
                         Settings.saveWeatherForecasts(Forecasts(weather.query, weather.forecast, weather.txtForecast))
                         Settings.saveWeatherForecasts(location.query, weather.hrForecast?.map { input -> HourlyForecasts(weather.query, input) })
 
+                        // If we're changing locations, trigger an update
+                        if (Settings.isWeatherLoaded()) {
+                            LocalBroadcastManager.getInstance(fragmentActivity)
+                                    .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
+                        }
+
                         Settings.setFollowGPS(true)
                         Settings.setWeatherLoaded(true)
-
-                        // Send data for wearables
-                        if (appCompatActivity != null) {
-                            WearableWorker.enqueueAction(appCompatActivity!!, WearableWorker.ACTION_SENDUPDATE)
-                        }
+                        Settings.setDataSync(WearableDataSync.OFF)
 
                         location
                     }.also {
@@ -410,38 +380,15 @@ class SetupLocationFragment : CustomFragment() {
                         val t = deferredJob.getCompletionExceptionOrNull()
                         if (t == null) {
                             val data = deferredJob.getCompleted()
-
-                            runWithView {
-                                if (data.isValid) {
-                                    // Setup complete
-                                    viewModel.locationData = data
-                                    try {
-                                        binding.root.findNavController()
-                                                .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment())
-                                    } catch (ex: IllegalStateException) {
-                                        val args = Bundle().apply {
-                                            putString("method", "fetchGeoLocation")
-                                            putBoolean("isAlive", isAlive)
-                                            putBoolean("isViewAlive", isViewAlive)
-                                            putBoolean("isDetached", isDetached)
-                                            putBoolean("isResumed", isResumed)
-                                            putBoolean("isRemoving", isRemoving)
-                                        }
-                                        AnalyticsLogger.logEvent("$TAG: navigation failed", args)
-
-                                        Logger.writeLine(Log.ERROR, ex)
-                                    }
-                                } else {
+                            if (data != null) {
+                                // Start WeatherNow Activity with weather data
+                                val intent = Intent(fragmentActivity, MainActivity::class.java)
+                                intent.putExtra(Constants.KEY_DATA, JSONParser.serializer(data, LocationData::class.java))
+                                startActivity(intent)
+                                fragmentActivity.finishAffinity()
+                            } else {
+                                runWithView {
                                     enableControls(true)
-                                    Settings.setFollowGPS(false)
-
-                                    val locMan = appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
-
-                                    if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                                        showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null)
-                                    } else {
-                                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
-                                    }
                                 }
                             }
                         } else {
@@ -450,11 +397,12 @@ class SetupLocationFragment : CustomFragment() {
                                 enableControls(true)
                                 Settings.setFollowGPS(false)
                                 Settings.setWeatherLoaded(false)
-
-                                if (t is WeatherException || t is CustomException) {
-                                    showSnackbar(Snackbar.make(t.message, Snackbar.Duration.SHORT), null)
-                                } else {
-                                    showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
+                                if (fragmentActivity != null) {
+                                    if (t is WeatherException || t is CustomException) {
+                                        Toast.makeText(fragmentActivity, t.message, Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        Toast.makeText(fragmentActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show()
+                                    }
                                 }
                             }
                         }
@@ -467,8 +415,8 @@ class SetupLocationFragment : CustomFragment() {
     @SuppressLint("MissingPermission")
     @Throws(CustomException::class)
     private suspend fun updateLocation() {
-        if (appCompatActivity != null && ContextCompat.checkSelfPermission(appCompatActivity!!, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(appCompatActivity!!, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(fragmentActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(fragmentActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
                     PERMISSION_LOCATION_REQUEST_CODE)
             return
@@ -476,7 +424,7 @@ class SetupLocationFragment : CustomFragment() {
 
         var location: Location? = null
 
-        val locMan = appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+        val locMan = fragmentActivity.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
 
         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
             throw CustomException(R.string.error_enable_location_services)
@@ -484,7 +432,7 @@ class SetupLocationFragment : CustomFragment() {
 
         if (WearableHelper.isGooglePlayServicesInstalled()) {
             location = withContext(Dispatchers.IO) {
-                withTimeoutOrNull(5000) {
+                withTimeoutOrNull(10000) {
                     mFusedLocationClient?.lastLocation?.await()
                 }
             }
@@ -546,7 +494,7 @@ class SetupLocationFragment : CustomFragment() {
     private val cancelLocRequestRunner = Runnable {
         stopLocationUpdates()
         enableControls(true)
-        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
+        Toast.makeText(fragmentActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -563,7 +511,7 @@ class SetupLocationFragment : CustomFragment() {
                     // functionality that depends on this permission.
                     runWithView {
                         enableControls(true)
-                        showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null)
+                        Toast.makeText(fragmentActivity, R.string.error_location_denied, Toast.LENGTH_SHORT).show()
                     }
                 }
             }

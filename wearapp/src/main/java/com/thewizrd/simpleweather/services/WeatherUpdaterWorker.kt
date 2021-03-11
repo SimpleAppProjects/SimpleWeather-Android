@@ -242,12 +242,11 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 }
 
                 if (location == null) {
-                    val mLocationRequest = LocationRequest.create().also {
-                        it.numUpdates = 1
-                        it.interval = 10000
-                        it.fastestInterval = 1000
-                        it.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-                        it.setExpirationDuration(60000)
+                    val mLocationRequest = LocationRequest.create().apply {
+                        numUpdates = 1
+                        interval = 10000
+                        fastestInterval = 1000
+                        priority = LocationRequest.PRIORITY_HIGH_ACCURACY
                     }
 
                     val handlerThread = HandlerThread("location")
@@ -268,10 +267,9 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
                             override fun onLocationAvailability(locationAvailability: LocationAvailability) {
                                 super.onLocationAvailability(locationAvailability)
+                                mFusedLocationClient!!.removeLocationUpdates(this)
+                                handlerThread.quitSafely()
                                 if (!locationAvailability.isLocationAvailable) {
-                                    mFusedLocationClient!!.removeLocationUpdates(this)
-                                    handlerThread.quitSafely()
-
                                     Timber.tag(TAG).i("Fused: Location update unavailable...")
                                     continuation.resume(null)
                                 }

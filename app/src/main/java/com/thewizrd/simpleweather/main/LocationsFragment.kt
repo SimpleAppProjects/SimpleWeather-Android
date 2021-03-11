@@ -64,6 +64,7 @@ import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import java.lang.Runnable
 import java.util.*
+import kotlin.coroutines.coroutineContext
 
 class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     companion object {
@@ -94,6 +95,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
      * Tracks the status of the location updates request.
      */
     private var mRequestingLocationUpdates = false
+    private val mMainHandler = Handler(Looper.getMainLooper())
 
     // OptionsMenu
     private var optionsMenu: Menu? = null
@@ -292,19 +294,34 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(appCompatActivity!!)
             mLocCallback = object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
-                    runWithView(Dispatchers.Main) {
+                    stopLocationUpdates()
+                    mMainHandler.removeCallbacks(cancelLocRequestRunner)
+
+                    runWithView {
                         if (locationResult.lastLocation != null) {
                             addGPSPanel()
                         } else {
                             showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
                         }
                     }
+                }
+
+                override fun onLocationAvailability(locationAvailability: LocationAvailability) {
                     stopLocationUpdates()
+                    mMainHandler.removeCallbacks(cancelLocRequestRunner)
+
+                    if (!locationAvailability.isLocationAvailable) {
+                        runWithView {
+                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
+                        }
+                    }
                 }
             }
         } else {
             mLocListnr = object : LocationListener {
                 override fun onLocationChanged(location: Location) {
+                    mMainHandler.removeCallbacks(cancelLocRequestRunner)
+                    stopLocationUpdates()
                     addGPSPanel()
                 }
 
@@ -329,6 +346,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     /**
      * Removes location updates from the FusedLocationApi.
      */
+    @SuppressLint("MissingPermission")
     private fun stopLocationUpdates() {
         if (!mRequestingLocationUpdates) {
             Logger.writeLine(Log.DEBUG, "LocationsFragment: stopLocationUpdates: updates never requested, no-op.")
@@ -338,8 +356,15 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         // It is a good practice to remove location requests when the activity is in a paused or
         // stopped state. Doing so helps battery performance and is especially
         // recommended in applications that request frequent location updates.
-        mFusedLocationClient!!.removeLocationUpdates(mLocCallback!!)
-                .addOnCompleteListener { mRequestingLocationUpdates = false }
+        mLocCallback?.let {
+            mFusedLocationClient?.removeLocationUpdates(it)
+                    ?.addOnCompleteListener { mRequestingLocationUpdates = false }
+        }
+        mLocListnr?.let {
+            val locMan = appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+            locMan?.removeUpdates(it)
+            mRequestingLocationUpdates = false
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -442,7 +467,6 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         mItemTouchHelper = ItemTouchHelper(mITHCallback)
         mItemTouchHelper.attachToRecyclerView(binding.recyclerView)
         mITHCallback.addItemTouchHelperCallbackListener(object : ItemTouchCallbackListener {
-            private val mMainHandler = Handler(Looper.getMainLooper())
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder) {
                 mDataChanged = true
@@ -816,6 +840,8 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     result
                 }
 
+                if (!coroutineContext.isActive) return null
+
                 /*
                  * Request start of location updates. Does nothing if
                  * updates have already been requested.
@@ -828,11 +854,14 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                         priority = LocationRequest.PRIORITY_HIGH_ACCURACY
                     }
                     mRequestingLocationUpdates = true
-                    mFusedLocationClient!!.requestLocationUpdates(mLocationRequest, mLocCallback, Looper.getMainLooper())
+                    mFusedLocationClient!!.requestLocationUpdates(mLocationRequest, mLocCallback!!, Looper.getMainLooper())
+                    mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
                 }
             } else {
                 val isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 val isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+
+                if (!coroutineContext.isActive) return null
 
                 if (isGPSEnabled || isNetEnabled) {
                     val locCriteria = Criteria().apply {
@@ -844,8 +873,11 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     val provider = locMan.getBestProvider(locCriteria, true)!!
                     location = locMan.getLastKnownLocation(provider)
 
-                    if (location == null)
+                    if (location == null) {
+                        mRequestingLocationUpdates = true
                         locMan.requestSingleUpdate(provider, mLocListnr!!, Looper.getMainLooper())
+                        mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
+                    }
                 } else {
                     withContext(Dispatchers.Main) {
                         showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
@@ -886,6 +918,12 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         }
 
         return locationData
+    }
+
+    private val cancelLocRequestRunner = Runnable {
+        stopLocationUpdates()
+        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
+        removeGPSPanel()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
