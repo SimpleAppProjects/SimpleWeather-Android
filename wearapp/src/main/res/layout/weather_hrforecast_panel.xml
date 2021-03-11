@@ -50,7 +50,7 @@
             android:layout_width="32dp"
             android:layout_height="36dp"
             android:gravity="center"
-            app:srcCompat="@{viewModel != null ? viewModel.weatherIcon : R.drawable.wi_na}"
+            app:weatherIcon="@{viewModel != null ? viewModel.weatherIcon : R.drawable.wi_na}"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/extra_layout"
