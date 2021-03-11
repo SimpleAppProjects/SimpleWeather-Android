@@ -7,6 +7,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
@@ -34,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public final class GoogleLocationProvider extends LocationProviderImpl {
     private AutocompleteSessionToken autocompleteToken;
@@ -108,11 +111,28 @@ public final class GoogleLocationProvider extends LocationProviderImpl {
             for (AutocompletePrediction result : response.getAutocompletePredictions()) {
                 locations.add(new LocationQueryViewModel(result, weatherAPI));
             }
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
+            if (ex instanceof ExecutionException) {
+                ex = ex.getCause();
+            }
+
             if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
             } else if (ex instanceof IllegalArgumentException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND);
+            } else if (ex instanceof ApiException) {
+                switch (((ApiException) ex).getStatusCode()) {
+                    case CommonStatusCodes.NETWORK_ERROR:
+                    case CommonStatusCodes.RECONNECTION_TIMED_OUT:
+                    case CommonStatusCodes.RECONNECTION_TIMED_OUT_DURING_UPDATE:
+                    case CommonStatusCodes.API_NOT_CONNECTED:
+                        wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
+                        break;
+                    case CommonStatusCodes.ERROR:
+                    case CommonStatusCodes.INTERNAL_ERROR:
+                        wEx = new WeatherException(WeatherUtils.ErrorStatus.UNKNOWN);
+                        break;
+                }
             }
             Logger.writeLine(Log.ERROR, ex, "GoogleLocationProvider: error getting location");
         }
@@ -145,11 +165,28 @@ public final class GoogleLocationProvider extends LocationProviderImpl {
             response = AsyncTask.await(placesClient.fetchPlace(request));
 
             autocompleteToken = null;
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
+            if (ex instanceof ExecutionException) {
+                ex = ex.getCause();
+            }
+
             if (ex instanceof IOException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
             } else if (ex instanceof IllegalArgumentException) {
                 wEx = new WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND);
+            } else if (ex instanceof ApiException) {
+                switch (((ApiException) ex).getStatusCode()) {
+                    case CommonStatusCodes.NETWORK_ERROR:
+                    case CommonStatusCodes.RECONNECTION_TIMED_OUT:
+                    case CommonStatusCodes.RECONNECTION_TIMED_OUT_DURING_UPDATE:
+                    case CommonStatusCodes.API_NOT_CONNECTED:
+                        wEx = new WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR);
+                        break;
+                    case CommonStatusCodes.ERROR:
+                    case CommonStatusCodes.INTERNAL_ERROR:
+                        wEx = new WeatherException(WeatherUtils.ErrorStatus.UNKNOWN);
+                        break;
+                }
             }
             Logger.writeLine(Log.ERROR, ex, "GoogleLocationProvider: error getting location");
         }
