@@ -109,10 +109,10 @@ class SetupLocationFragment : CustomFragment() {
                 }
 
                 override fun onLocationAvailability(locationAvailability: LocationAvailability) {
-                    stopLocationUpdates()
-                    mMainHandler.removeCallbacks(cancelLocRequestRunner)
-
                     if (!locationAvailability.isLocationAvailable) {
+                        stopLocationUpdates()
+                        mMainHandler.removeCallbacks(cancelLocRequestRunner)
+
                         Timber.tag(TAG).i("Fused: Location update unavailable...")
                         runWithView {
                             enableControls(true)

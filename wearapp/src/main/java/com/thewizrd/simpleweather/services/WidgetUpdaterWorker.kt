@@ -46,7 +46,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Wo
                     .build()
 
             WorkManager.getInstance(context)
-                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.REPLACE, updateRequest)
+                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest)
 
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 
@@ -64,7 +64,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Wo
                     .build()
 
             WorkManager.getInstance(context)
-                    .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.KEEP, updateRequest)
+                    .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest)
 
             Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG)
         }

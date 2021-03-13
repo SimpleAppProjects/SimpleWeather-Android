@@ -307,10 +307,10 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                 }
 
                 override fun onLocationAvailability(locationAvailability: LocationAvailability) {
-                    stopLocationUpdates()
-                    mMainHandler.removeCallbacks(cancelLocRequestRunner)
-
                     if (!locationAvailability.isLocationAvailable) {
+                        stopLocationUpdates()
+                        mMainHandler.removeCallbacks(cancelLocRequestRunner)
+
                         runWithView {
                             showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
                         }

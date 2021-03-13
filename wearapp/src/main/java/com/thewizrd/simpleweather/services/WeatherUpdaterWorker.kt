@@ -15,12 +15,14 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.os.HandlerThread
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
+import androidx.core.os.postDelayed
 import androidx.work.*
 import com.google.android.gms.location.*
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
@@ -79,7 +81,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     .setInitialDelay(60, TimeUnit.SECONDS)
                     .build()
             WorkManager.getInstance(context)
-                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.REPLACE, updateRequest)
+                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest)
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 
             // Enqueue periodic task as well
@@ -97,7 +99,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     .setConstraints(constraints)
                     .build()
             WorkManager.getInstance(context)
-                    .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.KEEP, updateRequest)
+                    .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest)
             Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG)
         }
 
@@ -180,6 +182,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
                 // Update for home
                 val weather = getWeather()
+
                 if (weather != null) {
                     // Update complications
                     WeatherComplicationWorker.enqueueAction(context, Intent(WeatherComplicationWorker.ACTION_UPDATECOMPLICATIONS))
@@ -255,41 +258,54 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     Timber.tag(TAG).i("Fused: Requesting location updates...")
 
                     val locationResult = suspendCancellableCoroutine<LocationResult?> { continuation ->
-                        mFusedLocationClient!!.requestLocationUpdates(mLocationRequest, object : LocationCallback() {
+                        // Handler for timeout callback
+                        val handler = Handler(handlerThread.looper)
+                        val timeoutToken = Object()
+
+                        val locationCallback = object : LocationCallback() {
                             override fun onLocationResult(locationResult: LocationResult) {
-                                super.onLocationResult(locationResult)
+                                handler.removeCallbacksAndMessages(timeoutToken)
                                 mFusedLocationClient!!.removeLocationUpdates(this)
-                                handlerThread.quitSafely()
 
                                 Timber.tag(TAG).i("Fused: Location update received...")
                                 continuation.resume(locationResult)
+                                handlerThread.quitSafely()
                             }
 
                             override fun onLocationAvailability(locationAvailability: LocationAvailability) {
-                                super.onLocationAvailability(locationAvailability)
-                                mFusedLocationClient!!.removeLocationUpdates(this)
-                                handlerThread.quitSafely()
                                 if (!locationAvailability.isLocationAvailable) {
+                                    handler.removeCallbacksAndMessages(timeoutToken)
+                                    mFusedLocationClient!!.removeLocationUpdates(this)
+
                                     Timber.tag(TAG).i("Fused: Location update unavailable...")
                                     continuation.resume(null)
+                                    handlerThread.quitSafely()
                                 }
                             }
-                        }, handlerThread.looper)
+                        }
+
+                        mFusedLocationClient!!.requestLocationUpdates(mLocationRequest, locationCallback, handlerThread.looper)
+
+                        // Timeout after 60s
+                        handler.postDelayed(60000, timeoutToken) {
+                            mFusedLocationClient?.removeLocationUpdates(locationCallback)
+                            Timber.tag(TAG).i("Fused: Location update timed out...")
+                            continuation.resume(null)
+                            handlerThread.quitSafely()
+                        }
                     }
 
-                    if (locationResult != null) {
-                        location = locationResult.lastLocation
-                    }
+                    location = locationResult?.lastLocation
                 }
             } else {
                 val isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 val isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
 
                 if (isGPSEnabled || isNetEnabled) {
-                    val locCriteria = Criteria().also {
-                        it.accuracy = Criteria.ACCURACY_COARSE
-                        it.isCostAllowed = false
-                        it.powerRequirement = Criteria.POWER_LOW
+                    val locCriteria = Criteria().apply {
+                        accuracy = Criteria.ACCURACY_COARSE
+                        isCostAllowed = false
+                        powerRequirement = Criteria.POWER_LOW
                     }
 
                     val provider = locMan.getBestProvider(locCriteria, true)!!
@@ -302,14 +318,19 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                         Timber.tag(TAG).i("LocMan: Requesting location update...")
 
                         location = suspendCancellableCoroutine { continuation ->
+                            // Handler for timeout callback
+                            val handler = Handler(handlerThread.looper)
+                            val timeoutToken = Object()
+
                             val locationListener = object : LocationListener {
                                 override fun onLocationChanged(location: Location) {
+                                    handler.removeCallbacksAndMessages(timeoutToken)
                                     locMan.removeUpdates(this)
-                                    handlerThread.quitSafely()
 
                                     Timber.tag(TAG).i("LocMan: Location update received...")
 
                                     continuation.resume(location)
+                                    handlerThread.quitSafely()
                                 }
 
                                 override fun onStatusChanged(s: String, i: Int, bundle: Bundle) {}
@@ -321,8 +342,16 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                                 locMan.requestSingleUpdate(provider, locationListener, handlerThread.looper)
                             } catch (e: Exception) {
                                 locMan.removeUpdates(locationListener)
-                                handlerThread.quitSafely()
                                 continuation.resumeWithException(e)
+                                handlerThread.quitSafely()
+                            }
+
+                            // Timeout after 60s
+                            handler.postDelayed(60000, timeoutToken) {
+                                locMan.removeUpdates(locationListener)
+                                Timber.tag(TAG).i("LocMan: Location update timed out...")
+                                continuation.resume(null)
+                                handlerThread.quitSafely()
                             }
                         }
                     }

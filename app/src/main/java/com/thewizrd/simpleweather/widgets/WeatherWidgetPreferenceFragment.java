@@ -309,10 +309,10 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
                 @Override
                 public void onLocationAvailability(@NonNull LocationAvailability locationAvailability) {
-                    stopLocationUpdates();
-                    mMainHandler.removeCallbacks(cancelLocRequestRunner);
-
                     if (!locationAvailability.isLocationAvailable()) {
+                        stopLocationUpdates();
+                        mMainHandler.removeCallbacks(cancelLocRequestRunner);
+
                         Timber.tag("WidgetPrefFrag").i("Fused: Location update unavailable...");
 
                         showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null);
