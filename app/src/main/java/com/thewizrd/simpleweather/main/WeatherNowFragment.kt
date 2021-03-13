@@ -1092,27 +1092,30 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             override fun onPreDraw(): Boolean {
                 conditionPanelBinding.conditionPanel.viewTreeObserver.removeOnPreDrawListener(this)
 
-                val context = conditionPanelBinding.conditionPanel.context
+                runWithView(Dispatchers.Main.immediate) {
+                    val context = conditionPanelBinding.conditionPanel.context
 
-                val height = binding.refreshLayout.measuredHeight
+                    val height = binding.refreshLayout.measuredHeight
 
-                val containerLP = conditionPanelBinding.imageViewContainer.layoutParams as MarginLayoutParams
-                val conditionPLP = conditionPanelBinding.conditionPanel.layoutParams as MarginLayoutParams
-                if (ContextUtils.getOrientation(context) == Configuration.ORIENTATION_LANDSCAPE && height < imageLandSize) {
-                    containerLP.height = imageLandSize
-                } else if (FeatureSettings.isBackgroundImageEnabled() && height > 0) {
-                    containerLP.height = height - conditionPanelBinding.conditionPanel.measuredHeight - containerLP.bottomMargin - containerLP.topMargin
-                    if (conditionPanelBinding.alertButton.visibility != View.GONE) {
-                        containerLP.height -= conditionPanelBinding.alertButton.measuredHeight
+                    val containerLP = conditionPanelBinding.imageViewContainer.layoutParams as MarginLayoutParams
+                    val conditionPLP = conditionPanelBinding.conditionPanel.layoutParams as MarginLayoutParams
+                    if (ContextUtils.getOrientation(context) == Configuration.ORIENTATION_LANDSCAPE && height < imageLandSize) {
+                        containerLP.height = imageLandSize
+                    } else if (FeatureSettings.isBackgroundImageEnabled() && height > 0) {
+                        containerLP.height = height - conditionPanelBinding.conditionPanel.measuredHeight - containerLP.bottomMargin - containerLP.topMargin
+                        if (conditionPanelBinding.alertButton.visibility != View.GONE) {
+                            containerLP.height -= conditionPanelBinding.alertButton.measuredHeight
+                        }
+                        if (conditionPLP.topMargin < 0) {
+                            containerLP.height += -conditionPLP.topMargin
+                        }
+                    } else {
+                        containerLP.height = ViewGroup.LayoutParams.WRAP_CONTENT
                     }
-                    if (conditionPLP.topMargin < 0) {
-                        containerLP.height += -conditionPLP.topMargin
-                    }
-                } else {
-                    containerLP.height = ViewGroup.LayoutParams.WRAP_CONTENT
+
+                    conditionPanelBinding.imageViewContainer.layoutParams = containerLP
                 }
 
-                conditionPanelBinding.imageViewContainer.layoutParams = containerLP
                 return true
             }
         })
@@ -1125,24 +1128,27 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             override fun onPreDraw(): Boolean {
                 detailsContainerBinding.detailsContainer.viewTreeObserver.removeOnPreDrawListener(this)
 
-                val pxWidth = binding.scrollView.getChildAt(0).measuredWidth
+                runWithView(Dispatchers.Main.immediate) {
+                    val pxWidth = binding.scrollView.getChildAt(0).measuredWidth
 
-                val minColumns = if (ContextUtils.isLargeTablet(appCompatActivity!!)) 3 else 2
+                    val minColumns = if (ContextUtils.isLargeTablet(appCompatActivity!!)) 3 else 2
 
-                // Minimum width for ea. card
-                val minWidth = appCompatActivity!!.resources.getDimensionPixelSize(R.dimen.detail_grid_column_width)
-                // Available columns based on min card width
-                val availColumns = if (pxWidth / minWidth <= 1) minColumns else pxWidth / minWidth
+                    // Minimum width for ea. card
+                    val minWidth = appCompatActivity!!.resources.getDimensionPixelSize(R.dimen.detail_grid_column_width)
+                    // Available columns based on min card width
+                    val availColumns = if (pxWidth / minWidth <= 1) minColumns else pxWidth / minWidth
 
-                detailsContainerBinding.detailsContainer.numColumns = availColumns
+                    detailsContainerBinding.detailsContainer.numColumns = availColumns
 
-                val isLandscape = ContextUtils.getOrientation(appCompatActivity!!) == Configuration.ORIENTATION_LANDSCAPE
+                    val isLandscape = ContextUtils.getOrientation(appCompatActivity!!) == Configuration.ORIENTATION_LANDSCAPE
 
-                val horizMargin = 16
-                val marginMultiplier = if (isLandscape) 2 else 3
-                val itemSpacing = if (availColumns < 3) horizMargin * (availColumns - 1) else horizMargin * marginMultiplier
-                detailsContainerBinding.detailsContainer.horizontalSpacing = itemSpacing
-                detailsContainerBinding.detailsContainer.verticalSpacing = itemSpacing
+                    val horizMargin = 16
+                    val marginMultiplier = if (isLandscape) 2 else 3
+                    val itemSpacing = if (availColumns < 3) horizMargin * (availColumns - 1) else horizMargin * marginMultiplier
+                    detailsContainerBinding.detailsContainer.horizontalSpacing = itemSpacing
+                    detailsContainerBinding.detailsContainer.verticalSpacing = itemSpacing
+                }
+
                 return true
             }
         })

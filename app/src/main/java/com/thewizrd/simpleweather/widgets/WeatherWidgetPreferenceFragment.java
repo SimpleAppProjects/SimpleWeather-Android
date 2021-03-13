@@ -722,10 +722,8 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         binding.getRoot().getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
-                if (isViewAlive()) {
-                    binding.getRoot().getViewTreeObserver().removeOnPreDrawListener(this);
-                    resizeWidgetContainer();
-                }
+                binding.getRoot().getViewTreeObserver().removeOnPreDrawListener(this);
+                runWithView(() -> resizeWidgetContainer());
                 return true;
             }
         });
@@ -1110,10 +1108,8 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if (isViewAlive()) {
-                    binding.getRoot().getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    resizeWidgetContainer();
-                }
+                binding.getRoot().getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                runWithView(() -> resizeWidgetContainer());
             }
         });
     }

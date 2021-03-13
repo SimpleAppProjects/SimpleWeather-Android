@@ -536,9 +536,9 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         if (ContextUtils.isLargeTablet(appCompatActivity!!)) {
             binding.recyclerView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
                 override fun onPreDraw(): Boolean {
-                    if (isViewAlive) {
-                        binding.recyclerView.viewTreeObserver.removeOnPreDrawListener(this)
+                    binding.recyclerView.viewTreeObserver.removeOnPreDrawListener(this)
 
+                    runWithView(Dispatchers.Main.immediate) {
                         val isLandscape = ContextUtils.getOrientation(appCompatActivity!!) == Configuration.ORIENTATION_LANDSCAPE
                         val viewWidth = binding.recyclerView.measuredWidth
                         val minColumns = if (isLandscape) 2 else 1

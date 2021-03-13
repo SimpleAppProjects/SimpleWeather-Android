@@ -392,7 +392,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 val innerLayout = binding.scrollView.getChildAt(0)
                 val peekContainer = mDrawerView.findViewById<View>(R.id.ws_drawer_view_peek_container)
 
-                innerLayout.post {
+                runWithView {
                     val verticalPadding = resources.getDimensionPixelSize(R.dimen.inner_frame_layout_padding)
                     val mScreenHeight = Resources.getSystem().displayMetrics.heightPixels
                     val mScreenWidth = Resources.getSystem().displayMetrics.widthPixels

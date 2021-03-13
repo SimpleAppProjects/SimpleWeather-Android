@@ -139,14 +139,17 @@ class WeatherChartsFragment : ToolbarFragment() {
 
         args = WeatherChartsFragmentArgs.fromBundle(requireArguments())
 
-        binding.locationHeader.viewTreeObserver.addOnPreDrawListener {
-            if (isViewAlive) {
-                val layoutParams = binding.recyclerView.layoutParams as MarginLayoutParams
-                layoutParams.topMargin = binding.locationHeader.height
-                binding.recyclerView.layoutParams = layoutParams
+        binding.locationHeader.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                binding.locationHeader.viewTreeObserver.removeOnPreDrawListener(this)
+                runWithView(Dispatchers.Main.immediate) {
+                    val layoutParams = binding.recyclerView.layoutParams as MarginLayoutParams
+                    layoutParams.topMargin = binding.locationHeader.height
+                    binding.recyclerView.layoutParams = layoutParams
+                }
+                return true
             }
-            true
-        }
+        })
 
         binding.progressBar.visibility = View.VISIBLE
 

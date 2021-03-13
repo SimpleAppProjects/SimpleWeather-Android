@@ -208,11 +208,12 @@ public class WeatherListFragment extends ToolbarFragment {
         binding.locationHeader.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
-                if (isViewAlive()) {
+                binding.locationHeader.getViewTreeObserver().removeOnPreDrawListener(this);
+                runWithView(() -> {
                     ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.recyclerView.getLayoutParams();
                     layoutParams.topMargin = binding.locationHeader.getHeight();
                     binding.recyclerView.setLayoutParams(layoutParams);
-                }
+                });
                 return true;
             }
         });
@@ -321,11 +322,11 @@ public class WeatherListFragment extends ToolbarFragment {
                             binding.recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                                 @Override
                                 public void onGlobalLayout() {
-                                    if (isViewAlive()) {
-                                        binding.recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                                    binding.recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                                    runWithView(() -> {
                                         layoutManager.scrollToPositionWithOffset(args.getPosition(), 0);
                                         updateHeaderElevation();
-                                    }
+                                    });
                                 }
                             });
                             binding.progressBar.setVisibility(View.GONE);
