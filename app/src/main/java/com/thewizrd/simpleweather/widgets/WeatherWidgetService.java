@@ -147,7 +147,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
          * ie. (screen width x screen height x 4 x 1.5) bytes.
          */
         DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
-        maxBitmapSize = metrics.heightPixels * metrics.widthPixels * 4 * 1.5f;
+        maxBitmapSize = metrics.heightPixels * metrics.widthPixels * 4 * 0.75f;
     }
 
     @Override
@@ -1317,7 +1317,7 @@ public class WeatherWidgetService extends SafeJobIntentService {
          */
         if (maxBitmapSize < 3840000) { // (200 * 4) * (200 * 4) * 4 * 1.5f
             imgWidth = imgHeight = 200;
-        } else if (imgHeight * imgWidth * 4 * 1.5f > maxBitmapSize) {
+        } else if (imgHeight * imgWidth * 4 * 0.75f > maxBitmapSize) {
             switch (provider.getWidgetType()) {
                 default:
                 case Widget1x1:
