@@ -5,7 +5,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -26,6 +25,8 @@ import com.thewizrd.simpleweather.radar.CachingUrlTileProvider;
 import com.thewizrd.simpleweather.radar.MapTileRadarViewProvider;
 
 import java.util.Locale;
+
+import timber.log.Timber;
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class OWMRadarViewProvider extends MapTileRadarViewProvider {
@@ -62,10 +63,10 @@ public class OWMRadarViewProvider extends MapTileRadarViewProvider {
                             getContext(), isNightMode ? R.raw.gmap_dark_style : R.raw.gmap_light_style));
 
             if (!success) {
-                Log.e("RadarView", "Style parsing failed.");
+                Timber.tag("RadarView").e("Style parsing failed.");
             }
         } catch (Resources.NotFoundException e) {
-            Log.e("RadarView", "Can't find style. Error: ", e);
+            Timber.tag("RadarView").e(e, "Can't find style.");
         }
 
         CameraPosition cameraPosition = getMapCameraPosition();
@@ -102,8 +103,7 @@ public class OWMRadarViewProvider extends MapTileRadarViewProvider {
             }
 
             /* Define the URL pattern for the tile images */
-            String s = String.format(Locale.ROOT, "https://tile.openweathermap.org/map/precipitation_new/%d/%d/%d.png?appid=%s", zoom, x, y, Keys.getOWMKey());
-            return s;
+            return String.format(Locale.ROOT, "https://tile.openweathermap.org/map/precipitation_new/%d/%d/%d.png?appid=%s", zoom, x, y, Keys.getOWMKey());
         }
 
         /*
