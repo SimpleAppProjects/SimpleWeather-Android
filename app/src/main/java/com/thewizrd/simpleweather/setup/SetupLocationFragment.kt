@@ -149,7 +149,7 @@ class SetupLocationFragment : CustomFragment() {
         mRequestingLocationUpdates = false
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentSetupLocationBinding.inflate(inflater, container, false)
 
         binding.progressBar.visibility = View.GONE
@@ -285,7 +285,7 @@ class SetupLocationFragment : CustomFragment() {
                 job?.cancel()
 
                 supervisorScope {
-                    job = launch {
+                    job = async(Dispatchers.Unconfined) {
                         updateLocation()
                     }
 
