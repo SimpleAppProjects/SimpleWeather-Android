@@ -151,7 +151,6 @@ public class SettingsActivity extends WearableListenerActivity {
             implements SharedPreferences.OnSharedPreferenceChangeListener, OnBackPressedFragmentListener {
 
         private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
-        private static final int PERMISSION_BGLOCATION_REQUEST_CODE = 1;
 
         // Preference Keys
         private static final String KEY_ABOUTAPP = "key_aboutapp";

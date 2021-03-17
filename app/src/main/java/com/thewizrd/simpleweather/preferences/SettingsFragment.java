@@ -110,7 +110,6 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener, UserThemeMode.OnThemeChangeListener {
 
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
-    private static final int PERMISSION_BGLOCATION_REQUEST_CODE = 1;
 
     // Preference Keys
     private static final String KEY_UNITS = "key_units";
@@ -894,8 +893,6 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                     showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null);
                 }
                 return;
-            case PERMISSION_BGLOCATION_REQUEST_CODE:
-                break;
             default:
                 break;
         }

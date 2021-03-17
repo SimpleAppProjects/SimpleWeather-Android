@@ -171,7 +171,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
 
     private static final int MAX_LOCATIONS = Settings.getMaxLocations();
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 0;
-    private static final int PERMISSION_BGLOCATION_REQUEST_CODE = 1;
     private static final int SETUP_REQUEST_CODE = 10;
 
     // Preference Keys
