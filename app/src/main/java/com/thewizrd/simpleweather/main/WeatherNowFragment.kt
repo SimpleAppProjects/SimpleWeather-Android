@@ -164,7 +164,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
         if (weather != null && weather.isValid) {
             weatherView.updateView(weather)
 
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Unconfined) {
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
                 withContext(Dispatchers.Main) {
                     weatherView.updateBackground()
                 }
@@ -956,7 +956,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
     }
 
     private fun resume() {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Unconfined) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
             val locationChanged = verifyLocationData()
 
             if (locationChanged || wLoader == null) {
@@ -985,7 +985,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
     }
 
     private fun restore() {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Unconfined) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
             launch(Dispatchers.Main.immediate) {
                 // Reset position
                 wNowViewModel.scrollViewPosition = 0

@@ -253,7 +253,7 @@ class SetupFragment : CustomFragment() {
                 job?.cancel()
 
                 supervisorScope {
-                    job = async(Dispatchers.Unconfined) {
+                    job = async(Dispatchers.Default) {
                         updateLocation()
                     }
 

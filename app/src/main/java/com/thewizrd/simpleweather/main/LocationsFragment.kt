@@ -110,7 +110,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
     @WorkerThread
     private suspend fun onWeatherLoaded(location: LocationData, weather: Weather?) {
-        withContext(Dispatchers.Unconfined) {
+        withContext(Dispatchers.Default) {
             Timber.tag(TAG).d("onWeatherLoaded: $location")
             val dataSet = mAdapter.getDataset()
 
@@ -671,7 +671,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                                 .setErrorListener(this@LocationsFragment)
                                 .build())
                         .addOnSuccessListener { weather ->
-                            runWithView(Dispatchers.Unconfined) {
+                            runWithView(Dispatchers.Default) {
                                 onWeatherLoaded(location, weather)
                             }
                         }
@@ -688,7 +688,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                                 .setErrorListener(this@LocationsFragment)
                                 .build())
                         .addOnSuccessListener { weather ->
-                            runWithView(Dispatchers.Unconfined) {
+                            runWithView(Dispatchers.Default) {
                                 onWeatherLoaded(gpsData, weather)
                             }
                         }
@@ -757,7 +757,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                                     .setErrorListener(this@LocationsFragment)
                                     .build())
                             .addOnSuccessListener { weather ->
-                                runWithView(Dispatchers.Unconfined) {
+                                runWithView(Dispatchers.Default) {
                                     onWeatherLoaded(view.locationData!!, weather)
                                 }
                             }
@@ -767,7 +767,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     }
 
     private fun addGPSPanel() {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Unconfined) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
             // Setup saved favorite locations
             val gpsData: LocationData?
             if (Settings.useFollowGPS()) {
@@ -794,7 +794,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                                 .setErrorListener(this@LocationsFragment)
                                 .build())
                         .addOnSuccessListener { weather ->
-                            runWithView(Dispatchers.Unconfined) {
+                            runWithView(Dispatchers.Default) {
                                 onWeatherLoaded(gpsData, weather)
                             }
                         }
@@ -931,7 +931,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             PERMISSION_LOCATION_REQUEST_CODE -> {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Unconfined) {
+                    viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
                         // permission was granted, yay!
                         // Do the task you need to do.
                         val locData = updateLocation()

@@ -475,7 +475,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     }
 
     private fun resume() {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Unconfined) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
             val locationChanged = verifyLocationData()
 
             if (locationChanged || wLoader == null) {
@@ -503,7 +503,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     }
 
     private fun restore() {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Unconfined) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
             supervisorScope {
                 val task = async(Dispatchers.IO) {
                     var forceRefresh = false
