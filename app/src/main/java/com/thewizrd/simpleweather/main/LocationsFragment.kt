@@ -293,12 +293,12 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         if (WearableHelper.isGooglePlayServicesInstalled()) {
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(appCompatActivity!!)
             mLocCallback = object : LocationCallback() {
-                override fun onLocationResult(locationResult: LocationResult) {
+                override fun onLocationResult(locationResult: LocationResult?) {
                     stopLocationUpdates()
                     mMainHandler.removeCallbacks(cancelLocRequestRunner)
 
                     runWithView {
-                        if (locationResult.lastLocation != null) {
+                        if (locationResult?.lastLocation != null) {
                             addGPSPanel()
                         } else {
                             showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)

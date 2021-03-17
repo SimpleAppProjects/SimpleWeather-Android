@@ -3,6 +3,7 @@ package com.thewizrd.shared_resources.controls;
 import android.content.Context;
 import android.text.format.DateFormat;
 
+import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.core.util.ObjectsCompat;
 import androidx.databinding.Bindable;
@@ -67,6 +68,11 @@ public class WeatherNowViewModel extends ObservableViewModel {
     @Bindable
     public String getLocation() {
         return location;
+    }
+
+    @RestrictTo({RestrictTo.Scope.LIBRARY, RestrictTo.Scope.TESTS})
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     @Bindable

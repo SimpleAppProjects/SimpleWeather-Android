@@ -38,6 +38,8 @@ class WeatherUpdaterService : Service() {
     private var mLastWeatherUpdateTime: Long = -1
     private var mLastWidgetUpdateTime: Long = -1
 
+    private val scope = CoroutineScope(Job() + Dispatchers.Default)
+
     companion object {
         const val TAG = "WeatherUpdaterService"
 
@@ -161,8 +163,8 @@ class WeatherUpdaterService : Service() {
                 val appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS)!!
                 val widgetType = WidgetType.valueOf(intent.getIntExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, -1))
 
-                GlobalScope.launch {
-                    withContext(Dispatchers.Unconfined) {
+                scope.launch(Dispatchers.Default) {
+                    withContext(Dispatchers.Default) {
                         val info = WidgetUtils.getWidgetProviderInfoFromType(widgetType)
                                 ?: return@withContext
                         WidgetUpdaterHelper.refreshWidget(applicationContext, info, mAppWidgetManager, appWidgetIds)
@@ -174,8 +176,8 @@ class WeatherUpdaterService : Service() {
                 val widgetType = WidgetType.valueOf(intent.getIntExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, -1))
                 val newOptions = intent.getBundleExtra(WeatherWidgetProvider.EXTRA_WIDGET_OPTIONS)!!
 
-                GlobalScope.launch {
-                    withContext(Dispatchers.Unconfined) {
+                scope.launch(Dispatchers.Default) {
+                    withContext(Dispatchers.Default) {
                         if (Settings.isWeatherLoaded()) {
                             val info = WidgetUtils.getWidgetProviderInfoFromType(widgetType)
                                     ?: return@withContext
@@ -185,25 +187,25 @@ class WeatherUpdaterService : Service() {
                 }.invokeOnCompletion(checkStopSelfCompletionHandler)
             }
             ACTION_RESETGPSWIDGETS -> {
-                GlobalScope.launch {
-                    withContext(Dispatchers.Unconfined) {
+                scope.launch(Dispatchers.Default) {
+                    withContext(Dispatchers.Default) {
                         // GPS feature disabled; reset widget
                         WidgetUpdaterHelper.resetGPSWidgets(applicationContext);
                     }
                 }.invokeOnCompletion(checkStopSelfCompletionHandler)
             }
             ACTION_REFRESHGPSWIDGETS -> {
-                GlobalScope.launch {
-                    withContext(Dispatchers.Unconfined) {
+                scope.launch(Dispatchers.Default) {
+                    withContext(Dispatchers.Default) {
                         WidgetUpdaterHelper.refreshWidgets(applicationContext, Constants.KEY_GPS);
                     }
                 }.invokeOnCompletion(checkStopSelfCompletionHandler)
             }
             ACTION_REFRESHWIDGETS -> {
                 val locationQuery = intent.getStringExtra(EXTRA_LOCATIONQUERY)
-                GlobalScope.launch {
+                scope.launch(Dispatchers.Default) {
                     locationQuery?.let {
-                        withContext(Dispatchers.Unconfined) {
+                        withContext(Dispatchers.Default) {
                             WidgetUpdaterHelper.refreshWidgets(applicationContext, it);
                         }
                     }
@@ -213,8 +215,8 @@ class WeatherUpdaterService : Service() {
                 val appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS)!!
                 val widgetType = WidgetType.valueOf(intent.getIntExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, -1))
 
-                GlobalScope.launch {
-                    withContext(Dispatchers.Unconfined) {
+                scope.launch(Dispatchers.Default) {
+                    withContext(Dispatchers.Default) {
                         val info = WidgetUtils.getWidgetProviderInfoFromType(widgetType)
                                 ?: return@withContext
                         WidgetUpdaterHelper.refreshClock(applicationContext, info, appWidgetIds)
@@ -225,8 +227,8 @@ class WeatherUpdaterService : Service() {
                 val appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS)!!
                 val widgetType = WidgetType.valueOf(intent.getIntExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, -1))
 
-                GlobalScope.launch {
-                    withContext(Dispatchers.Unconfined) {
+                scope.launch(Dispatchers.Default) {
+                    withContext(Dispatchers.Default) {
                         val info = WidgetUtils.getWidgetProviderInfoFromType(widgetType)
                                 ?: return@withContext
                         WidgetUpdaterHelper.refreshDate(applicationContext, info, appWidgetIds)
@@ -271,18 +273,19 @@ class WeatherUpdaterService : Service() {
     }
 
     private fun updateWeather() {
-        GlobalScope.launch {
+        scope.launch(Dispatchers.Default) {
             WeatherUpdaterWorker.executeWork(applicationContext)
         }
     }
 
     private fun updateWidgets() {
-        GlobalScope.launch {
+        scope.launch(Dispatchers.Default) {
             WidgetUpdaterWorker.executeWork(applicationContext)
         }
     }
 
     override fun onDestroy() {
+        scope.cancel()
         stopForeground(true)
         super.onDestroy()
     }

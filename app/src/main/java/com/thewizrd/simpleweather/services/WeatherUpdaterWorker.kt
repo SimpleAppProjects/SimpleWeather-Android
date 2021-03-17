@@ -39,6 +39,7 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.NOT_CHANNEL_ID
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
+import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
 import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
@@ -210,9 +211,12 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     if (Settings.showOngoingNotification()) {
                         WeatherNotificationWorker.refreshNotification(context)
                     }
+
                     if (Settings.useAlerts() && wm.supportsAlerts()) {
                         WeatherAlertHandler.postAlerts(Settings.getHomeData(), weather.weatherAlerts)
                     }
+
+                    ShortcutCreatorWorker.updateShortcuts(context)
 
                     // Update data for Wearables
                     LocalBroadcastManager.getInstance(context)

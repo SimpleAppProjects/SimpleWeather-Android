@@ -367,7 +367,7 @@ public class WidgetUtils {
             Type intArrListType = new TypeToken<ArrayList<Integer>>() {
             }.getType();
             ArrayList<Integer> idList = JSONParser.deserializer(listJson, intArrListType);
-            if (idList != null) {
+            if (idList != null && idList.contains(widgetId)) {
                 idList.remove(Integer.valueOf(widgetId));
 
                 if (idList.size() == 0)

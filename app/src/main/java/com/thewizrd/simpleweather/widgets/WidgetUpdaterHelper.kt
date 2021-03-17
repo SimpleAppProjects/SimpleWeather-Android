@@ -202,9 +202,9 @@ object WidgetUpdaterHelper {
         }
     }
 
-    private suspend fun buildUpdate(context: Context, info: WidgetProviderInfo,
-                                    appWidgetId: Int, location: LocationData,
-                                    weather: WeatherNowViewModel, newOptions: Bundle): RemoteViews {
+    internal suspend fun buildUpdate(context: Context, info: WidgetProviderInfo,
+                                     appWidgetId: Int, location: LocationData,
+                                     weather: WeatherNowViewModel, newOptions: Bundle): RemoteViews {
         // Build an update that holds the updated widget contents
         val updateViews = RemoteViews(context.packageName, info.widgetLayoutId)
         // Widget dimensions
@@ -411,9 +411,9 @@ object WidgetUpdaterHelper {
         return@withContext weather
     }
 
-    private fun buildExtras(context: Context, info: WidgetProviderInfo,
-                            locData: LocationData, weather: Weather,
-                            views: RemoteViews, appWidgetId: Int, newOptions: Bundle) {
+    internal fun buildExtras(context: Context, info: WidgetProviderInfo,
+                             locData: LocationData, weather: Weather,
+                             views: RemoteViews, appWidgetId: Int, newOptions: Bundle) {
         if (WidgetUtils.isForecastWidget(info.widgetType)) {
             buildForecast(context, info, views, appWidgetId,
                     locData, weather, newOptions)
