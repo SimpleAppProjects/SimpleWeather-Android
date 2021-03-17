@@ -6,7 +6,7 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.services.WeatherUpdaterService
 
 class WeatherWidgetProvider4x2Huawei : WeatherWidgetProvider() {
-    override val info: WidgetProviderInfo by lazy { Widget4x2HuaweiInfo() }
+    override val info: WidgetProviderInfo by lazy { Info.getInstance() }
 
     override fun onReceive(context: Context, intent: Intent?) {
         val action = intent?.action
@@ -24,24 +24,25 @@ class WeatherWidgetProvider4x2Huawei : WeatherWidgetProvider() {
             super.onReceive(context, intent)
         }
     }
-}
 
-class Widget4x2HuaweiInfo : WidgetProviderInfo() {
-    // Overrides
-    override val widgetType: WidgetType
-        get() = WidgetType.Widget4x2Huawei
-    override val widgetLayoutId: Int
-        get() = R.layout.app_widget_4x2_huawei
+    class Info private constructor() : WidgetProviderInfo() {
+        override val className: String
+            get() = WeatherWidgetProvider4x2Huawei::class.java.name
+        override val widgetType: WidgetType
+            get() = WidgetType.Widget4x2Huawei
+        override val widgetLayoutId: Int
+            get() = R.layout.app_widget_4x2_huawei
 
-    companion object {
-        private var _instance: WidgetProviderInfo? = null
+        companion object {
+            private var _instance: WidgetProviderInfo? = null
 
-        @JvmStatic
-        fun getInstance(): WidgetProviderInfo {
-            if (_instance == null) {
-                _instance = Widget4x2HuaweiInfo()
+            @JvmStatic
+            fun getInstance(): WidgetProviderInfo {
+                if (_instance == null) {
+                    _instance = Info()
+                }
+                return _instance!!
             }
-            return _instance!!
         }
     }
 }

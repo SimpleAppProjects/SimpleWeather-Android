@@ -4,13 +4,12 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import com.thewizrd.simpleweather.App
 
-abstract class WidgetProviderInfo {
+abstract class WidgetProviderInfo protected constructor() {
     // Fields
     abstract val widgetType: WidgetType
     abstract val widgetLayoutId: Int
+    abstract val className: String
 
-    val className: String
-        get() = this.javaClass.name
     val componentName: ComponentName
         get() = ComponentName(App.instance.appContext, className)
 
@@ -30,4 +29,5 @@ abstract class WidgetProviderInfo {
         get() {
             return instancesCount > 0
         }
+
 }

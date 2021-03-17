@@ -198,8 +198,8 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val root = super.onCreateView(inflater, container, savedInstanceState) as ViewGroup?
-        val inflatedView = root!!.getChildAt(root.childCount - 1)
+        val root = super.onCreateView(inflater, container, savedInstanceState) as ViewGroup
+        val inflatedView = root.getChildAt(root.childCount - 1)
         root.removeView(inflatedView)
         binding = FragmentWidgetSetupBinding.inflate(inflater, root, true)
         binding.layoutContainer.addView(inflatedView)
@@ -672,6 +672,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             }
 
             val widgetView = views.apply(mWidgetViewCtx, binding.widgetContainer)
+            widgetView.minimumWidth = ContextUtils.dpToPx(mWidgetViewCtx, 360f).toInt()
             binding.widgetContainer.addView(widgetView)
 
             updateLocationView()
@@ -840,7 +841,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
                     supervisorScope {
                         // Check location
-                        val task = async(Dispatchers.Unconfined) {
+                        val task = async(Dispatchers.Default) {
                             // Changing location to GPS
                             if (ContextCompat.checkSelfPermission(appCompatActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                                     ContextCompat.checkSelfPermission(appCompatActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -874,8 +875,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                                     lifecycleScope.launch {
                                         Settings.setFollowGPS(true)
 
-                                        // Reset data for widget
-                                        WidgetUtils.deleteWidget(mAppWidgetId)
+                                        // Save data for widget
                                         WidgetUtils.saveLocationData(mAppWidgetId, null)
                                         WidgetUtils.addWidgetId(Constants.KEY_GPS, mAppWidgetId)
                                         finalizeWidgetUpdate()
@@ -892,7 +892,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                     }
                 } else {
                     supervisorScope {
-                        val task = async(Dispatchers.Unconfined) {
+                        val task = async(Dispatchers.Default) {
                             var locData: LocationData? = null
 
                             // Widget ID exists in prefs
@@ -930,8 +930,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                                 val locationData = task.getCompleted()
                                 lifecycleScope.launch {
                                     if (locationData != null) {
-                                        // Save locdata for widget
-                                        WidgetUtils.deleteWidget(mAppWidgetId)
+                                        // Save data for widget
                                         WidgetUtils.saveLocationData(mAppWidgetId, locationData)
                                         WidgetUtils.addWidgetId(locationData.query, mAppWidgetId)
                                         finalizeWidgetUpdate()
@@ -954,6 +953,16 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     }
 
     private fun finalizeWidgetUpdate() {
+        // Save widget preferences
+        WidgetUtils.setWidgetBackground(mAppWidgetId, bgChoicePref.value.toInt())
+        WidgetUtils.setBackgroundColor(mAppWidgetId, bgColorPref.color)
+        WidgetUtils.setTextColor(mAppWidgetId, txtColorPref.color)
+        WidgetUtils.setBackgroundStyle(mAppWidgetId, bgStylePref.value.toInt())
+        WidgetUtils.setLocationNameHidden(mAppWidgetId, hideLocNamePref.isChecked)
+        WidgetUtils.setSettingsButtonHidden(mAppWidgetId, hideSettingsBtnPref.isChecked)
+        WidgetUtils.setForecastOption(mAppWidgetId, fcastOptPref.value.toInt())
+        WidgetUtils.setUseTimeZone(mAppWidgetId, useTimeZonePref.isChecked)
+
         // Trigger widget service to update widget
         WeatherUpdaterService.enqueueWork(appCompatActivity,
                 Intent(appCompatActivity, WeatherUpdaterService::class.java)

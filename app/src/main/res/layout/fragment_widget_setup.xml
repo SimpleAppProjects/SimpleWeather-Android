@@ -29,13 +29,13 @@
                     android:layout_height="wrap_content"
                     android:background="#242424">
 
-                    <FrameLayout
+                    <com.thewizrd.simpleweather.widgets.WidgetPreviewLayout
                         android:id="@+id/widget_container"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center">
 
-                    </FrameLayout>
+                    </com.thewizrd.simpleweather.widgets.WidgetPreviewLayout>
 
                 </FrameLayout>
 

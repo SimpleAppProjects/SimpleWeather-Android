@@ -6,7 +6,7 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.services.WeatherUpdaterService
 
 class WeatherWidgetProvider2x2 : WeatherWidgetProvider() {
-    override val info: WidgetProviderInfo by lazy { Widget2x2Info() }
+    override val info: WidgetProviderInfo by lazy { Info.getInstance() }
 
     override fun onReceive(context: Context, intent: Intent?) {
         val action = intent?.action
@@ -25,24 +25,25 @@ class WeatherWidgetProvider2x2 : WeatherWidgetProvider() {
             super.onReceive(context, intent)
         }
     }
-}
 
-class Widget2x2Info : WidgetProviderInfo() {
-    // Overrides
-    override val widgetType: WidgetType
-        get() = WidgetType.Widget2x2
-    override val widgetLayoutId: Int
-        get() = R.layout.app_widget_2x2
+    class Info private constructor() : WidgetProviderInfo() {
+        override val className: String
+            get() = WeatherWidgetProvider2x2::class.java.name
+        override val widgetType: WidgetType
+            get() = WidgetType.Widget2x2
+        override val widgetLayoutId: Int
+            get() = R.layout.app_widget_2x2
 
-    companion object {
-        private var _instance: WidgetProviderInfo? = null
+        companion object {
+            private var _instance: WidgetProviderInfo? = null
 
-        @JvmStatic
-        fun getInstance(): WidgetProviderInfo {
-            if (_instance == null) {
-                _instance = Widget2x2Info()
+            @JvmStatic
+            fun getInstance(): WidgetProviderInfo {
+                if (_instance == null) {
+                    _instance = Info()
+                }
+                return _instance!!
             }
-            return _instance!!
         }
     }
 }

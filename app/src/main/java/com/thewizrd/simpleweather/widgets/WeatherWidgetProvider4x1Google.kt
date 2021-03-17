@@ -6,7 +6,7 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.services.WeatherUpdaterService
 
 class WeatherWidgetProvider4x1Google : WeatherWidgetProvider() {
-    override val info: WidgetProviderInfo by lazy { Widget4x1GoogleInfo() }
+    override val info: WidgetProviderInfo by lazy { Info.getInstance() }
 
     override fun onReceive(context: Context, intent: Intent?) {
         val action = intent?.action
@@ -19,24 +19,25 @@ class WeatherWidgetProvider4x1Google : WeatherWidgetProvider() {
             super.onReceive(context, intent)
         }
     }
-}
 
-class Widget4x1GoogleInfo : WidgetProviderInfo() {
-    // Overrides
-    override val widgetType: WidgetType
-        get() = WidgetType.Widget4x1Google
-    override val widgetLayoutId: Int
-        get() = R.layout.app_widget_4x1_google
+    class Info private constructor() : WidgetProviderInfo() {
+        override val className: String
+            get() = WeatherWidgetProvider4x1Google::class.java.name
+        override val widgetType: WidgetType
+            get() = WidgetType.Widget4x1Google
+        override val widgetLayoutId: Int
+            get() = R.layout.app_widget_4x1_google
 
-    companion object {
-        private var _instance: WidgetProviderInfo? = null
+        companion object {
+            private var _instance: WidgetProviderInfo? = null
 
-        @JvmStatic
-        fun getInstance(): WidgetProviderInfo {
-            if (_instance == null) {
-                _instance = Widget4x1GoogleInfo()
+            @JvmStatic
+            fun getInstance(): WidgetProviderInfo {
+                if (_instance == null) {
+                    _instance = Info()
+                }
+                return _instance!!
             }
-            return _instance!!
         }
     }
 }

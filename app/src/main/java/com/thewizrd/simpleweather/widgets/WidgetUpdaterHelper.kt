@@ -49,14 +49,14 @@ object WidgetUpdaterHelper {
 
     @JvmStatic
     fun widgetsExist(): Boolean =
-            Widget1x1Info.getInstance().hasInstances ||
-                    Widget2x2Info.getInstance().hasInstances ||
-                    Widget4x1Info.getInstance().hasInstances ||
-                    Widget4x1GoogleInfo.getInstance().hasInstances ||
-                    Widget4x1NotificationInfo.getInstance().hasInstances ||
-                    Widget4x2Info.getInstance().hasInstances ||
-                    Widget4x2ClockInfo.getInstance().hasInstances ||
-                    Widget4x2HuaweiInfo.getInstance().hasInstances
+            WeatherWidgetProvider1x1.Info.getInstance().hasInstances ||
+                    WeatherWidgetProvider2x2.Info.getInstance().hasInstances ||
+                    WeatherWidgetProvider4x1.Info.getInstance().hasInstances ||
+                    WeatherWidgetProvider4x1Google.Info.getInstance().hasInstances ||
+                    WeatherWidgetProvider4x1Notification.Info.getInstance().hasInstances ||
+                    WeatherWidgetProvider4x2.Info.getInstance().hasInstances ||
+                    WeatherWidgetProvider4x2Clock.Info.getInstance().hasInstances ||
+                    WeatherWidgetProvider4x2Huawei.Info.getInstance().hasInstances
 
     suspend fun refreshWidgets(context: Context) {
         coroutineScope {
@@ -64,7 +64,7 @@ object WidgetUpdaterHelper {
 
             launch {
                 try {
-                    val info = Widget1x1Info.getInstance()
+                    val info = WeatherWidgetProvider1x1.Info.getInstance()
                     refreshWidget(context, info, appWidgetManager, info.appWidgetIds)
                 } catch (e: Exception) {
                     //
@@ -73,7 +73,7 @@ object WidgetUpdaterHelper {
 
             launch {
                 try {
-                    val info = Widget2x2Info.getInstance()
+                    val info = WeatherWidgetProvider2x2.Info.getInstance()
                     refreshWidget(context, info, appWidgetManager, info.appWidgetIds)
                 } catch (e: Exception) {
                     //
@@ -82,7 +82,7 @@ object WidgetUpdaterHelper {
 
             launch {
                 try {
-                    val info = Widget4x1Info.getInstance()
+                    val info = WeatherWidgetProvider4x1.Info.getInstance()
                     refreshWidget(context, info, appWidgetManager, info.appWidgetIds)
                 } catch (e: Exception) {
                     //
@@ -91,7 +91,7 @@ object WidgetUpdaterHelper {
 
             launch {
                 try {
-                    val info = Widget4x1GoogleInfo.getInstance()
+                    val info = WeatherWidgetProvider4x1Google.Info.getInstance()
                     refreshWidget(context, info, appWidgetManager, info.appWidgetIds)
                 } catch (e: Exception) {
                     //
@@ -100,7 +100,7 @@ object WidgetUpdaterHelper {
 
             launch {
                 try {
-                    val info = Widget4x1NotificationInfo.getInstance()
+                    val info = WeatherWidgetProvider4x1Notification.Info.getInstance()
                     refreshWidget(context, info, appWidgetManager, info.appWidgetIds)
                 } catch (e: Exception) {
                     //
@@ -109,7 +109,7 @@ object WidgetUpdaterHelper {
 
             launch {
                 try {
-                    val info = Widget4x2Info.getInstance()
+                    val info = WeatherWidgetProvider4x2.Info.getInstance()
                     refreshWidget(context, info, appWidgetManager, info.appWidgetIds)
                 } catch (e: Exception) {
                     //
@@ -118,7 +118,7 @@ object WidgetUpdaterHelper {
 
             launch {
                 try {
-                    val info = Widget4x2ClockInfo.getInstance()
+                    val info = WeatherWidgetProvider4x2Clock.Info.getInstance()
                     refreshWidget(context, info, appWidgetManager, info.appWidgetIds)
                 } catch (e: Exception) {
                     //
@@ -127,13 +127,26 @@ object WidgetUpdaterHelper {
 
             launch {
                 try {
-                    val info = Widget4x2HuaweiInfo.getInstance()
+                    val info = WeatherWidgetProvider4x2Huawei.Info.getInstance()
                     refreshWidget(context, info, appWidgetManager, info.appWidgetIds)
                 } catch (e: Exception) {
                     //
                 }
             }
         }
+    }
+
+    private fun resetWidget(context: Context, appWidgetId: Int, appWidgetManager: AppWidgetManager = AppWidgetManager.getInstance(context)) {
+        val views = RemoteViews(context.packageName, R.layout.app_widget_configure_layout)
+
+        val configureIntent = Intent(context, WeatherWidgetConfigActivity::class.java)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        configureIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+
+        val clickPendingIntent = PendingIntent.getActivity(context, appWidgetId, configureIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        views.setOnClickPendingIntent(R.id.widget, clickPendingIntent)
+
+        appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 
     suspend fun resetGPSWidgets(context: Context) {
@@ -146,17 +159,8 @@ object WidgetUpdaterHelper {
             val appWidgetManager = AppWidgetManager.getInstance(context)
 
             for (appWidgetId in appWidgetIds) {
-                launch(Dispatchers.Unconfined) {
-                    val views = RemoteViews(context.packageName, R.layout.app_widget_configure_layout)
-
-                    val configureIntent = Intent(context, WeatherWidgetConfigActivity::class.java)
-                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                    configureIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-
-                    val clickPendingIntent = PendingIntent.getActivity(context, appWidgetId, configureIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-                    views.setOnClickPendingIntent(R.id.widget, clickPendingIntent)
-
-                    appWidgetManager.updateAppWidget(appWidgetId, views)
+                launch(Dispatchers.Default) {
+                    resetWidget(context, appWidgetId, appWidgetManager)
                 }
             }
         }
@@ -168,7 +172,7 @@ object WidgetUpdaterHelper {
             val appWidgetIds = WidgetUtils.getWidgetIds(location_query)
 
             for (appWidgetId in appWidgetIds) {
-                launch(Dispatchers.Unconfined) {
+                launch(Dispatchers.Default) {
                     val widgetType = WidgetUtils.getWidgetTypeFromID(appWidgetId)
                     val info = WidgetUtils.getWidgetProviderInfoFromType(widgetType)
                             ?: return@launch
@@ -198,6 +202,7 @@ object WidgetUpdaterHelper {
                 }
             } else {
                 Logger.writeLine(Log.DEBUG, "%s: provider: %s; widgetId: %d; Unable to find location data", TAG, info.javaClass.name, appWidgetId)
+                resetWidget(context, appWidgetId, appWidgetManager)
             }
         }
     }
@@ -374,22 +379,6 @@ object WidgetUpdaterHelper {
             Logger.writeLine(Log.DEBUG, "%s: provider: %s; widgetId: %d; Unable to find location data", TAG, info.javaClass.name, appWidgetId)
         }
         return null
-    }
-
-    private suspend fun getWeather(context: Context, info: WidgetProviderInfo,
-                                   appWidgetId: Int, cellWidth: Int): Weather? = withContext(Dispatchers.IO) {
-        var weather: Weather? = null
-
-        if (!WidgetUtils.isForecastWidget(info.widgetType)) {
-            weather = WidgetUtils.getWeatherData(appWidgetId)
-        }
-
-        if (weather == null) {
-            val locData = getLocation(context, appWidgetId) ?: return@withContext null
-            return@withContext loadWeather(info, locData, appWidgetId, cellWidth)
-        }
-
-        return@withContext weather
     }
 
     private suspend fun getWeather(context: Context, info: WidgetProviderInfo, appWidgetId: Int,
@@ -954,7 +943,11 @@ object WidgetUpdaterHelper {
         val isSmallWidth = maxCellWidth.toFloat() / cellWidth <= 1.5f
 
         // Get weather data from cache
-        val locData = getLocation(context, appWidgetId) ?: return
+        val locData = getLocation(context, appWidgetId)
+        if (locData == null) {
+            resetWidget(context, appWidgetId, appWidgetManager)
+            return
+        }
         val weather = getWeather(context, info, appWidgetId, cellWidth, locData) ?: return
 
         val updateViews = RemoteViews(context.packageName, info.widgetLayoutId)

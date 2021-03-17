@@ -7,7 +7,7 @@ import android.widget.RemoteViews
 import com.thewizrd.simpleweather.R
 
 class WeatherWidgetProvider4x1 : WeatherWidgetProvider() {
-    override val info: WidgetProviderInfo by lazy { Widget4x1Info.getInstance() }
+    override val info: WidgetProviderInfo by lazy { Info.getInstance() }
 
     override fun onReceive(context: Context, intent: Intent?) {
         val action = intent?.action
@@ -23,24 +23,25 @@ class WeatherWidgetProvider4x1 : WeatherWidgetProvider() {
             }
         }
     }
-}
 
-class Widget4x1Info : WidgetProviderInfo() {
-    // Overrides
-    override val widgetType: WidgetType
-        get() = WidgetType.Widget4x1
-    override val widgetLayoutId: Int
-        get() = R.layout.app_widget_4x1
+    class Info private constructor() : WidgetProviderInfo() {
+        override val className: String
+            get() = WeatherWidgetProvider4x1::class.java.name
+        override val widgetType: WidgetType
+            get() = WidgetType.Widget4x1
+        override val widgetLayoutId: Int
+            get() = R.layout.app_widget_4x1
 
-    companion object {
-        private var _instance: WidgetProviderInfo? = null
+        companion object {
+            private var _instance: WidgetProviderInfo? = null
 
-        @JvmStatic
-        fun getInstance(): WidgetProviderInfo {
-            if (_instance == null) {
-                _instance = Widget4x1Info()
+            @JvmStatic
+            fun getInstance(): WidgetProviderInfo {
+                if (_instance == null) {
+                    _instance = Info()
+                }
+                return _instance!!
             }
-            return _instance!!
         }
     }
 }
