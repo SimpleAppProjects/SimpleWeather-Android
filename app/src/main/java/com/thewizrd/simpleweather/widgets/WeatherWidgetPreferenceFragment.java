@@ -11,7 +11,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -19,7 +18,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -30,12 +28,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -56,7 +52,6 @@ import androidx.preference.SwitchPreference;
 import androidx.transition.AutoTransition;
 import androidx.transition.TransitionManager;
 
-import com.bumptech.glide.load.DecodeFormat;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
@@ -73,7 +68,6 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.Constants;
-import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.controls.ComboBoxItem;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
@@ -82,30 +76,26 @@ import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.tasks.CallableEx;
 import com.thewizrd.shared_resources.tzdb.TZDBCache;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.CustomException;
-import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
-import com.thewizrd.shared_resources.utils.TransparentOverlay;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
-import com.thewizrd.simpleweather.GlideApp;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentWidgetSetupBinding;
 import com.thewizrd.simpleweather.preferences.ArrayListPreference;
 import com.thewizrd.simpleweather.preferences.ToolbarPreferenceFragmentCompat;
+import com.thewizrd.simpleweather.services.WeatherUpdaterService;
 import com.thewizrd.simpleweather.setup.SetupActivity;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -147,12 +137,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private FragmentWidgetSetupBinding binding;
 
     private CharSequence mLastSelectedValue;
-
-    private boolean isWidgetInit;
-    private WidgetUtils.WidgetBackground mWidgetBackground;
-    private WidgetUtils.WidgetBackgroundStyle mWidgetBGStyle;
-    private int mWidgetBackgroundColor;
-    private int mWidgetTextColor;
 
     private ArrayListPreference locationPref;
     private SwitchPreference hideLocNamePref;
@@ -458,7 +442,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         hideLocNamePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                hideLocNamePref.setChecked((boolean) newValue);
+                WidgetUtils.setLocationNameHidden(mAppWidgetId, (boolean) newValue);
                 updateLocationView();
                 return true;
             }
@@ -467,7 +451,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         hideSettingsBtnPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                hideSettingsBtnPref.setChecked((boolean) newValue);
+                WidgetUtils.setSettingsButtonHidden(mAppWidgetId, (boolean) newValue);
                 updateWidgetView();
                 return true;
             }
@@ -516,6 +500,13 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
                 return true;
             }
         });
+        useTimeZonePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                WidgetUtils.setUseTimeZone(mAppWidgetId, (boolean) newValue);
+                return true;
+            }
+        });
 
         if (WidgetUtils.isClockWidget(mWidgetType)) {
             updateClockPreference();
@@ -547,7 +538,11 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         bgChoicePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                mWidgetBackground = WidgetUtils.WidgetBackground.valueOf(Integer.parseInt(newValue.toString()));
+                final int value = Integer.parseInt(newValue.toString());
+
+                WidgetUtils.WidgetBackground mWidgetBackground = WidgetUtils.WidgetBackground.valueOf(value);
+                WidgetUtils.setWidgetBackground(mAppWidgetId, value);
+
                 updateWidgetView();
 
                 bgColorPref.setVisible(mWidgetBackground == WidgetUtils.WidgetBackground.CUSTOM);
@@ -570,7 +565,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         bgStylePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                mWidgetBGStyle = WidgetUtils.WidgetBackgroundStyle.valueOf(Integer.parseInt(newValue.toString()));
+                WidgetUtils.setBackgroundStyle(mAppWidgetId, Integer.parseInt(newValue.toString()));
                 updateWidgetView();
                 return true;
             }
@@ -579,7 +574,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         bgColorPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                mWidgetBackgroundColor = (Integer) newValue;
+                WidgetUtils.setBackgroundColor(mAppWidgetId, (Integer) newValue);
                 updateWidgetView();
                 return true;
             }
@@ -588,7 +583,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         txtColorPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                mWidgetTextColor = (Integer) newValue;
+                WidgetUtils.setTextColor(mAppWidgetId, (Integer) newValue);
                 updateWidgetView();
                 return true;
             }
@@ -626,10 +621,10 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         bgStylePref.setEntries(styleEntries);
         bgStylePref.setEntryValues(styleEntryValues);
 
-        mWidgetBackground = WidgetUtils.getWidgetBackground(mAppWidgetId);
-        mWidgetBGStyle = WidgetUtils.getBackgroundStyle(mAppWidgetId);
-        mWidgetBackgroundColor = WidgetUtils.getBackgroundColor(mAppWidgetId);
-        mWidgetTextColor = WidgetUtils.getTextColor(mAppWidgetId);
+        WidgetUtils.WidgetBackground mWidgetBackground = WidgetUtils.getWidgetBackground(mAppWidgetId);
+        WidgetUtils.WidgetBackgroundStyle mWidgetBGStyle = WidgetUtils.getBackgroundStyle(mAppWidgetId);
+        @ColorInt int mWidgetBackgroundColor = WidgetUtils.getBackgroundColor(mAppWidgetId);
+        @ColorInt int mWidgetTextColor = WidgetUtils.getTextColor(mAppWidgetId);
 
         if (WidgetUtils.isBackgroundOptionalWidget(mWidgetType)) {
             bgChoicePref.setValueIndex(mWidgetBackground.getValue());
@@ -654,6 +649,7 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         fcastOptPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
+                WidgetUtils.setForecastOption(mAppWidgetId, Integer.parseInt(newValue.toString()));
                 updateWidgetView();
                 return true;
             }
@@ -765,139 +761,6 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     private void initializeWidget() {
         binding.widgetContainer.removeAllViews();
 
-        int widgetLayoutRes = 0;
-        float viewWidth = 0;
-        float viewHeight = 0;
-        float widgetBlockSize = ContextUtils.dpToPx(getAppCompatActivity(), 96);
-
-        switch (mWidgetType) {
-            case Widget1x1:
-                widgetLayoutRes = R.layout.app_widget_1x1;
-                viewHeight = viewWidth = widgetBlockSize * 1f;
-                break;
-            case Widget2x2:
-                widgetLayoutRes = R.layout.app_widget_2x2;
-                viewHeight = viewWidth = widgetBlockSize * 2.5f;
-                break;
-            case Widget4x1:
-                widgetLayoutRes = R.layout.app_widget_4x1;
-                viewWidth = widgetBlockSize * 4;
-                viewHeight = widgetBlockSize * 1.5f;
-                break;
-            case Widget4x2:
-                widgetLayoutRes = R.layout.app_widget_4x2;
-                viewWidth = widgetBlockSize * 4;
-                viewHeight = widgetBlockSize * 2.25f;
-                break;
-            case Widget4x1Google:
-                widgetLayoutRes = R.layout.app_widget_4x1_google;
-                viewWidth = widgetBlockSize * 4;
-                viewHeight = widgetBlockSize * 1.5f;
-                break;
-            case Widget4x1Notification:
-                widgetLayoutRes = R.layout.app_widget_4x1_notification;
-                viewWidth = widgetBlockSize * 4;
-                viewHeight = widgetBlockSize * 1.25f;
-                break;
-            case Widget4x2Clock:
-                widgetLayoutRes = R.layout.app_widget_4x2_clock;
-                viewWidth = widgetBlockSize * 4;
-                viewHeight = widgetBlockSize * 2.25f;
-                break;
-            case Widget4x2Huawei:
-                widgetLayoutRes = R.layout.app_widget_4x2_huawei;
-                viewWidth = widgetBlockSize * 4;
-                viewHeight = widgetBlockSize * 2f;
-                break;
-        }
-
-        if (widgetLayoutRes == 0) {
-            binding.widgetContainer.setVisibility(View.GONE);
-            return;
-        }
-
-        View widgetView = View.inflate(getAppCompatActivity(), widgetLayoutRes, binding.widgetContainer);
-        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) widgetView.getLayoutParams();
-
-        layoutParams.height = (int) viewHeight;
-        layoutParams.width = (int) viewWidth;
-        layoutParams.gravity = Gravity.CENTER;
-
-        widgetView.setLayoutParams(layoutParams);
-
-        if (mWidgetType == WidgetType.Widget2x2) {
-            ViewGroup notif_layout = widgetView.findViewById(R.id.weather_notif_layout);
-            View.inflate(getAppCompatActivity(), R.layout.app_widget_2x2_notif_layout, notif_layout);
-        }
-
-        updateTimeAndDate();
-
-        TextView conditionText = widgetView.findViewById(R.id.condition_weather);
-        if (mWidgetType == WidgetType.Widget2x2 || mWidgetType == WidgetType.Widget4x1Notification) {
-            TextView conditionHi = widgetView.findViewById(R.id.condition_hi);
-            TextView conditionlo = widgetView.findViewById(R.id.condition_lo);
-
-            conditionText.setText("70°F - Sunny");
-            conditionHi.setText("79°");
-            conditionlo.setText("65°");
-        } else if (mWidgetType == WidgetType.Widget4x2 || mWidgetType == WidgetType.Widget4x2Clock) {
-            conditionText.setText("Sunny");
-        } else if (mWidgetType == WidgetType.Widget4x2Huawei) {
-            TextView conditionHiLo = widgetView.findViewById(R.id.condition_hilo);
-            conditionHiLo.setText("79° | 65°");
-        }
-
-        if (mWidgetType != WidgetType.Widget2x2 && mWidgetType != WidgetType.Widget4x1Notification && mWidgetType != WidgetType.Widget4x1) {
-            TextView tempView = widgetView.findViewById(R.id.condition_temp);
-
-            SpannableStringBuilder str = new SpannableStringBuilder()
-                    .append("70");
-            int idx = str.length();
-            str.append("°F");
-
-            tempView.setText(str);
-        }
-
-        if (mWidgetType != WidgetType.Widget4x1) {
-            ImageView iconView = widgetView.findViewById(R.id.weather_icon);
-            iconView.setImageResource(R.drawable.wi_day_sunny);
-        }
-
-        if (isForecastWidget(mWidgetType)) {
-            ViewGroup forecastLayout = binding.widgetContainer.findViewById(R.id.forecast_layout);
-            forecastLayout.removeAllViews();
-
-            int forecastLength = 3;
-            if (mWidgetType == WidgetType.Widget4x2) {
-                forecastLength = 5;
-            }
-
-            ViewGroup container = (ViewGroup) View.inflate(getAppCompatActivity(), R.layout.app_widget_forecast_layout_container, null);
-
-            for (int i = 0; i < forecastLength; i++) {
-                View forecastPanel = View.inflate(getAppCompatActivity(), R.layout.app_widget_forecast_item, null);
-
-                forecastPanel.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
-
-                TextView forecastDate = forecastPanel.findViewById(R.id.forecast_date);
-                forecastDate.setText(LocalDateTime.now().plusDays(i).format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.ABBREV_DAY_OF_THE_WEEK)));
-
-                TextView forecastHi = forecastPanel.findViewById(R.id.forecast_hi);
-                forecastHi.setText(75 + i + "°");
-
-                TextView forecastLo = forecastPanel.findViewById(R.id.forecast_lo);
-                forecastLo.setText(65 - i + "°");
-
-                ImageView forecastIcon = forecastPanel.findViewById(R.id.forecast_icon);
-                forecastIcon.setImageResource(R.drawable.wi_day_sunny);
-
-                container.addView(forecastPanel);
-            }
-
-            forecastLayout.addView(container);
-        }
-
-        isWidgetInit = true;
         updateWidgetView();
     }
 
@@ -910,183 +773,10 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
         }
     }
 
-    private void updateTimeAndDate() {
-        if (binding == null) return;
-
-        LocalDateTime now = LocalDateTime.now();
-
-        if (WidgetUtils.isDateWidget(mWidgetType)) {
-            String datePattern;
-            if (mWidgetType == WidgetType.Widget2x2) {
-                datePattern = DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_LONG_DATE_FORMAT);
-            } else if (mWidgetType == WidgetType.Widget4x1Google) {
-                datePattern = DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_WDAY_ABBR_MONTH_FORMAT);
-            } else {
-                datePattern = DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_SHORT_DATE_FORMAT);
-            }
-
-            TextClock dateClock = binding.widgetContainer.findViewById(R.id.date_panel);
-            dateClock.setFormat12Hour(datePattern);
-            dateClock.setFormat24Hour(datePattern);
-        }
-    }
-
     private void updateWidgetView() {
-        if (!isWidgetInit) return;
+        // Create view
 
         updateLocationView();
-
-        final int currentNightMode = getAppCompatActivity().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        boolean isNightMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
-
-        if (WidgetUtils.isBackgroundOptionalWidget(mWidgetType)) {
-            ViewGroup bgContainer = binding.widgetContainer.findViewById(R.id.panda_container);
-            if (mWidgetType == WidgetType.Widget2x2 || mWidgetType == WidgetType.Widget4x2) {
-                bgContainer.removeAllViews();
-                View.inflate(getAppCompatActivity(), R.layout.layout_panda_bg, bgContainer);
-            }
-
-            int backgroundColor;
-            switch (mWidgetBackground) {
-                case CUSTOM:
-                    backgroundColor = mWidgetBackgroundColor;
-                    break;
-                case TRANSPARENT:
-                default:
-                    backgroundColor = Colors.TRANSPARENT;
-                    break;
-            }
-
-            ImageView pandaBG = binding.widgetContainer.findViewById(R.id.panda_background);
-            ImageView widgetBG = binding.widgetContainer.findViewById(R.id.widgetBackground);
-
-            if (mWidgetBackground == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
-                if (pandaBG != null) {
-                    if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.PANDA) {
-                        pandaBG.setImageResource(R.drawable.widget_background);
-                        pandaBG.setColorFilter(isNightMode ? Colors.BLACK : Colors.WHITE);
-                    } else if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.PENDINGCOLOR) {
-                        pandaBG.setImageResource(R.drawable.widget_background);
-                        pandaBG.setColorFilter(0xFF698AC1);
-                    } else if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.LIGHT) {
-                        pandaBG.setImageResource(R.drawable.widget_background);
-                        pandaBG.setColorFilter(Colors.WHITE);
-                    } else if (mWidgetBGStyle == WidgetUtils.WidgetBackgroundStyle.DARK) {
-                        pandaBG.setImageResource(R.drawable.widget_background);
-                        pandaBG.setColorFilter(Colors.BLACK);
-                    } else {
-                        if (bgContainer != null) bgContainer.removeAllViews();
-                    }
-                }
-
-                widgetBG.setColorFilter(backgroundColor);
-                widgetBG.setImageAlpha(0xFF);
-
-                GlideApp.with(this)
-                        .load("file:///android_asset/backgrounds/day.jpg")
-                        .format(DecodeFormat.PREFER_RGB_565)
-                        .centerCrop()
-                        .transform(new TransparentOverlay(0x33))
-                        .thumbnail(0.75f)
-                        .into(widgetBG);
-            } else if (mWidgetBackground == WidgetUtils.WidgetBackground.TRANSPARENT) {
-                widgetBG.setImageResource(R.drawable.widget_background);
-                widgetBG.setColorFilter(Colors.BLACK);
-                widgetBG.setImageAlpha(0x00);
-                if (pandaBG != null) {
-                    pandaBG.setColorFilter(Colors.TRANSPARENT);
-                    pandaBG.setImageBitmap(null);
-                }
-            } else {
-                widgetBG.setImageDrawable(new ColorDrawable(backgroundColor));
-                widgetBG.setColorFilter(Colors.TRANSPARENT);
-                widgetBG.setImageAlpha(0xFF);
-                if (pandaBG != null) {
-                    pandaBG.setColorFilter(Colors.TRANSPARENT);
-                    pandaBG.setImageBitmap(null);
-                }
-            }
-        }
-
-        // Set text color
-        int textColor = mWidgetBackground != WidgetUtils.WidgetBackground.CUSTOM ? WidgetUtils.getTextColor(mAppWidgetId, mWidgetBackground) : mWidgetTextColor;
-        int panelTextColor = mWidgetBackground != WidgetUtils.WidgetBackground.CUSTOM ? WidgetUtils.getPanelTextColor(mAppWidgetId, mWidgetBackground, mWidgetBGStyle, isNightMode) : mWidgetTextColor;
-
-        if (mWidgetType != WidgetType.Widget2x2 &&
-                mWidgetType != WidgetType.Widget4x1Google &&
-                mWidgetType != WidgetType.Widget4x1Notification &&
-                mWidgetType != WidgetType.Widget4x2Clock &&
-                mWidgetType != WidgetType.Widget4x1) {
-            TextView tempView = binding.widgetContainer.findViewById(R.id.condition_temp);
-            tempView.setTextColor(textColor);
-        }
-
-        boolean is4x2 = mWidgetType == WidgetType.Widget4x2;
-
-        if (mWidgetType != WidgetType.Widget4x1) {
-            ImageView iconView = binding.widgetContainer.findViewById(R.id.weather_icon);
-            iconView.setColorFilter(is4x2 ? textColor : panelTextColor);
-        }
-
-        TextView locationView = binding.widgetContainer.findViewById(R.id.location_name);
-        locationView.setTextColor(is4x2 ? textColor : panelTextColor);
-
-        if (mWidgetType != WidgetType.Widget4x1Google && mWidgetType != WidgetType.Widget4x1 && mWidgetType != WidgetType.Widget1x1 && mWidgetType != WidgetType.Widget4x2Huawei) {
-            TextView conditionText = binding.widgetContainer.findViewById(R.id.condition_weather);
-            conditionText.setTextColor(is4x2 ? textColor : panelTextColor);
-        }
-
-        if (mWidgetType == WidgetType.Widget2x2 || mWidgetType == WidgetType.Widget4x1Notification) {
-            TextView conditionHi = binding.widgetContainer.findViewById(R.id.condition_hi);
-            TextView divider = binding.widgetContainer.findViewById(R.id.divider);
-            TextView conditionLo = binding.widgetContainer.findViewById(R.id.condition_lo);
-            ImageView hiIconView = binding.widgetContainer.findViewById(R.id.hi_icon);
-            ImageView loIconView = binding.widgetContainer.findViewById(R.id.lo_icon);
-
-            conditionHi.setTextColor(panelTextColor);
-            divider.setTextColor(panelTextColor);
-            conditionLo.setTextColor(panelTextColor);
-            hiIconView.setColorFilter(panelTextColor);
-            loIconView.setColorFilter(panelTextColor);
-        }
-
-        if (WidgetUtils.isDateWidget(mWidgetType)) {
-            TextView dateText = binding.widgetContainer.findViewById(R.id.date_panel);
-            dateText.setTextColor(textColor);
-        }
-
-        if (WidgetUtils.isClockWidget(mWidgetType)) {
-            TextView clockView = binding.widgetContainer.findViewById(R.id.clock_panel);
-            clockView.setTextColor(textColor);
-        }
-
-        if (WidgetUtils.isForecastWidget(mWidgetType)) {
-            ViewGroup forecastLayout = binding.widgetContainer.findViewById(R.id.forecast_layout);
-            if (forecastLayout != null) {
-                updateTextViewColor(forecastLayout, panelTextColor);
-            }
-        }
-
-        ImageView settButton = binding.widgetContainer.findViewById(R.id.settings_button);
-        settButton.setColorFilter(textColor);
-        settButton.setVisibility(hideSettingsBtnPref.isChecked() ? View.GONE : View.VISIBLE);
-    }
-
-    private void updateTextViewColor(View view, int textColor) {
-        if (view instanceof ViewGroup) {
-            ViewGroup viewGroup = (ViewGroup) view;
-            int childCount = viewGroup.getChildCount();
-
-            for (int i = 0; i < childCount; i++) {
-                updateTextViewColor(viewGroup.getChildAt(i), textColor);
-            }
-        } else if (view instanceof TextView) {
-            TextView textView = (TextView) view;
-            textView.setTextColor(textColor);
-        } else if (view instanceof ImageView) {
-            ImageView imageView = (ImageView) view;
-            imageView.setColorFilter(textColor);
-        }
     }
 
     @Override
@@ -1345,20 +1035,10 @@ public class WeatherWidgetPreferenceFragment extends ToolbarPreferenceFragmentCo
     }
 
     private void finalizeWidgetUpdate() {
-        // Save widget preferences
-        WidgetUtils.setWidgetBackground(mAppWidgetId, mWidgetBackground.getValue());
-        WidgetUtils.setBackgroundColor(mAppWidgetId, mWidgetBackgroundColor);
-        WidgetUtils.setTextColor(mAppWidgetId, mWidgetTextColor);
-        WidgetUtils.setBackgroundStyle(mAppWidgetId, mWidgetBGStyle.getValue());
-        WidgetUtils.setLocationNameHidden(mAppWidgetId, hideLocNamePref.isChecked());
-        WidgetUtils.setSettingsButtonHidden(mAppWidgetId, hideSettingsBtnPref.isChecked());
-        WidgetUtils.setForecastOption(mAppWidgetId, Integer.parseInt(fcastOptPref.getValue()));
-        WidgetUtils.setUseTimeZone(mAppWidgetId, useTimeZonePref.isChecked());
-
         // Trigger widget service to update widget
-        WeatherWidgetService.enqueueWork(getAppCompatActivity(),
-                new Intent(getAppCompatActivity(), WeatherWidgetService.class)
-                        .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET)
+        WeatherUpdaterService.enqueueWork(getAppCompatActivity(),
+                new Intent(getAppCompatActivity(), WeatherUpdaterService.class)
+                        .setAction(WeatherUpdaterService.ACTION_REFRESHWIDGET)
                         .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, new int[]{mAppWidgetId})
                         .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, mWidgetType.getValue()));
 
