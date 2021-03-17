@@ -179,8 +179,6 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
     }
 
     private object WeatherUpdaterHelper {
-        private const val TAG = "WeatherUpdaterHelper"
-
         suspend fun executeWork(context: Context): Boolean {
             val wm = WeatherManager.getInstance()
 
@@ -191,9 +189,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 if (Settings.useFollowGPS()) {
                     try {
                         updateLocation()
-                    } catch (e: ExecutionException) {
-                        Logger.writeLine(Log.ERROR, e)
-                    } catch (e: InterruptedException) {
+                    } catch (e: Exception) {
                         Logger.writeLine(Log.ERROR, e)
                     }
                 }
@@ -225,10 +221,12 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     LocalBroadcastManager.getInstance(context)
                             .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
                 } else {
+                    Timber.tag(TAG).i("Work failed...")
                     return false
                 }
             }
 
+            Timber.tag(TAG).i("Work completed successfully...")
             return true
         }
 

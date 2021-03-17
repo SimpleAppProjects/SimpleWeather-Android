@@ -9,11 +9,10 @@ import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
 import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
-    private val mContext = context.applicationContext
-
     companion object {
         private const val TAG = "WidgetUpdaterWorker"
 
@@ -109,6 +108,8 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
 
                 ShortcutCreatorWorker.updateShortcuts(context)
             }
+
+            Timber.tag(TAG).i("Work completed successfully...")
         }
     }
 }
